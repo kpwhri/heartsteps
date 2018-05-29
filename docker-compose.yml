@@ -12,3 +12,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
+  client:
+    build: ./client/
+    volumes:
+      - ./client:/code
+    ports:
+      - "8100:8100"

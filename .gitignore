@@ -3,3 +3,12 @@ env/
 build/
 .pyc
 __pycache__/
+.vscode/
+
+.sourcemaps
+node_modules
+resources/android
+resources/ios
+www
+
+app.yaml
