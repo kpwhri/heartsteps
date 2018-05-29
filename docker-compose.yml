@@ -3,11 +3,11 @@ version: '2'
 services:
   db:
     image: postgres
-  api:
-    build: ./api/
+  server:
+    build: ./server/
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./api:/code
+      - ./server:/code
     ports:
       - "8000:8000"
     depends_on:
@@ -18,3 +18,6 @@ services:
       - ./client:/code
     ports:
       - "8100:8100"
+    depends_on:
+      - db
+      - server
