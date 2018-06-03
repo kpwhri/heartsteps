@@ -14,6 +14,7 @@ services:
       - db
   client:
     build: ./client/
+    command: ionic serve
     volumes:
       - ./client:/code
     ports:
