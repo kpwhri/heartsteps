@@ -4,16 +4,25 @@ services:
   db:
     image: postgres
   server:
-    build: ./server/
+    build: ./server
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./server:/code
+      - ./server:/server
     ports:
       - "8000:8000"
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD
+      - DATABASE_HOST=db
+      - DATABASE_POST=5432
     depends_on:
       - db
   client:
-    build: ./client/
+    build: ./client
+    command: ionic serve
     volumes:
       - ./client:/code
     ports:
