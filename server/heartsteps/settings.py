@@ -1,19 +1,18 @@
-import os
+import os, environ
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+env.read_env('/server/.env')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SECRET_KEY = env('SECRET_KEY', default='secret-key')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+DEBUG = env('DEBUG')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
-
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS','').split(',')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -66,11 +65,11 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DATABASE_NAME'),
-        'USER': os.environ.get('DATABASE_USER'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': os.environ.get('DATABASE_HOST'),
-        'PORT': os.environ.get('DATABASE_PORT'),
+        'NAME': env('DATABASE_NAME', default='postgres'),
+        'USER': env('DATABASE_USER', default='postgres'),
+        'PASSWORD': env('DATABASE_PASSWORD', default=""),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT', default='5432'),
     }
 }
 

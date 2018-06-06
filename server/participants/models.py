@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class GoodMorningMessage(EndpointsModel):
+class GoodMorningMessage(models.Model):
     """
     Represents a good morning intervention message
     """
@@ -11,13 +11,13 @@ class GoodMorningMessage(EndpointsModel):
     server_created_dtm = models.DateTimeField()
     send_motivation_message = models.BooleanField()
     # Or maybe IntegerField()?
-    motivation_message_list_id = models.ForeignKey(MotivationMessageList)
+    #motivation_message_list_id = models.ForeignKey(MotivationMessageList)
     send_suggested_step_count = models.BooleanField()
     suggested_step_count = models.IntegerField()
     weather_temperature = models.IntegerField()
     # Where are we getting this from?
     # Should this tie out to a record in WeatherHistory table instead?
-    weather_city_state = models.StringField()
+    weather_city_state = models.TextField()
     # When the app received the message
     app_received_dtm = models.DateTimeField()
     app_received_tz = models.DateTimeField()
@@ -42,9 +42,9 @@ class Participant(models.Model):
     user = models.ForeignKey(User)
     heartsteps_id = models.CharField(max_length=10)
     enrollment_token = models.CharField(max_length=10)
-    access_token = models.CharField()
-    firebase_token = models.CharField()
-    preferred_timezone = models.CharField()
+    access_token = models.CharField(max_length=10)
+    firebase_token = models.CharField(max_length=10)
+    preferred_timezone = models.CharField(max_length=5)
     do_not_disturb = models.BooleanField(default=True)
     server_created_dtm = models.DateTimeField()
 
@@ -61,8 +61,8 @@ class UserHealthData(models.Model):
     )
     participant = models.ForeignKey(Participant)
     uhd_type = models.IntegerField(choices=UHD_TYPE_CHOICES)
-    value = models.CharField()
-    unit = models.CharField()
+    value = models.CharField(max_length=20)
+    unit = models.CharField(max_length=10)
     app_sent_dtm = models.DateTimeField()
     app_sent_tz = models.DateTimeField()
     app_sent_offset = models.IntegerField()
@@ -73,12 +73,12 @@ class WeatherForecast(models.Model):
     """
     Represents an hourly weather forecast from our weather API
     """
-    weather_id = models.StringField()
+    weather_id = models.TextField()
     latitude = models.FloatField()
     longitude = models.FloatField()
     time = models.DateTimeField()
     precip_probability = models.FloatField()
-    precip_type = models.StringField()
+    precip_type = models.TextField()
     temperature = models.FloatField()
     apparent_temperature = models.FloatField()
     wind_speed = models.FloatField()
