@@ -6,5 +6,6 @@ djangorestframework==3.8.2
 gunicorn==19.8.1
 Markdown==2.6.11
 psycopg2-binary==2.7.4
+python-dotenv==0.8.2
 pytz==2018.4
 six==1.11.0
