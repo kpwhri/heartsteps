@@ -5,19 +5,12 @@ services:
     image: postgres
   server:
     build: ./server
-    command: python3 manage.py runserver 0.0.0.0:8000
+    env_file: ./server/.env
+    command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server
     ports:
-      - "8000:8000"
-    environment:
-      - ALLOWED_HOSTS=localhost,127.0.0.1
-      - DEBUG=True
-      - DATABASE_NAME=postgres
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD
-      - DATABASE_HOST=db
-      - DATABASE_POST=5432
+      - "8080:8080"
     depends_on:
       - db
   client:
