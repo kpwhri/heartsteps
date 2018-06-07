@@ -5,7 +5,7 @@ services:
     image: postgres
   server:
     build: ./server
-    env_file: ./server/.env
+    env_file: .env
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server
@@ -15,6 +15,7 @@ services:
       - db
   client:
     build: ./client
+    env_file: .env
     command: ionic serve
     volumes:
       - ./client:/client
