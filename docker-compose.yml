@@ -17,7 +17,7 @@ services:
     build: ./client
     command: ionic serve
     volumes:
-      - ./client:/code
+      - ./client:/client
     ports:
       - "8100:8100"
     depends_on:
