@@ -10,7 +10,7 @@ from .models import Participant
 def enroll(request):
     if request.method == 'POST' and request.data.get('enrollment_token'):
         try:
-            participant = Participant.objects.get()
+            participant = Participant.objects.get(enrollment_token=request.data.get('enrollment_token'))
             token, created = Token.objects.get_or_create(user=participant.user)
             return Response({
                 'token': token.key,

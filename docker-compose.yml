@@ -21,6 +21,8 @@ services:
       - ./client:/client
     ports:
       - "8100:8100"
+      - "35729:35729" # live reload
+      - "53703:53703" # Dev-app
     depends_on:
       - db
       - server
