@@ -22,7 +22,6 @@ export class EnrollPage {
   enrollmentService:EnrollmentService;
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
-
     this.enrollmentService = new EnrollmentService();
   }
 
