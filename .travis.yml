@@ -13,4 +13,8 @@ script:
 - docker-compose build client
 
 deploy:
-- gcloud app deploy
+  provider: script
+  script: deploy.sh
+  on:
+    tags: true
+    all_branches: true
