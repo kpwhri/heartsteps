@@ -10,7 +10,8 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk
 
 script:
-- cp .env-server server/.env
+- cp .env-server .env
+- cp .env-server server/.env # adds .env file into docker-image
 - docker-compose build server
 - docker-compose build client
 
