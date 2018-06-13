@@ -2,8 +2,17 @@ import os, environ
 
 env = environ.Env()
 
+if(os.path.exists('/server/.env')):
+    env.read_env('/server/.env')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+root = environ.Path(BASE_DIR)
+SITE_ROOT = root()
+
+STATIC_ROOT = root('static')
+STATIC_URL = '/static/'
 
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
 
