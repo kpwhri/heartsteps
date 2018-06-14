@@ -35,4 +35,8 @@ docker-compose run --service-ports client bash
 ```
 
 ## Deployment
-STUB
+This application is automatically tested and deployed to the google cloud by Travis-CI. See .travis-ci.yml for details of the CI/CD process.
+
+Here is a list of the environment variables that need to get set up in Travis-CI to run the CI/CD process:
+* *GAE_PROJECT_ID* is the project ID for the google cloud project
+* *GAE_STATIC_BUCKET* is the name of the google cloud storage bucket to upload Django's static files to
