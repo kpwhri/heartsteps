@@ -19,6 +19,7 @@ after_success:
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
+- gcloud config set project ${GAE_PROJECT_ID}
 # migrate database
 - docker-compose run server python3 manage.py migrate
 # upload server static files to gae
