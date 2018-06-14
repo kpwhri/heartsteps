@@ -122,7 +122,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+STATIC_URL = '/static/'
 cloud_storage_bucket = env('CLOUD_STORAGE_BUCKET')
 if cloud_storage_bucket:
     STATIC_URL= 'https://storage.googleapis.com/%s/static' % cloud_storage_bucket
-STATIC_URL = '/static/'
