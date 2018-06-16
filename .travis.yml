@@ -11,7 +11,7 @@ install:
 
 script:
 - docker-compose run server python manage.py test
-- docker-compose run client
+- docker-compose run client ionic build
 
 after_success:
 # move client files into server
