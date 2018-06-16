@@ -11,8 +11,6 @@ SITE_ROOT = root()
 STATIC_ROOT = root('static')
 STATIC_URL = '/static/'
 
-print(env('HOST_NAME', default="none"))
-
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost').split(',')
