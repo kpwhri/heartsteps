@@ -10,24 +10,22 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk
 
 script:
-- cp .env-server .env
-- source .env
 - docker-compose run server python manage.py test
-- docker-compose run client npm build test
+- docker-compose run client
 
 after_success:
+# move client files into server
+- cp client/www server/app
+# collect static files for server
+- docker-compose run server python manage.py collectstatic
+# build the server image
+- docker-compose build server
+# migrate database
+- docker run heartsteps_server python manage.py migrate
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
-# migrate database
-- docker-compose run server python manage.py migrate
-# upload server static files to gae
-- docker-compose run server python manage.py collectstatic
-# move client files into server
-- cp client/www server/app
-# build the server image
-- docker-compose build server
 # upload client web app to gae
 - docker tag heartsteps_server us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1
 - docker push us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1

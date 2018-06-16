@@ -11,7 +11,11 @@ services:
       - SECRET_KEY
       - DATABASE_URL
       - GCLOUD_DB_INSTANCE
-    env_file: .env
+    environment:
+      - DEBUG=True
+      - HOST_NAME=localhost
+      - SECRET_KEY=secret_key
+      - DATABASE_URL=psql://postgres@db:5432/postgres
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server
@@ -21,7 +25,6 @@ services:
       - db
   client:
     build: ./client
-    env_file: .env
     command: ionic serve
     volumes:
       - ./client:/client
