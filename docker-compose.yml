@@ -4,7 +4,13 @@ services:
   db:
     image: postgres
   server:
-    build: ./server
+    build:
+      context: ./server
+      args:
+      - HOST_NAME
+      - SECRET_KEY
+      - DATABASE_URL
+      - GCLOUD_DB_INSTANCE
     env_file: .env
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:

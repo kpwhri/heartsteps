@@ -2,9 +2,6 @@ import os, environ
 
 env = environ.Env()
 
-if(os.path.exists('/server/.env')):
-    env.read_env('/server/.env')
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,11 +11,11 @@ SITE_ROOT = root()
 STATIC_ROOT = root('static')
 STATIC_URL = '/static/'
 
+print(env('HOST_NAME', default="none"))
+
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
-
-DEBUG = env('DEBUG', default=False)
-
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='').split(',')
+DEBUG = env.bool('DEBUG', default=False)
+ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost').split(',')
 
 
 # Application definition
@@ -29,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles'
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
     'participants',
@@ -38,7 +35,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -76,14 +72,7 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DATABASE_NAME', default='postgres'),
-        'USER': env('DATABASE_USER', default='postgres'),
-        'PASSWORD': env('DATABASE_PASSWORD', default=""),
-        'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT', default='5432'),
-    }
+    'default': env.db(),
 }
 
 # Password validation
@@ -117,12 +106,3 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-
-STATIC_URL = '/static/'
-cloud_storage_bucket = env('CLOUD_STORAGE_BUCKET')
-if cloud_storage_bucket:
-    STATIC_URL= 'https://storage.googleapis.com/%s/static' % cloud_storage_bucket

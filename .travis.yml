@@ -11,9 +11,9 @@ install:
 
 script:
 - cp .env-server .env
-- cp .env-server server/.env # adds .env file into docker-image
-- docker-compose build server
-- docker-compose build client
+- source .env
+- docker-compose run server python manage.py test
+- docker-compose run client npm build test
 
 after_success:
 # login with gcloud
@@ -21,12 +21,14 @@ after_success:
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
 # migrate database
-- docker-compose run server python3 manage.py migrate
+- docker-compose run server python manage.py migrate
 # upload server static files to gae
-- docker-compose run server python3 manage.py collectstatic
-- gsutil rsync -R server/static gs://${GAE_STATIC_BUCKET}
+- docker-compose run server python manage.py collectstatic
+# move client files into server
+- cp client/www server/app
+# build the server image
+- docker-compose build server
 # upload client web app to gae
-# deploy new server images to gae
 - docker tag heartsteps_server us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1
 - docker push us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1
 - gcloud app deploy app.yaml --image-url=us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1 -q
