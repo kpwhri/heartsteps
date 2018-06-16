@@ -8,5 +8,5 @@ ENV CHOKIDAR_USEPOLLING 1
 
 RUN npm install cordova ionic sass -g
 
-CMD npm install && \
+CMD npm install -y && \
     ionic build
