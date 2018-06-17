@@ -29,8 +29,10 @@ ENV GCLOUD_DB_INSTANCE ${GCLOUD_DB_INSTANCE}
 ARG DATABASE_URL
 ENV DATABASE_URL ${DATABASE_URL}
 
-ARG DATABASE_URL
-ENV DATABASE_URL ${DATABASE_URL}
+ARG DEBUG
+ENV DEBUG ${DEBUG}
+
+RUN cloud_sql_proxy -instances=$GCLOUD_DB_INSTANCE=tcp:5432 -credential_file=gce.json &
 
 # Run the server
 CMD supervisord -n -c supervisord.conf
