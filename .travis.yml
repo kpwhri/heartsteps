@@ -11,11 +11,13 @@ install:
 
 script:
 - docker-compose run server python manage.py test
-#- docker-compose run client ionic build
+# Build client (for now)
+- docker-compose run client npm install
+- docker-compose run client ionic build --prod
 
 after_success:
 # move client files into server
-#- cp client/www server/app
+- cp client/www server/app
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
 # build the server image
