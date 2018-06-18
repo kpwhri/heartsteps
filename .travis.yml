@@ -21,13 +21,13 @@ after_success:
 # build the server image
 - docker-compose build server
 # migrate database
-- docker run heartsteps_server python manage.py migrate
+- docker run heartsteps_server migrate.sh
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
 # upload client web app to gae
-- docker tag heartsteps_server us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1
-- docker push us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1
-- gcloud app deploy app.yaml --image-url=us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:v1 -q
+- docker tag heartsteps_server us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:latest
+- docker push us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:latest
+- gcloud app deploy app.yaml --image-url=us.gcr.io/${GAE_PROJECT_ID}/heartsteps_server:latest -q
 # upload ionic app to ionic pro

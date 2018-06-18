@@ -11,6 +11,7 @@ services:
       - SECRET_KEY
       - DATABASE_URL
       - GCLOUD_DB_INSTANCE
+      - DEBUG
     environment:
       - DEBUG=True
       - HOST_NAME=localhost
