@@ -21,7 +21,7 @@ after_success:
 # build the server image
 - docker-compose build server
 # migrate database
-- docker run heartsteps_server migrate.sh
+- docker run heartsteps_server ./migrate.sh
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
