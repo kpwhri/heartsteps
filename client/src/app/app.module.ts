@@ -7,24 +7,23 @@ import { StatusBar } from '@ionic-native/status-bar';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
-import { EnrollPage } from '../pages/enroll/enroll';
+import { EnrollPageModule } from '../pages/enroll/enroll.module';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage,
-    EnrollPage
+    HomePage
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    EnrollPageModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage,
-    EnrollPage
+    HomePage
   ],
   providers: [
     StatusBar,
