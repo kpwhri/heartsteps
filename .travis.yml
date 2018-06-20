@@ -17,7 +17,7 @@ script:
 
 after_success:
 # move client files into server
-- cp client/www server/app
+- cp -r client/www server/app
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
 # build the server image
