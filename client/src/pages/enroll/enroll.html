@@ -22,5 +22,7 @@
       <ion-input type="text" [(ngModel)]="enrollmentToken" name="enrollmentToken"></ion-input>
     </ion-item>
   </form>
+  <p *ngIf="errorMessage">{{errorMessage}}</p>
+
 
 </ion-content>

@@ -13,8 +13,9 @@ STATIC_URL = '/static/'
 
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost').split(',')
 
+#ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'server']
 
 # Application definition
 

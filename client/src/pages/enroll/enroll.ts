@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { EnrollmentService } from '../../heartsteps/enrollment.service';
+import { HomePage } from '../home/home';
 
 /**
  * Generated class for the EnrollPage page.
@@ -13,11 +14,13 @@ import { EnrollmentService } from '../../heartsteps/enrollment.service';
 @Component({
   selector: 'page-enroll',
   templateUrl: 'enroll.html',
+  providers: [ EnrollmentService ]
 })
 export class EnrollPage {
 
   // Enrollment token enterd by user
   enrollmentToken:String;
+  errorMessage:String;
 
   constructor(private enrollmentService: EnrollmentService, public navCtrl: NavController, public navParams: NavParams) {}
 
@@ -26,12 +29,15 @@ export class EnrollPage {
       return;
     }
 
+    let service = this;
+    service.errorMessage = null;
+    
     this.enrollmentService.enroll(this.enrollmentToken)
-    .then(function(response) {
-      // go to success page
+    .then(function() {
+      this.navCtrl.setRoot(HomePage)
     })
     .catch(function(){
-      // show error message
+      service.errorMessage = "Invalid token"
     })
 
     

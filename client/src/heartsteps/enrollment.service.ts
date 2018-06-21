@@ -11,23 +11,21 @@ declare var process: {
 @Injectable()
 export class EnrollmentService {
 
-    authorizationService: AuthorizationService;
+    constructor(private authorizationService:AuthorizationService) {}
 
-    constructor(authorizationService:AuthorizationService) {}
-
-    enroll(enrollment_token:String) {
-        console.log(process.env.HEARTSTEPS_URL);
-        return axios.post("http://localhost:8080/enroll",{
-            enrollment_token: enrollment_token
-        })
-        .then((response) => {
-            console.log(response);
-            this.authorizationService.setAuthToken(response.data.enrollment_token);
-            return true;
-        })
-        .catch((error) => {
-            console.log(error);
-            return false;
+    enroll(enrollment_token:String) :Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const url:string = process.env.HEARTSTEPS_URL;
+            return axios.post(url+"/enroll",{
+                enrollment_token: enrollment_token
+            })
+            .then((response) => {
+                this.authorizationService.setAuthToken(response.data.token);
+                resolve();
+            })
+            .catch((error) => {
+                reject();
+            });
         })
     }
 }
