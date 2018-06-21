@@ -19,11 +19,7 @@ export class EnrollPage {
   // Enrollment token enterd by user
   enrollmentToken:String;
 
-  enrollmentService:EnrollmentService;
-
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-    this.enrollmentService = new EnrollmentService();
-  }
+  constructor(private enrollmentService: EnrollmentService, public navCtrl: NavController, public navParams: NavParams) {}
 
   enroll() {
     if(!this.enrollmentToken || this.enrollmentToken==="") {

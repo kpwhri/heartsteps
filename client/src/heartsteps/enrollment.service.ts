@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { AuthorizationService } from './authorization.service';
+import { Injectable } from '@angular/core';
 
 declare var process: {
     env: {
@@ -6,9 +8,12 @@ declare var process: {
     }
 }
 
+@Injectable()
 export class EnrollmentService {
 
-    constructor() {}
+    authorizationService: AuthorizationService;
+
+    constructor(authorizationService:AuthorizationService) {}
 
     enroll(enrollment_token:String) {
         console.log(process.env.HEARTSTEPS_URL);
@@ -17,6 +22,7 @@ export class EnrollmentService {
         })
         .then((response) => {
             console.log(response);
+            this.authorizationService.setAuthToken(response.data.enrollment_token);
             return true;
         })
         .catch((error) => {

@@ -4,8 +4,7 @@ import { EnrollPage } from '../enroll/enroll';
 
 @Component({
   selector: 'page-home',
-  templateUrl: 'home.html',
-  entryComponents: [EnrollPage]
+  templateUrl: 'home.html'
 })
 export class HomePage {
 
