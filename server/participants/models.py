@@ -41,6 +41,8 @@ class Participant(models.Model):
     """
     user = models.ForeignKey(User)
 #    heartsteps_id = models.CharField(max_length=10)
+    # Unique device ID as Fitbit stores it
+    tracker_id = models.CharField(max_length=24)
     enrollment_token = models.CharField(max_length=10)
 #    access_token = models.CharField(max_length=10)
 #    firebase_token = models.CharField(max_length=10)
