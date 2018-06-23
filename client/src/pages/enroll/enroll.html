@@ -15,14 +15,15 @@
 
 <ion-content padding>
   <p>Enter in your enrollment token below.</p>
-
+  <div *ngIf="error">
+      <p>The enrollment token you entered has either already been enrolled or isn't correct.</p>
+      <p>If you have previsously enrolled for HeartSteps, please login.</p>
+    </div>
   <form (ngSubmit)="enroll()" >
     <ion-item>
       <ion-label>Entrollment Token</ion-label>
       <ion-input type="text" [(ngModel)]="enrollmentToken" name="enrollmentToken"></ion-input>
     </ion-item>
+    <button ion-button>Enroll</button>
   </form>
-  <p *ngIf="errorMessage">{{errorMessage}}</p>
-
-
 </ion-content>

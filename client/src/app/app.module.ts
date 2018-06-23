@@ -8,27 +8,29 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { IonicStorageModule } from '@ionic/storage';
 
 import { MyApp } from './app.component';
-import { HomePage } from '../pages/home/home';
+
 import { EnrollPageModule } from '../pages/enroll/enroll.module';
 import { HeartstepsModule } from '../heartsteps/heartsteps.module';
+import { WelcomePageModule } from '../pages/welcome/welcome.module';
+import { HomePageModule } from '../pages/home/home.module';
 
 @NgModule({
   declarations: [
-    MyApp,
-    HomePage
+    MyApp
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     EnrollPageModule,
+    WelcomePageModule,
+    HomePageModule,
     HeartstepsModule,
     IonicModule.forRoot(MyApp),
     IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp,
-    HomePage
+    MyApp
   ],
   providers: [
     StatusBar,

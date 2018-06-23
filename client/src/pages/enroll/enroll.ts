@@ -20,7 +20,7 @@ export class EnrollPage {
 
   // Enrollment token enterd by user
   enrollmentToken:String;
-  errorMessage:String;
+  error:Boolean;
 
   constructor(private enrollmentService: EnrollmentService, public navCtrl: NavController, public navParams: NavParams) {}
 
@@ -30,14 +30,15 @@ export class EnrollPage {
     }
 
     let service = this;
-    service.errorMessage = null;
+    service.error = false;
     
     this.enrollmentService.enroll(this.enrollmentToken)
     .then(function() {
-      this.navCtrl.setRoot(HomePage)
+      service.navCtrl.setRoot(HomePage);
+      service.navCtrl.popToRoot();
     })
     .catch(function(){
-      service.errorMessage = "Invalid token"
+      service.error = true;
     })
 
     
