@@ -10,6 +10,18 @@ export class AuthorizationService {
 
     isAuthorized(): Promise<any> {
         return new Promise((resolve, reject) => {
+            this.getAuthorization()
+            .then(resolve)
+            .catch(reject);
+        })
+    }
+
+    setAuthorization(token:string) {
+        this.storage.set('auth-token', token);
+    }
+
+    getAuthorization() {
+        return new Promise((resolve, reject) => {
             this.storage.get('auth-token')
             .then((token) => {
                 if(token) {
@@ -20,10 +32,6 @@ export class AuthorizationService {
             })
             .catch(reject);
         })
-    }
-
-    setAuthorization(token:string) {
-        this.storage.set('auth-token', token);
     }
 
     removeAuthorization() {

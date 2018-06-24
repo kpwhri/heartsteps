@@ -44,8 +44,4 @@ export class EnrollPage {
     
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad EnrollPage');
-  }
-
 }

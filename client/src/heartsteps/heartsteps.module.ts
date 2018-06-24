@@ -1,19 +1,19 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
 
 import { IonicStorageModule } from '@ionic/storage';
 import { AuthorizationService } from './authorization.service';
+import { HeartstepsServer } from './heartsteps-server.service';
 
 @NgModule({
   declarations: [
   ],
   imports: [
-    HttpClientModule,
     IonicStorageModule.forRoot()
   ],
   entryComponents: [],
   providers: [
-      AuthorizationService
+      AuthorizationService,
+      HeartstepsServer
   ]
 })
 export class HeartstepsModule {}
