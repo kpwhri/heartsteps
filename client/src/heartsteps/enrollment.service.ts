@@ -14,7 +14,7 @@ export class EnrollmentService {
     constructor(private authorizationService:AuthorizationService) {}
 
     enroll(enrollment_token:String) :Promise<boolean> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {            
             const url:string = process.env.HEARTSTEPS_URL;
             return axios.post(url+"/enroll",{
                 enrollment_token: enrollment_token
