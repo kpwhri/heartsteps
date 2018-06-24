@@ -5,8 +5,6 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
-import { IonicStorageModule } from '@ionic/storage';
-
 import { MyApp } from './app.component';
 
 import { EnrollPageModule } from '../pages/enroll/enroll.module';
@@ -25,8 +23,7 @@ import { HomePageModule } from '../pages/home/home.module';
     WelcomePageModule,
     HomePageModule,
     HeartstepsModule,
-    IonicModule.forRoot(MyApp),
-    IonicStorageModule.forRoot()
+    IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
   entryComponents: [

@@ -3,23 +3,30 @@ import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class AuthorizationService {
-    constructor(private storage:Storage) {
 
+    constructor(private storage:Storage) {
+        
     }
 
-    isAuthorized(): Promise<boolean> {
+    isAuthorized(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.storage.get('auth-token')
-            .then(() => {
-                resolve(true);
+            .then((token) => {
+                if(token) {
+                    resolve();
+                } else {
+                    reject();
+                }
             })
-            .catch(() => {
-                reject(false);
-            })
+            .catch(reject);
         })
     }
 
-    setAuthToken(token:string) {
+    setAuthorization(token:string) {
         this.storage.set('auth-token', token);
+    }
+
+    removeAuthorization() {
+        this.storage.remove('auth-token');
     }
 }

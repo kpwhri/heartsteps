@@ -20,7 +20,7 @@ export class EnrollmentService {
                 enrollment_token: enrollment_token
             })
             .then((response) => {
-                this.authorizationService.setAuthToken(response.data.token);
+                this.authorizationService.setAuthorization(response.data.token);
                 resolve();
             })
             .catch((error) => {
