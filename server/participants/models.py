@@ -45,7 +45,7 @@ class Participant(models.Model):
     # tracker_id = models.CharField(max_length=24)
     enrollment_token = models.CharField(max_length=10)
 #    access_token = models.CharField(max_length=10)
-#    firebase_token = models.CharField(max_length=10)
+    firebase_token = models.CharField(max_length=160, null=True)
 #    preferred_timezone = models.CharField(max_length=5)
 #    do_not_disturb = models.BooleanField(default=True)
 #    server_created_dtm = models.DateTimeField()

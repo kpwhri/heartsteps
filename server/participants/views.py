@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from rest_framework.authtoken.models import Token
@@ -25,3 +26,24 @@ class EnrollView(APIView):
             except Participant.DoesNotExist:
                 pass
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+class FirebaseTokenView(APIView):
+    """
+    Manages the enrollment token for the current participant
+
+    token should only be passed with the key "token"
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        if request.data.get('token'):
+            try:
+                participant = Participant.objects.get(user=request.user)
+                participant.firebase_token = request.data.get('token')
+                participant.save()
+                return Response({})
+            except:
+                pass
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+

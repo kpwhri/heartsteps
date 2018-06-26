@@ -4,6 +4,11 @@ from django.urls import reverse
 from .models import Participant
 from django.contrib.auth.models import User
 
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import force_authenticate
+
+from .views import FirebaseTokenView
+
 class EnrollViewTests(TestCase):
     def test_enrollment_token(self):
         """
@@ -41,3 +46,23 @@ class EnrollViewTests(TestCase):
         })
 
         self.assertEqual(response.status_code, 400)
+
+class FirebaseTokenViewTests(TestCase):
+
+    def test_save_token(self):
+        participant = Participant.objects.create(
+            user = User.objects.create(username='test'),
+            id = 123,
+            enrollment_token = 'token'
+        )
+
+        factory = APIRequestFactory()
+
+        request = factory.post(reverse('participants-firebase-token'), {
+            'token': 'sample-token'
+        })
+        force_authenticate(request, participant.user)
+
+        response = FirebaseTokenView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
