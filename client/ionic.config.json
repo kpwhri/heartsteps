@@ -10,5 +10,8 @@
       "path": "/heartsteps-local",
       "proxyUrl": "http://server:8080/api"
     }
-  ]
+  ],
+  "config": {
+    "ionic_copy": "./config/ionic-copy-config.js"
+  }
 }

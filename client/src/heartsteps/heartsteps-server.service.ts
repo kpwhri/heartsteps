@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios'
 import { Injectable } from '@angular/core';
 import { AuthorizationService } from './authorization.service';
 
@@ -18,23 +18,29 @@ export class HeartstepsServer {
             baseURL: process.env.HEARTSTEPS_URL
         });
 
-        this.authorizationService.getAuthorization()
-        .then(this.setAuthorizationHeaderToken)
-        .catch(() => {});
-
         this.http.interceptors.response.use((response) => {
             return this.updateAuthorizationToken(response);
         });
+
+        this.http.interceptors.request.use((config) => {
+            return this.setAuthorizationHeaderToken(config);
+        });
     }
 
-    setAuthorizationHeaderToken(token) {
-        this.http.defaults.headers['Authorization'] = 'Token ' + token;
+    setAuthorizationHeaderToken(config:AxiosRequestConfig):Promise<AxiosRequestConfig> {
+        return this.authorizationService.getAuthorization()
+        .then((token) => {
+            config.headers.Authorization = `Token ${token}`;
+            return config;
+        })
+        .catch(() => {
+            return Promise.resolve(config);
+        });
     }
 
     updateAuthorizationToken(response:AxiosResponse):AxiosResponse {
         if(response.data.token) {
             let token:string = response.data.token;
-            this.setAuthorizationHeaderToken(token);
             this.authorizationService.setAuthorization(token);
         }
         return response

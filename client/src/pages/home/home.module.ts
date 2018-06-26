@@ -10,6 +10,6 @@ import { HomePage } from './home';
   imports: [
     HeartstepsModule,
     IonicPageModule.forChild(HomePage)
-  ],
+  ]
 })
 export class HomePageModule {}

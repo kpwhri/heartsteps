@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, IonicPage } from 'ionic-angular';
 import { AuthorizationService } from '../../heartsteps/authorization.service';
 import { WelcomePage } from '../welcome/welcome';
+import { FcmService } from '../../heartsteps/fcm';
 
 @IonicPage()
 @Component({
@@ -10,8 +11,16 @@ import { WelcomePage } from '../welcome/welcome';
 })
 export class HomePage {
 
-  constructor(private navCtrl: NavController, private authService: AuthorizationService) {
+  constructor(
+    private navCtrl: NavController,
+    private authService: AuthorizationService,
+    private fcmService:FcmService
+  ) {
 
+  }
+
+  getToken() {
+    this.fcmService.getPermission();
   }
 
   ionViewCanEnter() {

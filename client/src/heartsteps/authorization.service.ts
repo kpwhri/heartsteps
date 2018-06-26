@@ -20,12 +20,12 @@ export class AuthorizationService {
         this.storage.set('auth-token', token);
     }
 
-    getAuthorization() {
+    getAuthorization():Promise<string> {
         return new Promise((resolve, reject) => {
             this.storage.get('auth-token')
             .then((token) => {
                 if(token) {
-                    resolve();
+                    resolve(token);
                 } else {
                     reject();
                 }
