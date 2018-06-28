@@ -37,6 +37,9 @@ docker-compose run --service-ports client bash
 ## Deployment
 This application is automatically tested and deployed to the google cloud by Travis-CI. See .travis-ci.yml for details of the CI/CD process.
 
-Here is a list of the environment variables that need to get set up in Travis-CI to run the CI/CD process:
-* *GAE_PROJECT_ID* is the project ID for the google cloud project
-* *GAE_STATIC_BUCKET* is the name of the google cloud storage bucket to upload Django's static files to
+## Environment Variables
+Here is a list of the environment variables that are used by HeartSteps. All docker containers in this project share the same environment variables at run time and during build time on Travis-CI. None of the heartsteps docker containers use all the environment variables. Below is a list of environment variables used in the project, and how the environment variable is used.
+* *GAE_PROJECT_ID* is the project ID for the google cloud project that Travis-CI deploys to.
+* *HEARTSTEPS_URL* is used by the heartsteps_client to access the heartsteps_server's api endpoint.
+* *HOST_NAME* is the host_name used by django on the heartsteps_server.
+* *DEBUG* makes Django run in debug mode.

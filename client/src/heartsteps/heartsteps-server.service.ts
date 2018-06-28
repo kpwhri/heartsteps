@@ -14,6 +14,8 @@ export class HeartstepsServer {
     public http:AxiosInstance
 
     constructor(private authorizationService:AuthorizationService) {
+        console.log("************");
+        console.log(`heartsteps_url: ${process.env.HEARTSTEPS_URL}`);
         this.http = axios.create({
             baseURL: process.env.HEARTSTEPS_URL
         });

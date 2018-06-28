@@ -7,7 +7,7 @@
   },
   "proxies": [
     {
-      "path": "/heartsteps-local",
+      "path": "/api",
       "proxyUrl": "http://server:8080/api"
     }
   ],

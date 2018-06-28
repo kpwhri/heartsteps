@@ -10,7 +10,7 @@ webpackConfig.resolve = {
 }
 
 var envs = new webpack.EnvironmentPlugin({
-    HEARTSTEPS_URL: '/heartsteps-local'
+    HEARTSTEPS_URL: '/api'
 });
 
 webpackConfig.dev.plugins.push(envs);
