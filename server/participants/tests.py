@@ -57,7 +57,7 @@ class DeviceRegistration(APITestCase):
 
         response = self.client.post(reverse('participants-device'), {
             'registration': 'sample-token',
-            'type': 'web'
+            'device_type': 'web'
         })
 
         self.assertEqual(response.status_code, 200)
