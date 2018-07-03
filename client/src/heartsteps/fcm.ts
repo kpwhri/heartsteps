@@ -16,9 +16,18 @@ export class FcmService {
         private heartstepsServer: HeartstepsServer
     ) {
         firebase.initializeApp({
-            'messagingSenderId': '968991210692'
+            apiKey: "AIzaSyAopOuROiYnX7RC_sSVhSJQIESUN0jEFVE",
+            authDomain: "heartsteps-205523.firebaseapp.com",
+            databaseURL: "https://heartsteps-205523.firebaseio.com",
+            projectId: "heartsteps-205523",
+            storageBucket: "heartsteps-205523.appspot.com",
+            messagingSenderId: '968991210692'
         });
         this.messaging = firebase.messaging();
+        this.messaging.onMessage((payload:any) => {
+            console.log("hark a message");
+            console.log(payload);
+        });
     }
 
     getPermission():Promise<boolean> {
@@ -42,7 +51,6 @@ export class FcmService {
                 return this.messaging.getToken();
             })
             .then((token) => {
-                console.log(token);
                 return this.saveToken(token);
             })
             .then(() => {
@@ -54,15 +62,15 @@ export class FcmService {
         });
     }
 
-    saveToken(token) {
-        this.heartstepsServer.http.post('/firebaseToken', {
+    saveToken(token:string):Promise<boolean> {
+        return this.heartstepsServer.http.post('/firebaseToken', {
             token: token
         })
         .then(() => {
-            console.log("updated token");
+            return Promise.resolve(true);
         })
         .catch(() => {
-            console.log("error");
+            return Promise.reject(false);
         })
     }
 
