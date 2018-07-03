@@ -14,13 +14,8 @@ export class HomePage {
   constructor(
     private navCtrl: NavController,
     private authService: AuthorizationService,
-    private fcmService:FcmService
   ) {
 
-  }
-
-  getToken() {
-    this.fcmService.getPermission();
   }
 
   ionViewCanEnter() {

@@ -5,6 +5,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { AuthorizationService } from '../heartsteps/authorization.service';
 import { HomePage } from '../pages/home/home';
+import { OnboardPage } from '../pages/onboard/onboard';
+
 
 @Component({
   templateUrl: 'app.html'
@@ -18,7 +20,11 @@ export class MyApp {
       return new Promise((resolve) => {
         authService.isAuthorized()
         .then(() => {
-          this.rootPage = HomePage;
+          // if(false) {
+          //   this.rootPage = HomePage;
+          // } else {
+            this.rootPage = OnboardPage;
+          // }
         })
         .catch(() => {
           this.rootPage = WelcomePage;

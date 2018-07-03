@@ -11,6 +11,7 @@ import { EnrollPageModule } from '../pages/enroll/enroll.module';
 import { HeartstepsModule } from '../heartsteps/heartsteps.module';
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { HomePageModule } from '../pages/home/home.module';
+import { OnboardPageModule } from '../pages/onboard/onboard.module';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { HomePageModule } from '../pages/home/home.module';
     HttpClientModule,
     EnrollPageModule,
     WelcomePageModule,
+    OnboardPageModule,
     HomePageModule,
     HeartstepsModule,
     IonicModule.forRoot(MyApp)
