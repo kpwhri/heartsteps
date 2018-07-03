@@ -1,0 +1,46 @@
+[
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$vn4spUWcYNNB$BjknKY7i+Cn1kncu3ZXtwHnGTTUejsdbQLEfBxA2+D0=",
+        "last_login": "2018-07-03T03:14:32.292Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@nickreid.cojm",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2018-07-03T03:11:53.037Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$ohcoSx69xxdS$tKUeZNXu8zzWrXg7KBPqAFC8Z2rijpgKlh5HjmqLVn0=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "test",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2018-07-03T03:14:54.068Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": 1,
+    "fields": {
+        "user": 2,
+        "enrollment_token": "token"
+    }
+}
+]
