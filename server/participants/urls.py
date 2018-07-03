@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     url(r'enroll', views.EnrollView.as_view(), name='participants-enroll'),
-    url(r'firebaseToken', views.FirebaseTokenView.as_view(), name='participants-firebase-token')
+    url(r'device', views.Device.as_view(), name='participants-device')
 ]

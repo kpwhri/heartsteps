@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'fcm_django',
     'participants',
 ]
 
@@ -46,6 +47,16 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
+
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": env('FCM_SERVER_KEY', default='secret-key'),
+        "ONE_DEVICE_PER_USER": True,
+        "DELETE_INACTIVE_DEVICES": False
+}
+
+FIXTURE_DIRS = [
+    root('fixtures')
+]
 
 ROOT_URLCONF = 'heartsteps.urls'
 

@@ -51,7 +51,7 @@ export class FcmService {
                 return this.messaging.getToken();
             })
             .then((token) => {
-                return this.saveToken(token);
+                return this.saveToken(token, 'web');
             })
             .then(() => {
                 resolve(true);
@@ -62,9 +62,10 @@ export class FcmService {
         });
     }
 
-    saveToken(token:string):Promise<boolean> {
-        return this.heartstepsServer.http.post('/firebaseToken', {
-            token: token
+    saveToken(token:string, deviceType:string):Promise<boolean> {
+        return this.heartstepsServer.http.post('device', {
+            registration: token,
+            device_type: deviceType
         })
         .then(() => {
             return Promise.resolve(true);

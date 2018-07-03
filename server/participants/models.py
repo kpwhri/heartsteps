@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from fcm_django.models import FCMDevice
+
 
 # class GoodMorningMessage(models.Model):
 #     """
@@ -44,8 +46,6 @@ class Participant(models.Model):
     # Unique device ID as Fitbit stores it
     # tracker_id = models.CharField(max_length=24)
     enrollment_token = models.CharField(max_length=10)
-#    access_token = models.CharField(max_length=10)
-    firebase_token = models.CharField(max_length=160, null=True)
 #    preferred_timezone = models.CharField(max_length=5)
 #    do_not_disturb = models.BooleanField(default=True)
 #    server_created_dtm = models.DateTimeField()

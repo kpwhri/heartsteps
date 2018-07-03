@@ -1,15 +1,12 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from .models import Participant
 from django.contrib.auth.models import User
 
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
-from .views import FirebaseTokenView
-
-class EnrollViewTests(TestCase):
+class EnrollViewTests(APITestCase):
     def test_enrollment_token(self):
         """
         Returns an auth token when valid 
@@ -47,7 +44,7 @@ class EnrollViewTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-class FirebaseTokenViewTests(TestCase):
+class DeviceRegistration(APITestCase):
 
     def test_save_token(self):
         participant = Participant.objects.create(
@@ -56,13 +53,11 @@ class FirebaseTokenViewTests(TestCase):
             enrollment_token = 'token'
         )
 
-        factory = APIRequestFactory()
+        self.client.force_authenticate(participant.user)
 
-        request = factory.post(reverse('participants-firebase-token'), {
-            'token': 'sample-token'
+        response = self.client.post(reverse('participants-device'), {
+            'registration': 'sample-token',
+            'type': 'web'
         })
-        force_authenticate(request, participant.user)
-
-        response = FirebaseTokenView.as_view()(request)
 
         self.assertEqual(response.status_code, 200)
