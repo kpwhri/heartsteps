@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { AuthorizationService } from '../../heartsteps/authorization.service';
 import { FcmService } from '../../heartsteps/fcm';
 
 /**
@@ -10,10 +9,10 @@ import { FcmService } from '../../heartsteps/fcm';
  */
 
 @Component({
-  selector: 'notifications-screen',
+  selector: 'notifications-page',
   templateUrl: 'notifications.html',
 })
-export class NotificationsScreen {
+export class NotificationsPage {
 
   constructor(private fcmService:FcmService) {
   }

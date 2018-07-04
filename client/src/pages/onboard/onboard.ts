@@ -1,8 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, Slides } from 'ionic-angular';
+import { IonicPage, NavController, Slides, Nav } from 'ionic-angular';
 
 import { AuthorizationService } from '../../heartsteps/authorization.service';
 import { WelcomePage } from '../welcome/welcome';
+import { NotificationsPage } from './notifications';
 
 /**
  * Generated class for the OnboardPage page.
@@ -18,17 +19,17 @@ import { WelcomePage } from '../welcome/welcome';
 })
 export class OnboardPage {
   @ViewChild(Slides) slides:Slides;
+  @ViewChild(Nav) nav:Nav;
 
   constructor(public navCtrl: NavController, private authService:AuthorizationService) {}
 
   ionViewWillEnter() {
-    this.slides.lockSwipes(true);
+    this.nav.push(NotificationsPage);
+    console.log("change please");
   }
 
   next() {
-    this.slides.lockSwipes(false);
-    this.slides.slideNext();
-    this.slides.lockSwipes(true);
+    console.log("NEXT");
   }
 
   ionViewCanEnter() {
