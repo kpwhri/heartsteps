@@ -14,8 +14,7 @@ import { FcmService } from '../../heartsteps/fcm';
 })
 export class NotificationsPage {
 
-  constructor(private fcmService:FcmService) {
-  }
+  constructor(private fcmService:FcmService) {}
 
   getPermission() {
     this.fcmService.getPermission()

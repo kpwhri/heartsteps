@@ -29,6 +29,7 @@ services:
     command: ionic serve
     volumes:
       - ./client:/client
+      - /client/node_modules
     ports:
       - "8100:8100"
       - "35729:35729" # live reload

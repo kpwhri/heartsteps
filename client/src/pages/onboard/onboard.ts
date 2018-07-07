@@ -25,7 +25,6 @@ export class OnboardPage {
 
   ionViewWillEnter() {
     this.nav.push(NotificationsPage);
-    console.log("change please");
   }
 
   next() {

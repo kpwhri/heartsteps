@@ -10,7 +10,8 @@ webpackConfig.resolve = {
 }
 
 var envs = new webpack.EnvironmentPlugin({
-    HEARTSTEPS_URL: '/api'
+    HEARTSTEPS_URL: '/api',
+    FIREBASE_MESSAGING_SENDER_ID: '968991210692' // nick's heartsteps firebase messaging id
 });
 
 webpackConfig.dev.plugins.push(envs);

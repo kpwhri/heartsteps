@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Platform, ToastController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { AuthorizationService } from '../heartsteps/authorization.service';
-import { HomePage } from '../pages/home/home';
+// import { HomePage } from '../pages/home/home';
 import { OnboardPage } from '../pages/onboard/onboard';
+import { FcmService } from '../heartsteps/fcm';
 
 
 @Component({
@@ -14,7 +15,7 @@ import { OnboardPage } from '../pages/onboard/onboard';
 export class MyApp {
   rootPage:any;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, authService:AuthorizationService) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, toastCtrl:ToastController, authService:AuthorizationService, fcmService:FcmService) {
     platform.ready()
     .then(() => {
       return new Promise((resolve) => {
@@ -32,6 +33,15 @@ export class MyApp {
         .then(() => {
           resolve();
         });
+      })
+    })
+    .then(() => {
+      fcmService.onMessage().subscribe((message) => {
+        let toast = toastCtrl.create({
+          message: message,
+          showCloseButton: true
+        })
+        toast.present();
       })
     })
     .then(() => {

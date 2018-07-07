@@ -1,64 +1,87 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
+import { Firebase as FirebaseNative } from '@ionic-native/firebase';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
 import { HeartstepsServer } from "./heartsteps-server.service";
+import { Observable } from "rxjs/Observable";
+import { Observer } from "rxjs/Observer";
 
-
+declare var process: {
+    env: {
+        FIREBASE_MESSAGING_SENDER_ID: string
+    }
+}
 
 @Injectable()
 export class FcmService {
 
-    messaging:any;
+    private messaging:any;
+    private firebase: FirebaseNative;
+    private messageObserver:Observer<any>;
 
     constructor(
         private platform: Platform,
         private heartstepsServer: HeartstepsServer
     ) {
-        firebase.initializeApp({
-            apiKey: "AIzaSyAopOuROiYnX7RC_sSVhSJQIESUN0jEFVE",
-            authDomain: "heartsteps-205523.firebaseapp.com",
-            databaseURL: "https://heartsteps-205523.firebaseio.com",
-            projectId: "heartsteps-205523",
-            storageBucket: "heartsteps-205523.appspot.com",
-            messagingSenderId: '968991210692'
-        });
-        this.messaging = firebase.messaging();
-        this.messaging.onMessage((payload:any) => {
-            console.log("hark a message");
-            console.log(payload);
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            this.firebase = new FirebaseNative();
+            this.firebase.onNotificationOpen().subscribe((data) => {
+                console.log(data);
+            });
+        } else {
+            firebase.initializeApp({
+                messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
+            });
+            this.messaging = firebase.messaging();
+            this.messaging.onMessage((data:any) => {
+                if(data.notification.body){
+                    this.messageObserver.next(data.notification.body);
+                }
+            });
+        }
+    }
+
+    onMessage():Observable<any> {
+        return Observable.create((obs) => {
+            this.messageObserver = obs;
         });
     }
 
     getPermission():Promise<boolean> {
         if(this.platform.is('ios')) {
-            console.log('is iOS');
+            console.log('No permissions implemented for iOS');
             return Promise.reject(false);
         }
 
         if(this.platform.is('android')) {
-            console.log('is android')
-            return Promise.reject(false);
+            return this.firebase.getToken().then((token) => {
+                return this.saveToken(token, 'android')
+            })
+            .then(() => {
+                return Promise.resolve(true);
+            })
+            .catch(() => {
+                return Promise.reject(false);
+            });
         }
 
         return this.getPermissionWeb();
     }
 
     getPermissionWeb():Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            this.messaging.requestPermission()
-            .then(() => {
-                return this.messaging.getToken();
-            })
-            .then((token) => {
-                return this.saveToken(token, 'web');
-            })
-            .then(() => {
-                resolve(true);
-            })
-            .catch(() => {
-                reject(false);
-            });
+        return this.messaging.requestPermission()
+        .then(() => {
+            return this.messaging.getToken();
+        })
+        .then((token) => {
+            return this.saveToken(token, 'web');
+        })
+        .then(() => {
+            Promise.resolve(true);
+        })
+        .catch(() => {
+            Promise.reject(false);
         });
     }
 
