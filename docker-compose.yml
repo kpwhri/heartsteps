@@ -4,14 +4,7 @@ services:
   db:
     image: postgres
   server:
-    build:
-      context: ./server
-      args:
-      - HOST_NAME
-      - SECRET_KEY
-      - DATABASE_URL
-      - GCLOUD_DB_INSTANCE
-      - DEBUG
+    build: ./server
     environment:
       - DEBUG=True
       - HOST_NAME=localhost
