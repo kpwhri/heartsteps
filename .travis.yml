@@ -20,8 +20,6 @@ after_success:
 - cp -r client/www server/app
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
-# migrate database
-- docker run heartsteps_server ./migrate.sh
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
