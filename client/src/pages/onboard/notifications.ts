@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { FcmService } from '../../heartsteps/fcm';
 import { HeartstepsNotifications } from '../../heartsteps/heartsteps-notifications.service';
+import { NavController } from 'ionic-angular';
 
 /**
  * Generated class for the OnboardPage page.
@@ -15,12 +15,13 @@ import { HeartstepsNotifications } from '../../heartsteps/heartsteps-notificatio
 })
 export class NotificationsPage {
 
-  constructor(private heartstepsNotifications:HeartstepsNotifications) {}
+  constructor(private navCtrl:NavController, private heartstepsNotifications:HeartstepsNotifications) {}
 
   getPermission() {
     this.heartstepsNotifications.enable()
     .then(() => {
-        console.log('Got permission');
+        console.log("got permission")
+        this.navCtrl.pop();
     })
     .catch(() => {
         console.log('No permission');

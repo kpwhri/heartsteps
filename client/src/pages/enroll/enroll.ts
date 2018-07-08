@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { EnrollmentService } from '../../heartsteps/enrollment.service';
-import { HomePage } from '../home/home';
+import { OnboardPage } from '../onboard/onboard';
 
 /**
  * Generated class for the EnrollPage page.
@@ -34,7 +34,7 @@ export class EnrollPage {
     
     this.enrollmentService.enroll(this.enrollmentToken)
     .then(function() {
-      service.navCtrl.setRoot(HomePage);
+      service.navCtrl.setRoot(OnboardPage);
       service.navCtrl.popToRoot();
     })
     .catch(function(){

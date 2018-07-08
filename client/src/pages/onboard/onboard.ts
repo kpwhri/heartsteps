@@ -4,6 +4,8 @@ import { IonicPage, NavController, Slides, Nav } from 'ionic-angular';
 import { AuthorizationService } from '../../heartsteps/authorization.service';
 import { WelcomePage } from '../welcome/welcome';
 import { NotificationsPage } from './notifications';
+import { LocationPermissionPane } from './location-permission';
+import { OnboardEndPane } from './onboard-end';
 
 /**
  * Generated class for the OnboardPage page.
@@ -15,20 +17,24 @@ import { NotificationsPage } from './notifications';
 @IonicPage()
 @Component({
   selector: 'page-onboard',
-  templateUrl: 'onboard.html',
+  templateUrl: 'onboard.html'
 })
 export class OnboardPage {
   @ViewChild(Slides) slides:Slides;
   @ViewChild(Nav) nav:Nav;
 
-  constructor(public navCtrl: NavController, private authService:AuthorizationService) {}
+  private screens:Array<any>;
 
-  ionViewWillEnter() {
-    this.nav.push(NotificationsPage);
+  constructor(public navCtrl: NavController, private authService:AuthorizationService) {
+    this.screens = [
+      NotificationsPage,
+      LocationPermissionPane,
+      OnboardEndPane
+    ];
   }
 
-  next() {
-    console.log("NEXT");
+  ionViewWillEnter() {
+    this.nav.setPages(this.screens.reverse());
   }
 
   ionViewCanEnter() {

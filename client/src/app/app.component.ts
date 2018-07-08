@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Platform, ToastController } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { Platform, ToastController, Nav } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '../pages/welcome/welcome';
@@ -13,6 +13,7 @@ import { FcmService } from '../heartsteps/fcm';
   templateUrl: 'app.html'
 })
 export class MyApp {
+  @ViewChild(Nav) nav:Nav
   rootPage:any;
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, toastCtrl:ToastController, authService:AuthorizationService, fcmService:FcmService) {
