@@ -5,6 +5,7 @@ import { IonicStorageModule } from '@ionic/storage';
 import { AuthorizationService } from './authorization.service';
 import { HeartstepsServer } from './heartsteps-server.service';
 import { FcmService } from './fcm';
+import { HeartstepsNotifications } from './heartsteps-notifications.service';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { FcmService } from './fcm';
   providers: [
       AuthorizationService,
       HeartstepsServer,
+      HeartstepsNotifications,
       FcmService
   ]
 })

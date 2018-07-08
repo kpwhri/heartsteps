@@ -3,7 +3,6 @@ import { Platform } from "ionic-angular";
 import { Firebase as FirebaseNative } from '@ionic-native/firebase';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
-import { HeartstepsServer } from "./heartsteps-server.service";
 import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
@@ -18,34 +17,42 @@ export class FcmService {
 
     private messaging:any;
     private firebase: FirebaseNative;
+
     private messageObserver:Observer<any>;
+    private messageObservable:Observable<any>;
 
     constructor(
-        private platform: Platform,
-        private heartstepsServer: HeartstepsServer
+        private platform: Platform
     ) {
+        this.messageObservable = Observable.create(obs => {
+            this.messageObserver = obs;
+        });
+
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.firebase = new FirebaseNative();
-            this.firebase.onNotificationOpen().subscribe((data) => {
-                console.log(data);
-            });
+            this.setupNative();
         } else {
-            firebase.initializeApp({
-                messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
-            });
-            this.messaging = firebase.messaging();
-            this.messaging.onMessage((data:any) => {
-                if(data.notification.body){
-                    this.messageObserver.next(data.notification.body);
-                }
-            });
+            this.setupWeb();
         }
     }
 
     onMessage():Observable<any> {
-        return Observable.create((obs) => {
-            this.messageObserver = obs;
-        });
+        return this.messageObservable;
+    }
+
+    private directMessage(message:any) {
+        this.messageObserver.next(message);
+    }
+
+    getDeviceType():string {
+        if(this.platform.is('ios')) {
+            return 'ios';
+        }
+
+        if(this.platform.is('android')) {
+            return 'android';
+        }
+
+        return 'web';
     }
 
     getPermission():Promise<boolean> {
@@ -55,47 +62,42 @@ export class FcmService {
         }
 
         if(this.platform.is('android')) {
-            return this.firebase.getToken().then((token) => {
-                return this.saveToken(token, 'android')
-            })
-            .then(() => {
-                return Promise.resolve(true);
-            })
-            .catch(() => {
-                return Promise.reject(false);
-            });
+            return Promise.resolve(true);
         }
 
-        return this.getPermissionWeb();
+        return this.messaging.requestPermission();
     }
 
-    getPermissionWeb():Promise<boolean> {
-        return this.messaging.requestPermission()
-        .then(() => {
-            return this.messaging.getToken();
-        })
-        .then((token) => {
-            return this.saveToken(token, 'web');
-        })
-        .then(() => {
-            Promise.resolve(true);
-        })
-        .catch(() => {
-            Promise.reject(false);
+    getToken():Promise<string> {
+
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            return this.firebase.getToken();
+        }
+
+        return this.messaging.getToken();
+    }
+
+    private setupWeb() {
+        firebase.initializeApp({
+            messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
+        });
+        this.messaging = firebase.messaging();
+        this.messaging.onMessage((data:any) => {
+            if(data.notification){
+                // should merge notification object into data object
+                // to match cordova implementation
+                this.directMessage(data.notification);
+            } else {
+                this.directMessage(data);
+            }
+            
         });
     }
 
-    saveToken(token:string, deviceType:string):Promise<boolean> {
-        return this.heartstepsServer.http.post('device', {
-            registration: token,
-            device_type: deviceType
-        })
-        .then(() => {
-            return Promise.resolve(true);
-        })
-        .catch(() => {
-            return Promise.reject(false);
-        })
+    private setupNative() {
+        this.firebase = new FirebaseNative();
+        this.firebase.onNotificationOpen().subscribe((data) => {
+            this.directMessage(data);
+        });
     }
-
 }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FcmService } from '../../heartsteps/fcm';
+import { HeartstepsNotifications } from '../../heartsteps/heartsteps-notifications.service';
 
 /**
  * Generated class for the OnboardPage page.
@@ -14,10 +15,10 @@ import { FcmService } from '../../heartsteps/fcm';
 })
 export class NotificationsPage {
 
-  constructor(private fcmService:FcmService) {}
+  constructor(private heartstepsNotifications:HeartstepsNotifications) {}
 
   getPermission() {
-    this.fcmService.getPermission()
+    this.heartstepsNotifications.enable()
     .then(() => {
         console.log('Got permission');
     })
