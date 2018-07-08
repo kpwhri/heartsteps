@@ -2,6 +2,7 @@ runtime: custom
 env: flex
 
 env_variables:
+  DEBUG: True
   HOST_NAME: heartsteps-205523.appspot.com,localhost
   SECRET_KEY: ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o
   DATABASE_URL: psql://heartsteps:heartsteps@localhost:5432/heartsteps

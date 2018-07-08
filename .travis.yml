@@ -27,5 +27,5 @@ after_success:
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
 # upload client web app to gae
-- gcloud app deploy server/app.yaml
+- gcloud app deploy -q -v master server/app.yaml
 # upload ionic app to ionic pro
