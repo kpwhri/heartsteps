@@ -3,10 +3,13 @@ env: flex
 
 env_variables:
   DEBUG: True
-  HOST_NAME: heartsteps-205523.appspot.com,localhost
+  HOST_NAME: heartsteps-205523.appspot.com
   SECRET_KEY: ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o
-  DATABASE_URL: psql://heartsteps:heartsteps@localhost:5432/heartsteps
+  DATABASE_URL: psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-205523:us-west1:heartsteps-test
   FCM_SERVER_KEY: AAAA4ZxgfMQ:APA91bHz1XoVQPQrR19dVkn6cxl1A6ULe9tYLLFUH7G0mUzxxlrml2r5GZCsgn3MCduIKIKtV7-Di8egsm2lwjqD9aWPVDfyt8omWRYFr6RprULdrva9fSyaoe1LrI9nZ7Bokay38_7NZW-YY5_KcyBSr5j5pVEmdA
 
 beta_settings:
-    cloud_sql_instances: heartsteps-205523:us-west1:heartsteps-test
+  cloud_sql_instances: heartsteps-205523:us-west1:heartsteps-test
+
+manual_scaling:
+  instances: 1
