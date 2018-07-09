@@ -1,0 +1,10 @@
+dispatch:
+
+  - url: "heartsteps-205523.appspot.com/"
+    service: default
+
+  - url: "*/admin/*"
+    service: heartsteps-server
+
+  - url: "*/api/*"
+    service: heartsteps-server

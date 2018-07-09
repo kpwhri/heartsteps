@@ -1,5 +1,6 @@
 runtime: custom
 env: flex
+service: heartsteps-server
 
 env_variables:
   DEBUG: True

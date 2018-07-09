@@ -17,13 +17,14 @@ script:
 
 after_success:
 # move client files into server
-- cp -r client/www server/app
+- cp -r client/www static/app
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
+- cp -r server/static static
 # login with gcloud
 - gcloud auth activate-service-account --key-file=gce.json
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
 # upload client web app to gae
-- gcloud app deploy -q -v master server/app.yaml
+- gcloud app deploy -q -v master server/app.yaml static/app.yaml dispatch.yaml
 # upload ionic app to ionic pro
