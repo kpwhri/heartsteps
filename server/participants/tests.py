@@ -60,23 +60,5 @@ class EnrollViewTests(APITestCase):
 
     def test_no_enrollment_token(self):
         response = self.client.post(reverse('participants-enroll'), {})
-        
+
         self.assertEqual(response.status_code, 400)
-
-# class DeviceRegistration(APITestCase):
-
-#     def test_save_token(self):
-#         participant = Participant.objects.create(
-#             user = User.objects.create(username='test'),
-#             id = 123,
-#             enrollment_token = 'token'
-#         )
-
-#         self.client.force_authenticate(participant.user)
-
-#         response = self.client.post(reverse('participants-device'), {
-#             'registration': 'sample-token',
-#             'device_type': 'web'
-#         })
-
-#         self.assertEqual(response.status_code, 200)

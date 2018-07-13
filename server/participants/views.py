@@ -1,11 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from fcm_django.models import FCMDevice
 
 from .models import Participant
 
@@ -40,29 +38,3 @@ class EnrollView(APIView):
 
             return Response(response_data, headers=response_headers)
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
-class Device(APIView):
-    """
-    Updates the device that is used for Firebase Cloud Messages
-
-    Expects two arguments, registration and type, which are the FCM token
-    and device that the token was made on.
-    """
-
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        if request.data.get('registration') and request.data.get('device_type'):
-            try:
-                participant = Participant.objects.get(user=request.user)
-            except:
-                return Response({}, status=status.HTTP_401_UNAUTHORIZED)
-
-            device = FCMDevice.objects.create(
-                registration_id = request.data.get('registration'),
-                type = request.data.get('device_type'),
-                user = request.user
-            )
-            return Response({})
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
