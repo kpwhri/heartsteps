@@ -1,56 +1,83 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, ToastController, Nav } from 'ionic-angular';
+import { Platform, Nav, ModalController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '../pages/welcome/welcome';
-import { AuthorizationService } from '../heartsteps/authorization.service';
-// import { HomePage } from '../pages/home/home';
+import { HeartstepsNotifications } from '../heartsteps/heartsteps-notifications.service';
+import { ParticipantService } from '../heartsteps/participant.service';
 import { OnboardPage } from '../pages/onboard/onboard';
-import { FcmService } from '../heartsteps/fcm';
-
+import { HomePage } from '../pages/home/home';
+import { AuthorizationService } from '../infrastructure/authorization.service';
+import { NotificationPane } from './notification';
 
 @Component({
-  templateUrl: 'app.html'
+    templateUrl: 'app.html'
 })
 export class MyApp {
-  @ViewChild(Nav) nav:Nav
-  rootPage:any;
+    @ViewChild(Nav) nav:Nav
+    rootPage:any;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, toastCtrl:ToastController, authService:AuthorizationService, fcmService:FcmService) {
-    platform.ready()
-    .then(() => {
-      return new Promise((resolve) => {
-        authService.isAuthorized()
+    constructor(
+        platform: Platform,
+        statusBar: StatusBar,
+        splashScreen: SplashScreen,
+        private modalCtrl:ModalController,
+        private notifications:HeartstepsNotifications,
+        private participant:ParticipantService,
+        private authorizationService:AuthorizationService
+    ) {
+        platform.ready()
         .then(() => {
-          // if(false) {
-          //   this.rootPage = HomePage;
-          // } else {
-            this.rootPage = OnboardPage;
-          // }
-        })
-        .catch(() => {
-          this.rootPage = WelcomePage;
+            this.setNavAuthGuard()
+            this.setParticipantChange()
+
+            return this.participant.refresh()     
         })
         .then(() => {
-          resolve();
+            this.notifications.onMessage().subscribe((message:string) => {
+                this.showMessage(message);
+            });
+
+            statusBar.styleDefault();
+            splashScreen.hide();
         });
-      })
-    })
-    .then(() => {
-      fcmService.onMessage().subscribe((message) => {
-        let toast = toastCtrl.create({
-          message: message,
-          showCloseButton: true
+    }
+
+    showMessage(message:string) {
+        let modal = this.modalCtrl.create(NotificationPane, {
+            message: message
+        }, {
+            showBackdrop: true,
+            enableBackdropDismiss: true,
+            cssClass: 'heartsteps-message-modal'
         })
-        toast.present();
-      })
-    })
-    .then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
-      statusBar.styleDefault();
-      splashScreen.hide();
-    });
-  }
+        modal.present()
+    }
+
+    setNavAuthGuard() {
+        this.nav.viewWillEnter.subscribe(() => {
+            return this.authorizationService.isAuthorized()
+            .catch(() => {
+                const currentRoot = this.nav.first();
+                if(currentRoot.component !== WelcomePage) {
+                    this.nav.setRoot(WelcomePage);
+                    this.nav.popToRoot();
+                }
+            });
+        });
+    }
+
+    setParticipantChange() {
+        this.participant.onChange().subscribe(() => {
+            if(this.participant.isOnboarded()) {
+                this.nav.setRoot(HomePage);
+            } else if(this.participant.isEnrolled()) {
+                this.nav.setRoot(OnboardPage); 
+            } else {
+                this.nav.setRoot(WelcomePage);
+            }
+            this.nav.popToRoot();
+        });
+    }
 }
 

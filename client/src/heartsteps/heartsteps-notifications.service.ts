@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { FcmService } from './fcm';
-import { HeartstepsServer } from './heartsteps-server.service';
+import { FcmService } from '../infrastructure/fcm';
+import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class HeartstepsNotifications {
             return this.fcmService.getToken()
         })
         .then(token => {
-            return this.heartstepsServer.http.post('device', {
+            return this.heartstepsServer.post('device', {
                 registration: token,
                 device_type: this.fcmService.getDeviceType()
             });

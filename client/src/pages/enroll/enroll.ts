@@ -1,14 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { EnrollmentService } from '../../heartsteps/enrollment.service';
-import { OnboardPage } from '../onboard/onboard';
-
-/**
- * Generated class for the EnrollPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
 
 @IonicPage()
 @Component({
@@ -33,9 +25,8 @@ export class EnrollPage {
     service.error = false;
     
     this.enrollmentService.enroll(this.enrollmentToken)
-    .then(function() {
-      service.navCtrl.setRoot(OnboardPage);
-      service.navCtrl.popToRoot();
+    .then(() => {
+      console.log('... sucessfully enrolled ...')
     })
     .catch(function(){
       service.error = true;

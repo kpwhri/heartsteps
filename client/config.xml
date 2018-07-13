@@ -85,4 +85,7 @@
     <engine name="ios" spec="4.5.4" />
     <allow-navigation href="http://192.168.0.57:8100" />
     <plugin name="cordova-plugin-firebase" spec="^1.0.5" />
+    <plugin name="cordova-plugin-advanced-http" spec="^1.11.1" />
+    <allow-navigation href="http://192.168.0.50:8100" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
 </widget>

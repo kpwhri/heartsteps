@@ -1,18 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, Slides, Nav } from 'ionic-angular';
 
-import { AuthorizationService } from '../../heartsteps/authorization.service';
-import { WelcomePage } from '../welcome/welcome';
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { OnboardEndPane } from './onboard-end';
-
-/**
- * Generated class for the OnboardPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
 
 @IonicPage()
 @Component({
@@ -25,7 +16,7 @@ export class OnboardPage {
 
   private screens:Array<any>;
 
-  constructor(public navCtrl: NavController, private authService:AuthorizationService) {
+  constructor(public navCtrl: NavController) {
     this.screens = [
       NotificationsPage,
       LocationPermissionPane,
@@ -35,14 +26,6 @@ export class OnboardPage {
 
   ionViewWillEnter() {
     this.nav.setPages(this.screens.reverse());
-  }
-
-  ionViewCanEnter() {
-    return this.authService.isAuthorized()
-    .catch(() => {
-      this.navCtrl.setRoot(WelcomePage);
-      this.navCtrl.popToRoot();
-    });
   }
 
 }

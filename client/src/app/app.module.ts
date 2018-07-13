@@ -12,10 +12,12 @@ import { HeartstepsModule } from '../heartsteps/heartsteps.module';
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { HomePageModule } from '../pages/home/home.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
+import { NotificationPane } from './notification';
 
 @NgModule({
   declarations: [
-    MyApp
+    MyApp,
+    NotificationPane
   ],
   imports: [
     BrowserModule,
@@ -29,7 +31,8 @@ import { OnboardPageModule } from '../pages/onboard/onboard.module';
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp
+    MyApp,
+    NotificationPane
   ],
   providers: [
     StatusBar,

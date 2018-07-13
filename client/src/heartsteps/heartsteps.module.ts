@@ -1,24 +1,19 @@
 import { NgModule } from '@angular/core';
-// import {AngularFireModule} from 'angularfire2';
 
-import { IonicStorageModule } from '@ionic/storage';
-import { AuthorizationService } from './authorization.service';
-import { HeartstepsServer } from './heartsteps-server.service';
-import { FcmService } from './fcm';
 import { HeartstepsNotifications } from './heartsteps-notifications.service';
+import { InfrastructureModule } from '../infrastructure/infrastructure.module';
+import { ParticipantService } from './participant.service';
 
 @NgModule({
   declarations: [
   ],
   imports: [
-    IonicStorageModule.forRoot()
+    InfrastructureModule
   ],
   entryComponents: [],
   providers: [
-      AuthorizationService,
-      HeartstepsServer,
       HeartstepsNotifications,
-      FcmService
+      ParticipantService
   ]
 })
 export class HeartstepsModule {}

@@ -1,14 +1,15 @@
 import { Component} from '@angular/core';
+import { ParticipantService } from '../../heartsteps/participant.service';
 
 @Component({
-  selector: 'onboard-end',
-  templateUrl: 'onboard-end.html',
+    selector: 'onboard-end',
+    templateUrl: 'onboard-end.html',
 })
 export class OnboardEndPane {
-  constructor() {}
+    constructor(private participant:ParticipantService) {}
 
-  sendHome() {
-    console.log("Mark onboarding as complete!");
-  }
+    finishOnboarding() {
+        this.participant.finishOnboard();
+    }
 
 }
