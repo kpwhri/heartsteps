@@ -18,28 +18,10 @@
     }
 },
 {
-    "model": "auth.user",
-    "pk": 2,
-    "fields": {
-        "password": "pbkdf2_sha256$36000$ohcoSx69xxdS$tKUeZNXu8zzWrXg7KBPqAFC8Z2rijpgKlh5HjmqLVn0=",
-        "last_login": null,
-        "is_superuser": false,
-        "username": "test",
-        "first_name": "",
-        "last_name": "",
-        "email": "",
-        "is_staff": false,
-        "is_active": true,
-        "date_joined": "2018-07-03T03:14:54.068Z",
-        "groups": [],
-        "user_permissions": []
-    }
-},
-{
     "model": "participants.participant",
     "pk": 1,
     "fields": {
-        "user": 2,
+        "heartsteps_id": "sample-uuid-1234",
         "enrollment_token": "token"
     }
 }

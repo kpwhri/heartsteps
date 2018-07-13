@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from fcm_django.models import FCMDevice
 
@@ -13,19 +14,31 @@ class EnrollView(APIView):
     """
     Enrolls a participant and creates an enrollment token for their session if a matching token is found.
 
-    Expects requests to send a "enrollment_token" in post data.
+    Expects requests to send a "enrollmentToken" in post data.
     """
     def post(self, request, format=None):
-        if request.data.get('enrollment_token'):
+        enrollment_token = request.data.get('enrollmentToken')
+        if enrollment_token:
             try:
-                participant = Participant.objects.get(enrollment_token=request.data.get('enrollment_token'))
-                token, created = Token.objects.get_or_create(user=participant.user)
-                return Response({
-                    'token': token.key,
-                    'participant_id': participant.id
-                })
+                participant = Participant.objects.get(enrollment_token=enrollment_token)
             except Participant.DoesNotExist:
-                pass
+                return Response({}, status.HTTP_400_BAD_REQUEST)
+            if not participant.user:
+                user = User.objects.create(
+                    username= participant.heartsteps_id
+                )
+                participant.user = user
+                participant.save()
+            token, created = Token.objects.get_or_create(user=participant.user)
+
+            response_data = {
+                'heartstepsId': participant.heartsteps_id
+            }
+            response_headers = {
+                'Authorization-Token': token
+            }
+
+            return Response(response_data, headers=response_headers)
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 class Device(APIView):
