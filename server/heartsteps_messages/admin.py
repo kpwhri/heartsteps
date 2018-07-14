@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import ContextTag, MessageTemplate
 
-# Register your models here.
+class MessageTemplateAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(MessageTemplate, MessageTemplateAdmin)
+
+class ContextTagAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(ContextTag, ContextTagAdmin)

@@ -20,7 +20,7 @@ class RecievedMessageView(APIView):
             except Message.DoesNotExist:
                 return Response({}, status.HTTP_404_NOT_FOUND)
             
-            if request.user.id != message.reciepent.id:
+            if request.user != message.reciepent:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
 
             if not message.recieved:

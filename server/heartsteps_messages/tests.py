@@ -7,6 +7,8 @@ from fcm_django.models import FCMDevice
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
+import uuid
+
 class MessageRecievedTests(APITestCase):
     
     def test_marks_recieved(self):
@@ -17,7 +19,7 @@ class MessageRecievedTests(APITestCase):
         user = User.objects.create(username="test")
         device = FCMDevice.objects.create(type="web")
         message = Message.objects.create(
-            id = 12,
+            id = uuid.uuid4(),
             reciepent = user,
             device = device
         )
@@ -25,7 +27,7 @@ class MessageRecievedTests(APITestCase):
         self.client.force_authenticate(user=user)
 
         response = self.client.post(reverse('messages-recieved'), {
-            'messageId': '12'
+            'messageId': message.id
         })
         
         self.assertEqual(response.status_code, 201)
