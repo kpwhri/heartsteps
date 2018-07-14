@@ -35,7 +35,7 @@ export class ParticipantService {
     }
 
     update(data:any):Promise<boolean> {
-        if(data.participant_id) {
+        if(data.heartstepsId) {
             this.enrolled = true;
         }
 
@@ -65,7 +65,7 @@ export class ParticipantService {
     getParticipantId():Promise<string> {
         return this.storage.get('heartsteps-participant')
         .then((participant) => {
-            return participant.participant_id;
+            return participant.heartstepsId;
         });
     }
 

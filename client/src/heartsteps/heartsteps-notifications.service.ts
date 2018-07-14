@@ -17,8 +17,8 @@ export class HeartstepsNotifications {
         })
         .then(token => {
             return this.heartstepsServer.post('device', {
-                registration: token,
-                device_type: this.fcmService.getDeviceType()
+                registration_id: token,
+                type: this.fcmService.getDeviceType()
             });
         })
         .then(() => {

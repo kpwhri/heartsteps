@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'fcm_django',
+    'heartsteps_messages',
     'participants'
 ]
 

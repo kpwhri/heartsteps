@@ -9,13 +9,13 @@ export class EnrollmentService {
 
     constructor(private heartstepsServer:HeartstepsServer, private participantService:ParticipantService) {}
 
-    enroll(enrollment_token:String):Promise<boolean> {
+    enroll(enrollmentToken:String):Promise<boolean> {
         return this.heartstepsServer.post('enroll' ,{
-            enrollment_token: enrollment_token
+            enrollmentToken: enrollmentToken
         })
         .then((data) => {
             return this.participantService.set({
-                participant_id: data.participant_id
+                heartstepsId: data.heartstepsId
             });
         })
         .then(() => {
