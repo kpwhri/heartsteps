@@ -35,7 +35,7 @@ class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     reciepent = models.ForeignKey(User)
-    device = models.ForeignKey(FCMDevice)
+    device = models.ForeignKey(FCMDevice, blank=True, null=True)
 
     message_template = models.ForeignKey(MessageTemplate, null=True, blank=True)
 
@@ -47,12 +47,26 @@ class Message(models.Model):
     recieved = models.DateTimeField(blank=True, null=True)
 
     def send(self):
+        if not self.device:
+            try:
+                device = FCMDevice.objects.get(
+                    user=self.reciepient,
+                    active=True
+                    )
+                self.device = device
+            except FCMDevice.DoesNotExist:
+                return False
+        
         results = self.device.send_message(
             title = self.title,
             body = self.body
         )
+        self.sent = timezone.now()
+        self.save()
+
         if(result['success']):
-            self.sent = timezone.now()
+            return True
+        return False
 
     def markRecieved(self):
         self.recieved = timezone.now()

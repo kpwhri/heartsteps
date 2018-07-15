@@ -18,11 +18,18 @@ class Decision(models.Model):
     def get_context(self):
         print("... get context ...")
 
-    def get_message(self):
-        print("... make a message to send ...")
+    def make_message(self):
+        message = Message(
+            reciepent=self.user
+        )
+        message.title = "Example Message"
+        message.body = "Example Message Body"
+        message.save()
+        self.save()
 
     def send_message(self):
         if self.message:
+            print("send>>")
             return self.message.send()
         return False
 
