@@ -86,7 +86,7 @@ export class HeartstepsServer {
     }
 
     updateAuthorizationToken(response:any):any {
-        const token = response.headers["authorization-token"];
+        const token:string = response.headers['authorization-token'];
         if(token) {
             this.authorizationService.setAuthorization(token);
         }
