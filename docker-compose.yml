@@ -31,3 +31,9 @@ services:
     depends_on:
       - db
       - server
+  activity-suggestion:
+    build: ./activity-suggestion
+    volumes:
+      - ./activity-suggestion:/activity-suggestion
+    ports:
+      - "8000:8000"
