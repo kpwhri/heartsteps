@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
+    'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
     'fcm_django',
@@ -54,6 +56,9 @@ FCM_DJANGO_SETTINGS = {
         "ONE_DEVICE_PER_USER": True,
         "DELETE_INACTIVE_DEVICES": False
 }
+
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_RESULT_BACKEND = 'django-db'
 
 FIXTURE_DIRS = [
     root('fixtures')
