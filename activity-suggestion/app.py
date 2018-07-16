@@ -3,11 +3,25 @@ from flask import request
 from flask import Response
 from flask import json
 
+import subprocess
+
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+@app.route('/', methods=['POST'])
+def decision():
+    input = {
+        'userId': request.form['userId'],
+        'decisionId': request.form['decisionId']
+    }
+
+    response = subprocess.run(
+        "Rscript example.r '%s'" % (json.dumps(input)),
+        shell=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True
+        )
+    
+    return response.stdout
 
 
 if __name__ == "__main__":

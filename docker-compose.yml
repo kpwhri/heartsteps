@@ -33,6 +33,7 @@ services:
       - server
   activity-suggestion:
     build: ./activity-suggestion
+    command: python app.py
     volumes:
       - ./activity-suggestion:/activity-suggestion
     ports:
