@@ -1,21 +1,25 @@
 # HeartSteps
 
-This is the HeartSteps application, it has two pieces:
-* *heartsteps_server* a Django web server
-* *heartsteps_client* an Ionic hybrid mobile applicaiton
+This is the HeartSteps application, which is comprised of multiple services:
+* *heartsteps-server* a Django web server
+* *heartsteps-client* an Ionic hybrid mobile applicaiton
+* *activity-suggestion-service* randomizes activity-suggestions
+* *anti-sedentary-service* responsible for randomizing anti-sedentary intervention
 
-To understand the application architecture, please see the application architecture google doc, which is still a work in progress.
+To understand the application architecture, please see the [application architecture google doc,](https://docs.google.com/document/d/1UsdR3xgVDtPpmmskc6mGsm7YJNCXJlhmE-qGk96isQw/edit?usp=sharing) which is still a work in progress.
 
 The following outlines how to run the applications for local development, and then deploy the entire application.
 
 ## Development
 
-The entire application stack can be started in development mode by running
+The entire application stack can be started in development mode by running:
 ```
 $ docker-compose up
 ```
 
-This will start both the client and server in development modes, so any file changes will be reloaded and shown. Unfortunately this isn't great for updating database models and more complex development tasks, which is why we recommend working on either the client or server independently in an isolated bash environment.
+This will start all services in development mode, so any file changes will be reloaded and shown. *This is not recommended for working on a single service because:*
+* Many development tasks need more complex commands to update database models
+* Running all services at once is a heavy load for a computer
 
 *Running HeartSteps Server*
 ```
@@ -32,6 +36,36 @@ To explain the command above a little
 You would run the client like this
 ```
 docker-compose run --service-ports client bash
+```
+
+### Activity Suggestion and Anti-Sedentary Services
+The activity suggestion and anti-sedentary services run Flask-based HTTP servers that run R-scripts. These R-scripts read and write to CSV file systems instead of using a database -- these CSV files will be backed-up to Google's datastorage.
+
+The Flask webserver is responsible for validating HTTP requests, and running the R-scripts which contain business logic that randomizes participants.
+
+Each service has an install.r script file, which runs when the Docker image is built, and is responsible for installing R-libraries used by the service.
+
+*Running Activty Suggestion Service*
+```
+$ docker-compose run --service-ports activity-suggestion
+```
+This will start a web server running at http://localhost:5000
+
+*Running Anti-Sedentary Service*
+```
+$ docker-compose run --service-ports anti-sedentary
+```
+This will start a web server running at http://localhost:5001
+
+*Debugging Tips*
+Docker creates containers and images and attempts to reuse them. This means that the install.r script isn't run often. To trigger a service to be rebuilt:
+```
+$ docker-compose build activity-suggestion
+```
+
+Docker's cached containers sometimes need to be removed, the best way to remove them is:
+```
+$ docker rm -f $(docker ps -aq)
 ```
 
 ## Deployment
