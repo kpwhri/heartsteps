@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Message
+from heartsteps_messages.models import Message
 
 class RecievedMessageView(APIView):
     """

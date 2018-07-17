@@ -1,5 +1,5 @@
 from django.contrib import admin
-from participants.models import Participant
+from .models import Participant
 
 class ParticipantAdmin(admin.ModelAdmin):
     pass
