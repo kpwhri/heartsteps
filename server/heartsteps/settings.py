@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'fcm_django',
     'heartsteps_participants',
     'heartsteps_locations',
-    'heartsteps_messages'
+    'heartsteps_messages',
+    'heartsteps_randomization'
 ]
 
 MIDDLEWARE = [

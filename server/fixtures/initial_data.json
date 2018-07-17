@@ -18,7 +18,7 @@
     }
 },
 {
-    "model": "heartsteps_participants.participant",
+    "model": "participants.participant",
     "pk": 1,
     "fields": {
         "heartsteps_id": "sample-uuid-1234",
