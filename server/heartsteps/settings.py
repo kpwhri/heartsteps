@@ -30,8 +30,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'fcm_django',
-    'heartsteps_messages',
-    'heartsteps_participants'
+    'heartsteps_participants',
+    'heartsteps_locations',
+    'heartsteps_messages'
 ]
 
 MIDDLEWARE = [
