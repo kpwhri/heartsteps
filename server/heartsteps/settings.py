@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'heartsteps_participants',
     'heartsteps_locations',
     'heartsteps_messages',
-    'heartsteps_randomization'
+    'heartsteps_randomization',
+    'activity_suggestions'
 ]
 
 MIDDLEWARE = [
