@@ -18,7 +18,9 @@ import { OnboardEndPane } from './onboard-end';
     OnboardEndPane
   ],
   imports: [
-    IonicPageModule.forChild(OnboardPage)
+    IonicPageModule.forChild(OnboardPage),
+    IonicPageModule.forChild(NotificationsPage),
+    IonicPageModule.forChild(LocationPermissionPane)
   ],
 })
 export class OnboardPageModule {}

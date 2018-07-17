@@ -25,6 +25,8 @@ export class OnboardPage {
   }
 
   ionViewWillEnter() {
+    this.nav.swipeBackEnabled = false;
+    console.log(this.nav.config)
     this.nav.setPages(this.screens.reverse());
   }
 
