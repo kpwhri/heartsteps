@@ -9,6 +9,8 @@ MIDAFTERNOON = 'midafternoon'
 EVENING = 'evening'
 POSTDINNER = 'postdinner'
 
+TIMES = [MORNING, LUNCH, MIDAFTERNOON, EVENING, POSTDINNER]
+
 TIME_CATEGORIES = [
     (MORNING, 'Morning'),
     (LUNCH, 'Lunch'),
