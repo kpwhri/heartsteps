@@ -4,8 +4,12 @@ import { OnboardPage } from './onboard';
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { OnboardEndPane } from './onboard-end';
+import { Geolocation } from '@ionic-native/geolocation';
 
 @NgModule({
+  providers: [
+    Geolocation
+  ],
   declarations: [
     OnboardPage,
     NotificationsPage,

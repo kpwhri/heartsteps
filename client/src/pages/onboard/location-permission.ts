@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { Geolocation } from '@ionic-native/geolocation';
 
 @Component({
   selector: 'location-permission-pane',
@@ -7,10 +8,17 @@ import { NavController } from 'ionic-angular';
 })
 export class LocationPermissionPane {
 
-  constructor(private navCtrl:NavController) {}
+  constructor(
+    private navCtrl:NavController,
+    private geolocation:Geolocation
+  ) {}
 
   getPermission() {
-    console.log('Permission plz');
-    this.navCtrl.pop();
+    this.geolocation.getCurrentPosition().then((resp) => {
+      console.log(resp);
+      this.navCtrl.pop();
+     }).catch((error) => {
+       console.log('Error getting location', error);
+     });
   }
 }
