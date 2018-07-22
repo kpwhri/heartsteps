@@ -5,6 +5,7 @@ import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { OnboardEndPane } from './onboard-end';
 import { Geolocation } from '@ionic-native/geolocation';
+import { ActivitySuggestionTimes } from './activity-suggestion-times';
 
 @NgModule({
   providers: [
@@ -14,11 +15,13 @@ import { Geolocation } from '@ionic-native/geolocation';
     OnboardPage,
     NotificationsPage,
     LocationPermissionPane,
+    ActivitySuggestionTimes,
     OnboardEndPane
   ],
   entryComponents: [
     NotificationsPage,
     LocationPermissionPane,
+    ActivitySuggestionTimes,
     OnboardEndPane
   ],
   imports: [
