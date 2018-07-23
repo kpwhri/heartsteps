@@ -1,0 +1,16 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>Locations</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content padding>
+    <h2>Where do you live and work?</h2>
+    <p>Heartsteps will use these locations to customize suggestions for physical activity nearby.</p>
+    <ion-list>
+        <ion-item *ngFor="let location of locations" (click)="editLocation(location)">
+            {{location.address}}
+        </ion-item>
+    </ion-list>
+    <button ion-button outline (click)="newLocation()">Add Location</button>
+    <button ion-button (click)="saveLocations()">Save Locations</button>
+</ion-content>

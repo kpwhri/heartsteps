@@ -5,6 +5,7 @@ import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { OnboardEndPane } from './onboard-end';
 import { ActivitySuggestionTimes } from './activity-suggestion-times';
+import { LocationsPage } from './locations';
 
 @IonicPage()
 @Component({
@@ -22,6 +23,7 @@ export class OnboardPage {
       NotificationsPage,
       ActivitySuggestionTimes,
       LocationPermissionPane,
+      LocationsPage,
       OnboardEndPane
     ];
   }
