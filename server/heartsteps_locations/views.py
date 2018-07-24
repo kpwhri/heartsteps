@@ -19,13 +19,13 @@ class LocationsView(APIView):
             serializedLocations.append({
                 'address': location.address,
                 'lat': location.lat,
-                'long': location.long,
+                'lng': location.long,
                 'type': location.type
             })
         return serializedLocations
 
     def get(self, request, format=None):        
-        locations = Location.objects.filter(user=user).all()
+        locations = Location.objects.filter(user=request.user).all()
         data = self.serializeLocations(locations)
         return Response(data, status=status.HTTP_200_OK)
 
@@ -38,7 +38,7 @@ class LocationsView(APIView):
                     user = request.user,
                     address = locationObj['address'],
                     lat = locationObj['lat'],
-                    long = locationObj['long'],
+                    long = locationObj['lng'],
                     type = locationObj['type']
                 )
                 locations.append(location)

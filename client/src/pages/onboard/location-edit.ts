@@ -46,7 +46,9 @@ export class LocationEdit {
     update() {
         this.viewCtrl.dismiss({
             address: this.address,
-            type: this.type
+            type: this.type,
+            lat: this.lat,
+            lng: this.lng
         })
     }
 

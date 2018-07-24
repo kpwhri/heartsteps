@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ModalController } from 'ionic-angular';
 import { LocationEdit } from './location-edit';
 import { Geolocation } from '@ionic-native/geolocation';
+import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
 
 @Component({
     selector: 'locations-page',
@@ -14,7 +15,8 @@ export class LocationsPage {
     constructor(
         private navCtrl:NavController,
         private modalCtrl:ModalController,
-        private geolocation:Geolocation
+        private geolocation:Geolocation,
+        private heartstepsServer:HeartstepsServer
     ) {
         this.locations = []
     }
@@ -24,6 +26,8 @@ export class LocationsPage {
         .then((updatedLocation) => {
             location.address = updatedLocation.address
             location.type = updatedLocation.type
+            location.lat = updatedLocation.lat
+            location.lng = updatedLocation.lng
         })
         .catch(() => {
             // don't do anything
@@ -66,6 +70,14 @@ export class LocationsPage {
     }
 
     saveLocations() {
-        this.navCtrl.pop();
+        this.heartstepsServer.post('locations', {
+            locations: this.locations
+        })
+        .then(() => {
+            this.navCtrl.pop()
+        })
+        .catch(() => {
+            console.log("crap")
+        })
     }
 }
