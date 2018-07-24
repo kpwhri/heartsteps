@@ -7,6 +7,7 @@ import { OnboardEndPane } from './onboard-end';
 import { Geolocation } from '@ionic-native/geolocation';
 import { ActivitySuggestionTimes } from './activity-suggestion-times';
 import { LocationsPage } from './locations';
+import { LocationEdit } from './location-edit';
 
 @NgModule({
   providers: [
@@ -18,6 +19,7 @@ import { LocationsPage } from './locations';
     LocationPermissionPane,
     ActivitySuggestionTimes,
     LocationsPage,
+    LocationEdit,
     OnboardEndPane
   ],
   entryComponents: [
@@ -25,6 +27,7 @@ import { LocationsPage } from './locations';
     LocationPermissionPane,
     ActivitySuggestionTimes,
     LocationsPage,
+    LocationEdit,
     OnboardEndPane
   ],
   imports: [
