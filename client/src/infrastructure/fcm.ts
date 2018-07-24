@@ -95,9 +95,9 @@ export class FcmService {
 
     private setupSubscription() {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.firebase.onNotificationOpen().subscribe((data) => {
-                this.directMessage(data);
-            });
+            // this.firebase.onNotificationOpen().subscribe((data) => {
+            //     this.directMessage(data);
+            // });
             this.subscriptionSetup = true;
         } else {
            this.firebaseMessaging.onMessage((data:any) => {
