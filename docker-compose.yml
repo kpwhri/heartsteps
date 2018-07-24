@@ -45,3 +45,4 @@ services:
       - ./anti-sedentary:/anti-sedentary
     ports:
       - "5001:8000"
+      
