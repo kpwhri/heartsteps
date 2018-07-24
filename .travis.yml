@@ -22,7 +22,7 @@ after_success:
 - docker-compose run server python manage.py collectstatic
 - cp -r server/static static
 # Migrate database
-- docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yml run server python manage.py migrate
+- docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server python manage.py migrate
 # login with gcloud
 - gcloud auth activate-service-account --key-file=credentials/gce.json
 - gcloud auth configure-docker -q
