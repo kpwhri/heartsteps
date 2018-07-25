@@ -6,17 +6,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth.models import User
-from .models import Decision
+from .models import Decision, Location
+
+from .tasks import create_decision, make_decision
 
 class DecisionView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        decision = Decision(
-            user = request.user
-        )
-        decision.save()
-        decision.get_context()
+        create_decision.delay(request.user.username)
         return Response({}, status=status.HTTP_201_CREATED)
 
 class DecisionUpdateView(APIView):
@@ -30,10 +28,16 @@ class DecisionUpdateView(APIView):
         if decision.user.id is not request.user.id:
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         
-        # update context here
-        decision.make_message()
-        decision.send_message()
+        if 'location' in request.data and not hasattr(decision, 'location'):
+            location = request.data['location']
+            Location.objects.create(
+                decision = decision,
+                lat = float(location['lat']),
+                long = float(location['lng'])
+            )
+            return Response({}, status=status.HTTP_201_CREATED)
 
+        result = make_decision.delay(str(decision.id))
         return Response({}, status=status.HTTP_200_OK)
 
 

@@ -32,4 +32,8 @@ export class HeartstepsNotifications {
     onMessage():Observable<any> {
         return this.fcmService.onMessage();
     }
+
+    onDataMessage():Observable<any> {
+        return this.fcmService.onDataMessage();
+    }
 }

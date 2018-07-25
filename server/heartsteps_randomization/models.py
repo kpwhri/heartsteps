@@ -22,9 +22,18 @@ class Decision(models.Model):
         except FCMDevice.DoesNotExist:
             return False
         results = device.send_message(
-            data={
-            'type': 'get_context'
-        })
+            data = {
+                'type': 'get_context',
+                'decision_id': self.id
+                }
+            )
+        return True
+
+    def decide(self):
+        self.a_it = True
+        self.pi_it = float(1)
+        self.save()
+
         return True
         
 
@@ -50,3 +59,15 @@ class Decision(models.Model):
             return "For %s (undecided)" % self.user
         else:
             return "For %s (decided)" % self.user
+
+class Location(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    decision = models.OneToOneField(
+        Decision,
+        on_delete=models.CASCADE
+    )
+    lat = models.FloatField()
+    long = models.FloatField()
+
+    def __str__(self):
+        return "Location for %s" % (self.decision)

@@ -48,7 +48,7 @@ export class FcmService {
         return this.messageSubject.asObservable();
     }
 
-    onData():Observable<any> {
+    onDataMessage():Observable<any> {
         return this.dataSubject.asObservable();
     }
 
@@ -95,9 +95,9 @@ export class FcmService {
 
     private setupSubscription() {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            // this.firebase.onNotificationOpen().subscribe((data) => {
-            //     this.directMessage(data);
-            // });
+            this.firebase.onNotificationOpen().subscribe((data) => {
+                this.directMessage(data);
+            });
             this.subscriptionSetup = true;
         } else {
            this.firebaseMessaging.onMessage((data:any) => {
@@ -126,9 +126,11 @@ export class FcmService {
 
         // iOS will throw error if subscription set up
         // before permission has been granted...
-        if(this.platform.is('ios') && this.firebase.hasPermission()) {
+        if((this.platform.is('ios') || this.platform.is('android')) && this.firebase.hasPermission()) {
             this.setupSubscription();
-        } else {
+        }
+
+        if(!this.platform.is('ios') && !this.platform.is('android')) {
             this.setupSubscription();
         }
     }

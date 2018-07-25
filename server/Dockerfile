@@ -12,5 +12,4 @@ ADD . /server
 RUN pip install -r requirements.txt
 
 # Run the server
-CMD gunicorn -b :8080 heartsteps.wsgi:application
-#CMD supervisord -n -c supervisord.conf
+CMD supervisord -n -c supervisord.conf
