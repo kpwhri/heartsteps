@@ -38,11 +38,12 @@ export class MyApp {
             return this.participant.refresh()     
         })
         .then(() => {
-            this.notifications.onMessage().subscribe((message:string) => {
-                this.showMessage(message);
+            this.notifications.onMessage().subscribe((message:any) => {
+                this.showMessage(message.body);
             });
 
             this.notifications.onDataMessage().subscribe((payload:any) => {
+                console.log("got data message...")
                 if(payload.type == 'get_context' && payload.decision_id) {
                     this.geolocation.getCurrentPosition().then((position:Position) => {
                         this.heartstepsServer.post('/decisions/'+payload.decision_id, {

@@ -11,7 +11,7 @@ class Decision(models.Model):
 
     a_it = models.NullBooleanField(null=True, blank=True)
     pi_it = models.FloatField(null=True, blank=True)
-    message = models.ForeignKey(Message, null=True, blank=True)
+    message = models.OneToOneField(Message, null=True, blank=True, on_delete=models.CASCADE)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -24,7 +24,7 @@ class Decision(models.Model):
         results = device.send_message(
             data = {
                 'type': 'get_context',
-                'decision_id': self.id
+                'decision_id': str(self.id)
                 }
             )
         return True
@@ -44,16 +44,17 @@ class Decision(models.Model):
         message.title = "Example Message"
         message.body = "Example Message Body"
         message.save()
+
+        self.message = message
         self.save()
 
     def send_message(self):
         if self.message:
-            print("send>>")
             return self.message.send()
         return False
 
     def __str__(self):
-        if self.message:
+        if self.message and self.message.sent:
             return "For %s (messaged)" % self.user
         elif self.a_it is None:
             return "For %s (undecided)" % self.user

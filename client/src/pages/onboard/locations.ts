@@ -78,6 +78,7 @@ export class LocationsPage {
         })
         .catch(() => {
             console.log("crap")
+            console.log(this.locations)
         })
     }
 }

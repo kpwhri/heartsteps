@@ -12,13 +12,13 @@ export class NotificationsPage {
 
   getPermission() {
     this.navCtrl.pop();
-    // this.heartstepsNotifications.enable()
-    // .then(() => {
-    //     console.log("got permission")
-    //     this.navCtrl.pop();
-    // })
-    // .catch(() => {
-    //     console.log('No permission');
-    // })
+    this.heartstepsNotifications.enable()
+    .then(() => {
+        console.log("got permission")
+        this.navCtrl.pop();
+    })
+    .catch(() => {
+        console.log('No permission');
+    })
   }
 }

@@ -50,7 +50,7 @@ class Message(models.Model):
         if not self.device:
             try:
                 device = FCMDevice.objects.get(
-                    user=self.reciepient,
+                    user=self.reciepent,
                     active=True
                     )
                 self.device = device
@@ -64,7 +64,7 @@ class Message(models.Model):
         self.sent = timezone.now()
         self.save()
 
-        if(result['success']):
+        if(results['success']):
             return True
         return False
 

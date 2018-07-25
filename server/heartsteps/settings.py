@@ -59,7 +59,7 @@ FCM_DJANGO_SETTINGS = {
         "DELETE_INACTIVE_DEVICES": False
 }
 
-CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'django-db'
 
 FIXTURE_DIRS = [

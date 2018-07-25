@@ -21,9 +21,9 @@ export class HeartstepsServer {
         this.heartstepsUrl = process.env.HEARTSTEPS_URL;
 
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.http = new HTTP();
+            this.http = new HTTP()
         } else {
-            this.http = axios.create();
+            this.http = axios.create()
         }
     }
 
@@ -52,6 +52,7 @@ export class HeartstepsServer {
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
             if(this.platform.is('ios') || this.platform.is('android')) {
+                this.http.setDataSerializer('json')
                 return this.http.post(this.makeUrl(url), data, headers)
             } else {
                 return this.http.post(this.makeUrl(url), data, {headers: headers})
@@ -74,14 +75,17 @@ export class HeartstepsServer {
     }
 
     setAuthorizationHeaderToken():Promise<any> {
+        let headers = {
+            'Content-Type': 'application/json'
+        }
+
         return this.authorizationService.getAuthorization()
         .then((token) => {
-            return {
-                Authorization: `Token ${token}`
-            };
+            headers['Authorization'] = `Token ${token}`
+            return headers
         })
         .catch(() => {
-            return Promise.resolve({});
+            return Promise.resolve(headers);
         });
     }
 

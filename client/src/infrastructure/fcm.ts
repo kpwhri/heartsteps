@@ -5,6 +5,7 @@ import firebase from 'firebase/app';
 import 'firebase/messaging';
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
+import { Storage } from '@ionic/storage';
 
 declare var process: {
     env: {
@@ -24,7 +25,8 @@ export class FcmService {
     private subscriptionSetup:boolean;
 
     constructor(
-        private platform: Platform
+        private platform: Platform,
+        private storage:Storage
     ) {
         this.messageSubject = new Subject();
         this.dataSubject = new Subject();
@@ -34,6 +36,7 @@ export class FcmService {
         } else {
             this.setupWeb();
         }
+        this.setupSubscription();
     }
 
     private directMessage(message:any) {
@@ -78,11 +81,26 @@ export class FcmService {
     getToken():Promise<string> {
         return this.getTokenWrapper()
         .then((token) => {
+            return this.saveToken(token)
+        })
+        .then((token) => {
             if(!this.subscriptionSetup) {
                 this.setupSubscription();
             }
-            return token;
+            return token
         });
+    }
+
+    saveToken(token:string):Promise<string> {
+        return new Promise((resolve, reject) => {
+            return this.storage.set('fcmToken', token)
+            .then(() => {
+                resolve(token)
+            })
+            .catch(() => {
+                reject()
+            })
+        })
     }
 
     private getTokenWrapper():Promise<string> {
@@ -93,24 +111,31 @@ export class FcmService {
         }
     }
 
-    private setupSubscription() {
-        if(this.platform.is('ios') || this.platform.is('android')) {
-            this.firebase.onNotificationOpen().subscribe((data) => {
-                this.directMessage(data);
-            });
-            this.subscriptionSetup = true;
-        } else {
-           this.firebaseMessaging.onMessage((data:any) => {
-                if(data.notification){
-                    // should merge notification object into data object
-                    // to match cordova implementation
-                    this.directMessage(data.notification);
-                } else {
+    private setupSubscription():Promise<boolean> {
+        return this.storage.get('fcmToken')
+        .then(() => {
+            if(this.platform.is('ios') || this.platform.is('android')) {
+                this.firebase.onNotificationOpen().subscribe((data) => {
                     this.directMessage(data);
-                }
-            });
-            this.subscriptionSetup = true;
-        }
+                });
+            } else {
+               this.firebaseMessaging.onMessage((data:any) => {
+                    if(data.notification){
+                        // should merge notification object into data object
+                        // to match cordova implementation
+                        this.directMessage(data.notification);
+                    } else {
+                        this.directMessage(data);
+                    }
+                });
+            }
+            this.subscriptionSetup = true
+            return Promise.resolve(true)
+        })
+        .catch(() => {
+            this.subscriptionSetup = false
+            return Promise.reject(false)
+        })
     }
 
     private setupWeb() {
@@ -118,20 +143,9 @@ export class FcmService {
             messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
         });
         this.firebaseMessaging = firebase.messaging();
-        this.setupSubscription();
     }
 
     private setupNative() {
         this.firebase = new FirebaseNative();
-
-        // iOS will throw error if subscription set up
-        // before permission has been granted...
-        if((this.platform.is('ios') || this.platform.is('android')) && this.firebase.hasPermission()) {
-            this.setupSubscription();
-        }
-
-        if(!this.platform.is('ios') && !this.platform.is('android')) {
-            this.setupSubscription();
-        }
     }
 }

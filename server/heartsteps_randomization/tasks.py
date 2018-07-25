@@ -8,6 +8,7 @@ from .models import Decision
 
 @shared_task
 def make_decision(decision_id):
+    print("making decision: " + str(decision_id) )
     decision = Decision.objects.get(id=decision_id)
     
     if not hasattr(decision, 'location'):
