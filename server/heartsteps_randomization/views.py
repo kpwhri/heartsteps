@@ -8,13 +8,16 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from .models import Decision, Location
 
-from .tasks import create_decision, make_decision
+from .tasks import make_decision
 
 class DecisionView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        create_decision.delay(request.user.username)
+        decision = Decision.objects.create(
+            user = request.user
+        )
+        make_decision.delay(str(decision.id))
         return Response({}, status=status.HTTP_201_CREATED)
 
 class DecisionUpdateView(APIView):

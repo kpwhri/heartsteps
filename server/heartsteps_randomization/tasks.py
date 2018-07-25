@@ -7,14 +7,6 @@ from .models import Decision
 
 
 @shared_task
-def create_decision(username):
-    user = User.objects.get(username=username)
-    decision = Decision.objects.create(
-        user = user
-    )
-    make_decision.delay(str(decision.id))
-
-@shared_task
 def make_decision(decision_id):
     decision = Decision.objects.get(id=decision_id)
     
