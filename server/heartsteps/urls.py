@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^api/', include('heartsteps_participants.urls')),
     url(r'^api/', include('heartsteps_randomization.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'api-auth', include('rest_framework.urls'))
+    url(r'api-auth', include('rest_framework.urls')),
+    url(r'^weather/', include('weather.urls'))
 ]
