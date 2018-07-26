@@ -38,7 +38,6 @@ class DecisionUpdateView(APIView):
                 lat = float(location['lat']),
                 long = float(location['lng'])
             )
-            return Response({}, status=status.HTTP_201_CREATED)
 
         result = make_decision.delay(str(decision.id))
         return Response({}, status=status.HTTP_200_OK)
