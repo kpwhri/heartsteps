@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from weather.dark_sky import DarkSkyApiManager
+from weather.utils import DarkSkyApiManager
+from weather.utils import WeatherUtils
 from weather.models import WeatherForecast
 from weather.serializers import WeatherForecastSerializer
 
@@ -13,17 +14,6 @@ class WeatherForecastsList(APIView):
     """
     List all weather forecasts or create a new weather forecast.
     """
-    WEATHER_OUTDOOR = "outdoor" # weather is good enough to go outside
-    WEATHER_OUTDOOR_SNOW = "outdoor_snow" # it is currently snowing, and not suitable to go outside
-    WEATHER_INDOOR = "indoor" # weather is unfit to go outside and one should stay indoors
-
-    def _get_weather_context(self, weather_forecast):
-        if weather_forecast.precip_probability < 70.0 and weather_forecast.apparent_temperature > 32.0 and weather_forecast.apparent_temperature < 90.0:
-            return self.WEATHER_OUTDOOR
-        elif weather_forecast.precip_probability > 0.0 and weather_forecast.precip_type == DARK_SKY_SNOW and weather_forecast.apparent_temperature > 25.0:
-            return self.WEATHER_OUTDOOR_SNOW
-        else:
-            return self.WEATHER_INDOOR
 
     def get(self, request, format=None):
         forecasts = WeatherForecast.objects.all()
@@ -38,9 +28,10 @@ class WeatherForecastsList(APIView):
             dark_sky = DarkSkyApiManager()
             forecast = dark_sky.get_hour_forecast(latitude, longitude)
             forecast.save()
-            return Response({ 'id': forecast.id,
-                              'context': self._get_weather_context(forecast) },
-                              status=status.HTTP_201_CREATED)
+            context = WeatherUtils.get_weather_context(forecast)
+            return Response({'id': forecast.id,
+                             'context': context},
+                            status=status.HTTP_201_CREATED)
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 

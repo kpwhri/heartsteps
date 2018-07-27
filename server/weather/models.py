@@ -20,4 +20,4 @@ class WeatherForecast(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-      return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)
+        return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)

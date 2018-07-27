@@ -4,7 +4,6 @@ import urllib.error
 
 
 # Built originally to work in Python2 with urllib2 library
-# Not actually functional
 def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
     # Retries a function or method
     # Not well tested
