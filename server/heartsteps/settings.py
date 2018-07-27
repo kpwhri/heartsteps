@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'heartsteps_participants',
     'heartsteps_locations',
     'heartsteps_messages',
+    'weather',
     'heartsteps_randomization',
     'activity_suggestions',
     'weather'
