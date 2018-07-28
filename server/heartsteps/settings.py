@@ -62,6 +62,7 @@ FCM_DJANGO_SETTINGS = {
 
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 FIXTURE_DIRS = [
     root('fixtures')
