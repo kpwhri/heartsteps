@@ -35,8 +35,7 @@ INSTALLED_APPS = [
     'heartsteps_messages',
     'weather',
     'heartsteps_randomization',
-    'activity_suggestions',
-    'weather'
+    'activity_suggestions'
 ]
 
 MIDDLEWARE = [
