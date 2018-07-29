@@ -1,4 +1,8 @@
 from django.test import TestCase
+from django.urls import reverse
+
+from rest_framework.test import APITestCase
+from rest_framework.test import force_authenticate
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
@@ -24,17 +28,56 @@ class SuggestionTimeTestCase(TestCase):
             hour = 15,
             minute = 30
         )
-
-        periodic_tasks = PeriodicTask.objects.all()
-        self.assertEqual(len(periodic_tasks), 1)
-
         schedules = CrontabSchedule.objects.all()
+        periodic_tasks = PeriodicTask.objects.all()
+        
+        self.assertEqual(len(periodic_tasks), 1)
         self.assertEqual(len(schedules), 1)
 
         task.delete()
 
         periodic_tasks = PeriodicTask.objects.all()
-        self.assertEqual(len(periodic_tasks), 0)
-
         schedules = CrontabSchedule.objects.all()
+
+        self.assertEqual(len(periodic_tasks), 0)
         self.assertEqual(len(schedules), 0)
+
+class SuggestionTimeUpdateView(APITestCase):
+
+    def test_remove_existing_times_for_user(self):
+        user = User.objects.create(username="test")
+        SuggestionTime.objects.create(
+            user = user,
+            type = 'lunch',
+            hour = 15,
+            minute = 30
+        )
+        SuggestionTime.objects.create(
+            user = user,
+            type = 'evening',
+            hour = 20,
+            minute = 00
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse('activity_suggestions-times'), {})
+
+        times = SuggestionTime.objects.filter(user=user)
+        
+        self.assertEqual(len(times), 0)
+
+    def test_create_times(self):
+        user = User.objects.create(username="test")
+        
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse('activity_suggestions-times'), {
+            'morning': '7:00',
+            'midafternoon': '15:45'
+        })
+
+        times = SuggestionTime.objects.filter(user=user).all()
+        self.assertEqual(len(times), 2)
+
+        afternoon_time = SuggestionTime.objects.get(user=user, type='midafternoon')
+        self.assertEqual(afternoon_time.hour, 15)
+        self.assertEqual(afternoon_time.minute, 45)

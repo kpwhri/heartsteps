@@ -35,7 +35,7 @@ class SuggestionTime(models.Model):
     scheduled_task = models.OneToOneField(PeriodicTask)
 
     def make_scheduled_task(self):
-        if self.scheduled_task:
+        if hasattr(self, 'scheduled_task'):
             return False
         schedule = CrontabSchedule.objects.create(
             minute = self.minute,
