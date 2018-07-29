@@ -1,4 +1,4 @@
-import uuid
+import uuid, json
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
@@ -43,7 +43,12 @@ class SuggestionTime(models.Model):
         )
         self.scheduled_task = PeriodicTask.objects.create(
             crontab = schedule,
-            name = 'Activity suggestion %s for %s' % (self.type, self.user)
+            name = 'Activity suggestion %s for %s' % (self.type, self.user),
+            task = 'activity_suggestions.tasks.start_decision',
+            kwargs = json.dumps({
+                'username': self.user.username,
+                'time_category': self.type
+            })
         )
         return True
 

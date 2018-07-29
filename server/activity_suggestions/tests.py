@@ -9,6 +9,7 @@ from rest_framework.test import force_authenticate
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
+from heartsteps_randomization.models import Decision
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from activity_suggestions.tasks import start_decision
@@ -93,6 +94,10 @@ class TaskTests(TestCase):
     def test_start_decision(self, make_decision):
         user = User.objects.create(username="test")
 
-        start_decision(user.username)
+        start_decision(user.username, 'evening')
 
+        decision = Decision.objects.get(user=user)
+
+        self.assertEqual(decision.tags.first().tag, 'evening')
         make_decision.assert_called()
+

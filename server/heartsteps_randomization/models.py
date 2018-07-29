@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 from django.contrib.auth.models import User
-from heartsteps_messages.models import Message
+from heartsteps_messages.models import Message, ContextTag
 from fcm_django.models import FCMDevice
 
 class Decision(models.Model):
@@ -11,7 +11,9 @@ class Decision(models.Model):
 
     a_it = models.NullBooleanField(null=True, blank=True)
     pi_it = models.FloatField(null=True, blank=True)
+
     message = models.OneToOneField(Message, null=True, blank=True, on_delete=models.CASCADE)
+    tags = models.ManyToManyField(ContextTag)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -28,6 +30,13 @@ class Decision(models.Model):
                 }
             )
         return True
+
+    def add_context(self, tag_text):
+        tag, created = ContextTag.objects.get_or_create(
+            tag = tag_text
+        )
+        self.tags.add(tag)
+        self.save()
 
     def decide(self):
         self.a_it = True
