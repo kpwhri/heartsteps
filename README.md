@@ -71,6 +71,15 @@ $ docker rm -f $(docker ps -aq)
 ## Deployment
 This application is automatically tested and deployed to the google cloud by Travis-CI. See .travis-ci.yml for details of the CI/CD process.
 
+Managing the heartsteps-server in deployment might require completing tasks like flushing the database, changing administration passwords, or other debugging tasks. **To run the *heartsteps-server* as if it was deployed to gcloud** and connected to the gcloud database, use the following command:
+```
+$ docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server bash
+
+// You will then be able to run tasks like:
+/server# ./manage.py createsuperuser
+/server# ./manage.py loaddata initial_data
+```
+
 ## Environment Variables
 Here is a list of the environment variables that are used by HeartSteps. All docker containers in this project share the same environment variables at run time and during build time on Travis-CI. None of the heartsteps docker containers use all the environment variables. Below is a list of environment variables used in the project, and how the environment variable is used.
 * *GAE_PROJECT_ID* is the project ID for the google cloud project that Travis-CI deploys to.
