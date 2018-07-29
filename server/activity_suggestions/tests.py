@@ -1,12 +1,17 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from unittest.mock import patch
+from django.test import TestCase, override_settings
+
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
+
+from activity_suggestions.tasks import start_decision
 
 class SuggestionTimeTestCase(TestCase):
 
@@ -21,7 +26,6 @@ class SuggestionTimeTestCase(TestCase):
         self.assertIsNotNone(task.scheduled_task)
 
     def test_removes_periodic_task_when_deleted(self):
-        print("task start")
         task = SuggestionTime.objects.create(
             user = User.objects.create(username="test"),
             type = 'lunch',
@@ -81,3 +85,14 @@ class SuggestionTimeUpdateView(APITestCase):
         afternoon_time = SuggestionTime.objects.get(user=user, type='midafternoon')
         self.assertEqual(afternoon_time.hour, 15)
         self.assertEqual(afternoon_time.minute, 45)
+
+class TaskTests(TestCase):
+
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    @patch('heartsteps_randomization.tasks.make_decision.delay')
+    def test_start_decision(self, make_decision):
+        user = User.objects.create(username="test")
+
+        start_decision(user.username)
+
+        make_decision.assert_called()

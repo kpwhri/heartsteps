@@ -39,7 +39,7 @@ class DecisionUpdateView(APIView):
                 long = float(location['lng'])
             )
 
-        result = make_decision.delay(str(decision.id))
+        make_decision.delay(str(decision.id))
         return Response({}, status=status.HTTP_200_OK)
 
 

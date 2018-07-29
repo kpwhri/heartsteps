@@ -11,7 +11,7 @@ install:
 
 script:
 # Django now requires rabbitmq to run
-- docker-compose run server bash -c "service rabbitmq-server start && python manage.py test"
+- docker-compose run server python manage.py test
 # Build client (for now)
 - docker-compose run client npm install
 - docker-compose run client ionic build --prod
