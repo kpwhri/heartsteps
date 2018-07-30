@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
+import { Geolocation } from '@ionic-native/geolocation';
 
 import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
 
@@ -9,10 +10,21 @@ import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service
     templateUrl: 'home.html'
 })
 export class HomePage {
-    constructor(private server:HeartstepsServer) {}
+    constructor(
+        private server:HeartstepsServer,
+        private geolocation:Geolocation
+    ) {}
 
     createDecision():Promise<Boolean> {
-        return this.server.post('/decisions', {})
+        return this.geolocation.getCurrentPosition()
+        .then((position:Position) => {
+            return this.server.post('/decisions', {
+                location: {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }
+            })
+        })
         .then(() => {
             return true;
         })

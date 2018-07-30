@@ -17,6 +17,17 @@ class DecisionView(APIView):
         decision = Decision.objects.create(
             user = request.user
         )
+
+        if 'location' in request.data and not hasattr(decision, 'location'):
+            location = request.data['location']
+            Location.objects.create(
+                decision = decision,
+                lat = float(location['latitude']),
+                long = float(location['longitude'])
+            )
+            decision.save()
+            print("got location")
+
         make_decision.delay(str(decision.id))
         return Response({}, status=status.HTTP_201_CREATED)
 
