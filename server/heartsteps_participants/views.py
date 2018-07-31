@@ -22,7 +22,7 @@ class EnrollView(APIView):
             except Participant.DoesNotExist:
                 return Response({}, status.HTTP_400_BAD_REQUEST)
             if not participant.user:
-                user = User.objects.create(
+                user, created = User.objects.get_or_create(
                     username= participant.heartsteps_id
                 )
                 participant.user = user
