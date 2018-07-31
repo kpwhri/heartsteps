@@ -1,24 +1,30 @@
 import { Component } from '@angular/core';
 import { HeartstepsNotifications } from '../../heartsteps/heartsteps-notifications.service';
 import { NavController } from 'ionic-angular';
+import { loadingService } from '../../infrastructure/loading.service';
 
 @Component({
-  selector: 'notifications-page',
-  templateUrl: 'notifications.html',
+    selector: 'notifications-page',
+    templateUrl: 'notifications.html',
 })
 export class NotificationsPage {
 
-  constructor(private navCtrl:NavController, private heartstepsNotifications:HeartstepsNotifications) {}
+    constructor(
+        private navCtrl:NavController,
+        private heartstepsNotifications:HeartstepsNotifications,
+        private loadingService:loadingService
+    ) {}
 
-  getPermission() {
-    this.navCtrl.pop();
-    this.heartstepsNotifications.enable()
-    .then(() => {
-        console.log("got permission")
-        this.navCtrl.pop();
-    })
-    .catch(() => {
-        console.log('No permission');
-    })
-  }
+    getPermission() {
+        this.loadingService.show("Getting permission")
+        this.heartstepsNotifications.enable()
+        .then(() => {
+            this.loadingService.dismiss()
+            this.navCtrl.pop()
+        })
+        .catch(() => {
+            this.loadingService.dismiss()
+            console.log('No permission')
+        })
+    }
 }

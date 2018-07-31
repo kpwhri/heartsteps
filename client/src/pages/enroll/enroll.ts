@@ -1,38 +1,36 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { EnrollmentService } from '../../heartsteps/enrollment.service';
+import { loadingService } from '../../infrastructure/loading.service';
 
 @IonicPage()
 @Component({
-  selector: 'page-enroll',
-  templateUrl: 'enroll.html',
-  providers: [ EnrollmentService ]
+    selector: 'page-enroll',
+    templateUrl: 'enroll.html',
+    providers: [ EnrollmentService ]
 })
 export class EnrollPage {
+    private enrollmentToken:String
+    private error:Boolean
 
-  // Enrollment token enterd by user
-  enrollmentToken:String;
-  error:Boolean;
+    constructor(
+        private enrollmentService: EnrollmentService,
+        private loadingService:loadingService
+    ) {}
 
-  constructor(private enrollmentService: EnrollmentService, public navCtrl: NavController, public navParams: NavParams) {}
+    enroll() {
+        if(!this.enrollmentToken || this.enrollmentToken==="") {
+            return
+        }
+        this.error = false
 
-  enroll() {
-    if(!this.enrollmentToken || this.enrollmentToken==="") {
-      return;
+        this.loadingService.show('Authenticating entry code')
+        this.enrollmentService.enroll(this.enrollmentToken)
+        .then(() => {
+            this.loadingService.dismiss()  
+        })
+        .catch(() => {
+            this.error = true
+        })
     }
-
-    let service = this;
-    service.error = false;
-    
-    this.enrollmentService.enroll(this.enrollmentToken)
-    .then(() => {
-      console.log('... sucessfully enrolled ...')
-    })
-    .catch(function(){
-      service.error = true;
-    })
-
-    
-  }
-
 }

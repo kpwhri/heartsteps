@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
+import { loadingService } from '../../infrastructure/loading.service';
 
 @Component({
   selector: 'activity-suggestion-times',
@@ -13,7 +14,8 @@ export class ActivitySuggestionTimes {
 
     constructor(
         private navCtrl:NavController,
-        private heartstepsServer:HeartstepsServer
+        private heartstepsServer:HeartstepsServer,
+        private loadingService:loadingService
     ) {}
 
     ionViewWillEnter() {
@@ -33,11 +35,13 @@ export class ActivitySuggestionTimes {
     }
 
     updateTimes() {
+        this.loadingService.show('Saving activity suggestion schedule')
         this.heartstepsServer.post(
             'activity-suggestions/times',
             this.times
         )
         .then(() => {
+            this.loadingService.dismiss()
             this.navCtrl.pop();
         });
     }
