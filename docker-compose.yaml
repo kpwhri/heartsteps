@@ -7,11 +7,11 @@ services:
     build: ./server
     environment:
       - DEBUG=True
-      - HOST_NAME=localhost
+      - HOST_NAME=localhost,server
       - SECRET_KEY=secret_key
       - DATABASE_URL=psql://postgres@db:5432/postgres
       - FCM_SERVER_KEY=AAAA4ZxgfMQ:APA91bHz1XoVQPQrR19dVkn6cxl1A6ULe9tYLLFUH7G0mUzxxlrml2r5GZCsgn3MCduIKIKtV7-Di8egsm2lwjqD9aWPVDfyt8omWRYFr6RprULdrva9fSyaoe1LrI9nZ7Bokay38_7NZW-YY5_KcyBSr5j5pVEmdA
-    command: python3 manage.py runserver 0.0.0.0:8080
+    command: supervisord -n -c supervisord.conf
     volumes:
       - ./server:/server
     ports:
@@ -26,8 +26,8 @@ services:
       - /client/node_modules
     ports:
       - "8100:8100"
-      - "35729:35729" # live reload
-      - "53703:53703" # Dev-app
+      - "35729:35729"
+      - "53703:53703"
     depends_on:
       - db
       - server
