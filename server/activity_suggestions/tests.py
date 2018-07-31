@@ -65,7 +65,11 @@ class SuggestionTimeUpdateView(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
-        response = self.client.post(reverse('activity_suggestions-times'), {})
+        response = self.client.post(
+            reverse('activity_suggestions-times'),
+            { 'times': [] },
+            format='json'
+        )
 
         times = SuggestionTime.objects.filter(user=user)
         
@@ -73,12 +77,19 @@ class SuggestionTimeUpdateView(APITestCase):
 
     def test_create_times(self):
         user = User.objects.create(username="test")
+
+        times = [
+            { 'type': 'morning', 'hour': '7', 'minute': '0', 'timezone': 'US/Pacific' },
+            { 'type': 'midafternoon', 'hour': '15', 'minute': '45', 'timezone': 'US/Pacific' }
+        ]
         
         self.client.force_authenticate(user=user)
-        response = self.client.post(reverse('activity_suggestions-times'), {
-            'morning': '7:00',
-            'midafternoon': '15:45'
-        })
+        response = self.client.post(
+            reverse('activity_suggestions-times'),
+            { 'times': times },
+            format='json'
+        )
+        
 
         times = SuggestionTime.objects.filter(user=user).all()
         self.assertEqual(len(times), 2)

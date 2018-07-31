@@ -1,4 +1,6 @@
-import uuid, json
+import uuid, json, pytz
+from datetime import datetime
+
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
@@ -29,6 +31,7 @@ class SuggestionTime(models.Model):
     
     hour = models.PositiveSmallIntegerField()
     minute = models.PositiveSmallIntegerField()
+    timezone = models.CharField(max_length=50, default="America/Los_Angeles")
 
     user = models.ForeignKey(User)
 
@@ -37,9 +40,12 @@ class SuggestionTime(models.Model):
     def make_scheduled_task(self):
         if hasattr(self, 'scheduled_task'):
             return False
+        
+        utc_time = self.time_as_utc()
+
         schedule = CrontabSchedule.objects.create(
-            minute = self.minute,
-            hour = self.hour
+            minute = utc_time.minute,
+            hour = utc_time.hour,
         )
         self.scheduled_task = PeriodicTask.objects.create(
             crontab = schedule,
@@ -51,6 +57,14 @@ class SuggestionTime(models.Model):
             })
         )
         return True
+
+    def time_as_utc(self):
+        now = datetime.now()
+        dt = datetime(now.year, now.month, now.day, self.hour, self.minute)
+
+        #Add timezone and convert
+        tz = pytz.timezone(self.timezone)
+        return tz.normalize(tz.localize(dt)).astimezone(pytz.utc)
 
 
     def __str__(self):
