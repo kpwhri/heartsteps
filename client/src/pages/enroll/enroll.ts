@@ -31,6 +31,7 @@ export class EnrollPage {
         })
         .catch(() => {
             this.error = true
+            this.loadingService.dismiss()
         })
     }
 }

@@ -36,7 +36,10 @@ export class FcmService {
         } else {
             this.setupWeb();
         }
-        this.setupSubscription();
+        this.setupSubscription()
+        .catch(() => {
+            console.log("no subscription")
+        });
     }
 
     private directMessage(message:any) {
@@ -67,8 +70,7 @@ export class FcmService {
 
     getPermission():Promise<boolean> {
         if(this.platform.is('ios')) {
-            console.log('No permissions implemented for iOS');
-            return Promise.reject(false);
+            return this.firebase.grantPermission()
         }
 
         if(this.platform.is('android')) {
@@ -112,11 +114,18 @@ export class FcmService {
     }
 
     private setupSubscription():Promise<boolean> {
+        console.log("try to setup supscription....")
         return this.storage.get('fcmToken')
-        .then(() => {
+        .then((token) => {
+            if(!token) {
+                return Promise.reject(false)
+            }
+
             if(this.platform.is('ios') || this.platform.is('android')) {
+                console.log("Setting up subscription")
                 this.firebase.onNotificationOpen().subscribe((data) => {
                     this.directMessage(data);
+                    console.log("got message")
                 });
             } else {
                this.firebaseMessaging.onMessage((data:any) => {
