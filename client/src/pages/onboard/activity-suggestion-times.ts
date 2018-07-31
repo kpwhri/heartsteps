@@ -1,48 +1,52 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
 import { loadingService } from '../../infrastructure/loading.service';
+import { ActivitySuggestionTimeService } from '../../heartsteps/activity-suggestion-time.service';
 
 @Component({
   selector: 'activity-suggestion-times',
   templateUrl: 'activity-suggestion-times.html',
+  providers: [
+      ActivitySuggestionTimeService
+  ]
 })
 export class ActivitySuggestionTimes {
 
-    private entryTimes:Array<any>;
-    private times:any;
+    public timeFields:Array<any>;
+    public times:any;
 
     constructor(
         private navCtrl:NavController,
-        private heartstepsServer:HeartstepsServer,
+        private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private loadingService:loadingService
     ) {}
 
     ionViewWillEnter() {
-        return this.getTimes();
+        return this.setup();
     }
 
-    getTimes():Promise<boolean> {
-        this.entryTimes = [
-            { key:'morning', name:'Morning'},
-            { key:'lunch', name:'Lunch'},
-            { key:'midafternoon', name:'Afternoon'},
-            { key:'evening', name:'Evening'},
-            { key:'postdinner', name:'Post Dinner'}
-        ]
+    setup():Promise<boolean> {
         this.times = {}
-        return Promise.resolve(true);
+        return this.activitySuggestionTimeService.getTimeFields()
+        .then((timeFields) => {
+            this.timeFields = timeFields
+            return this.activitySuggestionTimeService.getTimes()
+        })
+        .then((times) => {
+            this.times = times
+            return Promise.resolve(true)
+        })
+        .catch(() => {
+            return Promise.reject(false)
+        })
     }
 
     updateTimes() {
         this.loadingService.show('Saving activity suggestion schedule')
-        this.heartstepsServer.post(
-            'activity-suggestions/times',
-            this.times
-        )
+        this.activitySuggestionTimeService.updateTimes(this.times)
         .then(() => {
             this.loadingService.dismiss()
             this.navCtrl.pop();
-        });
+        })
     }
 }

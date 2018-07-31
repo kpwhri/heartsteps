@@ -6,9 +6,9 @@
 <ion-content padding>
     <fieldset>
         <legend>Enter times of day when you might recieve an activity suggestion.</legend>
-        <ion-item *ngFor="let time of entryTimes">
+        <ion-item *ngFor="let time of timeFields">
             <ion-label>{{time.name}}</ion-label>
-            <ion-datetime displayFormat="hh:mm a" pickerFormat="hh mm a" [(ngModel)]="times[time.key]"></ion-datetime>
+            <ion-datetime displayFormat="h:mm a" minuteValues="0,15,30,45" [(ngModel)]="times[time.key]"></ion-datetime>
         </ion-item>
     </fieldset>
     <button ion-button (click)="updateTimes()">Enable</button>
