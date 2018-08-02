@@ -3,7 +3,35 @@ from django.urls import reverse
 from .models import Message, Device
 from django.contrib.auth.models import User
 
+from unittest.mock import patch
+from django.test import TestCase
 from rest_framework.test import APITestCase
+
+class DeviceModelTests(TestCase):
+
+    def make_device(self):
+        return Device.objects.create(
+            user = User.objects.create(username='test'),
+            token = 'example-token',
+            type = 'web',
+            active = True
+        )
+
+    @patch('requests.post')
+    def test_send_notification(self, request_post):
+        device = self.make_device()
+
+        device.send_notification('Example Title', 'Example Body')
+
+        request_post.assert_called()
+
+    @patch('requests.post')
+    def test_send_data(self, request_post):
+        device = self.make_device()
+
+        device.send_data({'some': 'data'})
+
+        request_post.assert_called()
 
 class MessageDeviceViewTests(APITestCase):
     def test_get_device(self):

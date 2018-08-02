@@ -1,8 +1,12 @@
 import uuid
+import requests
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 from django.contrib.auth.models import User
+
+FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
 class Device(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -15,11 +19,40 @@ class Device(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-    def send_notification(title, body, data={}):
-        print("send a notification through FCM")
+    def send(self, request):
+        if not settings.FCM_SERVER_KEY:
+            raise ValueError('FCM SERVER KEY not set')
 
-    def send_data(data):
-        print("send some data")
+        headers = {
+            'Authorization': 'key=%s' % settings.FCM_SERVER_KEY,
+            'Content-Type': 'application/json'
+        }
+
+        request['to'] = self.token
+        request['collapse_key'] = 'type_a'
+
+        requests.post(
+            FCM_SEND_URL,
+            headers = headers,
+            json = request
+        )
+
+    def send_notification(self, title, body, data={}):
+        fcm_request = {
+            'notification': {
+                'title': title,
+                'body': body
+            },
+            'data': data
+        }
+        self.send(fcm_request)
+
+    def send_data(self, data):
+        fcm_request = {
+            'content_available': True,
+            'data': data
+        }
+        self.send(fcm_request)
 
 class ContextTag(models.Model):
     """
