@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 from django.contrib.auth.models import User
-from heartsteps_messages.models import Message, ContextTag
+from heartsteps_messages.models import Message, ContextTag, Device
 
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -18,10 +18,14 @@ class Decision(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def get_context(self):
-        data = {
+        try:
+            device = Device.objects.get(user=self.user, active=True)
+        except Device.DoesNotExist:
+            return False
+        device.send_data({
             'type': 'get_context',
             'decision_id': str(self.id)
-        }
+        })
         return True
 
     def add_context(self, tag_text):

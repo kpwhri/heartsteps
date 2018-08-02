@@ -94,12 +94,19 @@ class Message(models.Model):
     recieved = models.DateTimeField(blank=True, null=True)
 
     def send(self):
+        if not self.device:
+            try:
+                device = Device.objects.get(user=self.reciepent, active=True)
+            except Device.DoesNotExist:
+                return False
+            self.device = device
+        
+        self.device.send_notification(self.title, self.body)
+
         self.sent = timezone.now()
         self.save()
 
-        if(results['success']):
-            return True
-        return False
+        return True
 
     def markRecieved(self):
         self.recieved = timezone.now()
