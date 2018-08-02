@@ -1,10 +1,8 @@
 import uuid
 from django.db import models
+from django.utils import timezone
 
 from django.contrib.auth.models import User
-from fcm_django.models import FCMDevice
-
-from django.utils import timezone
 
 
 class ContextTag(models.Model):
@@ -35,7 +33,6 @@ class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     reciepent = models.ForeignKey(User)
-    device = models.ForeignKey(FCMDevice, blank=True, null=True)
 
     message_template = models.ForeignKey(MessageTemplate, null=True, blank=True)
 
@@ -47,20 +44,6 @@ class Message(models.Model):
     recieved = models.DateTimeField(blank=True, null=True)
 
     def send(self):
-        if not self.device:
-            try:
-                device = FCMDevice.objects.get(
-                    user=self.reciepent,
-                    active=True
-                    )
-                self.device = device
-            except FCMDevice.DoesNotExist:
-                return False
-        
-        results = self.device.send_message(
-            title = self.title,
-            body = self.body
-        )
         self.sent = timezone.now()
         self.save()
 

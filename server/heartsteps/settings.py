@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
-    'fcm_django',
     'heartsteps_participants',
     'heartsteps_locations',
     'heartsteps_messages',
@@ -54,11 +53,7 @@ REST_FRAMEWORK = {
     )
 }
 
-FCM_DJANGO_SETTINGS = {
-        "FCM_SERVER_KEY": env('FCM_SERVER_KEY', default='secret-key'),
-        "ONE_DEVICE_PER_USER": True,
-        "DELETE_INACTIVE_DEVICES": False
-}
+FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
 
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'django-db'

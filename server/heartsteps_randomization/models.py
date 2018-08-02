@@ -3,7 +3,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from heartsteps_messages.models import Message, ContextTag
-from fcm_django.models import FCMDevice
 
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -19,16 +18,10 @@ class Decision(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def get_context(self):
-        try:
-            device = FCMDevice.objects.get(user=self.user, active=True)
-        except FCMDevice.DoesNotExist:
-            return False
-        results = device.send_message(
-            data = {
-                'type': 'get_context',
-                'decision_id': str(self.id)
-                }
-            )
+        data = {
+            'type': 'get_context',
+            'decision_id': str(self.id)
+        }
         return True
 
     def add_context(self, tag_text):

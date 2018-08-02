@@ -5,7 +5,6 @@ from django.test import override_settings
 
 from .models import Decision
 from django.contrib.auth.models import User
-from fcm_django.models import FCMDevice
 
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
@@ -31,7 +30,6 @@ class DecisionView(APITestCase):
     @patch('heartsteps_randomization.tasks.make_decision.delay')
     def test_updates_decision(self, make_decision):
         user = User.objects.create(username="test")
-        device = FCMDevice.objects.create(user=user, registration_id="123", type="web", active=True)
 
         decision = Decision.objects.create(
             user = user

@@ -2,7 +2,6 @@ from django.urls import reverse
 
 from .models import Message
 from django.contrib.auth.models import User
-from fcm_django.models import FCMDevice 
 
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
@@ -17,11 +16,9 @@ class MessageRecievedTests(APITestCase):
         valid enrollment token is passed
         """
         user = User.objects.create(username="test")
-        device = FCMDevice.objects.create(type="web")
         message = Message.objects.create(
             id = uuid.uuid4(),
-            reciepent = user,
-            device = device
+            reciepent = user
         )
 
         self.client.force_authenticate(user=user)

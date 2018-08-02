@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from fcm_django.models import FCMDevice
-
 class Participant(models.Model):
     """
     Represents a study participant
