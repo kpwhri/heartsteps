@@ -1,8 +1,42 @@
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .models import Message
+from .models import Message, Device
+from .serializers import DeviceSerializer
+
+class DeviceView(APIView):
+    """
+    Manage a user's Firebase Cloud Messaging Device
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            device = Device.objects.get(user=request.user, active=True)
+        except Device.DoesNotExist:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        serialized_device = DeviceSerializer(device)
+        return Response(serialized_device.data, status=status.HTTP_200_OK)
+
+
+    def post(self, request):
+        serialized_device = DeviceSerializer(data=request.data, context={
+            'user': request.user
+        })
+        if serialized_device.is_valid():
+            Device.objects.filter(user=request.user, active=True).update(active=False)
+
+            Device.objects.create(
+                user = request.user,
+                token = serialized_device.validated_data['token'],
+                type = serialized_device.validated_data['type'],
+                active = True
+            )
+            return Response(serialized_device.data, status=status.HTTP_201_CREATED)
+
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RecievedMessageView(APIView):
     """

@@ -4,6 +4,22 @@ from django.utils import timezone
 
 from django.contrib.auth.models import User
 
+class Device(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User)
+
+    token = models.CharField(max_length=255)
+    type = models.CharField(max_length=10, null=True, blank=True)
+
+    active = models.BooleanField(default=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    def send_notification(title, body, data={}):
+        print("send a notification through FCM")
+
+    def send_data(data):
+        print("send some data")
 
 class ContextTag(models.Model):
     """
@@ -33,6 +49,7 @@ class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     reciepent = models.ForeignKey(User)
+    device = models.ForeignKey(Device, null=True)
 
     message_template = models.ForeignKey(MessageTemplate, null=True, blank=True)
 
