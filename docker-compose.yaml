@@ -11,7 +11,7 @@ services:
       - SECRET_KEY=secret_key
       - DATABASE_URL=psql://postgres@db:5432/postgres
       - FCM_SERVER_KEY=AAAA4ZxgfMQ:APA91bHz1XoVQPQrR19dVkn6cxl1A6ULe9tYLLFUH7G0mUzxxlrml2r5GZCsgn3MCduIKIKtV7-Di8egsm2lwjqD9aWPVDfyt8omWRYFr6RprULdrva9fSyaoe1LrI9nZ7Bokay38_7NZW-YY5_KcyBSr5j5pVEmdA
-    command: supervisord -n -c supervisord.conf
+    command: honcho start web_dev celery rabbitmq
     volumes:
       - ./server:/server
     ports:

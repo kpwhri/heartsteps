@@ -1,0 +1,4 @@
+web: gunicorn -b :8080 heartsteps.wsgi:application
+web_dev: ./manage.py runserver 0.0.0.0:8080
+rabbitmq: rabbitmq-server start
+celery: celery -A heartsteps worker -l info -E -B

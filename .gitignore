@@ -13,9 +13,6 @@ www
 
 server/static
 server/app
-server/supervisord.log
-server/supervisord.pid
-server/error.log
 
 static/app
 static/static
