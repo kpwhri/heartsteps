@@ -36,8 +36,8 @@ export class HeartstepsNotifications {
                 // Don't update token, but behave like it was updated...
                 return Promise.resolve(true);
             } else {
-                return this.heartstepsServer.post('device', {
-                    registration_id: token,
+                return this.heartstepsServer.post('messages/device', {
+                    token: token,
                     type: this.fcmService.getDeviceType()
                 })
             }
