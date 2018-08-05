@@ -4,12 +4,10 @@
     </ion-navbar>
 </ion-header>
 <ion-content padding>
-    <fieldset>
-        <legend>Enter times of day when you might recieve an activity suggestion.</legend>
-        <ion-item *ngFor="let time of timeFields">
-            <ion-label>{{time.name}}</ion-label>
-            <ion-datetime displayFormat="h:mm a" minuteValues="0,15,30,45" [(ngModel)]="times[time.key]"></ion-datetime>
-        </ion-item>
-    </fieldset>
+    <p>Enter times of day when you might recieve an activity suggestion.</p>
+    <ion-item *ngFor="let time of timeFields">
+        <ion-label>{{time.name}}</ion-label>
+        <ion-datetime displayFormat="h:mm a" minuteValues="0,15,30,45" [(ngModel)]="times[time.key]"></ion-datetime>
+    </ion-item>
     <button ion-button (click)="updateTimes()">Enable</button>
 </ion-content>
