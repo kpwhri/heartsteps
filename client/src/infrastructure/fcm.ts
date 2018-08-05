@@ -43,7 +43,10 @@ export class FcmService {
     }
 
     private directMessage(message:any) {
-        if(message.body && message.title) {
+        if(message.aps && message.aps.alert) {
+            this.messageSubject.next(message.aps.alert)
+        }
+        else if(message.body && message.title) {
             this.messageSubject.next(message);
         } else {
             this.dataSubject.next(message);
