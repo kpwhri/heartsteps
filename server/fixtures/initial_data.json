@@ -3,7 +3,7 @@
     "model": "auth.user",
     "pk": 1,
     "fields": {
-        "password": "pbkdf2_sha256$36000$vn4spUWcYNNB$BjknKY7i+Cn1kncu3ZXtwHnGTTUejsdbQLEfBxA2+D0=",
+        "password": "pbkdf2_sha256$36000$kfMK0KBUAsyr$3zbUJnfObfvdMeH2pTBWPJKjbJVOK7owQRVNRPvqZzY=",
         "last_login": "2018-07-03T03:14:32.292Z",
         "is_superuser": true,
         "username": "admin",
@@ -19,10 +19,10 @@
 },
 {
     "model": "heartsteps_participants.participant",
-    "pk": 1,
+    "pk": "sample-uuid-1234",
     "fields": {
-        "heartsteps_id": "sample-uuid-1234",
-        "enrollment_token": "token"
+        "enrollment_token": "token",
+        "user": null
     }
 }
 ]
