@@ -86,10 +86,10 @@
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
     <plugin name="cordova-plugin-whitelist" spec="1.3.3" />
     <plugin name="cordova-plugin-geolocation" spec="^4.0.1">
-        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="To tailor messages to your location" />
+        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Your location will be used to tailor activity suggestions" />
     </plugin>
     <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-        <string>We want your location! Best regards NSA</string>
+        <string>Your location will be used to tailor activity suggestions</string>
     </edit-config>
     <plugin name="cordova-plugin-firebase" spec="^1.0.5" />
     <engine name="ios" spec="4.5.4" />
