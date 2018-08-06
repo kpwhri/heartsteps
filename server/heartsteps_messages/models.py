@@ -100,8 +100,12 @@ class Message(models.Model):
             except Device.DoesNotExist:
                 return False
             self.device = device
+
+        title = "Heartsteps Message"
+        if self.title:
+            title = self.title
         
-        self.device.send_notification(self.title, self.body)
+        self.device.send_notification(title, self.body)
 
         self.sent = timezone.now()
         self.save()
