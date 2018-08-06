@@ -67,13 +67,13 @@ class MessageTemplate(models.Model):
     """
     Message templates used to populate messages that are sent to users
     """
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, null=True, blank=True)
     body = models.CharField(max_length=255)
 
     context_tags = models.ManyToManyField(ContextTag)
 
     def __str__(self):
-        return self.title
+        return self.body
 
 class Message(models.Model):
     """
