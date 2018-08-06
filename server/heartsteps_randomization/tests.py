@@ -3,10 +3,12 @@ from django.urls import reverse
 from unittest.mock import patch
 from django.test import override_settings, TestCase
 
-from .models import Decision
+from heartsteps_randomization.models import Decision, Location
 from django.contrib.auth.models import User
 
 from heartsteps_messages.models import ContextTag, MessageTemplate
+
+from heartsteps_randomization.tasks import make_decision
 
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
@@ -101,3 +103,44 @@ class DecisionTest(TestCase):
         decision.make_message()
 
         self.assertEqual(decision.message.body, specific_template.body)
+
+
+class MakeDecisionTestCase(TestCase):
+
+    @patch('heartsteps_randomization.models.Decision.get_context')
+    def test_make_decision_gets_context(self, get_context):
+        decision = Decision.objects.create(
+            user = User.objects.create(username="test")
+        )
+
+        make_decision(str(decision.id))
+        
+        get_context.assert_called()
+
+    @patch('heartsteps_randomization.models.Decision.decide', return_value=False)
+    @patch('weather.functions.WeatherFunction.get_context', return_value=(42, "outdoor"))
+    def test_make_decision_with_locaction(self, decision_decide, weather_function):
+        decision = Decision.objects.create(
+            user = User.objects.create(username="test")
+        )
+        pie_bar = Location.objects.create(
+            decision = decision,
+            lat = 47.6166953,
+            long = -122.3273954
+        )
+
+        make_decision(str(decision.id))
+
+        # Reload since task doesn't mutate object...
+        decision = Decision.objects.first()
+
+        self.assertIn('other', [tag.tag for tag in decision.tags.all()])
+        self.assertIn('outdoor', [tag.tag for tag in decision.tags.all()])
+
+        decision_decide.assert_called()
+        weather_function.assert_called()
+
+
+
+
+

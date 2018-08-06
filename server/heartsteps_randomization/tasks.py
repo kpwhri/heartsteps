@@ -2,6 +2,8 @@
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 
+from weather.functions import WeatherFunction
+
 from django.contrib.auth.models import User
 from heartsteps_locations.models import determine_user_location_type
 from .models import Decision
@@ -21,6 +23,12 @@ def make_decision(decision_id):
         longitude = decision.location.long
     )
     decision.add_context(location_type)
+
+    forecast_id, weather_context = WeatherFunction.get_context(
+        latitude = decision.location.lat,
+        longitude = decision.location.long
+    )
+    decision.add_context(weather_context)
 
     if decision.decide():
         decision.make_message()
