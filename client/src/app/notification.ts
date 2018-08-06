@@ -10,9 +10,7 @@ export class NotificationPane {
     private message:string
 
     constructor(private viewCtrl:ViewController, private params:NavParams) {
-
         this.message = params.get('message');
-
     }
 
     dismiss() {

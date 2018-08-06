@@ -19,11 +19,18 @@ button {
     color: #fff   
 }
 
-.alternate-background {
+.start-screen,
+.alternate-background,
+.heartsteps-message-modal {
     background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
     color: #FFF;
 
     text-align: center;
+    padding: 2em;
+
+    .large {
+        font-size: 1.75em;
+    }
 
     h1 {
         font-weight: normal;
