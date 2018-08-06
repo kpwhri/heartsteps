@@ -1,8 +1,9 @@
 import uuid
+from random import randint
 from django.db import models
 
 from django.contrib.auth.models import User
-from heartsteps_messages.models import Message, ContextTag, Device
+from heartsteps_messages.models import Message, ContextTag, Device, MessageTemplate
 
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -41,15 +42,26 @@ class Decision(models.Model):
         self.save()
 
         return True
-        
+
+    def get_message_template(self):
+        query = MessageTemplate.objects
+        for tag in self.tags.all():
+            query = query.filter(context_tags__in=[tag])
+
+        message_templates = query.all()
+
+        if len(message_templates) == 1:
+            return message_templates[0]
+        else :
+            return message_templates[randint(0, len(message_templates)-1)]
 
     def make_message(self):
-        message = Message(
-            reciepent=self.user
+        message_template = self.get_message_template()
+
+        message = Message.objects.create(
+            reciepent=self.user,
+            body = message_template.body
         )
-        message.title = "Example Message"
-        message.body = "Example Message Body"
-        message.save()
 
         self.message = message
         self.save()
