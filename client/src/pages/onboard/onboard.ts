@@ -18,7 +18,6 @@ export class OnboardPage {
     @ViewChild(Nav) nav:Nav;
 
     private screens:Array<any>;
-    private completeScreens:Array<any>;
 
     constructor(
         private storage:Storage,
@@ -29,6 +28,7 @@ export class OnboardPage {
         return this.participantService.getProfile()
         .then((profile) => {
             this.screens = []
+
             if(!profile.notificationPermission) {
                 this.screens.push(NotificationsPage)
             }
