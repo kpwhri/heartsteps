@@ -1,36 +1,68 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, Slides, Nav } from 'ionic-angular';
+import { IonicPage, Nav } from 'ionic-angular';
 
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { OnboardEndPane } from './onboard-end';
 import { ActivitySuggestionTimes } from './activity-suggestion-times';
 import { LocationsPage } from './locations';
+import { Storage } from '@ionic/storage';
+import { ParticipantService } from '../../heartsteps/participant.service';
 
 @IonicPage()
 @Component({
-  selector: 'page-onboard',
-  templateUrl: 'onboard.html'
+    selector: 'page-onboard',
+    templateUrl: 'onboard.html'
 })
 export class OnboardPage {
-  @ViewChild(Slides) slides:Slides;
-  @ViewChild(Nav) nav:Nav;
+    @ViewChild(Nav) nav:Nav;
 
-  private screens:Array<any>;
+    private screens:Array<any>;
+    private completeScreens:Array<any>;
 
-  constructor(public navCtrl: NavController) {
-    this.screens = [
-      NotificationsPage,
-      ActivitySuggestionTimes,
-      LocationPermissionPane,
-      LocationsPage,
-      OnboardEndPane
-    ];
-  }
+    constructor(
+        private storage:Storage,
+        private participantService:ParticipantService
+    ) {}
 
-  ionViewWillEnter() {
-    this.nav.swipeBackEnabled = false;
-    this.nav.setPages(this.screens.reverse());
-  }
+    setScreens():Promise<any> {
+        return this.participantService.getProfile()
+        .then((profile) => {
+            this.screens = []
+            if(!profile.notificationPermission) {
+                this.screens.push(NotificationsPage)
+            }
+            if(!profile.activitySuggestionTimes) {
+                this.screens.push(ActivitySuggestionTimes)
+            }
+            if(!profile.locationPermission) {
+                this.screens.push(LocationPermissionPane)
+            }
+            if(!profile.locations) {
+                this.screens.push(LocationsPage)
+            }
+        })
+    }
+
+    showNextScreen() {
+        let nextScreen = this.screens.shift()
+        if(nextScreen) {
+            this.nav.push(nextScreen);
+        }
+    }
+
+    ionViewWillEnter() {
+        this.nav.setRoot(OnboardEndPane)
+        this.nav.swipeBackEnabled = false
+
+        this.nav.viewWillUnload.subscribe(() => {
+            this.showNextScreen()
+        })
+
+        return this.setScreens()
+        .then(() => {
+            this.showNextScreen()
+        })
+    }
 
 }

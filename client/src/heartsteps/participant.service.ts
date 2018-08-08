@@ -3,6 +3,7 @@ import { Storage } from "@ionic/storage";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
 
+const storageKey = 'heartsteps-participant'
 
 @Injectable()
 export class ParticipantService {
@@ -19,12 +20,18 @@ export class ParticipantService {
         this.subject = new Subject();
     }
 
+    getProfile():Promise<any> {
+        let profile = {}
+        
+        return Promise.resolve(profile) 
+    }
+
     onChange():Observable<any> {
         return this.subject.asObservable();
     }
 
     refresh():Promise<boolean> {
-        return this.storage.get('heartsteps-participant')
+        return this.storage.get(storageKey)
         .then((data) => {
             return this.update(data)
         })
@@ -48,14 +55,14 @@ export class ParticipantService {
     }
 
     set(data:any):Promise<boolean> {
-        return this.storage.set('heartsteps-participant', data)
+        return this.storage.set(storageKey, data)
         .then((data) => {
             return this.update(data);
         });
     }
 
     finishOnboard():Promise<boolean> {
-        return this.storage.get('heartsteps-participant')
+        return this.storage.get(storageKey)
         .then((data) => {
             data.onboarded = true;
             return this.set(data);
@@ -63,7 +70,7 @@ export class ParticipantService {
     }
 
     getParticipantId():Promise<string> {
-        return this.storage.get('heartsteps-participant')
+        return this.storage.get(storageKey)
         .then((participant) => {
             return participant.heartstepsId;
         });

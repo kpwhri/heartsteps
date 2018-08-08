@@ -12,9 +12,9 @@
   <form [formGroup]="enrollmentForm" (ngSubmit)="enroll()" >
     <ion-item>
       <ion-label stacked>Entry Code</ion-label>
-      <ion-input type="text" formControlName="entryToken" required></ion-input>
+      <ion-input type="text" formControlName="entryToken"></ion-input>
     </ion-item>
-    <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p><ion-icon name="alert"></ion-icon>
+    <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p>
     <button>Enroll</button>
   </form>
 </ion-content>
