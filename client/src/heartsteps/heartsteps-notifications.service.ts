@@ -15,7 +15,7 @@ export class HeartstepsNotifications {
         if(this.fcmService.isEnabled()) {
             return Promise.resolve(true)
         } else {
-            return Promise.reject()
+            return Promise.reject(false)
         }
     }
 

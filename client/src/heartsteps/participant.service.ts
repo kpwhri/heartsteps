@@ -2,6 +2,10 @@ import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
+import { HeartstepsNotifications } from "./heartsteps-notifications.service";
+import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
+import { LocationService } from "./location.service";
+import { LocationsService } from "./locations.service";
 
 const storageKey = 'heartsteps-participant'
 
@@ -13,17 +17,45 @@ export class ParticipantService {
 
     private subject:Subject<any>;
 
-    constructor(private storage:Storage) {
+    constructor(
+        private storage:Storage,
+        private notificationService:HeartstepsNotifications,
+        private activitySuggestionTimeService:ActivitySuggestionTimeService,
+        private locationService:LocationService,
+        private locationsService:LocationsService
+    ) {
         this.enrolled = false;
         this.onboarded = false;
 
         this.subject = new Subject();
     }
 
-    getProfile():Promise<any> {
+    async getProfile():Promise<any> {
         let profile = {}
-        
-        return Promise.resolve(profile) 
+
+        try {
+            profile['notificationsEnabled'] = await this.notificationService.isEnabled()
+        } catch(err) {}
+
+        try {
+            let activitySuggestionTimes = await this.activitySuggestionTimeService.getTimes()
+            if(activitySuggestionTimes) {
+                profile['activitySuggestionTimes'] = true
+            }
+        } catch (err) {}
+
+        try {
+            profile['locationPermission'] = await this.locationService.hasPermission()
+        } catch(err) {}
+
+        try {
+            let participantLocations = await this.locationsService.getLocations()
+            if(participantLocations) {
+                profile['locations'] = true
+            }
+        } catch(err) {}
+
+        return Promise.resolve(profile)
     }
 
     onChange():Observable<any> {

@@ -33,8 +33,6 @@ export class LocationEdit {
         this.lat = location.lat
         this.lng = location.lng
 
-        this.currentLocation = params.get('currentLocation')
-
         this.geocoder = new google.maps.Geocoder()
     }
 
@@ -78,24 +76,27 @@ export class LocationEdit {
     }
 
     loadMap() {
-        let latLng = new google.maps.LatLng(this.currentLocation.lat, this.currentLocation.lng);
         if(this.lat && this.lng) {
-            latLng = new google.maps.LatLng(this.lat, this.lng);
+            let latLng = new google.maps.LatLng(this.lat, this.lng);
+
+            let mapOptions = {
+                center: latLng,
+                zoom: 10,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+           
+            this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
         }
- 
-        let mapOptions = {
-          center: latLng,
-          zoom: 10,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        }
-     
-        this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
     }
 
     placeMapPin() {
         if(!this.lat || !this.lng) {
             return
         }
+        if(!this.map) {
+            this.loadMap()
+        }
+        
         let latLng = new google.maps.LatLng(this.lat, this.lng)
         this.map.setCenter(latLng)
         new google.maps.Marker({

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Geolocation } from '@ionic-native/geolocation';
 import { loadingService } from '../../infrastructure/loading.service';
+import { LocationService } from '../../heartsteps/location.service';
 
 @Component({
   selector: 'location-permission-pane',
@@ -11,18 +11,18 @@ export class LocationPermissionPane {
 
   constructor(
     private navCtrl:NavController,
-    private geolocation:Geolocation,
+    private locationService:LocationService,
     private loadingService:loadingService
   ) {}
 
   getPermission() {
     this.loadingService.show("Getting location permission")
-    this.geolocation.getCurrentPosition().then((resp) => {
+    this.locationService.getPermission()
+    .then(() => {
       this.loadingService.dismiss()
       this.navCtrl.pop()
-     }).catch((error) => {
+     }).catch(() => {
       this.loadingService.dismiss()
-       console.log('Error getting location', error);
      });
   }
 }

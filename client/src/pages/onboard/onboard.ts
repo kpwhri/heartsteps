@@ -29,7 +29,7 @@ export class OnboardPage {
         .then((profile) => {
             this.screens = []
 
-            if(!profile.notificationPermission) {
+            if(!profile.notificationsEnabled) {
                 this.screens.push(NotificationsPage)
             }
             if(!profile.activitySuggestionTimes) {

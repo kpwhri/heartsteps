@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController } from 'ionic-angular';
 import { LocationEdit } from './location-edit';
-import { Geolocation } from '@ionic-native/geolocation';
 import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
+import { LocationsService } from '../../heartsteps/locations.service';
 
 @Component({
     selector: 'locations-page',
@@ -15,8 +15,7 @@ export class LocationsPage {
     constructor(
         private navCtrl:NavController,
         private modalCtrl:ModalController,
-        private geolocation:Geolocation,
-        private heartstepsServer:HeartstepsServer
+        private locationsService:LocationsService
     ) {
         this.locations = []
     }
@@ -46,39 +45,29 @@ export class LocationsPage {
 
     showLocationPopover(location:any):Promise<any> {
         return new Promise((resolve, reject) => {
-            this.geolocation.getCurrentPosition()
-            .then((position:Position) => {
-                let modal = this.modalCtrl.create(LocationEdit, {
-                    location: location,
-                    currentLocation: {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    }
-                });
-    
-                modal.onDidDismiss((updatedLocation:any) => {
-                    if(updatedLocation) {
-                        resolve(updatedLocation)
-                    } else {
-                        reject()
-                    }
-                });
-        
-                modal.present()
-            })
+            let modal = this.modalCtrl.create(LocationEdit, {
+                location: location
+            });
+
+            modal.onDidDismiss((updatedLocation:any) => {
+                if(updatedLocation) {
+                    resolve(updatedLocation)
+                } else {
+                    reject()
+                }
+            });
+
+            modal.present()
         });
     }
 
     saveLocations() {
-        this.heartstepsServer.post('locations', {
-            locations: this.locations
-        })
+        this.locationsService.saveLocations(this.locations)
         .then(() => {
             this.navCtrl.pop()
         })
         .catch(() => {
-            console.log("crap")
-            console.log(this.locations)
+            console.log("show error message")
         })
     }
 }
