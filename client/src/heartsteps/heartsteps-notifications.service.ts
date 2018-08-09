@@ -2,16 +2,22 @@ import { Injectable } from '@angular/core';
 import { FcmService } from '../infrastructure/fcm';
 import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
 import { Observable } from 'rxjs/Observable';
-import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class HeartstepsNotifications {
 
     constructor(
         private fcmService:FcmService,
-        private heartstepsServer:HeartstepsServer,
-        private storage:Storage
+        private heartstepsServer:HeartstepsServer
     ){}
+
+    isEnabled():Promise<boolean> {
+        if(this.fcmService.isEnabled()) {
+            return Promise.resolve(true)
+        } else {
+            return Promise.reject()
+        }
+    }
 
     enable():Promise<boolean> {
         return this.fcmService.getPermission()
@@ -30,20 +36,9 @@ export class HeartstepsNotifications {
     }
 
     updateToken(token:string):Promise<boolean> {
-        return this.storage.get('fcm-token')
-        .then((storedToken) => {
-            if(storedToken === token) {
-                // Don't update token, but behave like it was updated...
-                return Promise.resolve(true);
-            } else {
-                return this.heartstepsServer.post('messages/device', {
-                    token: token,
-                    type: this.fcmService.getDeviceType()
-                })
-            }
-        })
-        .then(() => {
-            return this.storage.set('fcm-token', token)
+        return this.heartstepsServer.post('messages/device', {
+            token: token,
+            type: this.fcmService.getDeviceType()
         })
         .then(() => {
             return Promise.resolve(true)

@@ -13,6 +13,8 @@ declare var process: {
     }
 }
 
+const fcmTokenKey = 'fcm-token'
+
 @Injectable()
 export class FcmService {
 
@@ -40,6 +42,14 @@ export class FcmService {
         .catch(() => {
             console.log("no subscription")
         });
+    }
+
+    isEnabled():Boolean {
+        if(this.subscriptionSetup) {
+            return true
+        } else {
+            return false
+        }
     }
 
     private directMessage(message:any) {
@@ -83,6 +93,14 @@ export class FcmService {
         return this.firebaseMessaging.requestPermission();
     }
 
+    private getTokenWrapper():Promise<string> {
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            return this.firebase.getToken();
+        } else {
+            return this.firebaseMessaging.getToken();
+        }
+    }
+
     getToken():Promise<string> {
         return this.getTokenWrapper()
         .then((token) => {
@@ -98,7 +116,7 @@ export class FcmService {
 
     saveToken(token:string):Promise<string> {
         return new Promise((resolve, reject) => {
-            return this.storage.set('fcmToken', token)
+            return this.storage.set(fcmTokenKey, token)
             .then(() => {
                 resolve(token)
             })
@@ -108,27 +126,16 @@ export class FcmService {
         })
     }
 
-    private getTokenWrapper():Promise<string> {
-        if(this.platform.is('ios') || this.platform.is('android')) {
-            return this.firebase.getToken();
-        } else {
-            return this.firebaseMessaging.getToken();
-        }
-    }
-
     private setupSubscription():Promise<boolean> {
-        console.log("try to setup supscription....")
-        return this.storage.get('fcmToken')
+        return this.storage.get(fcmTokenKey)
         .then((token) => {
             if(!token) {
                 return Promise.reject(false)
             }
 
             if(this.platform.is('ios') || this.platform.is('android')) {
-                console.log("Setting up subscription")
                 this.firebase.onNotificationOpen().subscribe((data) => {
                     this.directMessage(data);
-                    console.log("got message")
                 });
             } else {
                this.firebaseMessaging.onMessage((data:any) => {
