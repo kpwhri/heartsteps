@@ -18,7 +18,7 @@ export class LocationsService{
             return locations
         })
         .catch(() => {
-            return Promise.reject()
+            return Promise.reject(false)
         })
     }
 
