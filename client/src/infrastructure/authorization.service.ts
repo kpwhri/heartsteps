@@ -4,9 +4,9 @@ import { Storage } from '@ionic/storage';
 @Injectable()
 export class AuthorizationService {
 
-    constructor(private storage:Storage) {
-        
-    }
+    constructor(
+        private storage:Storage
+    ) {}
 
     isAuthorized(): Promise<any> {
         return new Promise((resolve, reject) => {

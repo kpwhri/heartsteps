@@ -23,9 +23,6 @@ export class FcmService {
 
     private messageSubject:Subject<any>;
     private dataSubject:Subject<any>;
-
-    private subscriptionSetup:boolean;
-
     constructor(
         private platform: Platform,
         private storage:Storage
@@ -38,18 +35,22 @@ export class FcmService {
         } else {
             this.setupWeb();
         }
+
         this.setupSubscription()
-        .catch(() => {
-            console.log("no subscription")
-        });
     }
 
-    isEnabled():Boolean {
-        if(this.subscriptionSetup) {
-            return true
-        } else {
-            return false
-        }
+    isEnabled():Promise<boolean> {
+        return this.storage.get(fcmTokenKey)
+        .then((value) => {
+            if(value) {
+                return Promise.resolve(true)
+            } else {
+                return Promise.reject(false)
+            }
+        })
+        .catch(() => {
+            return Promise.reject(false)
+        })
     }
 
     private directMessage(message:any) {
@@ -107,9 +108,10 @@ export class FcmService {
             return this.saveToken(token)
         })
         .then((token) => {
-            if(!this.subscriptionSetup) {
-                this.setupSubscription();
-            }
+            this.setupSubscription()
+            .catch(() => {
+                console.log("no subscription")
+            });
             return token
         });
     }
@@ -130,7 +132,7 @@ export class FcmService {
         return this.storage.get(fcmTokenKey)
         .then((token) => {
             if(!token) {
-                return Promise.reject(false)
+                return Promise.resolve(true)
             }
 
             if(this.platform.is('ios') || this.platform.is('android')) {
@@ -148,11 +150,9 @@ export class FcmService {
                     }
                 });
             }
-            this.subscriptionSetup = true
             return Promise.resolve(true)
         })
         .catch(() => {
-            this.subscriptionSetup = false
             return Promise.reject(false)
         })
     }

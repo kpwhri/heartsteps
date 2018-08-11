@@ -12,11 +12,7 @@ export class HeartstepsNotifications {
     ){}
 
     isEnabled():Promise<boolean> {
-        if(this.fcmService.isEnabled()) {
-            return Promise.resolve(true)
-        } else {
-            return Promise.reject(false)
-        }
+        return this.fcmService.isEnabled()
     }
 
     enable():Promise<boolean> {

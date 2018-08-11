@@ -35,9 +35,8 @@ export class MyApp {
             this.setNavAuthGuard()
             this.setParticipantChange()
 
-            return this.participant.refresh()     
-        })
-        .then(() => {
+            this.participant.update()
+
             this.notifications.onMessage().subscribe((message:any) => {
                 this.showMessage(message.body);
             });
@@ -87,15 +86,29 @@ export class MyApp {
 
     setParticipantChange() {
         this.participant.onChange().subscribe(() => {
-            if(this.participant.isOnboarded()) {
-                this.nav.setRoot(HomePage);
-            } else if(this.participant.isEnrolled()) {
-                this.nav.setRoot(OnboardPage); 
-            } else {
-                this.nav.setRoot(WelcomePage);
-            }
-            this.nav.popToRoot();
+            this.setParticipantRoot()
+            .then(() => {
+                this.nav.popToRoot();
+            })
         });
+    }
+
+    setParticipantRoot():Promise<any> {
+        return this.participant.hasCompleteProfile()
+        .then(() => {
+            this.nav.setRoot(HomePage)
+        })
+        .catch(() => {
+            return this.participant.isEnrolled()
+            .then(() => {
+                this.nav.setRoot(OnboardPage)
+                return Promise.resolve()
+            })
+            .catch(() => {
+                this.nav.setRoot(WelcomePage)
+                return Promise.resolve()
+            })
+        })
     }
 }
 

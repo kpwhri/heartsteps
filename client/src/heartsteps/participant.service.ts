@@ -7,13 +7,10 @@ import { ActivitySuggestionTimeService } from "./activity-suggestion-time.servic
 import { LocationService } from "./location.service";
 import { LocationsService } from "./locations.service";
 
-const storageKey = 'heartsteps-participant'
+const storageKey = 'heartsteps-id'
 
 @Injectable()
 export class ParticipantService {
-
-    private enrolled:boolean;
-    private onboarded:boolean;
 
     private subject:Subject<any>;
 
@@ -24,95 +21,126 @@ export class ParticipantService {
         private locationService:LocationService,
         private locationsService:LocationsService
     ) {
-        this.enrolled = false;
-        this.onboarded = false;
-
         this.subject = new Subject();
     }
 
-    async getProfile():Promise<any> {
-        let profile = {}
-
-        try {
-            profile['notificationsEnabled'] = await this.notificationService.isEnabled()
-        } catch(err) {}
-
-        try {
-            let activitySuggestionTimes = await this.activitySuggestionTimeService.getTimes()
-            if(activitySuggestionTimes) {
-                profile['activitySuggestionTimes'] = true
+    hasCompleteProfile():Promise<boolean> {
+        return this.getProfile()
+        .then((profile) => {
+            let complete = true
+            Object.keys(profile).forEach((key) => {
+                if(!profile[key]) {
+                    complete = false
+                }
+            })
+            if(complete) {
+                return Promise.resolve(true)
+            } else {
+                return Promise.reject(false)
             }
-        } catch (err) {}
-
-        try {
-            profile['locationPermission'] = await this.locationService.hasPermission()
-        } catch(err) {}
-
-        try {
-            let participantLocations = await this.locationsService.getLocations()
-            if(participantLocations) {
-                profile['locations'] = true
-            }
-        } catch(err) {}
-
-        return Promise.resolve(profile)
+        })
+        .catch(() => {
+            return Promise.reject(false)
+        })
     }
 
     onChange():Observable<any> {
         return this.subject.asObservable();
     }
 
-    refresh():Promise<boolean> {
-        return this.storage.get(storageKey)
-        .then((data) => {
-            return this.update(data)
-        })
-        .catch(() => {
-            this.subject.next();
-            return Promise.resolve(true);
-        })
-    }
-
-    update(data:any):Promise<boolean> {
-        if(data.heartstepsId) {
-            this.enrolled = true;
-        }
-
-        if(data.onboarded) {
-            this.onboarded = true;
-        }
-
+    update():Promise<boolean> {
         this.subject.next();
         return Promise.resolve(true);
     }
 
-    set(data:any):Promise<boolean> {
-        return this.storage.set(storageKey, data)
-        .then((data) => {
-            return this.update(data);
+    setHeartstepsId(heartstepsId:string):Promise<boolean> {
+        return this.storage.set(storageKey, heartstepsId)
+        .then(() => {
+            return this.update();
         });
     }
 
-    finishOnboard():Promise<boolean> {
+    getHeartstepsId():Promise<string> {
         return this.storage.get(storageKey)
-        .then((data) => {
-            data.onboarded = true;
-            return this.set(data);
+        .then((heartstepsId) => {
+            if(heartstepsId) {
+                return heartstepsId;
+            } else {
+                return Promise.reject(false)
+            }
+        })
+        .catch(() => {
+            return Promise.reject(false)
         })
     }
 
-    getParticipantId():Promise<string> {
-        return this.storage.get(storageKey)
-        .then((participant) => {
-            return participant.heartstepsId;
-        });
+    isEnrolled():Promise<boolean> {
+        return this.getHeartstepsId()
+        .then(() => {
+            return Promise.resolve(true)
+        })
+        .catch(() => {
+            return Promise.reject(false)
+        })
     }
 
-    isEnrolled():boolean {
-        return this.enrolled;
+    getProfile():Promise<any> {
+        return Promise.all([
+            this.checkNotificationsEnabled(),
+            this.checkActivitySuggestions(),
+            this.checkLocationPermission(),
+            this.checkLocationsSet()
+        ])
+        .then((results) => {
+            return {
+                notificationsEnabled: results[0],
+                activitySuggestionTimes: results[1],
+                locationPermission: results[2],
+                locations: results[3]
+            }
+        })
+        .catch(() => {
+            return Promise.reject(false)
+        })
     }
 
-    isOnboarded():boolean {
-        return this.enrolled && this.onboarded;
+    checkNotificationsEnabled():Promise<boolean> {
+        return this.notificationService.isEnabled()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
+        })
+    }
+
+    checkActivitySuggestions():Promise<boolean> {
+        return this.activitySuggestionTimeService.getTimes()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
+        })
+    }
+
+    checkLocationPermission():Promise<boolean> {
+        return this.locationService.hasPermission()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
+        })
+    }
+
+    checkLocationsSet():Promise<boolean> {
+        return this.locationsService.getLocations()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
+        })
     }
 }

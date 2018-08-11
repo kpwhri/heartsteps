@@ -1,8 +1,8 @@
-page-onboard {
 
+page-onboard .onboarding-nav ion-navbar {
+    display: none;
 }
 
-
-page-onboard .onboarding-nav ion-navbar .back-button {
-    display: none;
+page-onboard .onboarding-nav .scroll-content {
+    margin-top: 0px !important;
 }
