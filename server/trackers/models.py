@@ -1,28 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Open questions:
-# Should User be a FK for all Fitbit models?  Participant?
-
-
-class WeatherForecast(models.Model):
-    """
-    Represents an hourly weather forecast
-    currently using the DarkSky API
-    """
-    user = models.ForeignKey(User)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    time = models.DateTimeField()
-    precip_probability = models.FloatField()
-    precip_type = models.StringField(max_length=32)
-    temperature = models.FloatField()
-    apparent_temperature = models.FloatField()
-    wind_speed = models.FloatField()
-    cloud_cover = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
 
 class Tracker(models.Model):
     """
@@ -129,8 +107,8 @@ class TrackerSleep(models.Model):
     """
     tracker = models.ForeignKey(Tracker)
     tracker_dt = models.DateField()
-    total_minutes_asleep = IntegerField()
-    total_sleep_records = IntegerField()
-    total_time_in_bed = IntegerField()
+    total_minutes_asleep = models.IntegerField()
+    total_sleep_records = models.IntegerField()
+    total_time_in_bed = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

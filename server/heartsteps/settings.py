@@ -14,6 +14,11 @@ STATIC_URL = '/static/'
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 
+# Fitbit settings
+FITAPP_CONSUMER_KEY = env('22CXYZ', default='CONSUMER_KEY')
+FITAPP_CONSUMER_SECRET = env('3dccdbe583e49949b77d3f91a32064ef', default='CONSUMER_SECRET')
+FITAPP_SUBSCRIBE = env.bool('FITAPP_SUBSCRIBE', default=False)
+
 ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split(',')
 
 # Application definition
@@ -34,7 +39,9 @@ INSTALLED_APPS = [
     'heartsteps_messages',
     'weather',
     'heartsteps_randomization',
-    'activity_suggestions'
+    'activity_suggestions',
+    'trackers',
+    'fitapp'
 ]
 
 MIDDLEWARE = [
