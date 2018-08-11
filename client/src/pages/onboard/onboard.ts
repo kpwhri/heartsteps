@@ -5,8 +5,8 @@ import { ParticipantService } from "../../heartsteps/participant.service";
 
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
-import { ActivitySuggestionTimes } from './activity-suggestion-times';
-import { LocationsPage } from './locations';
+import { ActivitySuggestionTimes } from '../settings/activity-suggestion-times';
+import { LocationsPage } from '../settings/locations';
 import { OnboardEndPane } from './onboard-end';
 
 const onboardingSteps = [

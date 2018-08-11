@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController } from 'ionic-angular';
 import { LocationEdit } from './location-edit';
-import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
 import { LocationsService } from '../../heartsteps/locations.service';
 
 @Component({
