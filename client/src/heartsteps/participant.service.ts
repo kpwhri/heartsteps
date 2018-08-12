@@ -115,6 +115,7 @@ export class ParticipantService {
     }
 
     checkActivitySuggestions():Promise<boolean> {
+        console.log("check activity settings")
         return this.activitySuggestionTimeService.getTimes()
         .then(() => {
             return true
