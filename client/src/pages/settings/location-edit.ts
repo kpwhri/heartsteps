@@ -21,6 +21,9 @@ export class LocationEdit {
     private geocoder:any
     private geocoderTimeout:any
 
+    private autocompletionService:any
+    private addressPredictions:any
+
     private currentLocation:any
 
     constructor(
@@ -33,6 +36,7 @@ export class LocationEdit {
         this.lat = location.lat
         this.lng = location.lng
 
+        this.autocompletionService = new google.maps.places.AutocompleteService()
         this.geocoder = new google.maps.Geocoder()
     }
 
@@ -50,29 +54,63 @@ export class LocationEdit {
         })
     }
 
-    updateLatLng() {
+    showPredictions() {
         if(this.geocoderTimeout) {
             clearTimeout(this.geocoderTimeout)
         }
 
         this.geocoderTimeout = setTimeout(() => {
             this.geocoderTimeout = false
-            this.getLatLng()
-        }, 2000)
+            this.getAddressPredicitions()
+        }, 500)
     }
 
-    getLatLng() {
+    getAddressPredicitions() {
+        if(!this.address || this.address.length < 4) {
+            this.addressPredictions = []
+            return;
+        }
+
+        this.autocompletionService.getPlacePredictions({
+            input: this.address
+        }, (places, status) => {
+            if(status != google.maps.places.PlacesServiceStatus.OK) {
+                this.addressPredictions = []
+            } else {
+                if(places.length === 1) {
+                    this.getLatLng(places[0].description)
+                } else {
+                    this.addressPredictions = places
+                }
+            }
+        })
+    }
+
+    setAddress(address) {
+        this.address = address
+        this.addressPredictions = []
+        this.getLatLng(address)
+    }
+
+    getLatLng(address) {
         this.geocoder.geocode({
-            address: this.address
+            address: address
         }, (results, status) => {
             if(status === 'OK') {
                 let result = results[0];
-                this.lat = result.geometry.location.lat()
-                this.lng = result.geometry.location.lng()
-                this.placeMapPin()
+                this.updateLatLng(
+                    result.geometry.location.lat(),
+                    result.geometry.location.lng()
+                )
             }
             
         })
+    }
+
+    updateLatLng(lat, lng) {
+        this.lat = lat
+        this.lng = lng
+        this.placeMapPin()
     }
 
     loadMap() {

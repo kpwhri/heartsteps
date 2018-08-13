@@ -37,7 +37,7 @@ export class ActivitySuggestionTimeService{
         .then((timesArray) => {
             let times = {}
             if(!timesArray) {
-                return Promise.reject()
+                return Promise.reject(false)
             }
 
             timesArray.forEach(time => {
@@ -69,6 +69,8 @@ export class ActivitySuggestionTimeService{
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             })
         })
+
+        return timesArray
     }
 
     validateTimes(times:any):Promise<boolean> {

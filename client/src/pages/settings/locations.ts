@@ -17,6 +17,16 @@ export class LocationsPage {
         private locationsService:LocationsService
     ) {
         this.locations = []
+
+        this.locationsService.getLocations()
+        .then((locations) => {
+            this.locations = locations
+        })
+        .catch(() => {
+            this.locations = [{
+                type: 'home'
+            }]
+        })
     }
 
     editLocation(location:any) {
@@ -61,12 +71,17 @@ export class LocationsPage {
     }
 
     saveLocations() {
-        this.locationsService.saveLocations(this.locations)
+        this.locationsService.validate(this.locations)
+        .then(() => {
+            this.locationsService.saveLocations(this.locations)
+        })
         .then(() => {
             this.navCtrl.pop()
         })
-        .catch(() => {
-            console.log("show error message")
+        .catch((error) => {
+            if(error.locations) {
+                this.locations = error.locations
+            }
         })
     }
 }
