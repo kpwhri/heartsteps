@@ -11,6 +11,12 @@ services:
       - SECRET_KEY=secret_key
       - DATABASE_URL=psql://postgres@db:5432/postgres
       - FCM_SERVER_KEY=AAAA4ZxgfMQ:APA91bHz1XoVQPQrR19dVkn6cxl1A6ULe9tYLLFUH7G0mUzxxlrml2r5GZCsgn3MCduIKIKtV7-Di8egsm2lwjqD9aWPVDfyt8omWRYFr6RprULdrva9fSyaoe1LrI9nZ7Bokay38_7NZW-YY5_KcyBSr5j5pVEmdA
+      - FITAPP_CONSUMER_KEY='22CXYZ'
+      - FITAPP_CONSUMER_SECRET='3dccdbe583e49949b77d3f91a32064ef'
+      - FITAPP_SUBSCRIBE=True
+      - FITAPP_SUBSCRIBER_ID=1
+      - FITAPP_VERIFICATION_CODE='271b6767cb997d86917a041b1693e2289510676613fe01df0306cbb24ef19d67'
+
     command: honcho start web_dev celery rabbitmq
     volumes:
       - ./server:/server
@@ -45,4 +51,3 @@ services:
       - ./anti-sedentary:/anti-sedentary
     ports:
       - "5001:8000"
-      
