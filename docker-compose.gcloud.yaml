@@ -3,14 +3,14 @@ version: '2'
 services:
   cloudsql:
     image: gcr.io/cloudsql-docker/gce-proxy:1.11
-    command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-205523:us-west1:heartsteps-test -credential_file=/config/gce.json
+    command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-dev -credential_file=/config/gce.json
     volumes:
       - cloudsql:/cloudsql
       - ./credentials:/config
   server:
     build: ./server
     environment:
-      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps-master?host=/cloudsql/heartsteps-205523:us-west1:heartsteps-test
+      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps-master?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server
