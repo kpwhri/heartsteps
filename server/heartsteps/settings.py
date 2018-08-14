@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'heartsteps_randomization',
     'activity_suggestions',
     'trackers',
-    'fitapp'
+    # 'fitapp'
 ]
 
 MIDDLEWARE = [
