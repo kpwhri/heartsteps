@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
+import { Geolocation } from '@ionic-native/geolocation';
 
 declare var google;
 
@@ -15,20 +16,25 @@ export class LocationEdit {
     private lat:Number
     private lng:Number
 
+    private mapLat:Number
+    private mapLng:Number
+
     @ViewChild('map') mapElement: ElementRef
     private map:any
+    private mapMarker:any
 
     private geocoder:any
-    private geocoderTimeout:any
 
+    private geocoderTimeout:any
     private autocompletionService:any
-    private addressPredictions:any
+    private addressPredictions:Array<any>
 
     private currentLocation:any
 
     constructor(
         params:NavParams,
-        private viewCtrl:ViewController
+        private viewCtrl:ViewController,
+        private geolocation:Geolocation
     ) {
         const location = params.get('location')
         this.address = location.address
@@ -42,7 +48,9 @@ export class LocationEdit {
 
     ionViewDidLoad() {
         this.loadMap()
-        this.placeMapPin()
+        if(this.lat && this.lng) {
+            this.placeMapPin(this.lat, this.lng)
+        }
     }
 
     update() {
@@ -107,39 +115,80 @@ export class LocationEdit {
         })
     }
 
+    delete() {
+        console.log("Delete??")
+    }
+
     updateLatLng(lat, lng) {
         this.lat = lat
         this.lng = lng
-        this.placeMapPin()
+        this.placeMapPin(lat, lng)
     }
 
     loadMap() {
-        if(this.lat && this.lng) {
-            let latLng = new google.maps.LatLng(this.lat, this.lng);
-
+        this.getMapLocation()
+        .then((latLng) => {
             let mapOptions = {
                 center: latLng,
                 zoom: 10,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             }
-           
-            this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-        }
+            this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions)
+    
+            google.maps.event.addDomListener(this.map, "click", (clickEvent:any) => {
+                const lat = clickEvent.latLng.lat()
+                const lng = clickEvent.latLng.lng()
+                
+                this.placeMapPin(lat, lng)
+
+                let location = {
+                    lat: lat,
+                    lng: lng
+                }
+                this.geocoder.geocode({
+                    location: location
+                }, (results, status) => {
+                    if(status === 'OK') {
+                        this.address = results[0].formatted_address
+                    }
+                })
+            })
+        })
     }
 
-    placeMapPin() {
-        if(!this.lat || !this.lng) {
+    placeMapPin(latitude, longitude) {
+        if(!latitude || !longitude) {
             return
         }
         if(!this.map) {
             this.loadMap()
         }
-        
-        let latLng = new google.maps.LatLng(this.lat, this.lng)
+        if(this.mapMarker) {
+            this.mapMarker.setMap(null)
+        }
+
+        let latLng = new google.maps.LatLng(latitude, longitude)
         this.map.setCenter(latLng)
-        new google.maps.Marker({
+        this.mapMarker = new google.maps.Marker({
             position: latLng,
             map: this.map
         });
+    }
+
+    getMapLocation():Promise<any> {
+        if(this.lat && this.lng) {
+            return Promise.resolve(new google.maps.LatLng(
+                this.lat,
+                this.lng
+            ))
+        } else {
+            return this.geolocation.getCurrentPosition()
+            .then((response) => {
+                return new google.maps.LatLng(
+                    response.coords.latitude,
+                    response.coords.longitude
+                )
+            })
+        }
     }
 }

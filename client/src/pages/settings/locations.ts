@@ -16,16 +16,12 @@ export class LocationsPage {
         private modalCtrl:ModalController,
         private locationsService:LocationsService
     ) {
-        this.locations = []
-
         this.locationsService.getLocations()
         .then((locations) => {
             this.locations = locations
         })
         .catch(() => {
-            this.locations = [{
-                type: 'home'
-            }]
+            this.locations = []
         })
     }
 
