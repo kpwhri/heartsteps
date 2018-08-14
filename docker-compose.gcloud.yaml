@@ -10,7 +10,7 @@ services:
   server:
     build: ./server
     environment:
-      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps-master?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
+      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server
