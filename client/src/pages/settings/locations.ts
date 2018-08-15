@@ -69,7 +69,7 @@ export class LocationsPage {
     saveLocations() {
         this.locationsService.validate(this.locations)
         .then(() => {
-            this.locationsService.saveLocations(this.locations)
+            return this.locationsService.saveLocations(this.locations)
         })
         .then(() => {
             this.navCtrl.pop()

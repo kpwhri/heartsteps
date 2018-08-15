@@ -63,7 +63,7 @@ export class LocationsService{
             locations: locations
         })
         .then((locations) => {
-            this.storage.set(locationsKey, locations)
+            return this.storage.set(locationsKey, locations)
         })
         .then(() => {
             return Promise.resolve(true)
