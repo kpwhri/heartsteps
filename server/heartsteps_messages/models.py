@@ -31,7 +31,7 @@ class Device(models.Model):
         request['to'] = self.token
         request['collapse_key'] = 'type_a'
 
-        requests.post(
+        return requests.post(
             FCM_SEND_URL,
             headers = headers,
             json = request
@@ -45,14 +45,14 @@ class Device(models.Model):
             },
             'data': data
         }
-        self.send(fcm_request)
+        return self.send(fcm_request)
 
     def send_data(self, data):
         fcm_request = {
             'content_available': True,
             'data': data
         }
-        self.send(fcm_request)
+        return self.send(fcm_request)
 
 class ContextTag(models.Model):
     """

@@ -12,6 +12,5 @@
   ],
   "config": {
     "ionic_copy": "./config/ionic-copy-config.js"
-  },
-  "app_id": ""
+  }
 }
