@@ -12,6 +12,7 @@ django-fitbit==0.3.0
 django-uuidfield==0.5.0
 djangorestframework==3.8.2
 fcm-django==0.2.19
+fitbit==0.3.0
 geographiclib==1.49
 geopy==1.16.0
 gunicorn==19.8.1
@@ -19,11 +20,15 @@ honcho==1.0.1
 idna==2.7
 kombu==4.2.1
 Markdown==2.6.11
+oauthlib==2.1.0
 psycopg2-binary==2.7.4
 pyfcm==1.4.5
+python-dateutil==2.7.3
 pytz==2018.4
 requests==2.19.1
+requests-oauthlib==1.0.0
 requests-toolbelt==0.8.0
+simplejson==3.16.0
 six==1.11.0
 urllib3==1.23
 vine==1.1.4

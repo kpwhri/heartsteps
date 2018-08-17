@@ -36,14 +36,15 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
-    'heartsteps_participants',
-    'heartsteps_locations',
-    'heartsteps_messages',
-    'weather',
-    'heartsteps_randomization',
-    'activity_suggestions',
+    'fitapp',
     'trackers',
-    'fitapp'
+    'behavioral_messages',
+    'push_messages',
+    'participants',
+    'locations',
+    'weather',
+    'randomization',
+    'activity_suggestions'
 ]
 
 MIDDLEWARE = [

@@ -9,7 +9,7 @@ from rest_framework.test import force_authenticate
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
-from heartsteps_randomization.models import Decision
+from randomization.models import Decision
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from activity_suggestions.tasks import start_decision
@@ -101,14 +101,19 @@ class SuggestionTimeUpdateView(APITestCase):
 class TaskTests(TestCase):
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('heartsteps_randomization.tasks.make_decision.delay')
-    def test_start_decision(self, make_decision):
+    @patch('randomization.tasks.make_decision.delay')
+    @patch('randomization.models.Decision.get_context')
+    def test_start_decision(self, get_context, make_decision):
         user = User.objects.create(username="test")
 
         start_decision(user.username, 'evening')
 
         decision = Decision.objects.get(user=user)
 
-        self.assertEqual(decision.tags.first().tag, 'evening')
+        tags = [tag.tag for tag in decision.tags.all()]
+        self.assertIn('evening', tags)
+        self.assertIn('activity suggestion', tags)
+        
         make_decision.assert_called()
+        get_context.assert_called()
 

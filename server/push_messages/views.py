@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import Message, Device
 from .serializers import DeviceSerializer
 
+from django.utils import timezone
+
 class DeviceView(APIView):
     """
     Manage a user's Firebase Cloud Messaging Device
@@ -54,11 +56,11 @@ class RecievedMessageView(APIView):
             except Message.DoesNotExist:
                 return Response({}, status.HTTP_404_NOT_FOUND)
             
-            if request.user != message.reciepent:
+            if request.user != message.recipient:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
 
             if not message.recieved:
-                message.markRecieved()
+                message.recieved = timezone.now()
                 message.save()
                 return Response({}, status.HTTP_201_CREATED)
             return Response({}, status.HTTP_200_OK)

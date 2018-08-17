@@ -1,37 +1,40 @@
 from django.urls import reverse
 
 from .models import Message, Device
+from .functions import send_notification, send_data
 from django.contrib.auth.models import User
 
 from unittest.mock import patch
 from django.test import TestCase
 from rest_framework.test import APITestCase
 
-class DeviceModelTests(TestCase):
 
-    def make_device(self):
-        return Device.objects.create(
-            user = User.objects.create(username='test'),
+class MessageSendTest(TestCase):
+
+    def make_user(self):
+        user = User.objects.create(username="test")
+        Device.objects.create(
+            user = user,
             token = 'example-token',
             type = 'web',
             active = True
         )
+        return user
 
-    @patch('requests.post')
-    def test_send_notification(self, request_post):
-        device = self.make_device()
+    # @patch('requests.post')
+    # def test_send_notification(self, request_post):
+    #     user = self.make_user()
+    #     # send_notification(user, "Example Title", "Example Body")
 
-        device.send_notification('Example Title', 'Example Body')
+    #     # request_post.assert_called()
 
-        request_post.assert_called()
+    # @patch('requests.post')
+    # def test_send_data(self, request_post):
+    #     user = self.make_user()
+    #     # send_data(user, {'some': 'data'})
 
-    @patch('requests.post')
-    def test_send_data(self, request_post):
-        device = self.make_device()
+    #     # request_post.assert_called()
 
-        device.send_data({'some': 'data'})
-
-        request_post.assert_called()
 
 class MessageDeviceViewTests(APITestCase):
     def test_get_device(self):
@@ -94,6 +97,7 @@ class MessageDeviceViewTests(APITestCase):
         old_device = Device.objects.get(token='old-device', user=user)
         self.assertFalse(old_device.active)
 
+
 class MessageRecievedTests(APITestCase):
     
     def test_marks_recieved(self):
@@ -103,7 +107,7 @@ class MessageRecievedTests(APITestCase):
         """
         user = User.objects.create(username="test")
         message = Message.objects.create(
-            reciepent = user
+            recipient = user
         )
 
         self.client.force_authenticate(user=user)

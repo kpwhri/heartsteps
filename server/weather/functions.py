@@ -13,4 +13,4 @@ class WeatherFunction:
         forecast = dark_sky.get_hour_forecast(latitude, longitude)
         forecast.save()
         context = weather.utils.WeatherUtils.get_weather_context(forecast)
-        return forecast.id, context
+        return forecast, context
