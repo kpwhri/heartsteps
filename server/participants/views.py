@@ -18,7 +18,7 @@ class EnrollView(APIView):
         enrollment_token = request.data.get('enrollmentToken')
         if enrollment_token:
             try:
-                participant = Participant.objects.get(enrollment_token=enrollment_token)
+                participant = Participant.objects.get(enrollment_token__iexact=enrollment_token)
             except Participant.DoesNotExist:
                 return Response({}, status.HTTP_400_BAD_REQUEST)
             if not participant.user:

@@ -19,7 +19,7 @@ class EnrollViewTests(APITestCase):
         )
 
         response = self.client.post(reverse('participants-enroll'), {
-            'enrollmentToken': 'token'
+            'enrollmentToken': 'TOKEN'
         })
         
         self.assertEqual(response.status_code, 200)
