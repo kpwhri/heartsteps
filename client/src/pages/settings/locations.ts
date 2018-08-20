@@ -30,8 +30,8 @@ export class LocationsPage {
         .then((updatedLocation) => {
             location.address = updatedLocation.address
             location.type = updatedLocation.type
-            location.lat = updatedLocation.lat
-            location.lng = updatedLocation.lng
+            location.latitude = updatedLocation.latitude
+            location.longitude = updatedLocation.longitude
         })
         .catch(() => {
             // don't do anything

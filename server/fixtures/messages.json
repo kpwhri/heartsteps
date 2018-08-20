@@ -1,118 +1,118 @@
 [
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 2,
     "fields": {
         "tag": "home"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 3,
     "fields": {
         "tag": "afternoon"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 4,
     "fields": {
         "tag": "evening"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 5,
     "fields": {
         "tag": "dinner"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 6,
     "fields": {
         "tag": "active"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 7,
     "fields": {
         "tag": "weekday"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 8,
     "fields": {
         "tag": "weekend"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 9,
     "fields": {
         "tag": "outdoor"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 10,
     "fields": {
         "tag": "indoor"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 11,
     "fields": {
         "tag": "work"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 12,
     "fields": {
         "tag": "morning"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 13,
     "fields": {
         "tag": "other"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 14,
     "fields": {
         "tag": "lunch"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 15,
     "fields": {
         "tag": "sedentary"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 16,
     "fields": {
         "tag": "outdoor_snow"
     }
 },
 {
-    "model": "heartsteps_messages.contexttag",
+    "model": "behavioral_messages.contexttag",
     "pk": 17,
     "fields": {
         "tag": "avening"
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 2,
     "fields": {
         
@@ -131,7 +131,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 3,
     "fields": {
         
@@ -147,7 +147,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 4,
     "fields": {
         
@@ -165,7 +165,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 5,
     "fields": {
         
@@ -187,7 +187,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 6,
     "fields": {
         
@@ -209,7 +209,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 7,
     "fields": {
         
@@ -224,7 +224,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 8,
     "fields": {
         
@@ -241,7 +241,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 9,
     "fields": {
         
@@ -257,7 +257,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 10,
     "fields": {
         
@@ -277,7 +277,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 11,
     "fields": {
         
@@ -294,7 +294,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 12,
     "fields": {
         
@@ -313,7 +313,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 13,
     "fields": {
         
@@ -329,7 +329,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 14,
     "fields": {
         
@@ -345,7 +345,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 15,
     "fields": {
         
@@ -360,7 +360,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 16,
     "fields": {
         
@@ -377,7 +377,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 17,
     "fields": {
         
@@ -395,7 +395,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 18,
     "fields": {
         
@@ -411,7 +411,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 19,
     "fields": {
         
@@ -429,7 +429,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 20,
     "fields": {
         
@@ -445,7 +445,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 21,
     "fields": {
         
@@ -463,7 +463,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 22,
     "fields": {
         
@@ -472,7 +472,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 23,
     "fields": {
         
@@ -493,7 +493,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 24,
     "fields": {
         
@@ -512,7 +512,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 25,
     "fields": {
         
@@ -533,7 +533,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 26,
     "fields": {
         
@@ -550,7 +550,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 27,
     "fields": {
         
@@ -569,7 +569,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 28,
     "fields": {
         
@@ -585,7 +585,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 29,
     "fields": {
         
@@ -602,7 +602,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 30,
     "fields": {
         
@@ -618,7 +618,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 31,
     "fields": {
         
@@ -636,7 +636,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 32,
     "fields": {
         
@@ -654,7 +654,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 33,
     "fields": {
         
@@ -672,7 +672,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 34,
     "fields": {
         
@@ -681,7 +681,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 35,
     "fields": {
         
@@ -699,7 +699,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 36,
     "fields": {
         
@@ -716,7 +716,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 37,
     "fields": {
         
@@ -734,7 +734,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 38,
     "fields": {
         
@@ -750,7 +750,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 39,
     "fields": {
         
@@ -767,7 +767,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 40,
     "fields": {
         
@@ -785,7 +785,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 41,
     "fields": {
         
@@ -794,7 +794,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 42,
     "fields": {
         
@@ -812,7 +812,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 43,
     "fields": {
         
@@ -828,7 +828,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 44,
     "fields": {
         
@@ -844,7 +844,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 45,
     "fields": {
         
@@ -863,7 +863,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 46,
     "fields": {
         
@@ -881,7 +881,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 47,
     "fields": {
         
@@ -899,7 +899,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 48,
     "fields": {
         
@@ -916,7 +916,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 49,
     "fields": {
         
@@ -934,7 +934,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 50,
     "fields": {
         
@@ -950,7 +950,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 51,
     "fields": {
         
@@ -967,7 +967,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 52,
     "fields": {
         
@@ -985,7 +985,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 53,
     "fields": {
         
@@ -1006,7 +1006,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 54,
     "fields": {
         
@@ -1024,7 +1024,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 55,
     "fields": {
         
@@ -1041,7 +1041,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 56,
     "fields": {
         
@@ -1058,7 +1058,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 57,
     "fields": {
         
@@ -1078,7 +1078,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 58,
     "fields": {
         
@@ -1095,7 +1095,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 59,
     "fields": {
         
@@ -1112,7 +1112,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 60,
     "fields": {
         
@@ -1128,7 +1128,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 61,
     "fields": {
         
@@ -1145,7 +1145,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 62,
     "fields": {
         
@@ -1162,7 +1162,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 63,
     "fields": {
         
@@ -1181,7 +1181,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 64,
     "fields": {
         
@@ -1202,7 +1202,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 65,
     "fields": {
         
@@ -1220,7 +1220,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 66,
     "fields": {
         
@@ -1242,7 +1242,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 67,
     "fields": {
         
@@ -1261,7 +1261,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 68,
     "fields": {
         
@@ -1278,7 +1278,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 69,
     "fields": {
         
@@ -1298,7 +1298,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 70,
     "fields": {
         
@@ -1313,7 +1313,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 71,
     "fields": {
         
@@ -1329,7 +1329,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 72,
     "fields": {
         
@@ -1346,7 +1346,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 73,
     "fields": {
         
@@ -1362,7 +1362,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 74,
     "fields": {
         
@@ -1381,7 +1381,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 75,
     "fields": {
         
@@ -1402,7 +1402,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 76,
     "fields": {
         
@@ -1423,7 +1423,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 77,
     "fields": {
         
@@ -1439,7 +1439,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 78,
     "fields": {
         
@@ -1460,7 +1460,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 79,
     "fields": {
         
@@ -1477,7 +1477,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 80,
     "fields": {
         
@@ -1500,7 +1500,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 81,
     "fields": {
         
@@ -1521,7 +1521,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 82,
     "fields": {
         
@@ -1537,7 +1537,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 83,
     "fields": {
         
@@ -1555,7 +1555,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 84,
     "fields": {
         
@@ -1571,7 +1571,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 85,
     "fields": {
         
@@ -1589,7 +1589,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 86,
     "fields": {
         
@@ -1612,7 +1612,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 87,
     "fields": {
         
@@ -1628,7 +1628,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 88,
     "fields": {
         
@@ -1646,7 +1646,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 89,
     "fields": {
         
@@ -1662,7 +1662,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 90,
     "fields": {
         
@@ -1677,7 +1677,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 91,
     "fields": {
         
@@ -1697,7 +1697,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 92,
     "fields": {
         
@@ -1714,7 +1714,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 93,
     "fields": {
         
@@ -1735,7 +1735,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 94,
     "fields": {
         
@@ -1753,7 +1753,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 95,
     "fields": {
         
@@ -1774,7 +1774,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 96,
     "fields": {
         
@@ -1795,7 +1795,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 97,
     "fields": {
         
@@ -1813,7 +1813,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 98,
     "fields": {
         
@@ -1830,7 +1830,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 99,
     "fields": {
         
@@ -1846,7 +1846,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 100,
     "fields": {
         
@@ -1863,7 +1863,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 101,
     "fields": {
         
@@ -1878,7 +1878,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 102,
     "fields": {
         
@@ -1899,7 +1899,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 103,
     "fields": {
         
@@ -1914,7 +1914,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 104,
     "fields": {
         
@@ -1932,7 +1932,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 105,
     "fields": {
         
@@ -1948,7 +1948,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 106,
     "fields": {
         
@@ -1964,7 +1964,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 107,
     "fields": {
         
@@ -1973,7 +1973,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 108,
     "fields": {
         
@@ -1990,7 +1990,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 109,
     "fields": {
         
@@ -2007,7 +2007,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 110,
     "fields": {
         
@@ -2024,7 +2024,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 111,
     "fields": {
         
@@ -2044,7 +2044,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 112,
     "fields": {
         
@@ -2064,7 +2064,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 113,
     "fields": {
         
@@ -2086,7 +2086,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 114,
     "fields": {
         
@@ -2102,7 +2102,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 115,
     "fields": {
         
@@ -2124,7 +2124,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 116,
     "fields": {
         
@@ -2140,7 +2140,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 117,
     "fields": {
         
@@ -2157,7 +2157,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 118,
     "fields": {
         
@@ -2172,7 +2172,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 119,
     "fields": {
         
@@ -2189,7 +2189,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 120,
     "fields": {
         
@@ -2208,7 +2208,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 121,
     "fields": {
         
@@ -2228,7 +2228,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 122,
     "fields": {
         
@@ -2244,7 +2244,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 123,
     "fields": {
         
@@ -2261,7 +2261,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 124,
     "fields": {
         
@@ -2278,7 +2278,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 125,
     "fields": {
         
@@ -2296,7 +2296,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 126,
     "fields": {
         
@@ -2312,7 +2312,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 127,
     "fields": {
         
@@ -2329,7 +2329,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 128,
     "fields": {
         
@@ -2350,7 +2350,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 129,
     "fields": {
         
@@ -2370,7 +2370,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 130,
     "fields": {
         
@@ -2391,7 +2391,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 131,
     "fields": {
         
@@ -2407,7 +2407,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 132,
     "fields": {
         
@@ -2424,7 +2424,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 133,
     "fields": {
         
@@ -2440,7 +2440,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 134,
     "fields": {
         
@@ -2457,7 +2457,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 135,
     "fields": {
         
@@ -2474,7 +2474,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 136,
     "fields": {
         
@@ -2492,7 +2492,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 137,
     "fields": {
         
@@ -2501,7 +2501,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 138,
     "fields": {
         
@@ -2510,7 +2510,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 139,
     "fields": {
         
@@ -2528,7 +2528,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 140,
     "fields": {
         
@@ -2546,7 +2546,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 141,
     "fields": {
         
@@ -2564,7 +2564,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 142,
     "fields": {
         
@@ -2582,7 +2582,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 143,
     "fields": {
         
@@ -2603,7 +2603,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 144,
     "fields": {
         
@@ -2619,7 +2619,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 145,
     "fields": {
         
@@ -2636,7 +2636,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 146,
     "fields": {
         
@@ -2653,7 +2653,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 147,
     "fields": {
         
@@ -2669,7 +2669,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 148,
     "fields": {
         
@@ -2686,7 +2686,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 149,
     "fields": {
         
@@ -2708,7 +2708,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 150,
     "fields": {
         
@@ -2729,7 +2729,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 151,
     "fields": {
         
@@ -2746,7 +2746,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 152,
     "fields": {
         
@@ -2761,7 +2761,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 153,
     "fields": {
         
@@ -2776,7 +2776,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 154,
     "fields": {
         
@@ -2794,7 +2794,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 155,
     "fields": {
         
@@ -2809,7 +2809,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 156,
     "fields": {
         
@@ -2827,7 +2827,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 157,
     "fields": {
         
@@ -2845,7 +2845,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 158,
     "fields": {
         
@@ -2868,7 +2868,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 159,
     "fields": {
         
@@ -2884,7 +2884,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 160,
     "fields": {
         
@@ -2905,7 +2905,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 161,
     "fields": {
         
@@ -2922,7 +2922,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 162,
     "fields": {
         
@@ -2942,7 +2942,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 163,
     "fields": {
         
@@ -2960,7 +2960,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 164,
     "fields": {
         
@@ -2980,7 +2980,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 165,
     "fields": {
         
@@ -2997,7 +2997,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 166,
     "fields": {
         
@@ -3013,7 +3013,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 167,
     "fields": {
         
@@ -3029,7 +3029,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 168,
     "fields": {
         
@@ -3047,7 +3047,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 169,
     "fields": {
         
@@ -3064,7 +3064,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 170,
     "fields": {
         
@@ -3082,7 +3082,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 171,
     "fields": {
         
@@ -3091,7 +3091,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 172,
     "fields": {
         
@@ -3107,7 +3107,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 173,
     "fields": {
         
@@ -3125,7 +3125,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 174,
     "fields": {
         
@@ -3140,7 +3140,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 175,
     "fields": {
         
@@ -3158,7 +3158,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 176,
     "fields": {
         
@@ -3174,7 +3174,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 177,
     "fields": {
         
@@ -3198,7 +3198,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 178,
     "fields": {
         
@@ -3207,7 +3207,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 179,
     "fields": {
         
@@ -3224,7 +3224,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 180,
     "fields": {
         
@@ -3240,7 +3240,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 181,
     "fields": {
         
@@ -3259,7 +3259,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 182,
     "fields": {
         
@@ -3276,7 +3276,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 183,
     "fields": {
         
@@ -3295,7 +3295,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 184,
     "fields": {
         
@@ -3313,7 +3313,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 185,
     "fields": {
         
@@ -3330,7 +3330,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 186,
     "fields": {
         
@@ -3347,7 +3347,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 187,
     "fields": {
         
@@ -3367,7 +3367,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 188,
     "fields": {
         
@@ -3387,7 +3387,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 189,
     "fields": {
         
@@ -3404,7 +3404,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 190,
     "fields": {
         
@@ -3422,7 +3422,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 191,
     "fields": {
         
@@ -3439,7 +3439,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 192,
     "fields": {
         
@@ -3461,7 +3461,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 193,
     "fields": {
         
@@ -3470,7 +3470,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 194,
     "fields": {
         
@@ -3490,7 +3490,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 195,
     "fields": {
         
@@ -3507,7 +3507,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 196,
     "fields": {
         
@@ -3516,7 +3516,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 197,
     "fields": {
         
@@ -3533,7 +3533,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 198,
     "fields": {
         
@@ -3551,7 +3551,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 199,
     "fields": {
         
@@ -3572,7 +3572,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 200,
     "fields": {
         
@@ -3590,7 +3590,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 201,
     "fields": {
         
@@ -3609,7 +3609,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 202,
     "fields": {
         
@@ -3626,7 +3626,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 203,
     "fields": {
         
@@ -3646,7 +3646,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 204,
     "fields": {
         
@@ -3663,7 +3663,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 205,
     "fields": {
         
@@ -3680,7 +3680,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 206,
     "fields": {
         
@@ -3698,7 +3698,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 207,
     "fields": {
         
@@ -3713,7 +3713,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 208,
     "fields": {
         
@@ -3731,7 +3731,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 209,
     "fields": {
         
@@ -3740,7 +3740,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 210,
     "fields": {
         
@@ -3759,7 +3759,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 211,
     "fields": {
         
@@ -3776,7 +3776,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 212,
     "fields": {
         
@@ -3792,7 +3792,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 213,
     "fields": {
         
@@ -3807,7 +3807,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 214,
     "fields": {
         
@@ -3824,7 +3824,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 215,
     "fields": {
         
@@ -3842,7 +3842,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 216,
     "fields": {
         
@@ -3865,7 +3865,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 217,
     "fields": {
         
@@ -3882,7 +3882,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 218,
     "fields": {
         
@@ -3898,7 +3898,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 219,
     "fields": {
         
@@ -3915,7 +3915,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 220,
     "fields": {
         
@@ -3931,7 +3931,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 221,
     "fields": {
         
@@ -3948,7 +3948,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 222,
     "fields": {
         
@@ -3970,7 +3970,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 223,
     "fields": {
         
@@ -3986,7 +3986,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 224,
     "fields": {
         
@@ -4003,7 +4003,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 225,
     "fields": {
         
@@ -4019,7 +4019,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 226,
     "fields": {
         
@@ -4037,7 +4037,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 227,
     "fields": {
         
@@ -4054,7 +4054,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 228,
     "fields": {
         
@@ -4072,7 +4072,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 229,
     "fields": {
         
@@ -4081,7 +4081,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 230,
     "fields": {
         
@@ -4098,7 +4098,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 231,
     "fields": {
         
@@ -4114,7 +4114,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 232,
     "fields": {
         
@@ -4131,7 +4131,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 233,
     "fields": {
         
@@ -4148,7 +4148,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 234,
     "fields": {
         
@@ -4166,7 +4166,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 235,
     "fields": {
         
@@ -4184,7 +4184,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 236,
     "fields": {
         
@@ -4202,7 +4202,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 237,
     "fields": {
         
@@ -4211,7 +4211,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 238,
     "fields": {
         
@@ -4228,7 +4228,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 239,
     "fields": {
         
@@ -4251,7 +4251,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 240,
     "fields": {
         
@@ -4267,7 +4267,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 241,
     "fields": {
         
@@ -4285,7 +4285,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 242,
     "fields": {
         
@@ -4303,7 +4303,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 243,
     "fields": {
         
@@ -4319,7 +4319,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 244,
     "fields": {
         
@@ -4336,7 +4336,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 245,
     "fields": {
         
@@ -4356,7 +4356,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 246,
     "fields": {
         
@@ -4374,7 +4374,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 247,
     "fields": {
         
@@ -4390,7 +4390,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 248,
     "fields": {
         
@@ -4406,7 +4406,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 249,
     "fields": {
         
@@ -4422,7 +4422,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 250,
     "fields": {
         
@@ -4445,7 +4445,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 251,
     "fields": {
         
@@ -4463,7 +4463,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 252,
     "fields": {
         
@@ -4481,7 +4481,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 253,
     "fields": {
         
@@ -4497,7 +4497,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 254,
     "fields": {
         
@@ -4512,7 +4512,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 255,
     "fields": {
         
@@ -4531,7 +4531,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 256,
     "fields": {
         
@@ -4549,7 +4549,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 257,
     "fields": {
         
@@ -4566,7 +4566,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 258,
     "fields": {
         
@@ -4586,7 +4586,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 259,
     "fields": {
         
@@ -4602,7 +4602,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 260,
     "fields": {
         
@@ -4620,7 +4620,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 261,
     "fields": {
         
@@ -4636,7 +4636,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 262,
     "fields": {
         
@@ -4657,7 +4657,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 263,
     "fields": {
         
@@ -4674,7 +4674,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 264,
     "fields": {
         
@@ -4694,7 +4694,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 265,
     "fields": {
         
@@ -4715,7 +4715,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 266,
     "fields": {
         
@@ -4733,7 +4733,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 267,
     "fields": {
         
@@ -4751,7 +4751,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 268,
     "fields": {
         
@@ -4769,7 +4769,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 269,
     "fields": {
         
@@ -4786,7 +4786,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 270,
     "fields": {
         
@@ -4802,7 +4802,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 271,
     "fields": {
         
@@ -4818,7 +4818,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 272,
     "fields": {
         
@@ -4836,7 +4836,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 273,
     "fields": {
         
@@ -4852,7 +4852,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 274,
     "fields": {
         
@@ -4871,7 +4871,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 275,
     "fields": {
         
@@ -4887,7 +4887,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 276,
     "fields": {
         
@@ -4903,7 +4903,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 277,
     "fields": {
         
@@ -4920,7 +4920,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 278,
     "fields": {
         
@@ -4929,7 +4929,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 279,
     "fields": {
         
@@ -4945,7 +4945,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 280,
     "fields": {
         
@@ -4964,7 +4964,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 281,
     "fields": {
         
@@ -4983,7 +4983,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 282,
     "fields": {
         
@@ -4999,7 +4999,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 283,
     "fields": {
         
@@ -5018,7 +5018,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 284,
     "fields": {
         
@@ -5035,7 +5035,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 285,
     "fields": {
         
@@ -5056,7 +5056,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 286,
     "fields": {
         
@@ -5075,7 +5075,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 287,
     "fields": {
         
@@ -5094,7 +5094,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 288,
     "fields": {
         
@@ -5111,7 +5111,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 289,
     "fields": {
         
@@ -5128,7 +5128,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 290,
     "fields": {
         
@@ -5149,7 +5149,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 291,
     "fields": {
         
@@ -5170,7 +5170,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 292,
     "fields": {
         
@@ -5187,7 +5187,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 293,
     "fields": {
         
@@ -5202,7 +5202,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 294,
     "fields": {
         
@@ -5222,7 +5222,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 295,
     "fields": {
         
@@ -5239,7 +5239,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 296,
     "fields": {
         
@@ -5255,7 +5255,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 297,
     "fields": {
         
@@ -5278,7 +5278,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 298,
     "fields": {
         
@@ -5296,7 +5296,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 299,
     "fields": {
         
@@ -5311,7 +5311,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 300,
     "fields": {
         
@@ -5328,7 +5328,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 301,
     "fields": {
         
@@ -5337,7 +5337,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 302,
     "fields": {
         
@@ -5360,7 +5360,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 303,
     "fields": {
         
@@ -5377,7 +5377,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 304,
     "fields": {
         
@@ -5392,7 +5392,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 305,
     "fields": {
         
@@ -5411,7 +5411,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 306,
     "fields": {
         
@@ -5426,7 +5426,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 307,
     "fields": {
         
@@ -5444,7 +5444,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 308,
     "fields": {
         
@@ -5463,7 +5463,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 309,
     "fields": {
         
@@ -5481,7 +5481,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 310,
     "fields": {
         
@@ -5496,7 +5496,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 311,
     "fields": {
         
@@ -5515,7 +5515,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 312,
     "fields": {
         
@@ -5537,7 +5537,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 313,
     "fields": {
         
@@ -5553,7 +5553,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 314,
     "fields": {
         
@@ -5569,7 +5569,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 315,
     "fields": {
         
@@ -5578,7 +5578,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 316,
     "fields": {
         
@@ -5593,7 +5593,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 317,
     "fields": {
         
@@ -5610,7 +5610,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 318,
     "fields": {
         
@@ -5626,7 +5626,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 319,
     "fields": {
         
@@ -5644,7 +5644,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 320,
     "fields": {
         
@@ -5664,7 +5664,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 321,
     "fields": {
         
@@ -5684,7 +5684,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 322,
     "fields": {
         
@@ -5702,7 +5702,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 323,
     "fields": {
         
@@ -5718,7 +5718,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 324,
     "fields": {
         
@@ -5740,7 +5740,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 325,
     "fields": {
         
@@ -5757,7 +5757,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 326,
     "fields": {
         
@@ -5775,7 +5775,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 327,
     "fields": {
         
@@ -5792,7 +5792,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 328,
     "fields": {
         
@@ -5814,7 +5814,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 329,
     "fields": {
         
@@ -5823,7 +5823,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 330,
     "fields": {
         
@@ -5842,7 +5842,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 331,
     "fields": {
         
@@ -5861,7 +5861,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 332,
     "fields": {
         
@@ -5876,7 +5876,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 333,
     "fields": {
         
@@ -5891,7 +5891,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 334,
     "fields": {
         
@@ -5908,7 +5908,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 335,
     "fields": {
         
@@ -5917,7 +5917,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 336,
     "fields": {
         
@@ -5936,7 +5936,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 337,
     "fields": {
         
@@ -5953,7 +5953,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 338,
     "fields": {
         
@@ -5973,7 +5973,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 339,
     "fields": {
         
@@ -5990,7 +5990,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 340,
     "fields": {
         
@@ -6008,7 +6008,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 341,
     "fields": {
         
@@ -6017,7 +6017,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 342,
     "fields": {
         
@@ -6035,7 +6035,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 343,
     "fields": {
         
@@ -6053,7 +6053,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 344,
     "fields": {
         
@@ -6073,7 +6073,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 345,
     "fields": {
         
@@ -6089,7 +6089,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 346,
     "fields": {
         
@@ -6108,7 +6108,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 347,
     "fields": {
         
@@ -6117,7 +6117,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 348,
     "fields": {
         
@@ -6134,7 +6134,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 349,
     "fields": {
         
@@ -6151,7 +6151,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 350,
     "fields": {
         
@@ -6168,7 +6168,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 351,
     "fields": {
         
@@ -6183,7 +6183,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 352,
     "fields": {
         
@@ -6202,7 +6202,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 353,
     "fields": {
         
@@ -6221,7 +6221,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 354,
     "fields": {
         
@@ -6241,7 +6241,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 355,
     "fields": {
         
@@ -6258,7 +6258,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 356,
     "fields": {
         
@@ -6276,7 +6276,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 357,
     "fields": {
         
@@ -6298,7 +6298,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 358,
     "fields": {
         
@@ -6318,7 +6318,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 359,
     "fields": {
         
@@ -6334,7 +6334,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 360,
     "fields": {
         
@@ -6350,7 +6350,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 361,
     "fields": {
         
@@ -6368,7 +6368,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 362,
     "fields": {
         
@@ -6384,7 +6384,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 363,
     "fields": {
         
@@ -6404,7 +6404,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 364,
     "fields": {
         
@@ -6423,7 +6423,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 365,
     "fields": {
         
@@ -6439,7 +6439,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 366,
     "fields": {
         
@@ -6456,7 +6456,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 367,
     "fields": {
         
@@ -6465,7 +6465,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 368,
     "fields": {
         
@@ -6486,7 +6486,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 369,
     "fields": {
         
@@ -6503,7 +6503,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 370,
     "fields": {
         
@@ -6520,7 +6520,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 371,
     "fields": {
         
@@ -6543,7 +6543,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 372,
     "fields": {
         
@@ -6559,7 +6559,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 373,
     "fields": {
         
@@ -6578,7 +6578,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 374,
     "fields": {
         
@@ -6597,7 +6597,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 375,
     "fields": {
         
@@ -6616,7 +6616,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 376,
     "fields": {
         
@@ -6633,7 +6633,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 377,
     "fields": {
         
@@ -6648,7 +6648,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 378,
     "fields": {
         
@@ -6667,7 +6667,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 379,
     "fields": {
         
@@ -6685,7 +6685,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 380,
     "fields": {
         
@@ -6704,7 +6704,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 381,
     "fields": {
         
@@ -6722,7 +6722,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 382,
     "fields": {
         
@@ -6740,7 +6740,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 383,
     "fields": {
         
@@ -6756,7 +6756,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 384,
     "fields": {
         
@@ -6775,7 +6775,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 385,
     "fields": {
         
@@ -6790,7 +6790,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 386,
     "fields": {
         
@@ -6808,7 +6808,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 387,
     "fields": {
         
@@ -6817,7 +6817,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 388,
     "fields": {
         
@@ -6835,7 +6835,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 389,
     "fields": {
         
@@ -6851,7 +6851,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 390,
     "fields": {
         
@@ -6869,7 +6869,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 391,
     "fields": {
         
@@ -6886,7 +6886,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 392,
     "fields": {
         
@@ -6902,7 +6902,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 393,
     "fields": {
         
@@ -6911,7 +6911,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 394,
     "fields": {
         
@@ -6929,7 +6929,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 395,
     "fields": {
         
@@ -6944,7 +6944,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 396,
     "fields": {
         
@@ -6960,7 +6960,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 397,
     "fields": {
         
@@ -6976,7 +6976,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 398,
     "fields": {
         
@@ -6996,7 +6996,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 399,
     "fields": {
         
@@ -7014,7 +7014,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 400,
     "fields": {
         
@@ -7031,7 +7031,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 401,
     "fields": {
         
@@ -7051,7 +7051,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 402,
     "fields": {
         
@@ -7067,7 +7067,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 403,
     "fields": {
         
@@ -7085,7 +7085,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 404,
     "fields": {
         
@@ -7103,7 +7103,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 405,
     "fields": {
         
@@ -7119,7 +7119,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 406,
     "fields": {
         
@@ -7141,7 +7141,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 407,
     "fields": {
         
@@ -7158,7 +7158,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 408,
     "fields": {
         
@@ -7167,7 +7167,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 409,
     "fields": {
         
@@ -7186,7 +7186,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 410,
     "fields": {
         
@@ -7206,7 +7206,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 411,
     "fields": {
         
@@ -7225,7 +7225,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 412,
     "fields": {
         
@@ -7245,7 +7245,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 413,
     "fields": {
         
@@ -7263,7 +7263,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 414,
     "fields": {
         
@@ -7272,7 +7272,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 415,
     "fields": {
         
@@ -7291,7 +7291,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 416,
     "fields": {
         
@@ -7308,7 +7308,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 417,
     "fields": {
         
@@ -7325,7 +7325,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 418,
     "fields": {
         
@@ -7341,7 +7341,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 419,
     "fields": {
         
@@ -7356,7 +7356,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 420,
     "fields": {
         
@@ -7373,7 +7373,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 421,
     "fields": {
         
@@ -7390,7 +7390,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 422,
     "fields": {
         
@@ -7407,7 +7407,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 423,
     "fields": {
         
@@ -7425,7 +7425,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 424,
     "fields": {
         
@@ -7448,7 +7448,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 425,
     "fields": {
         
@@ -7465,7 +7465,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 426,
     "fields": {
         
@@ -7485,7 +7485,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 427,
     "fields": {
         
@@ -7503,7 +7503,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 428,
     "fields": {
         
@@ -7524,7 +7524,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 429,
     "fields": {
         
@@ -7541,7 +7541,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 430,
     "fields": {
         
@@ -7563,7 +7563,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 431,
     "fields": {
         
@@ -7582,7 +7582,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 432,
     "fields": {
         
@@ -7602,7 +7602,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 433,
     "fields": {
         
@@ -7619,7 +7619,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 434,
     "fields": {
         
@@ -7638,7 +7638,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 435,
     "fields": {
         
@@ -7647,7 +7647,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 436,
     "fields": {
         
@@ -7668,7 +7668,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 437,
     "fields": {
         
@@ -7684,7 +7684,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 438,
     "fields": {
         
@@ -7703,7 +7703,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 439,
     "fields": {
         
@@ -7723,7 +7723,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 440,
     "fields": {
         
@@ -7743,7 +7743,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 441,
     "fields": {
         
@@ -7760,7 +7760,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 442,
     "fields": {
         
@@ -7769,7 +7769,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 443,
     "fields": {
         
@@ -7778,7 +7778,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 444,
     "fields": {
         
@@ -7793,7 +7793,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 445,
     "fields": {
         
@@ -7809,7 +7809,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 446,
     "fields": {
         
@@ -7827,7 +7827,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 447,
     "fields": {
         
@@ -7836,7 +7836,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 448,
     "fields": {
         
@@ -7854,7 +7854,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 449,
     "fields": {
         
@@ -7872,7 +7872,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 450,
     "fields": {
         
@@ -7892,7 +7892,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 451,
     "fields": {
         
@@ -7912,7 +7912,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 452,
     "fields": {
         
@@ -7927,7 +7927,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 453,
     "fields": {
         
@@ -7950,7 +7950,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 454,
     "fields": {
         
@@ -7967,7 +7967,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 455,
     "fields": {
         
@@ -7985,7 +7985,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 456,
     "fields": {
         
@@ -8001,7 +8001,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 457,
     "fields": {
         
@@ -8021,7 +8021,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 458,
     "fields": {
         
@@ -8037,7 +8037,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 459,
     "fields": {
         
@@ -8052,7 +8052,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 460,
     "fields": {
         
@@ -8071,7 +8071,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 461,
     "fields": {
         
@@ -8089,7 +8089,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 462,
     "fields": {
         
@@ -8105,7 +8105,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 463,
     "fields": {
         
@@ -8123,7 +8123,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 464,
     "fields": {
         
@@ -8140,7 +8140,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 465,
     "fields": {
         
@@ -8159,7 +8159,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 466,
     "fields": {
         
@@ -8180,7 +8180,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 467,
     "fields": {
         
@@ -8199,7 +8199,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 468,
     "fields": {
         
@@ -8215,7 +8215,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 469,
     "fields": {
         
@@ -8232,7 +8232,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 470,
     "fields": {
         
@@ -8249,7 +8249,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 471,
     "fields": {
         
@@ -8267,7 +8267,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 472,
     "fields": {
         
@@ -8282,7 +8282,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 473,
     "fields": {
         
@@ -8302,7 +8302,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 474,
     "fields": {
         
@@ -8323,7 +8323,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 475,
     "fields": {
         
@@ -8339,7 +8339,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 476,
     "fields": {
         
@@ -8348,7 +8348,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 477,
     "fields": {
         
@@ -8366,7 +8366,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 478,
     "fields": {
         
@@ -8384,7 +8384,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 479,
     "fields": {
         
@@ -8401,7 +8401,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 480,
     "fields": {
         
@@ -8421,7 +8421,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 481,
     "fields": {
         
@@ -8430,7 +8430,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 482,
     "fields": {
         
@@ -8449,7 +8449,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 483,
     "fields": {
         
@@ -8458,7 +8458,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 484,
     "fields": {
         
@@ -8478,7 +8478,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 485,
     "fields": {
         
@@ -8495,7 +8495,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 486,
     "fields": {
         
@@ -8511,7 +8511,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 487,
     "fields": {
         
@@ -8530,7 +8530,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 488,
     "fields": {
         
@@ -8546,7 +8546,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 489,
     "fields": {
         
@@ -8564,7 +8564,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 490,
     "fields": {
         
@@ -8583,7 +8583,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 491,
     "fields": {
         
@@ -8599,7 +8599,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 492,
     "fields": {
         
@@ -8616,7 +8616,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 493,
     "fields": {
         
@@ -8637,7 +8637,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 494,
     "fields": {
         
@@ -8653,7 +8653,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 495,
     "fields": {
         
@@ -8672,7 +8672,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 496,
     "fields": {
         
@@ -8681,7 +8681,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 497,
     "fields": {
         
@@ -8690,7 +8690,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 498,
     "fields": {
         
@@ -8699,7 +8699,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 499,
     "fields": {
         
@@ -8708,7 +8708,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 500,
     "fields": {
         
@@ -8725,7 +8725,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 501,
     "fields": {
         
@@ -8744,7 +8744,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 502,
     "fields": {
         
@@ -8762,7 +8762,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 503,
     "fields": {
         
@@ -8781,7 +8781,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 504,
     "fields": {
         
@@ -8798,7 +8798,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 505,
     "fields": {
         
@@ -8817,7 +8817,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 506,
     "fields": {
         
@@ -8834,7 +8834,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 507,
     "fields": {
         
@@ -8850,7 +8850,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 508,
     "fields": {
         
@@ -8866,7 +8866,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 509,
     "fields": {
         
@@ -8883,7 +8883,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 510,
     "fields": {
         
@@ -8902,7 +8902,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 511,
     "fields": {
         
@@ -8921,7 +8921,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 512,
     "fields": {
         
@@ -8938,7 +8938,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 513,
     "fields": {
         
@@ -8955,7 +8955,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 514,
     "fields": {
         
@@ -8972,7 +8972,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 515,
     "fields": {
         
@@ -8991,7 +8991,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 516,
     "fields": {
         
@@ -9008,7 +9008,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 517,
     "fields": {
         
@@ -9023,7 +9023,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 518,
     "fields": {
         
@@ -9040,7 +9040,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 519,
     "fields": {
         
@@ -9061,7 +9061,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 520,
     "fields": {
         
@@ -9082,7 +9082,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 521,
     "fields": {
         
@@ -9101,7 +9101,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 522,
     "fields": {
         
@@ -9121,7 +9121,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 523,
     "fields": {
         
@@ -9142,7 +9142,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 524,
     "fields": {
         
@@ -9158,7 +9158,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 525,
     "fields": {
         
@@ -9177,7 +9177,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 526,
     "fields": {
         
@@ -9196,7 +9196,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 527,
     "fields": {
         
@@ -9213,7 +9213,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 528,
     "fields": {
         
@@ -9234,7 +9234,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 529,
     "fields": {
         
@@ -9250,7 +9250,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 530,
     "fields": {
         
@@ -9270,7 +9270,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 531,
     "fields": {
         
@@ -9288,7 +9288,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 532,
     "fields": {
         
@@ -9306,7 +9306,7 @@
     }
 },
 {
-    "model": "heartsteps_messages.messagetemplate",
+    "model": "behavioral_messages.messagetemplate",
     "pk": 533,
     "fields": {
         

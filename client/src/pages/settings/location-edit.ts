@@ -13,8 +13,8 @@ export class LocationEdit {
     private address:String
     private type:String
 
-    private lat:Number
-    private lng:Number
+    private latitude:Number
+    private longitude:Number
 
     private mapLat:Number
     private mapLng:Number
@@ -39,8 +39,8 @@ export class LocationEdit {
         const location = params.get('location')
         this.address = location.address
         this.type = location.type
-        this.lat = location.lat
-        this.lng = location.lng
+        this.latitude = location.lat
+        this.longitude = location.lng
 
         this.autocompletionService = new google.maps.places.AutocompleteService()
         this.geocoder = new google.maps.Geocoder()
@@ -48,8 +48,8 @@ export class LocationEdit {
 
     ionViewDidLoad() {
         this.loadMap()
-        if(this.lat && this.lng) {
-            this.placeMapPin(this.lat, this.lng)
+        if(this.latitude && this.longitude) {
+            this.placeMapPin(this.latitude, this.longitude)
         }
     }
 
@@ -57,8 +57,8 @@ export class LocationEdit {
         this.viewCtrl.dismiss({
             address: this.address,
             type: this.type,
-            lat: this.lat,
-            lng: this.lng
+            latitude: this.latitude,
+            longitude: this.longitude
         })
     }
 
@@ -120,8 +120,8 @@ export class LocationEdit {
     }
 
     updateLatLng(lat, lng) {
-        this.lat = lat
-        this.lng = lng
+        this.latitude = lat
+        this.longitude = lng
         this.placeMapPin(lat, lng)
     }
 
@@ -139,7 +139,7 @@ export class LocationEdit {
                 const lat = clickEvent.latLng.lat()
                 const lng = clickEvent.latLng.lng()
                 
-                this.placeMapPin(lat, lng)
+                this.updateLatLng(lat, lng)
 
                 let location = {
                     lat: lat,
@@ -176,10 +176,10 @@ export class LocationEdit {
     }
 
     getMapLocation():Promise<any> {
-        if(this.lat && this.lng) {
+        if(this.latitude && this.longitude) {
             return Promise.resolve(new google.maps.LatLng(
-                this.lat,
-                this.lng
+                this.latitude,
+                this.longitude
             ))
         } else {
             return this.geolocation.getCurrentPosition()

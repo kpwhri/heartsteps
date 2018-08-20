@@ -18,7 +18,7 @@
     }
 },
 {
-    "model": "heartsteps_participants.participant",
+    "model": "participants.participant",
     "pk": "sample-uuid-1234",
     "fields": {
         "enrollment_token": "token",

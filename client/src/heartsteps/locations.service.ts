@@ -43,7 +43,7 @@ export class LocationsService{
 
         let locationsIncomplete = false
         locations.forEach((location) => {
-            if(!location.address || location.latitude || location.longitude) {
+            if(!location.address || !location.latitude || !location.longitude) {
                 locationsIncomplete = true
                 location.invalid = true
             }
@@ -59,9 +59,7 @@ export class LocationsService{
     }
 
     saveLocations(locations:any):Promise<Boolean> {
-        return this.heartstepsServer.post('locations', {
-            locations: locations
-        })
+        return this.heartstepsServer.post('places', locations)
         .then((locations) => {
             return this.storage.set(locationsKey, locations)
         })
