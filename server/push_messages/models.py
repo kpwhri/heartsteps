@@ -24,5 +24,20 @@ class Message(models.Model):
     content = models.TextField()
 
     created = models.DateTimeField(auto_now_add=True)
-    sent = models.DateTimeField(blank=True, null=True)
-    recieved = models.DateTimeField(blank=True, null=True)
+
+RECIEVED = 'recieved'
+OPENED = 'opened'
+CLOSED = 'closed'
+
+MESSAGE_RECIEPT_TYPES = (
+    (RECIEVED, 'Recieved'),
+    (OPENED, 'Opened'),
+    (CLOSED, 'Closed')
+)
+
+class MessageReciept(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    message = models.ForeignKey(Message)
+    
+    time = models.DateTimeField()
+    type = models.CharField(max_length=20, choices=MESSAGE_RECIEPT_TYPES)

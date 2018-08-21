@@ -1,5 +1,6 @@
 import requests
 import json
+import uuid
 from django.conf import settings
 
 from push_messages.models import Device, Message
@@ -30,7 +31,11 @@ def send(user, request):
     request['to'] = device.token
     request['priority'] = 'high'
 
-    message = Message(
+    message_id = uuid.uuid4()
+    request['data']['messageId'] = str(message_id)
+
+    message = Message.objects.create(
+        id = message_id,
         recipient = user,
         device = device,
         content = json.dumps(request)
@@ -41,8 +46,6 @@ def send(user, request):
         headers = headers,
         json = request
     )
-    
-    message.save()
     return message
 
 

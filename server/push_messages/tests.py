@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import Message, Device
 from .functions import send_notification, send_data
@@ -112,7 +113,11 @@ class MessageRecievedTests(APITestCase):
 
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('messages-recieved'), {
-            'messageId': message.id
+            'message': message.id,
+            'type': 'recieved',
+            'time': str(timezone.now())
         })
+
+        print(response.data)
         
         self.assertEqual(response.status_code, 201)

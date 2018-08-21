@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .models import Message, Device
-from .serializers import DeviceSerializer
+from .models import Message, Device, MessageReciept
+from .serializers import DeviceSerializer, MessageRecieptSerializer
 
 from django.utils import timezone
 
@@ -49,19 +49,24 @@ class RecievedMessageView(APIView):
     udpated.
     """
     def post(self, request):
-        message_id = request.data.get('messageId')
-        if message_id:
-            try:
-                message = Message.objects.get(id=message_id)
-            except Message.DoesNotExist:
-                return Response({}, status.HTTP_404_NOT_FOUND)
+        serializer = MessageRecieptSerializer(data=request.data)
+        if serializer.is_valid():
+            message = serializer.validated_data['message']
             
             if request.user != message.recipient:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
 
-            if not message.recieved:
-                message.recieved = timezone.now()
-                message.save()
+            try:
+                message_reciept = MessageReciept.objects.get(
+                    message=message,
+                    type = serializer.validated_data['type']
+                    )
+            except MessageReciept.DoesNotExist:
+                message_reciept = MessageReciept.objects.create(
+                    message = message,
+                    type = serializer.validated_data['type'],
+                    time = serializer.validated_data['time']
+                )
                 return Response({}, status.HTTP_201_CREATED)
             return Response({}, status.HTTP_200_OK)
-        return Response({}, status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
