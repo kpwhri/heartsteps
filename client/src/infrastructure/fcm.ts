@@ -144,7 +144,8 @@ export class FcmService {
                     if(data.notification){
                         // should merge notification object into data object
                         // to match cordova implementation
-                        this.directMessage(data.notification);
+                        let mergedObject = Object.assign(data.data, data.notification)
+                        this.directMessage(mergedObject);
                     } else {
                         this.directMessage(data);
                     }

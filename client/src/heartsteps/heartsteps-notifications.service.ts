@@ -9,7 +9,23 @@ export class HeartstepsNotifications {
     constructor(
         private fcmService:FcmService,
         private heartstepsServer:HeartstepsServer
-    ){}
+    ){
+        this.onMessage().subscribe((message:any) => {
+            this.logMessage(message.messageId, 'recieved')
+        })
+
+        this.onDataMessage().subscribe((data:any) => {
+            this.logMessage(data.messageId, 'recieved')
+        })
+    }
+
+    logMessage(messageId:string, type:string) {
+        this.heartstepsServer.post('messages/recieved', {
+            message: messageId,
+            type: type,
+            time: new Date().toISOString()
+        })
+    }
 
     isEnabled():Promise<boolean> {
         return this.fcmService.isEnabled()
