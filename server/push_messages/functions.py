@@ -50,6 +50,9 @@ def send(user, request):
 
 
 def send_notification(user, title, body, data={}):
+    if title is None:
+        title = "HeartSteps"
+
     request = {
         'notification': {
             'title': title,
