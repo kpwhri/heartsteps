@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, ModalController } from 'ionic-angular';
+import { NavController, ModalController, ActionSheetController } from 'ionic-angular';
 import { LocationEdit } from './location-edit';
 import { LocationsService } from '../../heartsteps/locations.service';
 
@@ -14,7 +14,8 @@ export class LocationsPage {
     constructor(
         private navCtrl:NavController,
         private modalCtrl:ModalController,
-        private locationsService:LocationsService
+        private locationsService:LocationsService,
+        private actionSheetCtrl:ActionSheetController
     ) {
         this.locationsService.getLocations()
         .then((locations) => {
@@ -39,12 +40,50 @@ export class LocationsPage {
     }
 
     newLocation() {
-        this.showLocationPopover({})
+        let locationType:string = ""
+        this.pickPlaceType()
+        .then((type) => {
+            locationType = type
+            return this.showLocationPopover(false)
+        })
         .then((location) => {
+            location.type = locationType
             this.locations.push(location);
         })
         .catch(()=>{
             // don't do anything
+        })
+    }
+
+    pickPlaceType():Promise<string> {
+        return new Promise((resolve, reject) => {
+            let actionSheet = this.actionSheetCtrl.create({
+                title: 'Type of place to create',
+                buttons: [
+                    {
+                        text: 'Home',
+                        handler: ()=> {
+                            resolve('home')
+                        }
+                    }, {
+                        text: 'Work',
+                        handler: () => {
+                            resolve('work')
+                        }
+                    }, {
+                        text: 'Other',
+                        handler: () => {
+                            resolve('other')
+                        }
+                    }, {
+                        text: 'Cancel',
+                        handler: () => {
+                            reject()
+                        }
+                    }
+                ]
+            })
+            actionSheet.present()
         })
     }
 

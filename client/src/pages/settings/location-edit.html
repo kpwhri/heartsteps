@@ -1,17 +1,11 @@
 <ion-header>
     <ion-navbar>
         <ion-title>Edit Location</ion-title>
+        <a (click)="dismiss()">Cancel</a>
     </ion-navbar>
 </ion-header>
 <ion-content padding>
-    <ion-item>
-        <ion-label stacked>Type of location</ion-label>
-        <ion-select [(ngModel)]="type">
-            <ion-option value="home">Home</ion-option>
-            <ion-option value="work">Work</ion-option>
-            <ion-option value="other">Other</ion-option>
-        </ion-select>
-    </ion-item>
+    <div #map id="map" width="100%" height="200px"></div>
     <ion-list *ngIf="addressPredictions">
         <button *ngFor="let address of addressPredictions" ion-item (click)="setAddress(address.description)">
             {{address.description}}
@@ -21,7 +15,7 @@
         <ion-label stacked>Address</ion-label>
         <ion-input [(ngModel)]="address" (keyup)="showPredictions()"></ion-input>
     </ion-item>
-    <div #map id="map" width="100%" height="200px"></div>
-    <button ion-button color="danger" (click)="delete()">Delete</button>
-    <button ion-button (click)="update()" >Save</button>
+    <button *ngIf="updateView" ion-button color="danger" (click)="delete()">Delete</button>
+    <button *ngIf="updateView" ion-button (click)="update()" >Update</button>
+    <button *ngIf="!updateView" ion-button (click)="update()" >Save</button>
 </ion-content>

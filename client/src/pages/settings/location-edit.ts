@@ -31,16 +31,22 @@ export class LocationEdit {
 
     private currentLocation:any
 
+    private updateView:boolean
+
     constructor(
         params:NavParams,
         private viewCtrl:ViewController,
         private geolocation:Geolocation
     ) {
         const location = params.get('location')
-        this.address = location.address
-        this.type = location.type
-        this.latitude = location.lat
-        this.longitude = location.lng
+        if(location) {
+            this.address = location.address
+            this.latitude = location.lat
+            this.longitude = location.lng
+            this.updateView = true
+        } else {
+            this.updateView = false
+        }
 
         this.autocompletionService = new google.maps.places.AutocompleteService()
         this.geocoder = new google.maps.Geocoder()
@@ -53,10 +59,13 @@ export class LocationEdit {
         }
     }
 
+    dismiss() {
+        this.viewCtrl.dismiss()
+    }
+
     update() {
         this.viewCtrl.dismiss({
             address: this.address,
-            type: this.type,
             latitude: this.latitude,
             longitude: this.longitude
         })
