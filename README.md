@@ -3,6 +3,7 @@
 This is the HeartSteps application, which is comprised of multiple services:
 * *heartsteps-server* a Django web server
 * *heartsteps-client* an Ionic hybrid mobile applicaiton
+* *heartsteps-fitbit* a fitbit os application for the fitbit versa
 * *activity-suggestion-service* randomizes activity-suggestions
 * *anti-sedentary-service* responsible for randomizing anti-sedentary intervention
 
@@ -21,7 +22,8 @@ This will start all services in development mode, so any file changes will be re
 * Many development tasks need more complex commands to update database models
 * Running all services at once is a heavy load for a computer
 
-*Running HeartSteps Server*
+### HeartSteps Server
+
 ```
 $ docker-compose run --service-ports server bash
 ```
@@ -33,10 +35,17 @@ To explain the command above a little
 * server is the name of the image
 * bash is the command we want to run, which overrides the default startup command for the image
 
+### HeartSteps Client
+
 You would run the client like this
 ```
 docker-compose run --service-ports client bash
 ```
+
+### HeartSteps FitBit
+The fitbit application is created with the [fitbit command line tools,](https://dev.fitbit.com/blog/2018-08-23-cli-tools/) and should be usable if the files are imported into [fitbit studio.](https://studio.fitbit.com)
+
+*NOTE:* The fitbit command line doesn't work in Docker, since the command line tools require X11 (which doesn't work on a headless linux environment)
 
 ### Activity Suggestion and Anti-Sedentary Services
 The activity suggestion and anti-sedentary services run Flask-based HTTP servers that run R-scripts. These R-scripts read and write to CSV file systems instead of using a database -- these CSV files will be backed-up to Google's datastorage.
