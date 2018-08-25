@@ -8,17 +8,6 @@
     color: map-get($colors, danger);
 }
 
-form button {
-    padding: 0.75em;
-    font-size: 1.2em;
-
-    display: block;
-    width: 100%;
-
-    background-color: map-get($colors, primary);
-    color: #fff   
-}
-
 .start-screen,
 .alternate-background,
 .heartsteps-message-modal {
@@ -27,6 +16,10 @@ form button {
 
     text-align: center;
     padding: 2em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 
     .large {
         font-size: 1.75em;
