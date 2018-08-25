@@ -1,3 +1,13 @@
-<ion-content padding>
-  <p>Activity Plans</p>
+<ion-header>
+    <ion-navbar>
+        <ion-title>Plan</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content class="cards-bg" padding>
+  <ion-card *ngFor="let date of dates" >
+    <ion-card-content>
+        <activity-day-plan [date]="date"></activity-day-plan>
+    </ion-card-content>
+  </ion-card>
+  
 </ion-content>

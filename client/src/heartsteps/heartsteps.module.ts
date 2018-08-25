@@ -6,9 +6,12 @@ import { ParticipantService } from './participant.service';
 import { ActivitySuggestionTimeService } from './activity-suggestion-time.service';
 import { LocationService } from './location.service';
 import { LocationsService } from './locations.service';
+import { DayPlanComponent } from '@heartsteps/activity-plan/day-plan.component';
+import { ActivityPlanFactory } from '@heartsteps/activity-plan/activity-plan.factory';
 
 @NgModule({
   declarations: [
+    DayPlanComponent
   ],
   imports: [
     InfrastructureModule
@@ -19,7 +22,11 @@ import { LocationsService } from './locations.service';
       ParticipantService,
       ActivitySuggestionTimeService,
       LocationService,
-      LocationsService
+      LocationsService,
+      ActivityPlanFactory
+  ],
+  exports: [
+    DayPlanComponent
   ]
 })
 export class HeartstepsModule {}
