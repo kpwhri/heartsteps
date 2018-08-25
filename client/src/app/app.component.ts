@@ -2,15 +2,15 @@ import { Component, ViewChild } from '@angular/core';
 import { Platform, Nav, ModalController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { WelcomePage } from '../pages/welcome/welcome';
-import { HeartstepsNotifications } from '../heartsteps/heartsteps-notifications.service';
-import { ParticipantService } from '../heartsteps/participant.service';
-import { OnboardPage } from '../pages/onboard/onboard';
-import { HomePage } from '../pages/home/home';
-import { AuthorizationService } from '../infrastructure/authorization.service';
+import { WelcomePage } from '@pages/welcome/welcome';
+import { HeartstepsNotifications } from '@heartsteps/heartsteps-notifications.service';
+import { ParticipantService } from '@heartsteps/participant.service';
+import { OnboardPage } from '@pages/onboard/onboard';
+import { HomePage } from '@pages/home/home';
+import { AuthorizationService } from '@infrastructure/authorization.service';
 import { NotificationPane } from './notification';
 import { Geolocation } from '@ionic-native/geolocation';
-import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
+import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 
 @Component({
     templateUrl: 'app.html'
