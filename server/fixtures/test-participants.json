@@ -1,0 +1,50 @@
+[
+{
+    "model": "participants.participant",
+    "pk": "kpwhri-catherine",
+    "fields": {
+        "enrollment_token": "catherine",
+        "user": null
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": "kpwhri-chris",
+    "fields": {
+        "enrollment_token": "chris",
+        "user": null
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": "kpwhri-deryn",
+    "fields": {
+        "enrollment_token": "deryn",
+        "user": null
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": "kpwhri-linda",
+    "fields": {
+        "enrollment_token": "linda",
+        "user": null
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": "kpwhri-pedja",
+    "fields": {
+        "enrollment_token": "pedja",
+        "user": null
+    }
+},
+{
+    "model": "participants.participant",
+    "pk": "test-nickreid",
+    "fields": {
+        "enrollment_token": "nickreid",
+        "user": null
+    }
+}
+]
