@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicPage, Platform } from 'ionic-angular';
-import { Geolocation } from '@ionic-native/geolocation';
-
-import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service';
+import { IonicPage } from 'ionic-angular';
+import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
+import { DashboardPage } from '@pages/dashboard/dashboard';
+import { PlanPage } from '@pages/activity-plan/plan';
+import { ActivityLogPage } from '@pages/activity-log/activity-log';
 
 @IonicPage()
 @Component({
@@ -10,32 +11,16 @@ import { HeartstepsServer } from '../../infrastructure/heartsteps-server.service
     templateUrl: 'home.html'
 })
 export class HomePage {
-    constructor(
-        private server:HeartstepsServer,
-        private geolocation:Geolocation,
-        private platform:Platform
-    ) {}
 
-    createDecision():Promise<Boolean> {
-        return this.geolocation.getCurrentPosition()
-        .then((position:Position) => {
+    dashboard:any
+    plan:any
+    activityLog:any
+    resourceLibrary: any
 
-            if(this.platform.is('ios') || this.platform.is('android')) {
-                return this.server.post('/decisions', {})
-            } else {
-                return this.server.post('/decisions', {
-                    location: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    }
-                })
-            }
-        })
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return false;
-        });
+    constructor() {
+        this.dashboard = DashboardPage
+        this.plan = PlanPage
+        this.activityLog = ActivityLogPage
+        this.resourceLibrary = ResourceLibraryPage
     }
 }

@@ -1,14 +1,30 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
-import { HeartstepsModule } from '../../heartsteps/heartsteps.module';
 import { HomePage } from './home';
+import { DashboardModule } from '@pages/dashboard/dashboard.module';
+import { ActivityPlanModule } from '@pages/activity-plan/plan.module';
+import { ActivityLogModule } from '@pages/activity-log/activity-log.module';
+import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
+import { DashboardPage } from '@pages/dashboard/dashboard';
+import { PlanPage } from '@pages/activity-plan/plan';
+import { ActivityLogPage } from '@pages/activity-log/activity-log';
+import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 
 @NgModule({
   declarations: [
     HomePage
   ],
+  entryComponents: [
+    DashboardPage,
+    PlanPage,
+    ActivityLogPage,
+    ResourceLibraryPage
+  ],
   imports: [
-    HeartstepsModule,
+    DashboardModule,
+    ActivityPlanModule,
+    ActivityLogModule,
+    ResourceLibraryModule,
     IonicPageModule.forChild(HomePage)
   ]
 })

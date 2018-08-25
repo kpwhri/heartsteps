@@ -1,12 +1,11 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      HeartSteps
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>Home</ion-title>
+    </ion-navbar>
 </ion-header>
-
-<ion-content padding>
-  <p>This is a dashboard</p>
-  <button ion-button (click)="createDecision()">Start a decision</button>
-</ion-content>
+<ion-tabs>
+    <ion-tab tabIcon="podium" [root]="dashboard"></ion-tab>
+    <ion-tab tabIcon="calendar" [root]="plan"></ion-tab>
+    <ion-tab tabIcon="trending-up" [root]="activityLog"></ion-tab>
+    <ion-tab tabIcon="book" [root]="resourceLibrary"></ion-tab>
+</ion-tabs>
