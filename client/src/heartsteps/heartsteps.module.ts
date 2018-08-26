@@ -4,25 +4,22 @@ import { HeartstepsNotifications } from './heartsteps-notifications.service';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { ParticipantService } from './participant.service';
 import { ActivitySuggestionTimeService } from './activity-suggestion-time.service';
-import { LocationService } from './location.service';
-import { LocationsService } from './locations.service';
 import { DayPlanComponent } from '@heartsteps/activity-plan/day-plan.component';
 import { ActivityPlanFactory } from '@heartsteps/activity-plan/activity-plan.factory';
+import { LocationModule } from '@heartsteps/location/location.module';
 
 @NgModule({
   declarations: [
     DayPlanComponent
   ],
   imports: [
-    InfrastructureModule
+    InfrastructureModule,
+    LocationModule
   ],
-  entryComponents: [],
   providers: [
       HeartstepsNotifications,
       ParticipantService,
       ActivitySuggestionTimeService,
-      LocationService,
-      LocationsService,
       ActivityPlanFactory
   ],
   exports: [

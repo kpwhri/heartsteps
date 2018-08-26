@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
-import { HeartstepsServer } from "../infrastructure/heartsteps-server.service";
+import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
 const locationsKey = 'participant-locations'
 

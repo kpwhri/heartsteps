@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController, ActionSheetController } from 'ionic-angular';
-import { LocationEdit } from './location-edit';
-import { LocationsService } from '../../heartsteps/locations.service';
+import { LocationEdit } from '@heartsteps/location/location-edit';
+import { LocationsService } from '@heartsteps/location/locations.service';
 
 @Component({
     selector: 'locations-page',
-    templateUrl: 'locations.html'
+    templateUrl: 'locations.html',
+    entryComponents: [LocationEdit]
 })
 export class LocationsPage {
 

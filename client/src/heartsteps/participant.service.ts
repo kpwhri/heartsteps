@@ -4,8 +4,8 @@ import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
 import { HeartstepsNotifications } from "./heartsteps-notifications.service";
 import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
-import { LocationService } from "./location.service";
-import { LocationsService } from "./locations.service";
+import { LocationService as GeolocationService } from "@infrastructure/location.service";
+import { LocationsService } from "@heartsteps/location/locations.service";
 
 const storageKey = 'heartsteps-id'
 
@@ -18,7 +18,7 @@ export class ParticipantService {
         private storage:Storage,
         private notificationService:HeartstepsNotifications,
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
-        private locationService:LocationService,
+        private geolocationService:GeolocationService,
         private locationsService:LocationsService
     ) {
         this.subject = new Subject();
@@ -126,7 +126,7 @@ export class ParticipantService {
     }
 
     checkLocationPermission():Promise<boolean> {
-        return this.locationService.hasPermission()
+        return this.geolocationService.hasPermission()
         .then(() => {
             return true
         })

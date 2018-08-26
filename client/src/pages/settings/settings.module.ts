@@ -2,18 +2,15 @@ import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { ActivitySuggestionTimes } from './activity-suggestion-times';
 import { LocationsPage } from './locations';
-import { LocationEdit } from './location-edit';
 
 @NgModule({
   declarations: [
     ActivitySuggestionTimes,
-    LocationsPage,
-    LocationEdit,
+    LocationsPage
   ],
   entryComponents: [
     ActivitySuggestionTimes,
-    LocationsPage,
-    LocationEdit,
+    LocationsPage
   ],
   imports: [
     IonicPageModule.forChild(LocationsPage)

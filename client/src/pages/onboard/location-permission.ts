@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { loadingService } from '../../infrastructure/loading.service';
-import { LocationService } from '../../heartsteps/location.service';
+import { loadingService } from '@infrastructure/loading.service';
+import { LocationService } from '@infrastructure/location.service';
 
 @Component({
   selector: 'location-permission-pane',
