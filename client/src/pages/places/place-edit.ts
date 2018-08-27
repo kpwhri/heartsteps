@@ -5,10 +5,10 @@ import { Geolocation } from '@ionic-native/geolocation';
 declare var google;
 
 @Component({
-    selector: 'location-edit',
-    templateUrl: 'location-edit.html'
+    selector: 'place-edit',
+    templateUrl: 'place-edit.html'
 })
-export class LocationEdit {
+export class PlaceEdit {
 
     private address:String
     private type:String

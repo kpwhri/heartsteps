@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController, ActionSheetController } from 'ionic-angular';
-import { LocationEdit } from '@heartsteps/location/location-edit';
 import { LocationsService } from '@heartsteps/location/locations.service';
+import { PlaceEdit } from '@pages/places/place-edit';
 
 @Component({
-    selector: 'locations-page',
-    templateUrl: 'locations.html',
-    entryComponents: [LocationEdit]
+    selector: 'places-list-page',
+    templateUrl: 'places-list.html',
+    entryComponents: [PlaceEdit]
 })
-export class LocationsPage {
+export class PlacesListPage {
 
     locations:Array<any>
 
@@ -90,7 +90,7 @@ export class LocationsPage {
 
     showLocationPopover(location:any):Promise<any> {
         return new Promise((resolve, reject) => {
-            let modal = this.modalCtrl.create(LocationEdit, {
+            let modal = this.modalCtrl.create(PlaceEdit, {
                 location: location
             });
 

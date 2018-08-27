@@ -89,14 +89,14 @@ export class ParticipantService {
             this.checkNotificationsEnabled(),
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
-            this.checkLocationsSet()
+            this.checkPlacesSet()
         ])
         .then((results) => {
             return {
                 notificationsEnabled: results[0],
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
-                locations: results[3]
+                places: results[3]
             }
         })
         .catch(() => {
@@ -135,7 +135,7 @@ export class ParticipantService {
         })
     }
 
-    checkLocationsSet():Promise<boolean> {
+    checkPlacesSet():Promise<boolean> {
         return this.locationsService.getLocations()
         .then(() => {
             return true

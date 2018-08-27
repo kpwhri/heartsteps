@@ -6,9 +6,10 @@ import { ParticipantService } from "../../heartsteps/participant.service";
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { ActivitySuggestionTimes } from '../settings/activity-suggestion-times';
-import { LocationsPage } from '../settings/locations';
+
 import { OnboardEndPane } from './onboard-end';
 import { ParticipantInformationPage } from '@pages/settings/participant-information';
+import { PlacesListPage } from '@pages/places/places-list';
 
 const onboardingSteps = [
     {
@@ -25,15 +26,18 @@ const onboardingSteps = [
         key: 'locationPermission',
         screen: LocationPermissionPane
     }, {
-        key: 'locations',
-        screen: LocationsPage
+        key: 'palces',
+        screen: PlacesListPage
     }
 ]
 
 @IonicPage()
 @Component({
     selector: 'page-onboard',
-    templateUrl: 'onboard.html'
+    templateUrl: 'onboard.html',
+    entryComponents: [
+        PlacesListPage
+    ]
 })
 export class OnboardPage {
     @ViewChild(Nav) nav:Nav;

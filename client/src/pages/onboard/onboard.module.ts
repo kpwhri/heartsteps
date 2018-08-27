@@ -5,6 +5,7 @@ import { OnboardEndPane } from './onboard-end';
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { SettingsPageModule } from '../settings/settings.module';
+import { PlacesPageModule } from '@pages/places/places.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { SettingsPageModule } from '../settings/settings.module';
   ],
   imports: [
     SettingsPageModule,
+    PlacesPageModule,
     IonicPageModule.forChild(OnboardPage)
   ],
 })
