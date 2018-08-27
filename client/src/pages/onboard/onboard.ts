@@ -8,8 +8,13 @@ import { LocationPermissionPane } from './location-permission';
 import { ActivitySuggestionTimes } from '../settings/activity-suggestion-times';
 import { LocationsPage } from '../settings/locations';
 import { OnboardEndPane } from './onboard-end';
+import { ParticipantInformationPage } from '@pages/settings/participant-information';
 
 const onboardingSteps = [
+    {
+        key: 'participant-information',
+        screen: ParticipantInformationPage
+    },
     {
         key: 'notificationsEnabled',
         screen: NotificationsPage
