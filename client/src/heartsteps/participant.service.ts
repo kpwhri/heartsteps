@@ -96,7 +96,9 @@ export class ParticipantService {
                 notificationsEnabled: results[0],
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
-                places: results[3]
+                places: results[3],
+                fitbitAuth: false,
+                participantInformation: false
             }
         })
         .catch(() => {

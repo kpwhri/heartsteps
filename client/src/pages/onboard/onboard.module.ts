@@ -6,22 +6,32 @@ import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 import { SettingsPageModule } from '../settings/settings.module';
 import { PlacesPageModule } from '@pages/places/places.module';
+import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
+import { FitbitAppPage } from '@pages/onboard/fitbit-app';
 
 @NgModule({
   declarations: [
     NotificationsPage,
     LocationPermissionPane,
+    FitbitAuthPage,
+    FitbitAppPage,
     OnboardPage,
     OnboardEndPane
   ],
   entryComponents: [
     NotificationsPage,
     LocationPermissionPane,
+    FitbitAuthPage,
+    FitbitAppPage,
     OnboardEndPane
   ],
   imports: [
     SettingsPageModule,
     PlacesPageModule,
+    IonicPageModule.forChild(FitbitAppPage),
+    IonicPageModule.forChild(FitbitAuthPage),
+    IonicPageModule.forChild(LocationPermissionPane),
+    IonicPageModule.forChild(NotificationsPage),
     IonicPageModule.forChild(OnboardPage)
   ],
 })

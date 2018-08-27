@@ -10,13 +10,13 @@ import { ActivitySuggestionTimes } from '../settings/activity-suggestion-times';
 import { OnboardEndPane } from './onboard-end';
 import { ParticipantInformationPage } from '@pages/settings/participant-information';
 import { PlacesListPage } from '@pages/places/places-list';
+import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
+import { FitbitAppPage } from '@pages/onboard/fitbit-app';
 
-const onboardingSteps = [
-    {
-        key: 'participant-information',
+const onboardingSteps = [{
+        key: 'participantInformation',
         screen: ParticipantInformationPage
-    },
-    {
+    }, {
         key: 'notificationsEnabled',
         screen: NotificationsPage
     }, {
@@ -28,8 +28,13 @@ const onboardingSteps = [
     }, {
         key: 'palces',
         screen: PlacesListPage
-    }
-]
+    }, {
+        key: 'fitbitAuth',
+        screen: FitbitAuthPage
+    }, {
+        key: 'fitbitApp',
+        screen: FitbitAppPage
+    }]
 
 @IonicPage()
 @Component({
