@@ -1,25 +1,28 @@
 import { Component } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
-import { ActivityPlanFactory } from '@heartsteps/activity-plan/activity-plan.factory';
+import { ActivityPlanService } from '@heartsteps/activity-plan.service';
+import { DayPlanComponent } from '@pages/activity-plan/day-plan.component';
+
 
 @IonicPage()
 @Component({
     selector: 'page-plan',
-    templateUrl: 'plan.html'
+    templateUrl: 'plan.html',
+    entryComponents: [DayPlanComponent]
 })
 export class PlanPage {
 
     dates:Array<Date>
 
     constructor(
-        private activityPlanFactory:ActivityPlanFactory
+        private activityPlanService:ActivityPlanService
     ) {
 
     }
 
     ionViewDidLoad() {
         console.log('ionViewDidLoad PlanPage');
-        this.dates = this.activityPlanFactory.getCurrentWeek()
+        this.dates = this.activityPlanService.getCurrentWeek()
     }
 
 }

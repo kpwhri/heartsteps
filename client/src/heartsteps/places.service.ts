@@ -5,7 +5,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 const locationsKey = 'participant-locations'
 
 @Injectable()
-export class LocationsService{
+export class PlacesService{
 
     constructor(
         private heartstepsServer:HeartstepsServer,

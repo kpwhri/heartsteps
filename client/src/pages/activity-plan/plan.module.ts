@@ -1,14 +1,12 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { PlanPage } from './plan';
-import { DayPlanComponent } from '@heartsteps/activity-plan/day-plan.component';
+import { DayPlanComponent } from '@pages/activity-plan/day-plan.component';
 import { HeartstepsModule } from '@heartsteps/heartsteps.module';
 
 @NgModule({
   declarations: [
-    PlanPage
-  ],
-  entryComponents: [
+    PlanPage,
     DayPlanComponent
   ],
   imports: [

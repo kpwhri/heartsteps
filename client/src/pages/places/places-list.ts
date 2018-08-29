@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, ModalController, ActionSheetController } from 'ionic-angular';
-import { LocationsService } from '@heartsteps/location/locations.service';
+import { PlacesService } from '@heartsteps/places.service';
 import { PlaceEdit } from '@pages/places/place-edit';
 
 @Component({
@@ -15,7 +15,7 @@ export class PlacesListPage {
     constructor(
         private navCtrl:NavController,
         private modalCtrl:ModalController,
-        private locationsService:LocationsService,
+        private locationsService:PlacesService,
         private actionSheetCtrl:ActionSheetController
     ) {
         this.locationsService.getLocations()

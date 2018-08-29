@@ -5,7 +5,7 @@ import { Observable } from "rxjs/Observable";
 import { HeartstepsNotifications } from "./heartsteps-notifications.service";
 import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
-import { LocationsService } from "@heartsteps/location/locations.service";
+import { PlacesService } from "@heartsteps/places.service";
 
 const storageKey = 'heartsteps-id'
 
@@ -19,7 +19,7 @@ export class ParticipantService {
         private notificationService:HeartstepsNotifications,
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private geolocationService:GeolocationService,
-        private locationsService:LocationsService
+        private placesService:PlacesService
     ) {
         this.subject = new Subject();
     }
@@ -138,7 +138,7 @@ export class ParticipantService {
     }
 
     checkPlacesSet():Promise<boolean> {
-        return this.locationsService.getLocations()
+        return this.placesService.getLocations()
         .then(() => {
             return true
         })

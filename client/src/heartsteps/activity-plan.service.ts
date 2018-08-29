@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 
 @Injectable()
-export class ActivityPlanFactory {
+export class ActivityPlanService {
 
     constructor(){}
 
