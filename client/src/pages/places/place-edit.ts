@@ -71,6 +71,10 @@ export class PlaceEdit {
         })
     }
 
+    delete() {
+        this.viewCtrl.dismiss(false)
+    }
+
     showPredictions() {
         if(this.geocoderTimeout) {
             clearTimeout(this.geocoderTimeout)
@@ -122,10 +126,6 @@ export class PlaceEdit {
             }
             
         })
-    }
-
-    delete() {
-        console.log("Delete??")
     }
 
     updateLatLng(lat, lng) {

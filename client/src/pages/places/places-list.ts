@@ -17,8 +17,10 @@ export class PlacesListPage {
         private modalCtrl:ModalController,
         private locationsService:PlacesService,
         private actionSheetCtrl:ActionSheetController
-    ) {
-        this.locationsService.getLocations()
+    ) {}
+
+    ionViewWillEnter() {
+        return this.locationsService.getLocations()
         .then((locations) => {
             this.locations = locations
         })
@@ -30,10 +32,18 @@ export class PlacesListPage {
     editLocation(location:any) {
         this.showLocationPopover(location)
         .then((updatedLocation) => {
-            location.address = updatedLocation.address
-            location.type = updatedLocation.type
-            location.latitude = updatedLocation.latitude
-            location.longitude = updatedLocation.longitude
+            if(updatedLocation) {
+                location.address = updatedLocation.address
+                location.type = updatedLocation.type
+                location.latitude = updatedLocation.latitude
+                location.longitude = updatedLocation.longitude   
+            } else {
+                // location was deleted
+                const index = this.locations.indexOf(location)
+                if(index > -1) {
+                    this.locations.splice(index, 1)
+                }
+            }
         })
         .catch(() => {
             // don't do anything
@@ -97,6 +107,8 @@ export class PlacesListPage {
             modal.onDidDismiss((updatedLocation:any) => {
                 if(updatedLocation) {
                     resolve(updatedLocation)
+                } else if (updatedLocation === false) {
+                    resolve(false)
                 } else {
                     reject()
                 }
