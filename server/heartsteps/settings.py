@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
+    'contact',
     'fitapp',
     'trackers',
     'behavioral_messages',
