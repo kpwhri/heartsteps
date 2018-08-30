@@ -6,6 +6,7 @@ import { HeartstepsNotifications } from "./heartsteps-notifications.service";
 import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places.service";
+import { ContactInformationService } from "@heartsteps/contact-information.service";
 
 const storageKey = 'heartsteps-id'
 
@@ -19,7 +20,8 @@ export class ParticipantService {
         private notificationService:HeartstepsNotifications,
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private geolocationService:GeolocationService,
-        private placesService:PlacesService
+        private placesService:PlacesService,
+        private contactInformationService: ContactInformationService
     ) {
         this.subject = new Subject();
     }
@@ -89,7 +91,8 @@ export class ParticipantService {
             this.checkNotificationsEnabled(),
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
-            this.checkPlacesSet()
+            this.checkPlacesSet(),
+            this.checkContactInformation()
         ])
         .then((results) => {
             return {
@@ -97,12 +100,21 @@ export class ParticipantService {
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
                 places: results[3],
-                fitbitAuth: false,
-                participantInformation: false
+                participantInformation: results[4]
             }
         })
         .catch(() => {
             return Promise.reject(false)
+        })
+    }
+
+    checkContactInformation():Promise<boolean> {
+        return this.contactInformationService.get()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
         })
     }
 
@@ -117,7 +129,6 @@ export class ParticipantService {
     }
 
     checkActivitySuggestions():Promise<boolean> {
-        console.log("check activity settings")
         return this.activitySuggestionTimeService.getTimes()
         .then(() => {
             return true
