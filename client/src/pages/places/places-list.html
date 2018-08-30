@@ -13,5 +13,6 @@
         </ion-item>
         <button ion-item (click)="newLocation()">Add Place</button>
     </ion-list>
+    <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
     <button ion-button (click)="saveLocations()">Save</button>
 </ion-content>

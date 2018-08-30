@@ -11,6 +11,7 @@ import { PlaceEdit } from '@pages/places/place-edit';
 export class PlacesListPage {
 
     locations:Array<any>
+    errorMessage:String
 
     constructor(
         private navCtrl:NavController,
@@ -34,7 +35,6 @@ export class PlacesListPage {
         .then((updatedLocation) => {
             if(updatedLocation) {
                 location.address = updatedLocation.address
-                location.type = updatedLocation.type
                 location.latitude = updatedLocation.latitude
                 location.longitude = updatedLocation.longitude   
             } else {
@@ -127,6 +127,10 @@ export class PlacesListPage {
             this.navCtrl.pop()
         })
         .catch((error) => {
+            if(error.message) {
+                this.errorMessage = error.message
+            }
+
             if(error.locations) {
                 this.locations = error.locations
             }

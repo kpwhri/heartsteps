@@ -11,7 +11,6 @@ declare var google;
 export class PlaceEdit {
 
     private address:String
-    private type:String
 
     private latitude:Number
     private longitude:Number
@@ -41,8 +40,8 @@ export class PlaceEdit {
         const location = params.get('location')
         if(location) {
             this.address = location.address
-            this.latitude = location.lat
-            this.longitude = location.lng
+            this.latitude = location.latitude
+            this.longitude = location.longitude
             this.updateView = true
         } else {
             this.updateView = false
@@ -134,8 +133,18 @@ export class PlaceEdit {
         this.placeMapPin(lat, lng)
     }
 
+    getMap() {
+        if(this.map) {
+            return Promise.resolve(this.map)
+        } else {
+            return this.loadMap().then(() => {
+                this.map
+            })
+        }
+    }
+
     loadMap() {
-        this.getMapLocation()
+        return this.getMapLocation()
         .then((latLng) => {
             let mapOptions = {
                 center: latLng,
@@ -145,23 +154,27 @@ export class PlaceEdit {
             this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions)
     
             google.maps.event.addDomListener(this.map, "click", (clickEvent:any) => {
-                const lat = clickEvent.latLng.lat()
-                const lng = clickEvent.latLng.lng()
-                
-                this.updateLatLng(lat, lng)
-
-                let location = {
-                    lat: lat,
-                    lng: lng
-                }
-                this.geocoder.geocode({
-                    location: location
-                }, (results, status) => {
-                    if(status === 'OK') {
-                        this.address = results[0].formatted_address
-                    }
-                })
+                this.mapClick(
+                    clickEvent.latLng.lat(),
+                    clickEvent.latLng.lng()
+                )                
             })
+        })
+    }
+
+    mapClick(latitude, longitude) {
+        this.updateLatLng(latitude, longitude)
+
+        let location = {
+            lat: latitude,
+            lng: longitude
+        }
+        this.geocoder.geocode({
+            location: location
+        }, (results, status) => {
+            if(status === 'OK') {
+                this.address = results[0].formatted_address
+            }
         })
     }
 
@@ -169,19 +182,18 @@ export class PlaceEdit {
         if(!latitude || !longitude) {
             return
         }
-        if(!this.map) {
-            this.loadMap()
-        }
-        if(this.mapMarker) {
-            this.mapMarker.setMap(null)
-        }
-
-        let latLng = new google.maps.LatLng(latitude, longitude)
-        this.map.setCenter(latLng)
-        this.mapMarker = new google.maps.Marker({
-            position: latLng,
-            map: this.map
-        });
+        this.getMap().then((map) => {
+            if(this.mapMarker) {
+                this.mapMarker.setMap(null)
+            }
+    
+            let latLng = new google.maps.LatLng(latitude, longitude)
+            this.map.setCenter(latLng)
+            this.mapMarker = new google.maps.Marker({
+                position: latLng,
+                map: this.map
+            });
+        })
     }
 
     getMapLocation():Promise<any> {
