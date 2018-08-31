@@ -12,6 +12,9 @@ def decision():
     input = {
         'userId': request.form['userId'],
         'decisionId': request.form['decisionId']
+        'time': request.form['time']
+        'dayStart': request.form['dayStart']
+        'dayEnd': request.form['dayEnd']
     }
 
     response = subprocess.run(
