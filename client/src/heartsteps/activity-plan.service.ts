@@ -28,4 +28,20 @@ export class ActivityPlanService {
         return week
     }
 
+    getPlans(dates: Array<Date>):Promise<any> {
+        return Promise.resolve({})
+    }
+
+    createPlan(plan):Promise<any> {
+        return Promise.resolve(plan)
+    }
+
+    updatePlan(plan) {
+
+    }
+
+    deletePlan(plan) {
+
+    }
+
 }
