@@ -1,28 +1,25 @@
 import { Injectable } from "@angular/core";
-import * as moment from 'moment';
 import { Storage } from "@ionic/storage";
-import { DateFactory } from "@heartsteps/date.factory";
+import {BehaviorSubject} from 'rxjs';
 
 const storageKey = 'activityPlans';
 
 @Injectable()
 export class ActivityPlanService {
 
-    constructor(
-        private storage:Storage,
-        private dateFactory:DateFactory
-    ){}
+    public plans: BehaviorSubject<Array<any>>
 
-    getPlansForDate(date:Date):Promise<any> {
-        return this.storage.get(storageKey)
+    constructor(
+        private storage:Storage
+    ){
+        this.plans = new BehaviorSubject([]);
+        this.updateSubject();
+    }
+
+    updateSubject() {
+        this.storage.get(storageKey)
         .then((plans) => {
-            let plansForDate = []
-            plans.forEach((plan) => {
-                if(plan.date == date) {
-                    plansForDate.push(plan)
-                }
-            })
-            return plansForDate
+            this.plans.next(plans)
         })
     }
 
@@ -36,6 +33,7 @@ export class ActivityPlanService {
             return this.storage.set(storageKey, plans)
         })
         .then(() => {
+            this.updateSubject()
             return plan
         })
     }
