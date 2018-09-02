@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^api/activity-suggestions/', include('activity_suggestions.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
+    url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('participants.urls')),
     url(r'^api/', include('randomization.urls')),
     url(r'^api/fitbit/', include('fitapp.urls')),

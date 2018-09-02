@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'trackers',
     'behavioral_messages',
     'push_messages',
+    'weekly_reflection',
     'participants',
     'locations',
     'weather',
