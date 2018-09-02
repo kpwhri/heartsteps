@@ -1,39 +1,43 @@
 import { Injectable } from "@angular/core";
 import * as moment from 'moment';
+import { Storage } from "@ionic/storage";
+import { DateFactory } from "@heartsteps/date.factory";
 
+const storageKey = 'activityPlans';
 
 @Injectable()
 export class ActivityPlanService {
 
-    constructor(){}
+    constructor(
+        private storage:Storage,
+        private dateFactory:DateFactory
+    ){}
 
-    getCurrentWeek():Array<Date> {
-        let week:Array<Date> = []
-
-        let today:any = new Date()
-
-        const day:number = today.getDay()
-        for(let i=0; i < 7; i++) {
-            let offset:number = day - i
-            let momentDate = moment(today)
-            if(offset > 0) {
-                momentDate.subtract(offset, 'days')
-            }
-            if(offset < 0) {
-                momentDate.add(Math.abs(offset), 'days')
-            }
-            let newDate = new Date(momentDate.year(), momentDate.month(), momentDate.date())
-            week.push(newDate)
-        }
-        return week
-    }
-
-    getPlans(dates: Array<Date>):Promise<any> {
-        return Promise.resolve({})
+    getPlansForDate(date:Date):Promise<any> {
+        return this.storage.get(storageKey)
+        .then((plans) => {
+            let plansForDate = []
+            plans.forEach((plan) => {
+                if(plan.date == date) {
+                    plansForDate.push(plan)
+                }
+            })
+            return plansForDate
+        })
     }
 
     createPlan(plan):Promise<any> {
-        return Promise.resolve(plan)
+        return this.storage.get(storageKey)
+        .then((plans) => {
+            if(!plans) {
+                plans = []
+            }
+            plans.push(plan)
+            return this.storage.set(storageKey, plans)
+        })
+        .then(() => {
+            return plan
+        })
     }
 
     updatePlan(plan) {

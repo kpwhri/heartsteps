@@ -6,7 +6,7 @@ import { ActivityPlanModule } from '@pages/activity-plan/plan.module';
 import { ActivityLogModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
 import { DashboardPage } from '@pages/dashboard/dashboard';
-import { PlanPage } from '@pages/activity-plan/plan';
+import { PlanPage } from '@pages/activity-plan/plan.page';
 import { ActivityLogPage } from '@pages/activity-log/activity-log';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 

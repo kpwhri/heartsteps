@@ -1,5 +1,6 @@
 <h3>{{dateFormatted}}</h3>
 <ion-list>
-    <ion-item *ngFor="let plan of plans">...plan...</ion-item>
+    <ion-item *ngFor="let plan of plans">
+        <activity-plan [plan]="plan"></activity-plan>
+    </ion-item>
 </ion-list>
-<button ion-button clear (click)="addPlan()">Add activity</button>

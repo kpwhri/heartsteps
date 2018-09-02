@@ -1,3 +1,8 @@
 <ion-content padding>
-  <p>Dashboard</p>
+    <ion-card >
+        <ion-card-header>My plan</ion-card-header>
+        <ion-card-content>
+            <activity-plan-day *ngFor="let date of dates" [date]="date"></activity-plan-day>
+        </ion-card-content>
+      </ion-card>
 </ion-content>

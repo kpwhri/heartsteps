@@ -8,8 +8,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
     templateUrl: 'plan.modal.html'
 })
 export class PlanModal {
-
-    private durationChoices: Array<number> = [
+    public durationChoices: Array<number> = [
         5, 10, 15, 20, 25, 30, 
     ]
 
@@ -20,7 +19,9 @@ export class PlanModal {
         private viewCtrl:ViewController,
         private activityPlanService:ActivityPlanService,
     ) {
+
         this.planForm = new FormGroup({
+            date: new FormControl( params.get('date') || '', Validators.required),
             duration: new FormControl('', Validators.required),
             time: new FormControl('', Validators.required),
             intensity: new FormControl('', Validators.required)
