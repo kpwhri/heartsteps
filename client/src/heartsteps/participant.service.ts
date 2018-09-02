@@ -100,7 +100,8 @@ export class ParticipantService {
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
                 places: results[3],
-                participantInformation: results[4]
+                participantInformation: results[4],
+                weeklyReflectionTime: false
             }
         })
         .catch(() => {

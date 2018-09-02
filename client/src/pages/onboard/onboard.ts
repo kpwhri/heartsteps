@@ -12,6 +12,7 @@ import { ParticipantInformationPage } from '@pages/settings/participant-informat
 import { PlacesListPage } from '@pages/places/places-list';
 import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
 import { FitbitAppPage } from '@pages/onboard/fitbit-app';
+import { WeeklyReflectionTimePage } from '@pages/settings/weekly-reflection-time.page';
 
 const onboardingSteps = [{
         key: 'participantInformation',
@@ -20,13 +21,16 @@ const onboardingSteps = [{
         key: 'notificationsEnabled',
         screen: NotificationsPage
     }, {
+        key: 'weeklyReflectionTime',
+        screen: WeeklyReflectionTimePage
+    }, {
         key: 'activitySuggestionTimes',
         screen: ActivitySuggestionTimes
     }, {
         key: 'locationPermission',
         screen: LocationPermissionPane
     }, {
-        key: 'palces',
+        key: 'places',
         screen: PlacesListPage
     }, {
         key: 'fitbitAuth',
