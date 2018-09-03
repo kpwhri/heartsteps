@@ -1,6 +1,6 @@
 dispatch:
 
-  - url: "heartsteps-205523.appspot.com/"
+  - url: "heartsteps-kpwhri.appspot.com/"
     service: default
 
   - url: "*/admin/*"
