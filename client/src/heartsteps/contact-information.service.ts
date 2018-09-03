@@ -18,11 +18,11 @@ export class ContactInformationService {
             if (data) {
                 return data
             } else {
-                return Promise.reject()
+                return Promise.reject(false)
             }
         })
         .catch(() => {
-            return Promise.reject()
+            return Promise.reject(false)
         })
     }
 

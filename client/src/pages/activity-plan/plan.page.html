@@ -1,0 +1,13 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>Plan</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content class="cards-bg" padding>
+    <ion-card *ngFor="let date of dates" >
+        <ion-card-content>
+            <activity-plan-day [date]="date"></activity-plan-day>
+            <button ion-button block clear (click)="addActivity(date)" >Add an activity</button>
+        </ion-card-content>
+    </ion-card>
+</ion-content>

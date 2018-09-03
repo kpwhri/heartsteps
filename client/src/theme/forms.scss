@@ -9,3 +9,16 @@ fieldset legend {
 form .ion-item {
     margin: 0px;
 }
+
+.datetime.ng-invalid:after,
+.input.ng-invalid:after {
+    content: ' ';
+    mask: url('/assets/error-icon.svg') no-repeat 0px 0px;
+    mask-size: contain;
+    width: 15px;
+    height: 15px;
+    background-color: map-get($colors, danger);
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}

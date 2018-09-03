@@ -1,0 +1,37 @@
+<ion-header>
+        <ion-navbar>
+            <ion-title>Plan for {{date}}</ion-title>
+            <a (click)="dismiss()">Cancel</a>
+        </ion-navbar>
+    </ion-header>
+    <ion-content *ngIf="planForm" padding>
+        <form [formGroup]="planForm">
+            <ion-list radio-group formControlName="intensity">
+                <ion-list-header>Intensity</ion-list-header>
+                <ion-item>
+                    <ion-label>Moderate</ion-label>
+                    <ion-radio value="moderate"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Vigerous</ion-label>
+                    <ion-radio value="vigerous"></ion-radio>
+                </ion-item>
+            </ion-list>
+            <ion-item>
+                <ion-label>Duration</ion-label>
+                <ion-input formControlName="duration" type="number">
+                    <ion-option *ngFor="let duration of durationChoices" value="duration">{{duration}}</ion-option>
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label>Start time</ion-label>
+                <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
+            </ion-item>
+
+            <div class="button-group">
+                <button *ngIf="updateView" ion-button color="danger" (click)="delete()">Delete</button>
+                <button *ngIf="updateView" ion-button (click)="save()" >Update</button>
+                <button *ngIf="!updateView" ion-button (click)="save()" >Save</button>
+            </div>
+        </form>
+    </ion-content>

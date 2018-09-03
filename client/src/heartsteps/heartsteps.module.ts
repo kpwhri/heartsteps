@@ -7,6 +7,8 @@ import { ActivitySuggestionTimeService } from './activity-suggestion-time.servic
 import { ActivityPlanService } from '@heartsteps/activity-plan.service';
 import { PlacesService } from '@heartsteps/places.service';
 import { ContactInformationService } from '@heartsteps/contact-information.service';
+import { DateFactory } from "@heartsteps/date.factory";
+
 
 @NgModule({
     imports: [
@@ -18,7 +20,8 @@ import { ContactInformationService } from '@heartsteps/contact-information.servi
         ParticipantService,
         ActivitySuggestionTimeService,
         ActivityPlanService,
-        PlacesService
+        PlacesService,
+        DateFactory
     ]
 })
 export class HeartstepsModule {}

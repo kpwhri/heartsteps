@@ -1,31 +1,49 @@
 import { Injectable } from "@angular/core";
-import * as moment from 'moment';
+import { Storage } from "@ionic/storage";
+import {BehaviorSubject} from 'rxjs';
 
+const storageKey = 'activityPlans';
 
 @Injectable()
 export class ActivityPlanService {
 
-    constructor(){}
+    public plans: BehaviorSubject<Array<any>>
 
-    getCurrentWeek():Array<Date> {
-        let week:Array<Date> = []
+    constructor(
+        private storage:Storage
+    ){
+        this.plans = new BehaviorSubject([]);
+        this.updateSubject();
+    }
 
-        let today:any = new Date()
+    updateSubject() {
+        this.storage.get(storageKey)
+        .then((plans) => {
+            this.plans.next(plans)
+        })
+    }
 
-        const day:number = today.getDay()
-        for(let i=0; i < 7; i++) {
-            let offset:number = day - i
-            let momentDate = moment(today)
-            if(offset > 0) {
-                momentDate.subtract(offset, 'days')
+    createPlan(plan):Promise<any> {
+        return this.storage.get(storageKey)
+        .then((plans) => {
+            if(!plans) {
+                plans = []
             }
-            if(offset < 0) {
-                momentDate.add(Math.abs(offset), 'days')
-            }
-            let newDate = new Date(momentDate.year(), momentDate.month(), momentDate.date())
-            week.push(newDate)
-        }
-        return week
+            plans.push(plan)
+            return this.storage.set(storageKey, plans)
+        })
+        .then(() => {
+            this.updateSubject()
+            return plan
+        })
+    }
+
+    updatePlan(plan) {
+
+    }
+
+    deletePlan(plan) {
+
     }
 
 }
