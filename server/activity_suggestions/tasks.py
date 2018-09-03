@@ -30,4 +30,4 @@ def start_decision(username, time_category):
 
     decision.get_context()
 
-    make_decision.delay(str(decision.id), eta=decision_time)
+    make_decision.delay.s(str(decision.id)).apply_async(eta=decision_time)
