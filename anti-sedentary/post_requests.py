@@ -1,8 +1,15 @@
 import requests
+import json
 
-if __name__ == "__main__":
-    url = "http://0.0.0.5001"
-    payload = {'some': 'data'}
 
-    r = requests.post(url, json=payload)
-    r.text
+url = "http://localhost:5001"
+payload = {
+    'userId': '190238',
+    'decisionId': '1803312' ,
+    'time': '19381019091' ,
+    'dayStart': '18937298371' ,
+    'dayEnd': '1928312987',
+}
+
+r = requests.post(url, data=payload)
+print(r.text)
