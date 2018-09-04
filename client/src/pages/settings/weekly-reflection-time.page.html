@@ -1,11 +1,18 @@
-
-<form>
-    <p>Set your weekly reflection time</p>
-    <label>Day</label>
-    <select>
-        <option></option>
-    </select>
-    <label>Time</label>
-    <ion-datetime displayFormat="h:mm a" minuteValues="0,30"></ion-datetime>
-    <input type="submit" value="Update" />
-</form>
+<ion-content padding>
+    <form *ngIf="weeklyReflectionForm" [formGroup]="weeklyReflectionForm">
+        <p>Set your weekly reflection time</p>
+        <ion-item>
+            <ion-label>Day</ion-label>
+            <ion-select formControlName="day">
+                <ion-option *ngFor="let day of days" value="{{day}}">{{day | titlecase}}</ion-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+            <ion-label>Time</ion-label>
+            <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,30"></ion-datetime>
+        </ion-item>
+        <div class="actions">
+            <button ion-button outline block (click)="save()">Save</button>
+        </div>
+    </form>
+</ion-content>

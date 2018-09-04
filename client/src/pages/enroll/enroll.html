@@ -15,6 +15,8 @@
       <ion-input type="text" formControlName="entryToken"></ion-input>
     </ion-item>
     <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p>
-    <button ion-button outline block>Enroll</button>
+    <div class="action">
+        <button >Enroll</button>
+    </div>
   </form>
 </ion-content>
