@@ -7,6 +7,7 @@ import { ActivitySuggestionTimeService } from "./activity-suggestion-time.servic
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information.service";
+import { ReflectionTimeService } from "@heartsteps/reflection-time.service";
 
 const storageKey = 'heartsteps-id'
 
@@ -21,7 +22,8 @@ export class ParticipantService {
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
-        private contactInformationService: ContactInformationService
+        private contactInformationService: ContactInformationService,
+        private reflectionTimeService: ReflectionTimeService
     ) {
         this.subject = new Subject();
     }
@@ -92,7 +94,8 @@ export class ParticipantService {
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
             this.checkPlacesSet(),
-            this.checkContactInformation()
+            this.checkContactInformation(),
+            this.checkReflectionTime()
         ])
         .then((results) => {
             return {
@@ -101,11 +104,21 @@ export class ParticipantService {
                 locationPermission: results[2],
                 places: results[3],
                 participantInformation: results[4],
-                weeklyReflectionTime: false
+                weeklyReflectionTime: results[5]
             }
         })
         .catch(() => {
             return Promise.reject(false)
+        })
+    }
+
+    checkReflectionTime():Promise<boolean> {
+        return this.reflectionTimeService.getTime()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
         })
     }
 

@@ -3,7 +3,7 @@ import { NavController } from 'ionic-angular';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
 import { loadingService } from '../../infrastructure/loading.service';
-import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
 
 @Component({
   selector: 'page-weekly-reflection-time',
@@ -26,18 +26,28 @@ export class WeeklyReflectionTimePage {
     constructor(
         private navCtrl:NavController,
         private loadingService:loadingService,
-        private heartstepsServer:HeartstepsServer
+        private reflectionTimeService:ReflectionTimeService
     ) {
+        this.reflectionTimeService.getTime()
+        .then((data: any)=> {
+            this.createReflectionForm(data.day, data.time);
+        })
+        .catch(() => {
+            this.createReflectionForm('sunday', '20:00');
+        })
+    }
+
+    createReflectionForm(day: string, time: string) {
         this.weeklyReflectionForm = new FormGroup({
-            day: new FormControl('sunday', Validators.required),
-            time: new FormControl('20:00', Validators.required)
+            day: new FormControl(day, Validators.required),
+            time: new FormControl(time, Validators.required)
         })
     }
 
     save() {
         if(this.weeklyReflectionForm.valid) {
             this.loadingService.show('Saving reflection time')
-            this.heartstepsServer.post('reflection-time', this.weeklyReflectionForm.value)
+            this.reflectionTimeService.setTime(this.weeklyReflectionForm.value)
             .then(() => {
                 this.navCtrl.pop()
             })
