@@ -3,6 +3,8 @@ version: '2'
 services:
   db:
     image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   server:
     build: ./server
     environment:
@@ -16,7 +18,6 @@ services:
       - FITAPP_SUBSCRIBE=True
       - FITAPP_SUBSCRIBER_ID=1
       - FITAPP_VERIFICATION_CODE=41cc924fedb3f59d8f6f044bf28967f05a74c6e980ad0d985f1562864952ea33
-
     command: honcho start web_dev celery rabbitmq
     volumes:
       - ./server:/server
@@ -29,7 +30,7 @@ services:
     command: ionic serve
     volumes:
       - ./client:/client
-      - /client/node_modules
+      - client-node-modules:/client/node_modules
     ports:
       - "8100:8100"
       - "35729:35729"
@@ -51,3 +52,6 @@ services:
       - ./anti-sedentary:/anti-sedentary
     ports:
       - "5001:8000"
+volumes:
+  client-node-modules:
+  pgdata:
