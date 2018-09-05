@@ -4,14 +4,15 @@ from django.utils import timezone
 from unittest.mock import patch
 from django.test import override_settings, TestCase
 
-from randomization.models import Decision, Message
+from randomization.models import Decision, Message, DecisionContext
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from locations.models import Location
 from push_messages.models import Message as PushMessage
+from weather.models import WeatherForecast
 
-class DecisionContext(TestCase):
+class DecisionContextTest(TestCase):
 
     def test_decision_adds_context(self):
         user = User.objects.create(username=True)
@@ -19,8 +20,18 @@ class DecisionContext(TestCase):
     @patch('randomization.models.determine_location_type')
     @patch('weather.functions.WeatherFunction.get_context')
     def test_make_decision(self, weather_context, determine_location_type):
+        forecast = WeatherForecast.objects.create(
+            latitude=123,
+            longitude=456.456,
+            time = timezone.now(),
+            precip_probability = 0.1,
+            temperature = 0.123,
+            apparent_temperature = 123,
+            wind_speed = 0,
+            cloud_cover = 0,
+        )
         determine_location_type.return_value = "home"
-        weather_context.return_value = (None, "outdoor")
+        weather_context.return_value = (forecast, "outdoor")
         user = User.objects.create(username="test")
         location = Location.objects.create(
             user = user,
@@ -39,6 +50,7 @@ class DecisionContext(TestCase):
         weather_context.assert_called()
         self.assertIn('home', [tag.tag for tag in decision.tags.all()])
         self.assertIn('outdoor', [tag.tag for tag in decision.tags.all()])
+        self.assertEqual(DecisionContext.objects.filter(decision=decision).count(), 2)
 
 class DecisionMessageTest(TestCase):
 

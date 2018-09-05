@@ -1,6 +1,8 @@
 import uuid
 from random import randint
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from django.contrib.auth.models import User
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
@@ -53,12 +55,20 @@ class Decision(models.Model):
                 longitude = location.longitude
             )
             self.add_context(location_type)
+            DecisionContext.objects.create(
+                decision = self,
+                content_object = location
+            )
 
             forecast, weather_context = WeatherFunction.get_context(
                 latitude = location.latitude,
                 longitude = location.longitude
             )
             self.add_context(weather_context)
+            DecisionContext.objects.create(
+                decision = self,
+                content_object = forecast
+            )
         else:
             decision.add_context("other")    
 
@@ -74,6 +84,14 @@ class Decision(models.Model):
         else:
             return "For %s (decided)" % self.user
 
+class DecisionContext(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    decision = models.ForeignKey(Decision)
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
