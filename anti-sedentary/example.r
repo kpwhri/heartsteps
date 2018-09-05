@@ -7,6 +7,7 @@ input = fromJSON(args[1])
 # 
 ## Required packages and source files
 source("functions.R")
+require(lubridate)
 #require(mgcv); require(chron);
 
 payload = ' {
@@ -52,9 +53,11 @@ window.time$window.utime = as.POSIXct(window.time$window.utime, tz = "GMT")
 
 seq.hour = c(14:23,0:1)
 fraction.data = readRDS("fractiondata.RDS")
+fraction.df = data.frame(fraction.data)
+names(fraction.df) = c("current.hour", "mean", "var")
+
  
 ## Build history from existing database
-library(lubridate)
 current.time = as.POSIXct(strptime(test.input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 final.time = as.POSIXct(strptime(test.input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 beginning.time = as.POSIXct(strptime(test.input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
@@ -75,8 +78,6 @@ H.t = data.frame(
   time.diff = as.numeric(current.time - current.day.user.data$time)
   )
 
-
-
 time.steps = seq(1, as.numeric(final.time - beginning.time)*(60/5))
 hour = (floor(time.steps/12)+14)%%24
 block.steps = unlist(lapply(hour, FUN = which.block))
@@ -87,20 +88,30 @@ current.hour = hour(current.time)
 current.block = which.block(current.hour)
 which.blocks = which(block.steps == current.block)
 start.block = min(which.blocks); stop.block = max(which.blocks)
-current.run.length = t+1 - max(which(X.t == current.state & 1:length(X.t) <= t))
+
+decision.time = (hour(current.time) - hour(beginning.time))*12 + minute(current.time)/5
+past.sedentary = (H.t$old.states == current.state)
+N = 1.8; lambda = 0.0; eta = 0.0
+
+if( any(past.sedentary)) {
+  current.run.length = t+1 - max(which(past.sedentary))  
+} else {
+  current.run.length = 0
+}
+
 # remaining.time = length(time.steps) - (t-1)
-remaining.time.in.block = stop.block - (t - 1)
-if(any(A.t[(max(1,t-12)):(t-1)] == 1)) {
+remaining.time.in.block = stop.block - (decision.time - 1)
+if(any(H.t$old.A[(max(1,decision.time-12)):(decision.time-1)] == 1)) {
   rho.t = 0
-  A.t[t] = 0
+  A.t = 0
 } else {
   rho.t = randomization.probability(N, current.state, remaining.time.in.block, current.run.length, current.hour, H.t, lambda, eta)
-  A.t[t] = rbinom(n = 1, size = 1, prob = rho.t)
+  A.t = rbinom(n = 1, size = 1, prob = rho.t)
 }
 
 results <- list(
-    a_it = 0,
-    pi_it = 0
+    a_it = A.t,
+    pi_it = rho.t
 )
 
 # output the results
