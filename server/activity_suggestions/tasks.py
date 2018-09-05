@@ -2,13 +2,25 @@
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
 from randomization.models import Decision
 
+import pytz
+
+def is_weekday_in_timezone(timezone):
+    tz = pytz.timezone(timezone)
+    dt = datetime.now()
+    offset_dt = dt + dt.utcoffset(tz)
+
+    weekday = offset_dt.weekday()
+    if weekday >= 5:
+        return False
+    else:
+        return True
 
 @shared_task
 def start_decision(username, time_category):
@@ -25,6 +37,15 @@ def start_decision(username, time_category):
     )
     decision.add_context("activity suggestion")
     decision.add_context(time_category)
+
+    try:
+        suggestion_time = SuggestionTime.objects.get(user=user, type=time_category)
+        if is_weekday_in_timezone(suggestion_time.timezone):
+            decision.add_context("weekday")
+        else:
+            decision.add_context("weekend")        
+    except:
+        pass
 
     decision.get_context()
 
