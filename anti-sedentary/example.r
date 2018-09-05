@@ -1,5 +1,5 @@
 #! /usr/bin/Rscript
-library('rjson')
+library('rjson', 'lubridate')
 
 # script is assuming JSON output always
 args <- commandArgs(trailingOnly = TRUE)
@@ -7,7 +7,6 @@ input = fromJSON(args[1])
 # 
 ## Required packages and source files
 source("functions.R")
-require(lubridate)
 #require(mgcv); require(chron);
 
 payload = ' {
