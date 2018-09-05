@@ -83,14 +83,14 @@ block.steps = unlist(lapply(hour, FUN = which.block))
  
 ## Apply function
 current.state = 1
-current.hour = hour(current.time)
+current.hour = lubridate::hour(current.time)
 current.block = which.block(current.hour)
 which.blocks = which(block.steps == current.block)
 start.block = min(which.blocks); stop.block = max(which.blocks)
 
-decision.time = (hour(current.time) - hour(beginning.time))*12 + minute(current.time)/5
+decision.time = (lubridate::hour(current.time) - lubridate::hour(beginning.time))*12 + lubridate::minute(current.time)/5
 past.sedentary = (H.t$old.states == current.state)
-N = 1.8; lambda = 0.0; eta = 0.0
+N = c(0.0,1.8); lambda = 0.0; eta = 0.0
 
 if( any(past.sedentary)) {
   current.run.length = t+1 - max(which(past.sedentary))  
