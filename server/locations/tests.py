@@ -5,7 +5,8 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-from .models import Place, determine_place_type
+from locations.models import Place
+from locations.factories import determine_location_type
 
 def make_space_needle_location():
     return Place(
@@ -54,7 +55,7 @@ class PlaceTests(TestCase):
         kpwri.save()
 
         place = make_pie_bar_location()
-        place_type = determine_place_type(user, place.latitude, place.longitude)
+        place_type = determine_location_type(user, place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'office')
 
@@ -67,7 +68,7 @@ class PlaceTests(TestCase):
         kpwri.save()
 
         place = make_space_needle_location()
-        place_type = determine_place_type(user, place.latitude, place.longitude)
+        place_type = determine_location_type(user, place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'other') 
 
@@ -86,7 +87,7 @@ class PlaceTests(TestCase):
         home.save()
 
         place = make_pie_bar_location()
-        place_type = determine_place_type(user, place.latitude, place.longitude)
+        place_type = determine_location_type(user, place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'home')
 

@@ -1,0 +1,15 @@
+
+button.heartsteps {
+    display: block;
+    color: map-get($colors, primary);
+    border: 1px map-get($colors, primary) solid;
+    background: transparent;
+    padding: 1em;
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+
+.error {
+    color: map-get($colors, danger);
+}
