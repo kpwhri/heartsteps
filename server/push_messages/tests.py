@@ -117,7 +117,5 @@ class MessageRecievedTests(APITestCase):
             'type': 'recieved',
             'time': str(timezone.now())
         })
-
-        print(response.data)
         
         self.assertEqual(response.status_code, 201)

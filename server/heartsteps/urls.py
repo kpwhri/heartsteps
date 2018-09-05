@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^api/', include('locations.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('participants.urls')),
-    url(r'^api/', include('randomization.urls')),
     url(r'^api/fitbit/', include('fitapp.urls')),
     url(r'^api/', include('trackers.urls')),
     url(r'^admin/', admin.site.urls),

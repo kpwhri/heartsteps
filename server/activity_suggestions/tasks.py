@@ -9,8 +9,6 @@ from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
 from randomization.models import Decision
 
-from randomization.tasks import make_decision
-
 
 @shared_task
 def start_decision(username, time_category):
@@ -30,4 +28,19 @@ def start_decision(username, time_category):
 
     decision.get_context()
 
-    make_decision.delay.s(str(decision.id)).apply_async(eta=decision_time)
+    make_decision.s(str(decision.id)).apply_async(eta=decision_time)
+
+@shared_task
+def make_decision(decision_id):
+    decision = Decision.objects.get(id=decision_id)
+    if decision.is_complete():
+        return False
+    
+    decision.add_location_context()
+
+    decision.a_it = True
+    decision.pi_it = 1
+    decision.save()
+
+    decision.make_message()
+    decision.send_message()
