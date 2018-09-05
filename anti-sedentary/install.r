@@ -1,4 +1,3 @@
 #! /usr/bin/Rscript
 
-install.packages('rjson', repos='http://cran.us.r-project.org')
-install.packages('lubridate', repos='http://cran.us.r-project.org', type = "source")
+install.packages(c('rjson', 'chron'), repos='http://cran.us.r-project.org')

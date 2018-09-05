@@ -1,5 +1,5 @@
 #! /usr/bin/Rscript
-library('rjson', 'lubridate')
+library('rjson')
 
 # script is assuming JSON output always
 args <- commandArgs(trailingOnly = TRUE)
@@ -61,7 +61,9 @@ current.time = as.POSIXct(strptime(test.input$time, "%Y-%m-%d %H:%M"), tz = "Etc
 final.time = as.POSIXct(strptime(test.input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 beginning.time = as.POSIXct(strptime(test.input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
-current.day.obs = user.data$time < current.time & day(user.data$time) == day(current.time)
+library(chron)
+current.day.obs = user.data$time < current.time & days(user.data$time) == days(current.time)
+
 current.day.user.data = user.data[current.day.obs,]
 
 ## Convert to GMT
@@ -83,12 +85,12 @@ block.steps = unlist(lapply(hour, FUN = which.block))
  
 ## Apply function
 current.state = 1
-current.hour = lubridate::hour(current.time)
+current.hour = hours(current.time)
 current.block = which.block(current.hour)
 which.blocks = which(block.steps == current.block)
 start.block = min(which.blocks); stop.block = max(which.blocks)
 
-decision.time = (lubridate::hour(current.time) - lubridate::hour(beginning.time))*12 + lubridate::minute(current.time)/5
+decision.time = (hours(current.time) - hours(beginning.time))*12 + minutes(current.time)/5
 past.sedentary = (H.t$old.states == current.state)
 N = c(0.0,1.8); lambda = 0.0; eta = 0.0
 
