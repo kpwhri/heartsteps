@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'locations',
     'weather',
     'randomization',
-    'activity_suggestions'
+    'activity_suggestions',
+    'activity_plans'
 ]
 
 MIDDLEWARE = [
