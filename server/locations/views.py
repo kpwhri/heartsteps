@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
-from .models import Place
+from django.utils import timezone
+
+from .models import Place, Location
 
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,3 +43,22 @@ class PlacesView(APIView):
                 status=status.HTTP_201_CREATED
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LocationSerializer(serializers.Serializer):
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+
+class LocationUpdateView(APIView):
+    """
+    Updates a user's location
+    """
+
+    def post(self, request):
+        serialized = LocationSerializer(data=request.data)
+        if serialized.is_valid():
+            location = Location(**serialized.validated_data)
+            location.user = request.user
+            location.time = timezone.now()
+            location.save()
+            return Response({}, status=status.HTTP_201_CREATED)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

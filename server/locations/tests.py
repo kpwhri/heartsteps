@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-from locations.models import Place
+from locations.models import Place, Location
 from locations.factories import determine_location_type
 
 def make_space_needle_location():
@@ -134,3 +134,18 @@ class PlacesViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Place.objects.filter(user=user).count(), 1)
 
+class LocationsUpdateViewTests(APITestCase):
+
+    def test_update_location(self):
+        user = User.objects.create(username="test")
+
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse('locations-update'), {
+            'latitude': 123.123,
+            'longitude': 123.123
+        })
+
+        self.assertEqual(response.status_code, 201)
+
+        location = Location.objects.get(user=user)
+        self.assertEqual(location.latitude, float(123.123))
