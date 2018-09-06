@@ -34,7 +34,7 @@ class ActivityPlan(AbstractActivity):
     log = models.ForeignKey(ActivityLog, null=True, blank=True)
 
     def __str__(self):
-        if self.complete:
+        if self.log:
             verb = "completed on"
         else:
             verb = "planned for"

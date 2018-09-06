@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from activity_plans.models import ActivityPlan, ActivityType
+from activity_plans.models import ActivityPlan, ActivityLog, ActivityType
 
 class TimeRangeSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
@@ -24,3 +24,7 @@ class ActivityPlanSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         return super(ActivityPlanSerializer, self).to_internal_value(data)
 
+class ActivityLogSerializer(ActivityPlanSerializer):
+    class Meta:
+        model = ActivityLog
+        fields = ('type', 'vigorous', 'start', 'duration', 'enjoyed')
