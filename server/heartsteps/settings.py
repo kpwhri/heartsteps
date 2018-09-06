@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'fitapp',
     'trackers',
     'behavioral_messages',
+    'morning_messages',
     'push_messages',
     'weekly_reflection',
     'participants',
