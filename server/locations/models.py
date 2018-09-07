@@ -7,12 +7,12 @@ from django.contrib.auth.models import User
 DISTANCE_RADIUS = settings.HEARTSTEPS_LOCATIONS_NEAR_DISTANCE
 
 HOME = 'home'
-OFFICE = 'office'
+WORK = 'work'
 OTHER = 'other'
 
 PLACE_TYPES = (
     (HOME, 'Home'),
-    (OFFICE, 'Office'),
+    (WORK, 'work'),
     (OTHER, 'Other')
 )
 
