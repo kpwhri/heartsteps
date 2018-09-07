@@ -6,15 +6,34 @@
     </ion-header>
     <ion-content *ngIf="planForm" padding>
         <form [formGroup]="planForm">
-            <ion-list radio-group formControlName="intensity">
+            <ion-list radio-group formControlName="activity">
+                <ion-list-header>Activity</ion-list-header>
+                <ion-item>
+                    <ion-label>Bike</ion-label>
+                    <ion-radio value="bike"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Run</ion-label>
+                    <ion-radio value="run"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Swim</ion-label>
+                    <ion-radio value="swim"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Lift weights</ion-label>
+                    <ion-radio value="weights"></ion-radio>
+                </ion-item>
+            </ion-list>
+            <ion-list radio-group formControlName="vigorous">
                 <ion-list-header>Intensity</ion-list-header>
                 <ion-item>
                     <ion-label>Moderate</ion-label>
-                    <ion-radio value="moderate"></ion-radio>
+                    <ion-radio value="false"></ion-radio>
                 </ion-item>
                 <ion-item>
-                    <ion-label>Vigerous</ion-label>
-                    <ion-radio value="vigerous"></ion-radio>
+                    <ion-label>Vigorous</ion-label>
+                    <ion-radio value="true"></ion-radio>
                 </ion-item>
             </ion-list>
             <ion-item>
@@ -29,6 +48,7 @@
             </ion-item>
 
             <div class="button-group">
+                <p *ngIf="error">{{error}}</p>
                 <button *ngIf="updateView" ion-button color="danger" (click)="delete()">Delete</button>
                 <button *ngIf="updateView" ion-button (click)="save()" >Update</button>
                 <button *ngIf="!updateView" ion-button (click)="save()" >Save</button>
