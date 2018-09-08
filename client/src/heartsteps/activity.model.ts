@@ -8,7 +8,7 @@ export class Activity {
     public start:Date;
     public vigorous:boolean;
     public duration:number;
-
+    public enjoyed: number;
     private complete:boolean;
 
     constructor(obj:any) {
@@ -54,13 +54,19 @@ export class Activity {
     }
 
     serialize():any {
-        let datestring:string = this.start.toISOString()
-        return {
+        let datestring:string = this.start.toISOString();
+        let serialized: any = {
             type: this.type,
             start: datestring,
             duration: this.duration,
-            vigorous: this.vigorous,
-            complete: this.complete
+            vigorous: this.vigorous
         };
+        if (this.complete) {
+            serialized.complete = true;
+        }
+        if (this.enjoyed) {
+            serialized.enjoyed = this.enjoyed;
+        }
+        return serialized;
     }
 }

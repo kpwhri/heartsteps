@@ -9,6 +9,7 @@ import { PlacesService } from '@heartsteps/places.service';
 import { ContactInformationService } from '@heartsteps/contact-information.service';
 import { DateFactory } from "@heartsteps/date.factory";
 import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
+import { ActivityLogService } from '@heartsteps/activity-log.service';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
         ActivityPlanService,
         PlacesService,
         DateFactory,
-        ReflectionTimeService
+        ReflectionTimeService,
+        ActivityLogService
     ]
 })
 export class HeartstepsModule {}

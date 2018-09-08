@@ -20,9 +20,8 @@ export class ActivityPlanService {
     }
 
     updateSubject() {
-        this.storage.get(storageKey)
-        .then((plansRaw) => {
-            const plans = this.deserializePlans(plansRaw);
+        this.loadPlans()
+        .then((plans) => {
             this.plans.next(plans);
         })
     }
@@ -53,18 +52,21 @@ export class ActivityPlanService {
         })
     }
 
-    private deserializePlans(plans:any):Array<Activity> {
-        if (plans) {
-            let activities = [];
-            Object.keys(plans).forEach((planId:string) => {
-                let activity = new Activity(plans[planId]);
-                activity.id = planId;
-                activities.push(activity);
-            });
-            return activities;
-        } else  {
-            return [];
-        }
+    private loadPlans():Promise<Array<Activity>> {
+        return this.storage.get(storageKey)
+        .then((plans) => {
+            if (plans) {
+                let activities = [];
+                Object.keys(plans).forEach((planId:string) => {
+                    let activity = new Activity(plans[planId]);
+                    activity.id = planId;
+                    activities.push(activity);
+                });
+                return activities;
+            } else  {
+                return [];
+            }
+        });
     }
 
     private storeActivity(activity:Activity):Promise<Activity> {
