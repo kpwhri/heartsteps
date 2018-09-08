@@ -28,3 +28,5 @@ class ActivityLogSerializer(ActivityPlanSerializer):
     class Meta:
         model = ActivityLog
         fields = ('type', 'vigorous', 'start', 'duration', 'enjoyed')
+    
+    enjoyed = serializers.IntegerField(required=False)

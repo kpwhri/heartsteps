@@ -25,7 +25,7 @@ class AbstractActivity(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class ActivityLog(AbstractActivity):
-    enjoyed = models.IntegerField()
+    enjoyed = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return "%s on %s (%s)" % (self.type, self.start, self.user)
