@@ -47,10 +47,11 @@
                 <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
             </ion-item>
 
-            <div class="button-group">
+            <div class="form-actions">
                 <p *ngIf="error">{{error}}</p>
                 <button *ngIf="updateView" ion-button color="danger" (click)="delete()">Delete</button>
-                <button *ngIf="updateView" ion-button (click)="save()" >Update</button>
+                <button *ngIf="updateView" ion-button outline (click)="save()" >Update</button>
+                <button *ngIf="updateView" ion-button (click)="complete()">Complete</button>
                 <button *ngIf="!updateView" ion-button (click)="save()" >Save</button>
             </div>
         </form>

@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 export class Activity {
 
-    private id:string;
+    public id:string;
     
     public type:string;
     public start:Date;
@@ -15,7 +15,8 @@ export class Activity {
         this.id = obj.id;
         this.type = obj.type;
         this.duration = obj.duration;
-        this.vigorous = obj.vigorous;
+        this.vigorous = obj.vigorous || false;
+        this.complete = obj.complete || false;
 
         if(obj.start) {
             const localMoment = moment.utc(obj.start).local();
@@ -23,6 +24,14 @@ export class Activity {
         } else {
             this.start = new Date();
         }
+    }
+
+    isComplete() {
+        return this.complete;
+    }
+
+    markComplete() {
+        this.complete = true;
     }
 
     getStartTime():string {
@@ -50,7 +59,8 @@ export class Activity {
             type: this.type,
             start: datestring,
             duration: this.duration,
-            vigorous: this.vigorous
+            vigorous: this.vigorous,
+            complete: this.complete
         };
     }
 }

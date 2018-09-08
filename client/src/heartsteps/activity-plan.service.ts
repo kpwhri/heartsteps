@@ -39,11 +39,27 @@ export class ActivityPlanService {
         })
     }
 
-    private deserializePlans(plans):Array<Activity> {
+    complete(activity:Activity):Promise<Activity> {
+        return this.heartstepsServer.post('/activity/logs', {
+            type: activity.type,
+            start: activity.start,
+            duration: activity.duration,
+            vigorous: activity.vigorous,
+            enjoyed: 3
+        })
+        .then((response:any) => {
+            activity.markComplete();
+            return this.storeActivity(activity);
+        })
+    }
+
+    private deserializePlans(plans:any):Array<Activity> {
         if (plans) {
             let activities = [];
-            plans.forEach((plan) => {
-                activities.push(new Activity(plan));
+            Object.keys(plans).forEach((planId:string) => {
+                let activity = new Activity(plans[planId]);
+                activity.id = planId;
+                activities.push(activity);
             });
             return activities;
         } else  {
@@ -55,9 +71,9 @@ export class ActivityPlanService {
         return this.storage.get(storageKey)
         .then((plans) => {
             if (!plans) {
-                plans = [];
+                plans = {};
             }
-            plans.push(activity.serialize());
+            plans[activity.id] = activity.serialize();
             return this.storage.set(storageKey, plans)
         })
         .then(() => {

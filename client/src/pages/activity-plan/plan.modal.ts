@@ -49,13 +49,16 @@ export class PlanModal {
         this.viewCtrl.dismiss()
     }
 
+    updateActivity() {
+        this.activity.type = this.planForm.value.activity;
+        this.activity.duration = this.planForm.value.duration;
+        this.activity.vigorous = this.planForm.value.vigorous;
+        this.activity.updateStartTime(this.planForm.value.time);
+    }
+
     save() {
         if (this.planForm.valid) {
-            this.activity.type = this.planForm.value.activity;
-            this.activity.duration = this.planForm.value.duration;
-            this.activity.vigorous = this.planForm.value.vigorous;
-            this.activity.updateStartTime(this.planForm.value.time);
-
+            this.updateActivity();
             this.activityPlanService.createPlan(this.activity)
             .then((plan) => {
                 this.viewCtrl.dismiss(plan)
@@ -64,6 +67,16 @@ export class PlanModal {
                 if(error.message) {
                     this.error = error.message;
                 }
+            })
+        }
+    }
+
+    complete() {
+        if(this.planForm.valid) {
+            this.updateActivity();
+            this.activityPlanService.complete(this.activity)
+            .then((activity: Activity) => {
+                this.viewCtrl.dismiss(activity);
             })
         }
     }
