@@ -10,6 +10,7 @@ import { ContactInformationService } from '@heartsteps/contact-information.servi
 import { DateFactory } from "@heartsteps/date.factory";
 import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
 import { ActivityLogService } from '@heartsteps/activity-log.service';
+import { ProfileService } from '@heartsteps/profile.factory';
 
 
 @NgModule({
@@ -20,8 +21,10 @@ import { ActivityLogService } from '@heartsteps/activity-log.service';
         ContactInformationService,
         HeartstepsNotifications,
         ParticipantService,
+        ProfileService,
         ActivitySuggestionTimeService,
         ActivityPlanService,
+        ActivityLogService,
         PlacesService,
         DateFactory,
         ReflectionTimeService,

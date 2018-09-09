@@ -52,6 +52,24 @@ export class ActivityPlanService {
         })
     }
 
+    getPlans(startDate:Date, endDate:Date):Promise<boolean> {
+        return this.heartstepsServer.get('activity/plans', {
+            start: startDate.toISOString(),
+            end: endDate.toISOString()
+        })
+        .then((response: Array<any>) => {
+            let plans = {};
+            response.forEach((plan: any) => {
+                plans[plan.id] = plan;
+            });
+            return this.storage.set(storageKey, plans);
+        })
+        .then(() => {
+            this.updateSubject();
+            return true;
+        })
+    }
+
     private loadPlans():Promise<Array<Activity>> {
         return this.storage.get(storageKey)
         .then((plans) => {
@@ -81,14 +99,6 @@ export class ActivityPlanService {
         .then(() => {
             return activity;
         })
-    }
-
-    updatePlan(plan) {
-
-    }
-
-    deletePlan(plan) {
-
     }
 
 }

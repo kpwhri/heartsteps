@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, Nav } from 'ionic-angular';
 
-import { ParticipantService } from "../../heartsteps/participant.service";
+import { ProfileService } from "../../heartsteps/profile.factory";
 
 import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
@@ -13,6 +13,7 @@ import { PlacesListPage } from '@pages/places/places-list';
 import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
 import { FitbitAppPage } from '@pages/onboard/fitbit-app';
 import { WeeklyReflectionTimePage } from '@pages/settings/weekly-reflection-time.page';
+import { ParticipantService } from '@heartsteps/participant.service';
 
 const onboardingSteps = [{
         key: 'participantInformation',
@@ -54,11 +55,12 @@ export class OnboardPage {
     private screens:Array<any>;
 
     constructor(
-        private participantService:ParticipantService
+        private profileService: ProfileService,
+        private participantService: ParticipantService
     ) {}
 
     setScreens():Promise<any> {
-        return this.participantService.getProfile()
+        return this.profileService.getProfile()
         .then((profile) => {
             this.screens = []
 

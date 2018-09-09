@@ -31,7 +31,17 @@ export class HeartstepsServer {
         return urljoin(this.heartstepsUrl, uri);
     }
 
-    get(url:string):Promise<any> {
+    get(url:string, params?:any):Promise<any> {
+        if(params) {
+            let urlArgs: string = "";
+            Object.keys(params).forEach((key) => {
+                if (urlArgs != "") {
+                    urlArgs += "&";
+                }
+                urlArgs += key + "=" + params[key]
+            })
+            url += "?" + urlArgs;
+        }
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
             if(this.platform.is('ios') || this.platform.is('android')) {
