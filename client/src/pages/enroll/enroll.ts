@@ -39,7 +39,8 @@ export class EnrollPage {
                 this.loadingService.dismiss()
             })
         } else {
-            this.enrollmentForm.markAsDirty()
+            this.enrollmentForm.markAsDirty();
+            this.enrollmentForm.markAsTouched();
         }
     }
 }

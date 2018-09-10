@@ -19,6 +19,14 @@ form {
     > .item-block {
         padding: 0px;
     }
+
+    > .controls {
+        flex-grow: 1;
+
+        button {
+            @extend .heartsteps-primary-button;
+        }
+    }
 }
 
 fieldset legend {
@@ -31,17 +39,19 @@ form .ion-item {
 
 form {
     .item.ng-invalid.ng-touched {
-        padding-right: 30px;
-        &:after{
-            content: ' ';
-            mask: url('/assets/error-icon.svg') no-repeat 0px 0px;
-            mask-size: contain;
-            width: 15px;
-            height: 15px;
-            background-color: map-get($colors, danger);
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
+        .input {
+            padding-right: 30px;
+            &:after{
+                content: ' ';
+                mask: url('/assets/error-icon.svg') no-repeat 0px 0px;
+                mask-size: contain;
+                width: 20px;
+                height: 20px;
+                background-color: map-get($colors, danger);
+                position: absolute;
+                bottom: 8px;
+                right: 8px;
+            }
         }
     }
 }

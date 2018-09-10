@@ -1,5 +1,5 @@
 
-button.heartsteps {
+.heartsteps-primary-button {
     display: block;
     color: map-get($colors, primary);
     border: 1px map-get($colors, primary) solid;
@@ -12,4 +12,20 @@ button.heartsteps {
 
 .error {
     color: map-get($colors, danger);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+
+.scroll-content {
+    display: flex;
+    flex-direction: column;
+
+    > form {
+        flex-grow: 1;
+    }
 }

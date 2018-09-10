@@ -14,8 +14,8 @@
       <ion-label stacked>Entry Code</ion-label>
       <ion-input type="text" formControlName="entryToken"></ion-input>
     </ion-item>
-    <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p>
-    <div class="action">
+    <div class="controls">
+        <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p>
         <button >Enroll</button>
     </div>
   </form>
