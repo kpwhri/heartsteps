@@ -5,17 +5,22 @@
     </ion-navbar>
 </ion-header>
 <ion-content padding>
-    <ion-item>
-        <ion-label stacked>Address</ion-label>
-        <ion-input [(ngModel)]="address" (keyup)="showPredictions()"></ion-input>
-    </ion-item>
-    <ion-list *ngIf="addressPredictions">
-        <button *ngFor="let address of addressPredictions" ion-item (click)="setAddress(address.description)">
-            {{address.description}}
-        </button> 
-    </ion-list>
-    <div #map id="map" width="100%" height="200px"></div>
-    <button *ngIf="updateView" ion-button color="danger" (click)="delete()">Delete</button>
-    <button *ngIf="updateView" ion-button (click)="update()" >Update</button>
-    <button *ngIf="!updateView" ion-button (click)="update()" >Save</button>
+    <form class="map">
+        <p>Enter an address or tap on the map to choose a location.</p>
+        <ion-item>
+            <ion-label stacked>Address</ion-label>
+            <ion-input name="address" [(ngModel)]="address" (keyup)="showPredictions()"></ion-input>
+        </ion-item>
+        <ion-list *ngIf="addressPredictions">
+            <button *ngFor="let address of addressPredictions" ion-item (click)="setAddress(address.description)">
+                {{address.description}}
+            </button> 
+        </ion-list>
+        <div #map id="map" width="100%" height="200px"></div>
+        <div class="controls">
+            <button *ngIf="updateView" (click)="delete()">Delete</button>
+            <button *ngIf="updateView" (click)="update()" >Update</button>
+            <button *ngIf="!updateView" (click)="update()" >Save</button>
+        </div>
+    </form>
 </ion-content>

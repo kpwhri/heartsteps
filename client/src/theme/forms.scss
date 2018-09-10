@@ -12,10 +12,6 @@ form {
         margin: 0.5em 0em;
     }
     
-    > button:last-child {
-        flex-grow: 1;
-    }
-
     > .item-block {
         padding: 0px;
     }
@@ -26,6 +22,19 @@ form {
         button {
             @extend .heartsteps-primary-button;
         }
+    }
+}
+
+form.map {
+
+    #map {
+        width: 100%;
+        height: 200px;
+        flex-grow:1;
+    }
+
+    .controls {
+        flex-grow: 0;
     }
 }
 
