@@ -1,15 +1,19 @@
-from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect, render
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 
+from rest_framework.decorators import api_view
+from rest_framework import status, permissions
+from rest_framework.response import Response
+from django.shortcuts import redirect
 
-def register(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
+@api_view(['GET'])
+def authorize(request, username):
+    if username:
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
         login(request, user)
-        # Redirect to a success page.
         return redirect('fitbit-login')
-    else:
-        # Return an 'invalid login' error message.
-        return render(request, 'tracker-register')
+    return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        
