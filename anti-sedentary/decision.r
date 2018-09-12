@@ -4,7 +4,7 @@ library('rjson')
 # script is assuming JSON output always
 args <- commandArgs(trailingOnly = TRUE)
 input = fromJSON(args[1])
-# 
+#
 ## Required packages and source files
 source("functions.R")
 #require(mgcv); require(chron);
@@ -20,7 +20,7 @@ payload = ' {
 
 test.input = fromJSON(payload)
 
-# Pull in the Necessary CSVs 
+# Pull in the Necessary CSVs
 setwd("./data/")
 window.time = read.csv("window_time.csv")
 Sedentary.values = read.csv("sed_values.csv")
@@ -55,13 +55,13 @@ fraction.data = readRDS("fractiondata.RDS")
 fraction.df = data.frame(fraction.data)
 names(fraction.df) = c("current.hour", "mean", "var")
 
- 
+
 ## Build history from existing database
 current.time = as.POSIXct(strptime(test.input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 final.time = as.POSIXct(strptime(test.input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 beginning.time = as.POSIXct(strptime(test.input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
-library(chron)
+library('chron')
 current.day.obs = user.data$time < current.time & days(user.data$time) == days(current.time)
 
 current.day.user.data = user.data[current.day.obs,]
@@ -82,7 +82,7 @@ H.t = data.frame(
 time.steps = seq(1, as.numeric(final.time - beginning.time)*(60/5))
 hour = (floor(time.steps/12)+14)%%24
 block.steps = unlist(lapply(hour, FUN = which.block))
- 
+
 ## Apply function
 current.state = 1
 current.hour = hours(current.time)
@@ -95,7 +95,7 @@ past.sedentary = (H.t$old.states == current.state)
 N = c(0.0,1.8); lambda = 0.0; eta = 0.0
 
 if( any(past.sedentary)) {
-  current.run.length = t+1 - max(which(past.sedentary))  
+  current.run.length = t+1 - max(which(past.sedentary))
 } else {
   current.run.length = 0
 }
