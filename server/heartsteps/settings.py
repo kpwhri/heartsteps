@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'weather',
     'randomization',
     'activity_suggestions',
+    'activity_logs',
     'activity_plans'
 ]
 

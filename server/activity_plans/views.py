@@ -3,8 +3,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from activity_plans.serializers import ActivityPlanSerializer, ActivityLogSerializer, TimeRangeSerializer
-from activity_plans.models import ActivityPlan, ActivityLog
+from activity_logs.serializers import TimeRangeSerializer
+
+from activity_plans.serializers import ActivityPlanSerializer
+from activity_plans.models import ActivityPlan
 
 
 class ActivityPlansList(APIView):
@@ -35,22 +37,4 @@ class ActivityPlansList(APIView):
             activity_plan.save()
             serialzied_plan = ActivityPlanSerializer(activity_plan)
             return Response(serialzied_plan.data, status=status.HTTP_201_CREATED)
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class ActivityLogsList(APIView):
-    """
-    Manages activity logs
-    """
-
-    def get(self, request):
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request):
-        serialized = ActivityLogSerializer(data=request.data)
-        if serialized.is_valid():
-            activity_log = ActivityLog(**serialized.validated_data)
-            activity_log.user = request.user
-            activity_log.save()
-            serialized_log = ActivityLogSerializer(activity_log)
-            return Response(serialized_log.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

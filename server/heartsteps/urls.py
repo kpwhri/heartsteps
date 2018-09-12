@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/activity-suggestions/', include('activity_suggestions.urls')),
+    url(r'^api/activity/', include('activity_logs.urls')),
     url(r'^api/activity/', include('activity_plans.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
