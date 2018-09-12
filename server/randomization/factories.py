@@ -6,7 +6,9 @@ def make_decision_message(decision):
     message = Message(
         decision = decision
     )
-    if message.get_message_template():
+    message_template = message.get_message_template()
+    if message_template:
+        message.message_template = message_template
         message.save()
         return message
     else:

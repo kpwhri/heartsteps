@@ -70,7 +70,7 @@ class Decision(models.Model):
                 content_object = forecast
             )
         else:
-            decision.add_context("other")    
+            self.add_context("other")    
 
     def add_context(self, tag_text):
         tag, created = ContextTag.objects.get_or_create(
@@ -113,7 +113,7 @@ class Message(models.Model):
             query = query.filter(context_tags__in=[tag])
         message_templates = query.all()
 
-        if len(message_templates) < 1:
+        if len(message_templates) == 0:
             return False
         if len(message_templates) == 1:
             return message_templates[0]

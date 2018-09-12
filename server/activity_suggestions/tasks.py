@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
 from randomization.models import Decision
+from randomization.factories import make_decision_message
 
 import pytz
 
@@ -63,5 +64,5 @@ def make_decision(decision_id):
     decision.pi_it = 1
     decision.save()
 
-    decision.make_message()
-    decision.send_message()
+    message = make_decision_message(decision)
+    message.send_message()
