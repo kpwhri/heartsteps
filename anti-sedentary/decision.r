@@ -3,22 +3,21 @@ library('rjson')
 
 # script is assuming JSON output always
 args <- commandArgs(trailingOnly = TRUE)
-input = fromJSON(args[1])
+input = fromJSON(args)
+
 #
 ## Required packages and source files
 source("functions.R")
 #require(mgcv); require(chron);
 
-payload = ' {
-  "userId": [ 1 ],
-  "decisionId": [ 1803312 ] ,
-  "time": [ "2018-10-12 10:10" ] ,
-  "dayStart": [ "2018-10-12 8:00" ] ,
-  "dayEnd": [ "2018-10-12 20:00" ]
-}
-'
-
-test.input = fromJSON(payload)
+# payload = ' {
+#   "userId": [ 1 ],
+#   "decisionId": [ 1803312 ] ,
+#   "time": [ "2018-10-12 10:10" ] ,
+#   "dayStart": [ "2018-10-12 8:00" ] ,
+#   "dayEnd": [ "2018-10-12 20:00" ]
+# }
+# '
 
 # Pull in the Necessary CSVs
 setwd("./data/")
@@ -26,13 +25,13 @@ window.time = read.csv("window_time.csv")
 Sedentary.values = read.csv("sed_values.csv")
 Sedentary.length = read.csv("sed_length.csv")
 
-file_name = paste("user_",test.input$userId,"_antised_data.csv", sep = "")
+file_name = paste("user_",input$userId,"_antised_data.csv", sep = "")
 
 if(file.exists(file_name)) {
   user.data = read.csv(file = file_name)
 } else {
-  user.data = data.frame(userid = test.input$userId, decisionId = test.input$decisionId,
-                         time = test.input$time, dayStart = test.input$dayStart, dayEnd = test.input$dayEnd,
+  user.data = data.frame(userid = input$userId, decisionId = input$decisionId,
+                         time = input$time, dayStart = input$dayStart, dayEnd = input$dayEnd,
                          probaction = 0.0, action = 0.0)
 }
 
@@ -57,9 +56,9 @@ names(fraction.df) = c("current.hour", "mean", "var")
 
 
 ## Build history from existing database
-current.time = as.POSIXct(strptime(test.input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-final.time = as.POSIXct(strptime(test.input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-beginning.time = as.POSIXct(strptime(test.input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+final.time = as.POSIXct(strptime(input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+beginning.time = as.POSIXct(strptime(input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
 library('chron')
 current.day.obs = user.data$time < current.time & days(user.data$time) == days(current.time)
