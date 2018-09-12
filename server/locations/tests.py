@@ -142,7 +142,8 @@ class LocationsUpdateViewTests(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('locations-update'), {
             'latitude': 123.123,
-            'longitude': 123.123
+            'longitude': 123.123,
+            'source': 'test source'
         })
 
         self.assertEqual(response.status_code, 201)

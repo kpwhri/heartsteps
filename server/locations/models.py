@@ -22,6 +22,7 @@ class Location(models.Model):
     longitude = models.FloatField()
 
     time = models.DateTimeField()
+    source = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return "%s @ %s" % (self.user, self.time)

@@ -44,9 +44,10 @@ class PlacesView(APIView):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LocationSerializer(serializers.Serializer):
-    latitude = serializers.FloatField()
-    longitude = serializers.FloatField()
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ('latitude', 'longitude', 'source')
 
 class LocationUpdateView(APIView):
     """
