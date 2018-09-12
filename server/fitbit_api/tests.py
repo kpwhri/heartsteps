@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 
 class MessageDeviceViewTests(APITestCase):
 
-    @patch('trackers.views.redirect')
-    @patch('trackers.views.login')
+    @patch('fitbit_api.views.redirect')
+    @patch('fitbit_api.views.login')
     def test_authorize(self, login, redirect):
         redirect.return_value = Response({})
         user = User.objects.create(username="test")
