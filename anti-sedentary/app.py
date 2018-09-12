@@ -7,23 +7,40 @@ import subprocess
 
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
+@app.route('/decision', methods=['POST'])
 def decision():
     input = {
         'userId': request.form['userId'],
         'decisionId': request.form['decisionId'],
         'time': request.form['time'],
         'dayStart': request.form['dayStart'],
-        'dayEnd': request.form['dayEnd']
+        'dayEnd': request.form['dayEnd'],
+        'currentState': request.form['currentState']
     }
 
     response = subprocess.run(
-        "Rscript example.r '%s'" % (json.dumps(input)),
+        "Rscript decision.r '%s'" % (json.dumps(input)),
         shell=True,
         stdout=subprocess.PIPE,
         universal_newlines=True
         )
-    
+
+    return response.stdout
+
+@app.route('/nightly', methods=['POST'])
+def nightly():
+    input = {
+        'userId': request.form['userId'],
+        'decisionId': request.form['decisionId']
+    }
+
+    response = subprocess.run(
+        "Rscript decision.r '%s'" % (json.dumps(input)),
+        shell=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True
+        )
+
     return response.stdout
 
 
