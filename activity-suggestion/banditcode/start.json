@@ -1,0 +1,237 @@
+﻿{
+  "userID": 1,
+  "appClicksArray": [
+    123,
+    100,
+    null,
+    10,
+    10,
+    0,
+    9
+  ],
+  "totalStepsArray": [
+    12310,
+    10000,
+    null,
+    10000,
+    10000,
+    11111,
+    22222
+  ],
+  "availMatrix": [
+    {
+      "day": 1,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 2,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 3,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 4,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 5,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 6,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "day": 7,
+      "availArray": [
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    }
+  ],
+  "preStepsMatrix": [
+    {
+      "day": 1,
+      "steps": [
+        null,
+        2,
+        null,
+        30,
+        10
+      ]
+    },
+    {
+      "day": 2,
+      "steps": [
+        123,
+        243,
+        1231,
+        30,
+        100
+      ]
+    },
+    {
+      "day": 3,
+      "steps": [
+        103,
+        1232,
+        null,
+        301,
+        103
+      ]
+    },
+    {
+      "day": 4,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        null
+      ]
+    },
+    {
+      "day": 5,
+      "steps": [
+        1100,
+        23,
+        null,
+        303,
+        100
+      ]
+    },
+    {
+      "day": 6,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    },
+    {
+      "day": 7,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    }
+  ],
+  "postStepsMatrix": [
+    {
+      "day": 1,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    },
+    {
+      "day": 2,
+      "steps": [
+        100,
+        2,
+        null,
+        3012,
+        100
+      ]
+    },
+    {
+      "day": 3,
+      "steps": [
+        null,
+        21,
+        null,
+        330,
+        1010
+      ]
+    },
+    {
+      "day": 4,
+      "steps": [
+        null,
+        2,
+        null,
+        30,
+        null
+      ]
+    },
+    {
+      "day": 5,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    },
+    {
+      "day": 6,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    },
+    {
+      "day": 7,
+      "steps": [
+        100,
+        2,
+        null,
+        30,
+        100
+      ]
+    }
+  ]
+}
