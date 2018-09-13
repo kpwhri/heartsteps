@@ -7,17 +7,28 @@ import subprocess
 
 app = Flask(__name__)
 
+@app.route('/initialize', methods=['POST'])
+def decision():
+    input = {
+        'userId': request.form['userId'],
+        'decisionId': request.form['decisionId']
+    }
+
+    response = subprocess.run(
+        "Rscript initialize.r '%s'" % (json.dumps(input)),
+        shell=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True
+        )
+    
+    return response.stdout
+
+
 @app.route('/decision', methods=['POST'])
 def decision():
     input = {
         'userId': request.form['userId'],
-        'decisionId': request.form['decisionId'],
-        'isDriving': request.form['isDriving'],
-        'isActive': request.form['isActive'],
-        'preStepCount': request.form['preStepCount'],
-        'locationType': request.form['locationType'],
-        'currentTemperature': request.form['currentTemperature'],
-        'notificationsSentToday': request.form['notificationsSentToday']
+        'decisionId': request.form['decisionId']
     }
 
     response = subprocess.run(
@@ -35,9 +46,8 @@ def nightly():
         'userId': request.form['userId'],
         'decisionId': request.form['decisionId']
     }
-
     response = subprocess.run(
-        "Rscript decision.r '%s'" % (json.dumps(input)),
+        "Rscript nightly.r '%s'" % (json.dumps(input)),
         shell=True,
         stdout=subprocess.PIPE,
         universal_newlines=True
