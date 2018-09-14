@@ -13,6 +13,7 @@ import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { HomePageModule } from '../pages/home/home.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationPane } from './notification';
+import { NotificationService } from '@app/notification.service';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { NotificationPane } from './notification';
   providers: [
     StatusBar,
     SplashScreen,
+    NotificationService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
