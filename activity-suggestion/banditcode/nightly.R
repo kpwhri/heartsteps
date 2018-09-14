@@ -182,18 +182,20 @@ if(is.na(engagement.indc)){
 
 
 # variation (cannot be missing) #### TO DO
-variation.indc <- c(T, T, T, T, T)
+variation.indc <- rep(NA, 5)
 
-# for(k in 1:5){
-#  
-#   rollapply(data.history$prepoststeps,
-#             width=7, FUN=sd, align='right',fill=NA)
-#   
-#   Y1 = sd(subset(data.history, decision.time == k)$prepoststeps)
-#   Y0 = sd(subset(data.history, decision.time == k & day < -1)$prepoststeps) # exclude the last day
-#   data.day$variation[k] <- (Y1 >= Y0)
-#   
-# }
+for(k in 1:5){
+
+  
+  temp <- data.history$prepoststeps[data.history$decision.time == k]
+  temp <- rollapply(temp, width=7, FUN=sd, align='right', fill = NA) # rolling sd over past 7 days (including today)
+  temp <- tail(temp, 1+input$studyDay) # exclude the warm-up period
+  
+  Y1 <- temp[length(temp)] # today's sd
+  Y0 <- median(temp[1:(length(temp)-1)]) # median of the past
+  variation.indc[k] <- (Y1 >= Y0)
+
+}
 
 # sqrt steps (can be missing) 
 sqrt.steps <- sqrt(input$totalSteps)
