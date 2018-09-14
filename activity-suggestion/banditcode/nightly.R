@@ -80,13 +80,13 @@ day.history <- data.day$history
 colnames(day.history) <- c("day", "decision.time", 
                            "availability", "probability", "action", "reward",
                            "dosage", "engagement", "work.location", "other.location", "variation",
-                           "temperature", "logpresteps", "sqrt.totalsteps")
+                           "temperature", "logpresteps", "sqrt.totalsteps", "prepoststeps")
 day.history <- data.frame(day.history)
 
 # temperature (should have no missingness, i.e already imputed by HS server; checked before)
 day.history$temperature <- input$temperatureArray
 
-# pre-steps (possibly missing, will impute)
+# log pre-steps (possibly missing, will impute)
 day.history$logpresteps <- log(0.5 + input$preStepsArray)
 
 if(any(is.na(day.history$logpresteps))){
@@ -105,6 +105,44 @@ if(any(is.na(day.history$logpresteps))){
     }
   }
 }
+
+# imputed 60 min steps 
+poststep.temp <- input$postStepsArray
+if(any(is.na(poststep.temp))){
+  
+  for(k in which(is.na(poststep.temp))){
+    
+    # load the previous at most 7 data at the same decision time
+    tmp <- data.imputation$poststeps[[k]]
+    
+    if(all(is.na(tmp)) == FALSE){
+      
+      # if we have something
+      # assuming length(tmp) <= 7
+      poststep.temp[k] <- mean(tmp)
+      
+    }
+  }
+}
+prestep.temp <- input$preStepsArray
+if(any(is.na(prestep.temp))){
+  
+  for(k in which(is.na(prestep.temp))){
+    
+    # load the previous at most 7 data at the same decision time
+    tmp <- data.imputation$presteps[[k]]
+    
+    if(all(is.na(tmp)) == FALSE){
+      
+      # if we have something
+      # assuming length(tmp) <= 7
+      prestep.temp[k] <- mean(tmp)
+      
+    }
+  }
+}
+day.history$prepoststeps <- poststep.temp + prestep.temp
+
 
 # reward (possibly missing, but no imputation)
 day.history$reward <- log(0.5+input$postStepsArray)
@@ -133,7 +171,7 @@ receive.indc <- any(input$priorAnti, input$lastActivity)
 current.dosage <- update.dosage(last.dosage, receive.indc)
 
 # engagement (cannot be missing)
-engagement.indc <- (input$appClick > data.imputation$thres.appclick);
+engagement.indc <- (input$appClick >= data.imputation$thres.appclick);
 if(is.na(engagement.indc)){
   
   # app click data is missing
@@ -141,11 +179,21 @@ if(is.na(engagement.indc)){
   engagement.indc <- (avg.click > data.imputation$thres.appclick)
   
 }
-stopifnot(is.na(engagement.indc) == FALSE)
 
 
-# variation (cannot be missing)
-variation.indc <- c(TRUE, FALSE, TRUE, FALSE, TRUE)
+# variation (cannot be missing) #### TO DO
+variation.indc <- c(T, T, T, T, T)
+
+# for(k in 1:5){
+#  
+#   rollapply(data.history$prepoststeps,
+#             width=7, FUN=sd, align='right',fill=NA)
+#   
+#   Y1 = sd(subset(data.history, decision.time == k)$prepoststeps)
+#   Y0 = sd(subset(data.history, decision.time == k & day < -1)$prepoststeps) # exclude the last day
+#   data.day$variation[k] <- (Y1 >= Y0)
+#   
+# }
 
 # sqrt steps (can be missing) 
 sqrt.steps <- sqrt(input$totalSteps)
@@ -182,11 +230,11 @@ for(i in 1:5){
   
 }
 
-# 60 min steps for last 7 days per decision time (update daily)
+# post steps for last 7 days per decision time (update daily)
 for(i in 1:5){
   
-  prepoststeps <- input$preStepsArray[i] + input$postStepsArray[i]
-  data.imputation$prepoststeps[[i]] <- append.array(data.imputation$prepoststeps[[i]], prepoststeps)
+  poststeps <- input$postStepsArray[i]
+  data.imputation$poststeps[[i]] <- append.array(data.imputation$poststeps[[i]], poststeps)
   
   
 }

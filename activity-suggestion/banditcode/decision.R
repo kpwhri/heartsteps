@@ -116,8 +116,8 @@ if(input$availability){
 
 # add the current decision time
 # Format: day, decision time, avail, prob, action, reward, 
-#         interaction, temp, presteps, sqrtsteps
-# Currently unknown: temperture, log presteps and reward (log poststeps)
+#         interaction, temp, presteps, sqrtsteps, 60minsteps
+# Currently unknown: temperture, log presteps and reward (log poststeps), 60minsteps
 data.day$history <- rbind(data.day$history, c(input$studyDay, 
                                               input$decisionTime, 
                                               input$availability, 
@@ -127,7 +127,8 @@ data.day$history <- rbind(data.day$history, c(input$studyDay,
                                               interaction.terms, 
                                               NA, 
                                               NA, 
-                                              data.day$sqrtsteps)) 
+                                              data.day$sqrtsteps,
+                                              NA)) 
 
 # check if prior action is consistent with system (lastActivity)
 # only need to check when the current decision time > 1 
