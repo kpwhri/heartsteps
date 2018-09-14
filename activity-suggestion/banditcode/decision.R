@@ -15,17 +15,30 @@ source("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/banditcode
 
 setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
 input <- fromJSON(file = "./banditcode/call_5.json")
-# input <- fromJSON(file = "./banditcode/call_5.json")
+
+
+# should not be any missing
+stopifnot(all(lapply(input, is.null)==FALSE))
+# location in (1, 2, 3)
+stopifnot(input$location %in% c(1, 2, 3))
+# availability, priorAnti, lastActivity can only be true or false
+stopifnot(is.logical(input$availability), is.logical(input$priorAnti), is.logical(input$lastActivity))
 
 
 # ================ access the user's dataset ================  
 paths <- paste("./data/", "user", input$userID, sep="")
 
-# daily features and dosage at the begining of the day
+# including daily features and dosage at the begining of the day and the current history
 load(paste(paths, "/daily.Rdata", sep="")) 
 
 # policy related
 load(paste(paths, "/policy.Rdata", sep="")) 
+
+# expect the service will be called every decision time
+if(input$decisionTime > 1){
+  stopifnot(input$decisionTime == max(data.day$history[, 2]) + 1)
+}
+
 
 # ================ create the interaction terms ================ 
 
@@ -37,8 +50,6 @@ if(input$decisionTime == 1){
 }else{
   
   dosage.index <- 7
-  
-  ##### ASSUMPTION: the service will be called every decision time
   last.time <- input$decisionTime - 1
   last.dosage <- data.day$history[last.time, dosage.index]  
   
@@ -67,23 +78,29 @@ interaction.terms <- c(current.dosage,
 # we should not have any missingness here 
 stopifnot(all(is.na(interaction.terms))==FALSE)
 
-# ================  Action Selection ================  
+# ================ action Selection ================  
 if(input$availability){
   
   ## retrieve the current policy from the user's dataset
-  mu <- rep(0, 6)
-  Sigma <- diag(1, 6)
+  mu <- data.policy$mu
+  Sigma <- data.policy$Sigma
   
-  feat <- c(1, interaction.terms)
-  
+  ## create the feature
+  feat <- c(1, std.dosage(interaction.terms[1]), interaction.terms[-1]) 
   pos.mean <- c(feat %*% mu)
   pos.var <- max(0, c(t(feat) %*% Sigma %*% feat))
-  margin <- 0;
-
-  pi_max <- 0.8;
-  pi_min <- 0.1;  
   
+  # forming proxy of value
+  gamma.mdp <- data.policy$gamma.mdp;
+  Q.mat <- data.policy$Q.mat;
+  margin <- gamma.mdp * Q.mat[current.dosage, 1] - gamma.mdp * Q.mat[current.dosage, 2]
+
+  # raw prob
   pit0 <- pnorm((pos.mean-margin)/sqrt(pos.var))
+  
+  # clipping
+  pi_max <- data.policy$pi_max;
+  pi_min <- data.policy$pi_min;  
   prob =  min(c(pi_max, max(c(pi_min, pit0))))
   
   action <- (runif(1) < prob)
@@ -100,7 +117,7 @@ if(input$availability){
 # add the current decision time
 # Format: day, decision time, avail, prob, action, reward, 
 #         interaction, temp, presteps, sqrtsteps
-# Currently unknown: temperture, pre-steps and reward
+# Currently unknown: temperture, log presteps and reward (log poststeps)
 data.day$history <- rbind(data.day$history, c(input$studyDay, 
                                               input$decisionTime, 
                                               input$availability, 
@@ -119,15 +136,14 @@ if(input$decisionTime > 1){
   action.index <- 5
   prob.index <- 4
   
-  ##### ASSUMPTION: the service will be called every decision time
-  last.time <- input$decisionTime-1
+  last.time <- input$decisionTime - 1
   last.action <- data.day$history[last.time, action.index]  
   
   if(input$lastActivity != last.action){
     
     # if inconsistent, 
     # update the action and set the prob to NA to indicate this failure
-    
+    # will be used to update the value function
     data.day$history[last.time, action.index] <- input$lastActivity;
     data.day$history[last.time, prob.index] <- NA; 
     

@@ -24,22 +24,30 @@ for(name in names.array){
   
 }
 
+# check if the length is 5 
+stopifnot(all(lapply(input[names.array], length)==5))
 
-# ================ asscess the day's data ================ 
+# temperature should be imputed by HS server
+stopifnot(all(is.na(input$temperatureArray)) == FALSE)
+
+# priorAnti, lastActivity can only be true or false
+stopifnot(is.logical(input$priorAnti), is.logical(input$lastActivity))
+
+
+# ================ Asscess the day's data ================ 
+
 paths <- paste("./data/", "user", input$userID, sep="")
 load(paste(paths, "/imputation.Rdata", sep=""))
 load(paste(paths, "/daily.Rdata", sep="")) 
 load(paste(paths, "/history.Rdata", sep="")) 
 load(paste(paths, "/policy.Rdata", sep="")) 
 
-# expect to have 5 rows, i.e. call 5 times
+# Expect to have 5 rows, i.e. the decision services are called 5 times
 stopifnot(nrow(data.day$history) == 5)
 
 # ================ Update the daily data ================ 
 
-
 # might need to alter the action in 5th decision time 
-##### ASSUMPTION: the update service will be called after 5th decision time 
 action.index <- 5
 prob.index <- 4
 last.time <- 5
@@ -63,7 +71,7 @@ if(input$lastActivity != last.action){
 # need to fill in: temp, presteps, reward
 
 # Format: day, decision time, avail, prob, action, reward, 
-#         interaction, temp, presteps, sqrtsteps
+#         interaction, temp, LOG presteps, sqrtsteps
 # where interaction is given by
 # c(current.dosage,  engagement.indc,  work.loc, other.loc, variation.indc)
 
@@ -72,19 +80,18 @@ day.history <- data.day$history
 colnames(day.history) <- c("day", "decision.time", 
                            "availability", "probability", "action", "reward",
                            "dosage", "engagement", "work.location", "other.location", "variation",
-                           "temperature", "presteps", "sqrt.totalsteps")
+                           "temperature", "logpresteps", "sqrt.totalsteps")
 day.history <- data.frame(day.history)
 
-# temperature (should have no missingness, i.e already imputed by HS server)
-stopifnot(all(is.na(input$temperatureArray)) == FALSE)
+# temperature (should have no missingness, i.e already imputed by HS server; checked before)
 day.history$temperature <- input$temperatureArray
 
-# pre-steps (possibly missing)
-day.history$presteps <- input$preStepsArray
+# pre-steps (possibly missing, will impute)
+day.history$logpresteps <- log(0.5 + input$preStepsArray)
 
-if(any(is.na(day.history$presteps))){
+if(any(is.na(day.history$logpresteps))){
   
-  for(k in which(is.na(day.history$presteps))){
+  for(k in which(is.na(day.history$logpresteps))){
     
     # load the previous at most 7 data at the same decision time
     tmp <- data.imputation$presteps[[k]]
@@ -93,14 +100,14 @@ if(any(is.na(day.history$presteps))){
       
       # if we have something
       # assuming length(tmp) <= 7
-      day.history$presteps[k] <- mean(tmp)
+      day.history$logpresteps[k] <- log(0.5+mean(tmp))
       
     }
   }
 }
 
 # reward (possibly missing, but no imputation)
-day.history$reward <- input$postStepsArray
+day.history$reward <- log(0.5+input$postStepsArray)
 
 
 
@@ -110,13 +117,14 @@ data.history <- rbind(data.history, day.history)
 
 # ================ update the policy using the updated history ================ 
 
+# note the continous states (temperature, logpresteps, sqrtsteps) are unstandarized
+# there are potential missing data in the reward, prob
+# states are all computed unless no observation for that variable so far 
+# NEEEEED TO STANDADIZE DOSAGE IN THE ANALYSIS
 
 # ================ Re-initialize the daily dataset used for next day ================
 
-## calculate the dosage, engagement, variation, sqrt steps for next day
-
 # calcualte the dosage at the end of day
-##### ASSUMPTION: the service will be called every decision time
 dosage.index <- 7
 last.time <- 5
 last.dosage <- data.day$history[last.time, dosage.index]  
@@ -124,9 +132,7 @@ receive.indc <- any(input$priorAnti, input$lastActivity)
 # update the dosage
 current.dosage <- update.dosage(last.dosage, receive.indc)
 
-
 # engagement (cannot be missing)
-# ASSUMPTION: we have some app lick before the study
 engagement.indc <- (input$appClick > data.imputation$thres.appclick);
 if(is.na(engagement.indc)){
   
@@ -141,7 +147,7 @@ stopifnot(is.na(engagement.indc) == FALSE)
 # variation (cannot be missing)
 variation.indc <- c(TRUE, FALSE, TRUE, FALSE, TRUE)
 
-# sqrt steps (can be missing)  ######### (need to standarize!!!!)
+# sqrt steps (can be missing) 
 sqrt.steps <- sqrt(input$totalSteps)
 if(is.na(sqrt.steps)){
   
@@ -175,6 +181,7 @@ for(i in 1:5){
   data.imputation$presteps[[i]] <- append.array(data.imputation$presteps[[i]], input$preStepsArray[i])
   
 }
+
 # 60 min steps for last 7 days per decision time (update daily)
 for(i in 1:5){
   

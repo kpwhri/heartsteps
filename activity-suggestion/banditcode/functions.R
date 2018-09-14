@@ -43,3 +43,6 @@ append.array = function(x, y){
   }
   
 }
+
+
+std.dosage = function(x) (x-1)/100
