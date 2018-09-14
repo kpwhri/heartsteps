@@ -7,53 +7,31 @@ import subprocess
 
 app = Flask(__name__)
 
-@app.route('/initialize', methods=['POST'])
-def decision():
-    input = {
-        'userId': request.form['userId'],
-        'decisionId': request.form['decisionId']
-    }
-
+def run_r_script(filename, request_object={}):
     response = subprocess.run(
-        "Rscript initialize.r '%s'" % (json.dumps(input)),
+        "Rscript %s '%s'" % (filename, json.dumps(request_object)),
         shell=True,
         stdout=subprocess.PIPE,
         universal_newlines=True
         )
-    
-    return response.stdout
+    try:
+        response_json = json.loads(response.stdout)
+        return json.dumps(response_json)
+    except:
+        return response.stdout, 400
+
+@app.route('/initialize', methods=['POST'])
+def initialize():
+    return run_r_script('initialize.r', request.json)
 
 
 @app.route('/decision', methods=['POST'])
 def decision():
-    input = {
-        'userId': request.form['userId'],
-        'decisionId': request.form['decisionId']
-    }
-
-    response = subprocess.run(
-        "Rscript decision.r '%s'" % (json.dumps(input)),
-        shell=True,
-        stdout=subprocess.PIPE,
-        universal_newlines=True
-        )
-    
-    return response.stdout
+    return run_r_script('decision.r', request.json)
 
 @app.route('/nightly', methods=['POST'])
 def nightly():
-    input = {
-        'userId': request.form['userId'],
-        'decisionId': request.form['decisionId']
-    }
-    response = subprocess.run(
-        "Rscript nightly.r '%s'" % (json.dumps(input)),
-        shell=True,
-        stdout=subprocess.PIPE,
-        universal_newlines=True
-        )
-    
-    return response.stdout
+    return run_r_script('nightly.r', request.json)
 
 
 if __name__ == "__main__":
