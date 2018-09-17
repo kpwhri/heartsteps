@@ -48,6 +48,8 @@ class RecievedMessageView(APIView):
     If the message has already been recieved, the recieved datetime is not
     udpated.
     """
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request):
         serializer = MessageRecieptSerializer(data=request.data)
         if serializer.is_valid():
@@ -58,7 +60,7 @@ class RecievedMessageView(APIView):
 
             try:
                 message_reciept = MessageReciept.objects.get(
-                    message=message,
+                    message = message,
                     type = serializer.validated_data['type']
                     )
             except MessageReciept.DoesNotExist:

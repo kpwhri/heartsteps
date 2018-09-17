@@ -1,9 +1,11 @@
 import requests
 import json
 import uuid
-from django.conf import settings
 
-from push_messages.models import Device, Message
+from django.conf import settings
+from django.utils import timezone
+
+from push_messages.models import Device, Message, MessageReciept, SENT
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -46,6 +48,13 @@ def send(user, request):
         headers = headers,
         json = request
     )
+
+    MessageReciept.objects.create(
+        message = message,
+        type = SENT,
+        time = timezone.now()
+    )
+
     return message
 
 

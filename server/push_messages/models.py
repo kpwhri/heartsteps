@@ -25,14 +25,16 @@ class Message(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+SENT = 'sent'
 RECIEVED = 'recieved'
 OPENED = 'opened'
-CLOSED = 'closed'
+INTERACTED = 'interacted'
 
 MESSAGE_RECIEPT_TYPES = (
+    (SENT, 'Sent'),
     (RECIEVED, 'Recieved'),
     (OPENED, 'Opened'),
-    (CLOSED, 'Closed')
+    (INTERACTED, 'Interacted')
 )
 
 class MessageReciept(models.Model):
