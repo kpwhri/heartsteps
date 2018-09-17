@@ -46,7 +46,8 @@ export class ProfileService {
             this.checkLocationPermission(),
             this.checkPlacesSet(),
             this.checkContactInformation(),
-            this.checkReflectionTime()
+            this.checkReflectionTime(),
+            this.checkFitBitAuthorized()
         ])
         .then((results) => {
             return {
@@ -55,7 +56,8 @@ export class ProfileService {
                 locationPermission: results[2],
                 places: results[3],
                 participantInformation: results[4],
-                weeklyReflectionTime: results[5]
+                weeklyReflectionTime: results[5],
+                fitbitAuth: results[6]
             }
         })
         .catch(() => {
@@ -71,6 +73,10 @@ export class ProfileService {
         .catch(() => {
             return Promise.resolve(false)
         })
+    }
+
+    checkFitBitAuthorized(): Promise<boolean> {
+        return Promise.resolve(false);
     }
 
     checkContactInformation():Promise<boolean> {
