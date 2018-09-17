@@ -11,7 +11,6 @@ urlpatterns = [
     url(r'^api/', include('locations.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('participants.urls')),
-    url(r'^api/fitbit/', include('fitapp.urls')),
     url(r'^api/fitbit/', include('fitbit_api.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'api-auth', include('rest_framework.urls')),

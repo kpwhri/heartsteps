@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from django.contrib.auth.models import User
 
-class MessageDeviceViewTests(APITestCase):
+class FitBitAuthorization(APITestCase):
 
     @patch('fitbit_api.views.redirect')
     @patch('fitbit_api.views.login')
@@ -14,10 +14,14 @@ class MessageDeviceViewTests(APITestCase):
         redirect.return_value = Response({})
         user = User.objects.create(username="test")
 
-        response = self.client.get(reverse('trackers-authorize', kwargs={
+        response = self.client.get(reverse('fitbit-authorize-login', kwargs={
             'username': 'test'
         }))
 
         login.assert_called()
         redirect.assert_called()
+
+    def test_process(self):
+        response = self.client.get(reverse('fitbit-authorize-process'))
+
         
