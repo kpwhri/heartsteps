@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .models import Message, Device, MessageReciept
-from .serializers import DeviceSerializer, MessageRecieptSerializer
+from .models import Message, Device, MessageReceipt
+from .serializers import DeviceSerializer, MessageReceiptSerializer
 
 from django.utils import timezone
 
@@ -51,7 +51,7 @@ class RecievedMessageView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        serializer = MessageRecieptSerializer(data=request.data)
+        serializer = MessageReceiptSerializer(data=request.data)
         if serializer.is_valid():
             message = serializer.validated_data['message']
             
@@ -59,12 +59,12 @@ class RecievedMessageView(APIView):
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
 
             try:
-                message_reciept = MessageReciept.objects.get(
+                message_reciept = MessageReceipt.objects.get(
                     message = message,
                     type = serializer.validated_data['type']
                     )
-            except MessageReciept.DoesNotExist:
-                message_reciept = MessageReciept.objects.create(
+            except MessageReceipt.DoesNotExist:
+                message_reciept = MessageReceipt.objects.create(
                     message = message,
                     type = serializer.validated_data['type'],
                     time = serializer.validated_data['time']

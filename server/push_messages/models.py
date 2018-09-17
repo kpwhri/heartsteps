@@ -37,7 +37,7 @@ MESSAGE_RECIEPT_TYPES = (
     (INTERACTED, 'Interacted')
 )
 
-class MessageReciept(models.Model):
+class MessageReceipt(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(Message)
     

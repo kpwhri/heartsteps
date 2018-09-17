@@ -5,7 +5,7 @@ import uuid
 from django.conf import settings
 from django.utils import timezone
 
-from push_messages.models import Device, Message, MessageReciept, SENT
+from push_messages.models import Device, Message, MessageReceipt, SENT
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 

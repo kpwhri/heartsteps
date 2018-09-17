@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Device, MessageReciept
+from .models import Device, MessageReceipt
 
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ('token', 'type')
 
-class MessageRecieptSerializer(serializers.ModelSerializer):
+class MessageReceiptSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MessageReciept
+        model = MessageReceipt
         fields = ('message', 'time', 'type')
