@@ -1,3 +1,11 @@
-<svg>
-  <rect id="background" />
+<svg class="background">
+  <text x="50%" y="50" class="title bold">
+    HeartSteps 2.0
+  </text>
+  <text x="50%" y="100">
+    HeartSteps integration status
+  </text>
+  <text x="50%" y="140" class="bold" id="hs-integration">
+    disabled
+  </text>
 </svg>

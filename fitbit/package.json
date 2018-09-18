@@ -1,19 +1,22 @@
 {
-  "name": "heartsteps",
+  "name": "fitbit-heartsteps",
   "version": "0.1.0",
   "private": true,
   "license": "UNLICENSED",
   "devDependencies": {
-    "@fitbit/sdk": "~1.0.0",
-    "@fitbit/sdk-cli": "^1.0.0"
+    "@fitbit/sdk": "~1.0.2",
+    "@fitbit/sdk-cli": "^1.0.1"
   },
   "fitbit": {
-    "appUUID": "8b8881f5-0bfe-439b-8555-c16a679c5666",
+    "appUUID": "39992ebd-00e7-4cee-bf48-67af6d0b725a",
     "appType": "app",
-    "appDisplayName": "Heartsteps",
+    "appDisplayName": "HeartSteps 2.0",
     "iconFile": "resources/icon.png",
-    "wipeColor": "#ffffff",
-    "requestedPermissions": [],
+    "wipeColor": "#0000ff",
+    "requestedPermissions": [
+      "access_internet",
+      "access_location"
+    ],
     "buildTargets": [
       "higgs",
       "meson"
