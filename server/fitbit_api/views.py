@@ -1,6 +1,6 @@
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.conf import settings
 
@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from fitapp.utils import create_fitbit
 
 from push_messages.functions import send_notification
+
+from fitbit_api.models import FitbitAccount
 
 
 @api_view(['GET'])
@@ -35,6 +37,8 @@ def authorize(request, username):
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated, ))
 def authorize_process(request):
+    user = request.user
+
     if 'code' in request.GET['code']:
         code = request.GET['code']
         fitbit = create_fitbit()
@@ -43,24 +47,27 @@ def authorize_process(request):
             access_token = token['access_token']
             fitbit_user = token['user_id']
         except KeyError:
-            send_notification(request.user, 'HeartSteps Fit Authentication', 'There was a problem authenticating with you FitBit account')
+            send_notification(request.user, 'HeartSteps Fit Authentication', 'There was a problem authenticating with you FitBit account', data={
+                'fitbit_id': None
+            })
+            return redirect(reverse('fitbit-authorize-complete'))
         
-        fitbit_user = UserFitbit.objects.update_or_create(user=request.user, defaults={
+        fitbit_account, _ = FitbitAccount.objects.update_or_create(user=user, defaults={
             'fitbit_user': fitbit_user,
             'access_token': access_token,
             'refresh_token': token['refresh_token'],
             'expires_at': token['expires_at']
         })
 
-        send_notification(user, 'HeartSteps Fit Authentication', 'Your FitBit account has been authenticated', {
-            'fitbit_id': fitbit_user
+        send_notification(user, 'HeartSteps Fit Authentication', 'Your FitBit account has been authenticated', data={
+            'fitbit_id': fitbit_account.fitbit_user
         })
-
         return redirect(reverse('fitbit-authorize-complete'))
-    
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated, ))
 def authorize_complete(request):
-    return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    return render(request, 'fitbit/index.html', {
+        authorized: True
+    })
