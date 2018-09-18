@@ -6,6 +6,7 @@ chardet==3.0.4
 Django==1.11.13
 django-celery-beat==1.1.1
 django-celery-results==1.0.1
+django-cors-headers==2.4.0
 django-environ==0.4.4
 django-filter==1.1.0
 django-fitbit==0.3.0

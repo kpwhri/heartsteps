@@ -1,4 +1,5 @@
 import os, environ
+from corsheaders.defaults import default_headers
 
 env = environ.Env()
 
@@ -23,6 +24,11 @@ FITAPP_VERIFICATION_CODE = env('FITAPP_VERIFICATION_CODE', default='VERIFICATION
 
 ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split(',')
 
+# Allow JavaScript to return Authorization-Token from Participant#EnrollView
+CORS_ALLOW_HEADERS = default_headers + (
+    'Authorization-Token',
+)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'contact',
+    'coresheaders',
     'fitapp',
     'fitbit_api',
     'behavioral_messages',
@@ -55,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

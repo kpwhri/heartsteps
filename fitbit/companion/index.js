@@ -25,6 +25,7 @@ function updateEntryCode(key, val) {
     // If the user is authenticated
     // Pass entryCode as enrollmentToken to server
     let entryCode = {enrollmentToken: JSON.parse(val).name};
+    let heartsteps_id = '';
     const url = "https://heartsteps-kpwhri.appspot.com/api/enroll/";
     fetch(url, {
       method: "POST",
@@ -35,15 +36,12 @@ function updateEntryCode(key, val) {
       }
     })
     .then(function(response) {
-      console.log("Looping headers?");
-      for (var h of response.headers) {
-        console.log(h);
-      };
-      console.log(response.headers.get('Authorization-Token'));
+      console.log(response.headers.get('Content-Type'));
       return response.json();
     })
-    .then(function(myJson){
-      console.log(JSON.stringify(myJson));
+    .then(function(jsonBody){
+      heartsteps_id = jsonBody["heartstepsId"];
+      console.log(`ID: ${heartsteps_id}`);
     })
     .catch(error => console.error('Error: ', error))
     if (entryCode == "111111") {
