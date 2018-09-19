@@ -20,8 +20,10 @@ export class FitbitService {
         return new Promise((resolve, reject) => {
             const notificationSubscription = this.notificationService.onMessage().subscribe((payload: any) => {
                 if(payload.fitbit_id) {
-                    this.storage.set(storageKey, payload.fitbit_id);
-                    resolve(true);
+                    this.storage.set(storageKey, payload.fitbit_id)
+                    .then(() => {
+                        resolve(true);
+                    });
                 } else {
                     reject(false);
                 }
@@ -34,15 +36,19 @@ export class FitbitService {
     }
 
     isAuthorized(): Promise<boolean> {
-        return this.storage.get(storageKey)
-        .then((fitbitId) => {
-            if(fitbitId) {
-                return true;
-            } else {
-                return Promise.reject(false);
-            }
+        return new Promise((resolve, reject) => {
+            this.storage.get(storageKey)
+            .then((fitbitId) => {
+                if(fitbitId) {
+                    resolve(true);
+                } else {
+                    reject(false);
+                }
+            })
+            .catch(() => {
+                reject(false);
+            })
         });
     }
-
 
 }
