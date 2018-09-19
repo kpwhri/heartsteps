@@ -1,0 +1,10 @@
+{
+  "userID": 1,
+  "decisionID": 12345,
+  "studyDay": 1,
+  "decisionTime": 1,
+  "availability": true,
+  "priorAnti": false,
+  "lastActivity": false,
+  "location": 1
+}
