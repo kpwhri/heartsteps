@@ -2,14 +2,21 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
-from fitapp.models import UserFitbit
+class FitbitAccount(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
-class FitbitAccount(UserFitbit):
-    class Meta:
-        app_label = 'fitbit_api'
+    user = models.OneToOneField(User)
+    fitbit_user = models.CharField(max_length=32, unique=True)
+
+    access_token = models.TextField(help_text='The OAuth2 access token')
+    refresh_token = models.TextField(help_text='The OAuth2 refresh token')
+    expires_at = models.FloatField(help_text='The timestamp when the access token expires')
+
+    def __str__(self):
+        return self.user
 
 class FitbitSubscription(models.Model):
-    id = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     
     fitbit_account = models.ForeignKey(FitbitAccount)
     active = models.BooleanField(default=False)

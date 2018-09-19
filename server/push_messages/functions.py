@@ -49,7 +49,7 @@ def send(user, request):
         json = request
     )
 
-    MessageReciept.objects.create(
+    MessageReceipt.objects.create(
         message = message,
         type = SENT,
         time = timezone.now()

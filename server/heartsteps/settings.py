@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'contact',
     'corsheaders',
-    'fitapp',
     'fitbit_api',
     'behavioral_messages',
     'morning_messages',
