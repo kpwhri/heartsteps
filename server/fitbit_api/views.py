@@ -22,16 +22,20 @@ def authorize(request, username):
         except User.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         login(request, user)
-
-        complete_url = request.build_absolute_uri(reverse('fitbit-authorize-process'))
-        if not settings.DEBUG and 'https://' not in complete_url:
-            complete_url = complete_url.replace('http://', 'https://')
-
-        fitbit = create_fitbit()
-        authorize_url, security_token = fitbit.client.authorize_token_url(redirect_uri=complete_url)
-        
-        return redirect(authorize_url)
+        return redirect(reverse('fitbit-authorize-redirect'))
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated, ))
+def authorize_redirect(request):
+    complete_url = request.build_absolute_uri(reverse('fitbit-authorize-process'))
+    if not settings.DEBUG and 'https://' not in complete_url:
+        complete_url = complete_url.replace('http://', 'https://')
+
+    fitbit = create_fitbit()
+    authorize_url, security_token = fitbit.client.authorize_token_url(redirect_uri=complete_url)
+
+    return redirect(authorize_url)
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated, ))
