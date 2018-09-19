@@ -13,7 +13,7 @@ library(zoo, warn.conflicts=FALSE)
 
 if(server){
   
-  source("./banditcode/functions.R")
+  source("functions.R")
   args <- commandArgs(trailingOnly = TRUE)[1]
   input = fromJSON(args) # this is a list
   

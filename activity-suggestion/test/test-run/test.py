@@ -1,7 +1,8 @@
 import requests
 import json
 
-# initial
+# initialize bandit
+
 with open('start.json') as json_file:  
     data = json.load(json_file)
 
@@ -11,8 +12,10 @@ headers = {'Content-Type': "application/json"}
 response = requests.request("POST", url, data=payload, headers=headers)
 print(response.text)
 
+# run the bandit 
 
-for day in range(10):
+ndays = 2
+for day in range(ndays):
     
     for dt in range(5):
         
