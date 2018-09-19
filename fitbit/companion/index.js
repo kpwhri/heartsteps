@@ -30,13 +30,16 @@ function updateEntryCode(key, val) {
     fetch(url, {
       method: "POST",
       body: JSON.stringify(entryCode),
-      mode: 'cors',
       headers: {
         'Content-Type': 'application/json'
       }
     })
     .then(function(response) {
       console.log(response.headers.get('Content-Type'));
+      for(let header of response.headers){
+         console.log(header);
+      }
+      console.log(response.headers.get('Authorization-Token'));
       return response.json();
     })
     .then(function(jsonBody){

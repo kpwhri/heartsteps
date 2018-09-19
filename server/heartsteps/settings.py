@@ -28,6 +28,7 @@ ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split
 CORS_ALLOW_HEADERS = default_headers + (
     'Authorization-Token',
 )
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
