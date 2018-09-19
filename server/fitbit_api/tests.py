@@ -9,8 +9,10 @@ from fitbit.api import FitbitOauth2Client
 
 class FitbitAuthorizationTest(APITestCase):
 
+    @patch('fitbit_api.views.redirect')
     @patch('fitbit_api.views.login')
-    def test_authorize(self, login):
+    def test_authorize(self, login, redirect):
+        redirect.return_value = Response({})
         user = User.objects.create(username="test")
 
         response = self.client.get(reverse('fitbit-authorize-login', kwargs={
@@ -18,9 +20,7 @@ class FitbitAuthorizationTest(APITestCase):
         }))
 
         login.assert_called()
-        
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('fitbit-authorize-redirect'))
+        redirect.assert_called()
 
     def mock_access_token(self, code):
         return {
