@@ -1,6 +1,5 @@
 {
   "userID": 1,
-  "decisionID": 12345,
   "studyDay": 1,
   "decisionTime": 1,
   "availability": true,
