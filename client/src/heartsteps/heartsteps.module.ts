@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 
-import { HeartstepsNotifications } from './heartsteps-notifications.service';
+import { NotificationService } from './notification.service';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { ParticipantService } from './participant.service';
 import { ActivitySuggestionTimeService } from './activity-suggestion-time.service';
@@ -20,7 +20,7 @@ import { FitbitService } from '@heartsteps/fitbit.service';
     ],
     providers: [
         ContactInformationService,
-        HeartstepsNotifications,
+        NotificationService,
         ParticipantService,
         ProfileService,
         ActivitySuggestionTimeService,

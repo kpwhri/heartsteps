@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HeartstepsNotifications } from "./heartsteps-notifications.service";
+import { NotificationService } from "./notification.service";
 import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places.service";
@@ -12,7 +12,7 @@ import { FitbitService } from "@heartsteps/fitbit.service";
 export class ProfileService {
 
     constructor(
-        private notificationService:HeartstepsNotifications,
+        private notificationService: NotificationService,
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private geolocationService:GeolocationService,
         private placesService:PlacesService,

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BrowserService } from "@infrastructure/browser.service";
-import { HeartstepsNotifications } from "@heartsteps/heartsteps-notifications.service";
+import { NotificationService } from "@heartsteps/notification.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Storage } from "@ionic/storage";
 
@@ -10,7 +10,7 @@ const storageKey: string = 'fitbit-id'
 export class FitbitService {
 
     constructor(
-        private notificationService: HeartstepsNotifications,
+        private notificationService: NotificationService,
         private heartstepsServer: HeartstepsServer,
         private browser: BrowserService,
         private storage: Storage

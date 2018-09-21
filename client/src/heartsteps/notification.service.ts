@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
-import { FcmService } from '../infrastructure/fcm';
 import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
 import { Observable } from 'rxjs/Observable';
+import { PushService } from '@infrastructure/push.service';
 
 @Injectable()
-export class HeartstepsNotifications {
+export class NotificationService {
 
     constructor(
-        private fcmService:FcmService,
+        private pushService: PushService,
         private heartstepsServer:HeartstepsServer
     ){
-        this.onMessage().subscribe((message:any) => {
-            this.logMessage(message.messageId, 'recieved')
-        })
+        // this.onMessage().subscribe((message:any) => {
+        //     this.logMessage(message.messageId, 'recieved')
+        // })
 
-        this.onDataMessage().subscribe((data:any) => {
-            this.logMessage(data.messageId, 'recieved')
-        })
+        // this.onDataMessage().subscribe((data:any) => {
+        //     this.logMessage(data.messageId, 'recieved')
+        // })
     }
 
     logMessage(messageId:string, type:string) {
@@ -28,29 +28,19 @@ export class HeartstepsNotifications {
     }
 
     isEnabled():Promise<boolean> {
-        return this.fcmService.isEnabled()
+        // return this.fcmService.isEnabled()
+        return Promise.reject("Not implemented");
     }
 
     enable():Promise<boolean> {
-        return this.fcmService.getPermission()
-        .then(() => {
-            return this.fcmService.getToken()
-        })
-        .then(token => {
-            return this.updateToken(token)
-        })
-        .then(() => {
-            return Promise.resolve(true);
-        })
-        .catch(() => {
-            return Promise.reject(false);
-        })
+        this.pushService.setup();
+        return Promise.reject("Meow!")
     }
 
     updateToken(token:string):Promise<boolean> {
         return this.heartstepsServer.post('messages/device', {
             token: token,
-            type: this.fcmService.getDeviceType()
+            // type: this.fcmService.getDeviceType()
         })
         .then(() => {
             return Promise.resolve(true)
@@ -61,10 +51,12 @@ export class HeartstepsNotifications {
     }
 
     onMessage():Observable<any> {
-        return this.fcmService.onMessage();
+        return new Observable();
+        // return this.fcmService.onMessage();
     }
 
     onDataMessage():Observable<any> {
-        return this.fcmService.onDataMessage();
+        return new Observable();
+        // return this.fcmService.onDataMessage();
     }
 }

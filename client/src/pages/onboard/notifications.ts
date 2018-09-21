@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HeartstepsNotifications } from '../../heartsteps/heartsteps-notifications.service';
+import { NotificationService } from '@heartsteps/notification.service';
 import { NavController } from 'ionic-angular';
 import { loadingService } from '../../infrastructure/loading.service';
 
@@ -11,13 +11,13 @@ export class NotificationsPage {
 
     constructor(
         private navCtrl:NavController,
-        private heartstepsNotifications:HeartstepsNotifications,
+        private notificationService: NotificationService,
         private loadingService:loadingService
     ) {}
 
     getPermission() {
         this.loadingService.show("Getting permission")
-        this.heartstepsNotifications.enable()
+        this.notificationService.enable()
         .then(() => {
             this.loadingService.dismiss()
             this.navCtrl.pop()
