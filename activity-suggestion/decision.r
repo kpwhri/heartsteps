@@ -19,9 +19,9 @@ if(server){
   
 }else{
   
-  source("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/banditcode/functions.R")
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
-  input <- fromJSON(file = "./banditcode/call_6.json")
+  source("functions.R")
+  input <- fromJSON(file = "./test/test-run/call_2_5.json")
   
 }
 
@@ -37,7 +37,6 @@ if(input$decisionTime == 1){
   
   stopifnot(input$lastActivity==FALSE)
 }
-
 
 # ================ access the user's dataset ================  
 paths <- paste("./data/", "user", input$userID, sep="")
