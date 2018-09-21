@@ -6,6 +6,7 @@ import { AuthorizationService } from './authorization.service';
 import { loadingService } from './loading.service';
 import { Geolocation } from '@ionic-native/geolocation';
 import { LocationService } from './location.service';
+import { BrowserService } from '@infrastructure/browser.service';
 
 @NgModule({
   declarations: [],
@@ -19,7 +20,8 @@ import { LocationService } from './location.service';
       HeartstepsServer,
       loadingService,
       Geolocation,
-      LocationService
+      LocationService,
+      BrowserService
   ]
 })
 export class InfrastructureModule {}

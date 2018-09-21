@@ -1,7 +1,6 @@
 {
   "userID": 1,
-  "decisionID": 12345,
-  "studyDay": 3,
+  "studyDay": 1,
   "priorAnti": false,
   "lastActivity": false,
   "temperatureArray": [

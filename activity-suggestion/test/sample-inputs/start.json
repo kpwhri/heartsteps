@@ -7,23 +7,20 @@
     10,
     10,
     0,
-    9,
-    null
+    9
   ],
   "totalStepsArray": [
     12310,
     10000,
-    1010,
+    null,
     10000,
     10000,
     11111,
-    22222,
-    123
+    22222
   ],
   "availMatrix": [
     {
-      "day": 1,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -32,8 +29,7 @@
       ]
     },
     {
-      "day": 2,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -42,8 +38,7 @@
       ]
     },
     {
-      "day": 3,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -52,8 +47,7 @@
       ]
     },
     {
-      "day": 4,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -62,8 +56,7 @@
       ]
     },
     {
-      "day": 5,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -72,8 +65,7 @@
       ]
     },
     {
-      "day": 6,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -82,18 +74,7 @@
       ]
     },
     {
-      "day": 7,
-      "availArray": [
-        true,
-        false,
-        true,
-        false,
-        true
-      ]
-    },
-    {
-      "day": 8,
-      "availArray": [
+      "avail": [
         true,
         false,
         true,
@@ -102,9 +83,73 @@
       ]
     }
   ],
+  "temperatureMatrix": [
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    },
+    {
+      "temp": [
+        30,
+        33.4,
+        8.5,
+        23.9,
+        38.1
+      ]
+    }
+  ], 
   "preStepsMatrix": [
     {
-      "day": 1,
       "steps": [
         null,
         2,
@@ -114,7 +159,6 @@
       ]
     },
     {
-      "day": 2,
       "steps": [
         123,
         243,
@@ -124,7 +168,6 @@
       ]
     },
     {
-      "day": 3,
       "steps": [
         103,
         1232,
@@ -134,7 +177,6 @@
       ]
     },
     {
-      "day": 4,
       "steps": [
         100,
         2,
@@ -144,7 +186,6 @@
       ]
     },
     {
-      "day": 5,
       "steps": [
         1100,
         23,
@@ -154,7 +195,6 @@
       ]
     },
     {
-      "day": 6,
       "steps": [
         100,
         2,
@@ -164,29 +204,17 @@
       ]
     },
     {
-      "day": 7,
       "steps": [
         100,
         2,
         null,
         30,
         100
-      ]
-    },
-    {
-      "day": 8,
-      "steps": [
-        null,
-        2,
-        null,
-        30,
-        10
       ]
     }
   ],
   "postStepsMatrix": [
     {
-      "day": 1,
       "steps": [
         100,
         2,
@@ -196,7 +224,6 @@
       ]
     },
     {
-      "day": 2,
       "steps": [
         100,
         2,
@@ -206,7 +233,6 @@
       ]
     },
     {
-      "day": 3,
       "steps": [
         null,
         21,
@@ -216,53 +242,39 @@
       ]
     },
     {
-      "day": 4,
       "steps": [
         null,
         2,
-        null,
+        0,
         30,
         null
       ]
     },
     {
-      "day": 5,
+      "steps": [
+        100,
+        2,
+        1,
+        30,
+        100
+      ]
+    },
+    {
+      "steps": [
+        100,
+        2,
+        15,
+        30,
+        100
+      ]
+    },
+    {
       "steps": [
         100,
         2,
         null,
         30,
         100
-      ]
-    },
-    {
-      "day": 6,
-      "steps": [
-        100,
-        2,
-        null,
-        30,
-        100
-      ]
-    },
-    {
-      "day": 7,
-      "steps": [
-        100,
-        2,
-        null,
-        30,
-        100
-      ]
-    },
-    {
-      "day": 8,
-      "steps": [
-        null,
-        2,
-        null,
-        30,
-        10
       ]
     }
   ]

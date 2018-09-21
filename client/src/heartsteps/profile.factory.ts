@@ -5,6 +5,7 @@ import { LocationService as GeolocationService } from "@infrastructure/location.
 import { PlacesService } from "@heartsteps/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/reflection-time.service";
+import { FitbitService } from "@heartsteps/fitbit.service";
 
 
 @Injectable()
@@ -16,7 +17,8 @@ export class ProfileService {
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
-        private reflectionTimeService: ReflectionTimeService
+        private reflectionTimeService: ReflectionTimeService,
+        private fitbitService: FitbitService
     ) {}
 
     isComplete():Promise<boolean> {
@@ -76,7 +78,13 @@ export class ProfileService {
     }
 
     checkFitBitAuthorized(): Promise<boolean> {
-        return Promise.resolve(false);
+        return this.fitbitService.isAuthorized()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
     }
 
     checkContactInformation():Promise<boolean> {

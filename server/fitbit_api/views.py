@@ -8,10 +8,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitapp.utils import create_fitbit
-
 from push_messages.functions import send_notification
 
+from fitbit_api.utils import create_fitbit
 from fitbit_api.models import FitbitAccount
 
 

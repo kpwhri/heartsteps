@@ -1,0 +1,7 @@
+{
+    "ios": {
+        "buildFlag": [
+            "-UseModernBuildSystem=0"
+        ]
+    }
+}
