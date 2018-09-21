@@ -15,56 +15,46 @@ library(rjson)
 if(server){
   
   source("functions.R")
+  load("bandit-spec.Rdata")
   args <- commandArgs(trailingOnly = TRUE)[1]
   input = fromJSON(args) # this is a list
-  
+   
 }else{
   
-  source("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/banditcode/functions.R")
+
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
-  input <- fromJSON(file = "./banditcode/start.json")
+  source("functions.R")
+  load("bandit-spec.Rdata")
+  
+  input <- fromJSON(file = "./test/test-run/start.json")
   
 }
 
 
 # convert NULL to NA and tranform into vector/matrix
 names.array <- c("appClicksArray", "totalStepsArray")
-names.matrix <- c("availMatrix", "preStepsMatrix", "postStepsMatrix")
+names.matrix <- c("availMatrix", "temperatureMatrix", "preStepsMatrix", "postStepsMatrix")
 for(name in names.array) input[[name]] <- proc.array(input[[name]])
 for(name in names.matrix) input[[name]] <- proc.matrix(input[[name]])
   
 # check if we have identical days' data for each variables
-len.all <- NULL
-for(name in names.array){
-  
-  len.all <- c(len.all, length(input[[name]]))
-  
-  
-}
-for(name in names.matrix){
-  
-  len.all <- c(len.all, nrow(input[[name]]))
-  
-  
-}
+len.all <- c(sapply(names.array, function(x) length(input[[x]])), 
+             sapply(names.matrix, function(x) nrow(input[[x]])))
 stopifnot(all(diff(len.all) == 0))
 
-# number of days before the study
-ndays <- len.all[1]
+# number of days before the study (assuing 7 days)
+ndays <- as.numeric(len.all[1])
 stopifnot(ndays == 7)
 
-# check if we have all five datas for the matrics
-ncol.all <- NULL
-for(name in names.matrix){
-  
-  ncol.all <- c(ncol.all, ncol(input[[name]]))
-  
-  
-}
+# check if we have all five decision times for the matrics
+ncol.all <- sapply(names.matrix, function(x) ncol(input[[x]]))
 stopifnot(ncol.all == 5)
 
 # ensure availability is logicial (no missing)
 stopifnot(all(c(input$availMatrix) %in% c(0, 1)))
+
+# ensure temperature is imputed by the server
+stopifnot(all(is.na(input$temperatureMatrix)==FALSE))
 
 # need to ensure we have app clicks data 
 stopifnot(all(is.na(input$appClicksArray)) == FALSE)
@@ -73,7 +63,8 @@ stopifnot(all(is.na(input$appClicksArray)) == FALSE)
 stopifnot(all(apply(input$preStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
 stopifnot(all(apply(input$postStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
 
-
+# need to ensure we have at least one obvervation for the total steps (so that we can impute)
+stopifnot(all(is.na(input$totalStepsArray)) == FALSE)
 
 # ===  Initialize a Dataset for imputation and discretization === ####
 
@@ -136,8 +127,8 @@ for(i in 1:5){
 # ===== Initialize the Policy ====== ####
 data.policy <- list()
 
-# this will be used to select the action on the first day. 
-# contains: posterior mean and variance, value function, pi_min and pi_max
+# This contains the policy used to select the action during the day
+# posterior mean and variance, value function, pi_min and pi_max
 # FORMAT:
 # intercept
 # (standarized) current.dosage,  
@@ -146,12 +137,13 @@ data.policy <- list()
 # other.loc, 
 # variation.indc
 
-data.policy$mu <- rep(0, 6)
-data.policy$Sigma <- diag(1, 6)
-data.policy$pi_max <- 0.8;
-data.policy$pi_min <- 0.1;
-data.policy$gamma.mdp <- 0.9;
-data.policy$Q.mat <- matrix(0, 100, 2);
+interaction.index <- bandit.spec$policy.index # include the intercept
+data.policy$mu <- bandit.spec$prior.mean[interaction.index]
+data.policy$Sigma <- bandit.spec$prior.var[interaction.index, interaction.index]
+data.policy$pi_min <- bandit.spec$pi_min;
+data.policy$pi_max <- bandit.spec$pi_max;
+data.policy$gamma.mdp <- bandit.spec$gamma.mdp;
+data.policy$Q.mat <- bandit.spec$init.Q.mat
 
 
 # ===== Create a holder to save the entire (imputated and unstandarized) history ====== ####
@@ -165,7 +157,7 @@ data.history <- matrix(NA, nrow = 5*ndays, ncol = length(var.names))
 colnames(data.history) <- var.names
 data.history <- data.frame(data.history)
 
-# just fill in the variables might be used later (avail, action, reward)
+# just fill in the variables might be used later (avail, action, reward, cts variables)
 data.history$day <- -rep(ndays:1, each = 5) # negative represents before the study
 data.history$decision.time <- rep(1:5, times = ndays)
 data.history$availability <- c(t(input$availMatrix))
@@ -173,54 +165,24 @@ data.history$probability <- 0;
 data.history$action <- 0;
 data.history$dosage <- 1;
 data.history$reward <- log(0.5 + c(t(input$postStepsMatrix)))
+data.history$temperature <- c(t(input$temperatureMatrix))
 
 # the imputed pre and post steps using cumulative averages
 # if the first one is missing, then use the total average
-
 prestep.mat <- NULL # column: decision time
-for(k in 1:5){
-  
-  temp <- input$preStepsMatrix[, k]
-  
-  if(is.na(temp[1])){
-    
-    temp[[1]] <- mean(temp, na.rm = TRUE)
-    
-  }
-  
-  for(i in 2:ndays){
-    
-    temp[i] <- mean(temp[1:i], na.rm = TRUE)
-    
-  }
-  
-  prestep.mat <- cbind(prestep.mat, temp)
-  
-  
-}
-
 poststep.mat <- NULL # column: decision time
 for(k in 1:5){
   
-  temp <- input$postStepsMatrix[, k]
-  
-  if(is.na(temp[1])){
-    
-    temp[[1]] <- mean(temp, na.rm = TRUE)
-    
-  }
-  
-  for(i in 2:ndays){
-    
-    temp[i] <- mean(temp[1:i], na.rm = TRUE)
-    
-  }
-  
-  poststep.mat <- cbind(poststep.mat, temp)
-  
-  
+  prestep.mat <- cbind(prestep.mat, warmup.imput(input$preStepsMatrix[, k]))
+  poststep.mat <- cbind(poststep.mat, warmup.imput(input$postStepsMatrix[, k]))
 }
 data.history$prepoststeps <- c(t(prestep.mat + poststep.mat))
+data.history$logpresteps <- log(0.5 + c(t(prestep.mat)))
+
+# imputed total steps
+data.history$sqrt.totalsteps <- sqrt(warmup.imput(input$totalStepsArray) )
+
+
 
 # =====  Data Holder for the first day ==== ####
 # study day / dosage on the first decision time / engagement indicator yesterday / 
