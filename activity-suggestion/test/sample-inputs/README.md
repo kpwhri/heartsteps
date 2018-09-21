@@ -179,7 +179,7 @@ The *nightly* service has no output except for a message indicating successful u
 
 7. `totalSteps`
 
-	- the total numbers of steps colloected from the track in each day ***[What is the eact definition? Is it the step counts from 12:00 am to 11:59 pm?]***
+	- the total numbers of steps colloected from the track in each day ***[What is the exact definition? Is it the step counts from 12:00 am to 11:59 pm?]***
 	-  When missing ***[What are the reasons for this missingness? What if there is some period of time without tracker data, would it be considered as missing?]*** , set to `null`. Again,being missing is different from having zero step.
 
 8. `preStepsArray` and `postStepsArray`
