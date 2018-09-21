@@ -25,7 +25,16 @@ The *initialize* service has no output except for a message indicating successfu
 		{"avail":[true,false,true,false,true]},
 		{"avail":[true,false,true,false,true]},
 		{"avail":[true,false,true,false,true]}],
-
+		
+	"temperatureMatrix":[
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]},
+		{"temp":[30,33.4,8.5,23.9,38.1]}],
+		
 	"preStepsMatrix":[
 		{"steps":[null,[2],null,[30],[10]]},
 		{"steps":[123,243,1231,30,100]},
@@ -59,14 +68,16 @@ The *initialize* service has no output except for a message indicating successfu
 	- When any of these numbers are missing ***[What are the reasons for this missingness? What if there is some period of time without tracker data, would it be considered as missing?]*** , set to `null`. Again,being missing is different from having zero step. 
 4. `availMatrix`
 
-	- A matrix of availability indicators at each of five decision times during the 7-day warm up period. The first element corresponds to the five availability indicators (in chronological order) in the first day and so on.  
+	- A matrix of availability indicators at each of the five decision times during the 7-day warm up period. The first element corresponds to the five availability indicators (in chronological order) in the first day and so on.  
 	- Each avaiability can only be either `true` or `false`.  
 
+5. `temperatureMatrix`
+	-  A matrix of the temperatures (in Celsius degree) at each of the five locations during the 7-day warm up period. The first element corresponds to the five temperatures  (in chronological order) in the first day and so on.  
+	- If any of the temperatures is unknown, then use the average temperature at home and work location at the corresponding decision time ***[Please confirm if that is plan]***
 	
-5. `preStepsMatrix` and `postStepsMatrix`
+6. `preStepsMatrix` and `postStepsMatrix`
 	- `preStepsMatrix` is a matrix of step counts collected 30 min prior to each of five decision times during the 7-day warm up period. The first element corresponds to the five pre-treatment step counts (in chronological order) in the first day and so on.  `postStepsMatrix` is for the step count 30 min after each decision time. 
 	- If any of these step count are missing ***[What are the reasons for this missingness?]***, use `null`. Here missing is not same as no step count which should be 0 in the input.  ***[My understanding is that the tracker can distinguish between "no step count" and "no wearing the tracker" using the heartrate. Is that the case?]***
-
 
  
 ## 2. Decision Making
