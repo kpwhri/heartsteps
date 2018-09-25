@@ -156,7 +156,7 @@ data.history <- rbind(data.history, day.history)
 std.history <- data.history
 std.history$dosage <- sapply(data.history$dosage, std.dosage)
 std.history$temperature <- winsor(data.history$temperature, beta = 3, range = c(-15.6, 36.1))
-std.history$logpresteps <- winsor.upp(data.history$logpresteps, beta = 3, range = c(log(0.5), 8.60))
+std.history$logpresteps <- winsor.upp(data.history$logpresteps, beta = 3, range = c(log(0.5), 8.60), min.val = log(0.5))
 std.history$sqrt.totalsteps <- winsor(data.history$sqrt.totalsteps, beta = 3, range = c(0, 209))
 
 # modify the NA prob (due to inconsistency). 

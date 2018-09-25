@@ -106,7 +106,7 @@ winsor = function (x, beta=3, range = c(1, 10)){
 }
 
 
-winsor.upp = function (x, beta=3, range = c(1, 10)){
+winsor.upp = function (x, beta=3, range = c(1, 10), min.val){
   
   stopifnot(all(is.na(x)==FALSE))
   # compute the winsor scores
@@ -116,7 +116,7 @@ winsor.upp = function (x, beta=3, range = c(1, 10)){
   
   # let the minimal untouched
   x.copy <- x
-  index <- which(x > min(x))
+  index <- which(x > min.val)
   
   #
   x <- x[index]
