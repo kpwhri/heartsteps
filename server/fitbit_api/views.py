@@ -13,6 +13,17 @@ from rest_framework.response import Response
 from fitbit_api.utils import create_fitbit
 from fitbit_api.models import FitbitAccount, AuthenticationSession
 
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def fitbit_account(request):
+    try:
+        account = FitbitAccount.objects.get(user=request.user)
+    except FitbitAccount.DoesNotExist:
+        return Response({}, status=status.HTTP_404_NOT_FOUND)
+    return Response({
+        'fitbit': account.fitbit_user
+    }, status=status.HTTP_OK)
+
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def authorize_start(request):

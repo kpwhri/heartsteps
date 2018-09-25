@@ -15,7 +15,7 @@ export class FitbitService {
     ) {}
 
     private getAuthorizationToken(): Promise<string> {
-        return this.heartstepsServer.post(this.heartstepsServer.makeUrl('fitbit/authorize/generate'), {})
+        return this.heartstepsServer.post('fitbit/authorize/generate', {})
         .then((response) => {
             console.log(response.token);
             return response.token;
@@ -40,7 +40,11 @@ export class FitbitService {
     }
 
     updateAuthorization(): Promise<string> {
-        return Promise.resolve('1234')
+        return this.heartstepsServer.get('fitbit/account')
+        .then((response) => {
+            console.log(response.fitbit);
+            return this.storage.set(storageKey, response.fitbit);
+        });
     }
 
     isAuthorized(): Promise<boolean> {

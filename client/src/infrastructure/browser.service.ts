@@ -22,7 +22,7 @@ export class BrowserService {
                 return this.openInAppBrowser(url)
             })
         } else {
-            return this.openInAppBrowser(url)
+            return this.openInBrowser(url)
         }
     }
 
@@ -57,15 +57,22 @@ export class BrowserService {
 
     private openInAppBrowser(url: string): Promise<boolean> {
         return new Promise((resolve) => {
-            let target: string = "_blank";
-            if(this.platform.is('ios') || this.platform.is('android')) {
-                target = "_system";
-            }
-            const browser: InAppBrowserObject = this.inAppBrowser.create(url, target);
+            const browser: InAppBrowserObject = this.inAppBrowser.create(url, "_system");
 
             browser.on('close').subscribe(() => {
                 resolve(true);
+            });
+        });
+    }
+
+    private openInBrowser(url: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            const browser: Window = window.open(url)
+
+            browser.addEventListener('close', () => {
+                console.log("closing browser")
+                resolve();
             })
-        })
+        });
     }
 }
