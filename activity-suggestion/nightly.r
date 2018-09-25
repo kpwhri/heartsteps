@@ -212,7 +212,7 @@ if(bandit.spec$weight.vec[input$studyDay] > 0){
     # restrict to the available, non-missing reward
     # batch version of posterior calculation
     wm <- posterior.cal(train.dat[index.set, ], 
-                        mu0 = bandit.spec$prior.mean.txt, Sigma0 = bandit.spec$prior.var.txt, sigma = bandit.spec$sigma,
+                        mu0 = bandit.spec$prior.mean.txt, Sigma0 = bandit.spec$prior.var.txt, sigma = bandit.spec$sigma.txt,
                         int.names = c("dosage"),
                         nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps", "engagement", "work.location", "other.location", "variation"))
     
@@ -242,7 +242,7 @@ if(bandit.spec$weight.vec[input$studyDay] > 0){
     wm = posterior.cal.mar (train.dat[index.set,], 
                             mu0 = bandit.spec$prior.mean.base, 
                             Sigma0 = bandit.spec$prior.var.base, 
-                            sigma = bandit.spec$sigma)
+                            sigma = bandit.spec$sigma.base.avail)
     
     theta.base = wm$mu
     
@@ -263,7 +263,7 @@ if(bandit.spec$weight.vec[input$studyDay] > 0){
     wm = posterior.cal.mar (train.dat[index.set,], 
                             mu0 = bandit.spec$prior.mean.unavail, 
                             Sigma0 = bandit.spec$prior.var.unavail, 
-                            sigma = bandit.spec$sigma)
+                            sigma = bandit.spec$sigma.unavail)
     
     theta.unavail = wm$mu
     
