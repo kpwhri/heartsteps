@@ -8,6 +8,9 @@ import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
 import { PushService } from '@infrastructure/push.service';
 import { Push } from '@ionic-native/push';
+import { SafariViewController } from '@ionic-native/safari-view-controller';
+import { InAppBrowser } from '@ionic-native/in-app-browser';
+
 
 @NgModule({
   declarations: [],
@@ -23,6 +26,8 @@ import { Push } from '@ionic-native/push';
       Geolocation,
       LocationService,
       BrowserService,
+      SafariViewController,
+      InAppBrowser,
       Push
   ]
 })

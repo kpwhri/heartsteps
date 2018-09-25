@@ -95,5 +95,6 @@
     </edit-config>
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="phonegap-plugin-push" spec="~2.2.3" />
+    <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
     <engine name="android" spec="7.0.0" />
 </widget>
