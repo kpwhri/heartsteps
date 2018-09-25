@@ -70,7 +70,7 @@ warmup.imput = function(x){
   return(new)
 }
 
-std.dosage = function(x) (x-1)/100
+std.dosage = function(x) (x-1)/(100-1)
 
 winsor = function (x, beta=3, range = c(1, 10)){
   
@@ -90,6 +90,51 @@ winsor = function (x, beta=3, range = c(1, 10)){
   
   # re-scale
   z <- med + y * sd
+  
+  # scale based on min and max if range is supplied
+  if(is.null(range) == FALSE){
+    
+    min = range[1]
+    max = range[2]
+    z <- (z-min)/(max - min)
+    
+  }
+  
+  
+  return(z)
+  
+}
+
+
+winsor.upp = function (x, beta=3, range = c(1, 10)){
+  
+  stopifnot(all(is.na(x)==FALSE))
+  # compute the winsor scores
+  # beta is the threshold parameter
+  # range is the pre-specified min and max (if null, then just replacing the outliers)
+  
+  
+  # let the minimal untouched
+  x.copy <- x
+  index <- which(x > min(x))
+  
+  #
+  x <- x[index]
+  
+  # standarize by median and mad (med abs dev)
+  med <- median(x)
+  sd <- mad(x)
+  y <- (x-med)/sd
+  
+  # threshold
+  y[ y > beta ] <- beta
+  
+  # re-scale
+  z <- med + y * sd
+  
+  # 
+  x.copy[index] <- z
+  z <- x.copy;
   
   # scale based on min and max if range is supplied
   if(is.null(range) == FALSE){
