@@ -25,11 +25,7 @@ class FitbitAuthorizationTest(APITestCase):
         session = AuthenticationSession.objects.get(user=user, token=response.data['token'])
         self.assertIsNotNone(session)
 
-    @patch('fitbit_api.views.redirect')
-    @patch('fitbit_api.views.login')
-    def test_authorize(self, login, redirect):
-        redirect.return_value = Response({})
-        
+    def test_authorize(self):
         user = User.objects.create(username="test")
         session = AuthenticationSession.objects.create(user=user)
 
@@ -37,8 +33,7 @@ class FitbitAuthorizationTest(APITestCase):
             'token': str(session.token)
         }))
 
-        login.assert_called()
-        redirect.assert_called()
+        self.assertEqual(response.status_code, 302)
 
     def test_authorize_fails(self):
         response = self.client.get(reverse('fitbit-authorize-login', kwargs={

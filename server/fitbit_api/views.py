@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -31,7 +30,6 @@ def authorize(request, token):
             session = AuthenticationSession.objects.get(token=token, disabled=False, created__gt=valid_time)
         except AuthenticationSession.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-        login(request, session.user)
 
         complete_url = request.build_absolute_uri(reverse('fitbit-authorize-process'))
         if not settings.DEBUG and 'https://' not in complete_url:
