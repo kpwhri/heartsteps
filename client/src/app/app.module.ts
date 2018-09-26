@@ -38,8 +38,7 @@ import { NotificationService } from '@app/notification.service';
   providers: [
     StatusBar,
     SplashScreen,
-    NotificationService,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    NotificationService
   ]
 })
 export class AppModule {}

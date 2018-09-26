@@ -1,15 +1,15 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
-import { InAppBrowser, InAppBrowserObject } from '@ionic-native/in-app-browser';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
+
+declare var cordova;
 
 @Injectable()
 export class BrowserService {
 
     constructor(
         private platform: Platform,
-        private safariViewController: SafariViewController,
-        private inAppBrowser: InAppBrowser
+        private safariViewController: SafariViewController
     ) {}
 
     open(url: string): Promise<boolean> {
@@ -19,7 +19,7 @@ export class BrowserService {
                 return this.openInSafari(url)
             })
             .catch(() => {
-                return this.openInAppBrowser(url)
+                return Promise.reject("Opening browser not supported")
             })
         } else {
             return this.openInBrowser(url)
@@ -48,19 +48,10 @@ export class BrowserService {
                 url: url
             })
             .subscribe((result) => {
+                console.log(result)
                 if(result.event === 'closed') {
                     resolve();
                 }
-            });
-        });
-    }
-
-    private openInAppBrowser(url: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            const browser: InAppBrowserObject = this.inAppBrowser.create(url, "_system");
-
-            browser.on('close').subscribe(() => {
-                resolve(true);
             });
         });
     }

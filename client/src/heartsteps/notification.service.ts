@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
 import { Observable } from 'rxjs/Observable';
-import { PushService } from '@infrastructure/push.service';
+import { PushService, Device } from '@infrastructure/push.service';
 
 @Injectable()
 export class NotificationService {
@@ -28,26 +28,48 @@ export class NotificationService {
     }
 
     isEnabled():Promise<boolean> {
-        // return this.fcmService.isEnabled()
-        return Promise.reject("Not implemented");
+        return this.pushService.getDevice()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.reject("No device registered");
+        })
     }
 
     enable():Promise<boolean> {
-        this.pushService.setup();
-        return Promise.reject("Meow!")
+        console.log("start notification service setup")
+        return this.pushService.setup()
+        .then(() => {
+            console.log("notification service: SETUP")
+            this.watchDeviceUpdate();
+            return true;
+        })
+        .catch(() => {
+            console.log("Notification service rejected!")
+            return Promise.reject("Meow!");
+        })
     }
 
-    updateToken(token:string):Promise<boolean> {
+    watchDeviceUpdate() {
+        console.log("watching device");
+        this.pushService.device.subscribe((device: Device) => {
+            console.log("updating device");
+            this.updateDevice(device);
+        })
+    }
+
+    updateDevice(device: Device):Promise<boolean> {
         return this.heartstepsServer.post('messages/device', {
-            token: token,
-            // type: this.fcmService.getDeviceType()
+            token: device.token,
+            type: device.type
         })
         .then(() => {
             return Promise.resolve(true)
         })
         .catch(() => {
             return Promise.reject(false)
-        })
+        });
     }
 
     onMessage():Observable<any> {

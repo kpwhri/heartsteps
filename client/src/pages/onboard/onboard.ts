@@ -16,24 +16,24 @@ import { WeeklyReflectionTimePage } from '@pages/settings/weekly-reflection-time
 import { ParticipantService } from '@heartsteps/participant.service';
 
 const onboardingSteps = [{
-    //     key: 'participantInformation',
-    //     screen: ParticipantInformationPage
-    // }, {
-    //     key: 'notificationsEnabled',
-    //     screen: NotificationsPage
-    // }, {
-    //     key: 'weeklyReflectionTime',
-    //     screen: WeeklyReflectionTimePage
-    // }, {
-    //     key: 'activitySuggestionTimes',
-    //     screen: ActivitySuggestionTimes
-    // }, {
-    //     key: 'locationPermission',
-    //     screen: LocationPermissionPane
-    // }, {
-    //     key: 'places',
-    //     screen: PlacesListPage
-    // }, {
+        key: 'participantInformation',
+        screen: ParticipantInformationPage
+    }, {
+        key: 'notificationsEnabled',
+        screen: NotificationsPage
+    }, {
+        key: 'weeklyReflectionTime',
+        screen: WeeklyReflectionTimePage
+    }, {
+        key: 'activitySuggestionTimes',
+        screen: ActivitySuggestionTimes
+    }, {
+        key: 'locationPermission',
+        screen: LocationPermissionPane
+    }, {
+        key: 'places',
+        screen: PlacesListPage
+    }, {
         key: 'fitbitAuth',
         screen: FitbitAuthPage
     }, {
