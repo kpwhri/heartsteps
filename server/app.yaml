@@ -2,18 +2,6 @@ runtime: custom
 env: flex
 service: heartsteps-server
 
-env_variables:
-  DEBUG: True
-  HOST_NAME: heartsteps-kpwhri.appspot.com
-  SECRET_KEY: ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o
-  DATABASE_URL: psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
-  FCM_SERVER_KEY: AAAAC9Cu-5M:APA91bEzy1tI3Ml_ROJGmABfdC5PJvpcCA2LqH4aRaHqBw4EDcViLkaTpgnDu1pY6kb79gSDcl_oTFAMLC4FgMiKgIx7GI0P4FgqDWfXYXW6sdq9B05WRmY91FXRsIriKNNa6x2IFWYC
-  FITAPP_CONSUMER_KEY: 22CY6Y
-  FITAPP_CONSUMER_SECRET: 8946c18e05b01acc82dd9947e39583c9
-  FITAPP_SUBSCRIBE: True
-  FITAPP_SUBSCRIBER_ID: 1
-  FITAPP_VERIFICATION_CODE: 41cc924fedb3f59d8f6f044bf28967f05a74c6e980ad0d985f1562864952ea33
-
 beta_settings:
   cloud_sql_instances: heartsteps-kpwhri:us-west2:heartsteps-dev
 

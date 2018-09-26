@@ -9,8 +9,8 @@ services:
       - ./credentials:/config
   server:
     build: ./server
-    environment:
-      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
+    env_file:
+      - .env-production
     command: python3 manage.py runserver 0.0.0.0:8080
     volumes:
       - ./server:/server

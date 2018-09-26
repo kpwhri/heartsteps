@@ -15,6 +15,8 @@ script:
 - docker-compose run client ionic build --prod
 
 after_success:
+- cp .env-production server/.env
+- cp .env-production client/.env
 # move client files into server
 - cp -r client/www static/app
 # collect static files for server
