@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.utils import create_fitbit
+from fitbit_api.utils import create_fitbit, create_callback_url
 from fitbit_api.models import FitbitAccount, AuthenticationSession
 
 @api_view(['GET'])
@@ -42,12 +42,9 @@ def authorize(request, token):
         except AuthenticationSession.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
 
-        complete_url = request.build_absolute_uri(reverse('fitbit-authorize-process'))
-        if 'https://' not in complete_url:
-            complete_url = complete_url.replace('http://', 'https://')
-
         fitbit = create_fitbit()
-        authorize_url, state = fitbit.client.authorize_token_url(redirect_uri=complete_url)
+        callback_url = create_callback_url(request)
+        authorize_url, state = fitbit.client.authorize_token_url(redirect_uri=callback_url)
         
         session.state = state
         session.save()
@@ -75,7 +72,8 @@ def authorize_process(request):
         code = request.GET['code']
         fitbit = create_fitbit()
         try:
-            token = fitbit.client.fetch_access_token(code)
+            callback_url = create_callback_url(request)
+            token = fitbit.client.fetch_access_token(code, redirect_uri=callback_url)
             access_token = token['access_token']
             fitbit_user = token['user_id']
             refresh_token = token['refresh_token']
