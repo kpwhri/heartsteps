@@ -43,7 +43,7 @@ def authorize(request, token):
             return Response({}, status=status.HTTP_404_NOT_FOUND)
 
         complete_url = request.build_absolute_uri(reverse('fitbit-authorize-process'))
-        if not settings.DEBUG and 'https://' not in complete_url:
+        if 'https://' not in complete_url:
             complete_url = complete_url.replace('http://', 'https://')
 
         fitbit = create_fitbit()
