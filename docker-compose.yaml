@@ -12,6 +12,7 @@ services:
     command: honcho start web_dev celery rabbitmq
     volumes:
       - ./server:/server
+      - ./credentials:/credentials
     ports:
       - "8080:8080"
     depends_on:
@@ -24,6 +25,7 @@ services:
     volumes:
       - ./client:/client
       - client-node-modules:/client/node_modules
+      - ./credentials:/credentials
     ports:
       - "8100:8100"
       - "35729:35729"
