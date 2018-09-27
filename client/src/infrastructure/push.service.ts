@@ -34,6 +34,7 @@ export class PushService {
     private pushObject: PushObject;
 
     public device: BehaviorSubject<Device>;
+    public message: Subject<any>;
 
     constructor(
         private push: Push,
@@ -78,14 +79,11 @@ export class PushService {
 
     setup(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            console.log("Push service setup");
             this.setupPushObject()
 
             const subscription:Subscription = this.pushObject.on('registration').subscribe((data) => {
-                console.log("registration setup");
                 this.handleRegistration(data)
                 .then(() => {
-                    console.log("recieved permission!")
                     subscription.unsubscribe();
                     this.setupHandlers();
                     resolve(true);
@@ -97,10 +95,7 @@ export class PushService {
     setupPushObject() {
         const options:PushOptions = {
             ios: {
-                alert: 'true',
-                badge: true,
-                sound: 'false',
-                fcmSandbox: true
+                voip: true
             }
         }
         this.pushObject = this.push.init(options);
@@ -108,13 +103,13 @@ export class PushService {
 
     setupHandlers() {
         this.pushObject.on('registration').subscribe((data) => {
-            console.log("Registration recieved....")
             this.handleRegistration(data);
         });
         
         this.pushObject.on('notification').subscribe((data) => {
             console.log("This is a notificattion");
             console.log(data);
+            this.handleNotification(data);
         });
     }
 
@@ -174,7 +169,7 @@ export class PushService {
         });
     }
 
-    private handleNotification() {
-
+    private handleNotification(data: any) {
+        this.message.next(data);
     }
 }

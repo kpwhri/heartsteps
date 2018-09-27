@@ -60,11 +60,13 @@ export class NotificationService {
     }
 
     updateDevice(device: Device):Promise<boolean> {
+        console.log("sending device to heartsteps...")
         return this.heartstepsServer.post('messages/device', {
             token: device.token,
             type: device.type
         })
         .then(() => {
+            console.log("device update sent");
             return Promise.resolve(true)
         })
         .catch(() => {
