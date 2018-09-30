@@ -1,29 +1,29 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
-import firebase from 'firebase/app';
-import 'firebase/messaging';
-import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
 import { Storage } from '@ionic/storage';
 import {BehaviorSubject, Subscription} from 'rxjs';
-
-
-import { Push, PushObject, PushOptions } from '@ionic-native/push';
+import { OneSignal, OSNotification, OSNotificationOpenedResult, OSPermissionSubscriptionState } from '@ionic-native/onesignal';
 
 declare var process: {
     env: {
-        FIREBASE_MESSAGING_SENDER_ID: string
+        FIREBASE_MESSAGING_SENDER_ID: string,
+        ONE_SIGNAL_APP_ID: string
     }
 }
 
-const storageKey: string = 'fcm-token'
+const firebaseId: string = process.env.FIREBASE_MESSAGING_SENDER_ID;
+const oneSignalAppId: string = process.env.ONE_SIGNAL_APP_ID;
+const storageKey: string = 'fcm-token';
 
 export class Device {
 
+    public oneSignalId: string;
     public token: string;
     public type: string;
 
-    constructor(token: string, type: string) {
+    constructor(oneSignalId: string, token: string, type: string) {
+        this.oneSignalId = oneSignalId;
         this.token = token;
         this.type = type;
     }
@@ -31,145 +31,111 @@ export class Device {
 
 @Injectable()
 export class PushService {
-    private pushObject: PushObject;
-
-    public device: BehaviorSubject<Device>;
+    public device: BehaviorSubject<Device|null>;
     public message: Subject<any>;
 
     constructor(
-        private push: Push,
+        private oneSignal: OneSignal,
         private platform: Platform,
         private storage: Storage
     ) {
+        this.device = new BehaviorSubject(null);
+
         this.platform.ready()
         .then(() => {
-            return this.getDevice()    
+            return this.getDevice()
         })
         .then((device) => {
-            this.device = new BehaviorSubject(device);
+            this.device.next(device);
         })
         .then(() => {
-            return this.push.hasPermission()
-        })
-        .then((data) => {
-            if(data.isEnabled) {
-                this.setupPushObject();
-                this.setupHandlers();
-            } else {
-                console.log("No push permission");
-            }
+            console.log("Set up onesignal");
+            this.oneSignal.setLogLevel({
+                logLevel: 4,
+                visualLevel: 1
+            });
+            return this.setup();
         });
     }
 
-    hasPermission(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            this.push.hasPermission()
-            .then((data: any) => {
-                if(data.isEnabled) {
-                    resolve(true);
-                } else {
-                    reject(false);
-                }
-            })
-            .catch(() => {
-                reject(false);
-            })
-        })
+    getPermission(): Promise<boolean> {
+        return this.oneSignal.promptForPushNotificationsWithUserResponse()
+        .then((value) => {
+            if(value) {
+                return Promise.resolve(true);
+            } else {
+                return Promise.reject("No permission granted");
+            }
+        });
     }
 
     setup(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            this.setupPushObject()
-
-            const subscription:Subscription = this.pushObject.on('registration').subscribe((data) => {
-                this.handleRegistration(data)
-                .then(() => {
-                    subscription.unsubscribe();
-                    this.setupHandlers();
-                    resolve(true);
-                });
+        return new Promise((resolve) => {
+            console.log("Firebase Id: " + firebaseId);
+            console.log("AppId: " + oneSignalAppId);
+            this.oneSignal.startInit(oneSignalAppId, firebaseId);
+            this.oneSignal.iOSSettings({
+                kOSSettingsKeyAutoPrompt: false,
+                kOSSettingsKeyInAppLaunchURL: false
             });
+            this.oneSignal.handleNotificationReceived().subscribe((data: OSNotification) => {
+                console.log("Got a notification!!");
+                this.handleNotification(data);
+            })
+            this.oneSignal.handleNotificationOpened().subscribe((data: OSNotificationOpenedResult) => {
+                console.log("Got opened notification");
+                this.handleNotification(data);
+            })
+            this.oneSignal.addPermissionObserver().subscribe((data: any) => {
+                console.log("Permission Changed!");
+                this.updatePermissions();
+            })
+
+            this.oneSignal.endInit();
+
+            resolve(true);
         })
     }
 
-    setupPushObject() {
-        const options:PushOptions = {
-            ios: {
-                voip: true
-            }
-        }
-        this.pushObject = this.push.init(options);
-    }
-
-    setupHandlers() {
-        this.pushObject.on('registration').subscribe((data) => {
-            this.handleRegistration(data);
-        });
-        
-        this.pushObject.on('notification').subscribe((data) => {
-            console.log("This is a notificattion");
-            console.log(data);
-            this.handleNotification(data);
+    updatePermissions() {
+        this.oneSignal.getIds().then((data: any) => {
+            const device = new Device(
+                data.userId,
+                data.pushToken,
+                'ios'
+            );
+            this.saveDevice(device);
         });
     }
 
     getDevice(): Promise<Device> {
-        return new Promise((resolve, reject) => {
-            this.storage.get(storageKey)
-            .then((data: any) => {
-                if(data) {
-                    const device = new Device(data.token, data.type);
-                    resolve(device);
-                } else {
-                    reject();
-                }
-            })
-            .catch(() => {
-                reject();
-            })
-        });
+        return this.storage.get(storageKey)
+        .then((data: any) => {
+            if(!data) {
+                return Promise.reject("No device");
+            }
+            return Promise.resolve(new Device(
+                data.oneSignalId,
+                data.token,
+                data.string
+            ));
+        })
     }
 
-    private handleRegistration(data: any): Promise<boolean> {
-        const newDevice:Device = new Device(
-            data.registrationId,
-            data.registrationType
-        );
-        return new Promise((resolve) => {
-            this.getDevice()
-            .then((device: Device) => {
-                if(newDevice.token && device.token !== newDevice.token) {
-                    return this.updateDevice(newDevice);
-                } else {
-                    console.log("Already saved device");
-                    resolve(true);
-                }
-            })
-            .catch(() => {
-                return this.updateDevice(newDevice);
-            })
-            .then(() => {
-                return resolve(true);
-            });
-        });
-    }
-
-    private updateDevice(device: Device): Promise<boolean> {
+    saveDevice(device: Device): Promise<boolean> {
         return this.storage.set(storageKey, {
+            oneSignalId: device.oneSignalId,
             token: device.token,
             type: device.type
-        })
-        .then(() => {
-            if(this.device) {
-                this.device.next(device);
-            } else {
-                this.device = new BehaviorSubject(device)
-            }
-            return true;
         });
+    }
+
+    deleteDevice(): Promise<boolean> {
+        return this.storage.remove(storageKey);
     }
 
     private handleNotification(data: any) {
+        console.log(data);
         this.message.next(data);
     }
 }

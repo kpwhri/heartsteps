@@ -7,9 +7,9 @@ import { Geolocation } from '@ionic-native/geolocation';
 import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
 import { PushService } from '@infrastructure/push.service';
-import { Push } from '@ionic-native/push';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
+import { OneSignal } from '@ionic-native/onesignal';
 
 
 @NgModule({
@@ -28,7 +28,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser';
       BrowserService,
       SafariViewController,
       InAppBrowser,
-      Push
+      OneSignal
   ]
 })
 export class InfrastructureModule {}

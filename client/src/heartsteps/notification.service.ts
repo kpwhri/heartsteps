@@ -10,13 +10,7 @@ export class NotificationService {
         private pushService: PushService,
         private heartstepsServer:HeartstepsServer
     ){
-        // this.onMessage().subscribe((message:any) => {
-        //     this.logMessage(message.messageId, 'recieved')
-        // })
-
-        // this.onDataMessage().subscribe((data:any) => {
-        //     this.logMessage(data.messageId, 'recieved')
-        // })
+        this.watchDeviceUpdate();
     }
 
     logMessage(messageId:string, type:string) {
@@ -38,24 +32,20 @@ export class NotificationService {
     }
 
     enable():Promise<boolean> {
-        console.log("start notification service setup")
-        return this.pushService.setup()
+        return this.pushService.getPermission()
         .then(() => {
-            console.log("notification service: SETUP")
-            this.watchDeviceUpdate();
             return true;
         })
         .catch(() => {
-            console.log("Notification service rejected!")
-            return Promise.reject("Meow!");
+            return Promise.reject("Notifications not enabled");
         })
     }
 
     watchDeviceUpdate() {
-        console.log("watching device");
         this.pushService.device.subscribe((device: Device) => {
-            console.log("updating device");
-            this.updateDevice(device);
+            if(device) {
+                this.updateDevice(device);
+            }
         })
     }
 
