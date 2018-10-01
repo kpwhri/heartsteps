@@ -1,33 +1,162 @@
 from unittest.mock import patch
 from django.test import TestCase
+import requests
 
 from django.contrib.auth.models import User
 
-from push_messages.models import Message, Device
-from push_messages.functions import send_notification, send_data
+from push_messages.models import Message, Device, MessageReceipt, SENT
+from push_messages.services import PushMessageService, FirebaseMessageService, DeviceMissingError, MessageSendError
 
-class MessageSendTest(TestCase):
+class TestPushMessageService(TestCase):
 
     def make_user(self):
         user = User.objects.create(username="test")
         Device.objects.create(
             user = user,
             token = 'example-token',
-            type = 'web',
+            type = 'android',
             active = True
         )
         return user
 
-    # @patch('requests.post')
-    # def test_send_notification(self, request_post):
-    #     user = self.make_user()
-    #     # send_notification(user, "Example Title", "Example Body")
+    def test_no_user(self):
+        user = User.objects.create(username="test")
 
-    #     # request_post.assert_called()
+        errored = False
+        try:
+            push_message_service = PushMessageService(user)
+        except DeviceMissingError:
+            errored = True
 
-    # @patch('requests.post')
-    # def test_send_data(self, request_post):
-    #     user = self.make_user()
-    #     # send_data(user, {'some': 'data'})
+        self.assertTrue(errored)
 
-    #     # request_post.assert_called()
+    def test_gets_user_device(self):
+        user = self.make_user()
+
+        push_message_service = PushMessageService(user)
+
+        self.assertIsNotNone(push_message_service.device)
+
+    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    def test_sends_notification(self, send):
+        user = self.make_user()
+        push_message_service = PushMessageService(user)
+
+        result = push_message_service.send_notification("Example message")
+
+        self.assertTrue(result)
+        message = Message.objects.get(recipient=user)
+        self.assertEqual(message.external_id, "example-uuid")
+        self.assertEqual(str(message.id), send.call_args[0][0]['data']['messageId'])
+
+    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    def test_sends_data(self, send):
+        user = self.make_user()
+        push_message_service = PushMessageService(user)
+
+        result = push_message_service.send_data({
+            'some': 'data',
+            'example': 1234
+        })
+
+        self.assertTrue(result)
+        message = Message.objects.get(recipient=user)
+        self.assertEqual(message.external_id, "example-uuid")
+        self.assertEqual(str(message.id), send.call_args[0][0]['data']['messageId'])
+
+    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    def test_makes_message_receipt(self, send):
+        user = self.make_user()
+        push_message_service = PushMessageService(user)
+
+        push_message_service.send_notification("Hello World")
+
+        message_receipt = MessageReceipt.objects.get(message__recipient=user)
+        self.assertEqual(message_receipt.type, SENT)
+
+    def raise_message_failure(self, request):
+        raise MessageSendError
+
+    @patch.object(FirebaseMessageService, 'send', raise_message_failure)
+    def test_handles_message_send_failure(self):
+        user = self.make_user()
+        push_message_service = PushMessageService(user)
+
+        result = push_message_service.send_notification("Hello World")
+        
+        self.assertFalse(result)
+
+        message = Message.objects.get(recipient=user)
+        self.assertIsNone(message.external_id)
+        self.assertEqual(MessageReceipt.objects.filter(message=message).count(), 0)
+
+class TestFirebaseMessageService(TestCase):
+
+    def make_service(self):
+        user = User.objects.create(username="test")
+        device = Device.objects.create(
+            user = user,
+            type = 'android',
+            token = 'example-token',
+            active = True
+        )
+        return FirebaseMessageService(device)
+
+    def successful_send(url, headers, json):
+        class MockResponse():
+            status_code = 200
+            def json(self):
+                return {
+                    'multicast_id': 'example-id',
+                    'success': 1,
+                    'failure': 0
+                }
+        return MockResponse()
+
+    @patch.object(requests, 'post', successful_send)
+    def test_send(self):
+        firebase_message_service = self.make_service()
+
+        message_id = firebase_message_service.send({})
+
+        self.assertEqual(message_id, 'example-id')
+
+    def failed_send(url, headers, json):
+        class MockResponse():
+            status_code = 200
+            def json(self):
+                return {
+                    'multicast_id': 'meh',
+                    'success': 0,
+                    'failure': 1
+                }
+        return MockResponse()
+
+    @patch.object(requests, 'post', failed_send)
+    def test_send_fails(self):
+        firebase_message_service = self.make_service()
+
+        failed = False
+        try:
+            firebase_message_service.send({})
+        except MessageSendError:
+            failed = True
+        
+        self.assertTrue(failed)
+
+    def test_format_data(self):
+        firebase_message_service = self.make_service()
+
+        formatted_request = firebase_message_service.format_data({})
+
+        self.assertIn('data', formatted_request)
+    
+    def test_format_notification(self):
+        firebase_message_service = self.make_service()
+
+        formatted_request = firebase_message_service.format_notification("Hello World", "Title", {'example': 'data'})
+
+        self.assertIn('data', formatted_request)
+        self.assertEqual('Hello World', formatted_request['data']['notification']['body'])
+        self.assertEqual('Title', formatted_request['data']['notification']['title'])
+        self.assertEqual('data', formatted_request['data']['example'])
