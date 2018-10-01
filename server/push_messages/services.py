@@ -7,13 +7,60 @@ from django.utils import timezone
 
 from push_messages.models import User, Device, Message, MessageReceipt, SENT
 
+FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
+ONESIGNAL_SEND_URL = 'https://onesignal.com/api/v1/notifications'
+
 class DeviceMissingError(Exception):
     """User doesn't have a registered or active device."""
 
 class MessageSendError(Exception):
     """Raised when message fails to send"""
 
-FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
+class OnesignalMessageService():
+    """
+    Sends Push Notifications to OneSignal
+    """
+
+    def __init__(self, device):
+        self.device = device
+
+    def send(self, request):
+        header = {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Basic ZTM5ZjkyMTMtYTE1NC00NjhmLWFlMzMtNjc4NWU2ZWE2Mzk1'
+        }
+
+        request['app_id'] = '10532feb-86e3-44e1-9c78-658f0bdb1f3b'
+        request['include_player_ids'] = [device.token]
+
+        response = requests.post(
+            ONESIGNAL_SEND_URL,
+            headers = headers,
+            json = request
+        )
+
+        if response.status_code == 200:
+            json = response.json()
+            return json.id
+        raise MessageSendError()
+
+    def format_notification(self, body, title, data):
+        return {
+            'contents': {
+                'en': body
+            },
+            'headings': {
+                'en': title
+            },
+            'data': data
+        }
+
+    def format_data(self, data):
+        return {
+            'data': data,
+            'content_available': True
+        }
+
 
 class FirebaseMessageService():
     """
@@ -82,7 +129,10 @@ class PushMessageService():
         self.user = user
         self.device = self.get_device_for_user(self.user)
         # map methods depending on device type.
-        self._service = FirebaseMessageService(self.device)
+        if self.device.type == 'onesignal':
+            self._service = OnesignalMessageService(self.device)
+        else:
+            self._service = FirebaseMessageService(self.device)
 
     def get_device_for_user(self, user):
         try:
