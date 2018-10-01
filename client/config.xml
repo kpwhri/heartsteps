@@ -93,10 +93,10 @@
         <string>Your location will be used to tailor activity suggestions</string>
     </edit-config>
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
-    <plugin name="phonegap-plugin-push" spec="~2.2.3" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="comnickreidheartsteps" />
     </plugin>
+    <plugin name="onesignal-cordova-plugin" spec="^2.4.4" />
     <engine name="android" spec="7.0.0" />
 </widget>
