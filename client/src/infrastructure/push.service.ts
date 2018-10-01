@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { Subject } from "rxjs/Subject";
-import { Storage } from '@ionic/storage';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import { OneSignal, OSNotification, OSNotificationOpenedResult, OSPermissionSubscriptionState } from '@ionic-native/onesignal';
 
@@ -14,16 +13,13 @@ declare var process: {
 
 const firebaseId: string = process.env.FIREBASE_MESSAGING_SENDER_ID;
 const oneSignalAppId: string = process.env.ONE_SIGNAL_APP_ID;
-const storageKey: string = 'fcm-token';
 
 export class Device {
 
-    public oneSignalId: string;
     public token: string;
     public type: string;
 
-    constructor(oneSignalId: string, token: string, type: string) {
-        this.oneSignalId = oneSignalId;
+    constructor(token: string, type: string) {
         this.token = token;
         this.type = type;
     }
@@ -36,20 +32,12 @@ export class PushService {
 
     constructor(
         private oneSignal: OneSignal,
-        private platform: Platform,
-        private storage: Storage
+        private platform: Platform
     ) {
         this.device = new BehaviorSubject(null);
 
         this.platform.ready()
         .then(() => {
-            return this.getDevice()
-        })
-        .then((device) => {
-            this.device.next(device);
-        })
-        .then(() => {
-            console.log("Set up onesignal");
             this.oneSignal.setLogLevel({
                 logLevel: 4,
                 visualLevel: 1
@@ -71,8 +59,6 @@ export class PushService {
 
     setup(): Promise<boolean> {
         return new Promise((resolve) => {
-            console.log("Firebase Id: " + firebaseId);
-            console.log("AppId: " + oneSignalAppId);
             this.oneSignal.startInit(oneSignalAppId, firebaseId);
             this.oneSignal.iOSSettings({
                 kOSSettingsKeyAutoPrompt: false,
@@ -101,40 +87,13 @@ export class PushService {
         this.oneSignal.getIds().then((data: any) => {
             const device = new Device(
                 data.userId,
-                data.pushToken,
-                'ios'
+                'onesignal'
             );
-            this.saveDevice(device);
+            this.device.next(device);
         });
     }
 
-    getDevice(): Promise<Device> {
-        return this.storage.get(storageKey)
-        .then((data: any) => {
-            if(!data) {
-                return Promise.reject("No device");
-            }
-            return Promise.resolve(new Device(
-                data.oneSignalId,
-                data.token,
-                data.string
-            ));
-        })
-    }
-
-    saveDevice(device: Device): Promise<boolean> {
-        return this.storage.set(storageKey, {
-            oneSignalId: device.oneSignalId,
-            token: device.token,
-            type: device.type
-        });
-    }
-
-    deleteDevice(): Promise<boolean> {
-        return this.storage.remove(storageKey);
-    }
-
-    private handleNotification(data: any) {
+    handleNotification(data: any) {
         console.log(data);
         this.message.next(data);
     }
