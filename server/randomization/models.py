@@ -11,7 +11,7 @@ from locations.factories import get_last_user_location, determine_location_type
 from weather.models import WeatherForecast
 from weather.functions import WeatherFunction
 from push_messages.models import Message as PushMessage
-from push_messages.functions import send_notification, send_data
+from push_messages.services import PushMessageService
 
 class ContextTag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -38,7 +38,11 @@ class Decision(models.Model):
             return False
 
     def get_context(self):
-        message = send_data(self.user, {
+        try:
+            push_message_service = PushMessageService(self.user)
+        except PushMessageService.DeviceMissingError:
+            return False
+        message = push_message_service.send_data(self.user, {
             'type': 'get_context'
         })
         if message:
@@ -120,7 +124,11 @@ class Message(models.Model):
         return message_templates[randint(0, len(message_templates)-1)]
 
     def send_message(self):
-        message = send_notification(
+        try:
+            push_message_service = PushMessageService(self.decision.user)
+        except PushMessageService.DeviceMissingError:
+            return False
+        message = push_message_service.send_notification(
             self.decision.user,
             self.message_template.title,
             self.message_template.body

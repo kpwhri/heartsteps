@@ -25,13 +25,13 @@ class OnesignalMessageService():
         self.device = device
 
     def send(self, request):
-        header = {
+        headers = {
             'Content-Type': 'application/json; charset=utf-8',
             'Authorization': 'Basic ZTM5ZjkyMTMtYTE1NC00NjhmLWFlMzMtNjc4NWU2ZWE2Mzk1'
         }
 
         request['app_id'] = '10532feb-86e3-44e1-9c78-658f0bdb1f3b'
-        request['include_player_ids'] = [device.token]
+        request['include_player_ids'] = [self.device.token]
 
         response = requests.post(
             ONESIGNAL_SEND_URL,
@@ -41,7 +41,7 @@ class OnesignalMessageService():
 
         if response.status_code == 200:
             json = response.json()
-            return json.id
+            return json['id']
         raise MessageSendError()
 
     def format_notification(self, body, title, data):
@@ -125,6 +125,8 @@ class PushMessageService():
     Handles sending messages to a user and creating message reciepts.
     """
 
+    DeviceMissingError = DeviceMissingError
+
     def __init__(self, user):
         self.user = user
         self.device = self.get_device_for_user(self.user)
@@ -163,7 +165,7 @@ class PushMessageService():
             type = SENT
         )
 
-        return True
+        return message
 
     def send_notification(self, body, title=None, data={}):
         message = self.init_message()
