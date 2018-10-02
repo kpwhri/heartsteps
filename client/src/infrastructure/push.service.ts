@@ -35,12 +35,13 @@ export class PushService {
         private platform: Platform
     ) {
         this.device = new BehaviorSubject(null);
+        this.message = new Subject();
 
         this.platform.ready()
         .then(() => {
             this.oneSignal.setLogLevel({
                 logLevel: 4,
-                visualLevel: 1
+                visualLevel: 0
             });
             return this.setup();
         });
@@ -50,10 +51,16 @@ export class PushService {
         return this.oneSignal.promptForPushNotificationsWithUserResponse()
         .then((value) => {
             if(value) {
-                return Promise.resolve(true);
+                return this.updatePermissions();
             } else {
                 return Promise.reject("No permission granted");
             }
+        })
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.reject("No permission granted");
         });
     }
 
@@ -64,37 +71,47 @@ export class PushService {
                 kOSSettingsKeyAutoPrompt: false,
                 kOSSettingsKeyInAppLaunchURL: false
             });
+            this.oneSignal.inFocusDisplaying(this.oneSignal.OSInFocusDisplayOption.None);
             this.oneSignal.handleNotificationReceived().subscribe((data: OSNotification) => {
                 console.log("Got a notification!!");
-                this.handleNotification(data);
-            })
+                this.handleNotification(data.payload);
+            });
             this.oneSignal.handleNotificationOpened().subscribe((data: OSNotificationOpenedResult) => {
                 console.log("Got opened notification");
-                this.handleNotification(data);
-            })
+                this.handleNotification(data.notification.payload);
+            });
             this.oneSignal.addPermissionObserver().subscribe((data: any) => {
                 console.log("Permission Changed!");
                 this.updatePermissions();
-            })
-
+            });
             this.oneSignal.endInit();
 
             resolve(true);
         })
     }
 
-    updatePermissions() {
-        this.oneSignal.getIds().then((data: any) => {
+    updatePermissions(): Promise<Device> {
+        return this.oneSignal.getIds().then((data: any) => {
             const device = new Device(
                 data.userId,
                 'onesignal'
             );
             this.device.next(device);
+            return device;
         });
     }
 
     handleNotification(data: any) {
-        console.log(data);
-        this.message.next(data);
+        let messageId: string;
+        if (data.additionalData && data.additionalData.messageId) {
+            messageId = data.additionalData.messageId;
+            delete data.additionalData.messageId;
+        }
+        this.message.next({
+            title: data.title,
+            body: data.body,
+            data: data.additionalData,
+            messageId: messageId
+        });
     }
 }

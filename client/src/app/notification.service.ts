@@ -15,22 +15,22 @@ export class NotificationService {
         private modalCtrl: ModalController
     ) {
 
-        // this.notifications.onMessage().subscribe((message:any) => {
-        //     this.showMessage(message.body);
-        // });
+        this.notifications.notificationMessage.subscribe((message:any) => {
+            this.showMessage(message.body);
+        });
 
-        // this.notifications.onDataMessage().subscribe((payload:any) => {
-        //     if(payload.type == 'get_context' && payload.decision_id) {
-        //         this.geolocation.getCurrentPosition().then((position:Position) => {
-        //             this.heartstepsServer.post('/decisions/'+payload.decision_id, {
-        //                 location: {
-        //                     lat: position.coords.latitude,
-        //                     lng: position.coords.longitude
-        //                 }
-        //             })
-        //         })
-        //     }
-        // })
+        this.notifications.dataMessage.subscribe((payload:any) => {
+            if(payload.type == 'get_context' && payload.decision_id) {
+                this.geolocation.getCurrentPosition().then((position:Position) => {
+                    this.heartstepsServer.post('/decisions/'+payload.decision_id, {
+                        location: {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        }
+                    })
+                })
+            }
+        })
     }
 
     showMessage(message:string) {

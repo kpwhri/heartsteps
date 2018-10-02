@@ -3,6 +3,7 @@ import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
 import { Observable } from 'rxjs/Observable';
 import { PushService, Device } from '@infrastructure/push.service';
 import { Storage } from "@ionic/storage";
+import { Subject } from 'rxjs';
 
 
 const storageKey: string = 'notificationServiceDevice';
@@ -10,12 +11,36 @@ const storageKey: string = 'notificationServiceDevice';
 @Injectable()
 export class NotificationService {
 
+    dataMessage: Subject<any>;
+    notificationMessage: Subject<any>;
+
     constructor(
         private pushService: PushService,
         private heartstepsServer:HeartstepsServer,
         private storage:Storage
     ){
+        this.dataMessage = new Subject();
+        this.notificationMessage = new Subject();
+        
         this.watchDeviceUpdate();
+        this.pushService.message.subscribe((data: any) => {
+            this.processMessage(data);
+        });
+    }
+
+    processMessage(data: any) {
+        if(data.messageId) {
+            this.logMessage(data.messageId, 'recieved');
+        }
+        if(data.body) {
+            this.notificationMessage.next({
+                body: data.body,
+                title: data.title
+            });
+        }
+        if(data.data) {
+            this.dataMessage.next(data.data);
+        }
     }
 
     logMessage(messageId:string, type:string) {
@@ -52,8 +77,11 @@ export class NotificationService {
                 this.getDevice()
                 .then((storedDevice)=> {
                     if(storedDevice.token !== device.token) {
-                        this.updateDevice(device);
+                        return Promise.reject("Device needs to be updated");
                     }
+                })
+                .catch(() => {
+                    this.updateDevice(device);
                 });
             }
         })
