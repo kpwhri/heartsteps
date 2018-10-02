@@ -1,18 +1,18 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { Subject } from "rxjs/Subject";
-import {BehaviorSubject, Subscription} from 'rxjs';
-import { OneSignal, OSNotification, OSNotificationOpenedResult, OSPermissionSubscriptionState } from '@ionic-native/onesignal';
+import { BehaviorSubject } from 'rxjs';
+import { OneSignal, OSNotification, OSNotificationOpenedResult } from '@ionic-native/onesignal';
 
 declare var process: {
     env: {
-        FIREBASE_MESSAGING_SENDER_ID: string,
-        ONE_SIGNAL_APP_ID: string
+        FCM_SENDER_ID: string,
+        ONESIGNAL_APP_ID: string
     }
 }
 
-const firebaseId: string = process.env.FIREBASE_MESSAGING_SENDER_ID;
-const oneSignalAppId: string = process.env.ONE_SIGNAL_APP_ID;
+const firebaseId: string = process.env.FCM_SENDER_ID;
+const oneSignalAppId: string = process.env.ONESIGNAL_APP_ID;
 
 export class Device {
 

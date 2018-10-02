@@ -25,12 +25,18 @@ class OnesignalMessageService():
         self.device = device
 
     def send(self, request):
+        try:
+            app_id = settings.ONESIGNAL_APP_ID
+            api_key = settings.ONESIGNAL_API_KEY
+        except:
+            raise ValueError('Onesignal misconfigured')
+
         headers = {
             'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': 'Basic ZTM5ZjkyMTMtYTE1NC00NjhmLWFlMzMtNjc4NWU2ZWE2Mzk1'
+            'Authorization': 'Basic %s' % (api_key)
         }
 
-        request['app_id'] = '10532feb-86e3-44e1-9c78-658f0bdb1f3b'
+        request['app_id'] = app_id
         request['include_player_ids'] = [self.device.token]
 
         response = requests.post(

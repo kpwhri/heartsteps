@@ -2,7 +2,12 @@ import os, environ
 from corsheaders.defaults import default_headers
 
 env = environ.Env()
-env.read_env('/server/.env')
+
+env_file_path = '/server/.env'
+if os.path.isfile(env_file_path):
+    env.read_env(env_file_path)
+else:
+    print("SETTINGS: Env file not loaded")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -79,6 +84,9 @@ REST_FRAMEWORK = {
 }
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
+
+ONESIGNAL_APP_ID = env('ONESIGNAL_APP_ID', default='onesignal-app-id')
+ONESIGNAL_API_KEY = env('ONESIGNAL_API_KEY', default='onesignal-api-key')
 
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'django-db'
