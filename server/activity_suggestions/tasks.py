@@ -50,7 +50,9 @@ def start_decision(username, time_category):
 
     decision.get_context()
 
-    make_decision.s(str(decision.id)).apply_async(eta=decision_time)
+    make_decision.apply_async(kwargs={
+        'decision_id': str(decision.id)
+    },eta=decision_time)
 
 @shared_task
 def make_decision(decision_id):
