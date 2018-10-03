@@ -22,7 +22,7 @@ def fitbit_account(request):
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     return Response({
         'fitbit': account.fitbit_user
-    }, status=status.HTTP_OK)
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
