@@ -7,7 +7,6 @@ import { ParticipantService } from '@heartsteps/participant.service';
 import { OnboardPage } from '@pages/onboard/onboard';
 import { HomePage } from '@pages/home/home';
 import { AuthorizationService } from '@infrastructure/authorization.service';
-import { NotificationService } from '@app/notification.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -21,8 +20,7 @@ export class MyApp {
         statusBar: StatusBar,
         splashScreen: SplashScreen,
         private participant:ParticipantService,
-        private authorizationService:AuthorizationService,
-        notificationService: NotificationService
+        private authorizationService:AuthorizationService
     ) {
         platform.ready()
         .then(() => {

@@ -9,7 +9,11 @@
     "build": "ionic-app-scripts build",
     "lint": "ionic-app-scripts lint",
     "ionic:build": "ionic-app-scripts build",
-    "ionic:serve": "ionic-app-scripts serve"
+    "ionic:serve": "ionic-app-scripts serve",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --runInBand",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@angular/animations": "5.2.10",
@@ -60,14 +64,39 @@
   },
   "devDependencies": {
     "@ionic/app-scripts": "3.1.9",
+    "@types/jest": "^23.3.3",
     "@types/node": "^10.10.1",
     "dotenv": "^6.0.0",
+    "jest": "^23.6.0",
+    "jest-preset-angular": "^6.0.1",
     "typescript": "~2.6.2"
   },
   "description": "An Ionic project",
   "config": {
     "ionic_copy": "./config/ionic-copy-config.js",
     "ionic_webpack": "./config/webpack.config.js"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "<rootDir>/tsconfig.spec.json"
+      },
+      "__TRANSFORM_HTML__": true
+    },
+    "preset": "jest-preset-angular",
+    "roots": [
+      "<rootDir>/src/"
+    ],
+    "moduleNameMapper": {
+      "@app/(.*)": "<rootDir>/src/app/$1",
+      "@pages/(.*)": "<rootDir>/src/pages/$1",
+      "@infrastructure/(.*)": "<rootDir>/src/infrastructure/$1",
+      "@heartsteps/(.*)": "<rootDir>/src/heartsteps/$1"
+    },
+    "setupTestFrameworkScriptFile": "<rootDir>/jest.setup.ts",
+    "transformIgnorePatterns": [
+      "node_modules/(?!@ngrx|@ionic-native|@ionic)"
+    ]
   },
   "cordova": {
     "plugins": {
