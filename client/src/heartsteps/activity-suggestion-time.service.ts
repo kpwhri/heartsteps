@@ -65,7 +65,7 @@ export class ActivitySuggestionTimeService{
             timesArray.push({
                 type: timeType,
                 hour: timeParts[0],
-                minute: timeParts[0],
+                minute: timeParts[1],
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             })
         })
