@@ -42,7 +42,7 @@ class Decision(models.Model):
             push_message_service = PushMessageService(self.user)
         except PushMessageService.DeviceMissingError:
             return False
-        message = push_message_service.send_data(self.user, {
+        message = push_message_service.send_data({
             'type': 'get_context'
         })
         if message:
@@ -129,9 +129,8 @@ class Message(models.Model):
         except PushMessageService.DeviceMissingError:
             return False
         message = push_message_service.send_notification(
-            self.decision.user,
-            self.message_template.title,
-            self.message_template.body
+            self.message_template.body,
+            title = self.message_template.title
             )
         if message:
             self.sent_message = message
