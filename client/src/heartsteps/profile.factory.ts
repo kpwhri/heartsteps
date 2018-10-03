@@ -80,7 +80,7 @@ export class ProfileService {
     checkFitBitAuthorized(): Promise<boolean> {
         return this.fitbitService.isAuthorized()
         .then(() => {
-            return true;
+            return Promise.resolve(true);
         })
         .catch(() => {
             return Promise.resolve(false);

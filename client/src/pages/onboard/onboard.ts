@@ -16,9 +16,9 @@ import { WeeklyReflectionTimePage } from '@pages/settings/weekly-reflection-time
 import { ParticipantService } from '@heartsteps/participant.service';
 
 const onboardingSteps = [{
-    //     key: 'participantInformation',
-    //     screen: ParticipantInformationPage
-    // }, {
+        key: 'participantInformation',
+        screen: ParticipantInformationPage
+    }, {
         key: 'notificationsEnabled',
         screen: NotificationsPage
     }, {
@@ -36,9 +36,9 @@ const onboardingSteps = [{
     }, {
         key: 'fitbitAuth',
         screen: FitbitAuthPage
-    }, {
-        key: 'fitbitApp',
-        screen: FitbitAppPage
+    // }, {
+    //     key: 'fitbitApp',
+    //     screen: FitbitAppPage
     }]
 
 @IonicPage()

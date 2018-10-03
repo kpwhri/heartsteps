@@ -26,6 +26,17 @@ export class BrowserService {
         }
     }
 
+    close(): Promise<boolean> {
+        return this.checkSafariAvailable()
+        .then(() => {
+            this.safariViewController.hide();
+            return Promise.resolve(true);
+        })
+        .catch(() => {
+            return Promise.resolve(true);
+        })
+    }
+
     private checkSafariAvailable(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.safariViewController.isAvailable()

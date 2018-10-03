@@ -45,16 +45,20 @@ export class HeartstepsServer {
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
             if(this.platform.is('ios') || this.platform.is('android')) {
-                return this.http.get(this.makeUrl(url), headers)
+                return this.http.get(this.makeUrl(url), {}, headers)
             } else {
                 return this.http.get(this.makeUrl(url), {headers: headers})
             }
         })
+        .then(this.parseResponse)
         .then((response) => {
             return this.updateAuthorizationToken(response);
         })
         .then((response) => {
             return response.data
+        })
+        .catch((error) => {
+            return Promise.reject(error.message);
         });
     }
 
