@@ -1,41 +1,44 @@
+import { ANTI_SEDENTARY_MESSAGE, INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE }
+  from "../common/globals.js";
+
 // Get integrationStatus setting & update text in settings
 import * as messaging from "messaging";
 import document from "document";
 import { updateIntegrationStatus } from "./integration-status";
 
-import { geolocation } from "geolocation";
-import { locationSuccess, locationError } from "./location";
-
+// Check recent step count
 import { today as activity } from "user-activity";
 import * as fs from "fs";
-// import * as stepCount from "./step-count-module-easy";
-// var stepCount = require("./step-count-module");
-import { StepCountHandler } from "./step-count-proto.js";
+import { StepCountHandler } from "./step-count.js";
 
-// Will need to wake the companion up on occasion
-// https://dev.fitbit.com/build/guides/companion/
+messaging.peerSocket.onmessage = function(evt) {
+  if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
+  // Update enabled/disabled flag if enrollment succeeds
+    updateIntegrationStatus(evt.data.value);
+  } else if (evt.data.key == QUERY_STEP_MESSAGE) {
+    // Get & save step count
+    let stepCount = new StepCountHandler();
+    let oldStepData = stepCount.getData();
+    console.log("original data: " + JSON.stringify(oldStepData));
+    let newStepData = stepCount.updateData(oldStepData);
+    console.log("updated data: " + JSON.stringify(newStepData));
+    let recentSteps = stepCount.calculateElapsedSteps(newStepData);
+    console.log("step count: " + recentSteps);
+    stepCount.saveFile(newStepData);
+    // Tell phone to kick off anti-sedentary message if steps below a threshold
+    // if (recentSteps < X) {
+    //     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    //       messaging.peerSocket.send(ANTI_SEDENTARY_MESSAGE);
+    //     }
+    // }
+  }
+}
 
-// Update enabled/disabled flag if enrollment succeeds
-messaging.peerSocket.onmessage = updateIntegrationStatus;
-
-// Get location
-geolocation.enableHighAccuracy = true;
-geolocation.getCurrentPosition(locationSuccess, locationError);
-
-// Get & save step count
-// Have the timer on the companion kick this off
 let stepCount = new StepCountHandler();
-console.log(stepCount.currentSteps);
-
-// stepCount.deleteFile();
-
-console.log("First pass");
-let s = stepCount.getArray();
-console.log("S: " + s);
-let m = stepCount.calculateElapsedSteps(s);
-console.log("M: " + m);
-let t = stepCount.updateArray(s);
-console.log("T: " + t);
-stepCount.saveFile(t);
-setTimeout(console.log(" "), 10000);
-
+let oldStepData = stepCount.getData();
+console.log("original data: " + JSON.stringify(oldStepData));
+let newStepData = stepCount.updateData(oldStepData);
+console.log("updated data: " + JSON.stringify(newStepData));
+let recentSteps = stepCount.calculateElapsedSteps(newStepData);
+console.log("step count: " + recentSteps);
+stepCount.saveFile(newStepData);
