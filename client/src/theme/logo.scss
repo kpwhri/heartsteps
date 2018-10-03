@@ -10,7 +10,7 @@
     margin: 100px auto;
     &:after {
         content: ' ';
-        mask: url('/assets/heartsteps-logo.svg') no-repeat 0px 0px;
+        mask: url('../assets/heartsteps-logo.svg') no-repeat 0px 0px;
         mask-size: contain;
         width: 100%;
         height: 100%;

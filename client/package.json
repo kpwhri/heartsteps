@@ -66,6 +66,8 @@
     "@ionic/app-scripts": "3.1.9",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.10.1",
+    "cordova-icon": "^1.0.0",
+    "cordova-splash": "^1.0.0",
     "dotenv": "^6.0.0",
     "jest": "^23.6.0",
     "jest-preset-angular": "^6.0.1",
