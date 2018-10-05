@@ -30,6 +30,7 @@ export class MyApp {
         .then(() => {
             this.setNavAuthGuard()
             this.participant.onChange().subscribe((participant: any) => {
+                this.setupBackgroundProcess(participant);
                 this.updateRootPage(participant);
             })
             return this.participant.update()
@@ -63,6 +64,12 @@ export class MyApp {
         }
         this.nav.setRoot(rootPage);
         this.nav.popToRoot();
+    }
+
+    setupBackgroundProcess(participant:any) {
+        if(participant.profileComplete) {
+            this.backgroundService.init();
+        }
     }
 }
 

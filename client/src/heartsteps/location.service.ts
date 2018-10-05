@@ -14,10 +14,10 @@ export class LocationService {
 
     saveLocation(): Promise<boolean> {
         return this.location.getLocation()
-        .then((location: Geoposition) => {
+        .then((location: any) => {
             return this.heartstepsServer.post('locations', {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
+                latitude: location.latitude,
+                longitude: location.longitude,
                 source: 'heartsteps-client'
             });
         })

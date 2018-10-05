@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
-import { promises } from "fs";
 
 @Injectable()
 export class BackgroundProcessService{

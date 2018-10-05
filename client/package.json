@@ -110,19 +110,20 @@
       "cordova-plugin-ionic-keyboard": {},
       "cordova-plugin-advanced-http": {},
       "cordova-plugin-statusbar": {},
-      "cordova-plugin-geolocation": {
-        "GEOLOCATION_USAGE_DESCRIPTION": "To tailor messages to your location"
-      },
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-safariviewcontroller": {},
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "comnickreidheartsteps"
       },
       "onesignal-cordova-plugin": {},
-      "cordova-plugin-background-fetch": {}
+      "cordova-plugin-background-fetch": {},
+      "cordova-plugin-geolocation": {
+        "GEOLOCATION_USAGE_DESCRIPTION": "Your location will be used to tailor activity suggestions"
+      }
     },
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   }
 }

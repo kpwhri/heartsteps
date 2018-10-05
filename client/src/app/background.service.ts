@@ -9,8 +9,10 @@ export class BackgroundService{
     constructor(
         private backgroundProcess: BackgroundProcessService,
         private locationService: LocationService
-    ) {
-        backgroundProcess.registerTask(() => {
+    ) {}
+
+    init() {
+        this.backgroundProcess.registerTask(() => {
             return this.locationService.saveLocation();
         });
     }
