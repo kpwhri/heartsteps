@@ -11,7 +11,6 @@ import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { OneSignal } from '@ionic-native/onesignal';
 import { BackgroundProcessService } from '@infrastructure/background-process.service';
-import { BackgroundFetch } from '@ionic-native/background-fetch';
 
 
 @NgModule({
@@ -26,7 +25,6 @@ import { BackgroundFetch } from '@ionic-native/background-fetch';
       HeartstepsServer,
       loadingService,
       Geolocation,
-      BackgroundFetch,
       BackgroundProcessService,
       LocationService,
       BrowserService,
