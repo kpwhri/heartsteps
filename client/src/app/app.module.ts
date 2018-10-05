@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { ErrorHandler, NgModule } from '@angular/core';
+import { ErrorHandler, NgModule, APP_INITIALIZER } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -14,6 +14,7 @@ import { HomePageModule } from '../pages/home/home.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationPane } from './notification';
 import { NotificationService } from '@app/notification.service';
+import { BackgroundService } from '@app/background.service';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { NotificationService } from '@app/notification.service';
   providers: [
     StatusBar,
     SplashScreen,
-    NotificationService
+    NotificationService,
+    BackgroundService
   ]
 })
 export class AppModule {}

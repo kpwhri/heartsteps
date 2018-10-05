@@ -66,6 +66,6 @@
         <variable name="URL_SCHEME" value="comnickreidheartsteps" />
     </plugin>
     <plugin name="onesignal-cordova-plugin" spec="^2.4.4" />
-    <hook src="scripts/makePlatformIcons.js" type="after_prepare" />
+    <plugin name="cordova-plugin-background-fetch" spec="^5.4.1" />
     <engine name="android" spec="7.0.0" />
 </widget>

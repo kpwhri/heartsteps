@@ -12,6 +12,7 @@ import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
 import { ActivityLogService } from '@heartsteps/activity-log.service';
 import { ProfileService } from '@heartsteps/profile.factory';
 import { FitbitService } from '@heartsteps/fitbit.service';
+import { LocationService } from '@heartsteps/location.service';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { FitbitService } from '@heartsteps/fitbit.service';
         DateFactory,
         ReflectionTimeService,
         ActivityLogService,
-        FitbitService
+        FitbitService,
+        LocationService
     ]
 })
 export class HeartstepsModule {}
