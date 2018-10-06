@@ -17,6 +17,12 @@ class ContextTag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tag = models.CharField(max_length=25)
 
+    name = models.CharField(max_length=50, null=True, blank=True)
+    dashboard = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name or self.tag
+
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
@@ -103,7 +109,7 @@ class Message(models.Model):
     decision = models.OneToOneField(Decision)
 
     message_template = models.ForeignKey(MessageTemplate)
-    sent_message = models.OneToOneField(PushMessage, null=True, blank=True)
+    sent_message = models.OneToOneField(PushMessage, null=True, blank=True, related_name="randomization_message")
 
     def get_message_template_tags(self):
         message_tags_query = models.Q()
@@ -137,3 +143,18 @@ class Message(models.Model):
             self.save()
             return True
         return False
+
+class UserRandomizationManager(models.Manager):
+
+    def get_queryset(self):
+        return User.objects.annotate(
+            decision_count=models.Count('decision')
+        ).filter(decision_count__gte=1)
+
+class UserRandomization(User):
+    objects = UserRandomizationManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = 'Randomization user'
+        verbose_name_plural = 'Randomization for users'

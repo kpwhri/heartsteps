@@ -5,7 +5,7 @@ import uuid
 from django.conf import settings
 from django.utils import timezone
 
-from push_messages.models import User, Device, Message, MessageReceipt, SENT
+from push_messages.models import User, Device, Message, MessageReceipt
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 ONESIGNAL_SEND_URL = 'https://onesignal.com/api/v1/notifications'
@@ -168,7 +168,7 @@ class PushMessageService():
         MessageReceipt.objects.create(
             message = message,
             time = timezone.now(),
-            type = SENT
+            type = MessageReceipt.SENT
         )
 
         return message

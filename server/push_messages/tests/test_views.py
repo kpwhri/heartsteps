@@ -69,7 +69,7 @@ class MessageDeviceViewTests(APITestCase):
 
 class MessageRecievedTests(APITestCase):
     
-    def test_marks_recieved(self):
+    def test_marks_received(self):
         """
         Returns an authorization token and participant's heartsteps_id when a
         valid enrollment token is passed
@@ -80,9 +80,9 @@ class MessageRecievedTests(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
-        response = self.client.post(reverse('messages-recieved'), {
+        response = self.client.post(reverse('messages-received'), {
             'message': message.id,
-            'type': 'recieved',
+            'type': 'received',
             'time': str(timezone.now())
         })
         

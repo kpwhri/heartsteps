@@ -25,19 +25,20 @@ class Message(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-SENT = 'sent'
-RECIEVED = 'recieved'
-OPENED = 'opened'
-INTERACTED = 'interacted'
-
-MESSAGE_RECIEPT_TYPES = (
-    (SENT, 'Sent'),
-    (RECIEVED, 'Recieved'),
-    (OPENED, 'Opened'),
-    (INTERACTED, 'Interacted')
-)
-
 class MessageReceipt(models.Model):
+    SENT = 'sent'
+    RECEIVED = 'received'
+    OPENED = 'opened'
+    ENGAGED = 'engaged'
+
+    MESSAGE_RECIEPT_TYPES = (
+        (SENT, 'Sent'),
+        (RECEIVED, 'Received'),
+        (OPENED, 'Opened'),
+        (ENGAGED, 'Engaged')
+    )
+
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(Message)
     
