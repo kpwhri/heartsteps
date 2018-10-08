@@ -2,14 +2,11 @@ from datetime import datetime
 import pytz
 import requests
 
-from . models import WeatherForecast
-
 class DarkSkyApiManager:
     """
     Hits the DarkSky weather forecast API.
     https://darksky.net/dev/docs
     """
-    DARK_SKY_SNOW = "snow"
 
     def __init__(self):
         self.API_KEY = "f076fa5dc90a5a68a86d075d6f7abab6"
@@ -37,20 +34,19 @@ class DarkSkyApiManager:
         response_longitude = content["longitude"]
         # Forecast for current hour is [0], following hour is [1]
         next_hour = content['hourly']['data'][1]
-        weather_forecast = WeatherForecast(
-            latitude=response_latitude,
-            longitude=response_longitude,
+        return {
+            'latitude': response_latitude,
+            'longitude': response_longitude,
             # fromtimestamp returns local time - switch to UTC
-            time=datetime.fromtimestamp(next_hour['time'], tz=pytz.utc),
-            precip_probability=next_hour['precipProbability'],
+            'time': datetime.fromtimestamp(next_hour['time'], tz=pytz.utc),
+            'precip_probability': next_hour['precipProbability'],
             # precipType does not exist if no precipitation
-            precip_type=next_hour.get('precipType', 'None'),
-            temperature=next_hour['temperature'],
-            apparent_temperature=next_hour['apparentTemperature'],
-            wind_speed=next_hour['windSpeed'],
-            cloud_cover=next_hour['cloudCover']
-        )
-        return weather_forecast
+            'precip_type': next_hour.get('precipType', 'None'),
+            'temperature': next_hour['temperature'],
+            'apparent_temperature': next_hour['apparentTemperature'],
+            'wind_speed': next_hour['windSpeed'],
+            'cloud_cover': next_hour['cloudCover']
+        }
 
         if __name__ == '__main__':
             dk = DarkSkyApiManager()

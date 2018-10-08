@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from locations.models import Location, Place
 from weather.models import WeatherForecast
-from weather.functions import WeatherService
+from weather.services import WeatherService
 
 from randomization.services import DecisionContextService
 from randomization.models import Decision, DecisionContext

@@ -4,20 +4,22 @@ from django.contrib.auth.models import User
 
 class WeatherForecast(models.Model):
     """
-    Represents an hourly weather forecast
-    currently using the DarkSky API
+    Represents an hourly weather forecast at a specific location and time
     """
+
+    SNOW = 'snow'
+
     latitude = models.FloatField()
     longitude = models.FloatField()
     time = models.DateTimeField()
+
     precip_probability = models.FloatField()
     precip_type = models.CharField(max_length=32)
     temperature = models.FloatField()
     apparent_temperature = models.FloatField()
-    wind_speed = models.FloatField()
-    cloud_cover = models.FloatField()
+    wind_speed = models.FloatField(null=True, blank=True)
+    cloud_cover = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)

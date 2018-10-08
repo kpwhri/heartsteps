@@ -6,7 +6,7 @@ from locations.factories import get_last_user_location, determine_location_type
 from locations.models import OTHER as LOCATION_TYPE_OTHER
 from push_messages.services import PushMessageService
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
-from weather.functions import WeatherService
+from weather.services import WeatherService
 
 from randomization.models import Decision, DecisionContext, Message, ContextTag
 
