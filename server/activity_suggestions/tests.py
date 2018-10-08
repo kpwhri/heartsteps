@@ -103,7 +103,7 @@ class TaskTests(TestCase):
     @override_settings(CELERY_ALWAYS_EAGER=True)
     @patch('activity_suggestions.tasks.is_weekday_in_timezone', return_value=True)
     @patch('activity_suggestions.tasks.make_decision.apply_async')
-    @patch('randomization.models.Decision.get_context')
+    @patch('randomization.services.DecisionService.request_context')
     def test_start_decision(self, get_context, make_decision, is_weekday_in_timezone):
         user = User.objects.create(username="test")
         SuggestionTime.objects.create(
@@ -116,13 +116,10 @@ class TaskTests(TestCase):
         start_decision(user.username, 'evening')
 
         decision = Decision.objects.get(user=user)
-
         tags = [tag.tag for tag in decision.tags.all()]
-        self.assertIn('evening', tags)
         self.assertIn('activity suggestion', tags)
+        self.assertIn('evening', tags)
         self.assertIn('weekday', tags)
-        
         make_decision.assert_called()
         get_context.assert_called()
         is_weekday_in_timezone.assert_called()
-

@@ -4,11 +4,6 @@ import requests
 
 from . models import WeatherForecast
 
-WEATHER_OUTDOOR = "outdoor"  # weather is good enough to go outside
-WEATHER_OUTDOOR_SNOW = "outdoor_snow"  # it is currently snowing, and not suitable to go outside
-WEATHER_INDOOR = "indoor"  # weather is unfit to go outside and one should stay indoors
-
-
 class DarkSkyApiManager:
     """
     Hits the DarkSky weather forecast API.
@@ -60,14 +55,3 @@ class DarkSkyApiManager:
         if __name__ == '__main__':
             dk = DarkSkyApiManager()
             dk.get_hour_forecast(47.620506, -122.349277)
-
-
-class WeatherUtils:
-
-    def get_weather_context(weather_forecast):
-        if weather_forecast.precip_probability < 70.0 and weather_forecast.apparent_temperature > 32.0 and weather_forecast.apparent_temperature < 90.0:
-            return WEATHER_OUTDOOR
-        elif weather_forecast.precip_probability > 0.0 and weather_forecast.precip_type == DARK_SKY_SNOW and weather_forecast.apparent_temperature > 25.0:
-            return WEATHER_OUTDOOR_SNOW
-        else:
-            return WEATHER_INDOOR
