@@ -22,7 +22,7 @@ class FitbitAccount(models.Model):
     expires_at = models.FloatField(help_text='The timestamp when the access token expires')
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
 class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)

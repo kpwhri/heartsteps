@@ -96,7 +96,8 @@ class FitbitAuthorizationTest(APITestCase):
         }
 
     @patch.object(FitbitOauth2Client, 'fetch_access_token', mock_access_token)
-    def test_process(self):
+    @patch('fitbit_api.tasks.subscribe_to_fitbit.apply_async')
+    def test_process(self, subscribe_to_fitbit):
         user = User.objects.create(username="test")
         AuthenticationSession.objects.create(
             user = user,
@@ -110,14 +111,13 @@ class FitbitAuthorizationTest(APITestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('fitbit-authorize-complete'))
-
         session = AuthenticationSession.objects.get(user=user)
         self.assertTrue(session.disabled)
-
         self.assertEqual(1, FitbitAccount.objects.filter(user=user).count())
-
         fitbit_account = FitbitAccount.objects.get(user=user)
         self.assertEqual(fitbit_account.fitbit_user, 'example-fitbit-id')
+        subscribe_to_fitbit.assert_called()
+
 
     def mock_access_token_fail(self, code, redirect_uri=None):
         raise KeyError("Fake error!")

@@ -10,7 +10,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.utils import create_fitbit, create_callback_url
+from fitbit_api.services import create_fitbit, create_callback_url
+from fitbit_api.tasks import subscribe_to_fitbit
 from fitbit_api.models import FitbitAccount, AuthenticationSession
 
 @api_view(['GET'])
@@ -86,6 +87,9 @@ def authorize_process(request):
             'access_token': access_token,
             'refresh_token': refresh_token,
             'expires_at': expires_at
+        })
+        subscribe_to_fitbit.apply_async(kwargs = {
+            'username': user.username
         })
         
         return redirect(reverse('fitbit-authorize-complete'))
