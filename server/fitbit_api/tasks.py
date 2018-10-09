@@ -13,9 +13,8 @@ def subscribe_to_fitbit(username):
     except User.DoesNotExist:
         return False
     fitbit_client = FitbitClient(user)
-    if fitbit_client.subscription.active:
-        return True
-    fitbit_client.subscribe()
+    if not fitbit_client.is_subscribed():
+        fitbit_client.subscribe()
         
 
 @shared_task

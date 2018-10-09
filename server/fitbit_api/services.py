@@ -51,13 +51,25 @@ class FitbitClient():
         self.account.expires_at = token['expires_at']
         self.save()
 
+    def is_subscribed(self):
+        response = self.client.list_subscriptions()
+        if 'apiSubscriptions' in response:
+            for subscription in response['apiSubscriptions']:
+                if subscription['subscriptionId'] == str(self.subscription.uuid):
+                    return True
+        return False
+
     def subscribe(self):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
             raise ImproperlyConfigured('No FitBit Subscriber ID')
-        self.client.subscribe(
-            subscription_id = str(self.subscription.uuid),
-            subscriber_id = settings.FITBIT_SUBSCRIBER_ID
-        )
+        try:
+            self.client.subscribe(
+                subscription_id = str(self.subscription.uuid),
+                subscriber_id = settings.FITBIT_SUBSCRIBER_ID
+            )
+            return True
+        except:
+            return False
 
     def verify_subscription_code(code):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_VERIFICATION_CODE'):

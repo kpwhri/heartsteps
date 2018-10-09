@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 
 class AuthenticationSession(models.Model):
@@ -25,13 +26,17 @@ class FitbitAccount(models.Model):
         return str(self.user)
 
 class FitbitSubscription(models.Model):
-    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-    
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)    
     fitbit_account = models.ForeignKey(FitbitAccount)
-    active = models.BooleanField(default=False)
 
     def __str__(self):
-        state = 'Inactive'
-        if self.active:
-            state = 'Active'
-        return '%s subscription for %s' % (state, self.fitbit_account)
+        return 'Subscription for %s' % (self.fitbit_account)
+
+class FitbitSubscriptionUpdate(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    subscription = models.ForeignKey(FitbitSubscription)
+    payload = JSONField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'Updated %s at %s' % (str(self.subscription), self.created)
