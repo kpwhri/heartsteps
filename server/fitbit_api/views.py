@@ -5,12 +5,13 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
+from django.conf import settings
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.services import create_fitbit, create_callback_url
+from fitbit_api.services import create_fitbit, create_callback_url, FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
 from fitbit_api.models import FitbitAccount, AuthenticationSession
 
@@ -24,6 +25,13 @@ def fitbit_account(request):
     return Response({
         'fitbit': account.fitbit_user
     }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def fitbit_subscription(request):
+    if 'verify' in request.GET:
+        if FitbitClient.verify_subscription_code(request.GET['verify']):
+            return Response('', status=status.HTTP_204_NO_CONTENT)
+        return Response('', status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))

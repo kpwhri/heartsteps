@@ -10,8 +10,8 @@ def create_fitbit(**kwargs):
     consumer_key = None
     consumer_secret = None
     try:
-        consumer_key = settings.FITAPP_CONSUMER_KEY
-        consumer_secret = settings.FITAPP_CONSUMER_SECRET
+        consumer_key = settings.FITBIT_CONSUMER_KEY
+        consumer_secret = settings.FITBIT_CONSUMER_SECRET
     except:
         raise ImproperlyConfigured('Missing Fitbit API credentials')
     return Fitbit(consumer_key, consumer_secret, **kwargs)
@@ -58,3 +58,12 @@ class FitbitClient():
             subscription_id = str(self.subscription.uuid),
             subscriber_id = settings.FITBIT_SUBSCRIBER_ID
         )
+
+    def verify_subscription_code(code):
+        if not hasattr(settings, 'FITBIT_SUBSCRIBER_VERIFICATION_CODE'):
+            raise ImproperlyConfigured('No FitBit Subscriber Verification Code')
+        if code == settings.FITBIT_SUBSCRIBER_VERIFICATION_CODE:
+            return True
+        else:
+            return False
+
