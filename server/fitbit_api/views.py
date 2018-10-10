@@ -32,24 +32,21 @@ def fitbit_subscription(request):
         if FitbitClient.verify_subscription_code(request.GET['verify']):
             return Response('', status=status.HTTP_204_NO_CONTENT)
         return Response('', status=status.HTTP_404_NOT_FOUND)
-    subscriptions_to_update = []
+    
     for update in request.data:
         if 'subscriptionId' in update:
             try:
                 subscription = FitbitSubscription.objects.get(uuid=update['subscriptionId'])
             except FitbitSubscription.DoesNotExist:
                 continue
-            if subscription not in subscriptions_to_update:
-                subscriptions_to_update.append(subscription)
             FitbitSubscriptionUpdate.objects.create(
                 subscription = subscription,
                 payload = update
             )
-    for subscription in subscriptions_to_update:
-        update_fitbit_data.apply_async(kwargs={
-            'username': subscription.fitbit_account.user.username
-        }
-        )
+            update_fitbit_data.apply_async(kwargs={
+                'username': subscription.fitbit_account.user.username,
+                'date_string': update['date']
+            })        
     return Response('', status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])

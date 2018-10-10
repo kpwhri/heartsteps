@@ -1,10 +1,12 @@
+from datetime import timedelta, datetime
+
 from django.conf import settings
 from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription
+from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitMinuteStepCount
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -49,7 +51,7 @@ class FitbitClient():
         self.account.access_token = token['access_token'],
         self.account.refresh_token = token['refresh_token'],
         self.account.expires_at = token['expires_at']
-        self.save()
+        self.account.save()
 
     def is_subscribed(self):
         response = self.client.list_subscriptions()
@@ -78,4 +80,53 @@ class FitbitClient():
             return True
         else:
             return False
+
+    def get_day(self, date_string):
+        date = datetime.strptime(date_string, '%Y-%m-%d')
+        try:
+            day = FitbitDay.objects.get(
+                account = self.account,
+                date = date
+            )
+        except FitbitDay.DoesNotExist:
+            day = FitbitDay.objects.create(
+                account = self.account,
+                date = date
+            )
+        return day
+
+    def update_activities(self, fitbit_day):
+        previous_day = fitbit_day.date - timedelta(days=1)
+        url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
+            *self.client._get_common_args(),
+            user_id = self.account.fitbit_user,
+            after_date = self.client._get_date_string(previous_day)
+        )
+
+        activities = []
+        response = self.client.make_request(url)
+        for activity in response['activities']:
+            activities.append(activity)
+        return activities
+
+    def update_steps(self, fitbit_day):
+        response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
+
+        FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
+        
+        total_steps = 0
+        for stepInterval in response['activities-steps']:
+            if stepInterval['value'] > 0:
+                total_steps += stepInterval['value']
+                FitbitMinuteStepCount.objects.create(
+                    account = self.account,
+                    day = fitbit_day,
+                    time = datetime.strptime(
+                        "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                    steps = stepInterval['value']
+                )
+        fitbit_day.total_steps = total_steps
+        fitbit_day.save()
 

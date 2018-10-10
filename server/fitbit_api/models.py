@@ -18,9 +18,9 @@ class FitbitAccount(models.Model):
     user = models.OneToOneField(User)
     fitbit_user = models.CharField(max_length=32)
 
-    access_token = models.TextField(help_text='The OAuth2 access token')
-    refresh_token = models.TextField(help_text='The OAuth2 refresh token')
-    expires_at = models.FloatField(help_text='The timestamp when the access token expires')
+    access_token = models.TextField(null=True, blank=True, help_text='The OAuth2 access token')
+    refresh_token = models.TextField(null=True, blank=True, help_text='The OAuth2 refresh token')
+    expires_at = models.FloatField(null=True, blank=True, help_text='The timestamp when the access token expires')
 
     def __str__(self):
         return str(self.user)
@@ -40,3 +40,38 @@ class FitbitSubscriptionUpdate(models.Model):
 
     def __str__(self):
         return 'Updated %s at %s' % (str(self.subscription), self.created)
+
+class FitbitActivityType(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    
+    fitbit_id = models.IntegerField()
+    name = models.CharField(max_length=50)
+
+
+class FitbitDay(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    account = models.ForeignKey(FitbitAccount)
+    date = models.DateField()
+
+    active_minutes = models.FloatField(default=0)
+    total_steps = models.FloatField(default=0)
+
+    def format_date(self):
+        return self.date.strftime('%Y-%m-%d')
+
+class FitbitActivity(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    account = models.ForeignKey(FitbitAccount)
+    fitbit_id = models.CharField(max_length=50)
+
+    day = models.ForeignKey(FitbitDay)
+    startTime = models.DateTimeField()
+    endTime = models.DateTimeField()
+
+class FitbitMinuteStepCount(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    account = models.ForeignKey(FitbitAccount)
+
+    day = models.ForeignKey(FitbitDay)
+    time = models.DateTimeField()
+    steps = models.IntegerField()
