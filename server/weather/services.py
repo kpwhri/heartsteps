@@ -8,7 +8,7 @@ class WeatherService:
     WEATHER_INDOOR = "indoor"  # weather is unfit to go outside and one should stay indoors
 
     def make_forecast(latitude, longitude):
-        dark_sky = DarkSkyApiManager
+        dark_sky = DarkSkyApiManager()
         forecast = dark_sky.get_hour_forecast(latitude, longitude)
         return WeatherForecast.objects.create(**forecast)
 

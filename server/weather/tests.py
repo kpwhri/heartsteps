@@ -3,12 +3,13 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.utils import timezone
 
+from weather.darksky_api_manager import DarkSkyApiManager
 from weather.models import WeatherForecast
 from weather.services import WeatherService
 
 class WeatherServiceTest(TestCase):
 
-    def get_forecast(latitude, longitude):
+    def get_forecast(self, latitude, longitude):
         return {
             'latitude': 123.123,
             'longitude': 42.42,
@@ -19,7 +20,7 @@ class WeatherServiceTest(TestCase):
             'apparent_temperature': 20
         }
 
-    @patch('weather.darksky_api_manager.DarkSkyApiManager.get_hour_forecast', get_forecast)
+    @patch.object(DarkSkyApiManager, 'get_hour_forecast', get_forecast)
     def test_generates_forecast_from_darksky(self):
         forecast = WeatherService.make_forecast(123, 456)
 
