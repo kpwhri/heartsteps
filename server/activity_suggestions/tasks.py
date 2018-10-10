@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
 
 from randomization.models import Decision
-from randomization.services import DecisionService, DecisionMessageService
+from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from randomization.factories import make_decision_message
 
 import pytz
@@ -61,7 +61,8 @@ def make_decision(decision_id):
     if decision.is_complete():
         return False
     
-    decision.add_location_context()
+    decision_service = DecisionContextService(decision)
+    decision_service.generate_context()
 
     decision.a_it = True
     decision.pi_it = 1
