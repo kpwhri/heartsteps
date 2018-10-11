@@ -69,5 +69,5 @@ def make_decision(decision_id):
     decision.save()
 
     decision_message_service = DecisionMessageService(decision)
-    decision_message_service.make_message()
+    decision_message_service.create_message()
     decision_message_service.send_message()
