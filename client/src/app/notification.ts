@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { ViewController, NavParams } from "ionic-angular";
+import { MessageReceiptService } from "@heartsteps/message-receipt.service";
 
 
 @Component({
@@ -7,13 +8,24 @@ import { ViewController, NavParams } from "ionic-angular";
 })
 export class NotificationPane {
 
-    private message:string
+    public message: string;
+    private messageId: string;
 
-    constructor(private viewCtrl:ViewController, private params:NavParams) {
+    constructor(
+        private messageReceiptService: MessageReceiptService,
+        private viewCtrl:ViewController,
+        params:NavParams
+    ) {
         this.message = params.get('message');
+        this.messageId = params.get('messageId');
+
+        if(this.messageId) {
+            this.messageReceiptService.opened(this.messageId);
+        }
     }
 
     dismiss() {
+        this.messageReceiptService.engaged(this.messageId);
         this.viewCtrl.dismiss();
     }
 }

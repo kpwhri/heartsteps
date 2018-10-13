@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { PushService, Device } from '@infrastructure/push.service';
 import { Storage } from "@ionic/storage";
 import { Subject } from 'rxjs';
+import { MessageReceiptService } from '@heartsteps/message-receipt.service';
 
 
 const storageKey: string = 'notificationServiceDevice';
@@ -16,6 +17,7 @@ export class NotificationService {
 
     constructor(
         private pushService: PushService,
+        private messageReceiptService: MessageReceiptService,
         private heartstepsServer:HeartstepsServer,
         private storage:Storage
     ){
@@ -30,7 +32,7 @@ export class NotificationService {
 
     processMessage(data: any) {
         if(data.messageId) {
-            this.logMessage(data.messageId, 'recieved');
+            this.messageReceiptService.received(data.messageId);
         }
         if(data.body) {
             this.notificationMessage.next({
@@ -41,14 +43,6 @@ export class NotificationService {
         if(data.data) {
             this.dataMessage.next(data.data);
         }
-    }
-
-    logMessage(messageId:string, type:string) {
-        this.heartstepsServer.post('messages/recieved', {
-            message: messageId,
-            type: type,
-            time: new Date().toISOString()
-        })
     }
 
     isEnabled():Promise<boolean> {

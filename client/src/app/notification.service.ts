@@ -4,6 +4,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Geolocation } from "@ionic-native/geolocation";
 import { ModalController } from "ionic-angular";
 import { NotificationPane } from "@app/notification";
+import { MessageReceiptService } from "@heartsteps/message-receipt.service";
 
 @Injectable()
 export class NotificationService {
