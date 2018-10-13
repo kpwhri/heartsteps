@@ -9,12 +9,18 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participant.service';
 import { AuthorizationService } from '@infrastructure/authorization.service';
+import { BackgroundService } from '@app/background.service.ts';
+import { NotificationService } from '@app/notification.service.ts';
 
 class ParticipantServiceMock {
 
 }
 
 class AuthorizationServiceMock {
+
+}
+
+class BackgroundServiceMock {
 
 }
 
@@ -30,7 +36,9 @@ describe('MyApp', () => {
                 StatusBar,
                 SplashScreen,
                 { provide: ParticipantService, useClass: ParticipantServiceMock },
-                { provide: AuthorizationService, useClass: AuthorizationServiceMock }
+                { provide: AuthorizationService, useClass: AuthorizationServiceMock },
+                { provide: BackgroundService, useClass: BackgroundServiceMock },
+                { provide: NotificationService, useClass: BackgroundServiceMock }
             ]
         });
         fixture = TestBed.createComponent(MyApp);
