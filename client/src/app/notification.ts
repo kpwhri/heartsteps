@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { ViewController, NavParams } from "ionic-angular";
-import { MessageReceiptService } from "@heartsteps/message-receipt.service";
+import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
 
 
 @Component({

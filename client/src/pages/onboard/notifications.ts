@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NotificationService } from '@heartsteps/notification.service';
+import { NotificationService } from '@heartsteps/notifications/notification.service';
 import { NavController } from 'ionic-angular';
 import { loadingService } from '../../infrastructure/loading.service';
 

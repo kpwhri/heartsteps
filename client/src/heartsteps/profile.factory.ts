@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { NotificationService } from "./notification.service";
+import { NotificationService } from "@heartsteps/notifications/notification.service";
 import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places.service";

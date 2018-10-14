@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 
-import { NotificationService } from './notification.service';
-import { InfrastructureModule } from '../infrastructure/infrastructure.module';
+import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+
 import { ParticipantService } from './participant.service';
 import { ActivitySuggestionTimeService } from './activity-suggestion-time.service';
 import { ActivityPlanService } from '@heartsteps/activity-plan.service';
@@ -17,11 +18,11 @@ import { LocationService } from '@heartsteps/location.service';
 
 @NgModule({
     imports: [
-        InfrastructureModule
+        InfrastructureModule,
+        NotificationsModule
     ],
     providers: [
         ContactInformationService,
-        NotificationService,
         ParticipantService,
         ProfileService,
         ActivitySuggestionTimeService,
