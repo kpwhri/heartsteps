@@ -31,7 +31,9 @@ class MessageReceipt(models.Model):
     OPENED = 'opened'
     ENGAGED = 'engaged'
 
-    MESSAGE_RECIEPT_TYPES = (
+    MESSAGE_RECEIPT_TYPES = [SENT, RECEIVED, OPENED, ENGAGED]
+
+    MESSAGE_RECEIPT_CHOICES = (
         (SENT, 'Sent'),
         (RECEIVED, 'Received'),
         (OPENED, 'Opened'),
@@ -43,4 +45,4 @@ class MessageReceipt(models.Model):
     message = models.ForeignKey(Message)
     
     time = models.DateTimeField()
-    type = models.CharField(max_length=20, choices=MESSAGE_RECIEPT_TYPES)
+    type = models.CharField(max_length=20, choices=MESSAGE_RECEIPT_CHOICES)

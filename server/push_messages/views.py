@@ -50,25 +50,31 @@ class RecievedMessageView(APIView):
     """
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
-        serializer = MessageReceiptSerializer(data=request.data)
-        if serializer.is_valid():
-            message = serializer.validated_data['message']
-            
-            if request.user != message.recipient:
-                return Response({}, status.HTTP_401_UNAUTHORIZED)
+    def create_message_receipt(self, message, receipt_type, time):
+        try:
+            MessageReceipt.objects.get(
+                message = message,
+                type = receipt_type
+            )
+        except MessageReceipt.DoesNotExist:
+            MessageReceipt.objects.create(
+                message = message,
+                type = receipt_type,
+                time = time
+            )
 
-            try:
-                message_reciept = MessageReceipt.objects.get(
-                    message = message,
-                    type = serializer.validated_data['type']
-                    )
-            except MessageReceipt.DoesNotExist:
-                message_reciept = MessageReceipt.objects.create(
-                    message = message,
-                    type = serializer.validated_data['type'],
-                    time = serializer.validated_data['time']
-                )
-                return Response({}, status.HTTP_201_CREATED)
+    def post(self, request):
+        serialized_receipts = MessageReceiptSerializer(data=request.data, context={
+            'user': request.user
+        }, many=True)
+        if serialized_receipts.is_valid():
+            for serialized_receipt in serialized_receipts.validated_data:
+                for receipt_type in MessageReceipt.MESSAGE_RECEIPT_TYPES:
+                    if receipt_type in serialized_receipt:
+                        self.create_message_receipt(
+                            serialized_receipt['message'],
+                            receipt_type,
+                            serialized_receipt[receipt_type]
+                        )
             return Response({}, status.HTTP_200_OK)
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(serialized_receipts.errors, status.HTTP_400_BAD_REQUEST)
