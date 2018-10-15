@@ -5,7 +5,7 @@ import { PushService, Device } from '@infrastructure/push.service';
 import { Storage } from "@ionic/storage";
 import { Subject } from 'rxjs';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
-
+import { Notification } from '@heartsteps/notifications/notification.model';
 
 const storageKey: string = 'notificationServiceDevice';
 
@@ -13,7 +13,7 @@ const storageKey: string = 'notificationServiceDevice';
 export class NotificationService {
 
     dataMessage: Subject<any>;
-    notificationMessage: Subject<any>;
+    notificationMessage: Subject<Notification>;
 
     constructor(
         private pushService: PushService,
@@ -31,18 +31,15 @@ export class NotificationService {
     }
 
     processMessage(data: any) {
-        if(data.messageId) {
-            this.messageReceiptService.received(data.messageId);
-        }
-        if(data.body) {
-            this.notificationMessage.next({
-                body: data.body,
-                title: data.title
-            });
-        }
-        if(data.data) {
-            this.dataMessage.next(data.data);
-        }
+        this.messageReceiptService.received(data.messageId)
+        .then(() => {
+            if(data.body) {
+                this.notificationMessage.next(new Notification(data.messageId, data.title, data.body));
+            }
+            if(data.data) {
+                this.dataMessage.next(data.data);
+            }
+        })
     }
 
     isEnabled():Promise<boolean> {

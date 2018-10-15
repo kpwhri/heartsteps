@@ -4,6 +4,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Geolocation } from "@ionic-native/geolocation";
 import { ModalController } from "ionic-angular";
 import { NotificationPane } from "@app/notification";
+import { Notification } from "@heartsteps/notifications/notification.model";
 
 @Injectable()
 export class NotificationService {
@@ -15,8 +16,8 @@ export class NotificationService {
         private modalCtrl: ModalController
     ) {
 
-        this.notifications.notificationMessage.subscribe((message:any) => {
-            this.showMessage(message.body);
+        this.notifications.notificationMessage.subscribe((notification: Notification) => {
+            this.showMessage(notification);
         });
 
         this.notifications.dataMessage.subscribe((payload:any) => {
@@ -33,14 +34,14 @@ export class NotificationService {
         })
     }
 
-    showMessage(message:string) {
+    showMessage(notification: Notification) {
         let modal = this.modalCtrl.create(NotificationPane, {
-            message: message
+            notification: notification
         }, {
             showBackdrop: true,
             enableBackdropDismiss: true,
             cssClass: 'heartsteps-message-modal'
-        })
-        modal.present()
+        });
+        modal.present();
     }
 }

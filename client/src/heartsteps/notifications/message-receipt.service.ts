@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
@@ -37,7 +39,7 @@ export class MessageReceiptService {
                 return Promise.reject("Message state already set.")
             }
 
-            messages[messageId][state] = new Date().toISOString();
+            messages[messageId][state] = moment().utc().format('YYYY-MM-DD HH:mm:ss')
             return this.storage.set(storageKey, messages)
         })
         .then(() => {
@@ -49,6 +51,24 @@ export class MessageReceiptService {
     }
 
     sync(): Promise<boolean> {
-        return Promise.resolve(true);
+        return this.storage.get(storageKey)
+        .then((messages) => {
+            if(!messages || Object.keys(messages).length < 1) {
+                return Promise.resolve(true)
+            }
+            const messageList:Array<any> = [];
+            Object.keys(messages).forEach((key) => {
+                const message = messages[key];
+                message.id = key;
+                messageList.push(message);
+            })
+            return this.heartstepsServer.post('/recieved', messageList);
+        })
+        .then(() => {
+            return this.storage.set(storageKey, {})
+        })
+        .then(() => {
+            return Promise.resolve(true);
+        });
     }
 }
