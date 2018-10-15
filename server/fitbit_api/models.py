@@ -26,7 +26,7 @@ class FitbitAccount(models.Model):
         return str(self.user)
 
 class FitbitSubscription(models.Model):
-    uuid = models.CharField(max_length=50, unique=True, primary_key=True, default=uuid.uuid4().hex)    
+    uuid = models.CharField(max_length=50, unique=True, primary_key=True, default=lambda: uuid.uuid4().hex)    
     fitbit_account = models.ForeignKey(FitbitAccount)
 
     def __str__(self):
