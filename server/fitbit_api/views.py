@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from fitbit_api.services import create_fitbit, create_callback_url, FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit, update_fitbit_data
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitSubscriptionUpdate, AuthenticationSession
+from fitbit_api.models import FitbitAccount, FitbitUpdate, FitbitSubscription, FitbitSubscriptionUpdate, AuthenticationSession
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -33,6 +33,9 @@ def fitbit_subscription(request):
             return Response('', status=status.HTTP_204_NO_CONTENT)
         return Response('', status=status.HTTP_404_NOT_FOUND)
     
+    FitbitUpdate.objects.create(
+        payload = request.data
+    )
     for update in request.data:
         if 'subscriptionId' in update:
             try:

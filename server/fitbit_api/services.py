@@ -30,12 +30,6 @@ class FitbitClient():
             self.account = FitbitAccount.objects.get(user=user)
         except FitbitAccount.DoesNotExist:
             raise ValueError("Fitbit Account doesn't exist")
-        try:
-            self.subscription = FitbitSubscription.objects.get(fitbit_account=self.account)
-        except FitbitSubscription.DoesNotExist:
-            self.subscription = FitbitSubscription.objects.create(
-                fitbit_account = self.account
-            )
         self.client = self.create_client()
 
 
@@ -48,8 +42,8 @@ class FitbitClient():
         })
 
     def update_token(self, token):
-        self.account.access_token = token['access_token'],
-        self.account.refresh_token = token['refresh_token'],
+        self.account.access_token = token['access_token']
+        self.account.refresh_token = token['refresh_token']
         self.account.expires_at = token['expires_at']
         self.account.save()
 
@@ -65,7 +59,13 @@ class FitbitClient():
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
             raise ImproperlyConfigured('No FitBit Subscriber ID')
         try:
-            self.client.subscribe(
+            self.subscription = FitbitSubscription.objects.get(fitbit_account=self.account)
+        except FitbitSubscription.DoesNotExist:
+            self.subscription = FitbitSubscription.objects.create(
+                fitbit_account = self.account
+            )
+        try:
+            self.client.subscription(
                 subscription_id = str(self.subscription.uuid),
                 subscriber_id = settings.FITBIT_SUBSCRIBER_ID
             )

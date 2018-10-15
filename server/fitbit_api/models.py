@@ -26,11 +26,19 @@ class FitbitAccount(models.Model):
         return str(self.user)
 
 class FitbitSubscription(models.Model):
-    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)    
+    uuid = models.CharField(max_length=50, unique=True, primary_key=True, default=uuid.uuid4().hex)    
     fitbit_account = models.ForeignKey(FitbitAccount)
 
     def __str__(self):
         return 'Subscription for %s' % (self.fitbit_account)
+
+class FitbitUpdate(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    payload = JSONField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "Update from FitBit at %s" % (self.created)
 
 class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
