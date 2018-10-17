@@ -124,10 +124,11 @@ class FitbitClient():
             startTime = dateutil_parser.parse(activity['startTime'])
             if startTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
                 self.save_activity(activity, fitbit_day)
-        lastActivityStartTime = dateutil_parser.parse(activities[-1]['startTime'])
-        if lastActivityStartTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
-            if response['pagination']['next'] is not '':
-                self.update_activities(fitbit_day, request_url=response['pagination']['next'])
+        if len(activities) > 0:
+            lastActivityStartTime = dateutil_parser.parse(activities[-1]['startTime'])
+            if lastActivityStartTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
+                if response['pagination']['next'] is not '':
+                    self.update_activities(fitbit_day, request_url=response['pagination']['next'])
 
     def save_activity(self, activity, fitbit_day):
         startTime = dateutil_parser.parse(activity['startTime'])
