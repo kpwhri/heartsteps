@@ -29,9 +29,10 @@ class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, unique=True, primary_key=True)    
     fitbit_account = models.ForeignKey(FitbitAccount)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_uuid()
+    def save(self, *args, **kwargs):
+        if not self.uuid:
+            self.set_uuid()
+        super().save(*args, **kwargs)
 
     def set_uuid(self):
         self.uuid = uuid.uuid4().hex
