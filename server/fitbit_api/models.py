@@ -26,8 +26,15 @@ class FitbitAccount(models.Model):
         return str(self.user)
 
 class FitbitSubscription(models.Model):
-    uuid = models.CharField(max_length=50, unique=True, primary_key=True, default=lambda: uuid.uuid4().hex)    
+    uuid = models.CharField(max_length=50, unique=True, primary_key=True)    
     fitbit_account = models.ForeignKey(FitbitAccount)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_uuid()
+
+    def set_uuid(self):
+        self.uuid = uuid.uuid4().hex
 
     def __str__(self):
         return 'Subscription for %s' % (self.fitbit_account)
@@ -83,3 +90,14 @@ class FitbitMinuteStepCount(models.Model):
     day = models.ForeignKey(FitbitDay)
     time = models.DateTimeField()
     steps = models.IntegerField()
+
+class FitbitDailyStepsUnprocessed(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+
+    account = models.ForeignKey(FitbitAccount)
+    day = models.OneToOneField(FitbitDay)
+
+    payload = JSONField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

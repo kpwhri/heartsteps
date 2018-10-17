@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import pytz
 
 from django.conf import settings
 from django.urls import reverse
@@ -6,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitMinuteStepCount, FitbitDailyStepsUnprocessed
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -81,6 +82,14 @@ class FitbitClient():
         else:
             return False
 
+    def get_timezone(self):
+        if hasattr(self, '__timezone'):
+            return self.__timezone
+        response = self.client.user_profile_get()
+        timezone = response['user']['timezone']
+        self.__timezone = pytz.timezone(timezone)
+        return self.__timezone
+
     def get_day(self, date_string):
         date = datetime.strptime(date_string, '%Y-%m-%d')
         try:
@@ -112,21 +121,29 @@ class FitbitClient():
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
 
+        FitbitDailyStepsUnprocessed.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'payload': response
+        })
         FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
         
         total_steps = 0
-        for stepInterval in response['activities-steps']:
+        for stepInterval in response['activities-steps-intraday']['dataset']:
             if stepInterval['value'] > 0:
                 total_steps += stepInterval['value']
+                
+                step_datetime = datetime.strptime(
+                        "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
+                        "%Y-%m-%d %H:%M:%S"
+                    )
+                timezone = self.get_timezone()
+                step_datetime = timezone.localize(step_datetime)
+                step_datetime_utc = step_datetime.astimezone(pytz.utc)
+
                 FitbitMinuteStepCount.objects.create(
                     account = self.account,
                     day = fitbit_day,
-                    time = datetime.strptime(
-                        "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
+                    time = step_datetime_utc,
                     steps = stepInterval['value']
                 )
         fitbit_day.total_steps = total_steps
         fitbit_day.save()
-
