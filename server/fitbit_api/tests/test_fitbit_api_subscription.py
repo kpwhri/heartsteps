@@ -68,7 +68,7 @@ class SubscriptionUpdate(APITestCase):
         subscription = FitbitSubscription.objects.create(
             fitbit_account = make_fitbit_account()
         )
-
+        
         response = self.client.post(reverse('fitbit-subscription'), [{
             'ownerId': subscription.fitbit_account.fitbit_user,
             'subscriptionId': str(subscription.uuid),

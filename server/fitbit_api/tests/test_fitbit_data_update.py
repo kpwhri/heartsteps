@@ -1,3 +1,4 @@
+import pytz
 from unittest.mock import patch
 from datetime import datetime
 
@@ -28,8 +29,9 @@ class GetUpdatedAcitivities(TestCase):
         update_activities.assert_called()
 
     @patch.object(Fitbit, 'intraday_time_series')
-    def test_gets_total_steps_for_day(self, intraday_time_series):
-        intraday_time_series.return_value = {'activities-steps':[
+    @patch.object(FitbitClient, 'get_timezone', return_value=pytz.utc)
+    def test_gets_total_steps_for_day(self, get_timezone, intraday_time_series):
+        intraday_time_series.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 5
@@ -40,7 +42,7 @@ class GetUpdatedAcitivities(TestCase):
                 'time': '13:16:00',
                 'value': 0
             }
-        ]}
+        ]}}
         account = FitbitAccount.objects.create(
             user = User.objects.create(username="test"),
             fitbit_user = "test"
@@ -60,6 +62,11 @@ class GetUpdatedAcitivities(TestCase):
 
     @patch.object(Fitbit, 'make_request')
     def test_gets_activities_for_day(self, make_request):
+        make_request.return_value = {'activities': [
+            {
+                'startTime': '2018-07-07T07:07:07.000-7:00'
+            }
+        ]}
         account = FitbitAccount.objects.create(
             user = User.objects.create(username="test"),
             fitbit_user = "test"
@@ -72,5 +79,5 @@ class GetUpdatedAcitivities(TestCase):
 
         service.update_activities(day)
 
-        make_request.assert_called_with('https://api.fitbit.com/1/user/test/activities/list.json?afterDate=2018-02-13&offset=0&limit=20&sort=asc')
+        make_request.assert_called_with('https://api.fitbit.com/1/user/test/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
 
