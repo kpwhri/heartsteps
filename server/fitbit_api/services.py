@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from dateutil import parser as dateutil_parser
 import pytz
 
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitMinuteStepCount, FitbitDailyStepsUnprocessed
+from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyStepsUnprocessed
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -104,19 +105,50 @@ class FitbitClient():
             )
         return day
 
-    def update_activities(self, fitbit_day):
-        previous_day = fitbit_day.date - timedelta(days=1)
+    def request_activities(self, fitbit_day):
         url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
             *self.client._get_common_args(),
             user_id = self.account.fitbit_user,
-            after_date = self.client._get_date_string(previous_day)
+            after_date = fitbit_day.format_date()
+        )
+        response = self.client.make_request(url)
+        return response
+
+    def update_activities(self, fitbit_day, request_url=None):
+        if request_url:
+            response = self.client.make_request(request_url)
+        else:   
+            response = self.request_activities(fitbit_day)
+        activities = response['activities']
+        for activity in activities:
+            startTime = dateutil_parser.parse(activity['startTime'])
+            if startTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
+                self.save_activity(activity, fitbit_day)
+        lastActivityStartTime = dateutil_parser.parse(activities[-1]['startTime'])
+        if lastActivityStartTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
+            if response['pagination']['next'] is not '':
+                self.update_activities(fitbit_day, request_url=response['pagination']['next'])
+
+    def save_activity(self, activity, fitbit_day):
+        startTime = dateutil_parser.parse(activity['startTime'])
+        endTime = startTime + timedelta(milliseconds=activity['duration'])
+
+        activity_type, _ = FitbitActivityType.objects.get_or_create(
+            fitbit_id = activity['activityTypeId'],
+            name = activity['activityName']
         )
 
-        activities = []
-        response = self.client.make_request(url)
-        for activity in response['activities']:
-            activities.append(activity)
-        return activities
+        FitbitActivity.objects.update_or_create(
+            fitbit_id = activity['logId'], defaults={
+                'account': self.account,
+                'type': activity_type,
+                'day': fitbit_day,
+                'startTime': startTime,
+                'endTime': endTime,
+                'payload': activity
+            }
+        )
+
 
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())

@@ -79,9 +79,14 @@ class FitbitActivity(models.Model):
     account = models.ForeignKey(FitbitAccount)
     fitbit_id = models.CharField(max_length=50)
 
+    type = models.ForeignKey(FitbitActivityType, null=True, blank=True)
     day = models.ForeignKey(FitbitDay)
     startTime = models.DateTimeField()
     endTime = models.DateTimeField()
+
+    payload = JSONField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
