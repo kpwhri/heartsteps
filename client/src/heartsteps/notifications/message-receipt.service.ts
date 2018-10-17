@@ -62,7 +62,7 @@ export class MessageReceiptService {
                 message.id = key;
                 messageList.push(message);
             })
-            return this.heartstepsServer.post('/recieved', messageList);
+            return this.heartstepsServer.post('/messages', messageList);
         })
         .then(() => {
             return this.storage.set(storageKey, {})
