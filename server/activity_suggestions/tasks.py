@@ -62,7 +62,7 @@ def make_decision(decision_id):
         return False
     
     decision_service = DecisionContextService(decision)
-    decision_service.generate_context()
+    decision_service.update_context()
 
     decision.a_it = True
     decision.pi_it = 1
