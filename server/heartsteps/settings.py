@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'contact',
     'corsheaders',
     'fitbit_api',
+    'fitbit_authorize',
     'behavioral_messages',
     'morning_messages',
     'push_messages',

@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from fitbit.api import FitbitOauth2Client
 
-from fitbit_api.models import FitbitAccount, AuthenticationSession
+from fitbit_api.models import FitbitAccount
+from fitbit_authorize.models import AuthenticationSession
 
 class FitbitAuthorizationTest(APITestCase):
 
