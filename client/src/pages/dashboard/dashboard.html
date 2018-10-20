@@ -4,12 +4,5 @@
         <ion-card-content>
             <p>Current progress goes here</p>
         </ion-card-content>
-        <button ion-button clear (click)="logActivity()">Log additional activity</button>
     </ion-card>
-    <ion-card >
-        <ion-card-header>My plan</ion-card-header>
-        <ion-card-content>
-            <activity-plan-day *ngFor="let date of dates" [date]="date"></activity-plan-day>
-        </ion-card-content>
-      </ion-card>
 </ion-content>
