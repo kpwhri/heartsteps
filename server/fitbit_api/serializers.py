@@ -6,5 +6,3 @@ class FitbitDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = FitbitDay
         fields = ('date', 'active_minutes', 'total_steps')
-
-
