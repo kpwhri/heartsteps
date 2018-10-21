@@ -1,4 +1,7 @@
 from unittest.mock import patch
+import pytz
+from datetime import datetime
+from timezonefinder import TimezoneFinder
 
 from django.test import TestCase
 from django.utils import timezone
@@ -17,11 +20,13 @@ class DecisionContextTest(TestCase):
     Ensure decisions are created and gather context from associated services.
     """
 
-    def make_decision_service(self):
+    def make_decision_service(self, time=None):
+        if not time:
+            time = timezone.now()
         user, created = User.objects.get_or_create(username="test")
         decision = Decision.objects.create(
             user = user,
-            time = timezone.now()
+            time = time
         )
         return DecisionContextService(decision)
 
@@ -139,3 +144,42 @@ class DecisionContextTest(TestCase):
         self.assertEqual(weather_context, "outdoors")
         get_average_forecast_context.assert_called()
         self.assertIn(fake_weather_object, get_average_forecast_context.call_args[0][0])
+
+    def test_add_weekday_context(self):
+        #day is a Wednesday
+        decision_time = datetime(2018, 10, 10, 10, 10).astimezone(pytz.utc)
+        decision_service = self.make_decision_service(decision_time)
+
+        context = decision_service.get_week_context()
+        
+        self.assertEqual(context, "weekday")
+
+    def test_add_weekend_context(self):
+        # Day is Saturady
+        decision_time = datetime(2018, 10, 13, 13, 13).astimezone(pytz.utc)
+        decision_service = self.make_decision_service(decision_time)
+
+        context = decision_service.get_week_context()
+        
+        self.assertEqual(context, "weekend")
+
+    @patch.object(TimezoneFinder, 'timezone_at', return_value="US/Pacific")
+    def test_corrects_weekend_for_timezone(self, timezone_at):
+        # Day is early monday morning UTC - late sunday evening PST
+        decision_time = datetime(2018, 10, 15, 2).astimezone(pytz.utc)
+        decision_service = self.make_decision_service(decision_time)
+        location = Location.objects.create(
+            latitude = 123.123,
+            longitude = 42.42,
+            user = decision_service.user,
+            time = timezone.now()
+        )
+        DecisionContext.objects.create(
+            decision = decision_service.decision,
+            content_object = location
+        )
+
+        context = decision_service.get_week_context()
+        
+        self.assertEqual(context, "weekend")
+        timezone_at.assert_called_with(lat=123.123, lng=42.42)

@@ -1,4 +1,6 @@
 from random import randint
+import pytz
+from timezonefinder import TimezoneFinder
 
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
@@ -59,8 +61,9 @@ class DecisionContextService(DecisionService):
     def generate_context(self):
         location_context = self.get_location_context()
         weather_context = self.get_weather_context()
+        week_context = self.get_week_context()
 
-        return [location_context, weather_context]
+        return [location_context, weather_context, week_context]
 
     def get_location(self):
         if hasattr(self, 'location'):
@@ -129,6 +132,28 @@ class DecisionContextService(DecisionService):
             content_object = forecast
         )
         return forecast
+
+    def get_local_decision_time(self):
+        location = self.get_location()
+        if location:
+            timezone_finder = TimezoneFinder()
+            timezone_string = timezone_finder.timezone_at(
+                lng = location.longitude,
+                lat = location.latitude
+            )
+            local_timezone = pytz.timezone(timezone_string)
+            return self.decision.time.astimezone(local_timezone)
+        return self.decision.time
+
+
+    def get_week_context(self):
+        WEEKEND_DAYS = [5, 6]
+        local_time = self.get_local_decision_time()
+        day_of_week = local_time.weekday()
+        if day_of_week in WEEKEND_DAYS:
+            return "weekend"
+        else:
+            return "weekday"
 
 class DecisionMessageService(DecisionService):
 
