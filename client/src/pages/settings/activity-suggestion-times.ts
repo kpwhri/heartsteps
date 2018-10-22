@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { FormControl, Validators, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-import { loadingService } from '../../infrastructure/loading.service';
-import { ActivitySuggestionTimeService } from '../../heartsteps/activity-suggestion-time.service';
+import { loadingService } from '@infrastructure/loading.service';
+import { ActivitySuggestionTimeService } from '@heartsteps/activity-suggestions/activity-suggestion-time.service';
 
 @Component({
   selector: 'activity-suggestion-times',

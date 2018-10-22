@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import {BehaviorSubject} from 'rxjs';
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Activity } from "@heartsteps/activity.model";
+import { Activity } from "@heartsteps/activity/activity.model";
 
 const storageKey = 'activityPlans';
 

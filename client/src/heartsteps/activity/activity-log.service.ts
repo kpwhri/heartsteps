@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import {BehaviorSubject} from 'rxjs';
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Activity } from "@heartsteps/activity.model";
+import { Activity } from "@heartsteps/activity/activity.model";
 
 const storageKey = 'activityLogs';
 
@@ -17,6 +17,13 @@ export class ActivityLogService {
     ){
         this.logs = new BehaviorSubject([]);
         this.updateSubject();
+    }
+
+    getSummary(): Promise<any> {
+        return Promise.resolve({
+            totalSteps: 150,
+            totalActiveMinutes: 10
+        });
     }
 
     updateSubject() {

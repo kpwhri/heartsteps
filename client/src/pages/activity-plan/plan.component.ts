@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from 'ionic-angular';
 import { PlanModal } from '@pages/activity-plan/plan.modal';
-import { Activity } from '@heartsteps/activity.model';
+import { Activity } from '@heartsteps/activity/activity.model';
 
 @Component({
     selector: 'activity-plan',
