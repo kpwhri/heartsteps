@@ -11,7 +11,9 @@ export class BackgroundProcessService{
     ){
         platform.ready()
         .then(() => {
-            this.setupBackgroundFetch();
+            if(platform.is('android') || platform.is('ios')) {
+                this.setupBackgroundFetch();
+            }
         })
     }
 

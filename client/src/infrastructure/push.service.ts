@@ -39,15 +39,21 @@ export class PushService {
 
         this.platform.ready()
         .then(() => {
-            this.oneSignal.setLogLevel({
-                logLevel: 4,
-                visualLevel: 0
-            });
-            return this.setup();
+            if(this.platform.is('cordova')) {
+                this.oneSignal.setLogLevel({
+                    logLevel: 4,
+                    visualLevel: 0
+                });
+                return this.setup();
+            }
         });
     }
 
     getPermission(): Promise<boolean> {
+        if(!this.platform.is('cordova')) {
+            this.device.next(new Device('fake-token', 'firebase'))
+            return Promise.resolve(true);
+        }
         return this.oneSignal.promptForPushNotificationsWithUserResponse()
         .then((value) => {
             if(value) {
