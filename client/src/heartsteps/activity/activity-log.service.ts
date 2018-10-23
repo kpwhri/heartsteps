@@ -1,8 +1,11 @@
+import * as moment from 'moment';
+
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import {BehaviorSubject} from 'rxjs';
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Activity } from "@heartsteps/activity/activity.model";
+import { DailySummary } from '@heartsteps/activity/daily-summary.model';
 
 const storageKey = 'activityLogs';
 
@@ -19,10 +22,11 @@ export class ActivityLogService {
         this.updateSubject();
     }
 
-    getSummary(): Promise<any> {
-        return Promise.resolve({
-            totalSteps: 150,
-            totalActiveMinutes: 10
+    getSummary(date: Date): Promise<any> {
+        const formattedDate :string = moment(date).format('YYYY-MM-DD');
+        return this.heartstepsServer.get('fitbit/' + formattedDate)
+        .then((data) => {
+            return new DailySummary(data.active_minutes, 0, data.total_steps, 0);
         });
     }
 

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
-import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
 
 @IonicPage()
@@ -9,22 +8,9 @@ import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
     templateUrl: 'dashboard.html',
     providers: [ActivityLogService]
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage {
 
-    private totalSteps: Number;
-    private totalActiveMinutes: Number;
-
-    constructor(
-        private activityLogService: ActivityLogService
-    ) {
+    constructor() {
         
-    }
-
-    ngOnInit() {
-        this.activityLogService.getSummary()
-        .then((data: any) => {
-            this.totalSteps = data.totalSteps;
-            this.totalActiveMinutes = data.totalActiveMinutes;
-        })
     }
 }

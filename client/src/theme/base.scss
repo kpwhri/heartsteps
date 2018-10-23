@@ -1,4 +1,8 @@
 
+h3 {
+    text-align: center;
+}
+
 .heartsteps-primary-button {
     display: block;
     color: map-get($colors, primary);
@@ -27,5 +31,27 @@
 
     > form {
         flex-grow: 1;
+    }
+}
+
+.callout-progress {
+    display: block;
+    text-align: center;
+    color: map-get($colors, secondary);
+    font-weight: bold;
+}
+
+ul.horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+ul.horizontal li {
+    display: block;
+    padding: $space-size/2;
+    & > em {
+        display:block;
+        color: gray;
     }
 }
