@@ -1,18 +1,13 @@
-from django.test import TestCase
+from unittest.mock import patch
+
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from unittest.mock import patch
-from django.test import TestCase, override_settings
-
 from rest_framework.test import APITestCase
-from rest_framework.test import force_authenticate
 
 from django.contrib.auth.models import User
 from activity_suggestions.models import SuggestionTime
-from randomization.models import Decision
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
-
-from activity_suggestions.tasks import start_decision
 
 class SuggestionTimeTestCase(TestCase):
 
@@ -97,29 +92,3 @@ class SuggestionTimeUpdateView(APITestCase):
         afternoon_time = SuggestionTime.objects.get(user=user, type='midafternoon')
         self.assertEqual(afternoon_time.hour, 15)
         self.assertEqual(afternoon_time.minute, 45)
-
-class TaskTests(TestCase):
-
-    @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('activity_suggestions.tasks.is_weekday_in_timezone', return_value=True)
-    @patch('activity_suggestions.tasks.make_decision.apply_async')
-    @patch('randomization.services.DecisionService.request_context')
-    def test_start_decision(self, get_context, make_decision, is_weekday_in_timezone):
-        user = User.objects.create(username="test")
-        SuggestionTime.objects.create(
-            user = user,
-            type = 'evening',
-            hour = 20,
-            minute = 00
-        )
-
-        start_decision(user.username, 'evening')
-
-        decision = Decision.objects.get(user=user)
-        tags = [tag.tag for tag in decision.tags.all()]
-        self.assertIn('activity suggestion', tags)
-        self.assertIn('evening', tags)
-        self.assertIn('weekday', tags)
-        make_decision.assert_called()
-        get_context.assert_called()
-        is_weekday_in_timezone.assert_called()
