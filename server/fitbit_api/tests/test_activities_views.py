@@ -26,7 +26,7 @@ class FitbitLogsView(APITestCase):
         )
         self.create_day(account, datetime(2018, 10, 16))
 
-        self.client.force_login(account.user)
+        self.client.force_authenticate(account.user)
         response = self.client.get(reverse('fitbit-day-log', kwargs={
             'day': '2018-10-16'
         }))
@@ -41,7 +41,7 @@ class FitbitLogsView(APITestCase):
             user = User.objects.create(username="test")
         )
 
-        self.client.force_login(account.user)
+        self.client.force_authenticate(account.user)
         response = self.client.get(reverse('fitbit-day-log', kwargs={
             'day': '2018-10-16'
         }))
@@ -58,7 +58,7 @@ class FitbitLogsView(APITestCase):
         self.create_day(account, datetime(2018, 10, 18))
         self.create_day(account, datetime(2018, 10, 19))
 
-        self.client.force_login(account.user)
+        self.client.force_authenticate(account.user)
         response = self.client.get(reverse('fitbit-date-range-logs', kwargs={
             'start': '2018-10-16',
             'end': '2018-10-18'
@@ -74,7 +74,7 @@ class FitbitLogsView(APITestCase):
             user = User.objects.create(username="test")
         )
 
-        self.client.force_login(account.user)
+        self.client.force_authenticate(account.user)
         response = self.client.get(reverse('fitbit-date-range-logs', kwargs={
             'start': '2018/10/16',
             'end': 'misformatted date'
