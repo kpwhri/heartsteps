@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
+from randomization.models import Decision, ContextTag
+
 MORNING = 'morning'
 LUNCH = 'lunch'
 MIDAFTERNOON = 'midafternoon'
@@ -80,6 +82,17 @@ def pre_delete_suggested_time(sender, instance, *args, **kwargs):
     if hasattr(instance, 'scheduled_task'):
         instance.scheduled_task.crontab.delete()
         instance.scheduled_task.delete()
+
+class ActivitySuggestionDecisionManager(models.Manager):
+
+    def get_queryset(self):
+        return Decision.objects.filter(tags__tag="activity suggestion")
+
+class ActivitySuggestionDecision(Decision):
+    objects = ActivitySuggestionDecisionManager()
+
+    class Meta:
+        proxy = True
 
 class ActivityServiceRequest(models.Model):
     user = models.ForeignKey(User)
