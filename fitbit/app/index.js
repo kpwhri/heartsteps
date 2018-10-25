@@ -11,6 +11,38 @@ import { today as activity } from "user-activity";
 import * as fs from "fs";
 import { StepCountHandler } from "./step-count.js";
 
+
+
+// Try having the watch app kick everything off
+const WAKE_INTERVAL = 6;
+const MILLISECONDS_PER_MINUTE = 1000 * 60;
+
+// Test function to be called
+function testFunction(){
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    let data = {key: "testFunction", value: 1};
+    messaging.peerSocket.send(data);
+    console.log("Watch side; Repeated run a success");
+    console.log("Current time: "+ Date.now());
+  } else {
+    // Close the companion and wait to be awoken
+    console.log("Watch side: No peerSocket connection");
+    console.log("Current time: "+ Date.now());
+    // me.yield();
+  }
+}
+
+
+
+// Standard JS function - not using Companion WakeUp API
+setInterval(function() {
+  testFunction();
+}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+
+
+testFunction();
+
+// Listen for message sent by phone
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
   // Update enabled/disabled flag if enrollment succeeds
@@ -34,11 +66,11 @@ messaging.peerSocket.onmessage = function(evt) {
   }
 }
 
-let stepCount = new StepCountHandler();
-let oldStepData = stepCount.getData();
-console.log("original data: " + JSON.stringify(oldStepData));
-let newStepData = stepCount.updateData(oldStepData);
-console.log("updated data: " + JSON.stringify(newStepData));
-let recentSteps = stepCount.calculateElapsedSteps(newStepData);
-console.log("step count: " + recentSteps);
-stepCount.saveFile(newStepData);
+// let stepCount = new StepCountHandler();
+// let oldStepData = stepCount.getData();
+// console.log("original data: " + JSON.stringify(oldStepData));
+// let newStepData = stepCount.updateData(oldStepData);
+// console.log("updated data: " + JSON.stringify(newStepData));
+// let recentSteps = stepCount.calculateElapsedSteps(newStepData);
+// console.log("step count: " + recentSteps);
+// stepCount.saveFile(newStepData);

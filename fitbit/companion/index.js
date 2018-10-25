@@ -1,6 +1,7 @@
 import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 import { me } from "companion";
+import companion from "companion";
 
 // Post entryCode to server and display result
 import { sendSettingsData, updateEntryCode } from "./entry-code";
@@ -35,20 +36,101 @@ if (me.launchReasons.settingsChanged) {
   Only allow this if user is authenticated.
 *****************************************************************/
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
-me.wakeInterval = WAKE_INTERVAL * MILLISECONDS_PER_MINUTE;
+// me.wakeInterval does NOT seem to wake the phone-side app
+me.wakeInterval = (WAKE_INTERVAL * MILLISECONDS_PER_MINUTE) + 1;
+console.log("Wake interval set to " + me.wakeInterval);
 
-if (me.launchReasons.wokenUp) {
-  // The companion started due to a periodic timer
-  console.log("Started due to wake interval!");
+companion.wakeInterval = (WAKE_INTERVAL * MILLISECONDS_PER_MINUTE);
+console.log ("Me.wakeinterval = " + me.wakeInterval);
+console.log ("Companion.wakeinterval = " + companion.wakeInterval);
+
+// Just something to run to ensure another function's getting called
+function testFunction(){
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    messaging.peerSocket.send(QUERY_STEP_MESSAGE);
-    // Send location
+    // messaging.peerSocket.send(QUERY_STEP_MESSAGE);
+    console.log("Phone side: Repeated run a success");
+    console.log("Current time: "+ Date.now());
   } else {
     // Close the companion and wait to be awoken
-    console.log("No peerSocket connection");
+    console.log("Phone side: No peerSocket connection");
+    console.log("Current time: "+ Date.now());
     me.yield();
   }
 }
+
+
+
+// Set the companion onWakeInterval (instead of me.wakeInterval)
+// Stops as soon as the screen goes off on the phone
+me.onwakeinterval = function(evt) {
+  // The companion started due to a periodic timer
+  console.log("Phone side: Started due to new me.onwakeinterval!");
+  testFunction();
+  // Message socket opens
+  // Is this actually necessary?
+  messaging.peerSocket.onopen = () => {
+    console.log("PhoneSide: Companion Socket Open (me)");
+  };
+}
+
+// This is the code modified from the doco
+// Never seems to run
+// This only runs if companion is NOT running
+// Otherwise check for .onwakeinterval
+if (me.launchReasons.wokenUp) {
+  // The companion started due to a periodic timer
+  console.log("Started due to me.launchReasons.wokenUp!");
+  testFunction();
+  // Message socket opens
+  // Is this actually necessary?
+  messaging.peerSocket.onopen = () => {
+    console.log("Phone Side: Companion Socket Open (me)");
+  };
+}
+
+// From Dischord channel
+if (companion.launchReasons.wokenUp) {
+  // The companion started due to a periodic timer
+  console.log("Started due to companion.launchReasons.wokenUp!");
+  testFunction();
+  // Message socket opens
+  // Is this actually necessary?
+  messaging.peerSocket.onopen = () => {
+    console.log("Phone Side: Companion Socket Open (companion)");
+  };
+}
+
+// Standard JS setInterval
+// But only runs when the app is active
+setInterval(function() {
+  if (messaging.peerSocket.readyState != messaging.peerSocket.OPEN) {
+    console.log ("Phone Side: Connection problem - peerSocket not OPEN");
+  } else {
+    console.log ("Phone Side: setInterval good to go");
+    testFunction();
+ }
+}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+
+// Listen for message sent by watch
+messaging.peerSocket.onmessage = function(evt) {
+  if (evt.data.key == "testFunction") {
+    console.log("Phone side:  Hey, the watch sent a message!");
+  } else {
+    console.log("Phone side: something else: " + evt.data.key);
+  }
+}
+
+// Listen for socket to be opened by watch
+messaging.peerSocket.open = function() {
+  console.log("Phone side:  Hey, socket's open!");
+}
+
+// Listen for the onerror event
+messaging.peerSocket.onerror = function(err) {
+  // Handle any errors
+  console.log("Phone side Connection error: " + err.code + " - " + err.message);
+}
+
 
 /***************************************
   Send location data to the server

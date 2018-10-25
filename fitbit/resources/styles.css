@@ -7,7 +7,7 @@ text {
   font-family: System-Regular;
   font-weight: regular;
   text-length: 32;
-  color: white;
+  fill: white;
   text-anchor: middle;
 }
 

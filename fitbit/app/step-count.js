@@ -36,7 +36,7 @@ StepCountHandler.prototype.getData = function() {
     // Fitbit's JS engine doesn't return err.code
     // but the following text is used.
     if(err == FITBIT_FILE_NOT_FOUND) {
-      let stepData = "";
+      let stepData = '[{"time": 0, "steps": 0}]';
     } else {
       throw err;
     }
