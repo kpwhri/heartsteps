@@ -1,14 +1,24 @@
 import pytz
 from celery import shared_task
-
 from datetime import timedelta, datetime
+
 from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
 from randomization.factories import make_decision_message
 from activity_suggestions.models import SuggestionTime
-from activity_suggestions.services import ActivitySuggestionDecisionService
+from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
+
+@shared_task
+def initialize_activity_suggestion_service(username, date_string):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return False
+    service = ActivitySuggestionService(user)
+    date = datetime.strptime(date_string, 'YYYY-MM-DD')
+    service.initialize(date)
 
 @shared_task
 def start_decision(username, time_category):

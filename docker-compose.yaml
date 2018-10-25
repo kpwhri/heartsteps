@@ -5,6 +5,20 @@ services:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+  activity-suggestion:
+    build: ./activity-suggestion
+    command: python app.py
+    volumes:
+      - ./activity-suggestion:/activity-suggestion
+    ports:
+      - "5000:8000"
+  anti-sedentary:
+    build: ./anti-sedentary
+    command: python app.py
+    volumes:
+      - ./anti-sedentary:/anti-sedentary
+    ports:
+      - "5001:8000"
   server:
     build: ./server
     env_file:
@@ -17,6 +31,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
+      - activity-suggestion
   client:
     build: ./client
     env_file:
@@ -33,20 +48,6 @@ services:
     depends_on:
       - db
       - server
-  activity-suggestion:
-    build: ./activity-suggestion
-    command: python app.py
-    volumes:
-      - ./activity-suggestion:/activity-suggestion
-    ports:
-      - "5000:8000"
-  anti-sedentary:
-    build: ./anti-sedentary
-    command: python app.py
-    volumes:
-      - ./anti-sedentary:/anti-sedentary
-    ports:
-      - "5001:8000"
 volumes:
   client-node-modules:
   pgdata:

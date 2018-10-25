@@ -2,6 +2,7 @@ import uuid, json, pytz
 from datetime import datetime
 
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
 
@@ -79,3 +80,17 @@ def pre_delete_suggested_time(sender, instance, *args, **kwargs):
     if hasattr(instance, 'scheduled_task'):
         instance.scheduled_task.crontab.delete()
         instance.scheduled_task.delete()
+
+class ActivityServiceRequest(models.Model):
+    user = models.ForeignKey(User)
+    url = models.CharField(max_length=150)
+
+    request_data = JSONField()
+    request_time = models.DateTimeField()
+
+    response_code = models.IntegerField()
+    response_data = JSONField()
+    response_time = models.DateTimeField()
+
+    def __str__(self):
+        return "%s (%d) %s" % (self.user, self.response_code, self.url)
