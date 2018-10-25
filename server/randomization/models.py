@@ -58,18 +58,3 @@ class Message(models.Model):
 
     message_template = models.ForeignKey(MessageTemplate)
     sent_message = models.OneToOneField(PushMessage, null=True, blank=True, related_name="randomization_message")
-
-class UserRandomizationManager(models.Manager):
-
-    def get_queryset(self):
-        return User.objects.annotate(
-            decision_count=models.Count('decision')
-        ).filter(decision_count__gte=1)
-
-class UserRandomization(User):
-    objects = UserRandomizationManager()
-
-    class Meta:
-        proxy = True
-        verbose_name = 'Randomization user'
-        verbose_name_plural = 'Randomization for users'
