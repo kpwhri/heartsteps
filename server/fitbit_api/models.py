@@ -93,6 +93,7 @@ class FitbitDailyStepsUnprocessed(models.Model):
 
     account = models.ForeignKey(FitbitAccount)
     day = models.OneToOneField(FitbitDay)
+    timezone = models.CharField(max_length=50, null=True, blank=True)
 
     payload = JSONField()
 

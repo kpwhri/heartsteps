@@ -153,9 +153,11 @@ class FitbitClient():
 
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
-
+        
+        timezone = self.get_timezone()
         FitbitDailyStepsUnprocessed.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'payload': response
+            'payload': response,
+            'timezone': timezone.zone
         })
         FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
         
@@ -168,7 +170,6 @@ class FitbitClient():
                         "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
                         "%Y-%m-%d %H:%M:%S"
                     )
-                timezone = self.get_timezone()
                 step_datetime = timezone.localize(step_datetime)
                 step_datetime_utc = step_datetime.astimezone(pytz.utc)
 
