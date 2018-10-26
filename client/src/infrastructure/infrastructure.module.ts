@@ -10,6 +10,7 @@ import { PushService } from '@infrastructure/push.service';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { OneSignal } from '@ionic-native/onesignal';
+import { BackgroundProcessService } from '@infrastructure/background-process.service';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { OneSignal } from '@ionic-native/onesignal';
       HeartstepsServer,
       loadingService,
       Geolocation,
+      BackgroundProcessService,
       LocationService,
       BrowserService,
       SafariViewController,

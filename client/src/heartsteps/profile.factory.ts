@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
-import { NotificationService } from "./notification.service";
-import { ActivitySuggestionTimeService } from "./activity-suggestion-time.service";
+import { NotificationService } from "@heartsteps/notifications/notification.service";
+import { ActivitySuggestionTimeService } from "@heartsteps/activity-suggestions/activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/reflection-time.service";
-import { FitbitService } from "@heartsteps/fitbit.service";
 
 
 @Injectable()
@@ -17,8 +16,7 @@ export class ProfileService {
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
-        private reflectionTimeService: ReflectionTimeService,
-        private fitbitService: FitbitService
+        private reflectionTimeService: ReflectionTimeService
     ) {}
 
     isComplete():Promise<boolean> {
@@ -47,9 +45,7 @@ export class ProfileService {
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
             this.checkPlacesSet(),
-            this.checkContactInformation(),
-            this.checkReflectionTime(),
-            this.checkFitBitAuthorized()
+            this.checkReflectionTime()
         ])
         .then((results) => {
             return {
@@ -57,9 +53,7 @@ export class ProfileService {
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
                 places: results[3],
-                participantInformation: results[4],
-                weeklyReflectionTime: results[5],
-                fitbitAuth: results[6]
+                weeklyReflectionTime: results[4],
             }
         })
         .catch(() => {
@@ -75,16 +69,6 @@ export class ProfileService {
         .catch(() => {
             return Promise.resolve(false)
         })
-    }
-
-    checkFitBitAuthorized(): Promise<boolean> {
-        return this.fitbitService.isAuthorized()
-        .then(() => {
-            return Promise.resolve(true);
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        });
     }
 
     checkContactInformation():Promise<boolean> {

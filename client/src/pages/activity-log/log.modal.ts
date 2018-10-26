@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Activity } from '@heartsteps/activity.model';
-import { ActivityLogService } from '@heartsteps/activity-log.service';
+import { Activity } from '@heartsteps/activity/activity.model';
+import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
 
 @Component({
     selector: 'activity-log-modal',
-    templateUrl: 'log.modal.html'
+    templateUrl: 'log.modal.html',
+    providers: [ActivityLogService]
 })
 export class LogModal {
     private activity:Activity;

@@ -11,7 +11,7 @@ install:
 
 script:
 - docker-compose run server python manage.py test
-# Build client (for now)
+- docker-compose run client npm test
 - docker-compose run client ionic build --prod
 
 after_success:

@@ -60,12 +60,12 @@ The *initialize* service has no output except for a message indicating successfu
 2. `appClicksArray`
 
 	- A vector of the numbers of app screens encountered in each day from 12:00 am to 11:59 pm.  It is in chronological order, e.g. the first one corresponds to the number of app screens encountered in the first day.  
-	- When any of these numbers are missing **it will be assumed this is a programming error.** If there is a day with no interaction from a participant, then the reported clicks for the day will be zero. 
+	- When any of these numbers are missing (it will be assumed this is a programming error), set to `null`. If there is a day with no interaction from a participant, then the reported clicks for the day will be zero. 
 
 3. `totalStepsArray` 
 
-	- A vector of the **total of steps that are tracked by Fitbit for each of the warm up days. Fitbit defines a day as the period from 12:00am to 11:59pm in the participant's local time. The data reported here will be directly collected from the [Fitbit API's daily activity summary.](https://dev.fitbit.com/build/reference/web-api/activity/#get-daily-activity-summary)** The vector is ordered in chronological order, e.g. the first one corresponds to the total numbers of steps in the first day.
-	- When any of these numbers are missing **it will be assumed that it is a programming error. Any days where the participant doesn't wear the device (meaning doesn't register any steps, and doesn't have a heart rate) will be marked as null rather than zero steps.** 
+	- A vector of the total of steps that are tracked by Fitbit for each of the warm up days. Fitbit defines a day as the period from 12:00am to 11:59pm in the participant's local time. The data reported here will be directly collected from the [Fitbit API's daily activity summary](https://dev.fitbit.com/build/reference/web-api/activity/#get-daily-activity-summary). The vector is ordered in chronological order, e.g. the first one corresponds to the total numbers of steps in the first day.
+	- When any of these numbers are missing, it will be assumed that it is a programming error and set to `null`.  Any days where the participant doesn't wear the device (meaning doesn't register any steps, and doesn't have a heart rate) will be marked as null rather than zero steps.
 4. `availMatrix`
 
 	- A matrix of availability indicators at each of the five decision times during the 7-day warm up period. The first element corresponds to the five availability indicators (in chronological order) in the first day and so on.  
@@ -73,7 +73,7 @@ The *initialize* service has no output except for a message indicating successfu
 
 5. `temperatureMatrix`
 	-  A matrix of the temperatures (in Celsius degree) at each of the five locations during the 7-day warm up period. The first element corresponds to the five temperatures (in chronological order) in the first day and so on.  
-	- **If any of the daily temperatures are unknown, then the average temperature of all the participant's registered places (home and work) will be substuted for the actual temperature.**
+	- If any of the temperatures are unknown, then the average temperature of all the participant's registered places (home and work) will be substuted for the actual temperature.
 	
 6. `preStepsMatrix` and `postStepsMatrix`
 	- `preStepsMatrix` is a matrix of step counts collected 30 min prior to each of five decision times during the 7-day warm up period. The first element corresponds to the five pre-treatment step counts (in chronological order) in the first day and so on.  `postStepsMatrix` is for the step count 30 min after each decision time. 
@@ -83,7 +83,7 @@ The *initialize* service has no output except for a message indicating successfu
 ## 2. Decision Making
 
 ### WHEN TO CALL
-The *decision* service is called for each pariticipant at each of the decision times during the study (does not include the warm-up period). It **must** be called at each of five decision times in a day (even if the participant is currently unavailable). **It is possible that a technical server failure would stop the decision service from being called, but we hope to avoid that situation.**
+The *decision* service is called for each pariticipant at each of the decision times during the study (does not include the warm-up period). It **must** be called at each of five decision times in a day (even if the participant is currently unavailable). **(It is possible that a technical server failure would stop the decision service from being called, but we hope to avoid that situation)**
 
 
 ### INPUT-OUT
@@ -120,7 +120,7 @@ Shown below is an example of json input for user `1` at decision time `2` on day
 
 5. `priorAnti`
 
-	- For the 1st decision time, `priorAnti` is the indicator of whether there is any anti-sedentary message delivered to user's phone between the "start of the day" and the 1st decision time. The "start of day" here is specified in the anti-sedentary message scheduling. **If a participant sets their first decision time to before the anti-sedentary services' "start of day" this will always return false.**
+	- For the 1st decision time, `priorAnti` is the indicator of whether there is any anti-sedentary message delivered to user's phone between the "start of the day" and the 1st decision time. The "start of day" here is specified in the anti-sedentary message scheduling. If a participant sets their first decision time to before the anti-sedentary services' "start of day" this will always return false.
 	- For rest of the decision times (2nd to 5th), say decision time $t$, `priorAnti` is the indicator of whether there is any anti-sedentary message delivered to user's phone between the decision time $(t-1)$ to the current decision time $t$. 
 	- Can either be `true` or `false`
 
@@ -170,20 +170,20 @@ The *nightly* service has no output except for a message indicating successful u
 
 5. `temperatureArray`: 
 	- A vector of the temperatures (in Celsius degree) at each of the five locations during the day.
-	- If any of the temperatures is unknown, **then the average temperature of all the participant's registered places (home and work) will be substuted for the actual temperature.**
+	- If any of the temperatures is unknown, then the average temperature of all the participant's registered places (home and work) will be substuted for the actual temperature.
 
 6. `appClick`
 
 	- The number of app screens encountered in the current day from 12:00 am to 11:59 pm. 
-	- When any of these numbers are missing **it will be assumed this is a programming error.** If there is a day with no interaction from a participant, then the reported clicks for the day will be zero.
+	- When any of these numbers are missing it will be assumed this is a programming error and set to `null`. If there is a day with no interaction from a participant, then the reported clicks for the day will be zero.
 
 7. `totalSteps`
 
-	- **Total of steps that are tracked by Fitbit the specific day. Fitbit defines a day as the period from 12:00am to 11:59pm in the participant's local time. The data reported here will be directly collected from the [Fitbit API's daily activity summary.](https://dev.fitbit.com/build/reference/web-api/activity/#get-daily-activity-summary)**
-	-  **Any missing data will be assumed that it is a programming error. Any days where the participant doesn't wear the device (meaning doesn't register any steps, and doesn't have a heart rate) will be marked as null rather than zero steps.** 
+	- Total of steps that are tracked by Fitbit the specific day. Fitbit defines a day as the period from 12:00am to 11:59pm in the participant's local time. The data reported here will be directly collected from the [Fitbit API's daily activity summary](https://dev.fitbit.com/build/reference/web-api/activity/#get-daily-activity-summary).
+	-  Any missing data will be assumed that it is a programming error. and will set to `null`. Any days where the participant doesn't wear the device (meaning doesn't register any steps, and doesn't have a heart rate) will be marked as null rather than zero steps. 
 
 8. `preStepsArray` and `postStepsArray`
 
 	- `preStepsArray ` is a vector of step counts collected 30 min prior to each of five decision times in the current day. It is in chronological order, e.g. the first element corresponds to the 30 min pre-treatment step counts at the first decision time and so on.  
 	- `postStepsMatrix` is for the step count 30 min after each decision time. 
-	- If any of these step count are missing **It will be considered a programming error**, and `null` will be used. This data will be pulled from the [Fitbit API's intra-day step count.](https://dev.fitbit.com/build/reference/web-api/activity/#get-activity-intraday-time-series). Here missing is not same as no step count which should be 0 in the input.
+	- If any of these step count are missing, it will be considered a programming error, and `null` will be used. This data will be pulled from the [Fitbit API's intra-day step count](https://dev.fitbit.com/build/reference/web-api/activity/#get-activity-intraday-time-series). Here missing is not same as no step count which should be 0 in the input.

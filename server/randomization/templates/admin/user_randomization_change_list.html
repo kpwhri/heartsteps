@@ -1,0 +1,37 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+    <h1>Randomization Results</h1>
+{% endblock %}
+
+{% block result_list %}
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Randomized</th>
+                <th>Treated</th>
+                <th>Sent</th>
+                <th>Received</th>
+                <th>Opened</th>
+                <th>Engaged</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for metric in decision_metrics %}
+            <tr>
+                <td>{{metric.name}}</td>
+                <td>{{metric.total}}</td>
+                <td>{{metric.treated}}</td>
+                <td>{{metric.sent}}</td>
+                <td>{{metric.received}}</td>
+                <td>{{metric.opened}}</td>
+                <td>{{metric.engaged}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{block.super}}
+{% endblock %}
+
+{% block pagination %}{% endblock %}

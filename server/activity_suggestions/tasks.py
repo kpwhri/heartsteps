@@ -1,27 +1,24 @@
-# Create your tasks here
-from __future__ import absolute_import, unicode_literals
+import pytz
 from celery import shared_task
-
 from datetime import timedelta, datetime
-from django.utils import timezone
 
+from django.utils import timezone
 from django.contrib.auth.models import User
-from activity_suggestions.models import SuggestionTime
+
 from randomization.models import Decision
 from randomization.factories import make_decision_message
+from activity_suggestions.models import SuggestionTime
+from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
 
-import pytz
-
-def is_weekday_in_timezone(timezone):
-    tz = pytz.timezone(timezone)
-    dt = datetime.now()
-    offset_dt = dt + dt.utcoffset(tz)
-
-    weekday = offset_dt.weekday()
-    if weekday >= 5:
+@shared_task
+def initialize_activity_suggestion_service(username, date_string):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
         return False
-    else:
-        return True
+    service = ActivitySuggestionService(user)
+    date = datetime.strptime(date_string, 'YYYY-MM-DD')
+    service.initialize(date)
 
 @shared_task
 def start_decision(username, time_category):
@@ -31,26 +28,18 @@ def start_decision(username, time_category):
         return False
 
     decision_time = timezone.now() + timedelta(minutes=10)
-
-    decision = Decision.objects.create(
+    decision_service = ActivitySuggestionDecisionService.create_decision(
         user = user,
         time = decision_time
     )
-    decision.add_context("activity suggestion")
-    decision.add_context(time_category)
+    decision_service.add_context("activity suggestion")
+    decision_service.add_context(time_category)
 
-    try:
-        suggestion_time = SuggestionTime.objects.get(user=user, type=time_category)
-        if is_weekday_in_timezone(suggestion_time.timezone):
-            decision.add_context("weekday")
-        else:
-            decision.add_context("weekend")        
-    except:
-        pass
+    decision_service.request_context()
 
-    decision.get_context()
-
-    make_decision.s(str(decision.id)).apply_async(eta=decision_time)
+    make_decision.apply_async(kwargs={
+        'decision_id': str(decision_service.decision.id)
+    }, eta=decision_time)
 
 @shared_task
 def make_decision(decision_id):
@@ -58,11 +47,9 @@ def make_decision(decision_id):
     if decision.is_complete():
         return False
     
-    decision.add_location_context()
+    decision_service = ActivitySuggestionDecisionService(decision)
+    decision_service.update_context()
 
-    decision.a_it = True
-    decision.pi_it = 1
-    decision.save()
-
-    message = make_decision_message(decision)
-    message.send_message()
+    if decision_service.decide():
+        decision_service.create_message()
+        decision_service.send_message()

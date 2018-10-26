@@ -10,7 +10,7 @@
     "model": "behavioral_messages.contexttag",
     "pk": 3,
     "fields": {
-        "tag": "afternoon"
+        "tag": "midafternoon"
     }
 },
 {
@@ -24,14 +24,14 @@
     "model": "behavioral_messages.contexttag",
     "pk": 5,
     "fields": {
-        "tag": "dinner"
+        "tag": "postdinner"
     }
 },
 {
     "model": "behavioral_messages.contexttag",
     "pk": 6,
     "fields": {
-        "tag": "activity-suggestion"
+        "tag": "activity suggestion"
     }
 },
 {

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
-import { Geolocation } from '@ionic-native/geolocation';
+import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 
 const locationPermissionKey = 'location-service-permission'
 
@@ -35,6 +35,16 @@ export class LocationService{
         })
         .catch(() => {
             return Promise.reject(false)
+        })
+    }
+
+    getLocation(): Promise<any> {
+        return this.geolocation.getCurrentPosition()
+        .then((position: Geoposition) => {
+            return {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            }
         })
     }
 

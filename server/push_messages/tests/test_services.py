@@ -4,7 +4,7 @@ import requests
 
 from django.contrib.auth.models import User
 
-from push_messages.models import Message, Device, MessageReceipt, SENT
+from push_messages.models import Message, Device, MessageReceipt
 from push_messages.services import PushMessageService, FirebaseMessageService, DeviceMissingError, MessageSendError
 
 class TestPushMessageService(TestCase):
@@ -72,7 +72,7 @@ class TestPushMessageService(TestCase):
         push_message_service.send_notification("Hello World")
 
         message_receipt = MessageReceipt.objects.get(message__recipient=user)
-        self.assertEqual(message_receipt.type, SENT)
+        self.assertEqual(message_receipt.type, MessageReceipt.SENT)
 
     def raise_message_failure(self, request):
         raise MessageSendError

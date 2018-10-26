@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { DashboardPage } from './dashboard';
-import { ActivityPlanModule } from '@pages/activity-plan/plan.module';
+import { ActivityModule } from '@heartsteps/activity/activity.module';
 
 @NgModule({
   declarations: [
     DashboardPage
   ],
   imports: [
-    ActivityPlanModule,
+    ActivityModule,
     IonicPageModule.forChild(DashboardPage)
   ]
 })

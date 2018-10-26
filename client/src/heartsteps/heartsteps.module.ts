@@ -1,36 +1,36 @@
 import { NgModule } from '@angular/core';
 
-import { NotificationService } from './notification.service';
-import { InfrastructureModule } from '../infrastructure/infrastructure.module';
+import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+
 import { ParticipantService } from './participant.service';
-import { ActivitySuggestionTimeService } from './activity-suggestion-time.service';
-import { ActivityPlanService } from '@heartsteps/activity-plan.service';
 import { PlacesService } from '@heartsteps/places.service';
 import { ContactInformationService } from '@heartsteps/contact-information.service';
 import { DateFactory } from "@heartsteps/date.factory";
 import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
-import { ActivityLogService } from '@heartsteps/activity-log.service';
 import { ProfileService } from '@heartsteps/profile.factory';
 import { FitbitService } from '@heartsteps/fitbit.service';
+import { LocationService } from '@heartsteps/location.service';
+import { ActivityModule } from '@heartsteps/activity/activity.module';
+import { ActivitySuggestionsModule } from '@heartsteps/activity-suggestions/activity-suggestions.module';
 
 
 @NgModule({
     imports: [
-        InfrastructureModule
+        InfrastructureModule,
+        NotificationsModule,
+        ActivityModule,
+        ActivitySuggestionsModule
     ],
     providers: [
         ContactInformationService,
-        NotificationService,
         ParticipantService,
         ProfileService,
-        ActivitySuggestionTimeService,
-        ActivityPlanService,
-        ActivityLogService,
         PlacesService,
         DateFactory,
         ReflectionTimeService,
-        ActivityLogService,
-        FitbitService
+        FitbitService,
+        LocationService
     ]
 })
 export class HeartstepsModule {}

@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { BrowserService } from "@infrastructure/browser.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Storage } from "@ionic/storage";
-import { NotificationService } from "@heartsteps/notification.service";
 import { Subscription } from "rxjs";
 
 const storageKey: string = 'fitbit-account'
@@ -11,7 +10,6 @@ const storageKey: string = 'fitbit-account'
 export class FitbitService {
 
     constructor(
-        private notificationService: NotificationService,
         private heartstepsServer: HeartstepsServer,
         private browser: BrowserService,
         private storage: Storage
@@ -27,18 +25,6 @@ export class FitbitService {
 
     authorize():Promise<boolean> {
         return new Promise((resolve, reject) => {
-            let notificationSubscription:Subscription = this.notificationService.dataMessage.subscribe((data) => {
-                if(data.fitbit_id) {
-                    this.storage.set(storageKey, data.fitbit_id)
-                    .then(() => {
-                        notificationSubscription.unsubscribe();
-                        this.notificationService = null;
-                        resolve(true);
-                        this.browser.close();
-                    });
-                }
-            });
-            
             return this.getAuthorizationToken()
             .then((token: string)=> {
                 const url = this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
@@ -47,17 +33,12 @@ export class FitbitService {
             .then(() => {
                 return this.updateAuthorization()
             })
-            .then((fitbitId: string) => {
+            .then(() => {
                 resolve(true);
             })
             .catch(() => {
                 reject("Fitbit authorization failed");
             })
-            .then(() => {
-                if(notificationSubscription) {
-                    notificationSubscription.unsubscribe();
-                }
-            });
         });
     }
 

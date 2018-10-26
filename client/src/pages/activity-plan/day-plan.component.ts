@@ -1,12 +1,13 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
-import { ActivityPlanService } from '@heartsteps/activity-plan.service';
+import { ActivityPlanService } from '@heartsteps/activity/activity-plan.service';
 import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'activity-plan-day',
     templateUrl: './day-plan.component.html',
-    inputs: ['date']
+    inputs: ['date'],
+    providers: [ActivityPlanService]
 })
 export class DayPlanComponent implements OnInit, OnDestroy {
 

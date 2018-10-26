@@ -1,0 +1,8 @@
+<h3>{{formattedDate}}</h3>
+<div class="callout-progress" *ngIf="activitySummary">{{activitySummary.totalMinutes}} minutes</div>
+<ul class="horizontal" *ngIf="activitySummary">
+    <li>{{activitySummary.moderateMinutes}} min <em>Moderate</em></li>
+    <li>{{activitySummary.vigorousMinutes}} min <em>Vigerous</em></li>
+    <li>{{activitySummary.totalSteps}} <em>Steps</em></li>
+    <li>{{activitySummary.totalMiles}} <em>Miles</em></li>
+</ul>

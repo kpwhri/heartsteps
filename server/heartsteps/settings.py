@@ -21,12 +21,14 @@ STATIC_URL = '/static/'
 SECRET_KEY = env('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 
+if 'ACTIVITY_SUGGESTION_SERVICE_URL' in os.environ:
+    ACTIVITY_SUGGESTION_SERVICE_URL = env('ACTIVITY_SUGGESTION_SERVICE_URL')
+
 # Fitbit settings
-FITAPP_CONSUMER_KEY = env('FITAPP_CONSUMER_KEY', default='CONSUMER_KEY')
-FITAPP_CONSUMER_SECRET = env('FITAPP_CONSUMER_SECRET', default='CONSUMER_SECRET')
-FITAPP_SUBSCRIBE = env.bool('FITAPP_SUBSCRIBE', default=False)
-FITAPP_SUBSCRIBER_ID = env('FITAPP_SUBSCRIBER_ID', default='SUBSCRIBER_ID')
-FITAPP_VERIFICATION_CODE = env('FITAPP_VERIFICATION_CODE', default='VERIFICATION_CODE')
+FITBIT_CONSUMER_KEY = env('FITBIT_CONSUMER_KEY', default='CONSUMER_KEY')
+FITBIT_CONSUMER_SECRET = env('FITBIT_CONSUMER_SECRET', default='CONSUMER_SECRET')
+FITBIT_SUBSCRIBER_ID = env('FITBIT_SUBSCRIBER_ID', default='SUBSCRIBER_ID')
+FITBIT_SUBSCRIBER_VERIFICATION_CODE = env('FITBIT_SUBSCRIBER_VERIFICATION_CODE', default='VERIFICATION_CODE')
 
 ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split(',')
 
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'contact',
     'corsheaders',
     'fitbit_api',
+    'fitbit_authorize',
     'behavioral_messages',
     'morning_messages',
     'push_messages',
@@ -77,10 +80,9 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication'
-    )
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication'
+    ]
 }
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')

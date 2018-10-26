@@ -5,9 +5,10 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '@pages/welcome/welcome';
 import { ParticipantService } from '@heartsteps/participant.service';
 import { OnboardPage } from '@pages/onboard/onboard';
-import { HomePage } from '@pages/home/home';
 import { AuthorizationService } from '@infrastructure/authorization.service';
+import { BackgroundService } from '@app/background.service';
 import { NotificationService } from '@app/notification.service';
+import { DashboardPage } from '@pages/dashboard/dashboard';
 
 @Component({
     templateUrl: 'app.html'
@@ -22,12 +23,14 @@ export class MyApp {
         splashScreen: SplashScreen,
         private participant:ParticipantService,
         private authorizationService:AuthorizationService,
-        notificationService: NotificationService
+        private backgroundService: BackgroundService,
+        private notificationService: NotificationService
     ) {
         platform.ready()
         .then(() => {
             this.setNavAuthGuard()
             this.participant.onChange().subscribe((participant: any) => {
+                this.setupBackgroundProcess(participant);
                 this.updateRootPage(participant);
             })
             return this.participant.update()
@@ -57,10 +60,16 @@ export class MyApp {
             rootPage = OnboardPage;
         }
         if (participant.profileComplete) {
-            rootPage = HomePage;
+            rootPage = DashboardPage;
         }
         this.nav.setRoot(rootPage);
         this.nav.popToRoot();
+    }
+
+    setupBackgroundProcess(participant:any) {
+        if(participant.profileComplete) {
+            this.backgroundService.init();
+        }
     }
 }
 
