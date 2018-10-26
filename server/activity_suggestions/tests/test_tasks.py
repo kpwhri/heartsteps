@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from randomization.models import Decision
 
-from activity_suggestions.models import SuggestionTime
+from activity_suggestions.models import SuggestionTime, SuggestionTimeConfiguration
 from activity_suggestions.services import ActivitySuggestionDecisionService, ActivitySuggestionService
 from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service
 
@@ -23,7 +23,7 @@ class TaskTests(TestCase):
     def test_start_decision(self, request_context, make_decision):
         user = User.objects.create(username="test")
         SuggestionTime.objects.create(
-            user = user,
+            configuration = SuggestionTimeConfiguration.objects.create(user=user),
             type = 'evening',
             hour = 20,
             minute = 00
