@@ -1,4 +1,5 @@
 import requests
+import json
 from datetime import timedelta
 from urllib.parse import urljoin
 
@@ -8,7 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 
-from activity_suggestions.models import ActivityServiceRequest
+from activity_suggestions.models import ActivitySuggestionServiceRequest
 
 class ActivitySuggestionService():
     """
@@ -26,43 +27,42 @@ class ActivitySuggestionService():
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
-        request_record = ActivityServiceRequest(
+        request_record = ActivitySuggestionServiceRequest(
             user = self.__user,
             url = url,
-            request_data = data,
+            request_data = json.dumps(data),
             request_time = timezone.now()
         )
-        
+
         response = requests.post(url, data=data)
-        response_data = response.json()
 
         request_record.response_code = response.status_code
-        request_record.response_data = response_data
+        request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
 
-        return response_data
+        return response.text
 
     def initialize(self, date):
         dates = [date - timedelta(days=offset) for offset in range(7)]
         self.make_request('initialize', {
-            'userId': self.__user.id,
+            'userId': self.__user.username,
             'appClicksArray': [self.get_clicks(date) for date in dates],
             'totalStepsArray': [self.get_steps(date) for date in dates],
-            'availMatrix': [self.get_availabilities(date) for date in dates],
-            'tempratureMatrix': [self.get_temperatures(date) for date in dates],
-            'preStepsMatrix': [self.get_pre_steps(date) for date in dates],
-            'postStepsMatrix': [self.get_post_steps(date) for date in dates]
+            'availMatrix': [{'avail': self.get_availabilities(date)} for date in dates],
+            'temperatureMatrix': [{'temp': self.get_temperatures(date)} for date in dates],
+            'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
+            'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]
         })
 
     def update(self, date):
         response = self.make_request('nightly', {
-            'userId': [self.__user.id],
-            'studyDay': [self.get_study_day_number()],
-            'appClick': [self.get_clicks(date)],
-            'totalSteps': [self.get_steps(date)],
-            'priorAnti': [False],
-            'lastActivity': [False],
+            'userId': self.__user.username,
+            'studyDay': self.get_study_day_number(),
+            'appClick': self.get_clicks(date),
+            'totalSteps': self.get_steps(date),
+            'priorAnti': False,
+            'lastActivity': False,
             'temperatureArray': self.get_temperatures(date),
             'preStepArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date)
@@ -70,7 +70,7 @@ class ActivitySuggestionService():
     
     def decide(self, decision):
         response = self.make_request('decision', {
-            'userId': self.__user.id,
+            'userId': self.__user.username,
             'studyDay': self.get_study_day_number(),
             'decisionTime': self.categorize_activity_suggestion_time(decision),
             'availability': False,
@@ -88,10 +88,10 @@ class ActivitySuggestionService():
             
 
     def get_clicks(self, date):
-        return None
+        return 0
 
     def get_steps(self, date):
-        return None
+        return 0
 
     def get_availabilities(self, date):
         return [False for offset in range(5)]

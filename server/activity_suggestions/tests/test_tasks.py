@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import datetime
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -7,8 +8,8 @@ from django.contrib.auth.models import User
 from randomization.models import Decision
 
 from activity_suggestions.models import SuggestionTime
-from activity_suggestions.services import ActivitySuggestionDecisionService
-from activity_suggestions.tasks import start_decision, make_decision
+from activity_suggestions.services import ActivitySuggestionDecisionService, ActivitySuggestionService
+from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service
 
 
 class TaskTests(TestCase):
@@ -75,3 +76,13 @@ class MakeDecisionTest(TestCase):
         decide.assert_called()
         self.create_message.assert_not_called()
         self.send_message.assert_not_called()
+
+class InitializeTaskTests(TestCase):
+
+    @patch.object(ActivitySuggestionService, 'initialize')
+    def test_initialize(self, initialize):
+        User.objects.create(username='test')
+
+        initialize_activity_suggestion_service('test', '2018-10-15')
+
+        initialize.assert_called_with(datetime(2018,10,15))

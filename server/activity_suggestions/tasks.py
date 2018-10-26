@@ -17,7 +17,7 @@ def initialize_activity_suggestion_service(username, date_string):
     except User.DoesNotExist:
         return False
     service = ActivitySuggestionService(user)
-    date = datetime.strptime(date_string, 'YYYY-MM-DD')
+    date = datetime.strptime(date_string, '%Y-%m-%d')
     service.initialize(date)
 
 @shared_task
