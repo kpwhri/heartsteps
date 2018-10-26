@@ -1,16 +1,36 @@
-from rest_framework import serializers
+import pytz
 from datetime import datetime
+
+from rest_framework import serializers
 
 from .models import SuggestionTime, TIMES
 
-def parse_time(value):
-    try:
-        time = datetime.strptime(value, "%H:%M")
-    except:
-        return False
-    return time
+class SuggestionTimeConfigurationSerializer(serializers.Serializer):
 
-class SuggestionTimeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SuggestionTime
-        fields = ('id', 'type', 'hour', 'minute', 'timezone')
+    def to_representation(self, configuration):
+        ret = {}
+        for suggestion_time in SuggestionTime.objects.filter(configuration=configuration).all():
+            time = "%s:%s" % (suggestion_time.hour, suggestion_time.minute)
+            ret[suggestion_time.type] = time
+        return ret
+
+    def to_internal_value(self, data):
+        ret = {}
+        for time_category in TIMES:
+            if time_category not in data:
+                raise serializers.ValidationError({
+                    time_category: 'Required'
+                })
+            value = data[time_category]
+            try:
+                time = datetime.strptime(value, "%H:%M")
+            except:
+                raise serializers.ValidationError({
+                    time_category: 'Not valid time'
+                })
+            ret[time_category] = {
+                'hour': time.hour,
+                'minute': time.minute
+            }
+        return ret
+        
