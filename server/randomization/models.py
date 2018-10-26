@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -32,6 +33,9 @@ class Decision(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-time']
+
     def is_complete(self):
         if self.a_it is not None:
             return True
@@ -39,10 +43,11 @@ class Decision(models.Model):
             return False
 
     def __str__(self):
+        formatted_time = self.time.strftime("%Y-%m-%d at %H:%m")
         if self.a_it is None:
-            return "For %s (undecided)" % self.user
+            return "On %s for %s (undecided)" % (formatted_time, self.user)
         else:
-            return "For %s (decided)" % self.user
+            return "On %s for %s (decided)" % (formatted_time, self.user)
 
 class DecisionContext(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
