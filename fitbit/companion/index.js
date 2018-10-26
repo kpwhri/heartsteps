@@ -1,5 +1,6 @@
 import { settingsStorage } from "settings";
 import * as messaging from "messaging";
+import * as fs from "fs";
 import { me } from "companion";
 import companion from "companion";
 
@@ -10,9 +11,10 @@ import { sendSettingsData, updateEntryCode } from "./entry-code";
 import { geolocation } from "geolocation";
 import { locationSuccess, locationError } from "./location";
 
-import { ANTI_SEDENTARY_MESSAGE, ENTRY_CODE, INTEGRATION_STATUS_MESSAGE,
-   QUERY_STEP_MESSAGE, RECENT_STEPS } from "../common/globals.js";
+import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, ENTRY_CODE, HEARTSTEPS_ID,
+  INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS } from "../common/globals.js";
 
+const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
 /************************************************************
   Look for when Entry Code is updated in watch settings
   and send that code to the HeartSteps server for validation.
@@ -35,17 +37,21 @@ if (me.launchReasons.settingsChanged) {
 ***************************************/
 const PLACE_SOURCE = "watch";
 function sendLocation(lat, long, place) {
-  const url = "https://heartsteps-kpwhri.appspot.com/api/locations/";
+  const url = `${BASE_URL}/api/locations/`;
+  let token = settingsStorage.getItem(AUTHORIZATION_TOKEN);
   let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
   fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${token}`
     }
   }).then(function(response) {
-    // if (response.status == 201)
-    console.log("sendLocation completed with status " + response.status);
+    if (response.status != 201) {
+      console.log("ERROR: sendLocation completed with status "+ response.status);
+    }
+    console.log(response);
   }).catch(error => console.error('Error in sendLocation: ', error))
 }
 
@@ -66,7 +72,7 @@ function getLatLong() {
 
 // Send step data to server - scaffolding
 function sendSteps(lat, long, place) {
-  const url = "https://heartsteps-kpwhri.appspot.com/api/antised?/";
+  const url = `${BASE_URL}/api/antised?/`;
   let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
   fetch(url, {
     method: "POST",

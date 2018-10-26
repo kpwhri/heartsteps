@@ -1,7 +1,8 @@
 import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 
-import { ENTRY_CODE, INTEGRATION_STATUS_MESSAGE } from "../common/globals.js";
+import { AUTHORIZATION_TOKEN, HEARTSTEPS_ID, ENTRY_CODE,
+  INTEGRATION_STATUS_MESSAGE } from "../common/globals.js";
 
 export function sendSettingsData(data) {
   // If we have a MessageSocket, send the data to the device
@@ -31,20 +32,17 @@ export function updateEntryCode(key, val) {
       }
     })
     .then(function(response) {
-      console.log(response.headers.get('Content-Type'));
-      for(let header of response.headers){
-         console.log("header: " + header);
-      }
-      console.log("Authorization-Token: " + response.headers.get('Authorization-Token'));
+      let authorizationToken = response.headers.get('Authorization-Token');
+      settingsStorage.setItem(AUTHORIZATION_TOKEN, authorizationToken);
       return response.json();
     })
     // May want to check for the auth token existence
     // And probably save it somewhere for location posts
     .then(function(jsonBody) {
       let heartsteps_id = jsonBody["heartstepsId"];
-      console.log(`ID returned: ${heartsteps_id}`);
       if (heartsteps_id) {
         let integrationStatus = "enabled";
+        settingsStorage.setItem(HEARTSTEPS_ID, heartsteps_id);
       }
       else {
         let integrationStatus = "disenabled";
@@ -58,4 +56,3 @@ export function updateEntryCode(key, val) {
     .catch(error => console.error('Error in updateEntryCode: ', error))
   }
 }
-
