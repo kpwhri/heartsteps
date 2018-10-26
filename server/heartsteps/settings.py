@@ -32,12 +32,6 @@ FITBIT_SUBSCRIBER_VERIFICATION_CODE = env('FITBIT_SUBSCRIBER_VERIFICATION_CODE',
 
 ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split(',')
 
-# Allow JavaScript to return Authorization-Token from Participant#EnrollView
-CORS_ALLOW_HEADERS = default_headers + (
-    'Authorization-Token',
-)
-CORS_ORIGIN_ALLOW_ALL = True
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -69,9 +63,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -84,6 +78,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication'
     ]
 }
+
+# Allow JavaScript to return Authorization-Token from Participant#EnrollView
+CORS_ALLOW_HEADERS = default_headers + (
+    'Authorization-Token',
+)
+CORS_EXPOSE_HEADERS = ['Authorization-Token']
+CORS_ORIGIN_ALLOW_ALL = True
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
 
