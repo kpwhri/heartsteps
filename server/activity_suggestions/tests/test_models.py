@@ -3,13 +3,16 @@ from django.contrib.auth.models import User
 
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
-from activity_suggestions.models import SuggestionTime
+from activity_suggestions.models import SuggestionTime, SuggestionTimeConfiguration
 
-class SuggestionTimeTestCase(TestCase):
+class SuggestionTimeTest(TestCase):
 
     def test_suggestion_time_creates_periodic_task(self):
+        configuration = SuggestionTimeConfiguration.objects.create(
+            user = User.objects.create(username="test")
+        )
         task = SuggestionTime.objects.create(
-            user = User.objects.create(username="test"),
+            configuration = configuration,
             type = 'lunch',
             hour = 15,
             minute = 30
@@ -18,8 +21,11 @@ class SuggestionTimeTestCase(TestCase):
         self.assertIsNotNone(task.scheduled_task)
 
     def test_removes_periodic_task_when_deleted(self):
+        configuration = SuggestionTimeConfiguration.objects.create(
+            user = User.objects.create(username="test")
+        )
         task = SuggestionTime.objects.create(
-            user = User.objects.create(username="test"),
+            configuration = configuration,
             type = 'lunch',
             hour = 15,
             minute = 30

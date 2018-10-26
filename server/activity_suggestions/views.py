@@ -6,34 +6,37 @@ from rest_framework.response import Response
 
 from django_celery_beat.models import PeriodicTasks
 
-from .models import SuggestionTime
-from .serializers import SuggestionTimeSerializer
+from .models import SuggestionTime, SuggestionTimeConfiguration
+from .serializers import SuggestionTimeConfigurationSerializer
 
 class SuggestionTimeList(APIView):
     """
     Returns or updates a list of a user's suggested intervention times
     """
     def get(self, request):
-        serialized_times = SuggestionTimeSerializer({
-            'times': SuggestionTime.objects.filter(user = request.user).all()
-        })
-        return Response(serialized_times.data, status.HTTP_200_OK)
+        try:
+            configuration = SuggestionTimeConfiguration.objects.get(user=request.user)
+        except SuggestionTimeConfiguration.DoesNotExist:
+            return Response('', status.HTTP_404_NOT_FOUND)
+        return Response(
+            SuggestionTimeConfigurationSerializer(configuration).data,
+            status=status.HTTP_200_OK
+        )
 
     def post(self, request):
-        if 'times' not in request.data:
-            return Response('Send times', status.HTTP_400_BAD_REQUEST)
-
-        serialized_times = SuggestionTimeSerializer(data=request.data['times'], many=True)
-        if serialized_times.is_valid():
-            # its simpler to delete and recreate, rather than update cron tasks
-            SuggestionTime.objects.filter(user=request.user).delete()
-
-            for time in serialized_times.validated_data:
+        try:
+            configuration = SuggestionTimeConfiguration.objects.get(user=request.user)
+        except SuggestionTimeConfiguration.DoesNotExist:
+            return Response('', status.HTTP_404_NOT_FOUND)
+        serialized_configuration = SuggestionTimeConfigurationSerializer(data=request.data)
+        if serialized_configuration.is_valid():
+            for time_category in serialized_configuration.validated_data:
+                time = serialized_configuration.validated_data[time_category]
                 SuggestionTime.objects.create(
-                    type = time['type'],
+                    configuration = configuration,
+                    type = time_category,
                     hour = time['hour'],
-                    minute = time['minute'],
-                    user = request.user
+                    minute = time['minute']
                 )
-            return Response(serialized_times.data, status.HTTP_200_OK)
-        return Response(serialized_times.errors, status.HTTP_400_BAD_REQUEST)
+            return Response(request.data, status.HTTP_200_OK)
+        return Response(serialized_configuration.errors, status.HTTP_400_BAD_REQUEST)
