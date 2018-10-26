@@ -45,7 +45,7 @@ function sendLocation(lat, long, place) {
     }
   }).then(function(response) {
     // if (response.status == 201)
-    console.log("Succeeded with status " + response.status);
+    console.log("sendLocation completed with status " + response.status);
   }).catch(error => console.error('Error in sendLocation: ', error))
 }
 
@@ -76,7 +76,7 @@ function sendSteps(lat, long, place) {
     }
   }).then(function(response) {
     // if (response.status == 201)
-    console.log("Succeeded with status " + response.status);
+    console.log("sendSteps completed with status " + response.status);
   }).catch(error => console.error('Error in sendSteps: ', error))
 }
 
@@ -84,8 +84,8 @@ function sendSteps(lat, long, place) {
 // then send Step and Location data to server
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == RECENT_STEPS) {
-    console.log("Send step message to server!");
-    console.log("Send location to server!");
+    console.log("Send step message to server soon!");
+    console.log("Send location to server next!");
     getLatLong();
   } else {
     console.log(evt.data.key);
