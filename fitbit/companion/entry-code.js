@@ -19,7 +19,6 @@ export function updateEntryCode(key, val) {
         key: key,
         value: JSON.parse(val)
     });
-    // If the user is authenticated
     // Pass entryCode as enrollmentToken to server
     let entryCode = JSON.parse(val).name;
     let enrollmentToken = {"enrollmentToken": entryCode};
@@ -36,8 +35,7 @@ export function updateEntryCode(key, val) {
       settingsStorage.setItem(AUTHORIZATION_TOKEN, authorizationToken);
       return response.json();
     })
-    // May want to check for the auth token existence
-    // And probably save it somewhere for location posts
+    // Save HeartstepsID and Auth token
     .then(function(jsonBody) {
       let heartsteps_id = jsonBody["heartstepsId"];
       if (heartsteps_id) {

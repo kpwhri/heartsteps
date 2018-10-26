@@ -11,11 +11,25 @@ import { today as activity } from "user-activity";
 import * as fs from "fs";
 import { StepCountHandler } from "./step-count.js";
 
+// Set enrollment status on app screen
+// I'd prefer to do this via settingsStorage but that apparently
+//    only exists on the companion side?
+// function setIntegrationStatus(){
+//   let status = settingsStorage.getItem(INTEGRATION_STATUS_MESSAGE);
+//   if (status) {
+//     let statusText = status;
+//   } else {
+//     let statusText = "disabled+";
+//   }
+//   updateIntegrationStatus(statusText);
+// }
+// setIntegrationStatus();
+
 // Watch attempts to notify phone of step count & location
 const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 
-function sendMessage(recentSteps){
+function sendStepMessage(recentSteps){
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     // Send the data to phone as a message
     let data = {
@@ -23,7 +37,6 @@ function sendMessage(recentSteps){
       value: recentSteps
     }
     messaging.peerSocket.send(data);
-    console.log("Well, it says it sent something: " + JSON.stringify(data));
   } else {
     console.log("ERROR: peerSocket not open");
   }
@@ -38,7 +51,7 @@ function stepCountToPhone(){
   let recentSteps = stepCount.calculateElapsedSteps(newStepData);
   console.log("step count: " + recentSteps);
   stepCount.saveFile(newStepData);
-  sendMessage(recentSteps);
+  sendStepMessage(recentSteps);
 }
 
 // Standard JS function - not using Companion WakeUp API
@@ -46,9 +59,10 @@ setInterval(function() {
   stepCountToPhone();
 }, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
 
+// Test purposes - run this once, 5 seconds after install
 setTimeout(function(){stepCountToPhone()}, 5000);
 
-// Listen for message sent by phone
+// Listen for enrollment message sent by phone
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
   // Update enabled/disabled flag if enrollment succeeds

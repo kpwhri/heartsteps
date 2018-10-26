@@ -15,6 +15,7 @@ import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, ENTRY_CODE, HEARTSTEPS_ID,
   INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS } from "../common/globals.js";
 
 const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
+
 /************************************************************
   Look for when Entry Code is updated in watch settings
   and send that code to the HeartSteps server for validation.
@@ -32,31 +33,31 @@ if (me.launchReasons.settingsChanged) {
 
 /***************************************
   Send location data to the server
-  Only allow this if user is authenticated.
-  How to send the User with this?
 ***************************************/
 const PLACE_SOURCE = "watch";
 function sendLocation(lat, long, place) {
-  const url = `${BASE_URL}/api/locations/`;
   let token = settingsStorage.getItem(AUTHORIZATION_TOKEN);
-  let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Token ${token}`
-    }
-  }).then(function(response) {
-    if (response.status != 201) {
-      console.log("ERROR: sendLocation completed with status "+ response.status);
-    }
-    console.log(response);
-  }).catch(error => console.error('Error in sendLocation: ', error))
+  if (token) {
+    const url = `${BASE_URL}/api/locations/`;
+    let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(function(response) {
+      if (response.status != 201) {
+        console.log("ERROR: sendLocation completed with status "+ response.status);
+      }
+    }).catch(error => console.error('Error in sendLocation: ', error))
+  } else {
+    console.log("ERROR in sendLocation: user not authenticated");
+  }
 }
 
 // Get location
-// geolocation.enableHighAccuracy = true;
 function getLatLong() {
   let geo = {};
   geolocation.getCurrentPosition(
@@ -81,7 +82,9 @@ function sendSteps(lat, long, place) {
       'Content-Type': 'application/json'
     }
   }).then(function(response) {
-    // if (response.status == 201)
+    if (response.status != 201) {
+      console.log("ERROR: sendSteps completed with status "+ response.status);
+    }
     console.log("sendSteps completed with status " + response.status);
   }).catch(error => console.error('Error in sendSteps: ', error))
 }
@@ -91,7 +94,6 @@ function sendSteps(lat, long, place) {
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == RECENT_STEPS) {
     console.log("Send step message to server soon!");
-    console.log("Send location to server next!");
     getLatLong();
   } else {
     console.log(evt.data.key);
