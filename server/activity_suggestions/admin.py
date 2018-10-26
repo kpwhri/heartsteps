@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ActivitySuggestionDecision, ActivityServiceRequest, TIME_CATEGORIES
+from .models import ActivitySuggestionDecision, ActivitySuggestionServiceRequest, TIME_CATEGORIES
 
 class ActivitySuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -23,6 +23,6 @@ class ActivitySuggestionDecisionAdmin(admin.ModelAdmin):
     list_filter = [ActivitySuggestionTimeFilters]
 admin.site.register(ActivitySuggestionDecision, ActivitySuggestionDecisionAdmin)
 
-class ActivityServiceRequestAdmin(admin.ModelAdmin):
+class ActivitySuggestionServiceRequestAdmin(admin.ModelAdmin):
     list_display = ('__str__',)
-admin.site.register(ActivityServiceRequest, ActivityServiceRequestAdmin)
+admin.site.register(ActivitySuggestionServiceRequest, ActivitySuggestionServiceRequestAdmin)
