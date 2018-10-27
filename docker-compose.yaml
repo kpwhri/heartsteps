@@ -11,7 +11,7 @@ services:
     volumes:
       - ./activity-suggestion:/activity-suggestion
     ports:
-      - "5000:8000"
+      - "5000:8080"
   anti-sedentary:
     build: ./anti-sedentary
     command: python app.py

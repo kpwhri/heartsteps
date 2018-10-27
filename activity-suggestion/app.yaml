@@ -1,0 +1,9 @@
+runtime: custom
+env: flex
+service: activity-suggestion
+
+beta_settings:
+  cloud_sql_instances: heartsteps-kpwhri:us-west2:heartsteps-dev
+
+manual_scaling:
+  instances: 1
