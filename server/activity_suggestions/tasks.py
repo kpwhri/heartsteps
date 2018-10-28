@@ -33,13 +33,12 @@ def update_activity_suggestion_service(username):
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService(configuration.user)
+    service = ActivitySuggestionService()
     
     user_timezone = pytz.timezone(configuration.timezone)
     yesterday = datetime.now(user_timezone) - timedelta(days=1)
 
-    service.update(user, yesterday)
-
+    service.update(configuration.user, yesterday)
 
 @shared_task
 def start_decision(username, category):

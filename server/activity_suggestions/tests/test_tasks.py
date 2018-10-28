@@ -9,7 +9,7 @@ from randomization.models import Decision
 
 from activity_suggestions.models import SuggestionTime, Configuration
 from activity_suggestions.services import ActivitySuggestionDecisionService, ActivitySuggestionService
-from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service
+from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
 
 
 class StartTaskTests(TestCase):
@@ -85,3 +85,16 @@ class InitializeTaskTests(TestCase):
         initialize_activity_suggestion_service('test')
 
         initialize.assert_called()
+
+class NightlyUpdateTaskTests(TestCase):
+    
+    @patch.object(ActivitySuggestionService, 'update')
+    def test_update(self, update):
+        Configuration.objects.create(
+            user = User.objects.create(username='test')
+        )
+
+        update_activity_suggestion_service('test')
+
+        update.assert_called()
+
