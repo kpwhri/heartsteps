@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from randomization.models import Decision
 
 from activity_suggestions.services import ActivitySuggestionService
-from activity_suggestions.models import ActivitySuggestionServiceRequest
+from activity_suggestions.models import ServiceRequest
 
 
 class MockResponse:
@@ -29,25 +29,25 @@ class MakeRequestTests(TestCase):
     @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example')
     def test_make_request(self):
         user = User.objects.create(username="test")
-        service = ActivitySuggestionService(user)
-        example_payload = {'foo': 'bar'}
+        service = ActivitySuggestionService()
 
-        service.make_request('example', example_payload)
+        service.make_request('example',
+            user = user,
+            data = {'foo': 'bar'}
+        )
 
         self.requests_post.assert_called_with(
             'http://example/example',
-            data = example_payload
+            data = {
+                'userId': 'test',
+                'foo': 'bar'
+            }
         )
-
-    def test_saves_request_and_response(self):
-        user = User.objects.create(username="test")
-        service = ActivitySuggestionService(user)
-        example_payload = {'foo': 'bar'}
-
-        service.make_request('example', example_payload)
-
-        request_record = ActivitySuggestionServiceRequest.objects.get(user=user)
-        self.assertEqual(request_record.request_data, json.dumps(example_payload))
+        request_record = ServiceRequest.objects.get(user=user)
+        self.assertEqual(request_record.request_data, json.dumps({
+            'foo': 'bar',
+            'userId': 'test'
+        }))
         self.assertEqual(request_record.response_data, 'success')
 
 class InitializeTests(TestCase):
@@ -59,14 +59,15 @@ class InitializeTests(TestCase):
 
     def test_initalization(self):
         user = User.objects.create(username="test")
-        service = ActivitySuggestionService(user)
+        service = ActivitySuggestionService()
 
-        service.initialize(datetime(2018,11,1))
+        service.initialize(user, datetime.now())
 
         self.make_request.assert_called()
-        self.assertEqual(self.make_request.call_args[0][0], 'initialize')
-        request_data = self.make_request.call_args[0][1]
-        self.assertEqual(request_data['userId'], user.username)
+        args, kwargs = self.make_request.call_args
+        self.assertEqual(args[0], 'initialize')
+        self.assertEqual(kwargs['user'], user)
+        request_data = kwargs['data']
         self.assertEqual(len(request_data['appClicksArray']), 7)
         self.assertEqual(len(request_data['totalStepsArray']), 7)
 
@@ -82,14 +83,14 @@ class ActivitySuggestionDecisionTests(TestCase):
             user = user,
             time = timezone.now()
         )
-        service = ActivitySuggestionService(user)
+        service = ActivitySuggestionService()
 
         service.decide(decision)
 
         self.make_request.assert_called()
-        self.assertEqual(self.make_request.call_args[0][0], 'decision')
-        request_data = self.make_request.call_args[0][1]
-        self.assertEqual(request_data['userId'], user.username)
+        args, kwargs = self.make_request.call_args
+        self.assertEqual(args[0], 'decision')
+        request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 2)
         assert 'location' in request_data
 
@@ -101,11 +102,9 @@ class NightlyUpdateTests(TestCase):
 
     def test_update(self):
         user = User.objects.create(username="test")
-        service = ActivitySuggestionService(user)
+        service = ActivitySuggestionService()
 
-        service.update(datetime(2018, 11, 1))
+        service.update(user, datetime(2018, 11, 1))
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
-        request_data = self.make_request.call_args[0][1]
-        self.assertEqual(request_data['userId'], user.username)

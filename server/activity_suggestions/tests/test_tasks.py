@@ -7,15 +7,12 @@ from django.contrib.auth.models import User
 
 from randomization.models import Decision
 
-from activity_suggestions.models import SuggestionTime, SuggestionTimeConfiguration
+from activity_suggestions.models import SuggestionTime, Configuration
 from activity_suggestions.services import ActivitySuggestionDecisionService, ActivitySuggestionService
 from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service
 
 
-class TaskTests(TestCase):
-
-    def test_initialize_activity_suggestion_service(self):
-        pass
+class StartTaskTests(TestCase):
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
     @patch('activity_suggestions.tasks.make_decision.apply_async')
@@ -23,8 +20,8 @@ class TaskTests(TestCase):
     def test_start_decision(self, request_context, make_decision):
         user = User.objects.create(username="test")
         SuggestionTime.objects.create(
-            configuration = SuggestionTimeConfiguration.objects.create(user=user),
-            type = 'evening',
+            user=user,
+            category = 'evening',
             hour = 20,
             minute = 00
         )
@@ -81,8 +78,10 @@ class InitializeTaskTests(TestCase):
 
     @patch.object(ActivitySuggestionService, 'initialize')
     def test_initialize(self, initialize):
-        User.objects.create(username='test')
+        Configuration.objects.create(
+            user = User.objects.create(username='test')
+        )
 
-        initialize_activity_suggestion_service('test', '2018-10-15')
+        initialize_activity_suggestion_service('test')
 
-        initialize.assert_called_with(datetime(2018,10,15))
+        initialize.assert_called()

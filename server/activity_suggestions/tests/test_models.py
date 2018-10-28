@@ -1,45 +1,53 @@
+import pytz
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from django_celery_beat.models import PeriodicTask, CrontabSchedule
+from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
 
-from activity_suggestions.models import SuggestionTime, SuggestionTimeConfiguration
+from activity_suggestions.models import SuggestionTime, Configuration, DailyTask
 
-class SuggestionTimeTest(TestCase):
+class ConfigutationTest(TestCase):
 
-    def test_suggestion_time_creates_periodic_task(self):
-        configuration = SuggestionTimeConfiguration.objects.create(
+    @patch.object(PeriodicTasks, 'changed')
+    def test_creates_nightly_task(self, periodic_tasks_changed):
+        Configuration.objects.create(
             user = User.objects.create(username="test")
         )
-        task = SuggestionTime.objects.create(
-            configuration = configuration,
-            type = 'lunch',
-            hour = 15,
-            minute = 30
+
+        task = PeriodicTask.objects.get()
+        self.assertEqual(task.name, 'Activity suggestion nightly update for test')
+        self.assertEqual(task.crontab.hour, '8')
+        self.assertEqual(task.crontab.minute, '30')
+        periodic_tasks_changed.assert_called()
+
+    def test_updates_tasks_with_timezone(self):
+        configuration = Configuration.objects.create(
+            user = User.objects.create(username="test"),
+            timezone = 'US/Eastern'
         )
 
-        self.assertIsNotNone(task.scheduled_task)
+        task = PeriodicTask.objects.get()
+        self.assertEqual(task.crontab.hour, '5')
 
-    def test_removes_periodic_task_when_deleted(self):
-        configuration = SuggestionTimeConfiguration.objects.create(
-            user = User.objects.create(username="test")
+        configuration.timezone = 'US/Pacific'
+        configuration.save()
+
+        task = PeriodicTask.objects.get()
+        self.assertEqual(task.crontab.hour, '8')
+
+    def test_creates_tasks_for_suggestion_times(self):
+        user = User.objects.create(username="test")
+        SuggestionTime.objects.create(
+            user = user,
+            category = 'morning',
+            hour = 8,
+            minute = 15
         )
-        task = SuggestionTime.objects.create(
-            configuration = configuration,
-            type = 'lunch',
-            hour = 15,
-            minute = 30
+        configuration = Configuration.objects.create(
+            user = user
         )
-        schedules = CrontabSchedule.objects.all()
-        periodic_tasks = PeriodicTask.objects.all()
-        
-        self.assertEqual(len(periodic_tasks), 1)
-        self.assertEqual(len(schedules), 1)
 
-        task.delete()
-
-        periodic_tasks = PeriodicTask.objects.all()
-        schedules = CrontabSchedule.objects.all()
-
-        self.assertEqual(len(periodic_tasks), 0)
-        self.assertEqual(len(schedules), 0)
+        daily_task = DailyTask.objects.get(configuration=configuration, category='morning')
+        self.assertEqual(daily_task.task.crontab.hour, '15')

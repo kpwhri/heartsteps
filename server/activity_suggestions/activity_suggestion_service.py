@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
-from activity_suggestions.models import ActivitySuggestionServiceRequest
+from activity_suggestions.models import ServiceRequest
 
 class ActivitySuggestionService():
     """
@@ -15,18 +15,17 @@ class ActivitySuggestionService():
     heartsteps-server for a specific participant.
     """
 
-    def __init__(self, user):
-        self.__user = user
-
+    def __init__(self):
         if not hasattr(settings,'ACTIVITY_SUGGESTION_SERVICE_URL'):
             raise ImproperlyConfigured('No activity suggestion service url')
         else:
             self.__base_url = settings.ACTIVITY_SUGGESTION_SERVICE_URL
 
-    def make_request(self, uri, data):
+    def make_request(self, uri, user, data):
         url = urljoin(self.__base_url, uri)
-        request_record = ActivitySuggestionServiceRequest(
-            user = self.__user,
+        data['userId'] = user.username
+        request_record = ServiceRequest(
+            user = user,
             url = url,
             request_data = json.dumps(data),
             request_time = timezone.now()
@@ -41,21 +40,23 @@ class ActivitySuggestionService():
 
         return response.text
 
-    def initialize(self, date):
+    def initialize(self, user, date):
         dates = [date - timedelta(days=offset) for offset in range(7)]
-        self.make_request('initialize', {
-            'userId': self.__user.username,
+        data = {
             'appClicksArray': [self.get_clicks(date) for date in dates],
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'availMatrix': [{'avail': self.get_availabilities(date)} for date in dates],
             'temperatureMatrix': [{'temp': self.get_temperatures(date)} for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
             'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]
-        })
+        }
+        self.make_request('initialize',
+            user = user,
+            data = data
+        )
 
-    def update(self, date):
-        response = self.make_request('nightly', {
-            'userId': self.__user.username,
+    def update(self, user, date):
+        data = {
             'studyDay': self.get_study_day_number(),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
@@ -64,18 +65,25 @@ class ActivitySuggestionService():
             'temperatureArray': self.get_temperatures(date),
             'preStepArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date)
-        })
+        }
+        response = self.make_request('nightly',
+            user = user,
+            data = data
+        )
     
     def decide(self, decision):
-        response = self.make_request('decision', {
-            'userId': self.__user.username,
-            'studyDay': self.get_study_day_number(),
-            'decisionTime': self.categorize_activity_suggestion_time(decision),
-            'availability': False,
-            'priorAnti': False,
-            'lastActivity': False,
-            'location': self.categorize_location(decision)
-        })
+        
+        response = self.make_request('decision',
+            user = decision.user,        
+            data = {
+                'studyDay': self.get_study_day_number(),
+                'decisionTime': self.categorize_activity_suggestion_time(decision),
+                'availability': False,
+                'priorAnti': False,
+                'lastActivity': False,
+                'location': self.categorize_location(decision)
+            }
+        )
 
         if response.status_code is not 200:
             return False
