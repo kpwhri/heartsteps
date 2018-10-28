@@ -19,6 +19,9 @@ class ActivitySuggestionService():
     heartsteps-server for a specific participant.
     """
 
+    class NotInitialized(Exception):
+        pass
+
     def __init__(self, configuration):
         self.__configuration = configuration
         self.__user = configuration.user
@@ -60,8 +63,12 @@ class ActivitySuggestionService():
         self.make_request('initialize',
             data = data
         )
+        self.__configuration.enabled = True
+        self.__configuration.save()
 
     def update(self, date):
+        if not self.__configuration.enabled:
+            raise self.NotInitialized()
         data = {
             'studyDay': self.get_study_day_number(),
             'appClick': self.get_clicks(date),
@@ -77,7 +84,8 @@ class ActivitySuggestionService():
         )
     
     def decide(self, decision):
-        
+        if not self.__configuration.enabled:
+            raise self.NotInitialized()
         response = self.make_request('decision',
             data = {
                 'studyDay': self.get_study_day_number(),

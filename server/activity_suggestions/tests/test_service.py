@@ -98,13 +98,18 @@ class ActivitySuggestionServiceTests(TestCase):
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
-
         request_data = kwargs['data']
         self.assertEqual(len(request_data['appClicksArray']), 7)
         self.assertEqual(request_data['totalStepsArray'], [30 for i in range(7)])
+        configuration = Configuration.objects.get(user__username='test')
+        self.assertTrue(configuration.enabled)
 
     def test_decision(self):
         user = User.objects.create(username="test")
+        configuration = Configuration.objects.create(
+            user = user,
+            enabled = True
+        )
         decision = Decision.objects.create(
             user = user,
             time = timezone.now()
@@ -120,13 +125,41 @@ class ActivitySuggestionServiceTests(TestCase):
         self.assertEqual(request_data['studyDay'], 1)
         assert 'location' in request_data
 
+    def test_decision_throws_error_not_initialized(self):
+        user = User.objects.create(username="test")
+        decision = Decision.objects.create(
+            user = user,
+            time = timezone.now()
+        )
+        service = create_activity_suggestion_service()
+        throws_error = False
+        try:
+            service.decide(decision)
+        except ActivitySuggestionService.NotInitialized:
+            throws_error = True
+        self.assertTrue(throws_error)
+
     def test_update(self):
+        user = User.objects.create(username="test")
+        configuration = Configuration.objects.create(
+            user = user,
+            enabled = True
+        )
         service = create_activity_suggestion_service()
 
         service.update(datetime(2018, 11, 1))
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
+
+    def test_update_throws_error_not_initialized(self):
+        service = create_activity_suggestion_service()
+        throws_error = False
+        try:
+            service.update(timezone.now())
+        except ActivitySuggestionService.NotInitialized:
+            throws_error = True
+        self.assertTrue(throws_error)
 
 class GetStepsTests(TestCase):
 
