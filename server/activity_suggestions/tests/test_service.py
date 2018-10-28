@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -8,9 +8,10 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
+from fitbit_api.models import FitbitDay, FitbitAccount
 
 from activity_suggestions.services import ActivitySuggestionService
-from activity_suggestions.models import ServiceRequest
+from activity_suggestions.models import ServiceRequest, Configuration
 
 
 class MockResponse:
@@ -50,12 +51,20 @@ class MakeRequestTests(TestCase):
         }))
         self.assertEqual(request_record.response_data, 'success')
 
-class InitializeTests(TestCase):
+class ActivitySuggestionServiceTests(TestCase):
 
     def setUp(self):
         make_request_patch = patch.object(ActivitySuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
         self.make_request = make_request_patch.start()
+        get_steps_patch = patch.object(ActivitySuggestionService, 'get_steps')
+        self.addCleanup(get_steps_patch.stop)
+        self.get_steps = get_steps_patch.start()
+        self.get_steps.return_value = 30
+        get_pre_steps_patch = patch.object(ActivitySuggestionService, 'get_pre_steps')
+        self.addCleanup(get_pre_steps_patch.stop)
+        self.get_pre_steps = get_pre_steps_patch.start()
+
 
     def test_initalization(self):
         user = User.objects.create(username="test")
@@ -67,15 +76,10 @@ class InitializeTests(TestCase):
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
         self.assertEqual(kwargs['user'], user)
+
         request_data = kwargs['data']
         self.assertEqual(len(request_data['appClicksArray']), 7)
-        self.assertEqual(len(request_data['totalStepsArray']), 7)
-
-class ActivitySuggestionDecisionTests(TestCase):
-    def setUp(self):
-        make_request_patch = patch.object(ActivitySuggestionService, 'make_request')
-        self.addCleanup(make_request_patch.stop)
-        self.make_request = make_request_patch.start()
+        self.assertEqual(request_data['totalStepsArray'], [30 for i in range(7)])
 
     def test_decision(self):
         user = User.objects.create(username="test")
@@ -94,12 +98,6 @@ class ActivitySuggestionDecisionTests(TestCase):
         self.assertEqual(request_data['studyDay'], 2)
         assert 'location' in request_data
 
-class NightlyUpdateTests(TestCase):
-    def setUp(self):
-        make_request_patch = patch.object(ActivitySuggestionService, 'make_request')
-        self.addCleanup(make_request_patch.stop)
-        self.make_request = make_request_patch.start()
-
     def test_update(self):
         user = User.objects.create(username="test")
         service = ActivitySuggestionService()
@@ -108,3 +106,42 @@ class NightlyUpdateTests(TestCase):
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
+
+class GetStepsTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        account = FitbitAccount.objects.create(
+            user = self.user,
+            fitbit_user = "test"
+        )
+        FitbitDay.objects.create(
+            account = account,
+            date = datetime(2018,10,10),
+            total_steps = 400
+        )
+
+    def test_gets_steps(self):
+        service = ActivitySuggestionService()
+        steps = service.get_steps(self.user, datetime(2018,10,10))
+        assert steps == 400
+
+    def test_gets_no_steps(self):
+        service = ActivitySuggestionService()
+        steps = service.get_steps(self.user, datetime(2018,10,11))
+        assert steps is None
+
+class StepCountTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        Configuration.objects.create(
+            user = self.user,
+            timezone = 'US/Eastern'
+        )
+
+    def test_get_pre_steps(self):
+        service = ActivitySuggestionService()
+
+        pre_steps = service.get_pre_steps(self.user, datetime(2018, 10, 10))
+        
