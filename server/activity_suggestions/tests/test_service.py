@@ -51,6 +51,25 @@ class MakeRequestTests(TestCase):
         }))
         self.assertEqual(request_record.response_data, 'success')
 
+class StudyDayNumberTests(TestCase):
+
+    def test_get_day_number_starts_at_one(self):
+        user = User.objects.create(username="test")
+        service = ActivitySuggestionService()
+
+        day_number = service.get_study_day_number(user)
+
+        self.assertEqual(day_number, 1)
+
+    def test_get_day_number(self):
+        user = User.objects.create(username="test")
+        user.date_joined = user.date_joined - timedelta(days=5)
+        service = ActivitySuggestionService()
+
+        day_number = service.get_study_day_number(user)
+
+        self.assertEqual(day_number, 6)
+
 class ActivitySuggestionServiceTests(TestCase):
 
     def setUp(self):

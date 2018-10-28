@@ -146,8 +146,9 @@ class ActivitySuggestionService():
     def get_post_steps(self, date):
         return [0 for offset in range(5)]
 
-    def get_study_day_number(self):
-        return 2
+    def get_study_day_number(self, user):
+        difference = timezone.now() - user.date_joined
+        return difference.days + 1
     
     def categorize_activity_suggestion_time(self, decsision):
         return 1
