@@ -13,6 +13,12 @@ from fitbit_api.models import FitbitDay, FitbitAccount
 from activity_suggestions.services import ActivitySuggestionService
 from activity_suggestions.models import ServiceRequest, Configuration
 
+def create_activity_suggestion_service():
+    user, _ = User.objects.get_or_create(username="test")
+    configuration, _ = Configuration.objects.get_or_create(
+        user = user
+    )
+    return ActivitySuggestionService(configuration)
 
 class MockResponse:
     def __init__(self, status_code, text):
@@ -29,11 +35,9 @@ class MakeRequestTests(TestCase):
 
     @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example')
     def test_make_request(self):
-        user = User.objects.create(username="test")
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
         service.make_request('example',
-            user = user,
             data = {'foo': 'bar'}
         )
 
@@ -44,7 +48,7 @@ class MakeRequestTests(TestCase):
                 'foo': 'bar'
             }
         )
-        request_record = ServiceRequest.objects.get(user=user)
+        request_record = ServiceRequest.objects.get()
         self.assertEqual(request_record.request_data, json.dumps({
             'foo': 'bar',
             'userId': 'test'
@@ -54,19 +58,20 @@ class MakeRequestTests(TestCase):
 class StudyDayNumberTests(TestCase):
 
     def test_get_day_number_starts_at_one(self):
-        user = User.objects.create(username="test")
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
-        day_number = service.get_study_day_number(user)
+        day_number = service.get_study_day_number()
 
         self.assertEqual(day_number, 1)
 
     def test_get_day_number(self):
         user = User.objects.create(username="test")
         user.date_joined = user.date_joined - timedelta(days=5)
-        service = ActivitySuggestionService()
+        user.save()
+        
+        service = create_activity_suggestion_service()
 
-        day_number = service.get_study_day_number(user)
+        day_number = service.get_study_day_number()
 
         self.assertEqual(day_number, 6)
 
@@ -86,15 +91,13 @@ class ActivitySuggestionServiceTests(TestCase):
 
 
     def test_initalization(self):
-        user = User.objects.create(username="test")
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
-        service.initialize(user, datetime.now())
+        service.initialize()
 
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
-        self.assertEqual(kwargs['user'], user)
 
         request_data = kwargs['data']
         self.assertEqual(len(request_data['appClicksArray']), 7)
@@ -106,7 +109,7 @@ class ActivitySuggestionServiceTests(TestCase):
             user = user,
             time = timezone.now()
         )
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
         service.decide(decision)
 
@@ -114,14 +117,13 @@ class ActivitySuggestionServiceTests(TestCase):
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'decision')
         request_data = kwargs['data']
-        self.assertEqual(request_data['studyDay'], 2)
+        self.assertEqual(request_data['studyDay'], 1)
         assert 'location' in request_data
 
     def test_update(self):
-        user = User.objects.create(username="test")
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
-        service.update(user, datetime(2018, 11, 1))
+        service.update(datetime(2018, 11, 1))
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
@@ -141,26 +143,19 @@ class GetStepsTests(TestCase):
         )
 
     def test_gets_steps(self):
-        service = ActivitySuggestionService()
-        steps = service.get_steps(self.user, datetime(2018,10,10))
+        service = create_activity_suggestion_service()
+        steps = service.get_steps(datetime(2018,10,10))
         assert steps == 400
 
     def test_gets_no_steps(self):
-        service = ActivitySuggestionService()
-        steps = service.get_steps(self.user, datetime(2018,10,11))
+        service = create_activity_suggestion_service()
+        steps = service.get_steps(datetime(2018,10,11))
         assert steps is None
 
 class StepCountTests(TestCase):
 
-    def setUp(self):
-        self.user = User.objects.create(username="test")
-        Configuration.objects.create(
-            user = self.user,
-            timezone = 'US/Eastern'
-        )
-
     def test_get_pre_steps(self):
-        service = ActivitySuggestionService()
+        service = create_activity_suggestion_service()
 
-        pre_steps = service.get_pre_steps(self.user, datetime(2018, 10, 10))
+        pre_steps = service.get_pre_steps(datetime(2018, 10, 10))
         

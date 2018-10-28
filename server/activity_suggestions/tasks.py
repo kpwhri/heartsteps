@@ -16,16 +16,15 @@ def initialize_activity_suggestion_service(username):
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService()
+    service = ActivitySuggestionService(configuration)
 
     user_timezone = pytz.timezone(configuration.timezone)
     yesterday = datetime.now(user_timezone) - timedelta(days=1)
 
-    if service.initialize(configuration.user, yesterday):
-        configuration.enabled = True
-        configuration.save()
-    else:
-        print("Try again tomorrow?")
+    try:
+        service.initialize()
+    except:
+        pass
 
 @shared_task
 def update_activity_suggestion_service(username):
@@ -33,12 +32,15 @@ def update_activity_suggestion_service(username):
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService()
+    service = ActivitySuggestionService(configuration)
     
     user_timezone = pytz.timezone(configuration.timezone)
     yesterday = datetime.now(user_timezone) - timedelta(days=1)
 
-    service.update(configuration.user, yesterday)
+    try:
+        service.update(yesterday)
+    except:
+        pass
 
 @shared_task
 def start_decision(username, category):
