@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from locations.models import Location, Place
+from locations.services import LocationService
 from weather.models import WeatherForecast
 from weather.services import WeatherService
 
@@ -46,11 +47,11 @@ class DecisionContextTest(TestCase):
         self.assertIn('home', context_tags_text)
         self.assertIn('outdoor', context_tags_text)
 
-    @patch('randomization.services.get_last_user_location')
-    @patch('randomization.services.determine_location_type', return_value="home")
-    def test_get_location_context(self, determine_location_type, get_last_user_location):
+    @patch.object(LocationService, 'get_last_location')
+    @patch.object(LocationService, 'categorize_location', return_value="home")
+    def test_get_location_context(self, categorize_location, get_last_location):
         decision_service = self.make_decision_service()
-        get_last_user_location.return_value = Location.objects.create(
+        get_last_location.return_value = Location.objects.create(
             latitude = 123.123,
             longitude = 42.42,
             user = decision_service.user,
@@ -59,9 +60,9 @@ class DecisionContextTest(TestCase):
         
         location_type = decision_service.get_location_context()
 
-        determine_location_type.assert_called()
+        categorize_location.assert_called()
         self.assertEqual(location_type, "home")
-        get_last_user_location.assert_called()
+        get_last_location.assert_called()
         self.assertEqual(DecisionContext.objects.filter(decision=decision_service.decision).count(), 1)
 
     def test_get_location_fails(self):
@@ -71,8 +72,9 @@ class DecisionContextTest(TestCase):
 
         self.assertEqual(location_type, "other")
 
-    @patch('randomization.services.get_last_user_location', return_value=None)
-    def test_get_location_returns_location_in_decision_context(self, get_last_user_location):
+    @patch.object(LocationService, 'get_last_location')
+    def test_get_location_returns_location_in_decision_context(self, get_last_location):
+        get_last_location.return_value = None
         decision_service = self.make_decision_service()
         location = Location.objects.create(
             latitude = 123.123,
@@ -87,7 +89,7 @@ class DecisionContextTest(TestCase):
         
         returned_location = decision_service.get_location()
 
-        get_last_user_location.assert_not_called()
+        get_last_location.assert_not_called()
         self.assertEqual(returned_location.id, location.id)
 
     @patch.object(WeatherService,'get_forecast_context')

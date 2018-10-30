@@ -6,8 +6,7 @@ from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 
 from locations.models import Location, Place
-from locations.factories import get_last_user_location, determine_location_type
-from locations.models import OTHER as LOCATION_TYPE_OTHER
+from locations.services import LocationService
 from push_messages.services import PushMessageService
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
@@ -76,7 +75,8 @@ class DecisionContextService(DecisionService):
         if len(existing_decision_locations) > 0:
             self.location = existing_decision_locations[0].content_object
             return self.location
-        location = get_last_user_location(self.user)
+        location_service = LocationService(self.user)
+        location = location_service.get_last_location()
         if location:
             DecisionContext.objects.create(
                 decision = self.decision,
@@ -89,14 +89,13 @@ class DecisionContextService(DecisionService):
     def get_location_context(self):
         location = self.get_location()
         if location:
-            location_type = determine_location_type(
-                user = self.user,
+            location_service = LocationService(self.user)
+            return location_service.categorize_location(
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-            return location_type
         else:
-            return LOCATION_TYPE_OTHER
+            return Place.OTHER
 
     def get_weather_context(self):
         location = self.get_location()

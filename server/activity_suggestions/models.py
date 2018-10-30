@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 
 from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
 
+from locations.services import LocationService
 from randomization.models import Decision, ContextTag
 
 class SuggestionTime(models.Model):
@@ -47,7 +48,11 @@ class Configuration(models.Model):
 
     user = models.ForeignKey(User)
     enabled = models.BooleanField(default=False)
-    timezone = models.CharField(max_length=50, default="America/Los_Angeles")
+
+    @property
+    def timezone(self):
+        location_service = LocationService(self.user)
+        return location_service.get_current_timezone()
 
     def update_daily_tasks(self):
         for suggestion_time in SuggestionTime.objects.filter(user=self.user).all():
