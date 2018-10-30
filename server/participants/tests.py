@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
-from activity_suggestions.models import Configuration as ActivitySuggestionConfiguration
-
 from .models import Participant
 
 class EnrollViewTests(APITestCase):
@@ -46,8 +44,6 @@ class EnrollViewTests(APITestCase):
 
         participant = Participant.objects.get(heartsteps_id = "sample-id")
         self.assertIsNotNone(participant.user)
-        activity_suggestion_configuration = ActivitySuggestionConfiguration.objects.get(user=participant.user)
-        self.assertIsNotNone(activity_suggestion_configuration)
 
     def test_no_matching_enrollment_token(self):
         """

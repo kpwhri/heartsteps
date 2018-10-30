@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from activity_suggestions.models import Configuration as ActivitySuggestionConfiguration
-
 class Participant(models.Model):
     """
     Represents a study participant
@@ -21,10 +19,6 @@ class Participant(models.Model):
         )
         self.user = user
         self.save()
-
-        ActivitySuggestionConfiguration.objects.get_or_create(
-            user = user
-        )
 
     def __str__(self):
             if self.user:
