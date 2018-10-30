@@ -21,12 +21,24 @@ class DecisionContextTest(TestCase):
     Ensure decisions are created and gather context from associated services.
     """
 
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+        get_last_location_patch = patch.object(LocationService, 'get_last_location')
+        self.addCleanup(get_last_location_patch.stop)
+        self.get_last_location = get_last_location_patch.start()
+        self.get_last_location.return_value = Location.objects.create(
+            longitude = 123.123,
+            latitude = 42.42,
+            user = self.user,
+            time = timezone.now()
+        )
+
     def make_decision_service(self, time=None):
         if not time:
             time = timezone.now()
-        user, created = User.objects.get_or_create(username="test")
         decision = Decision.objects.create(
-            user = user,
+            user = self.user,
             time = time
         )
         return DecisionContextService(decision)
@@ -47,22 +59,15 @@ class DecisionContextTest(TestCase):
         self.assertIn('home', context_tags_text)
         self.assertIn('outdoor', context_tags_text)
 
-    @patch.object(LocationService, 'get_last_location')
     @patch.object(LocationService, 'categorize_location', return_value="home")
-    def test_get_location_context(self, categorize_location, get_last_location):
+    def test_get_location_context(self, categorize_location):
         decision_service = self.make_decision_service()
-        get_last_location.return_value = Location.objects.create(
-            latitude = 123.123,
-            longitude = 42.42,
-            user = decision_service.user,
-            time = timezone.now()
-        )
         
         location_type = decision_service.get_location_context()
 
         categorize_location.assert_called()
         self.assertEqual(location_type, "home")
-        get_last_location.assert_called()
+        self.get_last_location.assert_called()
         self.assertEqual(DecisionContext.objects.filter(decision=decision_service.decision).count(), 1)
 
     def test_get_location_fails(self):
@@ -124,6 +129,9 @@ class DecisionContextTest(TestCase):
         """
         Decision service imputes weather when no location is found
         """
+        def unknown_location():
+            raise LocationService.UnknownLocation()
+        self.get_last_location.side_effect = unknown_location
         fake_weather_object = User.objects.create(username="totally_fake")
         make_forecast.return_value = fake_weather_object
         get_average_forecast_context.return_value = 'outdoors'

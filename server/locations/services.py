@@ -1,16 +1,22 @@
+import pytz
+
+from timezonefinder import TimezoneFinder
+
 from locations.models import Location, Place
 
 class LocationService:
+
+    class UnknownLocation(Exception):
+        pass
 
     def __init__(self, user):
         self.__user = user
 
     def get_last_location(self):
-        location = Location.objects.filter(user = self.__user).last()
-        if location:
-            return location
-        else:
-            return False
+        location = Location.objects.filter(user = self.__user).first()
+        if not location:
+            raise self.UnknownLocation()
+        return location
     
     def categorize_location(self, latitude, longitude):
         near_by_places = []
@@ -23,7 +29,7 @@ class LocationService:
                 nearest_place = place
                 break
             nearest_distance = nearest_place.distance_from(latitude, longitude)
-            place_distance = place.distance_from(latitiude, longitude)
+            place_distance = place.distance_from(latitude, longitude)
             if place_distance < nearest_distance:
                 nearest_place = place
 
@@ -32,11 +38,30 @@ class LocationService:
             location_type = nearest_place.type
         return location_type
 
-    def get_location_at(self, datetime):
-        pass
+    def get_location_on(self, datetime):
+        location = Location.objects.filter(time__lte=datetime).first()
+        if not location:
+            raise self.UnknownLocation()
+        return location
 
     def get_current_timezone(self):
-        return "US/Pacific"
+        location = self.get_last_location()
+        return self.get_timezone_for(
+            latitude = location.latitude,
+            longitude = location.longitude
+        )
 
-    def get_timezone_at(self, datetime):
-        pass
+    def get_timezone_for(self, latitude, longitude):
+        timezone_finder = TimezoneFinder()
+        timezone = timezone_finder.timezone_at(
+            lng = longitude,
+            lat = latitude
+        )
+        return pytz.timezone(timezone)
+
+    def get_timezone_on(self, datetime):
+        location = self.get_location_on(datetime)
+        return self.get_timezone_for(
+            latitude = location.latitude,
+            longitude = location.longitude
+        )

@@ -3,8 +3,6 @@ from datetime import datetime
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-from django.db.models.signals import pre_delete, post_delete, post_save
-from django.dispatch import receiver
 
 from django.contrib.auth.models import User
 
@@ -51,8 +49,11 @@ class Configuration(models.Model):
 
     @property
     def timezone(self):
-        location_service = LocationService(self.user)
-        return location_service.get_current_timezone()
+        try:
+            location_service = LocationService(self.user)
+            return location_service.get_current_timezone()
+        except LocationService.UnknownLocation:
+            return pytz.utc
 
     def update_daily_tasks(self):
         for suggestion_time in SuggestionTime.objects.filter(user=self.user).all():
@@ -106,10 +107,6 @@ class Configuration(models.Model):
         else:
             return "%s Disabled" % self.user
 
-@receiver(post_save, sender=Configuration)
-def post_save_configuration(sender, instance, *args, **kwargs):
-    instance.update_daily_tasks()
-
 class DailyTask(models.Model):
     configuration = models.ForeignKey(Configuration)
     category = models.CharField(max_length=20)
@@ -125,7 +122,7 @@ class DailyTask(models.Model):
         self.save()
 
     def set_time(self, hour, minute, timezone):
-        time = datetime.now(pytz.timezone(timezone)).replace(
+        time = datetime.now(timezone).replace(
             hour = hour,
             minute = minute
         )
@@ -138,10 +135,6 @@ class DailyTask(models.Model):
     def delete_task():
         self.task.crontab.delete()
         self.task.delete()
-
-@receiver(post_delete, sender=DailyTask)
-def pre_delete_suggested_time(sender, instance, *args, **kwargs):
-    instance.delete_task()
 
 class ActivitySuggestionDecisionManager(models.Manager):
 

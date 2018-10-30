@@ -128,7 +128,7 @@ class ActivitySuggestionService():
 
     def get_pre_steps(self, date):
         configuration = Configuration.objects.get(user=self.__user)
-        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=pytz.timezone(configuration.timezone))
+        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=configuration.timezone)
         end_time = start_time + timedelta(days=1)
         decision_query = Decision.objects.filter(
             user=self.__user,

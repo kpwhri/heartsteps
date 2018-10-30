@@ -88,7 +88,7 @@ class InitializeTaskTests(TestCase):
 
 class NightlyUpdateTaskTests(TestCase):
     
-    @patch.object(ActivitySuggestionService, 'update')
+    @patch.object(ActivitySuggestionService, 'update', return_value="None")
     def test_update(self, update):
         Configuration.objects.create(
             user = User.objects.create(username='test')

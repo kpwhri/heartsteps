@@ -75,16 +75,17 @@ class DecisionContextService(DecisionService):
         if len(existing_decision_locations) > 0:
             self.location = existing_decision_locations[0].content_object
             return self.location
-        location_service = LocationService(self.user)
-        location = location_service.get_last_location()
-        if location:
+        try:
+            location_service = LocationService(self.user)
+            location = location_service.get_last_location()
             DecisionContext.objects.create(
                 decision = self.decision,
                 content_object = location
             )
             self.location = location
             return location
-        return None
+        except LocationService.UnknownLocation:
+            return None
             
     def get_location_context(self):
         location = self.get_location()

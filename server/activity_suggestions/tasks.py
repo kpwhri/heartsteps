@@ -16,12 +16,8 @@ def initialize_activity_suggestion_service(username):
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService(configuration)
-
-    user_timezone = pytz.timezone(configuration.timezone)
-    yesterday = datetime.now(user_timezone) - timedelta(days=1)
-
     try:
+        service = ActivitySuggestionService(configuration)
         service.initialize()
     except:
         pass
@@ -32,12 +28,9 @@ def update_activity_suggestion_service(username):
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService(configuration)
-    
-    user_timezone = pytz.timezone(configuration.timezone)
-    yesterday = datetime.now(user_timezone) - timedelta(days=1)
-
+    yesterday = datetime.now(configuration.timezone) - timedelta(days=1)
     try:
+        service = ActivitySuggestionService(configuration)
         service.update(yesterday)
     except:
         pass
