@@ -7,7 +7,6 @@ from rest_framework.authtoken.models import Token
 
 from .models import Participant
 
-
 class EnrollView(APIView):
     """
     Enrolls a participant and creates an enrollment token for their session if a matching token is found.
@@ -16,17 +15,17 @@ class EnrollView(APIView):
     """
     def post(self, request, format=None):
         enrollment_token = request.data.get('enrollmentToken')
+        birth_year = request.data.get('birthYear', None)
         if enrollment_token:
             try:
-                participant = Participant.objects.get(enrollment_token__iexact=enrollment_token)
-            except Participant.DoesNotExist:
-                return Response({}, status.HTTP_400_BAD_REQUEST)
-            if not participant.user:
-                user, created = User.objects.get_or_create(
-                    username= participant.heartsteps_id
+                participant = Participant.objects.get(
+                    enrollment_token__iexact=enrollment_token,
+                    birth_year = birth_year
                 )
-                participant.user = user
-                participant.save()
+            except Participant.DoesNotExist:
+                return Response({}, status.HTTP_401_UNAUTHORIZED)
+            
+            participant.enroll()
             token, created = Token.objects.get_or_create(user=participant.user)
 
             response_data = {

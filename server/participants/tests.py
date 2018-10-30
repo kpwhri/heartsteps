@@ -1,10 +1,12 @@
 from django.urls import reverse
-
-from .models import Participant
 from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
+
+from activity_suggestions.models import Configuration as ActivitySuggestionConfiguration
+
+from .models import Participant
 
 class EnrollViewTests(APITestCase):
     def test_enrollment_token(self):
@@ -44,8 +46,8 @@ class EnrollViewTests(APITestCase):
 
         participant = Participant.objects.get(heartsteps_id = "sample-id")
         self.assertIsNotNone(participant.user)
-
-
+        activity_suggestion_configuration = ActivitySuggestionConfiguration.objects.get(user=participant.user)
+        self.assertIsNotNone(activity_suggestion_configuration)
 
     def test_no_matching_enrollment_token(self):
         """
@@ -56,9 +58,36 @@ class EnrollViewTests(APITestCase):
             'enrollmentToken': 'doesnt-exist'
         })
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
 
     def test_no_enrollment_token(self):
         response = self.client.post(reverse('participants-enroll'), {})
 
         self.assertEqual(response.status_code, 400)
+
+    def test_matches_birth_year(self):
+        Participant.objects.create(
+            heartsteps_id = "test",
+            enrollment_token = "token",
+            birth_year = "1999"
+        )
+
+        response = self.client.post(reverse('participants-enroll'), {
+            'enrollmentToken': 'token',
+            'birthYear': '1999'
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_fail_enrollment_if_birth_year_but_not_tested(self):
+        Participant.objects.create(
+            heartsteps_id = "test",
+            enrollment_token = "token",
+            birth_year = "1999"
+        )
+
+        response = self.client.post(reverse('participants-enroll'), {
+            'enrollmentToken': 'token'
+        })
+
+        self.assertEqual(response.status_code, 401)   
