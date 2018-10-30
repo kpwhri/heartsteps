@@ -5,15 +5,31 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 
-from activity_suggestions.models import SuggestionTime, Configuration
+from activity_suggestions.models import SuggestionTime
+
+class SuggestionTimeReadView(APITestCase):
+
+    def test_read_times(self):
+        user = User.objects.create(username="test")
+        SuggestionTime.objects.create(
+            user = user,
+            category = SuggestionTime.MORNING,
+            hour = 14,
+            minute = 30
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse('activity_suggestions-times'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            'morning': '14:30'
+        })
 
 class SuggestionTimeUpdateView(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
-        self.configuration = Configuration.objects.create(
-            user = self.user
-        )
 
     def get_times(self):
         return { 
