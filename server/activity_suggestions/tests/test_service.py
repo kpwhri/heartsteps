@@ -1,5 +1,4 @@
-import requests
-import json
+import requests, json, pytz
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
@@ -8,10 +7,10 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
-from fitbit_api.models import FitbitDay, FitbitAccount
+from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
 from activity_suggestions.services import ActivitySuggestionService
-from activity_suggestions.models import ServiceRequest, Configuration
+from activity_suggestions.models import ServiceRequest, Configuration, SuggestionTime
 
 def create_activity_suggestion_service():
     user, _ = User.objects.get_or_create(username="test")
@@ -187,8 +186,81 @@ class GetStepsTests(TestCase):
 
 class StepCountTests(TestCase):
 
+    def setUp(self):
+        user = User.objects.create(username="test")
+        account = FitbitAccount.objects.create(
+            user = user,
+            fitbit_user = "test"
+        )
+        decision = Decision.objects.create(
+            user = user,
+            time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
+        )
+        decision.add_context('activity suggestion')
+        decision.add_context(SuggestionTime.MORNING)
+
+        decision = Decision.objects.create(
+            user = user,
+            time = datetime(2018, 10, 10, 22, 00, tzinfo=pytz.utc)
+        )
+        decision.add_context('activity suggestion')
+        decision.add_context(SuggestionTime.POSTDINNER)
+        day = FitbitDay.objects.create(
+            account = account,
+            date = datetime(2018,10,10)
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 10, 0, tzinfo=pytz.utc),
+            steps = 50
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 9, 0, tzinfo=pytz.utc),
+            steps = 10
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 10, 20, tzinfo=pytz.utc),
+            steps = 120
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 21, 45, tzinfo=pytz.utc),
+            steps = 10
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 22, 7, tzinfo=pytz.utc),
+            steps = 10
+        )
+        # Following step counts shouldn't be considered
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 9, 39, tzinfo=pytz.utc),
+            steps = 50
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = day,
+            account = account,
+            time = datetime(2018, 10, 10, 22, 31, tzinfo=pytz.utc),
+            steps = 50
+        )
+
     def test_get_pre_steps(self):
         service = create_activity_suggestion_service()
-
         pre_steps = service.get_pre_steps(datetime(2018, 10, 10))
         
+        self.assertEqual(pre_steps, [50, None, None, None, 10])
+
+    def test_get_post_steps(self):
+        service = create_activity_suggestion_service()
+        pre_steps = service.get_post_steps(datetime(2018, 10, 10))
+        
+        self.assertEqual(pre_steps, [120, None, None, None, 10])

@@ -36,6 +36,12 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
+    def add_context(self, tag_text):
+        tag, _ = ContextTag.objects.get_or_create(
+            tag = tag_text
+        )
+        self.tags.add(tag)
+
     def is_complete(self):
         if self.a_it is not None:
             return True

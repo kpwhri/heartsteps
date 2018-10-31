@@ -44,10 +44,7 @@ class DecisionService():
         return []
 
     def add_context(self, tag_text):
-        tag, created = ContextTag.objects.get_or_create(
-            tag = tag_text
-        )
-        self.decision.tags.add(tag)
+        self.decision.add_context(tag_text)
 
     def update_context(self):
         new_context = self.generate_context()

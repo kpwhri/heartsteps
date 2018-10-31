@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
-from fitbit_api.models import FitbitDay
+from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
 from randomization.models import Decision
 
 from activity_suggestions.models import Configuration, ServiceRequest, SuggestionTime
@@ -127,32 +127,60 @@ class ActivitySuggestionService():
         return [0 for offset in range(5)]
 
     def get_pre_steps(self, date):
-        configuration = Configuration.objects.get(user=self.__user)
-        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=configuration.timezone)
+        decision_times = self.get_activity_suggestion_times_for(date)
+        steps = []
+        for time_category in SuggestionTime.TIMES:
+            if time_category in decision_times:
+                step_count = self.get_steps_before(decision_times[time_category])
+                steps.append(step_count)
+            else:
+                steps.append(None)
+        return steps
+
+    def get_post_steps(self, date):
+        decision_times = self.get_activity_suggestion_times_for(date)
+        steps = []
+        for time_category in SuggestionTime.TIMES:
+            if time_category in decision_times:
+                step_count = self.get_steps_after(decision_times[time_category])
+                steps.append(step_count)
+            else:
+                steps.append(None)
+        return steps
+
+    def get_activity_suggestion_times_for(self, date):
+        decision_times = {}
+
+        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=self.__configuration.timezone)
         end_time = start_time + timedelta(days=1)
         decision_query = Decision.objects.filter(
             user=self.__user,
             tags__tag='activity suggestion',
             time__range = [start_time, end_time]
         )
-        pre_steps = []
         for time_category in SuggestionTime.TIMES:
             try:
-                decision = decision_query.filter(time_category).first()
-            except:
-                pre_steps.append(None)
+                decision = decision_query.filter(tags__tag=time_category).get()
+                decision_times[time_category] = decision.time
+            except Decision.DoesNotExist:
                 continue
-            steps = FitbitMinuteStepCount.filter(
-                account__user = self.__user,
-                time__range = [decision.time - timedelta(minutes=30), decision.time]
-            ).all()
-            total_steps = 0
-            for step in steps:
-                total_steps += step            
-        return pre_steps
+        return decision_times
 
-    def get_post_steps(self, date):
-        return [0 for offset in range(5)]
+    def get_steps_before(self, time):
+        return self.get_steps_between(time - timedelta(minutes=30), time)
+
+    def get_steps_after(self, time):
+        return self.get_steps_between(time, time + timedelta(minutes=30))
+
+    def get_steps_between(self, start_time, end_time):
+        step_counts = FitbitMinuteStepCount.objects.filter(
+            account__user = self.__user,
+            time__range = (start_time, end_time)
+        ).all()
+        total_steps = 0
+        for step_count in step_counts:
+            total_steps += step_count.steps
+        return total_steps
 
     def get_study_day_number(self):
         difference = timezone.now() - self.__user.date_joined
