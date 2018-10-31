@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import requests
 
 from django.test import TestCase
 from django.utils import timezone
@@ -6,6 +7,71 @@ from django.utils import timezone
 from weather.darksky_api_manager import DarkSkyApiManager
 from weather.models import WeatherForecast
 from weather.services import WeatherService
+
+class DarkSkyApiTests(TestCase):
+
+    def mock_response(self, status_code, data):
+        class MockResponse:
+            def __init__(self, status_code, data):
+                self.status_code = status_code
+                self.data = data
+            
+            def json(self):
+                return self.data
+        return MockResponse(status_code, data)
+
+    def setUp(self):
+        self.weather_response = {
+            'latitude': 10,
+            'longitude': 10,
+            'currently': {
+                'time': 10,
+                'percipProbability': 0.10,
+                'precipType': 'rain',
+                'temperature': 70,
+                'apparentTemperature': 75,
+                'windSpeed': 10.19,
+                'cloudCover': 0.25
+            }
+        }
+
+        requests_patch = patch.object(requests, 'get')
+        self.addCleanup(requests_patch.stop)
+        self.requests = requests_patch.start()
+        self.requests.return_value = self.mock_response(200, self.weather_response)
+
+    def test_get_forecast(self):
+        darksky_api = DarkSkyApiManager()
+        now = timezone.now()
+        
+        forecast = darksky_api.get_forecast(
+            latitude = 12,
+            longitude = 123,
+            time = now
+        )
+        
+        mock_url = darksky_api.WEATHER_URL.format(
+            api_key = darksky_api.API_KEY,
+            latitude = 12,
+            longitude = 123,
+            time = round(now.timestamp())
+        )
+        self.requests.assert_called_with(mock_url)
+        self.assertEqual(forecast['latitude'], 10)
+        self.assertEqual(forecast['precip_type'], 'rain')
+        self.assertEqual(forecast['apparent_temperature'], 75)
+
+    def test_precip_type_default_value(self):
+        del self.weather_response['currently']['precipType']
+        darksky_api = DarkSkyApiManager()
+
+        forecast = darksky_api.get_forecast(
+            latitude = 12,
+            longitude = 123,
+            time = timezone.now()
+        )
+
+        self.assertEqual(forecast['precip_type'], 'None')
 
 class WeatherServiceTest(TestCase):
 
@@ -20,7 +86,7 @@ class WeatherServiceTest(TestCase):
             'apparent_temperature': 20
         }
 
-    @patch.object(DarkSkyApiManager, 'get_hour_forecast', get_forecast)
+    @patch.object(DarkSkyApiManager, 'get_forecast', get_forecast)
     def test_generates_forecast_from_darksky(self):
         forecast = WeatherService.make_forecast(123, 456)
 

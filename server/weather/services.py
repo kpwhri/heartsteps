@@ -9,7 +9,7 @@ class WeatherService:
 
     def make_forecast(latitude, longitude):
         dark_sky = DarkSkyApiManager()
-        forecast = dark_sky.get_hour_forecast(latitude, longitude)
+        forecast = dark_sky.get_forecast(latitude, longitude)
         return WeatherForecast.objects.create(**forecast)
 
     def get_context(temperature, precipitation_probability, precipitation_type):

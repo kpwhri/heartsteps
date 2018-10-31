@@ -8,46 +8,33 @@ class DarkSkyApiManager:
     https://darksky.net/dev/docs
     """
 
+    class RequestFailed(Exception):
+        pass
+
     def __init__(self):
         self.API_KEY = "f076fa5dc90a5a68a86d075d6f7abab6"
-        self.WEATHER_URL = ("https://api.darksky.net/forecast/"
-                            "[api_key]/[latitude],[longitude]?units=us"
-                            "&exclude=currently,minutely,daily,alerts,flags")
+        self.WEATHER_URL = "https://api.darksky.net/forecast/{api_key}/{latitude},{longitude},{time}?units=us&exclude=hourly,daily,alerts,minutely,flags"
 
-    def get_hour_forecast(self, latitude, longitude):
-        """
-        This function gets hourly weather forecast for the specified lat/long
+    def get_forecast(self, latitude, longitude, time):
+        response = requests.get(self.WEATHER_URL.format(
+            api_key = self.API_KEY,
+            latitude = latitude,
+            longitude = longitude,
+            time = round(time.timestamp())
+        ))
+        if response.status_code is not 200:
+            raise self.RequestFailed()
 
-        REQUIRES:   dark_sky_api_key = string
-                    state = string (short form)
-                    city = string
-        MODIFIES:   nothing
-        EFFECTS:    returns a DataBlock of hourly weather
-        """
-        request_url = self.WEATHER_URL.replace("[api_key]", self.API_KEY)
-        request_url = request_url.replace("[latitude]", str(latitude))
-        request_url = request_url.replace("[longitude]", str(longitude))
-        response = requests.get(request_url)
         content = response.json()
-
-        response_latitude = content["latitude"]
-        response_longitude = content["longitude"]
-        # Forecast for current hour is [0], following hour is [1]
-        next_hour = content['hourly']['data'][1]
+        forecast = content['currently']
         return {
-            'latitude': response_latitude,
-            'longitude': response_longitude,
-            # fromtimestamp returns local time - switch to UTC
-            'time': datetime.fromtimestamp(next_hour['time'], tz=pytz.utc),
-            'precip_probability': next_hour['precipProbability'],
-            # precipType does not exist if no precipitation
-            'precip_type': next_hour.get('precipType', 'None'),
-            'temperature': next_hour['temperature'],
-            'apparent_temperature': next_hour['apparentTemperature'],
-            'wind_speed': next_hour['windSpeed'],
-            'cloud_cover': next_hour['cloudCover']
+            'latitude': content['latitude'],
+            'longitude': content['longitude'],
+            'time': forecast.get('time'),
+            'precip_probability': forecast.get('percipProbability'),
+            'precip_type': forecast.get('precipType', 'None'),
+            'temperature': forecast.get('temperature'),
+            'apparent_temperature': forecast.get('apparentTemperature'),
+            'wind_speed': forecast.get('windSpeed'),
+            'cloud_cover': forecast.get('cloudCover')
         }
-
-        if __name__ == '__main__':
-            dk = DarkSkyApiManager()
-            dk.get_hour_forecast(47.620506, -122.349277)
