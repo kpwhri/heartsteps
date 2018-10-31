@@ -21,5 +21,9 @@ class WeatherForecast(models.Model):
     cloud_cover = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def temperature_celcius(self):
+        return (self.temperature - 32)/1.8
+
     def __str__(self):
         return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)

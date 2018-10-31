@@ -6,7 +6,8 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from randomization.models import Decision
+from randomization.models import Decision, DecisionContext
+from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
 from activity_suggestions.services import ActivitySuggestionService
@@ -264,3 +265,39 @@ class StepCountTests(TestCase):
         pre_steps = service.get_post_steps(datetime(2018, 10, 10))
         
         self.assertEqual(pre_steps, [120, None, None, None, 10])
+
+class TemperatureTests(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(username="test")
+        account = FitbitAccount.objects.create(
+            user = user,
+            fitbit_user = "test"
+        )
+        for time_category in SuggestionTime.TIMES:            
+            decision = Decision.objects.create(
+                user = user,
+                time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
+            )
+            decision.add_context('activity suggestion')
+            decision.add_context(time_category)
+            forecast = WeatherForecast.objects.create(
+                latitude = 1,
+                longitude = 1,
+                precip_probability = 0,
+                precip_type = 'None',
+                temperature = 50, # Only value that matters for test
+                apparent_temperature = 100,
+                time = timezone.now()
+            )
+            DecisionContext.objects.create(
+                decision = decision,
+                content_object = forecast
+            )
+
+    def test_temperature(self):
+        service = create_activity_suggestion_service()
+
+        temperatures = service.get_temperatures(datetime(2018, 10, 10))
+
+        self.assertEqual(temperatures, [10, 10, 10, 10, 10])

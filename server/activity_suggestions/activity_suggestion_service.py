@@ -7,9 +7,11 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.contenttypes.models import ContentType
 
 from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
-from randomization.models import Decision
+from randomization.models import Decision, DecisionContext
+from weather.models import WeatherForecast
 
 from activity_suggestions.models import Configuration, ServiceRequest, SuggestionTime
 
@@ -124,31 +126,52 @@ class ActivitySuggestionService():
         return [False for offset in range(5)]
 
     def get_temperatures(self, date):
-        return [0 for offset in range(5)]
+        temperatures = []
+        forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+        decisions = self.get_decisions_for(date)
+        for time_category in SuggestionTime.TIMES:
+            if time_category in decisions:
+                forecasts = DecisionContext.objects.filter(
+                    decision = decisions[time_category],
+                    content_type = forecast_content_type
+                ).all()
+                if not len(forecasts):
+                    raise ValueError("No Weather Forecast")
+                if len(forecasts) == 1:
+                    temperatures.append(forecasts[0].content_object.temperature_celcius)
+                else:
+                    forecast_temperatures = [forecast.content_object.temperature_celcius for forecast in forecasts]
+                    average_temperature = sum(forecast_temperatures)/len(forecast_temperatures)
+                    temperatures.append(average_temperature)
+            else:
+                temperatures.append(None)
+        return temperatures
 
     def get_pre_steps(self, date):
-        decision_times = self.get_activity_suggestion_times_for(date)
+        decisions = self.get_decisions_for(date)
         steps = []
         for time_category in SuggestionTime.TIMES:
-            if time_category in decision_times:
-                step_count = self.get_steps_before(decision_times[time_category])
+            if time_category in decisions:
+                decision = decisions[time_category]
+                step_count = self.get_steps_before(decision.time)
                 steps.append(step_count)
             else:
                 steps.append(None)
         return steps
 
     def get_post_steps(self, date):
-        decision_times = self.get_activity_suggestion_times_for(date)
+        decisions = self.get_decisions_for(date)
         steps = []
         for time_category in SuggestionTime.TIMES:
-            if time_category in decision_times:
-                step_count = self.get_steps_after(decision_times[time_category])
+            if time_category in decisions:
+                decision = decisions[time_category]
+                step_count = self.get_steps_after(decision.time)
                 steps.append(step_count)
             else:
                 steps.append(None)
         return steps
 
-    def get_activity_suggestion_times_for(self, date):
+    def get_decisions_for(self, date):
         decision_times = {}
 
         start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=self.__configuration.timezone)
@@ -161,7 +184,7 @@ class ActivitySuggestionService():
         for time_category in SuggestionTime.TIMES:
             try:
                 decision = decision_query.filter(tags__tag=time_category).get()
-                decision_times[time_category] = decision.time
+                decision_times[time_category] = decision
             except Decision.DoesNotExist:
                 continue
         return decision_times
