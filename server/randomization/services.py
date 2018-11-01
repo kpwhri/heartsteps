@@ -10,6 +10,7 @@ from locations.services import LocationService
 from push_messages.services import PushMessageService
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
+from weather.models import WeatherForecast
 
 from randomization.models import Decision, DecisionContext, Message, ContextTag
 
@@ -110,6 +111,32 @@ class DecisionContextService(DecisionService):
         return WeatherService.get_forecast_context(forecast)
 
     def get_imputed_weather_context(self):
+        forecasts = self.impute_forecasts()
+        return WeatherService.get_average_forecast_context(forecasts)
+
+    def get_forecasts(self):
+        forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+        content_objects = DecisionContext.objects.filter(
+            decision = self.decision,
+            content_type = forecast_content_type
+        ).all()
+        if not len(content_objects):
+            return self.create_forecasts()
+        else:
+            return [obj.content_object for obj in content_objects]
+
+    def create_forecasts(self):
+        location = self.get_location()
+        if location:
+            forecast = self.make_forecast(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+            return [forecast]
+        else:
+            return self.impute_forecasts()
+
+    def impute_forecasts(self):
         forecasts = []
         for place in Place.objects.filter(user=self.user).all():
             forecast = self.make_forecast(
@@ -117,7 +144,7 @@ class DecisionContextService(DecisionService):
                 longitude = place.longitude
             )
             forecasts.append(forecast)
-        return WeatherService.get_average_forecast_context(forecasts)
+        return forecasts
 
     def make_forecast(self, latitude, longitude):
         forecast = WeatherService.make_forecast(

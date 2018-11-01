@@ -88,6 +88,12 @@ class ActivitySuggestionServiceTests(TestCase):
         get_pre_steps_patch = patch.object(ActivitySuggestionService, 'get_pre_steps')
         self.addCleanup(get_pre_steps_patch.stop)
         self.get_pre_steps = get_pre_steps_patch.start()
+        get_post_steps_patch = patch.object(ActivitySuggestionService, 'get_post_steps')
+        self.addCleanup(get_post_steps_patch.stop)
+        self.get_post_steps = get_post_steps_patch.start()
+        get_temperatures_patch = patch.object(ActivitySuggestionService, 'get_temperatures')
+        self.addCleanup(get_temperatures_patch.stop)
+        self.get_temperatures = get_temperatures_patch.start()
 
 
     def test_initalization(self):
@@ -98,9 +104,11 @@ class ActivitySuggestionServiceTests(TestCase):
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
+        
         request_data = kwargs['data']
         self.assertEqual(len(request_data['appClicksArray']), 7)
         self.assertEqual(request_data['totalStepsArray'], [30 for i in range(7)])
+
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
 
@@ -200,6 +208,25 @@ class StepCountTests(TestCase):
         decision.add_context('activity suggestion')
         decision.add_context(SuggestionTime.MORNING)
 
+        SuggestionTime.objects.create(
+            user = user,
+            category = SuggestionTime.LUNCH,
+            hour = 12,
+            minute = 30
+        )
+        SuggestionTime.objects.create(
+            user = user,
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = 15,
+            minute = 00
+        )
+        SuggestionTime.objects.create(
+            user = user,
+            category = SuggestionTime.EVENING,
+            hour = 17,
+            minute = 30
+        )
+
         decision = Decision.objects.create(
             user = user,
             time = datetime(2018, 10, 10, 22, 00, tzinfo=pytz.utc)
@@ -258,13 +285,13 @@ class StepCountTests(TestCase):
         service = create_activity_suggestion_service()
         pre_steps = service.get_pre_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [50, None, None, None, 10])
+        self.assertEqual(pre_steps, [50, 0, 0, 0, 10])
 
     def test_get_post_steps(self):
         service = create_activity_suggestion_service()
         pre_steps = service.get_post_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [120, None, None, None, 10])
+        self.assertEqual(pre_steps, [120, 0, 0, 0, 10])
 
 class TemperatureTests(TestCase):
 
