@@ -16,6 +16,9 @@ from activity_suggestions.models import Configuration, ServiceRequest, Suggestio
 
 class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
+    def determine_availability(self):
+        return True
+
     def decide(self):
         try:
             service = ActivitySuggestionService(self.user)
@@ -61,11 +64,14 @@ class ActivitySuggestionService():
         request_record.response_time = timezone.now()
         request_record.save()
 
-        return response.text
+        return json.loads(response.text)
 
-    def initialize(self):
-        date = timezone.now()
-        dates = [date - timedelta(days=offset) for offset in range(7)]
+    def initialize(self, date):
+        if not hasattr(settings, 'ACTIVITY_SUGGESTION_INITIALIZATION_DAYS'):
+            raise ImproperlyConfigured('No initialization days specified')
+        else:
+            initialization_days = settings.ACTIVITY_SUGGESTION_INITIALIZATION_DAYS
+        dates = [date - timedelta(days=offset) for offset in range(initialization_days)]
         data = {
             'appClicksArray': [self.get_clicks(date) for date in dates],
             'totalStepsArray': [self.get_steps(date) for date in dates],
@@ -84,13 +90,13 @@ class ActivitySuggestionService():
         if not self.__configuration.enabled:
             raise self.NotInitialized()
         data = {
-            'studyDay': self.get_study_day_number(),
+            'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
             'priorAnti': False,
             'lastActivity': False,
             'temperatureArray': self.get_temperatures(date),
-            'preStepArray': self.get_pre_steps(date),
+            'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date)
         }
         response = self.make_request('nightly',
@@ -100,24 +106,20 @@ class ActivitySuggestionService():
     def decide(self, decision):
         if not self.__configuration.enabled:
             raise self.NotInitialized()
+        decision_service = ActivitySuggestionDecisionService(decision)
         response = self.make_request('decision',
             data = {
-                'studyDay': self.get_study_day_number(),
+                'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_activity_suggestion_time(decision),
-                'availability': False,
+                'availability': decision_service.determine_availability(),
                 'priorAnti': False,
                 'lastActivity': False,
-                'location': self.categorize_location(decision)
+                'location': decision_service.get_location_context()
             }
         )
-
-        if response.status_code is not 200:
-            return False
-        response_data = response.json()
-        decision.a_it = response_data['send']
-        decision.pi_id = response_data['probability']
+        decision.a_it = response['send']
+        decision.pi_id = response['probability']
         decision.save()
-            
 
     def get_clicks(self, date):
         return 0
@@ -135,7 +137,9 @@ class ActivitySuggestionService():
         return day.total_steps        
 
     def get_availabilities(self, date):
-        return [False for offset in range(5)]
+        for decision in self.get_decisions_for(date):
+            decision_service = ActivitySuggestionDecisionService(decision)
+            yield decision_service.determine_availability()
 
     def get_temperatures(self, date):
         temperatures = []
@@ -238,13 +242,12 @@ class ActivitySuggestionService():
             total_steps += step_count.steps
         return total_steps
 
-    def get_study_day_number(self):
-        difference = timezone.now() - self.__user.date_joined
+    def get_study_day(self, date):
+        difference = date - self.__user.date_joined
         return difference.days + 1
     
-    def categorize_activity_suggestion_time(self, decsision):
-        return 1
-
-    def categorize_location(self, decision):
-        return 0
-
+    def categorize_activity_suggestion_time(self, decision):
+        for tag in decision.get_context():
+            if tag in SuggestionTime.TIMES:
+                return SuggestionTime.TIMES.index(tag) + 1
+        raise ValueError('Decision does not have suggestion time')

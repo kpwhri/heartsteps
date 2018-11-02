@@ -36,6 +36,9 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
+    def get_context(self):
+        return [tag.tag for tag in self.tags.all()]
+
     def add_context(self, tag_text):
         tag, _ = ContextTag.objects.get_or_create(
             tag = tag_text

@@ -1,6 +1,6 @@
 import requests, json, pytz
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -31,13 +31,15 @@ class MakeRequestTests(TestCase):
         requests_post_patch = patch.object(requests, 'post')
         self.addCleanup(requests_post_patch.stop)
         self.requests_post = requests_post_patch.start()
-        self.requests_post.return_value = MockResponse(200, "success")
+        self.requests_post.return_value = MockResponse(200, json.dumps({
+            'success': 1 
+        }))
 
     @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example')
     def test_make_request(self):
         service = create_activity_suggestion_service()
 
-        service.make_request('example',
+        response = service.make_request('example',
             data = {'foo': 'bar'}
         )
 
@@ -53,14 +55,25 @@ class MakeRequestTests(TestCase):
             'foo': 'bar',
             'userId': 'test'
         }))
-        self.assertEqual(request_record.response_data, 'success')
+        self.assertEqual(request_record.response_data, json.dumps({'success':1}))
+
+    def test_returns_json(self):
+        service = create_activity_suggestion_service()
+        self.requests_post.return_value = MockResponse(200, json.dumps({
+            'json':'parsed'
+        }))
+
+        response = service.make_request('example', data={'foo': 'bar'})
+
+        self.assertEqual(response, {'json': 'parsed'})
 
 class StudyDayNumberTests(TestCase):
 
     def test_get_day_number_starts_at_one(self):
         service = create_activity_suggestion_service()
 
-        day_number = service.get_study_day_number()
+        today = timezone.now()
+        day_number = service.get_study_day(today)
 
         self.assertEqual(day_number, 1)
 
@@ -68,10 +81,10 @@ class StudyDayNumberTests(TestCase):
         user = User.objects.create(username="test")
         user.date_joined = user.date_joined - timedelta(days=5)
         user.save()
-        
         service = create_activity_suggestion_service()
 
-        day_number = service.get_study_day_number()
+        today = timezone.now()
+        day_number = service.get_study_day(today)
 
         self.assertEqual(day_number, 6)
 
@@ -81,33 +94,39 @@ class ActivitySuggestionServiceTests(TestCase):
         make_request_patch = patch.object(ActivitySuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
         self.make_request = make_request_patch.start()
-        get_steps_patch = patch.object(ActivitySuggestionService, 'get_steps')
-        self.addCleanup(get_steps_patch.stop)
-        self.get_steps = get_steps_patch.start()
-        self.get_steps.return_value = 30
-        get_pre_steps_patch = patch.object(ActivitySuggestionService, 'get_pre_steps')
-        self.addCleanup(get_pre_steps_patch.stop)
-        self.get_pre_steps = get_pre_steps_patch.start()
-        get_post_steps_patch = patch.object(ActivitySuggestionService, 'get_post_steps')
-        self.addCleanup(get_post_steps_patch.stop)
-        self.get_post_steps = get_post_steps_patch.start()
-        get_temperatures_patch = patch.object(ActivitySuggestionService, 'get_temperatures')
-        self.addCleanup(get_temperatures_patch.stop)
-        self.get_temperatures = get_temperatures_patch.start()
 
-
-    def test_initalization(self):
+    @override_settings(ACTIVITY_SUGGESTION_INITIALIZATION_DAYS=3)
+    @patch.object(ActivitySuggestionService, 'get_clicks')
+    @patch.object(ActivitySuggestionService, 'get_steps')
+    @patch.object(ActivitySuggestionService, 'get_availabilities')
+    @patch.object(ActivitySuggestionService, 'get_temperatures')
+    @patch.object(ActivitySuggestionService, 'get_pre_steps')
+    @patch.object(ActivitySuggestionService, 'get_post_steps')
+    def test_initalization(self, post_steps, pre_steps, temperatures, availabilities, steps, clicks):
         service = create_activity_suggestion_service()
 
-        service.initialize()
+        date = datetime.today()
+        service.initialize(date)
 
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
         
         request_data = kwargs['data']
-        self.assertEqual(len(request_data['appClicksArray']), 7)
-        self.assertEqual(request_data['totalStepsArray'], [30 for i in range(7)])
+        assert 'appClicksArray' in request_data
+        assert 'totalStepsArray' in request_data
+        assert 'availMatrix' in request_data
+        assert 'temperatureMatrix' in request_data
+        assert 'preStepsMatrix' in request_data
+        assert 'postStepsMatrix' in request_data
+
+        expected_calls = [call(date - timedelta(days=offset)) for offset in range(3)]
+        self.assertEqual(clicks.call_args_list, expected_calls)
+        self.assertEqual(steps.call_args_list, expected_calls)
+        self.assertEqual(availabilities.call_args_list, expected_calls)
+        self.assertEqual(temperatures.call_args_list, expected_calls)
+        self.assertEqual(pre_steps.call_args_list, expected_calls)
+        self.assertEqual(post_steps.call_args_list, expected_calls)
 
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
@@ -122,7 +141,12 @@ class ActivitySuggestionServiceTests(TestCase):
             user = user,
             time = timezone.now()
         )
+        decision.add_context(SuggestionTime.MORNING)
         service = create_activity_suggestion_service()
+        self.make_request.return_value = {
+            'send': True,
+            'probability': 1
+        }
 
         service.decide(decision)
 
@@ -147,7 +171,13 @@ class ActivitySuggestionServiceTests(TestCase):
             throws_error = True
         self.assertTrue(throws_error)
 
-    def test_update(self):
+    @patch.object(ActivitySuggestionService, 'get_study_day', return_value=10)
+    @patch.object(ActivitySuggestionService, 'get_clicks', return_value=20)
+    @patch.object(ActivitySuggestionService, 'get_steps', return_value=500)
+    @patch.object(ActivitySuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
+    @patch.object(ActivitySuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
+    @patch.object(ActivitySuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
+    def test_update(self, post_steps, pre_steps, temperatures, steps, clicks, study_day):
         user = User.objects.create(username="test")
         configuration = Configuration.objects.create(
             user = user,
@@ -155,10 +185,23 @@ class ActivitySuggestionServiceTests(TestCase):
         )
         service = create_activity_suggestion_service()
 
-        service.update(datetime(2018, 11, 1))
+        date = datetime.today()
+        service.update(date)
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
+
+        request_data = self.make_request.call_args[1]['data']
+        self.assertEqual(request_data, {
+            'studyDay': 10,
+            'appClick': 20,
+            'totalSteps': 500,
+            'priorAnti': False,
+            'lastActivity': False,
+            'temperatureArray': [10, 10, 10, 10, 10],
+            'preStepsArray': [7, 7, 7, 7, 7],
+            'postStepsArray': [700, 700, 700, 700, 700]
+        })
 
     def test_update_throws_error_not_initialized(self):
         service = create_activity_suggestion_service()
