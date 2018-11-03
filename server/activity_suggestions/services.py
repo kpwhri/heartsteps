@@ -17,7 +17,20 @@ from activity_suggestions.models import Configuration, ServiceRequest, Suggestio
 class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
     def determine_availability(self):
+        if self.get_fitbit_step_count() > 250:
+            return False
         return True
+    
+    def get_fitbit_step_count(self):
+        start_time = self.decision.time - timedelta(minutes=20)
+        step_counts = FitbitMinuteStepCount.objects.filter(
+            account__user = self.decision.user,
+            time__range = [start_time, self.decision.time]
+        ).all()
+        total_steps = 0
+        for step_count in step_counts:
+            total_steps += step_count.steps
+        return total_steps
 
     def decide(self):
         try:

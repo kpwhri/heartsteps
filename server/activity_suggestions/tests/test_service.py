@@ -10,7 +10,7 @@ from randomization.models import Decision, DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
-from activity_suggestions.services import ActivitySuggestionService
+from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
 from activity_suggestions.models import ServiceRequest, Configuration, SuggestionTime
 
 def create_activity_suggestion_service():
@@ -371,3 +371,63 @@ class TemperatureTests(TestCase):
         temperatures = service.get_temperatures(datetime(2018, 10, 10))
 
         self.assertEqual(temperatures, [10, 10, 10, 10, 10])
+
+class DecisionAvailabilityTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.account = FitbitAccount.objects.create(
+            user = self.user,
+            fitbit_user = "test"
+        )
+        self.day = FitbitDay.objects.create(
+            account = self.account,
+            date = timezone.now()
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = self.day,
+            account = self.account,
+            time = timezone.now() - timedelta(minutes=15),
+            steps = 10
+        )
+        FitbitMinuteStepCount.objects.create(
+            day = self.day,
+            account = self.account,
+            time = timezone.now() - timedelta(minutes=30),
+            steps = 120
+        )
+
+        self.decision = Decision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+        self.decision.add_context("activity suggestion")
+        self.decision.add_context(SuggestionTime.MORNING)
+
+    def test_fitbit_steps(self):
+        service = ActivitySuggestionDecisionService(self.decision)
+
+        available = service.determine_availability()
+
+        self.assertTrue(available)
+
+    def test_fitbit_steps_unavailable(self):
+        FitbitMinuteStepCount.objects.create(
+            day = self.day,
+            account = self.account,
+            time = timezone.now() - timedelta(minutes=5),
+            steps = 300
+        )
+        service = ActivitySuggestionDecisionService(self.decision)
+
+        available = service.determine_availability()
+
+        self.assertFalse(available)
+
+    def test_no_fitbit_step_counts(self):
+        FitbitMinuteStepCount.objects.all().delete()
+        service = ActivitySuggestionDecisionService(self.decision)
+
+        available = service.determine_availability()
+
+        self.assertTrue(available)
