@@ -11,20 +11,6 @@ import { today as activity } from "user-activity";
 import * as fs from "fs";
 import { StepCountHandler } from "./step-count.js";
 
-// Set enrollment status on app screen
-// I'd prefer to do this via settingsStorage but that apparently
-//    only exists on the companion side?
-// function setIntegrationStatus(){
-//   let status = settingsStorage.getItem(INTEGRATION_STATUS_MESSAGE);
-//   if (status) {
-//     let statusText = status;
-//   } else {
-//     let statusText = "disabled+";
-//   }
-//   updateIntegrationStatus(statusText);
-// }
-// setIntegrationStatus();
-
 // Watch attempts to notify phone of step count & location
 const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;

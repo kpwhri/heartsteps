@@ -74,7 +74,7 @@ function getLatLong() {
 // Send step data to server - scaffolding
 function sendSteps(lat, long, place) {
   const url = `${BASE_URL}/api/antised?/`;
-  let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
+  let data = {"steps": steps, "dtm": dtm};
   fetch(url, {
     method: "POST",
     body: JSON.stringify(data),

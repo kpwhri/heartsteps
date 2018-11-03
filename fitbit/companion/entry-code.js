@@ -31,13 +31,16 @@ export function updateEntryCode(key, val) {
       }
     })
     .then(function(response) {
+      console.log(response);
       let authorizationToken = response.headers.get('Authorization-Token');
       settingsStorage.setItem(AUTHORIZATION_TOKEN, authorizationToken);
+      console.log("authToken: " + authorizationToken);
       return response.json();
     })
     // Save HeartstepsID and Auth token
     .then(function(jsonBody) {
       let heartsteps_id = jsonBody["heartstepsId"];
+      console.log("heartsteps_id: " + heartsteps_id);
       if (heartsteps_id) {
         let integrationStatus = "enabled";
         settingsStorage.setItem(HEARTSTEPS_ID, heartsteps_id);
