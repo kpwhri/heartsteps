@@ -17,7 +17,7 @@ class ConfigutationTest(TestCase):
         timezone_patch = patch.object(LocationService, 'get_current_timezone')
         self.addCleanup(timezone_patch.stop)
         self.timezone = timezone_patch.start()
-        self.timezone.return_value = pytz.timezone('US/Pacific')
+        self.timezone.return_value = pytz.timezone('Etc/GMT+7')
 
     @patch.object(PeriodicTasks, 'changed')
     def test_creates_nightly_task(self, periodic_tasks_changed):
@@ -39,7 +39,7 @@ class ConfigutationTest(TestCase):
         task = PeriodicTask.objects.get()
         self.assertEqual(task.crontab.hour, '8')
 
-        self.timezone.return_value = pytz.timezone('US/Eastern')
+        self.timezone.return_value = pytz.timezone('Etc/GMT+4')
         timezone_updated.send(User, username="test")
 
         task = PeriodicTask.objects.get()
