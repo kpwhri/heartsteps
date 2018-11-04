@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
+from push_messages.models import MessageReceipt, Message
 from randomization.models import Decision, DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from weather.models import WeatherForecast
@@ -102,12 +103,33 @@ class ActivitySuggestionService():
     def update(self, date):
         if not self.__configuration.enabled:
             raise self.NotInitialized()
+
+        postdinner_decision = Decision.objects.filter(
+            user = self.__user,
+            time__range = [
+                self.__configuration.get_start_of_day(date),
+                self.__configuration.get_end_of_day(date)
+            ],
+            tags__tag = 'activity suggestion',
+        ).filter(
+            tags__tag = SuggestionTime.POSTDINNER
+        ).first()
+        if postdinner_decision:
+            last_activity = self.decision_was_received(postdinner_decision)
+            prior_anti = self.was_notified_between(
+                postdinner_decision.time + timedelta(minutes=1),
+                self.__configuration.get_end_of_day(date)
+            )
+        else:
+            prior_anti = False 
+            last_activity = False
+
         data = {
             'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
-            'priorAnti': False,
-            'lastActivity': False,
+            'priorAnti': prior_anti,
+            'lastActivity': last_activity,
             'temperatureArray': self.get_temperatures(date),
             'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date)
@@ -125,8 +147,8 @@ class ActivitySuggestionService():
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_activity_suggestion_time(decision),
                 'availability': decision_service.determine_availability(),
-                'priorAnti': False,
-                'lastActivity': False,
+                'priorAnti': self.notified_since_previous_decision(decision),
+                'lastActivity': self.previous_decision_was_received(decision),
                 'location': decision_service.get_location_context()
             }
         )
@@ -193,15 +215,18 @@ class ActivitySuggestionService():
                 steps.append(None)
         return steps
 
+    def get_time_range(self, date):
+        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=self.__configuration.timezone)
+        end_time = start_time + timedelta(days=1)
+        return [start_time, end_time]
+
     def get_decisions_for(self, date):
         decision_times = {}
 
-        start_time = datetime(date.year, date.month, date.day, 0, 0, tzinfo=self.__configuration.timezone)
-        end_time = start_time + timedelta(days=1)
         decision_query = Decision.objects.filter(
             user=self.__user,
             tags__tag='activity suggestion',
-            time__range = [start_time, end_time]
+            time__range = self.get_time_range(date)
         )
         for time_category in SuggestionTime.TIMES:
             try:
@@ -264,3 +289,55 @@ class ActivitySuggestionService():
             if tag in SuggestionTime.TIMES:
                 return SuggestionTime.TIMES.index(tag) + 1
         raise ValueError('Decision does not have suggestion time')
+
+    def previous_decision_was_received(self, decision):
+        previous_decision = self.get_previous_decision(decision)
+        return self.decision_was_received(previous_decision)
+
+    def decision_was_received(self, decision):
+        if not decision:
+            return False
+        if not hasattr(decision, 'message'):
+            return False
+        try:
+            message_receipt = MessageReceipt.objects.get(
+                message = decision.message.sent_message,
+                type = MessageReceipt.RECEIVED
+            )
+            return True
+        except MessageReceipt.DoesNotExist:
+            return False
+
+    def get_previous_decision(self, decision):
+        return Decision.objects.filter(
+            user = decision.user,
+            tags__tag = "activity suggestion",
+            time__range = [
+                self.__configuration.get_start_of_day(decision.time),
+                decision.time - timedelta(minutes=1)
+            ]
+        ).first()
+
+    def notified_since_previous_decision(self, decision):
+        previous_decision = self.get_previous_decision(decision)
+        if previous_decision:
+            return self.was_notified_between(
+                previous_decision.time + timedelta(minutes=1),
+                decision.time - timedelta(minutes=1)
+            )
+        else:
+            return self.was_notified_between(
+                self.__configuration.get_start_of_day(decision.time),
+                decision.time - timedelta(minutes=1)
+            )
+
+    def was_notified_between(self, start, end):
+        messages_sent = MessageReceipt.objects.filter(
+            type = MessageReceipt.SENT,
+            message__message_type = Message.NOTIFICATION,
+            time__range = [start, end]
+        ).count()
+        if messages_sent > 0:
+            return True
+        else:
+            return False

@@ -47,6 +47,11 @@ class Configuration(models.Model):
     user = models.ForeignKey(User)
     enabled = models.BooleanField(default=False)
 
+    day_start_hour = models.PositiveSmallIntegerField(default=6)
+    day_start_minute = models.PositiveSmallIntegerField(default=0)
+    day_end_hour = models.PositiveSmallIntegerField(default=21)
+    day_end_minute = models.PositiveSmallIntegerField(default=0)
+
     @property
     def timezone(self):
         try:
@@ -54,6 +59,26 @@ class Configuration(models.Model):
             return location_service.get_current_timezone()
         except LocationService.UnknownLocation:
             return pytz.utc
+
+    def get_start_of_day(self, date):
+        return datetime(
+            year = date.year,
+            month = date.month,
+            day = date.day,
+            hour = self.day_start_hour,
+            minute = self.day_start_minute,
+            tzinfo = self.timezone
+        )
+
+    def get_end_of_day(self, date):
+        return datetime(
+            year = date.year,
+            month = date.month,
+            day = date.day,
+            hour = self.day_end_hour,
+            minute = self.day_end_minute,
+            tzinfo = self.timezone
+        )
 
     def update_daily_tasks(self):
         for suggestion_time in SuggestionTime.objects.filter(user=self.user).all():

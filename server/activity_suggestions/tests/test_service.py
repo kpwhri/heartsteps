@@ -6,7 +6,9 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from randomization.models import Decision, DecisionContext
+from behavioral_messages.models import MessageTemplate
+from push_messages.models import Message, MessageReceipt
+from randomization.models import Decision, Message as DecisionMessage, DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
@@ -431,3 +433,70 @@ class DecisionAvailabilityTest(TestCase):
         available = service.determine_availability()
 
         self.assertTrue(available)
+
+class TestLastActivitySuggestion(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(username="test")
+        times = [8, 12, 15, 17, 19]
+        now = timezone.now()
+        for time_category in SuggestionTime.TIMES:
+            decision = Decision.objects.create(
+                user = user,
+                time = datetime(
+                    year = now.year,
+                    month = now.month,
+                    day = now.day,
+                    hour = times[SuggestionTime.TIMES.index(time_category)],
+                    minute = 0,
+                    tzinfo = pytz.utc
+                )
+            )
+            decision.add_context("activity suggestion")
+            decision.add_context(time_category)
+
+    def test_gets_previous_suggestion_received(self):
+        service = create_activity_suggestion_service()
+        decision = Decision.objects.get(tags__tag=SuggestionTime.MIDAFTERNOON)
+        previous_decision = service.get_previous_decision(decision)
+
+        self.assertEqual(previous_decision.time.hour, 12)
+
+    def test_returns_none_for_first_suggestion_time(self):
+        service = create_activity_suggestion_service()
+        decision = Decision.objects.get(tags__tag=SuggestionTime.MORNING)
+        previous_decision = service.get_previous_decision(decision)
+
+        self.assertEqual(previous_decision, None)
+
+    def test_previous_message_was_received(self):
+        service = create_activity_suggestion_service()
+        previous_decision = Decision.objects.get(tags__tag=SuggestionTime.MORNING)
+        message = Message.objects.create(
+            recipient = previous_decision.user,
+            content = "Hey",
+            message_type = Message.NOTIFICATION
+        )
+        DecisionMessage.objects.create(
+            decision = previous_decision,
+            message_template = MessageTemplate.objects.create(body="Hello"),
+            sent_message = message
+        )
+        MessageReceipt.objects.create(
+            message = message,
+            time = timezone.now(),
+            type = MessageReceipt.RECEIVED
+        )
+
+        decision = Decision.objects.get(tags__tag=SuggestionTime.LUNCH)
+        was_received = service.previous_decision_was_received(decision)
+
+        self.assertTrue(was_received)
+
+    def test_previous_message_was_not_received(self):
+        service = create_activity_suggestion_service()
+        decision = Decision.objects.get(tags__tag=SuggestionTime.LUNCH)
+
+        was_received = service.previous_decision_was_received(decision)
+
+        self.assertFalse(was_received)
