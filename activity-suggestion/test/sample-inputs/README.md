@@ -5,6 +5,8 @@
 
 The *initialize* service is called for each participant at the end of the warm up period (assuming to be 7 days; during this period, the participant only has the fitbit but the HS app is not installed). Note that it needs to be called (at least) after the participant has specified the five time slots so that we can retrieve the pre- and post-30 minutes step count around each time slot.
 
+
+
 ### INPUT-OUTPUT
 The *initialize* service has no output except for a message indicating successful initializaiton.  Below is an example of json input. 
 
@@ -33,7 +35,6 @@ The *initialize* service has no output except for a message indicating successfu
 
 1. `userID`: the user ID.
 
-
 3. `totalStepsArray` 
 
 	- A vector of the 7-day total steps that are tracked by Fitbit for each of the warm up days. Fitbit defines a day as the period from 12:00am to 11:59pm in the participant's local time. The data reported here will be directly collected from the [Fitbit API's daily activity summary](https://dev.fitbit.com/build/reference/web-api/activity/#get-daily-activity-summary). The vector is ordered in chronological order, e.g. the first one corresponds to the total numbers of steps in the first day.
@@ -44,11 +45,22 @@ The *initialize* service has no output except for a message indicating successfu
 	- `preStepsMatrix` is a 7 by 5 matrix of step counts collected 30 min prior to each of five decision times during the 7-day warm up period. The first element corresponds to the five pre-treatment step counts (in chronological order) in the first day and so on.  `postStepsMatrix` is for the step count 30 min after each decision time. 
 	- Step counts could be missing because the participant isn't wearing their Fitbit or the data is unable to be queried. If any of these step count are missing `null` will be used instead of an actual number. Missing is not same as a step count of zero.
 
- 
+
+### CONDITION CHECKING
+
+The current version of *initialize* service requires the input satisifying the following conditions (otherwise, an error message will pop up and the bandit service will break)
+
+1. Include all the required infomation (e.g. user id, total steps array, pre and post steps matrix)
+1. Inlcude all 7-day data for the totol step count (some of them are allowed to be missing) and all 7-day of pre and post step counts for each decision time (can be missing)
+2. At least one observation for the total step and pre and post step count at each decision time (e.g. does not allow the case where all of the pre-30 min step at the first decision time are missing)
+
+
+
+
 ## 2. Decision Making
 
 ### WHEN TO CALL
-The *decision* service is called for each pariticipant at each of the decision times during the study (does not include the warm-up period). It **must** be called at each of five decision times in a day (even if the participant is currently unavailable). **(It is possible that a technical server failure would stop the decision service from being called, but we hope to avoid that situation)**
+The *decision* service is called for each pariticipant at each of the decision times during the study (does not include the warm-up period). It *must* be called at each of five decision times in a day (even if the participant is currently unavailable). *(It is possible that a technical server failure would stop the decision service from being called, but we hope to avoid that situation)*
 
 
 ### INPUT-OUT
@@ -92,12 +104,23 @@ Shown below is an example of json input for user `1` at decision time `2` on day
 6. `lastActivity`
 
 	- For the 2nd to 5th decision time, say decision time $t$, `lastActivity` is the indicator of whether the activity message is delivered to user's phone at the previous decision time (e.g. decision time $(t-1)$)
-	- For the 1st decision time, `lastActivity` is set to `false`
+	- For the 1st decision time, `lastActivity` is set to `false` (this is not used)
 	- Can either be `true` or `false`
 
 7. `location`
 	- The calssicaiton of user's current location: `2` if currently at home, `1` if currently  at work, `0` otherwise.
 	- If the current location is unknown, set to `0`. 
+
+
+### CONDITION CHECKING
+
+The current version of *decision* service requires the input satisifying the following conditions (otherwise, an error message will pop up and the bandit service will break)
+
+1. The *decision* service does not skip any previous decision times (e.g. the decision service is required to call 5 times per day since the begining of the study). This is done by examing the input `studyDay` and `decisionTime`. 
+2. All the required information is included in the input
+2. The type of each variable is consistent with the above description (e.g. `location` can only be `0`, `1` or `2`,  `availability` can only be `true` or `false` and so on.)
+3. There is no missing data in the input. 
+
 
 
 ## 3. Nightly Update
@@ -152,3 +175,20 @@ The *nightly* service has no output except for a message indicating successful u
 	- `preStepsArray ` is a vector of step counts collected 30 min prior to each of five decision times in the current day. It is in chronological order, e.g. the first element corresponds to the 30 min pre-treatment step counts at the first decision time and so on.  
 	- `postStepsMatrix` is for the step count 30 min after each decision time. 
 	- If any of these step count are missing, it will be considered a programming error, and `null` will be used. This data will be pulled from the [Fitbit API's intra-day step count](https://dev.fitbit.com/build/reference/web-api/activity/#get-activity-intraday-time-series). Here missing is not same as no step count which should be 0 in the input.
+
+
+### CONDITION CHECKING
+
+The current version of *nightly* service requires the input satisifying the following conditions (otherwise, an error message will pop up and the bandit service will break)
+
+1. All the required information is included in the input
+2. There are five records in the input `temperatureArray`, `preStepsArray`, `postStepsArray` (including the missing ones)
+4. The type of data is consistent with the above desciption 
+5. The *nighty* service is called after the 5th decision time in the current day (e.g. the *decision* service has been called 5 times)
+
+
+
+
+
+
+
