@@ -1,9 +1,10 @@
 import uuid, json, pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 
 from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
@@ -36,6 +37,17 @@ class SuggestionTime(models.Model):
     
     hour = models.PositiveSmallIntegerField()
     minute = models.PositiveSmallIntegerField()
+
+    def next_suggestion_time(self, timezone):
+        if not hasattr(settings, 'ACTIVITY_SUGGESTION_TIME_OFFSET'):
+            raise ImporperyConfigured("No activity suggestion time offset specified")
+        now = datetime.now().astimezone(timezone)
+        time = datetime(now.year, now.month, now.day, self.hour, self.minute, tzinfo=timezone)
+        time = time - timedelta(minutes=settings.ACTIVITY_SUGGESTION_TIME_OFFSET)
+        if now < time:
+            return time + timedelta(days=1)
+        else:
+            return time
 
     def __str__(self):
         return "%s:%s (%s) - %s" % (self.hour, self.minute, self.type, self.configuration.user)         
@@ -90,7 +102,10 @@ class Configuration(models.Model):
             )
         except DailyTask.DoesNotExist:
             daily_task = self.create_nightly_task()
-        daily_task.set_time(1, 30, self.timezone)
+        if not hasattr(settings, 'ACTIVITY_SUGGESTION_UPDATE_TIME'):
+            raise ImporperyConfigured("No activity suggestion update time set")
+        parsed_time = settings.ACTIVITY_SUGGESTION_UPDATE_TIME.split(':')
+        daily_task.set_time(int(parsed_time[0]), int(parsed_time[1]), self.timezone)
 
     def update_suggestion_time_task(self, suggestion_time):
         daily_task, created = DailyTask.objects.get_or_create(
@@ -106,9 +121,10 @@ class Configuration(models.Model):
                     'category': suggestion_time.category
                 }
             )
+        next_time = suggestion_time.next_suggestion_time(self.timezone)
         daily_task.set_time(
-            hour = suggestion_time.hour,
-            minute = suggestion_time.minute,
+            hour = next_time.hour,
+            minute = next_time.minute,
             timezone = self.timezone
         )
 
