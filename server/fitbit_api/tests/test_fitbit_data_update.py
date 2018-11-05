@@ -15,7 +15,8 @@ class GetUpdatedAcitivities(TestCase):
 
     @patch.object(FitbitClient, 'update_activities')
     @patch.object(FitbitClient, 'update_steps')
-    def test_pull_account_data(self, update_steps, update_activities):
+    @patch.object(FitbitClient, 'get_timezone', return_value="Poland")
+    def test_pull_account_data(self, get_timezone, update_steps, update_activities):
         account = FitbitAccount.objects.create(
             user = User.objects.create(username="test"),
             fitbit_user = "test"
@@ -24,13 +25,13 @@ class GetUpdatedAcitivities(TestCase):
         update_fitbit_data(username="test", date_string="2018-02-14")
 
         fitbit_day = FitbitDay.objects.get(account=account)
+        self.assertEqual(fitbit_day.get_timezone().zone, "Poland")
         self.assertEqual(fitbit_day.format_date(), "2018-02-14")
         update_steps.assert_called()
         update_activities.assert_called()
 
     @patch.object(Fitbit, 'intraday_time_series')
-    @patch.object(FitbitClient, 'get_timezone', return_value=pytz.utc)
-    def test_gets_total_steps_for_day(self, get_timezone, intraday_time_series):
+    def test_gets_total_steps_for_day(self, intraday_time_series):
         intraday_time_series.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
@@ -49,7 +50,8 @@ class GetUpdatedAcitivities(TestCase):
         )
         day = FitbitDay(
             account = account,
-            date = datetime(2018,2,14)
+            date = datetime(2018,2,14),
+            timezone = "UTC"
         )
         service = FitbitClient(account.user)
 

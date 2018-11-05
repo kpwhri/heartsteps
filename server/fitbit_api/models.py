@@ -1,4 +1,4 @@
-import uuid
+import uuid, pytz
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -59,9 +59,13 @@ class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
     date = models.DateField()
+    timezone = models.CharField(max_length=50)
 
     active_minutes = models.FloatField(default=0)
     total_steps = models.FloatField(default=0)
+
+    def get_timezone(self):
+        return pytz.timezone(self.timezone)
 
     def format_date(self):
         return self.date.strftime('%Y-%m-%d')

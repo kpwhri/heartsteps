@@ -101,7 +101,8 @@ class FitbitClient():
         except FitbitDay.DoesNotExist:
             day = FitbitDay.objects.create(
                 account = self.account,
-                date = date
+                date = date,
+                timezone = self.get_timezone()
             )
         return day
 
@@ -154,7 +155,7 @@ class FitbitClient():
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
         
-        timezone = self.get_timezone()
+        timezone = fitbit_day.get_timezone()
         FitbitDailyStepsUnprocessed.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
             'payload': response,
             'timezone': timezone.zone
