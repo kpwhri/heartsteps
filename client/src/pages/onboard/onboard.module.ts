@@ -8,6 +8,7 @@ import { SettingsPageModule } from '../settings/settings.module';
 import { PlacesPageModule } from '@pages/places/places.module';
 import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
 import { FitbitAppPage } from '@pages/onboard/fitbit-app';
+import { ActivitySuggestionsModule } from '@heartsteps/activity-suggestions/activity-suggestions.module';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { FitbitAppPage } from '@pages/onboard/fitbit-app';
   imports: [
     SettingsPageModule,
     PlacesPageModule,
+    ActivitySuggestionsModule,
     IonicPageModule.forChild(FitbitAppPage),
     IonicPageModule.forChild(FitbitAuthPage),
     IonicPageModule.forChild(LocationPermissionPane),
