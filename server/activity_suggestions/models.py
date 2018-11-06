@@ -59,6 +59,8 @@ class Configuration(models.Model):
     user = models.ForeignKey(User)
     enabled = models.BooleanField(default=False)
 
+    service_initialized = models.BooleanField(default=False)
+
     day_start_hour = models.PositiveSmallIntegerField(default=6)
     day_start_minute = models.PositiveSmallIntegerField(default=0)
     day_end_hour = models.PositiveSmallIntegerField(default=21)

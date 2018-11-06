@@ -76,6 +76,7 @@ class MakeDecisionTest(TestCase):
 
 class InitializeTaskTests(TestCase):
 
+    @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example.com')
     @patch.object(ActivitySuggestionService, 'initialize')
     def test_initialize(self, initialize):
         Configuration.objects.create(
@@ -88,6 +89,7 @@ class InitializeTaskTests(TestCase):
 
 class NightlyUpdateTaskTests(TestCase):
     
+    @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example.com')
     @patch.object(ActivitySuggestionService, 'update', return_value="None")
     def test_update(self, update):
         Configuration.objects.create(

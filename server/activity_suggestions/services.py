@@ -38,10 +38,7 @@ class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageS
             service = ActivitySuggestionService(self.user)
             service.decide(self.decision)
         except ImproperlyConfigured:
-            self.decision.a_it = True
-            self.decision.pi_it = 1
-            self.decision.save()
-
+            self.decision.decide()
         return self.decision.a_it
 
 class ActivitySuggestionService():
@@ -50,14 +47,17 @@ class ActivitySuggestionService():
     heartsteps-server for a specific participant.
     """
 
-    class NotInitialized(Exception):
+    class Unavailable(ImproperlyConfigured):
+        pass
+
+    class NotInitialized(ImproperlyConfigured):
         pass
 
     def __init__(self, configuration):
         self.__configuration = configuration
         self.__user = configuration.user
         if not hasattr(settings,'ACTIVITY_SUGGESTION_SERVICE_URL'):
-            raise ImproperlyConfigured('No activity suggestion service url')
+            raise self.Unavailable("No ACTIVITY_SUGGESTION_SERVICE_URL")
         else:
             self.__base_url = settings.ACTIVITY_SUGGESTION_SERVICE_URL
 
@@ -97,11 +97,11 @@ class ActivitySuggestionService():
         self.make_request('initialize',
             data = data
         )
-        self.__configuration.enabled = True
+        self.__configuration.service_initialized = True
         self.__configuration.save()
 
     def update(self, date):
-        if not self.__configuration.enabled:
+        if not self.__configuration.service_initialized:
             raise self.NotInitialized()
 
         postdinner_decision = Decision.objects.filter(
@@ -139,7 +139,7 @@ class ActivitySuggestionService():
         )
     
     def decide(self, decision):
-        if not self.__configuration.enabled:
+        if not self.__configuration.service_initialized:
             raise self.NotInitialized()
         decision_service = ActivitySuggestionDecisionService(decision)
         response = self.make_request('decision',

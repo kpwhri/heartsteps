@@ -1,8 +1,10 @@
-import uuid
+import uuid, random
 from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 from django.contrib.auth.models import User
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
@@ -35,6 +37,14 @@ class Decision(models.Model):
 
     class Meta:
         ordering = ['-time']
+
+    def decide(self):
+        if not hasattr(settings, 'RANDOMIZATION_FIXED_PROBABILITY'):
+            raise ImproperlyConfigured("No RANDOMIZATION_FIXED_PROBABILITY")
+        self.pi_it = settings.RANDOMIZATION_FIXED_PROBABILITY
+        self.a_it = random.random() < self.pi_it
+        self.save()
+        return self.a_it
 
     def get_context(self):
         return [tag.tag for tag in self.tags.all()]

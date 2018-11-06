@@ -18,9 +18,9 @@ def initialize_activity_suggestion_service(username):
         return False
     try:
         service = ActivitySuggestionService(configuration)
-        service.initialize()
-    except:
-        pass
+    except ActivitySuggestionService.Unavailable:
+        return False
+    service.initialize()
 
 @shared_task
 def update_activity_suggestion_service(username):
@@ -31,9 +31,9 @@ def update_activity_suggestion_service(username):
     yesterday = datetime.now(configuration.timezone) - timedelta(days=1)
     try:
         service = ActivitySuggestionService(configuration)
-        service.update(yesterday)
-    except:
-        pass
+    except ActivitySuggestionService.Unavailable:
+        return False
+    service.update(yesterday)
 
 @shared_task
 def start_decision(username, category):
