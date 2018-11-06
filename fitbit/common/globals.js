@@ -6,3 +6,9 @@ export const HEARTSTEPS_ID = "heartstepsId";
 export const INTEGRATION_STATUS_MESSAGE = "integrationStatus";
 export const QUERY_STEP_MESSAGE = "queryStepCount";
 export const RECENT_STEPS = "recentSteps";
+
+export function isNotNull(val){
+  return (typeof val === "undefined"
+      ||  val != ""
+      ||  val.length > 0);
+}

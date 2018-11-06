@@ -5,14 +5,15 @@ import { me } from "companion";
 import companion from "companion";
 
 // Post entryCode to server and display result
-import { sendSettingsData, updateEntryCode } from "./entry-code";
+import { enrollParticipant, sendSettingsData } from "./entry-code";
 
 // Get location
 import { geolocation } from "geolocation";
 import { locationSuccess, locationError } from "./location";
 
-import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, ENTRY_CODE, HEARTSTEPS_ID,
-  INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS } from "../common/globals.js";
+import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, BIRTH_YEAR, ENTRY_CODE, HEARTSTEPS_ID,
+  INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS,
+  isNotNull } from "../common/globals.js";
 
 const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
 
@@ -20,15 +21,45 @@ const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
   Look for when Entry Code is updated in watch settings
   and send that code to the HeartSteps server for validation.
 *************************************************************/
+
+// Get the name component (value) of the newValue JSON settings object
+// evt (events) have properties key, newValue & oldValue (& isTrusted)
+// The value properties take the form {"name":"actual-value"}
+function parseValue(jsonValue){
+  return JSON.parse(jsonValue).name;
+}
+
+function enrollSettingsValid(){
+  // Maybe consider ways of validating ENTRY_CODE?
+  let birthYr = parseValue(settingsStorage.getItem(BIRTH_YEAR));
+  let currentYr = new Date().getFullYear();
+  return (isNotNull(parseValue(settingsStorage.getItem(ENTRY_CODE))) &&
+          isNotNull(birthYr) &&
+          birthYr >= (currentYr-120) && birthYr <= currentYr);
+}
+
 // Event fires when a setting is changed
+// The newValue is already set in settingsStorage
 settingsStorage.onchange = function(evt) {
-  updateEntryCode(evt.key, evt.newValue);
+  console.log("Event is " + evt.key);
+  if (evt.key == ENTRY_CODE || evt.key == BIRTH_YEAR) {
+    if (enrollSettingsValid()) {
+      // updateEntryCode(evt.key, evt.newValue);
+      console.log("Updating entry code");
+      enrollParticipant(parseValue(settingsStorage.getItem(ENTRY_CODE)),
+                        parseValue(settingsStorage.getItem(BIRTH_YEAR)))
+    }
+  }
 }
 
 // Settings were changed while the companion was not running
 if (me.launchReasons.settingsChanged) {
   // Send the value of the setting
-  updateEntryCode(ENTRY_CODE, settingsStorage.getItem(ENTRY_CODE));
+  if (evt.key == ENTRY_CODE || evt.key == BIRTH_YEAR) {
+    if (enrollSettingsValid()) {
+      updateEntryCode(ENTRY_CODE, settingsStorage.getItem(ENTRY_CODE));
+    }
+  }
 }
 
 /***************************************

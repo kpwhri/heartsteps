@@ -2,22 +2,35 @@ import { BIRTH_YEAR, ENTRY_CODE, INTEGRATION_STATUS_MESSAGE } from "../common/gl
 
 function mySettings(props) {
   let integrationStatus = props.settingsStorage.getItem(INTEGRATION_STATUS_MESSAGE);
-  let entryCodeDefined = !(typeof JSON.parse(props.settingsStorage.getItem(ENTRY_CODE)).name === "undefined");
-  let birthYearDefined = !(typeof JSON.parse(props.settingsStorage.getItem(BIRTH_YEAR)).name === "undefined");
-  let intComment = new String();
   console.log(integrationStatus);
-  if (entryCodeDefined) {
-    if (birthYearDefined) {
-      intComment = `Your information was saved, but we can't get your
-        watch to talk to our system.  Please check that the information
-        is correct, or contact our study staff. (And if you just
-        updated your information, we're working on it now. Please
-        check back later!)`;
-    } else {
-      intComment = "Please enter your Birth Year to complete enrollment.";
-    }
-  } else {
-    intComment = "Please enter your Entry Code to complete enrollment.";
+  let intComment = new String();
+  switch (integrationStatus) {
+    case "enabled":
+      intComment = `Thank you for registering your Fitbit with the
+                    HeartSteps program!`;
+      break;
+    case "not started":
+      intComment = `Please enter and save your entry code & birth year
+                    to link your Fitbit to the HeartSteps program.`;
+      break;
+    case "auth token invalid":
+      intComment = `An invalid authorization token was returned from
+                    the HeartSteps system. Please tell study staff
+                    that the system has a problem.`;
+      break;
+    case "user identifier invalid":
+      intComment = `An invalid participant identifier was returned from
+                    the HeartSteps system. Please tell study staff
+                    that the system has a problem.`;
+      break;
+    case "user id & auth token invalid":
+      intComment = `An invalid authorization token & participant identifier
+                    was returned from the HeartSteps system. Please tell study staff
+                    that the system has a problem.`;
+      break;
+    default:
+      intComment = `Your Fitbit is not linked to the HeartSteps program.`;
+      break;
   }
 
   return (
