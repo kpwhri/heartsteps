@@ -10,10 +10,16 @@ export class EnrollmentService {
         private participantService:ParticipantService
     ) {}
 
-    enroll(enrollment_token:String):Promise<boolean> {
-        return this.heartstepsServer.post('enroll' ,{
-            enrollmentToken: enrollment_token
-        })
+    enroll(token:String, birthYear:Number):Promise<boolean> {
+        const postData = {
+            enrollmentToken: token
+        };
+
+        if(birthYear) {
+            postData['birthYear'] = birthYear
+        }
+        
+        return this.heartstepsServer.post('enroll' , postData)
         .then((data) => {
             return this.participantService.setHeartstepsId(data.heartstepsId);
         })
