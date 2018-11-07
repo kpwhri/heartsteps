@@ -102,11 +102,12 @@ class FitbitMinuteStepCount(models.Model):
     time = models.DateTimeField()
     steps = models.IntegerField()
 
-class FitbitDailyStepsUnprocessed(models.Model):
+class FitbitDailyUnprocessedData(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
     account = models.ForeignKey(FitbitAccount)
     day = models.OneToOneField(FitbitDay)
+    category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 
     payload = JSONField()

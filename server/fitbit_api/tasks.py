@@ -29,3 +29,4 @@ def update_fitbit_data(username, date_string):
     
     fitbit_service.update_steps(day)
     fitbit_service.update_activities(day)
+    fitbit_service.update_heart_rate(day)

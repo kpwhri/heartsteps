@@ -20,10 +20,11 @@ class GetUpdatedAcitivities(TestCase):
             fitbit_user = "test"
         )
 
+    @patch.object(FitbitClient, 'update_heart_rate')
     @patch.object(FitbitClient, 'update_activities')
     @patch.object(FitbitClient, 'update_steps')
     @patch.object(FitbitClient, 'get_timezone', return_value="Poland")
-    def test_pull_account_data(self, get_timezone, update_steps, update_activities):
+    def test_pull_account_data(self, get_timezone, update_steps, update_activities, update_heart_rate):
         update_fitbit_data(username="test", date_string="2018-02-14")
 
         fitbit_day = FitbitDay.objects.get(account=self.account)
@@ -31,6 +32,7 @@ class GetUpdatedAcitivities(TestCase):
         self.assertEqual(fitbit_day.format_date(), "2018-02-14")
         update_steps.assert_called()
         update_activities.assert_called()
+        update_heart_rate.assert_called()
 
     @patch.object(Fitbit, 'intraday_time_series')
     def test_gets_total_steps_for_day(self, intraday_time_series):

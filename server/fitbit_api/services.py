@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyStepsUnprocessed
+from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -106,6 +106,20 @@ class FitbitClient():
             )
         return day
 
+    def update_heart_rate(self, fitbit_day):
+        url = "{0}/{1}/user/{user_id}/heart/{date}/1d/1sec.json".format(
+            *self.client._get_common_args(),
+            user_id = self.account.fitbit_user,
+            date = fitbit_day.format_date()
+        )
+        response = self.client.make_request(url)
+        timezone = fitbit_day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'category': 'heart rate',
+            'payload': response,
+            'timezone': timezone.zone
+        })
+
     def request_activities(self, fitbit_day):
         url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
             *self.client._get_common_args(),
@@ -163,7 +177,8 @@ class FitbitClient():
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
         
         timezone = fitbit_day.get_timezone()
-        FitbitDailyStepsUnprocessed.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'category': 'steps',
             'payload': response,
             'timezone': timezone.zone
         })
