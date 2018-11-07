@@ -77,12 +77,22 @@ class FitbitActivity(models.Model):
 
     type = models.ForeignKey(FitbitActivityType, null=True, blank=True)
     day = models.ForeignKey(FitbitDay)
-    startTime = models.DateTimeField()
-    endTime = models.DateTimeField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    vigorous_minutes = models.IntegerField(null=True, blank=True)
 
     payload = JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def moderate_minutes(self):
+        duration = self.end_time - self.start_time
+        moderate_minutes = round(duration.total_seconds()/float(60)) - self.vigorous_minutes
+        if not moderate_minutes or moderate_minutes < 1:
+            return 0
+        else:
+            return moderate_minutes
 
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
