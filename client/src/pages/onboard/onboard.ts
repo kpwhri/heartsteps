@@ -7,10 +7,8 @@ import { NotificationsPage } from './notifications';
 import { LocationPermissionPane } from './location-permission';
 
 import { OnboardEndPane } from './onboard-end';
-import { ParticipantInformationPage } from '@pages/settings/participant-information';
 import { PlacesListPage } from '@pages/places/places-list';
 import { FitbitAuthPage } from '@pages/onboard/fitbit-auth';
-import { FitbitAppPage } from '@pages/onboard/fitbit-app';
 import { WeeklyReflectionTimePage } from '@pages/settings/weekly-reflection-time.page';
 import { ParticipantService } from '@heartsteps/participant.service';
 import { ActivitySuggestionTimesComponent } from '@heartsteps/activity-suggestions/activity-suggestion-times';
@@ -30,6 +28,9 @@ const onboardingSteps = [{
     }, {
         key: 'places',
         screen: PlacesListPage
+    }, {
+        key: 'fitbit',
+        screen: FitbitAuthPage
     }]
 
 @IonicPage()

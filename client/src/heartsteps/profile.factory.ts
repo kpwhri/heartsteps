@@ -5,6 +5,7 @@ import { LocationService as GeolocationService } from "@infrastructure/location.
 import { PlacesService } from "@heartsteps/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/reflection-time.service";
+import { FitbitService } from "./fitbit.service";
 
 
 @Injectable()
@@ -16,7 +17,8 @@ export class ProfileService {
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
-        private reflectionTimeService: ReflectionTimeService
+        private reflectionTimeService: ReflectionTimeService,
+        private fitbitService: FitbitService
     ) {}
 
     isComplete():Promise<boolean> {
@@ -45,7 +47,8 @@ export class ProfileService {
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
             this.checkPlacesSet(),
-            this.checkReflectionTime()
+            this.checkReflectionTime(),
+            this.checkFitbit()
         ])
         .then((results) => {
             return {
@@ -54,10 +57,21 @@ export class ProfileService {
                 locationPermission: results[2],
                 places: results[3],
                 weeklyReflectionTime: results[4],
+                fitbit: results[5]
             }
         })
         .catch(() => {
             return Promise.reject(false)
+        })
+    }
+
+    checkFitbit():Promise<boolean> {
+        return this.fitbitService.isAuthorized()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
         })
     }
 
