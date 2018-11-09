@@ -2,8 +2,6 @@ import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Storage } from "@ionic/storage";
 
-declare var Intl:any
-
 @Injectable()
 export class ActivitySuggestionTimeService{
 
@@ -34,19 +32,15 @@ export class ActivitySuggestionTimeService{
 
     getTimes():Promise<any> {
         return this.storage.get('activity-suggestion-times')
-        .then((timesArray) => {
-            let times = {}
-            if(!timesArray) {
-                return Promise.reject(false)
+        .then((times) => {
+            if(times) {
+                return times;
+            } else {
+                return Promise.reject("Unset times");
             }
-
-            timesArray.forEach(time => {
-                times[time.type] = time.hour + ":" + time.minute;
-            })
-            return times
+            
         })
     }
-
 
     updateTimes(times:any):Promise<boolean> {
         return this.validateTimes(times)
@@ -56,21 +50,6 @@ export class ActivitySuggestionTimeService{
         .then(() => {
             return Promise.resolve(true)
         })
-    }
-
-    parseTimes(times:any) {
-        let timesArray = []
-        Object.keys(times).forEach((timeType) => {
-            const timeParts = times[timeType].split(":")
-            timesArray.push({
-                type: timeType,
-                hour: timeParts[0],
-                minute: timeParts[1],
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-            })
-        })
-
-        return timesArray
     }
 
     validateTimes(times:any):Promise<boolean> {
@@ -123,9 +102,7 @@ export class ActivitySuggestionTimeService{
     saveTimes(times:any):Promise<boolean> {
         return this.heartstepsServer.post(
             'activity-suggestions/times',
-            {
-                'times': this.parseTimes(times)
-            }
+            times
         )
         .then((data) => {
             return this.storage.set('activity-suggestion-times', data)

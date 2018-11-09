@@ -14,8 +14,12 @@
       <ion-label stacked>Entry Code</ion-label>
       <ion-input type="text" formControlName="entryToken"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label stacked>Birth year</ion-label>
+      <ion-input type="number" formControlName="birthYear"></ion-input>
+    </ion-item>
     <div class="controls">
-        <p *ngIf="error" class="error">The entry token you entered has either already been enrolled or isn't correct.</p>
+        <p *ngIf="error" class="error">The entry token you entered is incorrect.</p>
         <button >Enroll</button>
     </div>
   </form>

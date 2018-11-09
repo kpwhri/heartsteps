@@ -1,51 +1,90 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 
-from activity_suggestions.models import SuggestionTime, SuggestionTimeConfiguration
+from activity_suggestions.models import SuggestionTime
+
+class SuggestionTimeReadView(APITestCase):
+
+    def test_read_times(self):
+        user = User.objects.create(username="test")
+        SuggestionTime.objects.create(
+            user = user,
+            category = SuggestionTime.MORNING,
+            hour = 14,
+            minute = 30
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse('activity_suggestions-times'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            'morning': '14:30'
+        })
 
 class SuggestionTimeUpdateView(APITestCase):
 
     def setUp(self):
-        self.configuration = SuggestionTimeConfiguration.objects.create(
-            user = User.objects.create(username="test")
-        )
+        self.user = User.objects.create(username="test")
 
-    def test_create_times(self):        
-        self.client.force_authenticate(user=self.configuration.user)
+    def get_times(self):
+        return { 
+            'morning': '7:45',
+            'lunch': '12:15',
+            'midafternoon': '15:30',
+            'evening': '18:00',
+            'postdinner': '21:00'
+        }
+
+    def test_create_times(self):
+        self.client.force_authenticate(user=self.user)
         response = self.client.post(
             reverse('activity_suggestions-times'),
-            { 
-                'morning': '7:45',
-                'lunch': '12:15',
-                'midafternoon': '15:30',
-                'evening': '18:00',
-                'postdinner': '21:00'
-            },
+            self.get_times(),
             format='json'
         )
         self.assertEqual(response.status_code, 200)
-        times = SuggestionTime.objects.filter(configuration=self.configuration).all()
+        times = SuggestionTime.objects.filter(user=self.user).all()
         self.assertEqual(len(times), 5)
 
-        afternoon_time = SuggestionTime.objects.get(configuration=self.configuration, type='midafternoon')
+        afternoon_time = SuggestionTime.objects.get(user=self.user, category='midafternoon')
         self.assertEqual(afternoon_time.hour, 15)
         self.assertEqual(afternoon_time.minute, 30)
 
     def test_requires_all_activity_times(self):
-        self.client.force_authenticate(user=self.configuration.user)
+        times = self.get_times()
+        del times['midafternoon']
+
+        self.client.force_authenticate(user=self.user)
         response = self.client.post(
             reverse('activity_suggestions-times'),
-            # missing midafternoon
-            { 
-                'morning': '7:45',
-                'lunch': '12:15',
-                'evening': '18:00',
-                'postdinner': '21:00'
-            },
+            times,
             format='json'
         )
         self.assertEqual(response.status_code, 400)
-        times = SuggestionTime.objects.filter(configuration=self.configuration).all()
+        times = SuggestionTime.objects.filter(user=self.user).all()
         self.assertEqual(len(times), 0)
+
+    def test_updates_times(self):
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = 'midafternoon',
+            hour = 15,
+            minute = 22
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            reverse('activity_suggestions-times'),
+            self.get_times(),
+            format='json'
+        )
+
+        suggestion_times = SuggestionTime.objects.filter(user=self.user).all()
+        self.assertEqual(len(suggestion_times), 5)
+        midafternoon_suggestion_time = SuggestionTime.objects.get(user=self.user, category='midafternoon')
+        self.assertEqual(midafternoon_suggestion_time.minute, 30)

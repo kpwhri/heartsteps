@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyStepsUnprocessed
+from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -101,9 +101,24 @@ class FitbitClient():
         except FitbitDay.DoesNotExist:
             day = FitbitDay.objects.create(
                 account = self.account,
-                date = date
+                date = date,
+                timezone = self.get_timezone()
             )
         return day
+
+    def update_heart_rate(self, fitbit_day):
+        url = "{0}/{1}/user/{user_id}/heart/{date}/1d/1sec.json".format(
+            *self.client._get_common_args(),
+            user_id = self.account.fitbit_user,
+            date = fitbit_day.format_date()
+        )
+        response = self.client.make_request(url)
+        timezone = fitbit_day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'category': 'heart rate',
+            'payload': response,
+            'timezone': timezone.zone
+        })
 
     def request_activities(self, fitbit_day):
         url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
@@ -131,8 +146,8 @@ class FitbitClient():
                     self.update_activities(fitbit_day, request_url=response['pagination']['next'])
 
     def save_activity(self, activity, fitbit_day):
-        startTime = dateutil_parser.parse(activity['startTime'])
-        endTime = startTime + timedelta(milliseconds=activity['duration'])
+        start_time = dateutil_parser.parse(activity['startTime'])
+        end_time = start_time + timedelta(milliseconds=activity['duration'])
 
         activity_type, _ = FitbitActivityType.objects.get_or_create(
             fitbit_id = activity['activityTypeId'],
@@ -144,18 +159,26 @@ class FitbitClient():
                 'account': self.account,
                 'type': activity_type,
                 'day': fitbit_day,
-                'startTime': startTime,
-                'endTime': endTime,
+                'start_time': start_time,
+                'end_time': end_time,
+                'vigorous_minutes': self.get_vigorous_minutes(activity),
                 'payload': activity
             }
         )
 
+    def get_vigorous_minutes(self, activity):
+        vigorous_minutes = 0
+        for level in activity.get('activityLevel', []):
+            if level['name'] == 'very':
+                vigorous_minutes += level['minutes']
+        return vigorous_minutes
 
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
         
-        timezone = self.get_timezone()
-        FitbitDailyStepsUnprocessed.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+        timezone = fitbit_day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'category': 'steps',
             'payload': response,
             'timezone': timezone.zone
         })

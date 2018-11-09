@@ -19,24 +19,26 @@ export class EnrollPage {
         private loadingService:loadingService
     ) {
         this.enrollmentForm = new FormGroup({
-            entryToken: new FormControl('', Validators.required)
-        })
+            entryToken: new FormControl('', Validators.required),
+            birthYear: new FormControl('')
+        });
     }
 
     enroll() {
-        this.error = false
+        this.error = false;
 
         if(this.enrollmentForm.valid) {
-            this.loadingService.show('Authenticating entry code')
+            this.loadingService.show('Authenticating entry code');
     
-            let token = this.enrollmentForm.value.entryToken
-            this.enrollmentService.enroll(token)
+            const token = this.enrollmentForm.value.entryToken;
+            const birthYear = this.enrollmentForm.value.birthYear;
+            this.enrollmentService.enroll(token, birthYear)
             .then(() => {
-                this.loadingService.dismiss()  
+                this.loadingService.dismiss();
             })
             .catch(() => {
-                this.error = true
-                this.loadingService.dismiss()
+                this.error = true;
+                this.loadingService.dismiss();
             })
         } else {
             this.enrollmentForm.markAsDirty();

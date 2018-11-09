@@ -1,12 +1,18 @@
 import json
+from unittest.mock import patch
+from datetime import timedelta
+
+from timezonefinder import TimezoneFinder
+
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.utils import timezone
 from django.test import TestCase, override_settings
 
 from rest_framework.test import APITestCase
-from django.urls import reverse
 
-from django.contrib.auth.models import User
 from locations.models import Place, Location
-from locations.factories import determine_location_type
+from locations.services import LocationService
 
 def make_space_needle_location():
     return Place(
@@ -55,7 +61,9 @@ class PlaceTests(TestCase):
         kpwri.save()
 
         place = make_pie_bar_location()
-        place_type = determine_location_type(user, place.latitude, place.longitude)
+
+        location_service = LocationService(user)
+        place_type = location_service.categorize_location(place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'office')
 
@@ -68,10 +76,11 @@ class PlaceTests(TestCase):
         kpwri.save()
 
         place = make_space_needle_location()
-        place_type = determine_location_type(user, place.latitude, place.longitude)
+
+        location_service = LocationService(user)
+        place_type = location_service.categorize_location(place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'other') 
-
 
     def test_pedja_lives_closer_to_the_pie_bar(self):
         user = User.objects.create(username="pedja")
@@ -87,7 +96,9 @@ class PlaceTests(TestCase):
         home.save()
 
         place = make_pie_bar_location()
-        place_type = determine_location_type(user, place.latitude, place.longitude)
+
+        location_service = LocationService(user)
+        place_type = location_service.categorize_location(place.latitude, place.longitude)
 
         self.assertEqual(place_type, 'home')
 
@@ -150,3 +161,72 @@ class LocationsUpdateViewTests(APITestCase):
 
         location = Location.objects.get(user=user)
         self.assertEqual(location.latitude, float(123.123))
+
+class LocationServiceTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        now = timezone.now()
+        Location.objects.create(
+            user = self.user,
+            latitude = 20,
+            longitude = 20,
+            time = timezone.now() - timedelta(days=2),
+            source = '2 days ago'
+        )
+        Location.objects.create(
+            user = self.user,
+            latitude = 20,
+            longitude = 27,
+            time = timezone.now() - timedelta(days=7),
+            source = '7 days ago'
+        )
+        Location.objects.create(
+            user = self.user,
+            latitude = 20,
+            longitude = 40,
+            time = timezone.now() - timedelta(days=20),
+            source = '20 days ago'
+        )
+
+    def test_get_last_location(self):
+        service = LocationService(self.user)
+
+        location = service.get_last_location()
+
+        self.assertEqual(location.source, '2 days ago')
+
+    def test_get_past_location(self):
+        service = LocationService(self.user)
+
+        three_days_ago = timezone.now() - timedelta(days=3)
+        location = service.get_location_on(three_days_ago)
+
+        self.assertEqual(location.source, '7 days ago')
+
+        eight_days_ago = timezone.now() - timedelta(days=8)
+        location = service.get_location_on(eight_days_ago)
+
+        self.assertEqual(location.source, '20 days ago')
+
+        throws_unknown_location_error = False
+        try:
+            twenty_one_days_ago = timezone.now() - timedelta(days=21)
+            location = service.get_location_on(twenty_one_days_ago)
+        except LocationService.UnknownLocation:
+            throws_unknown_location_error = True
+
+        self.assertTrue(throws_unknown_location_error)
+
+    @patch.object(TimezoneFinder, 'timezone_at', return_value='US/Eastern')
+    def test_get_past_timezone(self, timezone_at):
+        service = LocationService(self.user)
+
+        ten_days_ago = timezone.now() - timedelta(days=10)
+        tz = service.get_timezone_on(ten_days_ago)
+
+        self.assertEqual(tz.zone, 'US/Eastern')
+        timezone_at.assert_called_with(
+            lat = float(20),
+            lng = float(40)
+        )

@@ -3,20 +3,20 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from .models import SuggestionTime, TIMES
+from .models import SuggestionTime
 
-class SuggestionTimeConfigurationSerializer(serializers.Serializer):
+class SuggestionTimeSerializer(serializers.Serializer):
 
-    def to_representation(self, configuration):
+    def to_representation(self, user):
         ret = {}
-        for suggestion_time in SuggestionTime.objects.filter(configuration=configuration).all():
+        for suggestion_time in SuggestionTime.objects.filter(user=user).all():
             time = "%s:%s" % (suggestion_time.hour, suggestion_time.minute)
-            ret[suggestion_time.type] = time
+            ret[suggestion_time.category] = time
         return ret
 
     def to_internal_value(self, data):
         ret = {}
-        for time_category in TIMES:
+        for time_category in SuggestionTime.TIMES:
             if time_category not in data:
                 raise serializers.ValidationError({
                     time_category: 'Required'

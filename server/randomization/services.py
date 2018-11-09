@@ -6,11 +6,11 @@ from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 
 from locations.models import Location, Place
-from locations.factories import get_last_user_location, determine_location_type
-from locations.models import OTHER as LOCATION_TYPE_OTHER
+from locations.services import LocationService
 from push_messages.services import PushMessageService
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
+from weather.models import WeatherForecast
 
 from randomization.models import Decision, DecisionContext, Message, ContextTag
 
@@ -45,10 +45,7 @@ class DecisionService():
         return []
 
     def add_context(self, tag_text):
-        tag, created = ContextTag.objects.get_or_create(
-            tag = tag_text
-        )
-        self.decision.tags.add(tag)
+        self.decision.add_context(tag_text)
 
     def update_context(self):
         new_context = self.generate_context()
@@ -76,27 +73,28 @@ class DecisionContextService(DecisionService):
         if len(existing_decision_locations) > 0:
             self.location = existing_decision_locations[0].content_object
             return self.location
-        location = get_last_user_location(self.user)
-        if location:
+        try:
+            location_service = LocationService(self.user)
+            location = location_service.get_last_location()
             DecisionContext.objects.create(
                 decision = self.decision,
                 content_object = location
             )
             self.location = location
             return location
-        return None
+        except LocationService.UnknownLocation:
+            return None
             
     def get_location_context(self):
         location = self.get_location()
         if location:
-            location_type = determine_location_type(
-                user = self.user,
+            location_service = LocationService(self.user)
+            return location_service.categorize_location(
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-            return location_type
         else:
-            return LOCATION_TYPE_OTHER
+            return Place.OTHER
 
     def get_weather_context(self):
         location = self.get_location()
@@ -113,6 +111,32 @@ class DecisionContextService(DecisionService):
         return WeatherService.get_forecast_context(forecast)
 
     def get_imputed_weather_context(self):
+        forecasts = self.impute_forecasts()
+        return WeatherService.get_average_forecast_context(forecasts)
+
+    def get_forecasts(self):
+        forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+        content_objects = DecisionContext.objects.filter(
+            decision = self.decision,
+            content_type = forecast_content_type
+        ).all()
+        if not len(content_objects):
+            return self.create_forecasts()
+        else:
+            return [obj.content_object for obj in content_objects]
+
+    def create_forecasts(self):
+        location = self.get_location()
+        if location:
+            forecast = self.make_forecast(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+            return [forecast]
+        else:
+            return self.impute_forecasts()
+
+    def impute_forecasts(self):
         forecasts = []
         for place in Place.objects.filter(user=self.user).all():
             forecast = self.make_forecast(
@@ -120,7 +144,7 @@ class DecisionContextService(DecisionService):
                 longitude = place.longitude
             )
             forecasts.append(forecast)
-        return WeatherService.get_average_forecast_context(forecasts)
+        return forecasts
 
     def make_forecast(self, latitude, longitude):
         forecast = WeatherService.make_forecast(

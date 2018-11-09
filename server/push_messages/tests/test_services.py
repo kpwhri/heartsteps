@@ -48,6 +48,7 @@ class TestPushMessageService(TestCase):
         message = Message.objects.get(recipient=user)
         self.assertEqual(message.external_id, "example-uuid")
         self.assertEqual(str(message.id), send.call_args[0][0]['data']['messageId'])
+        self.assertEqual(message.message_type, Message.NOTIFICATION)
 
     @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
     def test_sends_data(self, send):
@@ -63,6 +64,7 @@ class TestPushMessageService(TestCase):
         message = Message.objects.get(recipient=user)
         self.assertEqual(message.external_id, "example-uuid")
         self.assertEqual(str(message.id), send.call_args[0][0]['data']['messageId'])
+        self.assertEqual(message.message_type, Message.DATA)
 
     @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
     def test_makes_message_receipt(self, send):

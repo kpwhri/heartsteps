@@ -1,13 +1,13 @@
 from django.contrib import admin
 
-from .models import ActivitySuggestionDecision, ActivitySuggestionServiceRequest, TIME_CATEGORIES
+from .models import SuggestionTime, Configuration, ActivitySuggestionDecision, ServiceRequest
 
 class ActivitySuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
     parameter_name = 'activity_suggestion_time_category'
 
     def lookups(self, request, model_admin):
-        return TIME_CATEGORIES
+        return SuggestionTime.CATEGORIES
 
     def queryset(self, request, queryset):
         if self.value():
@@ -23,6 +23,10 @@ class ActivitySuggestionDecisionAdmin(admin.ModelAdmin):
     list_filter = [ActivitySuggestionTimeFilters]
 admin.site.register(ActivitySuggestionDecision, ActivitySuggestionDecisionAdmin)
 
-class ActivitySuggestionServiceRequestAdmin(admin.ModelAdmin):
+class ConfigurationAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Configuration, ConfigurationAdmin)
+
+class ServiceRequestAdmin(admin.ModelAdmin):
     list_display = ('__str__',)
-admin.site.register(ActivitySuggestionServiceRequest, ActivitySuggestionServiceRequestAdmin)
+admin.site.register(ServiceRequest, ServiceRequestAdmin)

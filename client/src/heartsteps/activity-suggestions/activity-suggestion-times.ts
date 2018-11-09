@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { FormControl, Validators, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormControl, Validators, FormGroup } from '@angular/forms';
 
 import { loadingService } from '@infrastructure/loading.service';
 import { ActivitySuggestionTimeService } from '@heartsteps/activity-suggestions/activity-suggestion-time.service';
 
 @Component({
-  selector: 'activity-suggestion-times',
+  selector: 'heartsteps-activity-suggestion-times',
   templateUrl: 'activity-suggestion-times.html',
   providers: [
       ActivitySuggestionTimeService
   ]
 })
-export class ActivitySuggestionTimes {
+export class ActivitySuggestionTimesComponent {
 
     public timeFields:Array<any>;
     public times:any;

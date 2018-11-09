@@ -7,21 +7,36 @@ from django.contrib.auth.models import User
 
 from randomization.models import Decision
 from randomization.factories import make_decision_message
-from activity_suggestions.models import SuggestionTime
+from activity_suggestions.models import SuggestionTime, Configuration
 from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
 
 @shared_task
-def initialize_activity_suggestion_service(username, date_string):
+def initialize_activity_suggestion_service(username):
     try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
+        configuration = Configuration.objects.get(user__username=username)
+    except Configuration.DoesNotExist:
         return False
-    service = ActivitySuggestionService(user)
-    date = datetime.strptime(date_string, '%Y-%m-%d')
-    service.initialize(date)
+    try:
+        service = ActivitySuggestionService(configuration)
+    except ActivitySuggestionService.Unavailable:
+        return False
+    service.initialize()
 
 @shared_task
-def start_decision(username, time_category):
+def update_activity_suggestion_service(username):
+    try:
+        configuration = Configuration.objects.get(user__username=username)
+    except Configuration.DoesNotExist:
+        return False
+    yesterday = datetime.now(configuration.timezone) - timedelta(days=1)
+    try:
+        service = ActivitySuggestionService(configuration)
+    except ActivitySuggestionService.Unavailable:
+        return False
+    service.update(yesterday)
+
+@shared_task
+def start_decision(username, category):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -33,7 +48,7 @@ def start_decision(username, time_category):
         time = decision_time
     )
     decision_service.add_context("activity suggestion")
-    decision_service.add_context(time_category)
+    decision_service.add_context(category)
 
     decision_service.request_context()
 

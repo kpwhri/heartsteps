@@ -15,8 +15,17 @@ class Device(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 class Message(models.Model):
+
+    DATA = 'data'
+    NOTIFICATION = 'notification'
+    MESSAGE_TYPES = [
+        ('Data', DATA),
+        ('Notification', NOTIFICATION)
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     external_id = models.CharField(max_length=50, null=True, blank=True)
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES)
 
     recipient = models.ForeignKey(User)
     device = models.ForeignKey(Device, null=True)
