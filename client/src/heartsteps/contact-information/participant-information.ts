@@ -1,19 +1,18 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { ContactInformationService } from '@heartsteps/contact-information.service';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { ContactInformationService } from '@heartsteps/contact-information/contact-information.service';
 import { loadingService } from '@infrastructure/loading.service';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
-    selector: 'participant-information-page',
+    selector: 'heartsteps-participant-information',
     templateUrl: 'participant-information.html'
 })
-export class ParticipantInformationPage {
+export class ParticipantInformation {
 
     public contactInformationForm: any
+    @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private navCtrl:NavController,
         private contactInformationService:ContactInformationService,
         private loadingService:loadingService,
         private formBuilder:FormBuilder
@@ -43,7 +42,7 @@ export class ParticipantInformationPage {
             this.loadingService.show('Saving contact information')
             this.contactInformationService.save(this.contactInformationForm.value)
             .then(() => {
-                this.navCtrl.pop()
+                this.saved.emit(true);
             })
             .then(() => {
                 this.loadingService.dismiss()

@@ -1,16 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { NotificationService } from '@heartsteps/notifications/notification.service';
-import { NavController } from 'ionic-angular';
-import { loadingService } from '../../infrastructure/loading.service';
+import { loadingService } from '@infrastructure/loading.service';
 
 @Component({
-    selector: 'notifications-page',
+    selector: 'heartsteps-notifications-permission',
     templateUrl: 'notifications.html',
 })
-export class NotificationsPage {
+export class NotificationsPermission {
+    @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private navCtrl:NavController,
         private notificationService: NotificationService,
         private loadingService:loadingService
     ) {}
@@ -20,7 +19,7 @@ export class NotificationsPage {
         this.notificationService.enable()
         .then(() => {
             this.loadingService.dismiss()
-            this.navCtrl.pop()
+            this.saved.emit(true);
         })
         .catch(() => {
             this.loadingService.dismiss()

@@ -1,26 +1,26 @@
-import { Component } from '@angular/core';
-import { NavController, ModalController, ActionSheetController } from 'ionic-angular';
-import { PlacesService } from '@heartsteps/places.service';
-import { PlaceEdit } from '@pages/places/place-edit';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { ModalController, ActionSheetController } from 'ionic-angular';
+import { PlacesService } from './places.service';
+import { PlaceEdit } from './place-edit';
 
 @Component({
-    selector: 'places-list-page',
+    selector: 'heartsteps-places-list',
     templateUrl: 'places-list.html',
     entryComponents: [PlaceEdit]
 })
-export class PlacesListPage {
+export class PlacesList implements OnInit {
+    @Output() saved = new EventEmitter<boolean>();
 
     locations:Array<any>
     errorMessage:String
 
     constructor(
-        private navCtrl:NavController,
         private modalCtrl:ModalController,
         private locationsService:PlacesService,
         private actionSheetCtrl:ActionSheetController
     ) {}
 
-    ionViewWillEnter() {
+    ngOnInit() {
         return this.locationsService.getLocations()
         .then((locations) => {
             this.locations = locations
@@ -124,7 +124,7 @@ export class PlacesListPage {
             return this.locationsService.saveLocations(this.locations)
         })
         .then(() => {
-            this.navCtrl.pop()
+            this.saved.emit(true);
         })
         .catch((error) => {
             if(error.message) {

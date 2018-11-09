@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { EnrollmentService } from '../../heartsteps/enrollment.service';
-import { loadingService } from '../../infrastructure/loading.service';
+import { EnrollmentService } from './enrollment.service';
+import { loadingService } from '@infrastructure/loading.service';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
-@IonicPage()
 @Component({
-    selector: 'page-enroll',
+    selector: 'heartsteps-enroll',
     templateUrl: 'enroll.html',
     providers: [ EnrollmentService ]
 })

@@ -1,11 +1,13 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
 import { IonicPage, NavController } from 'ionic-angular';
-import { EnrollPage } from '../enroll/enroll';
+import { EnrollPage } from '@heartsteps/enrollment/enroll';
 
-@IonicPage()
 @Component({
   selector: 'page-welcome',
-  templateUrl: 'welcome.html'
+  templateUrl: 'welcome.html',
+  entryComponents: [
+    EnrollPage
+  ]
 })
 export class WelcomePage implements OnInit {
 

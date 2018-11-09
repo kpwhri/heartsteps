@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HeartstepsServer } from '../infrastructure/heartsteps-server.service';
-import { ParticipantService } from './participant.service';
+import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 @Injectable()
 export class EnrollmentService {

@@ -1,8 +1,25 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>Onboarding</ion-title>
-  </ion-navbar>
-</ion-header>
 <ion-content padding>
-  <ion-nav class="onboarding-nav"></ion-nav>
+    <ion-slides pager>
+        <ion-slide>
+            <heartsteps-participant-information (saved)="onSaved()"></heartsteps-participant-information>
+        </ion-slide>
+        <ion-slide>
+            <heartsteps-notifications-permission (saved)="onSaved()"></heartsteps-notifications-permission>
+        </ion-slide>
+        <ion-slide>
+            <heartsteps-location-permission (saved)="onSaved()"></heartsteps-location-permission>
+        </ion-slide>
+        <ion-slide>
+            <heartsteps-activity-suggestion-times (saved)="onSaved()"></heartsteps-activity-suggestion-times>
+        </ion-slide>
+        <ion-slide>
+            <heartsteps-places-list (saved)="onSaved()"></heartsteps-places-list>
+        </ion-slide>
+        <ion-slide>
+            <weekly-reflection-time (saved)="onSaved()"></weekly-reflection-time>
+        </ion-slide>
+        <ion-slide>
+            <heartsteps-fitbit-auth (saved)="onSaved()"></heartsteps-fitbit-auth>
+        </ion-slide>
+    </ion-slides>
 </ion-content>

@@ -3,23 +3,23 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { ActivitySuggestionTimeService } from '@heartsteps/activity-suggestions/activity-suggestion-time.service';
-import { ActivitySuggestionTimesComponent } from './activity-suggestion-times';
+import { ActivitySuggestionTimes } from '@heartsteps/activity-suggestions/activity-suggestion-times';
 import { IonicPageModule } from 'ionic-angular';
 
 @NgModule({
     imports: [
         InfrastructureModule,
         BrowserModule,
-        IonicPageModule.forChild(ActivitySuggestionTimesComponent),
+        IonicPageModule.forChild(ActivitySuggestionTimes),
     ],
     providers: [
         ActivitySuggestionTimeService
     ],
     declarations: [
-        ActivitySuggestionTimesComponent
+        ActivitySuggestionTimes
     ],
     exports: [
-        ActivitySuggestionTimesComponent
+        ActivitySuggestionTimes
     ]
 })
 export class ActivitySuggestionsModule {}

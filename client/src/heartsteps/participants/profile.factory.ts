@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 import { NotificationService } from "@heartsteps/notifications/notification.service";
 import { ActivitySuggestionTimeService } from "@heartsteps/activity-suggestions/activity-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
-import { PlacesService } from "@heartsteps/places.service";
-import { ContactInformationService } from "@heartsteps/contact-information.service";
-import { ReflectionTimeService } from "@heartsteps/reflection-time.service";
-import { FitbitService } from "./fitbit.service";
+import { PlacesService } from "@heartsteps/places/places.service";
+import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
+import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
+import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BackgroundProcessService } from "@infrastructure/background-process.service";
-import { LocationService } from "@heartsteps/location.service";
+import { LocationService } from "@heartsteps/locations/location.service";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
 
 

@@ -1,20 +1,19 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
 import { MyApp } from './app.component';
 
-import { EnrollPageModule } from '../pages/enroll/enroll.module';
-import { HeartstepsModule } from '../heartsteps/heartsteps.module';
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationPane } from './notification';
 import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
 import { DashboardModule } from '@pages/dashboard/dashboard.module';
+import { LocationModule } from '@heartsteps/locations/location.module';
+import { ParticipantModule } from '@heartsteps/participants/participant.module';
+import { LocationService } from '@heartsteps/locations/location.service';
 
 @NgModule({
   declarations: [
@@ -22,13 +21,11 @@ import { DashboardModule } from '@pages/dashboard/dashboard.module';
     NotificationPane
   ],
   imports: [
-    BrowserModule,
-    HttpClientModule,
-    EnrollPageModule,
+    LocationModule,
+    ParticipantModule,
     WelcomePageModule,
     OnboardPageModule,
     DashboardModule,
-    HeartstepsModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
@@ -40,7 +37,8 @@ import { DashboardModule } from '@pages/dashboard/dashboard.module';
     StatusBar,
     SplashScreen,
     NotificationService,
-    BackgroundService
+    BackgroundService,
+    LocationService
   ]
 })
 export class AppModule {}

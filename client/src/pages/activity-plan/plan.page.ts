@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DateFactory } from '@heartsteps/date.factory';
+import { DateFactory } from '@infrastructure/date.factory';
 import { ModalController } from 'ionic-angular';
 import { PlanModal } from '@pages/activity-plan/plan.modal';
 

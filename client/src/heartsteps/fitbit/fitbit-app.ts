@@ -1,15 +1,14 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { loadingService } from '@infrastructure/loading.service';
 
 @Component({
   selector: 'fitbit-app-page',
   templateUrl: 'fitbit-app.html',
 })
-export class FitbitAppPage {
+export class FitbitApp {
+  @Output() saved = new EventEmitter<boolean>();
 
   constructor(
-    private navCtrl:NavController,
     private loadingService:loadingService
   ) {}
 
@@ -17,7 +16,7 @@ export class FitbitAppPage {
     this.loadingService.show("Checking connection")
     setTimeout(() => {
         this.loadingService.dismiss()
-        this.navCtrl.pop()
+        this.saved.emit(true);
     }, 5000)
   }
 }

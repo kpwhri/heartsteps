@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { BrowserService } from "@infrastructure/browser.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Storage } from "@ionic/storage";
-import { Subscription } from "rxjs";
 
 const storageKey: string = 'fitbit-account'
 
@@ -14,14 +13,6 @@ export class FitbitService {
         private browser: BrowserService,
         private storage: Storage
     ) {}
-
-    private getAuthorizationToken(): Promise<string> {
-        return this.heartstepsServer.post('fitbit/authorize/generate', {})
-        .then((response) => {
-            console.log(response.token);
-            return response.token;
-        })
-    }
 
     authorize():Promise<boolean> {
         return new Promise((resolve, reject) => {
@@ -40,6 +31,13 @@ export class FitbitService {
                 reject("Fitbit authorization failed");
             })
         });
+    }
+
+    private getAuthorizationToken(): Promise<string> {
+        return this.heartstepsServer.post('fitbit/authorize/generate', {})
+        .then((response) => {
+            return response.token;
+        })
     }
 
     updateAuthorization(): Promise<string> {
