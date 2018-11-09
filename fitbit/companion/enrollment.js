@@ -2,16 +2,27 @@ import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 
 import { AUTHORIZATION_TOKEN, BIRTH_YEAR, HEARTSTEPS_ID, ENTRY_CODE,
-  INTEGRATION_STATUS_MESSAGE, isNotNull } from "../common/globals.js";
+  INTEGRATION_STATUS_MESSAGE, isNotNull, parseSettingsValue }
+  from "../common/globals.js";
 
-// export function sendSettingsData(data) {
-//   // If we have a MessageSocket, send the data to the device
-//   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-//     messaging.peerSocket.send(data);
-//   } else {
-//     console.log("No peerSocket connection");
-//   }
-// }
+export function enrollSettingsValid(){
+  // Maybe consider ways of validating ENTRY_CODE?
+  let birthYr = parseSettingsValue(settingsStorage.getItem(BIRTH_YEAR));
+  let currentYr = new Date().getFullYear();
+  return (isNotNull(parseSettingsValue(settingsStorage.getItem(ENTRY_CODE))) &&
+          isNotNull(birthYr) &&
+          birthYr >= (currentYr-120) && birthYr <= currentYr);
+}
+
+// Send a message to the watch
+export function sendData(data) {
+  // If we have a MessageSocket, send the data to the device
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    messaging.peerSocket.send(data);
+  } else {
+    console.log("No peerSocket connection");
+  }
+}
 
 export function enrollParticipant(ENTRY_CODE, BIRTH_YEAR){
   console.log("Hey, let's enroll!");
@@ -62,9 +73,14 @@ export function enrollParticipant(ENTRY_CODE, BIRTH_YEAR){
     }
     // Update integration message on watch
     settingsStorage.setItem(INTEGRATION_STATUS_MESSAGE, integrationStatus);
+    sendData({
+      key: INTEGRATION_STATUS_MESSAGE,
+      val: integrationStatus
+    });
   })
   .catch(error => console.error('Error in enrollParticipant: ', error))
 }
+
 
 // deprecated
 // export function updateEntryCode(key, val) {

@@ -46,12 +46,13 @@ function stepCountToPhone(){
 // }, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
 
 // Test purposes - run this once, 5 seconds after install
-setTimeout(function(){stepCountToPhone()}, 5000);
+// setTimeout(function(){stepCountToPhone()}, 5000);
 
-// // Listen for enrollment message sent by phone
-// messaging.peerSocket.onmessage = function(evt) {
-//   if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
-//   // Update enabled/disabled flag if enrollment succeeds
-//     updateIntegrationStatus(evt.data.value);
-//   }
-// }
+// Update watch message based on integration results
+// Listen for enrollment message sent by phone
+messaging.peerSocket.onmessage = function(evt) {
+  if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
+  // Update enabled/disabled flag if enrollment succeeds
+    updateIntegrationStatus(evt.data.value);
+  }
+}

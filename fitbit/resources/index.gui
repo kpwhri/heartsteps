@@ -8,7 +8,7 @@
   <text x="50%" y="140" class="bold" id="hs-integration">
     disabled
   </text>
-  <text x="50%" y="180">
-    Thank you for your help in keeping people health!
+  <text x="50%" y="180" class="small">
+    Thanks for your help in keeping people healthy!
   </text>
 </svg>

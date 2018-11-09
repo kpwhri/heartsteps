@@ -12,3 +12,10 @@ export function isNotNull(val){
       ||  val != ""
       ||  val.length > 0);
 }
+
+// Get the name component (value) of the newValue JSON settings object
+// evt (events) have properties key, newValue & oldValue (& isTrusted)
+// The value properties take the form {"name":"actual-value"}
+export function parseSettingsValue(jsonValue){
+  return JSON.parse(jsonValue).name;
+}

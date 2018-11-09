@@ -18,3 +18,7 @@ text.title {
 text.bold {
   font-family: System-Bold;
 }
+
+text.small {
+  font-size: 16;
+}

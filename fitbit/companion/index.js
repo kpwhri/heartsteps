@@ -5,7 +5,7 @@ import { me } from "companion";
 import companion from "companion";
 
 // Post entryCode to server and display result
-import { enrollParticipant, sendSettingsData } from "./entry-code";
+import { enrollParticipant, enrollSettingsValid } from "./enrollment";
 
 // Get location
 import { geolocation } from "geolocation";
@@ -13,30 +13,14 @@ import { locationSuccess, locationError } from "./location";
 
 import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, BIRTH_YEAR, ENTRY_CODE, HEARTSTEPS_ID,
   INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS,
-  isNotNull } from "../common/globals.js";
+  isNotNull, parseSettingsValue } from "../common/globals.js";
 
 const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
 
 /************************************************************
-  Look for when Entry Code is updated in watch settings
+  Look for when Entry Code & Birth Year are updated in watch settings
   and send that code to the HeartSteps server for validation.
 *************************************************************/
-
-// Get the name component (value) of the newValue JSON settings object
-// evt (events) have properties key, newValue & oldValue (& isTrusted)
-// The value properties take the form {"name":"actual-value"}
-function parseValue(jsonValue){
-  return JSON.parse(jsonValue).name;
-}
-
-function enrollSettingsValid(){
-  // Maybe consider ways of validating ENTRY_CODE?
-  let birthYr = parseValue(settingsStorage.getItem(BIRTH_YEAR));
-  let currentYr = new Date().getFullYear();
-  return (isNotNull(parseValue(settingsStorage.getItem(ENTRY_CODE))) &&
-          isNotNull(birthYr) &&
-          birthYr >= (currentYr-120) && birthYr <= currentYr);
-}
 
 // Event fires when a setting is changed
 // The newValue is already set in settingsStorage
@@ -46,8 +30,8 @@ settingsStorage.onchange = function(evt) {
     if (enrollSettingsValid()) {
       // updateEntryCode(evt.key, evt.newValue);
       console.log("Updating entry code");
-      enrollParticipant(parseValue(settingsStorage.getItem(ENTRY_CODE)),
-                        parseValue(settingsStorage.getItem(BIRTH_YEAR)))
+      enrollParticipant(parseSettingsValue(settingsStorage.getItem(ENTRY_CODE)),
+                        parseSettingsValue(settingsStorage.getItem(BIRTH_YEAR)))
     }
   }
 }
@@ -61,6 +45,9 @@ if (me.launchReasons.settingsChanged) {
     }
   }
 }
+
+// N.b., for these server calls, a return failure should
+// update the INTEGRATION_STATUS_MESSAGE
 
 /***************************************
   Send location data to the server
