@@ -22,7 +22,7 @@ export class ActivityLogService {
         this.updateSubject();
     }
 
-    getSummary(date: Date): Promise<any> {
+    getSummary(date: Date): Promise<DailySummary> {
         const formattedDate :string = moment(date).format('YYYY-MM-DD');
         return this.heartstepsServer.get('fitbit/' + formattedDate)
         .then((data) => {

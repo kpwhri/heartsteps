@@ -1,11 +1,21 @@
 import { Component, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
+import { WeeklyProgressService, WeeklyProgressSummary } from './weekly-progress.service';
+import { DailySummaryFactory } from './daily-summary.factory';
+import { DailySummary } from './daily-summary.model';
 
-const orderedAttributes: Array<string> = ['complete', 'today', 'incomplete'];
+const COMPLETE:string = 'complete';
+const TODAY: string = 'today';
+const INCOMPLETE: string = 'incomplete';
+const orderedAttributes: Array<string> = [COMPLETE, TODAY, INCOMPLETE];
 
 @Component({
     selector: 'heartsteps-weekly-progress',
-    templateUrl: 'weekly-progress.html'
+    templateUrl: 'weekly-progress.html',
+    providers: [
+        DailySummaryFactory,
+        WeeklyProgressService
+    ]
 })
 export class WeeklyProgressComponent {
 
@@ -13,9 +23,29 @@ export class WeeklyProgressComponent {
     private arc: any;
     private pieGenerator: any;
 
+    private total: number;
+    private complete: number;
+    private current: number;
+
     constructor(
-        private elementRef:ElementRef
-    ) {}
+        private elementRef:ElementRef,
+        private weeklyProgressService:WeeklyProgressService,
+        private dailySummary:DailySummaryFactory
+    ) {
+        this.total = 150;
+        this.complete = 0;
+        this.current = 0;
+
+        this.weeklyProgressService.getSummary(new Date(), new Date()).subscribe((summary:WeeklyProgressSummary) => {
+            this.total = summary.goal;
+            this.complete = summary.completed;
+            this.updateChart();
+        });
+
+        this.dailySummary.date(new Date()).subscribe((summary: DailySummary) => {
+            this.current = summary.totalMinutes
+        })
+    }
 
     ngOnInit() {
         const svg = d3.select(this.elementRef.nativeElement).append('svg');
@@ -32,10 +62,10 @@ export class WeeklyProgressComponent {
         .outerRadius(width/2);
 
         this.pieGenerator = d3.pie()
-        .value(function(d) {
+        .value(<any>function(d) {
             return d.value;
         })
-        .sort(function(a, b) {
+        .sort(<any>function(a, b) {
             let a_index = orderedAttributes.indexOf(a.name);
             let b_index = orderedAttributes.indexOf(b.name);
 
@@ -48,22 +78,11 @@ export class WeeklyProgressComponent {
             }
         });
 
-        this.drawChart({
-            'today': 0,
-            'complete': 0,
-            'incomplete': 150
-        });
-        setTimeout(() => {
-            this.updateChart({
-                'today': 10,
-                'complete': 70,
-                'incomplete': 70
-            });
-        }, 3000);
+        this.drawChart();
     }
 
-    private drawChart(data:any) {
-        const arcs = this.makeArcs(data);
+    private drawChart() {
+        const arcs = this.makeArcs();
 
         this.pie.selectAll("path")
         .data(arcs)
@@ -82,8 +101,8 @@ export class WeeklyProgressComponent {
         .attr('d', <any>this.arc);
     }
 
-    private updateChart(data:any) {
-        const arcs = this.makeArcs(data);
+    private updateChart() {
+        const arcs = this.makeArcs();
         const arcFunction = this.arc;
 
         this.pie.selectAll("path")
@@ -98,19 +117,17 @@ export class WeeklyProgressComponent {
         })
     }
 
-    private makeArcs(data:any) {
-        data = this.flattenData(data);
+    private makeArcs() {
+        let data = [{
+            'name': COMPLETE,
+            'value': this.complete - this.current
+        }, {
+            'name': INCOMPLETE,
+            'value': this.total - this.complete
+        }, {
+            'name': TODAY,
+            'value': this.current
+        }];
         return this.pieGenerator(data);
-    }
-
-    private flattenData(data:any):Array<any> {
-        let dataArray:Array<any> = [];
-        orderedAttributes.forEach((attr:string) => {
-            dataArray.push({
-                'value': data[attr],
-                'name': attr
-            });
-        });
-        return dataArray;
     }
 }
