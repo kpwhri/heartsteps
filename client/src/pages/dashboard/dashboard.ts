@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
 import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
 
@@ -9,6 +9,7 @@ import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
     providers: [ActivityLogService]
 })
 export class DashboardPage {
+    @ViewChild('chart') chart: ElementRef;
 
     constructor() {
         

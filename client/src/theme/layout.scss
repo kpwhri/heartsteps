@@ -3,3 +3,20 @@
     display: flex;
     flex-direction: column;
 }
+
+heartsteps-weekly-progress {
+    width: 300px;
+    height: 300px;
+    margin: $space-size auto;
+    display: block;
+
+    path.today {
+        fill: map-get($colors, secondary);
+    }
+    path.incomplete {
+        fill: map-get($colors, dark);
+    }
+    path.complete {
+        fill: map-get($colors, primary);
+    }
+}

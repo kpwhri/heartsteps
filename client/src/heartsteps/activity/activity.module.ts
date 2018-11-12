@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { DailySummaryComponent } from '@heartsteps/activity/daily-summary.component';
 import { BrowserModule } from '@angular/platform-browser';
+import { WeeklyProgressComponent } from './weekly-progress.component';
 
 @NgModule({
     imports: [
@@ -10,10 +11,12 @@ import { BrowserModule } from '@angular/platform-browser';
         BrowserModule,
     ],
     declarations: [
-        DailySummaryComponent
+        DailySummaryComponent,
+        WeeklyProgressComponent
     ],
     exports: [
-        DailySummaryComponent
+        DailySummaryComponent,
+        WeeklyProgressComponent
     ]
 })
 export class ActivityModule {}
