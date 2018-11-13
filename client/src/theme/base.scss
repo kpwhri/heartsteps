@@ -1,4 +1,13 @@
 
+.title {
+    text-transform: uppercase;
+}
+
+.label {
+    display:block;
+    color: gray;  
+}
+
 h3 {
     text-align: center;
 }
@@ -50,8 +59,7 @@ ul.horizontal {
 ul.horizontal li {
     display: block;
     padding: $space-size/2;
-    & > em {
-        display:block;
-        color: gray;
+    & > span {
+        @extend .label;
     }
 }
