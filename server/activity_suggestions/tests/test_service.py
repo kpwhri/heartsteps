@@ -210,7 +210,7 @@ class GetStepsTests(ServiceTestCase):
         FitbitDay.objects.create(
             account = account,
             date = datetime(2018,10,10),
-            total_steps = 400
+            step_count = 400
         )
 
     def test_gets_steps(self):

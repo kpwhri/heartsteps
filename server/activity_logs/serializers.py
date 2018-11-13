@@ -19,11 +19,16 @@ class ActivitySerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        return_value = super().to_representation(instance)
-        return_value['id'] = str(instance.uuid)
-        return return_value
+        representation = super().to_representation(instance)
+        representation['id'] = str(instance.uuid)
+        return representation
 
 class FitbitDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = FitbitDay
-        fields = ('date', 'active_minutes', 'total_steps')
+        fields = ('date', 'moderate_minutes', 'vigorous_minutes', 'step_count')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['total_minutes'] = instance.moderate_minutes + instance.vigorous_minutes*2
+        return representation

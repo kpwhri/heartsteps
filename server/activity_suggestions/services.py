@@ -169,7 +169,7 @@ class ActivitySuggestionService():
             )
         except FitbitDay.DoesNotExist:
             return None
-        return day.total_steps        
+        return day.step_count
 
     def get_availabilities(self, date):
         for decision in self.get_decisions_for(date):

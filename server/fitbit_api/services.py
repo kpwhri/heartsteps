@@ -154,6 +154,8 @@ class FitbitClient():
             name = activity['activityName']
         )
 
+        vigorous_minutes, moderate_minutes = self.calculate_active_minutes(activity)
+
         FitbitActivity.objects.update_or_create(
             fitbit_id = activity['logId'], defaults={
                 'account': self.account,
@@ -161,17 +163,21 @@ class FitbitClient():
                 'day': fitbit_day,
                 'start_time': start_time,
                 'end_time': end_time,
-                'vigorous_minutes': self.get_vigorous_minutes(activity),
+                'moderate_minutes': moderate_minutes,
+                'vigorous_minutes': vigorous_minutes,
                 'payload': activity
             }
         )
 
-    def get_vigorous_minutes(self, activity):
+    def calculate_active_minutes(self, activity):
+        moderate_minutes = 0
         vigorous_minutes = 0
         for level in activity.get('activityLevel', []):
             if level['name'] == 'very':
                 vigorous_minutes += level['minutes']
-        return vigorous_minutes
+            else:
+                moderate_minutes += level['minutes']
+        return (vigorous_minutes, moderate_minutes)
 
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
@@ -184,11 +190,8 @@ class FitbitClient():
         })
         FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
         
-        total_steps = 0
         for stepInterval in response['activities-steps-intraday']['dataset']:
             if stepInterval['value'] > 0:
-                total_steps += stepInterval['value']
-                
                 step_datetime = datetime.strptime(
                         "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
                         "%Y-%m-%d %H:%M:%S"
@@ -202,5 +205,3 @@ class FitbitClient():
                     time = step_datetime_utc,
                     steps = stepInterval['value']
                 )
-        fitbit_day.total_steps = total_steps
-        fitbit_day.save()

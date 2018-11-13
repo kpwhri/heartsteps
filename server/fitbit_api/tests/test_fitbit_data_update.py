@@ -48,7 +48,7 @@ class GetUpdatedAcitivities(TestCase):
                 'value': 0
             }
         ]}}
-        day = FitbitDay(
+        day = FitbitDay.objects.create(
             account = self.account,
             date = datetime(2018,2,14),
             timezone = "UTC"
@@ -57,9 +57,11 @@ class GetUpdatedAcitivities(TestCase):
 
         service.update_steps(day)
 
-        intraday_time_series.assert_called_with('activities/steps', base_date="2018-02-14")
         day = FitbitDay.objects.get()
-        self.assertEqual(day.total_steps, 10)
+        day.update_steps()
+
+        intraday_time_series.assert_called_with('activities/steps', base_date="2018-02-14")
+        self.assertEqual(day.step_count, 10)
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
 
     @patch.object(Fitbit, 'make_request')

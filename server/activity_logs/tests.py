@@ -24,8 +24,9 @@ class ActivitySummaryViewTests(APITestCase):
         FitbitDay.objects.create(
             account = self.account,
             date = date,
-            active_minutes = 10,
-            total_steps = 10
+            moderate_minutes = 10,
+            vigorous_minutes = 5,
+            step_count = 10
         )
 
     def test_get_day(self):
@@ -37,8 +38,10 @@ class ActivitySummaryViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['date'], '2018-10-16')
-        self.assertEqual(response.data['total_steps'], 10)
-        self.assertEqual(response.data['active_minutes'], 10)
+        self.assertEqual(response.data['step_count'], 10)
+        self.assertEqual(response.data['moderate_minutes'], 10)
+        self.assertEqual(response.data['vigorous_minutes'], 5)
+        self.assertEqual(response.data['total_minutes'], 20)
 
     def test_get_missing_day(self):
         response = self.client.get(reverse('activity-summary-day', kwargs={
