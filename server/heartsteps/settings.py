@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'activity_suggestions',
     'activity_logs',
     'activity_plans',
-    'antiseds'
+    'anti_seds'
 ]
 
 MIDDLEWARE = [
