@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { WeeklyProgressService, WeeklyProgressSummary } from './weekly-progress.service';
 import { DailySummaryFactory } from './daily-summary.factory';
 import { DailySummary } from './daily-summary.model';
+import { DateFactory } from '@infrastructure/date.factory';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -14,7 +15,8 @@ const orderedAttributes: Array<string> = [COMPLETE, TODAY, INCOMPLETE];
     templateUrl: 'weekly-progress.html',
     providers: [
         DailySummaryFactory,
-        WeeklyProgressService
+        WeeklyProgressService,
+        DateFactory
     ]
 })
 export class WeeklyProgressComponent {
@@ -30,21 +32,21 @@ export class WeeklyProgressComponent {
     constructor(
         private elementRef:ElementRef,
         private weeklyProgressService:WeeklyProgressService,
-        private dailySummary:DailySummaryFactory
+        private dailySummary:DailySummaryFactory,
+        dateFactory: DateFactory
     ) {
-        this.total = 150;
+        this.total = 0;
         this.complete = 0;
         this.current = 0;
 
-        this.weeklyProgressService.getSummary(new Date(), new Date()).subscribe((summary:WeeklyProgressSummary) => {
+        const currentWeek = dateFactory.getCurrentWeek();
+        const start:Date = currentWeek[0];
+        const end:Date = currentWeek.reverse()[0];
+        this.weeklyProgressService.getSummary(start, end).subscribe((summary:WeeklyProgressSummary) => {
             this.total = summary.goal;
             this.complete = summary.completed;
             this.updateChart();
         });
-
-        this.dailySummary.date(new Date()).subscribe((summary: DailySummary) => {
-            this.current = summary.totalMinutes
-        })
     }
 
     ngOnInit() {
