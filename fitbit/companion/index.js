@@ -76,7 +76,7 @@ function sendLocation(lat, long, place) {
 }
 
 // Get location
-function getLatLong() {
+function sendLatLong() {
   let geo = {};
   geolocation.getCurrentPosition(
     (position) => {
@@ -87,11 +87,11 @@ function getLatLong() {
     },
     { "enableHighAccuracy" : true }
   );
-}
+  }
 
 // Send step data to server - scaffolding
 function sendSteps(lat, long, place) {
-  const url = `${global.BASE_URL}/api/antised?/`;
+  const url = `${global.BASE_URL}/api/antiseds/`;
   let data = {"steps": steps, "dtm": dtm};
   fetch(url, {
     method: "POST",
@@ -113,7 +113,7 @@ messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == global.RECENT_STEPS) {
     console.log("Send step message to server soon!");
     // Probably send location at same time
-    getLatLong();
+    sendLatLong();
   } else {
     console.log(evt.data.key);
   }

@@ -65,7 +65,8 @@ INSTALLED_APPS = [
     'randomization',
     'activity_suggestions',
     'activity_logs',
-    'activity_plans'
+    'activity_plans',
+    'antiseds'
 ]
 
 MIDDLEWARE = [
