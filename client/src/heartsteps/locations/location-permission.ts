@@ -1,16 +1,15 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { loadingService } from '@infrastructure/loading.service';
 import { LocationService } from '@infrastructure/location.service';
 
 @Component({
-  selector: 'location-permission-pane',
+  selector: 'heartsteps-location-permission',
   templateUrl: 'location-permission.html',
 })
-export class LocationPermissionPane {
+export class LocationPermission {
+  @Output() saved = new EventEmitter<boolean>();
 
   constructor(
-    private navCtrl:NavController,
     private locationService:LocationService,
     private loadingService:loadingService
   ) {}
@@ -20,7 +19,7 @@ export class LocationPermissionPane {
     this.locationService.getPermission()
     .then(() => {
       this.loadingService.dismiss()
-      this.navCtrl.pop()
+      this.saved.emit(true);
      }).catch(() => {
       this.loadingService.dismiss()
      });

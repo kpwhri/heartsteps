@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
 import { loadingService } from '@infrastructure/loading.service';
@@ -12,7 +11,8 @@ import { ActivitySuggestionTimeService } from '@heartsteps/activity-suggestions/
       ActivitySuggestionTimeService
   ]
 })
-export class ActivitySuggestionTimesComponent {
+export class ActivitySuggestionTimes implements OnInit {
+    @Output() saved = new EventEmitter<boolean>();
 
     public timeFields:Array<any>;
     public times:any;
@@ -20,12 +20,11 @@ export class ActivitySuggestionTimesComponent {
     public timesForm:FormGroup
 
     constructor(
-        private navCtrl:NavController,
         private activitySuggestionTimeService:ActivitySuggestionTimeService,
         private loadingService:loadingService
     ) {}
 
-    ionViewWillEnter() {
+    ngOnInit() {
         return this.loadData()
         .then(() => {
             let controls = {}
@@ -59,7 +58,7 @@ export class ActivitySuggestionTimesComponent {
         this.loadingService.show('Saving activity suggestion schedule')
         this.activitySuggestionTimeService.updateTimes(this.timesForm.value)
         .then(() => {
-            this.navCtrl.pop();
+            this.saved.emit(true);
         })
         .catch((errors) => {
             if(errors.outOfOrder) {

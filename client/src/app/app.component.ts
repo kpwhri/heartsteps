@@ -3,11 +3,10 @@ import { Platform, Nav } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { WelcomePage } from '@pages/welcome/welcome';
-import { ParticipantService } from '@heartsteps/participant.service';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { OnboardPage } from '@pages/onboard/onboard';
 import { AuthorizationService } from '@infrastructure/authorization.service';
 import { BackgroundService } from '@app/background.service';
-import { NotificationService } from '@app/notification.service';
 import { DashboardPage } from '@pages/dashboard/dashboard';
 
 @Component({
@@ -23,8 +22,7 @@ export class MyApp {
         splashScreen: SplashScreen,
         private participant:ParticipantService,
         private authorizationService:AuthorizationService,
-        private backgroundService: BackgroundService,
-        private notificationService: NotificationService
+        private backgroundService: BackgroundService
     ) {
         platform.ready()
         .then(() => {

@@ -1,16 +1,15 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { loadingService } from '@infrastructure/loading.service';
-import { FitbitService } from '@heartsteps/fitbit.service';
+import { FitbitService } from './fitbit.service';
 
 @Component({
-    selector: 'fitbit-auth-page',
+    selector: 'heartsteps-fitbit-auth',
     templateUrl: 'fitbit-auth.html'
 })
-export class FitbitAuthPage {
+export class FitbitAuth {
+    @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private navCtrl:NavController,
         private loadingService:loadingService,
         private fitbitService: FitbitService
     ) {}
@@ -19,7 +18,7 @@ export class FitbitAuthPage {
         this.loadingService.show("Authorizing Fitbit");
         return this.fitbitService.authorize()
         .then(() => {
-            this.navCtrl.pop();
+            this.saved.emit(true);
         })
         .catch(() => {
             console.log("Authorization failed")

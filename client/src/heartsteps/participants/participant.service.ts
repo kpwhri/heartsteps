@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
-import { ProfileService } from "@heartsteps/profile.factory";
+import { ProfileService } from "./profile.factory";
 
 
 const storageKey = 'heartsteps-id'

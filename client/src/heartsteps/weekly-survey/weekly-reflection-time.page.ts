@@ -1,12 +1,11 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
-import { loadingService } from '../../infrastructure/loading.service';
-import { ReflectionTimeService } from '@heartsteps/reflection-time.service';
+import { loadingService } from '@infrastructure/loading.service';
+import { ReflectionTimeService } from './reflection-time.service';
 
 @Component({
-  selector: 'page-weekly-reflection-time',
+  selector: 'weekly-reflection-time',
   templateUrl: 'weekly-reflection-time.page.html'
 })
 export class WeeklyReflectionTimePage {
@@ -20,11 +19,10 @@ export class WeeklyReflectionTimePage {
         'saturday',
         'sunday'
     ]
-
     weeklyReflectionForm: FormGroup;
+    @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private navCtrl:NavController,
         private loadingService:loadingService,
         private reflectionTimeService:ReflectionTimeService
     ) {
@@ -49,10 +47,7 @@ export class WeeklyReflectionTimePage {
             this.loadingService.show('Saving reflection time')
             this.reflectionTimeService.setTime(this.weeklyReflectionForm.value)
             .then(() => {
-                this.navCtrl.pop()
-            })
-            .catch(() => {
-
+                this.saved.emit(true);                
             })
             .then(() => {
                 this.loadingService.dismiss()

@@ -69,12 +69,13 @@ export class BrowserService {
 
     private openInBrowser(url: string): Promise<boolean> {
         return new Promise((resolve) => {
-            const browser: Window = window.open(url)
-
-            browser.addEventListener('close', () => {
-                console.log("closing browser")
-                resolve();
-            })
+            const childWindow: Window = window.open(url)
+            const interval = setInterval(function() {
+                if(childWindow.closed) {
+                    resolve();
+                    clearInterval(interval);
+                }
+            }, 500);
         });
     }
 }

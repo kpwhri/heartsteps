@@ -1,9 +1,4 @@
-<ion-header>
-    <ion-navbar>
-        <ion-title>Basic Information</ion-title>
-    </ion-navbar>
-</ion-header>
-<ion-content *ngIf="contactInformationForm" padding>
+<div *ngIf="contactInformationForm">
     <form [formGroup]="contactInformationForm">
         <fieldset>
             <legend>What do you want to be called?</legend>
@@ -28,4 +23,4 @@
             <button (click)="save()">Save</button>
         </div>
     </form>
-</ion-content>
+</div>

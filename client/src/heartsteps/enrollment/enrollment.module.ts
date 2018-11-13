@@ -1,15 +1,18 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { EnrollPage } from './enroll';
-import { HeartstepsModule } from '../../heartsteps/heartsteps.module';
+import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 
 @NgModule({
   declarations: [
     EnrollPage
   ],
-  imports: [
-    HeartstepsModule,
-    IonicPageModule.forChild(EnrollPage)
+  exports: [
+    EnrollPage
   ],
+  imports: [
+    InfrastructureModule,
+    IonicPageModule.forChild(EnrollPage)
+  ]
 })
-export class EnrollPageModule {}
+export class EnrollmentModule {}
