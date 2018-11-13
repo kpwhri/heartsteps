@@ -3,6 +3,16 @@ import * as messaging from "messaging";
 
 import * as global from "../common/globals.js";
 
+// Send a message to the watch
+export function sendData(data) {
+  // If we have a MessageSocket, send the data to the device
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    messaging.peerSocket.send(data);
+  } else {
+    console.log("No peerSocket connection");
+  }
+}
+
 export function enrollSettingsValid(entryCode, birthYear) {
   let currentYear = new Date().getFullYear();
   let birthYearValid = global.isNotNull(birthYear) &&
@@ -24,16 +34,6 @@ export function enrollSettingsValid(entryCode, birthYear) {
       enrollValid = global.UNKNOWN_INVALID;
   }
   return enrollValid;
-}
-
-// Send a message to the watch
-export function sendData(data) {
-  // If we have a MessageSocket, send the data to the device
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    messaging.peerSocket.send(data);
-  } else {
-    console.log("No peerSocket connection");
-  }
 }
 
 // Rethink this to give a return value
@@ -66,6 +66,10 @@ export function enrollParticipant(entry_code, birth_year) {
       return response.json();
     } else {
       settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, global.CANNOT_AUTHENTICATE);
+      sendData({
+        key: global.INTEGRATION_STATUS_MESSAGE,
+        value: settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE)
+      });
       throw `HTTP Response Status ${response["status"]}`;
     }
   })
@@ -90,53 +94,10 @@ export function enrollParticipant(entry_code, birth_year) {
       }
     }
     settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, enrollStatus);
+    sendData({
+      key: global.INTEGRATION_STATUS_MESSAGE,
+      value: settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE)
+    });
   })
   .catch(error => console.error('Error in enrollParticipant: ', error))
 }
-
-
-// deprecated
-// export function updateEntryCode(key, val) {
-//   if (key == ENTRY_CODE && val) {
-//     sendSettingsData({
-//         key: key,
-//         value: JSON.parse(val)
-//     });
-//     // Pass entryCode as enrollmentToken to server
-//     let entryCode = JSON.parse(val).name;
-//     let enrollmentToken = {"enrollmentToken": entryCode};
-//     const url = "https://heartsteps-kpwhri.appspot.com/api/enroll/";
-//     fetch(url, {
-//       method: "POST",
-//       body: JSON.stringify(enrollmentToken),
-//       headers: {
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     .then(function(response) {
-//       console.log(response);
-//       let authorizationToken = response.headers.get('Authorization-Token');
-//       settingsStorage.setItem(AUTHORIZATION_TOKEN, authorizationToken);
-//       console.log("authToken: " + authorizationToken);
-//       return response.json();
-//     })
-//     // Save HeartstepsID and Auth token
-//     .then(function(jsonBody) {
-//       let heartsteps_id = jsonBody["heartstepsId"];
-//       console.log("heartsteps_id: " + heartsteps_id);
-//       if (heartsteps_id) {
-//         let integrationStatus = "enabled";
-//         settingsStorage.setItem(HEARTSTEPS_ID, heartsteps_id);
-//       }
-//       else {
-//         let integrationStatus = "disenabled";
-//       }
-//       settingsStorage.setItem(INTEGRATION_STATUS_MESSAGE, integrationStatus);
-//       sendSettingsData({
-//         key: INTEGRATION_STATUS_MESSAGE,
-//         value: integrationStatus
-//       });
-//     })
-//     .catch(error => console.error('Error in updateEntryCode: ', error))
-//   }
-// }

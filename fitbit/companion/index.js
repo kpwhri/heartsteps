@@ -2,10 +2,10 @@ import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 import * as fs from "fs";
 import { me } from "companion";
-// import companion from "companion";
 
 // Post entryCode to server and display result
-import { enrollParticipant, enrollSettingsValid } from "./enrollment";
+import { enrollParticipant, enrollSettingsValid, sendData }
+  from "./enrollment";
 
 // Get location
 import { geolocation } from "geolocation";
@@ -17,13 +17,6 @@ import * as global from "../common/globals.js";
   Look for when Entry Code & Birth Year are updated in watch settings
   and send that code to the HeartSteps server for validation.
 *************************************************************/
-
-// RETURN INTEGRATION STATUS HERE & UPDATE SETTING
-// enrollParticipant in enrollment.js is setting it all over the place
-// will probably return codes different from anything originally set below
-
-// Unfortunately & confusingly, the return of enrollParticipant
-// has to be found in the function in enrollment.js
 function updateEnrollStatus(evtKey){
   if (evtKey == global.ENTRY_CODE || evtKey == global.BIRTH_YEAR) {
     let entryCode = global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)).toUpperCase();
@@ -34,17 +27,11 @@ function updateEnrollStatus(evtKey){
                         global.parseSettingsValue(settingsStorage.getItem(global.BIRTH_YEAR)))
     } else {
       settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, enrollValid);
+      sendData({
+        key: global.INTEGRATION_STATUS_MESSAGE,
+        value: settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE)
+      });
     }
-  }
-}
-
-// Let watch know setting has changed
-function sendSettingsData(data) {
-  // If we have a MessageSocket, send the data to the device
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    messaging.peerSocket.send(data);
-  } else {
-    console.log("No peerSocket connection");
   }
 }
 
@@ -53,22 +40,13 @@ function sendSettingsData(data) {
 settingsStorage.onchange = function(evt) {
   if (evt.key == global.ENTRY_CODE || evt.key == global.BIRTH_YEAR) {
     let enrollStatus = updateEnrollStatus(evt.key);
-    sendSettingsData({
-      key: global.INTEGRATION_STATUS_MESSAGE,
-      value: settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE)
-    });
   }
 }
 
-// No way this is gonna work. Just run w/evtKey = something
 // Settings were changed while the companion was not running
 if (me.launchReasons.settingsChanged) {
-  // Send the value of the setting
-  if (evt.key == global.ENTRY_CODE || evt.key == global.BIRTH_YEAR) {
-    if (enrollSettingsValid()) {
-      updateEntryCode(global.ENTRY_CODE, settingsStorage.getItem(global.ENTRY_CODE));
-    }
-  }
+  // Give this a try at any time, in case it's enrollment
+  let enrollStatus = updateEnrollStatus(global.ENTRY_CODE);
 }
 
 /***************************************
