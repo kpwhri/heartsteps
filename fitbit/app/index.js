@@ -1,5 +1,4 @@
-import { ANTI_SEDENTARY_MESSAGE, INTEGRATION_STATUS_MESSAGE,
-  QUERY_STEP_MESSAGE, RECENT_STEPS } from "../common/globals.js";
+import * as global from "../common/globals.js";
 
 // Get integrationStatus setting & update text in settings
 import * as messaging from "messaging";
@@ -51,7 +50,7 @@ function stepCountToPhone(){
 // Update watch message based on integration results
 // Listen for enrollment message sent by phone
 messaging.peerSocket.onmessage = function(evt) {
-  if (evt.data.key == INTEGRATION_STATUS_MESSAGE) {
+  if (evt.data.key == global.INTEGRATION_STATUS_MESSAGE) {
   // Update enabled/disabled flag if enrollment succeeds
     updateIntegrationStatus(evt.data.value);
   }

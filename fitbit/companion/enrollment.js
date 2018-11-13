@@ -1,17 +1,29 @@
 import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 
-import { AUTHORIZATION_TOKEN, BIRTH_YEAR, HEARTSTEPS_ID, ENTRY_CODE,
-  INTEGRATION_STATUS_MESSAGE, isNotNull, parseSettingsValue }
-  from "../common/globals.js";
+import * as global from "../common/globals.js";
 
-export function enrollSettingsValid(){
-  // Maybe consider ways of validating ENTRY_CODE?
-  let birthYr = parseSettingsValue(settingsStorage.getItem(BIRTH_YEAR));
-  let currentYr = new Date().getFullYear();
-  return (isNotNull(parseSettingsValue(settingsStorage.getItem(ENTRY_CODE))) &&
-          isNotNull(birthYr) &&
-          birthYr >= (currentYr-120) && birthYr <= currentYr);
+export function enrollSettingsValid(entryCode, birthYear) {
+  let currentYear = new Date().getFullYear();
+  let birthYearValid = global.isNotNull(birthYear) &&
+                     birthYear >= (currentYear-120) && birthYear <= currentYear;
+  const entryCodeRe = /[A-Z]{4}-[A-Z]{4}/;
+  // Uncomment this when we have XXXX-XXXX codes set up
+  let entryCodeValid = global.isNotNull(entryCode) && entryCodeRe.test(entryCode);
+  // let entryCodeValid = global.isNotNull(entryCode);
+  let enrollValid = global.INITIALIZE_ENROLLMENT;
+  if (entryCodeValid && birthYearValid) {
+      enrollValid = global.VALID;
+  } else if (entryCodeValid && !birthYearValid) {
+      enrollValid = global.BIRTH_YEAR_INVALID;
+  } else if (!entryCodeValid && birthYearValid) {
+      enrollValid = global.ENTRY_CODE_INVALID;
+  } else if (!entryCodeValid && !birthYearValid) {
+      enrollValid = global.BIRTH_ENTRY_INVALID;
+  } else {
+      enrollValid = global.UNKNOWN_INVALID;
+  }
+  return enrollValid;
 }
 
 // Send a message to the watch
@@ -24,59 +36,60 @@ export function sendData(data) {
   }
 }
 
-export function enrollParticipant(ENTRY_CODE, BIRTH_YEAR){
-  console.log("Hey, let's enroll!");
+// Rethink this to give a return value
+// Initialize a failure then overwrite as you continue
+export function enrollParticipant(entry_code, birth_year) {
   let authTokenOk = false;
   let heartstepsIdOk = false;
-  let integrationStatus = "not started";
-  let enrollmentToken = {"enrollmentToken": ENTRY_CODE};
-  const url = "https://heartsteps-kpwhri.appspot.com/api/enroll/";
-  // Post entryCode as enrollmentToken
+  let enrollStatus = global.INITIALIZE_ENROLLMENT;
+  const url = `${global.BASE_URL}/api/enroll/`;
+  let authData = {
+    "enrollmentToken": entry_code,
+    "birthYear": birth_year
+  };
   fetch(url, {
     method: "POST",
-    body: JSON.stringify(enrollmentToken),
+    body: JSON.stringify(authData),
     headers: {
       'Content-Type': 'application/json'
     }
   })
   // Store the auth token that's returned
   .then(function(response) {
-    console.log("Full response: " + response);
-    let authorizationToken = response.headers.get('Authorization-Token');
-    if (isNotNull(authorizationToken)) {
-      settingsStorage.setItem(AUTHORIZATION_TOKEN, authorizationToken);
-      authTokenOk = true;
-      console.log("authToken: " + authorizationToken);
+    // Test if return if valid - error text doesn't get me much anyway
+    if (response["status"] == 200) {
+      let authorizationToken = response.headers.get('Authorization-Token');
+      if (global.isNotNull(authorizationToken)) {
+        settingsStorage.setItem(global.AUTHORIZATION_TOKEN, authorizationToken);
+        authTokenOk = true;
+      }
+      return response.json();
+    } else {
+      settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, global.CANNOT_AUTHENTICATE);
+      throw `HTTP Response Status ${response["status"]}`;
     }
-    return response.json();
   })
   // Store the user identifier
   .then(function(jsonBody) {
     let heartstepsId = jsonBody["heartstepsId"];
-    if (isNotNull(heartstepsId)) {
-      settingsStorage.setItem(HEARTSTEPS_ID, heartsteps_id);
+    if (global.isNotNull(heartstepsId)) {
+      settingsStorage.setItem(global.HEARTSTEPS_ID, heartstepsId);
       heartstepsIdOk = true;
-      console.log("heartsteps_id: " + heartsteps_id);
     }
     if (heartstepsIdOk) {
       if (authTokenOk) {
-        integrationStatus = "enabled";
+        enrollStatus = global.VALID;
       } else {
-        integrationStatus = "auth token invalid";
+        enrollStatus = global.AUTH_INVALID;
       }
     } else {
       if (authTokenOk) {
-        integrationStatus = "user identifier invalid";
+        enrollStatus = global.ID_INVALID;
       } else {
-        integrationStatus = "user id & auth token invalid";
+        enrollStatus = global.AUTH_ID_INVALID;
       }
     }
-    // Update integration message on watch
-    settingsStorage.setItem(INTEGRATION_STATUS_MESSAGE, integrationStatus);
-    sendData({
-      key: INTEGRATION_STATUS_MESSAGE,
-      val: integrationStatus
-    });
+    settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, enrollStatus);
   })
   .catch(error => console.error('Error in enrollParticipant: ', error))
 }

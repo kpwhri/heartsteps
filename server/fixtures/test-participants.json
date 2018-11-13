@@ -46,5 +46,14 @@
         "enrollment_token": "nickreid",
         "user": null
     }
+},
+{
+    "model": "participants.participant",
+    "pk": "test-chris",
+    "fields": {
+        "enrollment_token": "ABCD-EFGH",
+        "birth_year": 1970,
+        "user": null
+    }
 }
 ]

@@ -2,7 +2,7 @@ import { settingsStorage } from "settings";
 import * as messaging from "messaging";
 import * as fs from "fs";
 import { me } from "companion";
-import companion from "companion";
+// import companion from "companion";
 
 // Post entryCode to server and display result
 import { enrollParticipant, enrollSettingsValid } from "./enrollment";
@@ -11,52 +11,74 @@ import { enrollParticipant, enrollSettingsValid } from "./enrollment";
 import { geolocation } from "geolocation";
 import { locationSuccess, locationError } from "./location";
 
-import { ANTI_SEDENTARY_MESSAGE, AUTHORIZATION_TOKEN, BIRTH_YEAR, ENTRY_CODE, HEARTSTEPS_ID,
-  INTEGRATION_STATUS_MESSAGE, QUERY_STEP_MESSAGE, RECENT_STEPS,
-  isNotNull, parseSettingsValue } from "../common/globals.js";
-
-const BASE_URL = "https://heartsteps-kpwhri.appspot.com";
+import * as global from "../common/globals.js";
 
 /************************************************************
   Look for when Entry Code & Birth Year are updated in watch settings
   and send that code to the HeartSteps server for validation.
 *************************************************************/
 
+// RETURN INTEGRATION STATUS HERE & UPDATE SETTING
+// enrollParticipant in enrollment.js is setting it all over the place
+// will probably return codes different from anything originally set below
+
+// Unfortunately & confusingly, the return of enrollParticipant
+// has to be found in the function in enrollment.js
+function updateEnrollStatus(evtKey){
+  if (evtKey == global.ENTRY_CODE || evtKey == global.BIRTH_YEAR) {
+    let entryCode = global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)).toUpperCase();
+    let birthYr = global.parseSettingsValue(settingsStorage.getItem(global.BIRTH_YEAR));
+    let enrollValid = enrollSettingsValid(entryCode, birthYr);
+    if (enrollValid == global.VALID) {
+      enrollParticipant(global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)),
+                        global.parseSettingsValue(settingsStorage.getItem(global.BIRTH_YEAR)))
+    } else {
+      settingsStorage.setItem(global.INTEGRATION_STATUS_MESSAGE, enrollValid);
+    }
+  }
+}
+
+// Let watch know setting has changed
+function sendSettingsData(data) {
+  // If we have a MessageSocket, send the data to the device
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    messaging.peerSocket.send(data);
+  } else {
+    console.log("No peerSocket connection");
+  }
+}
+
 // Event fires when a setting is changed
 // The newValue is already set in settingsStorage
 settingsStorage.onchange = function(evt) {
-  console.log("Event is " + evt.key);
-  if (evt.key == ENTRY_CODE || evt.key == BIRTH_YEAR) {
-    if (enrollSettingsValid()) {
-      // updateEntryCode(evt.key, evt.newValue);
-      console.log("Updating entry code");
-      enrollParticipant(parseSettingsValue(settingsStorage.getItem(ENTRY_CODE)),
-                        parseSettingsValue(settingsStorage.getItem(BIRTH_YEAR)))
-    }
+  if (evt.key == global.ENTRY_CODE || evt.key == global.BIRTH_YEAR) {
+    let enrollStatus = updateEnrollStatus(evt.key);
+    sendSettingsData({
+      key: global.INTEGRATION_STATUS_MESSAGE,
+      value: settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE)
+    });
   }
 }
 
+// No way this is gonna work. Just run w/evtKey = something
 // Settings were changed while the companion was not running
 if (me.launchReasons.settingsChanged) {
   // Send the value of the setting
-  if (evt.key == ENTRY_CODE || evt.key == BIRTH_YEAR) {
+  if (evt.key == global.ENTRY_CODE || evt.key == global.BIRTH_YEAR) {
     if (enrollSettingsValid()) {
-      updateEntryCode(ENTRY_CODE, settingsStorage.getItem(ENTRY_CODE));
+      updateEntryCode(global.ENTRY_CODE, settingsStorage.getItem(global.ENTRY_CODE));
     }
   }
 }
-
-// N.b., for these server calls, a return failure should
-// update the INTEGRATION_STATUS_MESSAGE
 
 /***************************************
   Send location data to the server
 ***************************************/
 const PLACE_SOURCE = "watch";
 function sendLocation(lat, long, place) {
-  let token = settingsStorage.getItem(AUTHORIZATION_TOKEN);
+  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
   if (token) {
-    const url = `${BASE_URL}/api/locations/`;
+    const url = `${global.BASE_URL}/api/locations/`;
     let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
     fetch(url, {
       method: "POST",
@@ -91,7 +113,7 @@ function getLatLong() {
 
 // Send step data to server - scaffolding
 function sendSteps(lat, long, place) {
-  const url = `${BASE_URL}/api/antised?/`;
+  const url = `${global.BASE_URL}/api/antised?/`;
   let data = {"steps": steps, "dtm": dtm};
   fetch(url, {
     method: "POST",
@@ -110,8 +132,9 @@ function sendSteps(lat, long, place) {
 // Listen for step data from the watch
 // then send Step and Location data to server
 messaging.peerSocket.onmessage = function(evt) {
-  if (evt.data.key == RECENT_STEPS) {
+  if (evt.data.key == global.RECENT_STEPS) {
     console.log("Send step message to server soon!");
+    // Probably send location at same time
     getLatLong();
   } else {
     console.log(evt.data.key);

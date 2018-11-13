@@ -18,6 +18,24 @@
     }
 },
 {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {
+        "password": "password1234",
+        "last_login": "2018-07-03T03:14:32.292Z",
+        "is_superuser": false,
+        "username": "test-chris",
+        "first_name": "",
+        "last_name": "",
+        "email": "test@testy.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2018-07-03T03:11:53.037Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
     "model": "participants.participant",
     "pk": "sample-uuid-1234",
     "fields": {
