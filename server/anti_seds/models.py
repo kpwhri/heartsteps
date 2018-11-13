@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 
 
-class StepCount(models.model):
+class StepCount(models.Model):
     user = models.ForeignKey(User)
     payload = JSONField()
     step_count = models.IntegerField(null=True, blank=True)
