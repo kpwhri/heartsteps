@@ -9,4 +9,4 @@ class StepCount(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "%s steps %s @ %s" % (self.user, self.step_count, self.step_dtm)
+        return "%s steps %s @ %s" % (self.user, self.step_number, self.step_dtm)
