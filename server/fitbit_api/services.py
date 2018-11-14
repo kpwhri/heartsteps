@@ -50,6 +50,8 @@ class FitbitClient():
         self.account.save()
 
     def is_subscribed(self):
+        if not hasattr(self.account, 'subscription'):
+            return False
         response = self.client.list_subscriptions()
         if 'apiSubscriptions' in response:
             for subscription in response['apiSubscriptions']:
