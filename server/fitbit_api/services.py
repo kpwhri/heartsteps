@@ -53,7 +53,7 @@ class FitbitClient():
         response = self.client.list_subscriptions()
         if 'apiSubscriptions' in response:
             for subscription in response['apiSubscriptions']:
-                if subscription['subscriptionId'] == str(self.subscription.uuid):
+                if subscription['subscriptionId'] == str(self.account.subscription.uuid):
                     return True
         return False
 

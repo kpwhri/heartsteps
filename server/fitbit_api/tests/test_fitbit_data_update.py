@@ -23,7 +23,7 @@ class GetUpdatedAcitivities(TestCase):
     @patch.object(FitbitClient, 'update_heart_rate')
     @patch.object(FitbitClient, 'update_activities')
     @patch.object(FitbitClient, 'update_steps')
-    @patch.object(FitbitClient, 'get_timezone', return_value="Poland")
+    @patch.object(FitbitClient, 'get_timezone', return_value=pytz.timezone("Poland"))
     def test_pull_account_data(self, get_timezone, update_steps, update_activities, update_heart_rate):
         update_fitbit_data(username="test", date_string="2018-02-14")
 

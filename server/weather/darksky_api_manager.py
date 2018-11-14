@@ -1,5 +1,3 @@
-from datetime import datetime
-import pytz
 import requests
 
 class DarkSkyApiManager:
@@ -30,8 +28,8 @@ class DarkSkyApiManager:
         return {
             'latitude': content['latitude'],
             'longitude': content['longitude'],
-            'time': forecast.get('time'),
-            'precip_probability': forecast.get('percipProbability'),
+            'time': time,
+            'precip_probability': forecast.get('precipProbability'),
             'precip_type': forecast.get('precipType', 'None'),
             'temperature': forecast.get('temperature'),
             'apparent_temperature': forecast.get('apparentTemperature'),

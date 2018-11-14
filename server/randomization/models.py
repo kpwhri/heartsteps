@@ -39,9 +39,10 @@ class Decision(models.Model):
         ordering = ['-time']
 
     def decide(self):
-        if not hasattr(settings, 'RANDOMIZATION_FIXED_PROBABILITY'):
-            raise ImproperlyConfigured("No RANDOMIZATION_FIXED_PROBABILITY")
-        self.pi_it = settings.RANDOMIZATION_FIXED_PROBABILITY
+        if not self.pi_it:
+            if not hasattr(settings, 'RANDOMIZATION_FIXED_PROBABILITY'):
+                raise ImproperlyConfigured("No RANDOMIZATION_FIXED_PROBABILITY")
+            self.pi_it = settings.RANDOMIZATION_FIXED_PROBABILITY
         self.a_it = random.random() < self.pi_it
         self.save()
         return self.a_it

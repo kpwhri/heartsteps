@@ -75,11 +75,11 @@ class DarkSkyApiTests(TestCase):
 
 class WeatherServiceTest(TestCase):
 
-    def get_forecast(self, latitude, longitude):
+    def get_forecast(self, latitude, longitude, time):
         return {
             'latitude': 123.123,
             'longitude': 42.42,
-            'time': timezone.now(),
+            'time': time,
             'precip_probability': 30,
             'precip_type': 'rain',
             'temperature': 20,
@@ -88,7 +88,7 @@ class WeatherServiceTest(TestCase):
 
     @patch.object(DarkSkyApiManager, 'get_forecast', get_forecast)
     def test_generates_forecast_from_darksky(self):
-        forecast = WeatherService.make_forecast(123, 456)
+        forecast = WeatherService.make_forecast(123, 456, timezone.now())
 
         self.assertEqual(forecast.precip_type, 'rain')
 
