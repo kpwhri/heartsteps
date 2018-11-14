@@ -117,7 +117,8 @@ class DecisionContextTest(TestCase):
         get_forecast_context.assert_called_with(fake_weather_object)
         make_forecast.assert_called_with(
             latitude = 123.456,
-            longitude = 42.42
+            longitude = 42.42,
+            time = decision_service.decision.time
         )
         # there should only be one saved object
         saved_decision_forecast = DecisionContext.objects.get(decision=decision_service.decision).content_object

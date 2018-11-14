@@ -3,11 +3,12 @@ import * as moment from 'moment';
 import { Component, OnInit } from '@angular/core';
 import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
 import { DailySummary } from '@heartsteps/activity/daily-summary.model';
+import { DailySummaryFactory } from './daily-summary.factory';
 
 @Component({
     selector: 'heartsteps-activity-daily-summary',
     templateUrl: './daily-summary.html',
-    providers: [ActivityLogService],
+    providers: [DailySummaryFactory],
 })
 export class DailySummaryComponent implements OnInit {
 
@@ -16,7 +17,7 @@ export class DailySummaryComponent implements OnInit {
     public activitySummary: DailySummary;
 
     constructor(
-        private activityLogService: ActivityLogService
+        private dailySummary: DailySummaryFactory
     ) {
         this.date = new Date();
         const isToday:boolean = moment(new Date()).isSame(this.date);
@@ -28,12 +29,8 @@ export class DailySummaryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.activityLogService.getSummary(this.date)
-        .then((dailySummary: DailySummary) => {
+        this.dailySummary.date(this.date).subscribe((dailySummary: DailySummary) => {
             this.activitySummary = dailySummary;
-        })
-        .catch(() => {
-            this.activitySummary = null;
-        })
+        });
     }
 }

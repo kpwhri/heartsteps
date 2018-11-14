@@ -35,9 +35,10 @@ class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageS
 
     def decide(self):
         try:
-            service = ActivitySuggestionService(self.user)
+            configuration = Configuration.objects.get(user=self.user)
+            service = ActivitySuggestionService(configuration)
             service.decide(self.decision)
-        except ImproperlyConfigured:
+        except (ImproperlyConfigured, Configuration.DoesNotExist):
             self.decision.decide()
         return self.decision.a_it
 

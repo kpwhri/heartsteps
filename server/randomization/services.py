@@ -141,15 +141,15 @@ class DecisionContextService(DecisionService):
         for place in Place.objects.filter(user=self.user).all():
             forecast = self.make_forecast(
                 latitude = place.latitude,
-                longitude = place.longitude
-            )
+                longitude = place.longitude)
             forecasts.append(forecast)
         return forecasts
 
     def make_forecast(self, latitude, longitude):
         forecast = WeatherService.make_forecast(
             latitude = latitude,
-            longitude = longitude
+            longitude = longitude,
+            time = self.decision.time
         )
         DecisionContext.objects.create(
             decision = self.decision,

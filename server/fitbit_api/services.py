@@ -53,7 +53,7 @@ class FitbitClient():
         response = self.client.list_subscriptions()
         if 'apiSubscriptions' in response:
             for subscription in response['apiSubscriptions']:
-                if subscription['subscriptionId'] == str(self.subscription.uuid):
+                if subscription['subscriptionId'] == str(self.account.subscription.uuid):
                     return True
         return False
 
@@ -99,15 +99,16 @@ class FitbitClient():
                 date = date
             )
         except FitbitDay.DoesNotExist:
+            timezone = self.get_timezone()
             day = FitbitDay.objects.create(
                 account = self.account,
                 date = date,
-                timezone = self.get_timezone()
+                timezone = timezone.zone
             )
         return day
 
     def update_heart_rate(self, fitbit_day):
-        url = "{0}/{1}/user/{user_id}/heart/{date}/1d/1sec.json".format(
+        url = "{0}/{1}/user/{user_id}/activities/heart/date/{date}/1d/1min.json".format(
             *self.client._get_common_args(),
             user_id = self.account.fitbit_user,
             date = fitbit_day.format_date()

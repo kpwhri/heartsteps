@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from weather.darksky_api_manager import DarkSkyApiManager
 from weather.models import WeatherForecast
 
@@ -7,9 +9,12 @@ class WeatherService:
     WEATHER_OUTDOOR_SNOW = "outdoor_snow"  # it is currently snowing, and not suitable to go outside
     WEATHER_INDOOR = "indoor"  # weather is unfit to go outside and one should stay indoors
 
-    def make_forecast(latitude, longitude):
+    def make_forecast(latitude, longitude, time=None):
+        if not time:
+            time = timezone.now()
+
         dark_sky = DarkSkyApiManager()
-        forecast = dark_sky.get_forecast(latitude, longitude)
+        forecast = dark_sky.get_forecast(latitude, longitude, time)
         return WeatherForecast.objects.create(**forecast)
 
     def get_context(temperature, precipitation_probability, precipitation_type):
