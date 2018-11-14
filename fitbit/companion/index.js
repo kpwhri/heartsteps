@@ -90,30 +90,37 @@ function sendLatLong() {
   }
 
 // Send step data to server - scaffolding
-function sendSteps(lat, long, place) {
-  const url = `${global.BASE_URL}/api/antiseds/`;
-  let data = {"steps": steps, "dtm": dtm};
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then(function(response) {
-    if (response.status != 201) {
-      console.log("ERROR: sendSteps completed with status "+ response.status);
-    }
-    console.log("sendSteps completed with status " + response.status);
-  }).catch(error => console.error('Error in sendSteps: ', error))
+function sendSteps(step_count, step_dtm) {
+  const url = `${global.BASE_URL}/api/stepdata/`;
+  let data = {"step_number": step_count, "step_dtm": step_dtm};
+  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+  if (token) {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(function(response) {
+      if (response.status != 201) {
+        console.log("ERROR: sendSteps completed with status "+ response.status);
+      }
+      console.log("sendSteps completed with status " + response.status);
+    }).catch(error => console.error('Error in sendSteps: ', error))
+  } else {
+    console.log("ERROR in sendSteps: user not authenticated");
+  }
 }
 
 // Listen for step data from the watch
 // then send Step and Location data to server
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == global.RECENT_STEPS) {
-    console.log("Send step message to server soon!");
-    // Probably send location at same time
+    console.log("stepCount: " + evt.data.value);
+    console.log("time:      " + evt.data.time);
     sendLatLong();
+    sendSteps(evt.data.value, evt.data.time);
   } else {
     console.log(evt.data.key);
   }

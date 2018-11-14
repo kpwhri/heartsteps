@@ -14,12 +14,13 @@ import { StepCountHandler } from "./step-count.js";
 const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 
-function sendStepMessage(recentSteps){
+function sendStepMessage(recentSteps, time){
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     // Send the data to phone as a message
     let data = {
       key: "recentSteps",
-      value: recentSteps
+      value: recentSteps,
+      time: time
     }
     messaging.peerSocket.send(data);
   } else {
@@ -36,7 +37,8 @@ function stepCountToPhone(){
   let recentSteps = stepCount.calculateElapsedSteps(newStepData);
   console.log("step count: " + recentSteps);
   stepCount.saveFile(newStepData);
-  sendStepMessage(recentSteps);
+  console.log("time is " + stepCount.currentTime);
+  sendStepMessage(recentSteps, stepCount.currentTime);
 }
 
 // // Standard JS function - not using Companion WakeUp API
@@ -46,6 +48,7 @@ function stepCountToPhone(){
 
 // Test purposes - run this once, 5 seconds after install
 setTimeout(function(){stepCountToPhone()}, 5000);
+setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*3);
 
 // Update watch message based on integration results
 // Listen for enrollment message sent by phone

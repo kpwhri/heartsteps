@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
             name='StepCount',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('payload', django.contrib.postgres.fields.jsonb.JSONField()),
                 ('step_count', models.IntegerField(blank=True, null=True)),
+                ('step_dtm', models.DateTimeField()),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
