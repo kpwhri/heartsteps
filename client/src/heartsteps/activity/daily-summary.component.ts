@@ -1,23 +1,24 @@
 import * as moment from 'moment';
 
-import { Component, OnInit } from '@angular/core';
-import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DailySummary } from '@heartsteps/activity/daily-summary.model';
-import { DailySummaryFactory } from './daily-summary.factory';
+import { DailySummaryService } from './daily-summary.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'heartsteps-activity-daily-summary',
     templateUrl: './daily-summary.html',
-    providers: [DailySummaryFactory],
 })
-export class DailySummaryComponent implements OnInit {
+export class DailySummaryComponent implements OnInit, OnDestroy {
 
     public date: Date;
     public formattedDate: string;
+    public updatedDate: string;
     public activitySummary: DailySummary;
+    private updateSubscription: Subscription;
 
     constructor(
-        private dailySummary: DailySummaryFactory
+        private dailySummaryService: DailySummaryService
     ) {
         this.date = new Date();
         const isToday:boolean = moment(new Date()).isSame(this.date);
@@ -28,9 +29,23 @@ export class DailySummaryComponent implements OnInit {
         }
     }
 
+    public refresh() {
+        this.dailySummaryService.getDate(this.date);
+    }
+
     ngOnInit() {
-        this.dailySummary.date(this.date).subscribe((dailySummary: DailySummary) => {
-            this.activitySummary = dailySummary;
+        this.updateSubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
+            summaries.forEach((summary:DailySummary) => {
+                if(summary.date == moment(this.date).format('YYYY-MM-DD')) {
+                    this.activitySummary = summary;
+                    this.updatedDate = moment(this.date).format('YYYY MM DD h:m')
+                }
+            });
         });
+        this.dailySummaryService.getDate(this.date);
+    }
+
+    ngOnDestroy() {
+        this.updateSubscription.unsubscribe();
     }
 }

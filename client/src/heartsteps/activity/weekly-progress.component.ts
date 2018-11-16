@@ -1,9 +1,9 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
-import { WeeklyProgressService, WeeklyProgressSummary } from './weekly-progress.service';
-import { DailySummaryFactory } from './daily-summary.factory';
 import { DailySummary } from './daily-summary.model';
 import { DateFactory } from '@infrastructure/date.factory';
+import { DailySummaryService } from './daily-summary.service';
+import { Subscription } from 'rxjs';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -14,12 +14,10 @@ const orderedAttributes: Array<string> = [COMPLETE, TODAY, INCOMPLETE];
     selector: 'heartsteps-weekly-progress',
     templateUrl: 'weekly-progress.html',
     providers: [
-        DailySummaryFactory,
-        WeeklyProgressService,
         DateFactory
     ]
 })
-export class WeeklyProgressComponent {
+export class WeeklyProgressComponent implements OnInit, OnDestroy {
 
     private pie:any;
     private arc: any;
@@ -29,27 +27,46 @@ export class WeeklyProgressComponent {
     private complete: number;
     private current: number;
 
+    private summarySubscription: Subscription;
+
     constructor(
         private elementRef:ElementRef,
-        private weeklyProgressService:WeeklyProgressService,
-        private dailySummary:DailySummaryFactory,
-        dateFactory: DateFactory
+        private dailySummaryService: DailySummaryService,
+        private dateFactory: DateFactory
     ) {
-        this.total = 0;
+        this.total = 150;
         this.complete = 0;
         this.current = 0;
-
-        const currentWeek = dateFactory.getCurrentWeek();
-        const start:Date = currentWeek[0];
-        const end:Date = currentWeek.reverse()[0];
-        this.weeklyProgressService.getSummary(start, end).subscribe((summary:WeeklyProgressSummary) => {
-            this.total = summary.goal;
-            this.complete = summary.completed;
-            this.updateChart();
-        });
     }
 
     ngOnInit() {
+        this.initializeChart();
+        this.drawChart();
+
+        const currentWeek = this.dateFactory.getCurrentWeek();
+        const start:Date = currentWeek[0];
+        const end:Date = currentWeek.reverse()[0];
+
+        this.summarySubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
+            this.complete = 0;
+            this.current = 0;
+            const today:string = this.dailySummaryService.formatDate(new Date());
+            summaries.forEach((summary:DailySummary) => {
+                this.complete += summary.totalMinutes;
+                if(summary.date == today) {
+                    this.current = summary.totalMinutes;
+                }
+            })
+            this.updateChart();
+        });
+        this.dailySummaryService.getWeek(start, end);
+    }
+
+    ngOnDestroy() {
+        this.summarySubscription.unsubscribe();
+    }
+
+    private initializeChart() {
         const svg = d3.select(this.elementRef.nativeElement).append('svg');
         const width: number = this.elementRef.nativeElement.clientWidth;
         const height: number = this.elementRef.nativeElement.clientHeight;
@@ -79,8 +96,6 @@ export class WeeklyProgressComponent {
                 return 0;
             }
         });
-
-        this.drawChart();
     }
 
     private drawChart() {
@@ -120,12 +135,21 @@ export class WeeklyProgressComponent {
     }
 
     private makeArcs() {
+        let completed = this.complete - this.current;
+        if(completed > this.total - this.current) {
+            completed = this.total - this.current;
+        }
+        let incomplete = this.total - this.complete;
+        if(incomplete < 0) {
+            incomplete = 0;
+        }
+
         let data = [{
             'name': COMPLETE,
-            'value': this.complete - this.current
+            'value': completed
         }, {
             'name': INCOMPLETE,
-            'value': this.total - this.complete
+            'value': incomplete
         }, {
             'name': TODAY,
             'value': this.current

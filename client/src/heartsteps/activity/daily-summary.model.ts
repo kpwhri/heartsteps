@@ -1,4 +1,6 @@
 export class DailySummary {
+    public date: string;
+    public updated: Date;
 
     public moderateMinutes: number = 0;
     public vigorousMinutes: number = 0;

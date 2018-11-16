@@ -1,0 +1,12 @@
+heartsteps-activity-daily-summary {
+    .last-updated {
+        padding: 10px;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        button {
+            background-color: map-get($colors, primary);
+            display: block;
+        }
+    }
+}

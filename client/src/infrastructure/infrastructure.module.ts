@@ -11,6 +11,7 @@ import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { OneSignal } from '@ionic-native/onesignal';
 import { BackgroundProcessService } from '@infrastructure/background-process.service';
+import { StorageService } from './storage.service';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { BackgroundProcessService } from '@infrastructure/background-process.ser
       Geolocation,
       BackgroundProcessService,
       LocationService,
+      StorageService,
       BrowserService,
       SafariViewController,
       InAppBrowser,

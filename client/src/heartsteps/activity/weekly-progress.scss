@@ -9,23 +9,23 @@ heartsteps-weekly-progress {
         fill: map-get($colors, secondary);
     }
     path.incomplete {
-        fill: map-get($colors, dark);
+        fill: #eeeeee;
     }
     path.complete {
         fill: map-get($colors, primary);
     }
-}
 
-.heartsteps-weekly-progress-insert {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    transform: translate(0%, -50%);
-
-    > * {
-        display: block;
+    .progress-insert {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        transform: translate(0%, -50%);
+    
+        > * {
+            display: block;
+        }
     }
 }

@@ -4,6 +4,7 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { DailySummaryComponent } from '@heartsteps/activity/daily-summary.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { WeeklyProgressComponent } from './weekly-progress.component';
+import { DailySummaryService } from './daily-summary.service';
 
 @NgModule({
     imports: [
@@ -17,6 +18,9 @@ import { WeeklyProgressComponent } from './weekly-progress.component';
     exports: [
         DailySummaryComponent,
         WeeklyProgressComponent
+    ],
+    providers: [
+        DailySummaryService
     ]
 })
 export class ActivityModule {}
