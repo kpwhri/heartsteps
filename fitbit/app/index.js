@@ -42,13 +42,13 @@ function stepCountToPhone(){
 }
 
 // // Standard JS function - not using Companion WakeUp API
-// setInterval(function() {
-//   stepCountToPhone();
-// }, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+setInterval(function() {
+  stepCountToPhone();
+}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
 
 // Test purposes - run this once, 5 seconds after install
-setTimeout(function(){stepCountToPhone()}, 5000);
-setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*3);
+// setTimeout(function(){stepCountToPhone()}, 5000);
+// setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*3);
 
 // Update watch message based on integration results
 // Listen for enrollment message sent by phone
