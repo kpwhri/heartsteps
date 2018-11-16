@@ -3,7 +3,8 @@
     "model": "participants.participant",
     "pk": "kpwhri-catherine",
     "fields": {
-        "enrollment_token": "catherine",
+        "enrollment_token": "CATH-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },
@@ -11,7 +12,8 @@
     "model": "participants.participant",
     "pk": "kpwhri-chris",
     "fields": {
-        "enrollment_token": "chris",
+        "enrollment_token": "CHRI-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },
@@ -19,7 +21,8 @@
     "model": "participants.participant",
     "pk": "kpwhri-deryn",
     "fields": {
-        "enrollment_token": "deryn",
+        "enrollment_token": "DERY-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },
@@ -27,7 +30,8 @@
     "model": "participants.participant",
     "pk": "kpwhri-linda",
     "fields": {
-        "enrollment_token": "linda",
+        "enrollment_token": "LIND-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },
@@ -35,7 +39,8 @@
     "model": "participants.participant",
     "pk": "kpwhri-pedja",
     "fields": {
-        "enrollment_token": "pedja",
+        "enrollment_token": "PEDJ-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },
@@ -43,7 +48,8 @@
     "model": "participants.participant",
     "pk": "test-nickreid",
     "fields": {
-        "enrollment_token": "nickreid",
+        "enrollment_token": "NICK-ABCD",
+        "birth_year": 1980,
         "user": null
     }
 },

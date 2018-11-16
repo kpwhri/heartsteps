@@ -15,6 +15,7 @@
     "wipeColor": "#0000ff",
     "requestedPermissions": [
       "access_activity",
+      "access_heart_rate",
       "access_internet",
       "access_location",
       "run_background"

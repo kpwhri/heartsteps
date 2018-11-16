@@ -1,3 +1,5 @@
+import { HeartRateSensor } from "heart-rate";
+
 import * as global from "../common/globals.js";
 
 // Get integrationStatus setting & update text in settings
@@ -46,8 +48,8 @@ setInterval(function() {
   stepCountToPhone();
 }, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
 
-// Test purposes - run this once, 5 seconds after install
-// setTimeout(function(){stepCountToPhone()}, 5000);
+// Test purposes - run this once, 30 seconds after install
+setTimeout(function(){stepCountToPhone()}, 30000);
 // setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*3);
 
 // Update watch message based on integration results
@@ -58,3 +60,15 @@ messaging.peerSocket.onmessage = function(evt) {
     updateIntegrationStatus(evt.data.value);
   }
 }
+
+let hrm = new HeartRateSensor({ frequency: 1, batch: 30 });
+hrm.onreading = () => {
+  for (let index = 0; index < hrm.readings.timestamp.length; index++) {
+    console.log(
+      `HeartRateSensor Reading: \
+        timestamp=$‌{hrm.readings.timestamp[index]}, \
+        [$‌{hrm.readings.bpm[index]}]`
+    );
+  }
+};
+hrm.start();

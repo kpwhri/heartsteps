@@ -24,7 +24,7 @@ class EnrollView(APIView):
                 )
             except Participant.DoesNotExist:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
-            
+
             participant.enroll()
             token, created = Token.objects.get_or_create(user=participant.user)
 
