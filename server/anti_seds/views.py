@@ -17,7 +17,6 @@ class StepCountSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         """ Convert Unix timestamp to date """
         data['step_dtm'] = datetime.datetime.utcfromtimestamp(data['step_dtm']/1000).isoformat()
-        print(data)
         return data
 
 
@@ -29,7 +28,6 @@ class StepCountUpdateView(APIView):
     def post(self, request):
         serialized = StepCountSerializer(data=request.data)
         if serialized.is_valid():
-            print(serialized.validated_data)
             step_count = StepCount(**serialized.validated_data)
             step_count.user = request.user
             step_count.save()
