@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
-from randomization.factories import make_decision_message
 from activity_suggestions.models import SuggestionTime, Configuration
 from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
 

@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from django.contrib.auth.models import User
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
-from push_messages.models import Message as PushMessage
+from push_messages.models import Message
 from push_messages.services import PushMessageService
 
 class ContextTag(models.Model):
@@ -47,6 +47,21 @@ class Decision(models.Model):
         self.save()
         return self.a_it
 
+    @property
+    def notification(self):
+        if hasattr(self, '_notification'):
+            return self._notification
+        message_content_type = ContentType.objects.get_for_model(Message)
+        context_objects = DecisionContext.objects.filter(
+            decision = self,
+            content_type = message_content_type
+        ).all()
+        for message in [obj.content_object for obj in context_objects]:
+            if message.message_type == Message.NOTIFICATION:
+                self._notification = message
+                return self._notification
+        return False
+
     def get_context(self):
         return [tag.tag for tag in self.tags.all()]
 
@@ -76,10 +91,3 @@ class DecisionContext(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-
-class Message(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    decision = models.OneToOneField(Decision)
-
-    message_template = models.ForeignKey(MessageTemplate)
-    sent_message = models.OneToOneField(PushMessage, null=True, blank=True, related_name="randomization_message")

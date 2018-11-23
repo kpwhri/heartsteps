@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
 from push_messages.models import Message, MessageReceipt
-from randomization.models import Decision, Message as DecisionMessage, DecisionContext
+from randomization.models import Decision, DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
@@ -453,10 +453,9 @@ class TestLastActivitySuggestion(ServiceTestCase):
             content = "Hey",
             message_type = Message.NOTIFICATION
         )
-        DecisionMessage.objects.create(
+        DecisionContext.objects.create(
             decision = previous_decision,
-            message_template = MessageTemplate.objects.create(body="Hello"),
-            sent_message = message
+            content_object = message
         )
         MessageReceipt.objects.create(
             message = message,

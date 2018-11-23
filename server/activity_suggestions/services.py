@@ -298,11 +298,11 @@ class ActivitySuggestionService():
     def decision_was_received(self, decision):
         if not decision:
             return False
-        if not hasattr(decision, 'message'):
+        if not decision.notification:
             return False
         try:
             message_receipt = MessageReceipt.objects.get(
-                message = decision.message.sent_message,
+                message = decision.notification,
                 type = MessageReceipt.RECEIVED
             )
             return True

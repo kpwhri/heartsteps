@@ -12,7 +12,7 @@ from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
 from weather.models import WeatherForecast
 
-from randomization.models import Decision, DecisionContext, Message, ContextTag
+from randomization.models import Decision, DecisionContext, ContextTag
 
 class DecisionService():
     def __init__(self, decision):
@@ -182,16 +182,14 @@ class DecisionContextService(DecisionService):
 class DecisionMessageService(DecisionService):
 
     def create_message(self):
-        message = Message(
-            decision = self.decision
-        )
         message_template = self.get_message_template()
         if not message_template:
             raise ValueError("No matching message template")
-        message.message_template = message_template
-        message.save()
-        self.message = message
-        return message
+        DecisionContext.objects.create(
+            decision = self.decision,
+            content_object = message_template
+        )
+        return message_template
 
     def get_message_template_tags(self):
         message_tags_query = Q()

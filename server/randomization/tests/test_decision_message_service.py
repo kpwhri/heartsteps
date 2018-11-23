@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from push_messages.models import Message as PushMessage
 
-from randomization.models import Decision, Message
+from randomization.models import Decision
 from randomization.services import DecisionMessageService
 
 class DecisionMessageTest(TestCase):
@@ -27,7 +27,7 @@ class DecisionMessageTest(TestCase):
 
         message = decision_service.create_message()
 
-        self.assertEqual(message.message_template.body, message_template.body)
+        self.assertEqual(message.body, message_template.body)
 
     def test_decision_picks_message_template_with_matching_tags(self):
         tag = MessageTag.objects.create(tag="tag")
@@ -42,7 +42,7 @@ class DecisionMessageTest(TestCase):
         
         message = decision_service.create_message()
 
-        self.assertNotEqual(message.message_template.body, "Not this message")
+        self.assertNotEqual(message.body, "Not this message")
 
     def test_decision_picks_most_specific_matching_template(self):
         tag = MessageTag.objects.create(tag="tag")
@@ -63,7 +63,7 @@ class DecisionMessageTest(TestCase):
         
         message = decision_service.create_message()
 
-        self.assertEqual(message.message_template.body, specific_template.body)
+        self.assertEqual(message.body, specific_template.body)
 
     def test_decision_ignores_context_that_is_not_message_tag(self):
         tag = MessageTag.objects.create(tag="tag")
@@ -76,4 +76,4 @@ class DecisionMessageTest(TestCase):
         
         message = decision_service.create_message()
 
-        self.assertEqual(message.message_template.body, "Test message")
+        self.assertEqual(message.body, "Test message")

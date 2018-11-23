@@ -1,4 +1,4 @@
-from randomization.models import Message, Decision
+from randomization.models import Decision
 
 def make_decision_message(decision):
     if Message.objects.filter(id=decision.id).count() > 0:
