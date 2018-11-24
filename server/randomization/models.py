@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from django.contrib.auth.models import User
-from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from push_messages.models import Message
 from push_messages.services import PushMessageService
 

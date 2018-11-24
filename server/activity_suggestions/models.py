@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
 
+from behavioral_messages.models import MessageTemplate
 from locations.services import LocationService
 from randomization.models import Decision, ContextTag
 
@@ -179,16 +180,11 @@ class DailyTask(models.Model):
         self.task.crontab.delete()
         self.task.delete()
 
-class ActivitySuggestionDecisionManager(models.Manager):
-
-    def get_queryset(self):
-        return Decision.objects.filter(tags__tag="activity suggestion")
+class ActivitySuggestionMessageTemplate(MessageTemplate):
+    pass
 
 class ActivitySuggestionDecision(Decision):
-    objects = ActivitySuggestionDecisionManager()
-
-    class Meta:
-        proxy = True
+    pass
 
 class ServiceRequest(models.Model):
     user = models.ForeignKey(User)

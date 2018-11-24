@@ -197,8 +197,11 @@ class DecisionMessageService(DecisionService):
             message_tags_query |= Q(tag=tag.tag)
         return MessageTag.objects.filter(message_tags_query).all()
 
+    def get_message_template_query(self):
+        return MessageTemplate.objects
+
     def get_message_template(self):
-        query = MessageTemplate.objects
+        query = self.get_message_template_query()
         for tag in self.get_message_template_tags():
             query = query.filter(context_tags__in=[tag])
         message_templates = query.all()

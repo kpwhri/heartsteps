@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
-from activity_suggestions.models import SuggestionTime, Configuration
+from activity_suggestions.models import SuggestionTime, Configuration, ActivitySuggestionDecision
 from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
 
 @shared_task
@@ -42,13 +42,14 @@ def start_decision(username, category):
         return False
 
     decision_time = timezone.now() + timedelta(minutes=10)
-    decision_service = ActivitySuggestionDecisionService.create_decision(
+    decision = ActivitySuggestionDecision.objects.create(
         user = user,
         time = decision_time
     )
-    decision_service.add_context("activity suggestion")
-    decision_service.add_context(category)
+    decision.add_context("activity suggestion")
+    decision.add_context(category)
 
+    decision_service = ActivitySuggestionDecisionService(decision)
     decision_service.request_context()
 
     make_decision.apply_async(kwargs={

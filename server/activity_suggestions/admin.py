@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import SuggestionTime, Configuration, ActivitySuggestionDecision, ServiceRequest
+from behavioral_messages.admin import MessageTemplateAdmin
+from randomization.admin import DecisionAdmin
+
+from .models import SuggestionTime, Configuration, ActivitySuggestionDecision, ActivitySuggestionMessageTemplate, ServiceRequest
 
 class ActivitySuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -15,13 +18,13 @@ class ActivitySuggestionTimeFilters(admin.SimpleListFilter):
         else:
             return queryset
 
-class ActivitySuggestionDecisionAdmin(admin.ModelAdmin):
-    date_hierarchy = 'time'
-    search_fields = [
-        'user__username'
-    ]
+class ActivitySuggestionDecisionAdmin(DecisionAdmin):
     list_filter = [ActivitySuggestionTimeFilters]
 admin.site.register(ActivitySuggestionDecision, ActivitySuggestionDecisionAdmin)
+
+class ActivitySuggestionMessageTemplateAdmin(MessageTemplateAdmin):
+    pass
+admin.site.register(ActivitySuggestionMessageTemplate, ActivitySuggestionMessageTemplateAdmin)
 
 class ConfigurationAdmin(admin.ModelAdmin):
     pass

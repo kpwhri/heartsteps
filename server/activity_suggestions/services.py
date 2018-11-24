@@ -13,7 +13,7 @@ from randomization.models import Decision, DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from weather.models import WeatherForecast
 
-from activity_suggestions.models import Configuration, ServiceRequest, SuggestionTime
+from activity_suggestions.models import Configuration, ServiceRequest, SuggestionTime, ActivitySuggestionMessageTemplate
 
 class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
@@ -21,6 +21,9 @@ class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageS
         if self.get_fitbit_step_count() > 250:
             return False
         return True
+
+    def get_message_template_query(self):
+        return ActivitySuggestionMessageTemplate.objects
     
     def get_fitbit_step_count(self):
         start_time = self.decision.time - timedelta(minutes=20)
