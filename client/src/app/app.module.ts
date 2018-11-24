@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -14,6 +16,15 @@ import { DashboardModule } from '@pages/dashboard/dashboard.module';
 import { LocationModule } from '@heartsteps/locations/location.module';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { LocationService } from '@heartsteps/locations/location.service';
+import { WelcomePage } from '@pages/welcome/welcome';
+
+const appRoutes:Routes = [
+  {
+    path: '',
+    component: WelcomePage,
+    pathMatch: 'full'
+  }
+]
 
 @NgModule({
   declarations: [
@@ -26,7 +37,11 @@ import { LocationService } from '@heartsteps/locations/location.service';
     WelcomePageModule,
     OnboardPageModule,
     DashboardModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true }
+    )
   ],
   bootstrap: [IonicApp],
   entryComponents: [

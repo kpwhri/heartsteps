@@ -1,24 +1,25 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
-import { IonicPage, NavController } from 'ionic-angular';
-import { EnrollPage } from '@heartsteps/enrollment/enroll';
+import { IonicPage, NavController, ModalController } from 'ionic-angular';
+import { EnrollmentModal } from '@heartsteps/enrollment/enroll';
 
 @Component({
   selector: 'page-welcome',
   templateUrl: 'welcome.html',
   entryComponents: [
-    EnrollPage
+    EnrollmentModal
   ]
 })
 export class WelcomePage implements OnInit {
 
   constructor(
-    private navCtrl: NavController,
     private el:ElementRef,
-    private renderer:Renderer2
+    private renderer:Renderer2,
+    private modalCtrl: ModalController
   ) {}
 
   goToEnrollPage() {
-    this.navCtrl.push(EnrollPage)
+    let modal = this.modalCtrl.create(EnrollmentModal);
+    modal.present();
   }
 
   ngOnInit() {

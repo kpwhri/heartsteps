@@ -1,9 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, Slides } from 'ionic-angular';
+import { Slides } from 'ionic-angular';
 
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 
-@IonicPage()
 @Component({
     selector: 'page-onboard',
     templateUrl: 'onboard.html'

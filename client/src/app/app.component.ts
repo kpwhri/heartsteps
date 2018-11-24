@@ -1,37 +1,32 @@
-import { Component, ViewChild } from '@angular/core';
-import { Platform, Nav } from 'ionic-angular';
+import { Component } from '@angular/core';
+import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { WelcomePage } from '@pages/welcome/welcome';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { OnboardPage } from '@pages/onboard/onboard';
 import { AuthorizationService } from '@infrastructure/authorization.service';
 import { BackgroundService } from '@app/background.service';
-import { DashboardPage } from '@pages/dashboard/dashboard';
+import { Router } from '@angular/router';
 
 @Component({
     templateUrl: 'app.html'
 })
 export class MyApp {
-    @ViewChild(Nav) nav:Nav
-    rootPage:any;
-
     constructor(
         platform: Platform,
         statusBar: StatusBar,
         splashScreen: SplashScreen,
+        private router: Router,
         private participant:ParticipantService,
         private authorizationService:AuthorizationService,
         private backgroundService: BackgroundService
     ) {
         platform.ready()
         .then(() => {
-            this.setNavAuthGuard()
             this.participant.onChange().subscribe((participant: any) => {
                 this.setupBackgroundProcess(participant);
                 this.updateRootPage(participant);
             })
-            return this.participant.update()
+            return this.participant.update();
         })
         .then(() => {
             statusBar.styleDefault();
@@ -39,29 +34,14 @@ export class MyApp {
         });
     }
 
-    setNavAuthGuard() {
-        this.nav.viewWillEnter.subscribe(() => {
-            return this.authorizationService.isAuthorized()
-            .catch(() => {
-                const currentRoot = this.nav.first();
-                if(currentRoot.component !== WelcomePage) {
-                    this.nav.setRoot(WelcomePage);
-                    this.nav.popToRoot();
-                }
-            });
-        });
-    }
-
     updateRootPage(participant:any) {
-        let rootPage: any = WelcomePage;
-        if (participant.enrolled) {
-            rootPage = OnboardPage;
-        }
         if (participant.profileComplete) {
-            rootPage = DashboardPage;
+            this.router.navigate(['/dashboard']);
+        } else if (participant.enrolled) {
+            this.router.navigate(['/onboard']);
+        } else {
+            this.router.navigate['/'];
         }
-        this.nav.setRoot(rootPage);
-        this.nav.popToRoot();
     }
 
     setupBackgroundProcess(participant:any) {

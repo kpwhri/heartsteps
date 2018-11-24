@@ -25,6 +25,7 @@
     "@angular/http": "5.2.10",
     "@angular/platform-browser": "5.2.10",
     "@angular/platform-browser-dynamic": "5.2.10",
+    "@angular/router": "^5.2.10",
     "@ionic-native/core": "4.11.0",
     "@ionic-native/geolocation": "^4.9.2",
     "@ionic-native/http": "^4.9.1",
