@@ -5,7 +5,8 @@ import { PlanModal } from '@pages/activity-plan/plan.modal';
 
 @Component({
     selector: 'page-plan',
-    templateUrl: 'plan.page.html'
+    templateUrl: 'plan.page.html',
+    providers: [DateFactory]
 })
 export class PlanPage {
 

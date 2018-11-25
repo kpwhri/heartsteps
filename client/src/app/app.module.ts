@@ -12,19 +12,13 @@ import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationPane } from './notification';
 import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
-import { DashboardModule } from '@pages/dashboard/dashboard.module';
-import { LocationModule } from '@heartsteps/locations/location.module';
-import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { LocationService } from '@heartsteps/locations/location.service';
-import { WelcomePage } from '@pages/welcome/welcome';
+import { HomePageModule } from '@pages/home/home.module';
 
 const appRoutes:Routes = [
-  {
-    path: 'welcome',
-    component: WelcomePage
-  }, {
+{
     path: '',
-    redirectTo: '/welcome',
+    redirectTo: '/home/dashboard',
     pathMatch: 'full'
   }
 ]
@@ -35,11 +29,9 @@ const appRoutes:Routes = [
     NotificationPane
   ],
   imports: [
-    LocationModule,
-    ParticipantModule,
     WelcomePageModule,
     OnboardPageModule,
-    DashboardModule,
+    HomePageModule,
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
       appRoutes,

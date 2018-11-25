@@ -1,0 +1,27 @@
+page-home {
+    display:flex;
+    flex-direction: column;
+    > div {
+        flex: 1 1 auto;
+        padding: $space-size;
+        overflow: auto;
+    }
+    > div > router-outlet {
+        display: none;
+    }
+    > header, nav {
+        flex: 0 0 auto;
+        height: 70px;
+        background-color: $color-light;
+    }
+    > nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        height: 70px;
+        > * {
+            display: block;
+            width: 70px;
+        }
+    }
+}

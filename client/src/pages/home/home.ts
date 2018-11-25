@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
-import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
-import { DashboardPage } from '@pages/dashboard/dashboard';
-import { PlanPage } from '@pages/activity-plan/plan.page';
-import { ActivityLogPage } from '@pages/activity-log/activity-log';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'page-home',
@@ -10,15 +7,23 @@ import { ActivityLogPage } from '@pages/activity-log/activity-log';
 })
 export class HomePage {
 
-    dashboard:any
-    plan:any
-    activityLog:any
-    resourceLibrary: any
+    tabs:Array<any> = [{
+        name:'Dashboard',
+        key: 'dashboard'
+    }, {
+        name: 'Planning',
+        key: 'planning'
+    }, {
+        name: 'Stats',
+        key: 'stats'
+    }, {
+        name: 'Learn',
+        key: 'learn'
+    }];
 
-    constructor() {
-        this.dashboard = DashboardPage
-        this.plan = PlanPage
-        this.activityLog = ActivityLogPage
-        this.resourceLibrary = ResourceLibraryPage
+    constructor(
+        private router: Router
+    ) {
+
     }
 }

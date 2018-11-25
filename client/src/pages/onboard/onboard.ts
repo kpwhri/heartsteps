@@ -8,6 +8,7 @@ import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-refle
 import { ActivitySuggestionTimes } from '@heartsteps/activity-suggestions/activity-suggestion-times';
 import { PlacesList } from '@heartsteps/places/places-list';
 import { ProfileService } from '@heartsteps/participants/profile.factory';
+import { Router } from '@angular/router';
 
 const onboardingPages:Array<any> = [{
     key: 'notificationsEnabled',
@@ -36,7 +37,11 @@ const onboardingPages:Array<any> = [{
     templateUrl: 'onboard.html',
     entryComponents: [
         NotificationsPermission,
-        LocationPermission
+        LocationPermission,
+        WeeklyReflectionTimePage,
+        ActivitySuggestionTimes,
+        LocationPermission,
+        PlacesList
     ]
 })
 export class OnboardPage implements OnInit {
@@ -48,7 +53,7 @@ export class OnboardPage implements OnInit {
     private pageSubscription:Subscription;
 
     constructor(
-        private participantService: ParticipantService,
+        private router: Router,
         private profileService: ProfileService,
         private componentFactoryResolver: ComponentFactoryResolver
     ) {}
@@ -75,8 +80,8 @@ export class OnboardPage implements OnInit {
     }
 
     loadPage(pageNumber:number) {
-        if(pageNumber > this.pages.length) {
-            console.log("go home!");
+        if(pageNumber >= this.pages.length) {
+            this.router.navigate(['/']);
             return;
         }
         const page:any = this.pages[pageNumber];
