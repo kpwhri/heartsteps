@@ -13,12 +13,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 const onboardRoutes:Routes = [{
   path: 'onboard',
-  component: OnboardPage
+  component: OnboardPage,
 }]
 
 @NgModule({
   declarations: [
-    OnboardPage
+    OnboardPage,
   ],
   imports: [
     WeeklySurveyModule,

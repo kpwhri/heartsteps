@@ -1,23 +1,12 @@
-<ion-slides pager>
-    <ion-slide>
-        <heartsteps-participant-information (saved)="onSaved()"></heartsteps-participant-information>
-    </ion-slide>
-    <ion-slide>
-        <heartsteps-notifications-permission (saved)="onSaved()"></heartsteps-notifications-permission>
-    </ion-slide>
-    <ion-slide>
-        <heartsteps-location-permission (saved)="onSaved()"></heartsteps-location-permission>
-    </ion-slide>
-    <ion-slide>
-        <heartsteps-activity-suggestion-times (saved)="onSaved()"></heartsteps-activity-suggestion-times>
-    </ion-slide>
-    <ion-slide>
-        <heartsteps-places-list (saved)="onSaved()"></heartsteps-places-list>
-    </ion-slide>
-    <ion-slide>
-        <weekly-reflection-time (saved)="onSaved()"></weekly-reflection-time>
-    </ion-slide>
-    <ion-slide>
-        <heartsteps-fitbit-auth (saved)="onSaved()"></heartsteps-fitbit-auth>
-    </ion-slide>
-</ion-slides>
+
+<div class="header">
+    <h2>Onboarding</h2>
+    <button (click)="prevPage()" class="back">Back</button>
+    <div class="pagination-bullets">
+        <span *ngFor="let page of pages; index as i" class="pagination-bullet" [ngClass]="{active: index == i}" >{{i}}</span>
+    </div>
+</div>
+<div>
+    <h3>{{pageTitle}}</h3>
+</div>
+<div #screenDisplay></div>

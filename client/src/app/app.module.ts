@@ -20,8 +20,11 @@ import { WelcomePage } from '@pages/welcome/welcome';
 
 const appRoutes:Routes = [
   {
+    path: 'welcome',
+    component: WelcomePage
+  }, {
     path: '',
-    component: WelcomePage,
+    redirectTo: '/welcome',
     pathMatch: 'full'
   }
 ]
@@ -40,7 +43,10 @@ const appRoutes:Routes = [
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
       appRoutes,
-      { enableTracing: true }
+      {
+        enableTracing: true,
+        useHash: true
+      }
     )
   ],
   bootstrap: [IonicApp],

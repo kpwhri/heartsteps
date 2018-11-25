@@ -33,10 +33,16 @@ $space-size: 20px;
 // colors so you can add, rename and remove colors as needed.
 // The "primary" color is the only required color in the map.
 
+$color-primary: #488aff;
+$color-secondary: #F57B55;
+$color-danger: #f53d3d;
+$color-light: #ccc;
+$color-dark: #666;
+
 $colors: (
-  primary:    #488aff,
-  secondary:  #F57B55,
-  danger:     #f53d3d,
+  primary:    $color-primary,
+  secondary:  $color-secondary,
+  danger:     $color-danger,
   light:      #f4f4f4,
   dark:       #222,
 );

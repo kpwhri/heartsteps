@@ -1,8 +1,22 @@
 
-page-onboard .onboarding-nav ion-navbar {
-    display: none;
-}
+pages-onboarding {
 
-page-onboard .onboarding-nav .scroll-content {
-    margin-top: 0px !important;
+    .pagination-bullets {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        & > * {
+            display: block;
+            margin: $space-size/4;
+            height: 1em;
+            width: 1em;
+            border-radius: 50%;
+            background-color: $color-light;
+            overflow: hidden;
+            text-indent: -3000em;
+        }
+        & > .active {
+            background-color: $color-primary;
+        }
+    }
 }

@@ -3,7 +3,6 @@ import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { AuthorizationService } from '@infrastructure/authorization.service';
 import { BackgroundService } from '@app/background.service';
 import { Router } from '@angular/router';
 
@@ -17,7 +16,6 @@ export class MyApp {
         splashScreen: SplashScreen,
         private router: Router,
         private participant:ParticipantService,
-        private authorizationService:AuthorizationService,
         private backgroundService: BackgroundService
     ) {
         platform.ready()
@@ -35,13 +33,13 @@ export class MyApp {
     }
 
     updateRootPage(participant:any) {
-        if (participant.profileComplete) {
-            this.router.navigate(['/dashboard']);
-        } else if (participant.enrolled) {
-            this.router.navigate(['/onboard']);
-        } else {
-            this.router.navigate['/'];
-        }
+        // if (participant.profileComplete) {
+        //     this.router.navigate(['/dashboard']);
+        // } else if (participant.enrolled) {
+        //     this.router.navigate(['/onboard']);
+        // } else {
+        //     this.router.navigate['/'];
+        // }
     }
 
     setupBackgroundProcess(participant:any) {
