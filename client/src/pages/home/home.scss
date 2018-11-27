@@ -2,6 +2,7 @@ page-home {
     display:flex;
     flex-direction: column;
     > div {
+        background-color: $color-gray;
         flex: 1 1 auto;
         padding: $space-size;
         overflow: auto;
@@ -11,10 +12,12 @@ page-home {
     }
     > header, nav {
         flex: 0 0 auto;
-        height: 70px;
-        background-color: $color-light;
+    }
+    > header > .settings {
+        @extend .back;
     }
     > nav {
+        background-color: $color-gray-light;
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;

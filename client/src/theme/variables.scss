@@ -23,6 +23,7 @@ $app-direction: ltr;
 // http://ionicframework.com/docs/theming/overriding-ionic-variables/
 
 $space-size: 20px;
+$block-size: 70px;
 
 
 // Named Color Variables
@@ -36,15 +37,16 @@ $space-size: 20px;
 $color-primary: #488aff;
 $color-secondary: #F57B55;
 $color-danger: #f53d3d;
-$color-light: #ccc;
-$color-dark: #666;
+$color-gray-light: #f4f4f4;
+$color-gray: #ccc;
+$color-gray-dark: #3d3d3d;
 
 $colors: (
   primary:    $color-primary,
   secondary:  $color-secondary,
   danger:     $color-danger,
-  light:      #f4f4f4,
-  dark:       #222,
+  light:      $color-gray-light,
+  dark:       $color-gray-dark,
 );
 
 
