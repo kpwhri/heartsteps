@@ -17,11 +17,7 @@ class StepCountSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         """ Convert Unix timestamp to date """
-<<<<<<< HEAD
-        data['step_dtm'] = datetime.datetime.utcfromtimestamp(data['step_dtm']/1000).isoformat()
-=======
         data['step_dtm'] = datetime.utcfromtimestamp(data['step_dtm']/1000).astimezone(pytz.UTC)
->>>>>>> Make datetime object UTC timezone
         return data
 
 
