@@ -1,30 +1,5 @@
 page-home {
-    display:flex;
-    flex-direction: column;
-    > div {
-        background-color: $color-gray;
-        flex: 1 1 auto;
-        padding: $space-size;
-        overflow: auto;
-    }
-    > div > router-outlet {
-        display: none;
-    }
-    > header, nav {
-        flex: 0 0 auto;
-    }
-    > header > .settings {
+    header > .settings {
         @extend .back;
-    }
-    > nav {
-        background-color: $color-gray-light;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        height: 70px;
-        > * {
-            display: block;
-            width: 70px;
-        }
     }
 }

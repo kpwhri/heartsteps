@@ -4,6 +4,8 @@
     flex-direction: column;
     & > * {
         flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
     > router-outlet {
         display: none;
@@ -13,4 +15,37 @@
 .content {
     display: flex;
     flex-direction: column;
+}
+
+router-outlet {
+    display: none;
+}
+
+.page {
+    display:flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: $color-gray;
+
+    > * {
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+
+    > header, nav {
+        flex: 0 0 auto;
+        overflow: hidden;
+    }
+
+    > nav {
+        background-color: $color-gray-light;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        height: 70px;
+        > * {
+            display: block;
+            width: 70px;
+        }
+    }
 }

@@ -1,10 +1,12 @@
-<header>
-    <h2>{{pageTitle}}</h2>
-    <a class="settings" routerLink="/settings">Settings</a>
-</header>
-<div>
-    <router-outlet></router-outlet>
+<div class="page">
+    <header>
+        <h2>{{pageTitle}}</h2>
+        <a class="settings" routerLink="/settings">Settings</a>
+    </header>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+    <nav>
+        <a *ngFor="let tab of tabs" class="{{tab.key}}" routerLink="/home/{{tab.key}}" routerLinkActive="active" >{{tab.name}}</a>
+    </nav>
 </div>
-<nav>
-    <a *ngFor="let tab of tabs" class="{{tab.key}}" routerLink="/home/{{tab.key}}" routerLinkActive="active" >{{tab.name}}</a>
-</nav>

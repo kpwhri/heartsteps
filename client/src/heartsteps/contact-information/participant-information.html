@@ -1,26 +1,24 @@
-<div *ngIf="contactInformationForm">
-    <form [formGroup]="contactInformationForm">
-        <fieldset>
-            <legend>What do you want to be called?</legend>
-            <ion-item>
-                <ion-label stacked for="participant-name">First name or nickname</ion-label>
-                <ion-input id="participant-name" formControlName="name" type="text" ></ion-input>
-            </ion-item>
-        </fieldset>
-        <fieldset>
-            <legend>Contact information</legend>
-            <p>The study team will use this information to contact you only during the study.</p>
-            <ion-item>
-                <ion-label stacked for="participant-email">Email</ion-label>
-                <ion-input id="participant-email" formControlName="email" type="email"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked for="participant-phone">Phone</ion-label>
-                <ion-input id="participant-phone" formControlName="phone" type="tel"></ion-input>
-            </ion-item>
-        </fieldset>
-        <div class="controls">
-            <button (click)="save()">Save</button>
-        </div>
-    </form>
-</div>
+<form *ngIf="contactInformationForm" [formGroup]="contactInformationForm">
+    <fieldset>
+        <legend>What do you want to be called?</legend>
+        <ion-item>
+            <ion-label stacked for="participant-name">First name or nickname</ion-label>
+            <ion-input id="participant-name" formControlName="name" type="text" ></ion-input>
+        </ion-item>
+    </fieldset>
+    <fieldset>
+        <legend>Contact information</legend>
+        <p>The study team will use this information to contact you only during the study.</p>
+        <ion-item>
+            <ion-label stacked for="participant-email">Email</ion-label>
+            <ion-input id="participant-email" formControlName="email" type="email"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label stacked for="participant-phone">Phone</ion-label>
+            <ion-input id="participant-phone" formControlName="phone" type="tel"></ion-input>
+        </ion-item>
+    </fieldset>
+    <div class="controls">
+        <button (click)="save()">Save</button>
+    </div>
+</form>
