@@ -1,7 +1,8 @@
 <div class="page">
     <header>
         <h2>{{pageTitle}}</h2>
-        <a class="settings" routerLink="/settings">Settings</a>
+        <a *ngIf="!backButton" class="settings" routerLink="/settings">Settings</a>
+        <a *ngIf="backButton" class="back" routerLink="/settings">Back</a>
     </header>
     <div>
         <router-outlet></router-outlet>
