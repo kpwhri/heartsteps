@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
-import { ActivityPlanService } from '@heartsteps/activity/activity-plan.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Activity } from '@heartsteps/activity/activity.model';
+
+import { ActivityPlanService } from './activity-plan.service';
+import { Activity } from './activity.model';
 
 @Component({
     selector: 'activity-plan-modal',

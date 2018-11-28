@@ -4,4 +4,13 @@
     </header>
     <heartsteps-weekly-progress></heartsteps-weekly-progress>
     <heartsteps-activity-daily-summary></heartsteps-activity-daily-summary>
+    <heartsteps-activity-daily-update></heartsteps-activity-daily-update>
+</article>
+<article>
+    <header>
+        <h3>My plan</h3>
+    </header>
+    <section *ngFor="let date of remainingDaysOfWeek">
+        <activity-plan-day [date]="date"></activity-plan-day>
+    </section>
 </article>

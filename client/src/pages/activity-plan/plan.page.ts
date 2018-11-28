@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { DateFactory } from '@infrastructure/date.factory';
 import { ModalController } from 'ionic-angular';
-import { PlanModal } from '@pages/activity-plan/plan.modal';
+import { PlanModal } from '@heartsteps/activity/plan.modal';
 
 @Component({
     selector: 'page-plan',

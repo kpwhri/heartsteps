@@ -29,10 +29,6 @@ export class DailySummaryComponent implements OnInit, OnDestroy {
         }
     }
 
-    public refresh() {
-        this.dailySummaryService.getDate(this.date);
-    }
-
     ngOnInit() {
         this.updateSubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
             summaries.forEach((summary:DailySummary) => {
