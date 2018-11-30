@@ -5,6 +5,8 @@ from rest_framework.authtoken.models import Token
 from django_celery_results.models import TaskResult
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, SolarSchedule
 
+from service_requests.models import ServiceRequest
+
 from participants.models import Participant
 
 admin.site.unregister(User)
@@ -19,3 +21,7 @@ admin.site.unregister(PeriodicTask)
 class ParticipantAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Participant, ParticipantAdmin)
+
+class ServiceRequestAdmin(admin.ModelAdmin):
+    list_display = ('__str__',)
+admin.site.register(ServiceRequest, ServiceRequestAdmin)

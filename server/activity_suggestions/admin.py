@@ -3,7 +3,7 @@ from django.contrib import admin
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
 
-from .models import SuggestionTime, Configuration, ActivitySuggestionDecision, ActivitySuggestionMessageTemplate, ServiceRequest
+from .models import SuggestionTime, Configuration, ActivitySuggestionDecision, ActivitySuggestionMessageTemplate
 
 class ActivitySuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -29,7 +29,3 @@ admin.site.register(ActivitySuggestionMessageTemplate, ActivitySuggestionMessage
 class ConfigurationAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Configuration, ConfigurationAdmin)
-
-class ServiceRequestAdmin(admin.ModelAdmin):
-    list_display = ('__str__',)
-admin.site.register(ServiceRequest, ServiceRequestAdmin)

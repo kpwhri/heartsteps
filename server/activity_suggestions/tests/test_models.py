@@ -4,15 +4,13 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 
-from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
-
 from locations.services import LocationService
 from locations.signals import timezone_updated
+from daily_tasks.models import DailyTask
 
-from activity_suggestions.models import SuggestionTime, Configuration, DailyTask
+from activity_suggestions.models import SuggestionTime, Configuration
 
 @override_settings(ACTIVITY_SUGGESTION_TIME_OFFSET=5)
-@override_settings(ACTIVITY_SUGGESTION_UPDATE_TIME='2:00')
 class ConfigutationTest(TestCase):
 
     def setUp(self):
@@ -20,33 +18,6 @@ class ConfigutationTest(TestCase):
         self.addCleanup(timezone_patch.stop)
         self.timezone = timezone_patch.start()
         self.timezone.return_value = pytz.timezone('Etc/GMT+7')
-
-    @patch.object(PeriodicTasks, 'changed')
-    def test_creates_nightly_task(self, periodic_tasks_changed):
-        Configuration.objects.create(
-            user = User.objects.create(username="test")
-        )
-
-        task = PeriodicTask.objects.get()
-        self.assertEqual(task.name, 'Activity suggestion nightly update for test')
-        # midnight local time, shown at UTC timezone
-        self.assertEqual(task.crontab.hour, '9')
-        self.assertEqual(task.crontab.minute, '0')
-        periodic_tasks_changed.assert_called()
-
-    def test_updates_tasks_with_timezone(self):
-        configuration = Configuration.objects.create(
-            user = User.objects.create(username="test")
-        )
-
-        task = PeriodicTask.objects.get()
-        self.assertEqual(task.crontab.hour, '9')
-
-        self.timezone.return_value = pytz.timezone('Etc/GMT+4')
-        timezone_updated.send(User, username="test")
-
-        task = PeriodicTask.objects.get()
-        self.assertEqual(task.crontab.hour, '6')
 
     def test_creates_tasks_for_suggestion_times(self):
         user = User.objects.create(username="test")
@@ -60,6 +31,7 @@ class ConfigutationTest(TestCase):
             user = user
         )
 
-        daily_task = DailyTask.objects.get(configuration=configuration, category='morning')
+        daily_task = DailyTask.objects.get(user=user, category='morning')
         self.assertEqual(daily_task.task.crontab.hour, '15')
+        # suggestion minutes should be offset by 5 minutes (see setting override)
         self.assertEqual(daily_task.task.crontab.minute, '10')

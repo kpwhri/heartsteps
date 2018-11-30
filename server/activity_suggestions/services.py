@@ -8,12 +8,13 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
+from service_requests.models import  ServiceRequest
 from push_messages.models import MessageReceipt, Message
 from randomization.models import Decision, DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from weather.models import WeatherForecast
 
-from activity_suggestions.models import Configuration, ServiceRequest, SuggestionTime, ActivitySuggestionMessageTemplate
+from activity_suggestions.models import Configuration, SuggestionTime, ActivitySuggestionMessageTemplate
 
 class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageService):
 

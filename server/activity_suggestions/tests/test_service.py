@@ -7,13 +7,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
+from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import Decision, DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
 from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
-from activity_suggestions.models import ServiceRequest, Configuration, SuggestionTime
+from activity_suggestions.models import Configuration, SuggestionTime
 
 @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example')
 class ServiceTestCase(TestCase):
