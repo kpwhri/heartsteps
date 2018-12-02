@@ -9,9 +9,7 @@ if os.path.isfile(env_file_path):
 else:
     print("SETTINGS: Env file not loaded")
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 root = environ.Path(BASE_DIR)
 SITE_ROOT = root()
 
@@ -21,24 +19,22 @@ STATIC_URL = '/static/'
 SECRET_KEY = env.str('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 
+ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1,server').split(',')
+
 RANDOMIZATION_FIXED_PROBABILITY = env.float('RANDOMIZATION_FIXED_PROBABILITY', default=0.5)
 
 HEARTSTEPS_LOCATIONS_NEAR_DISTANCE = env.float('HEARTSTEPS_LOCATIONS_NEAR_DISTANCE', default=0.25)
 
-if 'ACTIVITY_SUGGESTION_SERVICE_URL' in os.environ:
-    ACTIVITY_SUGGESTION_SERVICE_URL = env('ACTIVITY_SUGGESTION_SERVICE_URL')
-ACTIVITY_SUGGESTION_TIME_OFFSET = env.int('ACTIVITY_SUGGESTION_TIME_OFFSET', default=10)
-ACTIVITY_SUGGESTION_UPDATE_TIME = env.str('ACTIVITY_SUGGESTION_UPDATE_TIME', default='1:30')
+if 'WALKING_SUGGESTION_SERVICE_URL' in os.environ:
+    WALKING_SUGGESTION_SERVICE_URL = env('WALKING_SUGGESTION_SERVICE_URL')
+WALKING_SUGGESTION_TIME_OFFSET = env.int('WALKING_SUGGESTION_TIME_OFFSET', default=10)
+WALKING_SUGGESTION_INITIALIZATION_DAYS = env.int('WALKING_SUGGESTION_INITIALIZATION_DAYS', default=7)
 
 # Fitbit settings
 FITBIT_CONSUMER_KEY = env.str('FITBIT_CONSUMER_KEY', default='CONSUMER_KEY')
 FITBIT_CONSUMER_SECRET = env.str('FITBIT_CONSUMER_SECRET', default='CONSUMER_SECRET')
 FITBIT_SUBSCRIBER_ID = env.str('FITBIT_SUBSCRIBER_ID', default='SUBSCRIBER_ID')
 FITBIT_SUBSCRIBER_VERIFICATION_CODE = env.str('FITBIT_SUBSCRIBER_VERIFICATION_CODE', default='VERIFICATION_CODE')
-
-ALLOWED_HOSTS = env.str('HOST_NAME', default='localhost,127.0.0.1,server').split(',')
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,7 +61,8 @@ INSTALLED_APPS = [
     'locations',
     'weather',
     'randomization',
-    'activity_suggestions',
+    'walking_suggestion_times',
+    'walking_suggestions',
     'activity_logs',
     'activity_plans',
     'anti_seds'

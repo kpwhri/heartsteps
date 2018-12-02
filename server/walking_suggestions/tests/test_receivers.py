@@ -7,10 +7,11 @@ from django.contrib.auth.models import User
 from locations.services import LocationService
 from locations.signals import timezone_updated
 from daily_tasks.models import DailyTask
+from walking_suggestion_times.signals import suggestion_times_updated
 
-from activity_suggestions.models import SuggestionTime, Configuration
+from walking_suggestions.models import SuggestionTime, Configuration
 
-@override_settings(ACTIVITY_SUGGESTION_TIME_OFFSET=5)
+@override_settings(WALKING_SUGGESTION_TIME_OFFSET=5)
 class ConfigutationTest(TestCase):
 
     def setUp(self):
@@ -30,6 +31,8 @@ class ConfigutationTest(TestCase):
         configuration = Configuration.objects.create(
             user = user
         )
+
+        suggestion_times_updated.send(SuggestionTime, username="test")
 
         daily_task = DailyTask.objects.get(user=user, category='morning')
         self.assertEqual(daily_task.task.crontab.hour, '15')

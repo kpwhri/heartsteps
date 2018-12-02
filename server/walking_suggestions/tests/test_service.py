@@ -9,27 +9,27 @@ from django.contrib.auth.models import User
 from behavioral_messages.models import MessageTemplate
 from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
-from randomization.models import Decision, DecisionContext
+from randomization.models import DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
 
-from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
-from activity_suggestions.models import Configuration, SuggestionTime
+from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
+from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
 
-@override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example')
+@override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
 class ServiceTestCase(TestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
 
-    def create_activity_suggestion_service(self):
+    def create_walking_suggestion_service(self):
         self.user, _ = User.objects.get_or_create(username="test")
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
             service_initialized = True
         )
-        self.service = ActivitySuggestionService(self.configuration)
+        self.service = WalkingSuggestionService(self.configuration)
         return self.service
 
 class MockResponse:
@@ -40,7 +40,7 @@ class MockResponse:
 class MakeRequestTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
 
         requests_post_patch = patch.object(requests, 'post')
         self.addCleanup(requests_post_patch.stop)
@@ -77,21 +77,21 @@ class MakeRequestTests(ServiceTestCase):
 
         self.assertEqual(response, {'json': 'parsed'})
 
-class ActivitySuggestionServiceTests(ServiceTestCase):
+class WalkingSuggestionServiceTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
-        make_request_patch = patch.object(ActivitySuggestionService, 'make_request')
+        self.create_walking_suggestion_service()
+        make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
         self.make_request = make_request_patch.start()
 
-    @override_settings(ACTIVITY_SUGGESTION_INITIALIZATION_DAYS=3)
-    @patch.object(ActivitySuggestionService, 'get_clicks')
-    @patch.object(ActivitySuggestionService, 'get_steps')
-    @patch.object(ActivitySuggestionService, 'get_availabilities')
-    @patch.object(ActivitySuggestionService, 'get_temperatures')
-    @patch.object(ActivitySuggestionService, 'get_pre_steps')
-    @patch.object(ActivitySuggestionService, 'get_post_steps')
+    @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
+    @patch.object(WalkingSuggestionService, 'get_clicks')
+    @patch.object(WalkingSuggestionService, 'get_steps')
+    @patch.object(WalkingSuggestionService, 'get_availabilities')
+    @patch.object(WalkingSuggestionService, 'get_temperatures')
+    @patch.object(WalkingSuggestionService, 'get_pre_steps')
+    @patch.object(WalkingSuggestionService, 'get_post_steps')
     def test_initalization(self, post_steps, pre_steps, temperatures, availabilities, steps, clicks):
         date = datetime.today()
         self.service.initialize(date)
@@ -120,7 +120,7 @@ class ActivitySuggestionServiceTests(ServiceTestCase):
         self.assertTrue(configuration.enabled)
 
     def test_decision(self):
-        decision = Decision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -140,7 +140,7 @@ class ActivitySuggestionServiceTests(ServiceTestCase):
         assert 'location' in request_data
 
     def test_decision_throws_error_not_initialized(self):
-        decision = Decision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -148,15 +148,15 @@ class ActivitySuggestionServiceTests(ServiceTestCase):
         self.configuration.service_initialized = False
         self.configuration.save()
         
-        with self.assertRaises(ActivitySuggestionService.NotInitialized):
+        with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.decide(decision)
 
-    @patch.object(ActivitySuggestionService, 'get_study_day', return_value=10)
-    @patch.object(ActivitySuggestionService, 'get_clicks', return_value=20)
-    @patch.object(ActivitySuggestionService, 'get_steps', return_value=500)
-    @patch.object(ActivitySuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
-    @patch.object(ActivitySuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
-    @patch.object(ActivitySuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
+    @patch.object(WalkingSuggestionService, 'get_study_day', return_value=10)
+    @patch.object(WalkingSuggestionService, 'get_clicks', return_value=20)
+    @patch.object(WalkingSuggestionService, 'get_steps', return_value=500)
+    @patch.object(WalkingSuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
+    @patch.object(WalkingSuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
+    @patch.object(WalkingSuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
     def test_update(self, post_steps, pre_steps, temperatures, steps, clicks, study_day):
         date = datetime.today()
         self.service.update(date)
@@ -180,7 +180,7 @@ class ActivitySuggestionServiceTests(ServiceTestCase):
         self.configuration.service_initialized = False
         self.configuration.save()
 
-        with self.assertRaises(ActivitySuggestionService.NotInitialized):
+        with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.update(timezone.now())
 
 class StudyDayNumberTests(ServiceTestCase):
@@ -203,7 +203,7 @@ class StudyDayNumberTests(ServiceTestCase):
 class GetStepsTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
             user = self.user,
             fitbit_user = "test"
@@ -225,12 +225,12 @@ class GetStepsTests(ServiceTestCase):
 class StepCountTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
             user = self.user,
             fitbit_user = "test"
         )
-        decision = Decision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
         )
@@ -256,7 +256,7 @@ class StepCountTests(ServiceTestCase):
             minute = 30
         )
 
-        decision = Decision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = datetime(2018, 10, 10, 22, 00, tzinfo=pytz.utc)
         )
@@ -323,13 +323,13 @@ class StepCountTests(ServiceTestCase):
 class TemperatureTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
             user = self.user,
             fitbit_user = "test"
         )
         for time_category in SuggestionTime.TIMES:            
-            decision = Decision.objects.create(
+            decision = WalkingSuggestionDecision.objects.create(
                 user = self.user,
                 time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
             )
@@ -379,7 +379,7 @@ class DecisionAvailabilityTest(TestCase):
             steps = 120
         )
 
-        self.decision = Decision.objects.create(
+        self.decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -387,7 +387,7 @@ class DecisionAvailabilityTest(TestCase):
         self.decision.add_context(SuggestionTime.MORNING)
 
     def test_fitbit_steps(self):
-        service = ActivitySuggestionDecisionService(self.decision)
+        service = WalkingSuggestionDecisionService(self.decision)
 
         available = service.determine_availability()
 
@@ -400,7 +400,7 @@ class DecisionAvailabilityTest(TestCase):
             time = timezone.now() - timedelta(minutes=5),
             steps = 300
         )
-        service = ActivitySuggestionDecisionService(self.decision)
+        service = WalkingSuggestionDecisionService(self.decision)
 
         available = service.determine_availability()
 
@@ -408,20 +408,20 @@ class DecisionAvailabilityTest(TestCase):
 
     def test_no_fitbit_step_counts(self):
         FitbitMinuteStepCount.objects.all().delete()
-        service = ActivitySuggestionDecisionService(self.decision)
+        service = WalkingSuggestionDecisionService(self.decision)
 
         available = service.determine_availability()
 
         self.assertTrue(available)
 
-class TestLastActivitySuggestion(ServiceTestCase):
+class TestLastWalkingSuggestion(ServiceTestCase):
 
     def setUp(self):
-        self.create_activity_suggestion_service()
+        self.create_walking_suggestion_service()
         times = [8, 12, 15, 17, 19]
         now = timezone.now()
         for time_category in SuggestionTime.TIMES:
-            decision = Decision.objects.create(
+            decision = WalkingSuggestionDecision.objects.create(
                 user = self.user,
                 time = datetime(
                     year = now.year,
@@ -436,19 +436,19 @@ class TestLastActivitySuggestion(ServiceTestCase):
             decision.add_context(time_category)
 
     def test_gets_previous_suggestion_received(self):
-        decision = Decision.objects.get(tags__tag=SuggestionTime.MIDAFTERNOON)
+        decision = WalkingSuggestionDecision.objects.get(tags__tag=SuggestionTime.MIDAFTERNOON)
         previous_decision = self.service.get_previous_decision(decision)
 
         self.assertEqual(previous_decision.time.hour, 12)
 
     def test_returns_none_for_first_suggestion_time(self):
-        decision = Decision.objects.get(tags__tag=SuggestionTime.MORNING)
+        decision = WalkingSuggestionDecision.objects.get(tags__tag=SuggestionTime.MORNING)
         previous_decision = self.service.get_previous_decision(decision)
 
         self.assertEqual(previous_decision, None)
 
     def test_previous_message_was_received(self):
-        previous_decision = Decision.objects.get(tags__tag=SuggestionTime.MORNING)
+        previous_decision = WalkingSuggestionDecision.objects.get(tags__tag=SuggestionTime.MORNING)
         message = Message.objects.create(
             recipient = previous_decision.user,
             content = "Hey",
@@ -464,13 +464,13 @@ class TestLastActivitySuggestion(ServiceTestCase):
             type = MessageReceipt.RECEIVED
         )
 
-        decision = Decision.objects.get(tags__tag=SuggestionTime.LUNCH)
+        decision = WalkingSuggestionDecision.objects.get(tags__tag=SuggestionTime.LUNCH)
         was_received = self.service.previous_decision_was_received(decision)
 
         self.assertTrue(was_received)
 
     def test_previous_message_was_not_received(self):
-        decision = Decision.objects.get(tags__tag=SuggestionTime.LUNCH)
+        decision = WalkingSuggestionDecision.objects.get(tags__tag=SuggestionTime.LUNCH)
 
         was_received = self.service.previous_decision_was_received(decision)
 

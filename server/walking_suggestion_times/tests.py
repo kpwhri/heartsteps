@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 
-from activity_suggestions.models import SuggestionTime
+from .models import SuggestionTime
+from .signals import suggestion_times_updated
 
 class SuggestionTimeReadView(APITestCase):
 
@@ -19,7 +20,7 @@ class SuggestionTimeReadView(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
-        response = self.client.get(reverse('activity_suggestions-times'))
+        response = self.client.get(reverse('walking-suggestion-times'))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {
@@ -30,6 +31,10 @@ class SuggestionTimeUpdateView(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
+
+        self.patcher = patch.object(suggestion_times_updated, 'send')
+        self.suggestions_times_updated_signal = self.patcher.start()
+        self.addCleanup(self.patcher.stop)
 
     def get_times(self):
         return { 
@@ -43,7 +48,7 @@ class SuggestionTimeUpdateView(APITestCase):
     def test_create_times(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse('activity_suggestions-times'),
+            reverse('walking-suggestion-times'),
             self.get_times(),
             format='json'
         )
@@ -61,7 +66,7 @@ class SuggestionTimeUpdateView(APITestCase):
 
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse('activity_suggestions-times'),
+            reverse('walking-suggestion-times'),
             times,
             format='json'
         )
@@ -79,7 +84,7 @@ class SuggestionTimeUpdateView(APITestCase):
 
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse('activity_suggestions-times'),
+            reverse('walking-suggestion-times'),
             self.get_times(),
             format='json'
         )

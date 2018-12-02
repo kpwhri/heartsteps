@@ -6,8 +6,9 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from randomization.models import Decision
-from activity_suggestions.models import SuggestionTime, Configuration, ActivitySuggestionDecision
-from activity_suggestions.services import ActivitySuggestionService, ActivitySuggestionDecisionService
+
+from .models import SuggestionTime, Configuration, WalkingSuggestionDecision
+from .services import WalkingSuggestionService, WalkingSuggestionDecisionService
 
 @shared_task
 def initialize_activity_suggestion_service(username):
@@ -16,8 +17,8 @@ def initialize_activity_suggestion_service(username):
     except Configuration.DoesNotExist:
         return False
     try:
-        service = ActivitySuggestionService(configuration)
-    except ActivitySuggestionService.Unavailable:
+        service = WalkingSuggestionService(configuration)
+    except WalkingSuggestionService.Unavailable:
         return False
     service.initialize()
 
@@ -29,8 +30,8 @@ def update_activity_suggestion_service(username):
         return False
     yesterday = datetime.now(configuration.timezone) - timedelta(days=1)
     try:
-        service = ActivitySuggestionService(configuration)
-    except ActivitySuggestionService.Unavailable:
+        service = WalkingSuggestionService(configuration)
+    except WalkingSuggestionService.Unavailable:
         return False
     service.update(yesterday)
 
@@ -42,14 +43,13 @@ def start_decision(username, category):
         return False
 
     decision_time = timezone.now() + timedelta(minutes=10)
-    decision = ActivitySuggestionDecision.objects.create(
+    decision = WalkingSuggestionDecision.objects.create(
         user = user,
         time = decision_time
     )
-    decision.add_context("activity suggestion")
     decision.add_context(category)
 
-    decision_service = ActivitySuggestionDecisionService(decision)
+    decision_service = WalkingSuggestionDecisionService(decision)
     decision_service.request_context()
 
     make_decision.apply_async(kwargs={
@@ -62,7 +62,7 @@ def make_decision(decision_id):
     if decision.is_complete():
         return False
     
-    decision_service = ActivitySuggestionDecisionService(decision)
+    decision_service = WalkingSuggestionDecisionService(decision)
     decision_service.update_context()
 
     if decision_service.decide():

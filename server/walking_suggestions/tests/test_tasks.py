@@ -5,15 +5,15 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from activity_suggestions.models import SuggestionTime, Configuration, ActivitySuggestionDecision
-from activity_suggestions.services import ActivitySuggestionDecisionService, ActivitySuggestionService
-from activity_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
+from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
+from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
+from walking_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
 
 
 class StartTaskTests(TestCase):
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('activity_suggestions.tasks.make_decision.apply_async')
+    @patch('walking_suggestions.tasks.make_decision.apply_async')
     @patch('randomization.services.DecisionService.request_context')
     def test_start_decision(self, request_context, make_decision):
         user = User.objects.create(username="test")
@@ -26,9 +26,8 @@ class StartTaskTests(TestCase):
 
         start_decision(user.username, 'evening')
 
-        decision = ActivitySuggestionDecision.objects.get(user=user)
+        decision = WalkingSuggestionDecision.objects.get(user=user)
         tags = [tag.tag for tag in decision.tags.all()]
-        self.assertIn('activity suggestion', tags)
         self.assertIn('evening', tags)
         make_decision.assert_called()
         request_context.assert_called()
@@ -37,24 +36,24 @@ class MakeDecisionTest(TestCase):
 
     def setUp(self):
         user = User.objects.create(username="test")
-        self.decision = ActivitySuggestionDecision.objects.create(
+        self.decision = WalkingSuggestionDecision.objects.create(
             user = user,
             time = timezone.now()
         )
 
-        update_context_patch = patch.object(ActivitySuggestionDecisionService, 'update_context')
+        update_context_patch = patch.object(WalkingSuggestionDecisionService, 'update_context')
         self.addCleanup(update_context_patch.stop)
         self.update_context = update_context_patch.start()
 
-        create_message_patch = patch.object(ActivitySuggestionDecisionService, 'create_message')
+        create_message_patch = patch.object(WalkingSuggestionDecisionService, 'create_message')
         self.addCleanup(create_message_patch.stop)
         self.create_message = create_message_patch.start()
 
-        send_message_patch = patch.object(ActivitySuggestionDecisionService, 'send_message')
+        send_message_patch = patch.object(WalkingSuggestionDecisionService, 'send_message')
         self.addCleanup(send_message_patch.stop)
         self.send_message = send_message_patch.start()
 
-    @patch.object(ActivitySuggestionDecisionService, 'decide', return_value=True)
+    @patch.object(WalkingSuggestionDecisionService, 'decide', return_value=True)
     def test_decision_to_treat(self, decide):
         make_decision(str(self.decision.id))
 
@@ -63,7 +62,7 @@ class MakeDecisionTest(TestCase):
         self.create_message.assert_called()
         self.send_message.assert_called()
 
-    @patch.object(ActivitySuggestionDecisionService, 'decide', return_value=False)
+    @patch.object(WalkingSuggestionDecisionService, 'decide', return_value=False)
     def test_decision_not_to_treat(self, decide):
         make_decision(str(self.decision.id))
 
@@ -74,8 +73,8 @@ class MakeDecisionTest(TestCase):
 
 class InitializeTaskTests(TestCase):
 
-    @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(ActivitySuggestionService, 'initialize')
+    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
+    @patch.object(WalkingSuggestionService, 'initialize')
     def test_initialize(self, initialize):
         Configuration.objects.create(
             user = User.objects.create(username='test')
@@ -87,8 +86,8 @@ class InitializeTaskTests(TestCase):
 
 class NightlyUpdateTaskTests(TestCase):
     
-    @override_settings(ACTIVITY_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(ActivitySuggestionService, 'update', return_value="None")
+    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
+    @patch.object(WalkingSuggestionService, 'update', return_value="None")
     def test_update(self, update):
         Configuration.objects.create(
             user = User.objects.create(username='test')
@@ -97,4 +96,3 @@ class NightlyUpdateTaskTests(TestCase):
         update_activity_suggestion_service('test')
 
         update.assert_called()
-

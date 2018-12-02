@@ -9,7 +9,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('activity_suggestions', '0007_auto_20181124_0106'),
         ('randomization', '0006_auto_20181123_2237'),
     ]
 

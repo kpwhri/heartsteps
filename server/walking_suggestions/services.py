@@ -10,13 +10,13 @@ from django.contrib.contenttypes.models import ContentType
 from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
 from service_requests.models import  ServiceRequest
 from push_messages.models import MessageReceipt, Message
-from randomization.models import Decision, DecisionContext
+from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from weather.models import WeatherForecast
 
-from activity_suggestions.models import Configuration, SuggestionTime, ActivitySuggestionMessageTemplate
+from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
 
-class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageService):
+class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
     def determine_availability(self):
         if self.get_fitbit_step_count() > 250:
@@ -24,7 +24,7 @@ class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageS
         return True
 
     def get_message_template_query(self):
-        return ActivitySuggestionMessageTemplate.objects
+        return WalkingSuggestionMessageTemplate.objects
     
     def get_fitbit_step_count(self):
         start_time = self.decision.time - timedelta(minutes=20)
@@ -46,9 +46,9 @@ class ActivitySuggestionDecisionService(DecisionContextService, DecisionMessageS
             self.decision.decide()
         return self.decision.a_it
 
-class ActivitySuggestionService():
+class WalkingSuggestionService():
     """
-    Handles state and requests between activity-suggestion-service and
+    Handles state and requests between walking-suggestion-service and
     heartsteps-server for a specific participant.
     """
 
@@ -61,10 +61,10 @@ class ActivitySuggestionService():
     def __init__(self, configuration):
         self.__configuration = configuration
         self.__user = configuration.user
-        if not hasattr(settings,'ACTIVITY_SUGGESTION_SERVICE_URL'):
-            raise self.Unavailable("No ACTIVITY_SUGGESTION_SERVICE_URL")
+        if not hasattr(settings,'WALKING_SUGGESTION_SERVICE_URL'):
+            raise self.Unavailable("No WALKING_SUGGESTION_SERVICE_URL")
         else:
-            self.__base_url = settings.ACTIVITY_SUGGESTION_SERVICE_URL
+            self.__base_url = settings.WALKING_SUGGESTION_SERVICE_URL
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
@@ -86,10 +86,10 @@ class ActivitySuggestionService():
         return json.loads(response.text)
 
     def initialize(self, date):
-        if not hasattr(settings, 'ACTIVITY_SUGGESTION_INITIALIZATION_DAYS'):
+        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
             raise ImproperlyConfigured('No initialization days specified')
         else:
-            initialization_days = settings.ACTIVITY_SUGGESTION_INITIALIZATION_DAYS
+            initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
         dates = [date - timedelta(days=offset) for offset in range(initialization_days)]
         data = {
             'appClicksArray': [self.get_clicks(date) for date in dates],
@@ -109,13 +109,12 @@ class ActivitySuggestionService():
         if not self.__configuration.service_initialized:
             raise self.NotInitialized()
 
-        postdinner_decision = Decision.objects.filter(
+        postdinner_decision = WalkingSuggestionDecision.objects.filter(
             user = self.__user,
             time__range = [
                 self.__configuration.get_start_of_day(date),
                 self.__configuration.get_end_of_day(date)
-            ],
-            tags__tag = 'activity suggestion',
+            ]
         ).filter(
             tags__tag = SuggestionTime.POSTDINNER
         ).first()
@@ -146,11 +145,11 @@ class ActivitySuggestionService():
     def decide(self, decision):
         if not self.__configuration.service_initialized:
             raise self.NotInitialized()
-        decision_service = ActivitySuggestionDecisionService(decision)
+        decision_service = WalkingSuggestionDecisionService(decision)
         response = self.make_request('decision',
             data = {
                 'studyDay': self.get_study_day(decision.time),
-                'decisionTime': self.categorize_activity_suggestion_time(decision),
+                'decisionTime': self.categorize_suggestion_time(decision),
                 'availability': decision_service.determine_availability(),
                 'priorAnti': self.notified_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
@@ -178,7 +177,7 @@ class ActivitySuggestionService():
 
     def get_availabilities(self, date):
         for decision in self.get_decisions_for(date):
-            decision_service = ActivitySuggestionDecisionService(decision)
+            decision_service = WalkingSuggestionDecisionService(decision)
             yield decision_service.determine_availability()
 
     def get_temperatures(self, date):
@@ -187,7 +186,7 @@ class ActivitySuggestionService():
         decisions = self.get_decisions_for(date)
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            service = ActivitySuggestionDecisionService(decision)
+            service = WalkingSuggestionDecisionService(decision)
             forecasts = service.get_forecasts()
 
             forecast_temperatures = [forecast.temperature for forecast in forecasts]
@@ -228,15 +227,14 @@ class ActivitySuggestionService():
     def get_decisions_for(self, date):
         decision_times = {}
 
-        decision_query = Decision.objects.filter(
+        decision_query = WalkingSuggestionDecision.objects.filter(
             user=self.__user,
-            tags__tag='activity suggestion',
             time__range = self.get_time_range(date)
         )
         for time_category in SuggestionTime.TIMES:
             try:
                 decision = decision_query.filter(tags__tag=time_category).get()
-            except Decision.DoesNotExist:
+            except WalkingSuggestionDecision.DoesNotExist:
                 decision = self.create_decision_for(date, time_category)
             decision_times[time_category] = decision
         return decision_times
@@ -257,13 +255,12 @@ class ActivitySuggestionService():
             minute = suggestion_time.minute,
             tzinfo=self.__configuration.timezone
         )
-        decision = Decision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.__user,
             time = time,
             a_it = False,
             pi_it = 0
         )
-        decision.add_context('activity_suggestion')
         decision.add_context('imputed')
         decision.add_context(time_category)
         return decision
@@ -289,7 +286,7 @@ class ActivitySuggestionService():
         difference = date - self.__user.date_joined
         return difference.days + 1
     
-    def categorize_activity_suggestion_time(self, decision):
+    def categorize_suggestion_time(self, decision):
         for tag in decision.get_context():
             if tag in SuggestionTime.TIMES:
                 return SuggestionTime.TIMES.index(tag) + 1
@@ -314,9 +311,8 @@ class ActivitySuggestionService():
             return False
 
     def get_previous_decision(self, decision):
-        return Decision.objects.filter(
+        return WalkingSuggestionDecision.objects.filter(
             user = decision.user,
-            tags__tag = "activity suggestion",
             time__range = [
                 self.__configuration.get_start_of_day(decision.time),
                 decision.time - timedelta(minutes=1)
