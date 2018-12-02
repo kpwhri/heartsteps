@@ -11,6 +11,7 @@ import { ParticipantService } from '@heartsteps/participants/participant.service
 import { AuthorizationService } from '@infrastructure/authorization.service';
 import { BackgroundService } from '@app/background.service.ts';
 import { NotificationService } from '@app/notification.service.ts';
+import { RouterModule } from '@angular/router';
 
 class ParticipantServiceMock {
 
@@ -31,7 +32,10 @@ describe('MyApp', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             declarations: [MyApp],
-            imports: [IonicModule.forRoot(MyApp)],
+            imports: [
+                RouterModule.forRoot([]),
+                IonicModule.forRoot(MyApp)
+            ],
             providers: [
                 StatusBar,
                 SplashScreen,
