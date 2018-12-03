@@ -1,4 +1,9 @@
+from datetime import datetime
+
 from celery import shared_task
+
+from locations.services import LocationService
+from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
 from participants.models import Participant
 
@@ -6,6 +11,35 @@ from participants.models import Participant
 def initialize_participant(username):
     participant = Participant.objects.get(user__username = username)
 
+    WalkingSuggestionConfiguration.objects.update_or_create(user=participant.user)
+
+
+
 @shared_task
 def nightly_update(username):
-    pass
+    try:
+        participant = Participant.objects.get(user__username = username)
+    except Participant.DoesNotExist:
+        return False
+    
+    location_service = LocationService(participant.user)
+    timezone = location_service.get_current_timezone()
+    yesterday = datetime.now(timezone) - timedelta(days=1)
+
+    ## Create "Onboarding app" to contain this logic
+    # If participant doesn't have active push device
+    # AND datetime > number of days for baseline
+    # Send text message prompt
+
+    # Study adherence nightly update run
+    ## Looks at participant data, sends activity alerts
+
+    # Get fitbit day and update
+
+    ## Maybe following is just update task from app
+    # if walking suggestions configuration has suggestion times
+    # AND
+    # activity suggestion service is available
+    # THEN
+    # if service not initialized, initialize service
+    # else update service
