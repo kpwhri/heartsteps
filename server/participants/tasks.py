@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from celery import shared_task
 
+from fitbit_api.services import FitbitDayService
 from locations.services import LocationService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
@@ -34,7 +35,11 @@ def nightly_update(username):
     # Study adherence nightly update run
     ## Looks at participant data, sends activity alerts
 
-    # Get fitbit day and update
+    fitbit_day = FitbitDayService(
+        user = participant.user,
+        date = yesterday
+    )
+    fitbit_day.update()
 
     ## Maybe following is just update task from app
     # if walking suggestions configuration has suggestion times

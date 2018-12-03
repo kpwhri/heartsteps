@@ -208,3 +208,24 @@ class FitbitClient():
                     time = step_datetime_utc,
                     steps = stepInterval['value']
                 )
+
+class FitbitDayService:
+
+    def __init__(self, user, date):
+        self.__client = FitbitClient(user)
+        self.__user = user
+        self.__day = self.__client.get_day(
+            date_string = FitbitDayService.date_to_string(date)
+        )
+
+    def date_to_string(date):
+        return date.strftime('%Y-%m-%d')
+    
+    def string_to_date(string):
+        return datetime.strptime(string, '%Y-%m-%d')
+
+    def update(self):
+        self.__client.update_steps(self.__day)
+        self.__client.update_activities(self.__day)
+        self.__client.update_heart_rate(self.__day)
+        self.__day.update()
