@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from locations.models import Location, Place
 from locations.services import LocationService
 from push_messages.services import PushMessageService
+from push_messages.models import Message
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
 from weather.models import WeatherForecast
@@ -37,9 +38,24 @@ class DecisionService():
             'type': 'get_context'
         })
         if message:
+            DecisionContext.objects.create(
+                decision = self.decision,
+                content_object = message
+            )
             return True
         else:
             return False
+    
+    def get_context_requests(self):
+        messages = DecisionContext.objects.filter(
+            decision = self.decision,
+            content_type = ContentType.objects.get_for_model(Message)
+        ).all()
+        context_requests = []
+        for message in messages:
+            if message.message_type == Message.DATA:
+                context_requests.append(message)            
+        return context_requests
 
     def generate_context(self):
         return []

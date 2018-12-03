@@ -7,15 +7,14 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
+from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
 
 
 class StartTaskTests(TestCase):
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('walking_suggestions.tasks.make_decision.apply_async')
-    @patch('randomization.services.DecisionService.request_context')
-    def test_start_decision(self, request_context, make_decision):
+    @patch('walking_suggestions.tasks.request_decision_context.apply_async')
+    def test_start_decision(self, request_decision_context):
         user = User.objects.create(username="test")
         SuggestionTime.objects.create(
             user=user,
@@ -29,8 +28,40 @@ class StartTaskTests(TestCase):
         decision = WalkingSuggestionDecision.objects.get(user=user)
         tags = [tag.tag for tag in decision.tags.all()]
         self.assertIn('evening', tags)
-        make_decision.assert_called()
+        request_decision_context.assert_called()
+
+@override_settings(WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS=1)
+class RequestContextTaskTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+
+        patch_apply_async = patch.object(request_decision_context, 'apply_async')
+        self.apply_async = patch_apply_async.start()
+        self.addCleanup(patch_apply_async.stop)
+
+    @patch.object(WalkingSuggestionDecisionService, 'request_context')
+    def test_requests_context(self, request_context):
+        request_decision_context(
+            decision_id = str(self.decision.id)
+        )
+
         request_context.assert_called()
+        self.apply_async.assert_called()
+
+    @patch.object(WalkingSuggestionDecisionService, 'get_context_requests', return_value=['foo', 'bar'])
+    @patch.object(make_decision, 'apply_async')
+    def test_request_context_makes_decision(self, make_decision, get_context_requests):
+        request_decision_context(
+            decision_id = str(self.decision.id)
+        )
+
+        make_decision.assert_called()
+
 
 class MakeDecisionTest(TestCase):
 

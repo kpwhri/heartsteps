@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 
 from behavioral_messages.models import MessageTemplate
 from daily_tasks.models import DailyTask
