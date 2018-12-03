@@ -1,16 +1,33 @@
 import pytz
 
+from django.utils import timezone
+
 from timezonefinder import TimezoneFinder
 
 from locations.models import Location, Place
+from locations.serializers import LocationSerializer
 
 class LocationService:
 
     class UnknownLocation(Exception):
         pass
 
+    class InvalidLocation(Exception):
+        pass
+
     def __init__(self, user):
         self.__user = user
+
+    def update_location(self, location_object):
+        serialized_location = LocationSerializer(data=location_object)
+        if serialized_location.is_valid():
+            location = Location(**serialized_location.validated_data)
+            location.user = self.__user
+            location.time = timezone.now()
+            location.save()
+            return location
+        else:
+            raise self.InvalidLocation()
 
     def get_last_location(self):
         location = Location.objects.filter(user = self.__user).first()

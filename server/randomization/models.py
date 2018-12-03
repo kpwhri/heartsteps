@@ -61,6 +61,12 @@ class Decision(models.Model):
                 return self._notification
         return False
 
+    def add_context_object(self, object):
+        DecisionContext.objects.create(
+            decision = self,
+            content_object = object
+        )
+
     def get_context(self):
         return [tag.tag for tag in self.tags.all()]
 
