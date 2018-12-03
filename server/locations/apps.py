@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 
 
-class HeartstepsLocationsConfig(AppConfig):
-    name = 'heartsteps_locations'
+class LocationsConfig(AppConfig):
+    name = 'locations'
+
+    def ready(self):
+        import locations.receivers

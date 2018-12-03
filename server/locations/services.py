@@ -4,8 +4,9 @@ from django.utils import timezone
 
 from timezonefinder import TimezoneFinder
 
-from locations.models import Location, Place
+from locations.models import Location, Place, User
 from locations.serializers import LocationSerializer
+from locations.signals import timezone_updated
 
 class LocationService:
 
@@ -82,3 +83,23 @@ class LocationService:
             latitude = location.latitude,
             longitude = location.longitude
         )
+
+    def check_timezone_change(self):
+        locations = Location.objects.filter(user=self.__user)[:2]
+
+        if not len(locations):
+            pass
+        elif len(locations) < 2:
+            timezone_updated.send(User, username=self.__user.username)
+        else:
+            new_timezone = self.get_timezone_for(
+                latitude = locations[0].latitude,
+                longitude = locations[0].longitude
+            )
+            current_timezone = self.get_timezone_for(
+                latitude = locations[1].latitude,
+                longitude = locations[1].longitude
+            )
+
+            if current_timezone is not new_timezone:
+                timezone_updated.send(User, username=self.__user.username)
