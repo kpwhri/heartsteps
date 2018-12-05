@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/walking-suggestions/times/', include('walking_suggestion_times.urls')),
     url(r'^api/walking-suggestions/', include('walking_suggestions.urls')),
+    url(r'^api/activity/', include('activity_types.urls')),
     url(r'^api/activity/', include('activity_logs.urls')),
     url(r'^api/activity/', include('activity_plans.urls')),
     url(r'^api/', include('contact.urls')),

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from fitbit_api.models import FitbitAccount, FitbitDay
 
 from .serializers import FitbitDaySerializer
+from .models import ActivityType
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))

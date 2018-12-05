@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'randomization',
     'walking_suggestion_times',
     'walking_suggestions',
+    'activity_types',
     'activity_logs',
     'activity_plans',
     'anti_seds'

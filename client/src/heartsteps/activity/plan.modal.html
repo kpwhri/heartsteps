@@ -1,58 +1,41 @@
-<ion-header>
-        <ion-navbar>
-            <ion-title>Plan for {{date}}</ion-title>
-            <a (click)="dismiss()">Cancel</a>
-        </ion-navbar>
-    </ion-header>
-    <ion-content *ngIf="planForm" padding>
-        <form [formGroup]="planForm">
-            <ion-list radio-group formControlName="activity">
-                <ion-list-header>Activity</ion-list-header>
-                <ion-item>
-                    <ion-label>Bike</ion-label>
-                    <ion-radio value="bike"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Run</ion-label>
-                    <ion-radio value="run"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Swim</ion-label>
-                    <ion-radio value="swim"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Lift weights</ion-label>
-                    <ion-radio value="weights"></ion-radio>
-                </ion-item>
-            </ion-list>
-            <ion-list radio-group formControlName="vigorous">
-                <ion-list-header>Intensity</ion-list-header>
-                <ion-item>
-                    <ion-label>Moderate</ion-label>
-                    <ion-radio value="false"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Vigorous</ion-label>
-                    <ion-radio value="true"></ion-radio>
-                </ion-item>
-            </ion-list>
-            <ion-item>
-                <ion-label>Duration</ion-label>
-                <ion-input formControlName="duration" type="number">
-                    <ion-option *ngFor="let duration of durationChoices" value="duration">{{duration}}</ion-option>
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label>Start time</ion-label>
-                <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
-            </ion-item>
 
-            <div class="controls">
-                <p *ngIf="error">{{error}}</p>
-                <button *ngIf="updateView" (click)="delete()">Delete</button>
-                <button *ngIf="updateView" (click)="save()" >Update</button>
-                <button *ngIf="updateView" (click)="complete()">Complete</button>
-                <button *ngIf="!updateView" (click)="save()" >Save</button>
-            </div>
-        </form>
-    </ion-content>
+<form *ngIf="planForm" [formGroup]="planForm">
+    <div>
+        <label for="activity-plan-type">Activity</label>
+        <heartsteps-activity-type id="activity-plan-type" name="activity" formControlName="activity"></heartsteps-activity-type>
+    </div>
+    <fieldset class="intensity">
+        <legend>Intensity</legend>
+        <ul>
+            <li>
+                <input id="activity-plan-intensity-moderate" type="radio" name="vigorous" value="false" />
+                <label for="activity-plan-intensity-moderate">Moderate</label>
+            </li>
+            <li>
+                <input id="activity-plan-intensity-vigorous" type="radio" name="vigorous" value="true" />
+                <label for="activity-plan-intensity-vigorous">Vigorous</label>
+            </li>
+        </ul>
+    </fieldset>
+    <div>
+        <label for="activity-plan-duration">Duration</label>
+        <input id="activity-plan-duration" formControlName="duration" type="number" />
+    </div>
+    <ion-item>
+        <ion-label for="activity-plan-date">Date</ion-label>
+        <ion-select id="activity-plan-date" formControlName="date">
+            <ion-option *ngFor="let date of availableDates">{{date}}</ion-option>
+        </ion-select>
+    </ion-item>
+    <ion-item>
+        <ion-label>Start time</ion-label>
+        <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
+    </ion-item>
+    <div class="controls">
+        <p *ngIf="error">{{error}}</p>
+        <button *ngIf="updateView" (click)="delete()">Delete</button>
+        <button *ngIf="updateView" (click)="save()" >Update</button>
+        <button *ngIf="updateView" (click)="complete()">Complete</button>
+        <button *ngIf="!updateView" (click)="save()" >Save</button>
+    </div>
+</form>

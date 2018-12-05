@@ -6,8 +6,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'activity-plan-day',
     templateUrl: './day-plan.component.html',
-    inputs: ['date'],
-    providers: [ActivityPlanService]
+    inputs: ['date']
 })
 export class DayPlanComponent implements OnInit, OnDestroy {
 

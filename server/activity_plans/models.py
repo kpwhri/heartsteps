@@ -1,9 +1,25 @@
-from django.db import models
-from activity_logs.models import AbstractActivity, ActivityLog
+import uuid
 
-class ActivityPlan(AbstractActivity):
+from django.db import models
+from django.contrib.auth.models import User
+
+from activity_types.models import ActivityType
+
+class ActivityPlan(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User)
+
+    type = models.ForeignKey(ActivityType)
+    vigorous = models.BooleanField(default=False)
+    
+    start = models.DateTimeField()
+    duration = models.PositiveIntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     complete = models.BooleanField(default=False)
-    log = models.OneToOneField(ActivityLog, null=True, blank=True)
+    enjoyed = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         if self.log:

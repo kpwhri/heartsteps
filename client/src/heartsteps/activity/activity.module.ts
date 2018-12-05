@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, forwardRef } from '@angular/core';
 
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { DailySummaryComponent } from '@heartsteps/activity/daily-summary.component';
@@ -11,6 +11,7 @@ import { DayPlanComponent } from './day-plan.component';
 import { IonicPageModule } from 'ionic-angular';
 import { ActivityPlanService } from './activity-plan.service';
 import { DailyActivitiesUpdateComponent } from './daily-activities-update';
+import { ActivityTypeComponent } from './activity-type.component';
 
 @NgModule({
     imports: [
@@ -21,6 +22,7 @@ import { DailyActivitiesUpdateComponent } from './daily-activities-update';
         IonicPageModule.forChild(DayPlanComponent)
     ],
     declarations: [
+        ActivityTypeComponent,
         DailySummaryComponent,
         WeeklyProgressComponent,
         PlanModal,
@@ -29,6 +31,7 @@ import { DailyActivitiesUpdateComponent } from './daily-activities-update';
         DailyActivitiesUpdateComponent
     ],
     exports: [
+        ActivityTypeComponent,
         DailySummaryComponent,
         WeeklyProgressComponent,
         PlanModal,
