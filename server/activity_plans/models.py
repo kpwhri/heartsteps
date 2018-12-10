@@ -21,6 +21,10 @@ class ActivityPlan(models.Model):
     complete = models.BooleanField(default=False)
     enjoyed = models.IntegerField(null=True, blank=True)
 
+    @property
+    def id(self):
+        return str(self.uuid)
+
     def __str__(self):
         if self.log:
             verb = "completed on"

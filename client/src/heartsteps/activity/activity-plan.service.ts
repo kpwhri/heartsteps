@@ -38,6 +38,10 @@ export class ActivityPlanService {
         })
     }
 
+    delete(activity:Activity):Promise<boolean> {
+        return Promise.resolve(true);
+    }
+
     complete(activity:Activity):Promise<Activity> {
         return this.heartstepsServer.post('/activity/logs', {
             type: activity.type,

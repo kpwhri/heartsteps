@@ -1,3 +1,5 @@
+from django.http import Http404
+
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -38,3 +40,25 @@ class ActivityPlansList(APIView):
             serialzied_plan = ActivityPlanSerializer(activity_plan)
             return Response(serialzied_plan.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ActivityPlanView(APIView):
+
+    def get_plan(self, plan_id):
+        try:
+            return ActivityPlan.objects.get(uuid=plan_id)
+        except ActivityPlan.DoesNotExist:
+            raise Http404
+
+    def post(self, request, plan_id):
+        plan = self.get_plan()
+        serialized = ActivityPlanSerializer(plan, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_200_OK)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, plan_id):
+        plan = self.get_plan(plan_id)
+        plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    

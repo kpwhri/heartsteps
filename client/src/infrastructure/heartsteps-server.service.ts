@@ -81,6 +81,17 @@ export class HeartstepsServer {
         });
     }
 
+    delete(url:string):Promise<any> {
+        return this.setAuthorizationHeaderToken()
+        .then((headers) => {
+            if(this.platform.is('ios') || this.platform.is('android')) {
+                return this.http.delete(this.makeUrl(url), {}, headers);
+            } else {
+                return this.http.delete(this.makeUrl(url), {headers: headers});
+            }
+        })
+    }
+
     parseResponse(response) {
         if(typeof response.data === 'string') {
             response.data = JSON.parse(response.data);
