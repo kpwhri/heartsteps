@@ -1,4 +1,4 @@
-
+<ion-content padding>
 <form *ngIf="planForm" [formGroup]="planForm">
     <div>
         <label for="activity-plan-type">Activity</label>
@@ -33,9 +33,10 @@
     </ion-item>
     <div class="controls">
         <p *ngIf="error">{{error}}</p>
-        <button *ngIf="updateView" (click)="delete()">Delete</button>
         <button *ngIf="updateView" (click)="save()" >Update</button>
         <button *ngIf="updateView" (click)="complete()">Complete</button>
         <button *ngIf="!updateView" (click)="save()" >Save</button>
+        <button *ngIf="updateView" (click)="delete()">Delete</button>
     </div>
 </form>
+</ion-content>

@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from activity_plans.models import ActivityPlan, ActivityType, User
 
-class ActivityPlansListTest(APITestCase):
+class ActivityPlanCreateTest(APITestCase):
 
     def test_create_activity_plan(self):
         user = User.objects.create(username="test")
@@ -25,9 +25,9 @@ class ActivityPlansListTest(APITestCase):
         })
 
         self.assertEqual(response.status_code, 201)
+        self.assertIsNotNone(response.data['id'])
 
-    def test_create_custom_activity_type(self):
-        pass
+class ActivityPlanListTest(APITestCase):
 
     def test_get_user_activity_plans_in_time_range(self):
         user = User.objects.create(username="test")
@@ -58,6 +58,27 @@ class ActivityPlansListTest(APITestCase):
         self.assertEqual(response.data[0]['id'], str(plan.uuid))
 
 class ActivityPlanViewTest(APITestCase):
+
+    def test_update_activity_plan(self):
+        plan = ActivityPlan.objects.create(
+            user = User.objects.create(username="test"),
+            type = ActivityType.objects.create(name="walk"),
+            start = timezone.now(),
+            duration = 15
+        )
+
+        self.client.force_authenticate(user=plan.user)
+        response = self.client.post(reverse('activity-plan-detail', kwargs={
+            'plan_id': plan.id
+        }), {
+            'type': 'walk',
+            'start': '2018-09-05T14:45',
+            'duration': '30',
+            'vigorous': True,
+            'complete': False
+        })
+
+        self.assertEqual(response.status_code, 200)    
 
     def test_delete_activity_plan(self):
         plan = ActivityPlan.objects.create(

@@ -83,7 +83,7 @@ export class PlanModal {
     save() {
         if (this.planForm.valid) {
             this.updateActivity();
-            this.activityPlanService.createPlan(this.activity)
+            this.activityPlanService.save(this.activity)
             .then((plan) => {
                 this.viewCtrl.dismiss(plan)
             })
@@ -103,6 +103,13 @@ export class PlanModal {
                 this.viewCtrl.dismiss(activity);
             })
         }
+    }
+
+    delete() {
+        this.activityPlanService.delete(this.activity)
+        .then(() => {
+            this.viewCtrl.dismiss();
+        });
     }
 
 }

@@ -50,7 +50,7 @@ class ActivityPlanView(APIView):
             raise Http404
 
     def post(self, request, plan_id):
-        plan = self.get_plan()
+        plan = self.get_plan(plan_id)
         serialized = ActivityPlanSerializer(plan, data=request.data)
         if serialized.is_valid():
             serialized.save()
