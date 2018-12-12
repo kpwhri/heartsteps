@@ -1,3 +1,11 @@
 {
-  "extends": "./node_modules/@fitbit/sdk/sdk-tsconfig.json"
+  "extends": "./node_modules/@fitbit/sdk/sdk-tsconfig.json",
+  "include": ["node_modules/fitbit-sdk-types", "**/*.ts", "**/*.tsx"],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.promise"
+    ]
+  }
 }

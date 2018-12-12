@@ -1,8 +1,8 @@
 import * as global from "../common/globals.js";
 
-function mySettings(props) {
+function mySettings(props: SettingsComponentProps) {
   let integrationStatus = props.settingsStorage.getItem(global.INTEGRATION_STATUS_MESSAGE);
-  let intComment = new String();
+  let intComment: string;
   switch (integrationStatus) {
     case global.VALID:
       intComment = `Thank you for registering your Fitbit with the
@@ -53,25 +53,33 @@ function mySettings(props) {
       break;
   }
 
+  let section1Description: string = "This information is necessary"
+    + " so we can associate this watch with your HeartSteps account";
+  let section1Title: string = "HeartSteps Integration Data";
+  let section2Description: string = `${intComment}`
+    + " so we can associate this watch with your HeartSteps account";
+  let section2Title: string = "Integration Status";
+  let section3Description: string = "HeartSteps 2.0 is a project of"
+    + " the Kaiser Permanente Washington Health Research Institute.";
+  let section3Title: string = "About";
+
   return (
     <Page>
       <Section
-        title={<Text bold align="center">HeartSteps Integration Data</Text>}
-        description={<Text>This information is necessary so we can
-          associate this watch with your HeartSteps account</Text>}>
+        description={section1Description}
+        title={section1Title}
+      >
         <TextInput label="Entry Code" settingsKey="entryCode" />
-        <TextInput label="Birth Year" settingsKey="birthYear" />
+        <TextInput label="Birth Year" settingsKey="birthYear" type="number" />
       </Section>
       <Section
-        title={<Text bold align="center">Integration Status</Text>}
-        description={<Text>{intComment}</Text>}>
+        title={section2Title}
+        description={section2Description}>
         <TextImageRow label={integrationStatus} />
       </Section>
       <Section
-        title={<Text bold align="center">About</Text>}
-        description={<Text>HeartSteps 2.0 is a project of the Kaiser
-            Permanent Washington Health Research Institute.</Text>}>
-        <Text>Contact details</Text>
+        title={section3Title}
+        description={section3Description}>
       </Section>
     </Page>
   );

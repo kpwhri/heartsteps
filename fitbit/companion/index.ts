@@ -17,10 +17,10 @@ import * as global from "../common/globals.js";
   Look for when Entry Code & Birth Year are updated in watch settings
   and send that code to the HeartSteps server for validation.
 *************************************************************/
-function updateEnrollStatus(evtKey){
+function updateEnrollStatus(evtKey: string){
   if (evtKey == global.ENTRY_CODE || evtKey == global.BIRTH_YEAR) {
-    let entryCode = global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)).toUpperCase();
-    let birthYr = global.parseSettingsValue(settingsStorage.getItem(global.BIRTH_YEAR));
+    let entryCode: string = global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)).toUpperCase();
+    let birthYr: string = global.parseSettingsValue(settingsStorage.getItem(global.BIRTH_YEAR));
     let enrollValid = enrollSettingsValid(entryCode, birthYr);
     if (enrollValid == global.VALID) {
       enrollParticipant(global.parseSettingsValue(settingsStorage.getItem(global.ENTRY_CODE)),
@@ -53,8 +53,9 @@ if (me.launchReasons.settingsChanged) {
   Send location data to the server
 ***************************************/
 const PLACE_SOURCE = "watch";
-function sendLocation(lat, long, place) {
-  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+function sendLocation(lat: number, long: number, place: string) {
+  let token: string;
+  token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
   if (token) {
     const url = `${global.BASE_URL}/api/locations/`;
     let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
@@ -90,8 +91,8 @@ function sendLatLong() {
   }
 
 // Send step data to server - scaffolding
-function sendSteps(step_count, step_dtm) {
-  const url = `${global.BASE_URL}/api/stepdata/`;
+function sendSteps(step_count: number, step_dtm: number) {
+  const url: string = `${global.BASE_URL}/api/stepdata/`;
   let data = {"step_number": step_count, "step_dtm": step_dtm};
   let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
   if (token) {

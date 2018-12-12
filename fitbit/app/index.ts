@@ -8,13 +8,13 @@ import { updateIntegrationStatus } from "./integration-status";
 // Check recent step count
 import { today as activity } from "user-activity";
 import * as fs from "fs";
-import { StepCountHandler } from "./step-count.js";
+import { StepCountHandler, StepReading } from "./step-count.js";
 
 // Watch attempts to notify phone of step count & location
 const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 
-function sendStepMessage(recentSteps, time){
+function sendStepMessage(recentSteps: Number, time: Number){
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     // Send the data to phone as a message
     let data = {
@@ -29,25 +29,21 @@ function sendStepMessage(recentSteps, time){
 }
 
 function stepCountToPhone(){
-  let stepCount = new StepCountHandler();
-  let oldStepData = stepCount.getData();
+  let stepCount: StepCountHandler;
+  stepCount = new StepCountHandler();
+  let oldStepData: Array<StepReading>;
+  oldStepData = stepCount.getData();
   console.log("original data: " + JSON.stringify(oldStepData));
-  let newStepData = stepCount.updateData(oldStepData);
+  let newStepData: Array<StepReading>;
+  newStepData = stepCount.updateData(oldStepData);
   console.log("updated data: " + JSON.stringify(newStepData));
-  let recentSteps = stepCount.calculateElapsedSteps(newStepData);
+  let recentSteps: Number;
+  recentSteps = stepCount.calculateElapsedSteps(newStepData);
   console.log("step count: " + recentSteps);
   stepCount.saveFile(newStepData);
   console.log("time is " + stepCount.currentTime);
   sendStepMessage(recentSteps, stepCount.currentTime);
 }
-
-// // Standard JS function - not using Companion WakeUp API
-setInterval(function() {
-  stepCountToPhone();
-}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
-
-// Test purposes - run this once, 30 seconds after install
-// setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*0.5);
 
 // Update watch message based on integration results
 // Listen for enrollment message sent by phone
@@ -57,3 +53,11 @@ messaging.peerSocket.onmessage = function(evt) {
     updateIntegrationStatus(evt.data.value);
   }
 }
+
+// // Standard JS function - not using Companion WakeUp API
+setInterval(function() {
+  stepCountToPhone();
+}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+
+// Test purposes - run this once, 30 seconds after install
+// setTimeout(function(){stepCountToPhone()}, MILLISECONDS_PER_MINUTE*0.5);

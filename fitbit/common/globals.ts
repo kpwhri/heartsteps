@@ -22,15 +22,21 @@ export const ID_INVALID = "heartsteps id invalid";
 export const INITIALIZE_ENROLLMENT = "initialize enrollment";
 export const UNKNOWN_INVALID = "unknown error";
 
-export function isNotNull(val){
-  return (typeof val === "undefined"
-      ||  val != ""
-      ||  val.length > 0);
+export function isNotNull(val: string){
+  return (typeof val !== "undefined"
+      &&  val != ""
+      &&  val != null);
 }
 
 // Get the name component (value) of the newValue JSON settings object
 // evt (events) have properties key, newValue & oldValue (& isTrusted)
 // The value properties take the form {"name":"actual-value"}
-export function parseSettingsValue(jsonValue){
-  return JSON.parse(jsonValue).name;
+export function parseSettingsValue(jsonValue: string){
+  let val: string;
+  if (isNotNull(jsonValue)) {
+    val = JSON.parse(jsonValue).name;
+  } else {
+    val = ""
+  }
+  return val;
 }
