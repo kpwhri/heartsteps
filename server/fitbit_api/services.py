@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -27,13 +27,16 @@ def create_callback_url(request):
 
 class FitbitClient():
 
-    def __init__(self, user):
-        try:
-            self.account = FitbitAccount.objects.get(user=user)
-        except FitbitAccount.DoesNotExist:
-            raise ValueError("Fitbit Account doesn't exist")
+    def __init__(self, user=None, account=None):
+        if account:
+            self.account = account
+        elif user:
+            try:
+                user_account = FitbitAccountUser.objects.get(user=user)
+                self.account = user_account.account
+            except FitbitAccountUser.DoesNotExist:
+                raise ValueError("Fitbit Account doesn't exist")
         self.client = self.create_client()
-
 
     def create_client(self):
         return create_fitbit(**{
@@ -211,8 +214,11 @@ class FitbitClient():
 
 class FitbitDayService:
 
-    def __init__(self, user, date):
-        self.__client = FitbitClient(user)
+    def __init__(self, date, user=None, account=None):
+        self.__client = FitbitClient(
+            user = user,
+            account = account
+        )
         self.__user = user
         self.__day = self.__client.get_day(
             date_string = FitbitDayService.date_to_string(date)

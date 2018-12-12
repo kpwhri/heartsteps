@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 
-from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_api.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
 
@@ -22,9 +22,9 @@ class NightlyUpdateTest(TestCase):
         location_service_timezone.return_value = pytz.UTC
         self.addCleanup(location_service_patch.stop)
 
-        FitbitAccount.objects.create(
-            user = self.user,
-            fitbit_user = "test"
+        FitbitAccountUser.objects.create(
+            account = FitbitAccount.objects.create(fitbit_user = "test"),
+            user = self.user
         )
         fitbit_day_patch = patch.object(FitbitDayService, 'update')
         self.fitbit_day_update = fitbit_day_patch.start()

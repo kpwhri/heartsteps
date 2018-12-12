@@ -11,7 +11,7 @@ from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
 from weather.models import WeatherForecast
-from fitbit_api.models import FitbitDay, FitbitAccount, FitbitMinuteStepCount
+from fitbit_api.models import FitbitDay, FitbitAccount, FitbitAccountUser, FitbitMinuteStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
@@ -205,8 +205,11 @@ class GetStepsTests(ServiceTestCase):
     def setUp(self):
         self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
+        )
+        FitbitAccountUser.objects.create(
+            account = account,
+            user = self.user
         )
         FitbitDay.objects.create(
             account = account,
@@ -227,8 +230,11 @@ class StepCountTests(ServiceTestCase):
     def setUp(self):
         self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
+        )
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = account
         )
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
@@ -325,9 +331,13 @@ class TemperatureTests(ServiceTestCase):
     def setUp(self):
         self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
         )
+        FitbitAccountUser.objects.create(
+            account = account,
+            user = self.user
+        )
+
         for time_category in SuggestionTime.TIMES:            
             decision = WalkingSuggestionDecision.objects.create(
                 user = self.user,
@@ -359,8 +369,11 @@ class DecisionAvailabilityTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test")
         self.account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
+        )
+        FitbitAccountUser.objects.create(
+            account = self.account,
+            user = self.user 
         )
         self.day = FitbitDay.objects.create(
             account = self.account,

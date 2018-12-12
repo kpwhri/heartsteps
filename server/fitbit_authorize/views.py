@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from fitbit_api.services import create_fitbit, create_callback_url, FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
-from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_authorize.models import AuthenticationSession
 
 @api_view(['POST'])
@@ -73,14 +73,20 @@ def authorize_process(request):
         except KeyError:
             return redirect(reverse('fitbit-authorize-complete'))
 
-        fitbit_account, _ = FitbitAccount.objects.update_or_create(user=user, defaults={
-            'fitbit_user': fitbit_user,
+        fitbit_account, _ = FitbitAccount.objects.update_or_create(fitbit_user=fitbit_user, defaults={
             'access_token': access_token,
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
+        try:
+            FitbitAccountUser.objects.get(user=user, account=fitbit_account)
+        except FitbitAccountUser.DoesNotExist:
+            FitbitAccountUser.objects.create(
+                account = fitbit_account,
+                user = user
+            )
         subscribe_to_fitbit.apply_async(kwargs = {
-            'username': user.username
+            'username': fitbit_user
         })
         
         return redirect(reverse('fitbit-authorize-complete'))

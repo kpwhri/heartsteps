@@ -10,10 +10,10 @@ from fitbit_api.models import FitbitAccount, FitbitSubscription
 @shared_task
 def subscribe_to_fitbit(username):
     try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
+        account = FitbitAccount.objects.get(fitbit_user=username)
+    except FitbitAccount.DoesNotExist:
         return False
-    fitbit_client = FitbitClient(user)
+    fitbit_client = FitbitClient(account=account)
     if not fitbit_client.is_subscribed():
         fitbit_client.subscribe()
         
@@ -21,12 +21,12 @@ def subscribe_to_fitbit(username):
 @shared_task
 def update_fitbit_data(username, date_string):
     try:
-        account = FitbitAccount.objects.get(user__username=username)
+        account = FitbitAccount.objects.get(fitbit_user=username)
     except FitbitAccount.DoesNotExist:
         return False
 
     fitbit_day = FitbitDayService(
-        user = account.user,
+        account = account,
         date = FitbitDayService.string_to_date(date_string)
     )
     fitbit_day.update()

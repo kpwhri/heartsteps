@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.models import FitbitAccount, FitbitDay
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay
 
 from .serializers import FitbitDaySerializer
 from .models import ActivityType
@@ -14,8 +14,9 @@ from .models import ActivityType
 @permission_classes((permissions.IsAuthenticated,))
 def day_summary(request, day):
     try:
-        account = FitbitAccount.objects.get(user=request.user)
-    except FitbitAccount.DoesNotExist:
+        account_user = FitbitAccountUser.objects.get(user=request.user)
+        account = account_user.account
+    except FitbitAccountUser.DoesNotExist:
         return Response('', status=status.HTTP_404_NOT_FOUND)   
     try:
         date = datetime.strptime(day, '%Y-%m-%d')
@@ -37,10 +38,10 @@ def day_summary(request, day):
 @permission_classes((permissions.IsAuthenticated,))
 def date_range_summary(request, start, end):
     try:
-        account = FitbitAccount.objects.get(user=request.user)
-    except FitbitAccount.DoesNotExist:
+        account_user = FitbitAccountUser.objects.get(user=request.user)
+        account = account_user.account
+    except FitbitAccountUser.DoesNotExist:
         return Response('', status=status.HTTP_404_NOT_FOUND)
-
     try:   
         start_date = datetime.strptime(start, '%Y-%m-%d')
         end_date = datetime.strptime(end, '%Y-%m-%d')

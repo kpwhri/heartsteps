@@ -5,16 +5,18 @@ from django.contrib.auth.models import User
 
 class FitbitAccount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-
-    user = models.OneToOneField(User)
-    fitbit_user = models.CharField(max_length=32)
+    fitbit_user = models.CharField(max_length=32, unique=True)
 
     access_token = models.TextField(null=True, blank=True, help_text='The OAuth2 access token')
     refresh_token = models.TextField(null=True, blank=True, help_text='The OAuth2 refresh token')
     expires_at = models.FloatField(null=True, blank=True, help_text='The timestamp when the access token expires')
 
     def __str__(self):
-        return str(self.user)
+        return str(self.fitbit_user)
+
+class FitbitAccountUser(models.Model):
+    user = models.OneToOneField(User, unique=True)
+    account = models.ForeignKey(FitbitAccount)
 
 class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, unique=True, primary_key=True)    

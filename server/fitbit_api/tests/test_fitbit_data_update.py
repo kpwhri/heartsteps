@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitDay, FitbitMinuteStepCount, FitbitActivity
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitMinuteStepCount, FitbitActivity
 from fitbit_api.services import FitbitClient
 from fitbit_api.tasks import update_fitbit_data
 
@@ -16,8 +16,11 @@ class GetUpdatedAcitivities(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test")
         self.account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
+        )
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = self.account
         )
 
     @patch.object(FitbitClient, 'update_heart_rate')

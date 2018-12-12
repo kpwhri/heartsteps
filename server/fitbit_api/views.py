@@ -46,7 +46,7 @@ def fitbit_subscription(request):
                 payload = update
             )
             update_fitbit_data.apply_async(kwargs={
-                'username': subscription.fitbit_account.user.username,
+                'username': subscription.fitbit_account.fitbit_user,
                 'date_string': update['date']
             })        
     return Response('', status=status.HTTP_204_NO_CONTENT)

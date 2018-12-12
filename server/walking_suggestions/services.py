@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
-from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccountUser, FitbitDay, FitbitMinuteStepCount
 from service_requests.models import  ServiceRequest
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
@@ -28,8 +28,13 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
     
     def get_fitbit_step_count(self):
         start_time = self.decision.time - timedelta(minutes=20)
+        try:
+            account_user = FitbitAccountUser.objects.get(user=self.decision.user)
+            account = account_user.account
+        except FitbitAccountUser.DoesNotExist:
+            return 0
         step_counts = FitbitMinuteStepCount.objects.filter(
-            account__user = self.decision.user,
+            account = account,
             time__range = [start_time, self.decision.time]
         ).all()
         total_steps = 0
@@ -165,8 +170,9 @@ class WalkingSuggestionService():
 
     def get_steps(self, date):
         try:
+            account_user = FitbitAccountUser.objects.get(user=self.__user)
             day = FitbitDay.objects.get(
-                account__user = self.__user,
+                account = account_user.account,
                 date__year = date.year,
                 date__month = date.month,
                 date__day = date.day
@@ -273,8 +279,9 @@ class WalkingSuggestionService():
         return self.get_steps_between(time, time + timedelta(minutes=30))
 
     def get_steps_between(self, start_time, end_time):
+        account_user = FitbitAccountUser.objects.get(user = self.__user)
         step_counts = FitbitMinuteStepCount.objects.filter(
-            account__user = self.__user,
+            account = account_user.account,
             time__range = (start_time, end_time)
         ).all()
         total_steps = 0
