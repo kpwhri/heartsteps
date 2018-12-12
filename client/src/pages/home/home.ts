@@ -23,7 +23,7 @@ export class HomePage implements OnInit, OnDestroy {
         key: 'stats'
     }, {
         name: 'Learn',
-        key: 'learn'
+        key: 'library'
     }];
 
     constructor(

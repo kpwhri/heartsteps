@@ -28,7 +28,7 @@ const homeRoutes: Routes = [{
         path: 'planning',
         component: PlanPage
     }, {
-        path: 'learn',
+        path: 'library',
         component: ResourceLibraryPage
     }, {
         path: '**',
