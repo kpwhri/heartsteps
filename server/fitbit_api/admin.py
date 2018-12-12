@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FitbitAccount, FitbitDay, FitbitActivity, FitbitUpdate, FitbitSubscriptionUpdate
+from .models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitActivity, FitbitUpdate, FitbitSubscriptionUpdate
 
 class FitbitSubscriptionUpdateInline(admin.StackedInline):
     model = FitbitSubscriptionUpdate
@@ -9,8 +9,14 @@ class FitbitActivityInline(admin.StackedInline):
     model = FitbitActivity
     extra = 0
 
+class FitbitAccountUserInline(admin.StackedInline):
+    model = FitbitAccountUser
+    extra = 0
+
 class FitbitAccountAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+        FitbitAccountUserInline
+    ]
 admin.site.register(FitbitAccount, FitbitAccountAdmin)
 
 class FitbitUpdateAdmin(admin.ModelAdmin):

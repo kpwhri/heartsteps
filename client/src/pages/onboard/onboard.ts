@@ -9,8 +9,14 @@ import { ActivitySuggestionTimes } from '@heartsteps/activity-suggestions/activi
 import { PlacesList } from '@heartsteps/places/places-list';
 import { ProfileService } from '@heartsteps/participants/profile.factory';
 import { Router } from '@angular/router';
+import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
+import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 
 const onboardingPages:Array<any> = [{
+    key: 'contact',
+    title: 'Contact Information',
+    component: ParticipantInformation
+}, {
     key: 'notificationsEnabled',
     title: 'Notifications',
     component: NotificationsPermission
@@ -30,6 +36,10 @@ const onboardingPages:Array<any> = [{
     key: 'places',
     title: 'Places',
     component: PlacesList
+}, {
+    key: 'fitbitAuthorization',
+    title: 'Fitbit',
+    component: FitbitAuth
 }];
 
 @Component({

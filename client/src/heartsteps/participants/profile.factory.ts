@@ -17,7 +17,8 @@ export class ProfileService {
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
-        private reflectionTimeService: ReflectionTimeService
+        private reflectionTimeService: ReflectionTimeService,
+        private fitbitService: FitbitService
     ) {}
 
     isComplete():Promise<boolean> {
@@ -46,7 +47,9 @@ export class ProfileService {
             this.checkActivitySuggestions(),
             this.checkLocationPermission(),
             this.checkPlacesSet(),
-            this.checkReflectionTime()
+            this.checkReflectionTime(),
+            this.checkContactInformation(),
+            this.checkFitbit()
         ])
         .then((results) => {
             return {
@@ -54,7 +57,9 @@ export class ProfileService {
                 activitySuggestionTimes: results[1],
                 locationPermission: results[2],
                 places: results[3],
-                weeklyReflectionTime: results[4]
+                weeklyReflectionTime: results[4],
+                contactInformation: results[5],
+                fitbitAuthorization: results[6]
             }
         })
         .catch(() => {
@@ -120,5 +125,15 @@ export class ProfileService {
         .catch(() => {
             return Promise.resolve(false)
         })
+    }
+
+    checkFitbit():Promise<boolean> {
+        return this.fitbitService.isAuthorized()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
     }
 }
