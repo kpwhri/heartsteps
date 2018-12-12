@@ -2,7 +2,7 @@
     <header>
         <h2>{{pageTitle}}</h2>
         <a *ngIf="!backButton" class="settings" routerLink="/settings">Settings</a>
-        <a *ngIf="backButton" class="back" routerLink="/settings">Back</a>
+        <a *ngIf="backButton" class="back" routerLink="/home/dashboard">Back</a>
     </header>
     <div>
         <router-outlet></router-outlet>
