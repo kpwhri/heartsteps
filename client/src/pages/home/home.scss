@@ -1,6 +1,24 @@
 page-home {
-    header > .settings {
+    > .page > header > a.settings {
         @extend .back;
+        overflow: hidden;
+        height: 70px;
+        padding: 0px;
+        padding-top: 70px;
+        &:before {
+            content: ' ';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35px;
+            height: 35px;
+            mask-image: url('/assets/settings.svg');
+            mask-repeat: no-repeat;
+            mask-position: 50% 50%;
+            background-color: $color-gray-dark;
+        }
     }
 
     > .page > nav {
