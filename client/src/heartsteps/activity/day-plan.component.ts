@@ -15,7 +15,7 @@ export class DayPlanComponent implements OnInit, OnDestroy {
 
     activityPlanSubscription: Subscription;
 
-    plans: Array<any> = [];
+    plans: Array<any>;
 
     constructor(
         private activityPlanService:ActivityPlanService
@@ -34,16 +34,18 @@ export class DayPlanComponent implements OnInit, OnDestroy {
     }
 
     filterPlans(plans) {
-        let filteredPlans = [];
-
+        const filteredPlans = [];
         if(plans && plans.length > 0) {
             plans.forEach((plan) => {
                 if(moment(this.date).format("YYYY-MM-DD") == moment(plan.start).format("YYYY-MM-DD")) {
                     filteredPlans.push(plan);
                 }
-            })
+            });
         }
-
-        this.plans = filteredPlans;
+        if (filteredPlans.length > 0) {
+            this.plans = filteredPlans;
+        } else {
+            this.plans = null;
+        }
     }
 }

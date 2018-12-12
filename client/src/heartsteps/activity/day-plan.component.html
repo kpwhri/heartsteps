@@ -1,6 +1,7 @@
 <h3>{{dateFormatted}}</h3>
-<ion-list>
+<ion-list *ngIf="plans">
     <ion-item *ngFor="let plan of plans">
         <activity-plan [activity]="plan"></activity-plan>
     </ion-item>
 </ion-list>
+<p *ngIf="!plans">Nothing planned.</p>
