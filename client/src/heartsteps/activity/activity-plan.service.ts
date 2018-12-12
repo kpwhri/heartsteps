@@ -61,7 +61,8 @@ export class ActivityPlanService {
     }
 
     complete(activity:Activity):Promise<Activity> {
-        return Promise.resolve(activity);
+        activity.markComplete();
+        return this.save(activity);
     }
 
     getPlans(startDate:Date, endDate:Date):Promise<boolean> {

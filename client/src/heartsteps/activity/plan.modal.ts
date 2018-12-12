@@ -17,13 +17,13 @@ import { DateFactory } from '@infrastructure/date.factory';
 })
 export class PlanModal {
     private activity:Activity;
+    private isComplete: boolean;
     
     public planForm:FormGroup;
     public availableDates:Array<string>
 
     public updateView:boolean;
     public error:string;
-    
 
     constructor(
         params:NavParams,
@@ -37,7 +37,8 @@ export class PlanModal {
 
         if (params.get('activity')) {
            this.updateView = true;
-           this.activity = new Activity(params.get('activity')); 
+           this.activity = new Activity(params.get('activity'));
+           this.isComplete = this.activity.isComplete();
            defaultTime = this.activity.getStartTime();
            defaultDate = this.activity.getStartDate();
         } else {

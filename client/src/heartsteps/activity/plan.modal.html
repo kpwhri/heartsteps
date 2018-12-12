@@ -33,9 +33,9 @@
     </ion-item>
     <div class="controls">
         <p *ngIf="error">{{error}}</p>
-        <button *ngIf="updateView" (click)="save()" >Update</button>
-        <button *ngIf="updateView" (click)="complete()">Complete</button>
         <button *ngIf="!updateView" (click)="save()" >Save</button>
+        <button *ngIf="updateView && !isComplete" (click)="save()" >Update</button>
+        <button *ngIf="updateView && !isComplete" (click)="complete()">Complete</button>
         <button *ngIf="updateView" (click)="delete()">Delete</button>
     </div>
 </form>
