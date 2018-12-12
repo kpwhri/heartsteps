@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from behavioral_messages.models import MessageTemplate
+from randomization.models import Decision
+
+class AntiSedentaryDecision(Decision):
+    pass
+
+class AntiSedentaryMessageTemplate(MessageTemplate):
+    pass
 
 class StepCount(models.Model):
     user = models.ForeignKey(User)

@@ -1,0 +1,1 @@
+default_app_config = 'walking_suggestions.apps.WalkingSuggestionsConfig'

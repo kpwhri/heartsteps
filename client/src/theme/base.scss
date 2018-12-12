@@ -12,6 +12,46 @@ h3 {
     text-align: center;
 }
 
+.page {
+    > header {
+        background-color: $color-gray-light;
+        border-bottom: $color-gray-dark 1px solid;
+        height: $block-size;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: $space-size $block-size+$space-size;
+        a.back, button.back {
+            display: block;
+            position: absolute;
+            left: 0px;
+            width: $block-size;
+            padding: $space-size/2;
+        }
+    }
+}
+
+article {
+    background-color: $background-primary;
+    margin: $space-size/2 0px;
+    padding: $space-size;
+}
+
+article.page {
+    margin: 0px;
+    padding: 0px;
+    background: $background-primary;
+    
+    > * {
+        margin: $space-size/2 $space-size;
+    }
+
+    > header, > nav {
+        margin: 0px;
+    }
+}
+
 .heartsteps-primary-button {
     display: block;
     color: map-get($colors, primary);

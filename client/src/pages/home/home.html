@@ -1,6 +1,13 @@
-<ion-tabs>
-    <ion-tab tabIcon="podium" [root]="dashboard"></ion-tab>
-    <ion-tab tabIcon="calendar" [root]="plan"></ion-tab>
-    <ion-tab tabIcon="trending-up" [root]="activityLog"></ion-tab>
-    <ion-tab tabIcon="book" [root]="resourceLibrary"></ion-tab>
-</ion-tabs>
+<div class="page">
+    <header>
+        <h2>{{pageTitle}}</h2>
+        <a *ngIf="!backButton" class="settings" routerLink="/settings">Settings</a>
+        <a *ngIf="backButton" class="back" routerLink="/home/dashboard">Back</a>
+    </header>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+    <nav>
+        <a *ngFor="let tab of tabs" class="{{tab.key}}" routerLink="/home/{{tab.key}}" routerLinkActive="active" >{{tab.name}}</a>
+    </nav>
+</div>

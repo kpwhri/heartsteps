@@ -8,11 +8,12 @@ from django.contrib.contenttypes.models import ContentType
 from locations.models import Location, Place
 from locations.services import LocationService
 from push_messages.services import PushMessageService
+from push_messages.models import Message
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from weather.services import WeatherService
 from weather.models import WeatherForecast
 
-from randomization.models import Decision, DecisionContext, Message, ContextTag
+from randomization.models import Decision, DecisionContext, ContextTag
 
 class DecisionService():
     def __init__(self, decision):
@@ -37,9 +38,24 @@ class DecisionService():
             'type': 'get_context'
         })
         if message:
+            DecisionContext.objects.create(
+                decision = self.decision,
+                content_object = message
+            )
             return True
         else:
             return False
+    
+    def get_context_requests(self):
+        messages = DecisionContext.objects.filter(
+            decision = self.decision,
+            content_type = ContentType.objects.get_for_model(Message)
+        ).all()
+        context_requests = []
+        for message in messages:
+            if message.message_type == Message.DATA:
+                context_requests.append(message)            
+        return context_requests
 
     def generate_context(self):
         return []
@@ -182,16 +198,14 @@ class DecisionContextService(DecisionService):
 class DecisionMessageService(DecisionService):
 
     def create_message(self):
-        message = Message(
-            decision = self.decision
-        )
         message_template = self.get_message_template()
         if not message_template:
             raise ValueError("No matching message template")
-        message.message_template = message_template
-        message.save()
-        self.message = message
-        return message
+        DecisionContext.objects.create(
+            decision = self.decision,
+            content_object = message_template
+        )
+        return message_template
 
     def get_message_template_tags(self):
         message_tags_query = Q()
@@ -199,8 +213,11 @@ class DecisionMessageService(DecisionService):
             message_tags_query |= Q(tag=tag.tag)
         return MessageTag.objects.filter(message_tags_query).all()
 
+    def get_message_template_query(self):
+        return MessageTemplate.objects
+
     def get_message_template(self):
-        query = MessageTemplate.objects
+        query = self.get_message_template_query()
         for tag in self.get_message_template_tags():
             query = query.filter(context_tags__in=[tag])
         message_templates = query.all()

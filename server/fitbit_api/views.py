@@ -31,7 +31,7 @@ def fitbit_subscription(request):
             return Response('', status=status.HTTP_204_NO_CONTENT)
         return Response('', status=status.HTTP_404_NOT_FOUND)
     
-    FitbitUpdate.objects.create(
+    fitbit_update = FitbitUpdate.objects.create(
         payload = request.data
     )
     for update in request.data:
@@ -42,10 +42,11 @@ def fitbit_subscription(request):
                 continue
             FitbitSubscriptionUpdate.objects.create(
                 subscription = subscription,
+                update = fitbit_update,
                 payload = update
             )
             update_fitbit_data.apply_async(kwargs={
-                'username': subscription.fitbit_account.user.username,
+                'username': subscription.fitbit_account.fitbit_user,
                 'date_string': update['date']
             })        
     return Response('', status=status.HTTP_204_NO_CONTENT)

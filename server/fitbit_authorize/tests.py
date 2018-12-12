@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from fitbit.api import FitbitOauth2Client
 
-from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_authorize.models import AuthenticationSession
 
 class FitbitAuthorizationTest(APITestCase):
@@ -67,7 +67,7 @@ class FitbitAuthorizationTest(APITestCase):
         })
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(0, FitbitAccount.objects.filter(user=user).count())
+        self.assertEqual(0, FitbitAccount.objects.count())
 
     def test_process_with_invalid_session_time(self):
         user = User.objects.create(username="test")
@@ -86,7 +86,7 @@ class FitbitAuthorizationTest(APITestCase):
         })
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(0, FitbitAccount.objects.filter(user=user).count())
+        self.assertEqual(0, FitbitAccount.objects.count())
 
     def mock_access_token(self, code, redirect_uri=None):
         return {
@@ -114,9 +114,9 @@ class FitbitAuthorizationTest(APITestCase):
         self.assertEqual(response.url, reverse('fitbit-authorize-complete'))
         session = AuthenticationSession.objects.get(user=user)
         self.assertTrue(session.disabled)
-        self.assertEqual(1, FitbitAccount.objects.filter(user=user).count())
-        fitbit_account = FitbitAccount.objects.get(user=user)
-        self.assertEqual(fitbit_account.fitbit_user, 'example-fitbit-id')
+        self.assertEqual(1, FitbitAccountUser.objects.filter(user=user).count())
+        fitbit_account = FitbitAccountUser.objects.get(user=user)
+        self.assertEqual(fitbit_account.account.fitbit_user, 'example-fitbit-id')
         subscribe_to_fitbit.assert_called()
 
 
@@ -139,7 +139,7 @@ class FitbitAuthorizationTest(APITestCase):
         session = AuthenticationSession.objects.get(user=user)
         self.assertTrue(session.disabled)
 
-        self.assertEqual(0, FitbitAccount.objects.filter(user=user).count())
+        self.assertEqual(0, FitbitAccount.objects.count())
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('fitbit-authorize-complete'))

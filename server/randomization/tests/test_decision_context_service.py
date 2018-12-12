@@ -82,7 +82,7 @@ class DecisionContextTest(TestCase):
         get_last_location.return_value = None
         decision_service = self.make_decision_service()
         location = Location.objects.create(
-            latitude = 123.123,
+            latitude = 22.22,
             longitude = 42.42,
             user = decision_service.user,
             time = timezone.now()
@@ -105,7 +105,7 @@ class DecisionContextTest(TestCase):
         get_forecast_context.return_value = 'outdoors'
         decision_service = self.make_decision_service()
         decision_service.location = Location.objects.create(
-            latitude = 123.456,
+            latitude = 22.22,
             longitude = 42.42,
             user = decision_service.user,
             time = timezone.now()
@@ -116,7 +116,7 @@ class DecisionContextTest(TestCase):
         self.assertEqual(weather_context, "outdoors")
         get_forecast_context.assert_called_with(fake_weather_object)
         make_forecast.assert_called_with(
-            latitude = 123.456,
+            latitude = 22.22,
             longitude = 42.42,
             time = decision_service.decision.time
         )

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('behavioral_messages', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('push_messages', '0002_auto_20180821_1507'),
+        ('push_messages', '0001_initial'),
     ]
 
     operations = [

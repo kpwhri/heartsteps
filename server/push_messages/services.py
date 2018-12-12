@@ -151,7 +151,7 @@ class PushMessageService():
 
     def init_message(self):
         return Message(
-            id = uuid.uuid4(),
+            uuid = uuid.uuid4(),
             recipient = self.user,
             device = self.device
         )
@@ -176,7 +176,7 @@ class PushMessageService():
     def send_notification(self, body, title=None, data={}):
         message = self.init_message()
         message.message_type = Message.NOTIFICATION
-        data['messageId'] = str(message.id)
+        data['messageId'] = str(message.uuid)
         if title is None:
             title = "HeartSteps"
         request = self._service.format_notification(body, title, data)
@@ -186,7 +186,7 @@ class PushMessageService():
     def send_data(self, data):
         message = self.init_message()
         message.message_type = Message.DATA
-        data['messageId'] = str(message.id)
+        data['messageId'] = str(message.uuid)
         request = self._service.format_data(data)
         message.content = json.dumps(request)
         return self.send(message, request)

@@ -3,6 +3,12 @@ import { IonicPageModule } from 'ionic-angular';
 import { WelcomePage } from './welcome';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { EnrollmentModule } from '@heartsteps/enrollment/enrollment.module';
+import { RouterModule, Routes } from '@angular/router';
+
+const welcomeRoutes: Routes = [{
+  path: 'welcome',
+  component: WelcomePage
+}];
 
 @NgModule({
   declarations: [
@@ -11,7 +17,8 @@ import { EnrollmentModule } from '@heartsteps/enrollment/enrollment.module';
   imports: [
     ParticipantModule,
     EnrollmentModule,
-    IonicPageModule.forChild(WelcomePage)
+    IonicPageModule.forChild(WelcomePage),
+    RouterModule.forChild(welcomeRoutes)
   ],
 })
 export class WelcomePageModule {}

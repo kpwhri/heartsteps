@@ -9,23 +9,55 @@ import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from '@pages/activity-plan/plan.page';
 import { ActivityLogPage } from '@pages/activity-log/activity-log';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
+import { Routes, RouterModule } from '@angular/router';
+import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-gaurd.service';
+import { BrowserModule } from '@angular/platform-browser';
+import { SettingsModule } from '@pages/settings/settings.module';
+
+const homeRoutes: Routes = [{
+    path: 'home',
+    component: HomePage,
+    canActivate: [AuthorizationGaurd, OnboardGaurd],
+    children: [{
+        path: 'dashboard',
+        component: DashboardPage
+    }, {
+        path: 'stats',
+        component: ActivityLogPage
+    }, {
+        path: 'planning',
+        component: PlanPage
+    }, {
+        path: 'learn',
+        component: ResourceLibraryPage
+    }, {
+        path: '**',
+        redirectTo: 'dashboard'
+    }]
+}]
 
 @NgModule({
-  declarations: [
-    HomePage
-  ],
-  entryComponents: [
-    DashboardPage,
-    PlanPage,
-    ActivityLogPage,
-    ResourceLibraryPage
-  ],
-  imports: [
-    DashboardModule,
-    ActivityPlanModule,
-    ActivityLogModule,
-    ResourceLibraryModule,
-    IonicPageModule.forChild(HomePage)
-  ]
+    declarations: [
+        HomePage
+    ],
+    entryComponents: [
+        DashboardPage,
+        PlanPage,
+        ActivityLogPage,
+        ResourceLibraryPage
+    ],
+    imports: [
+        DashboardModule,
+        ActivityPlanModule,
+        ActivityLogModule,
+        ResourceLibraryModule,
+        SettingsModule,
+        BrowserModule,
+        IonicPageModule.forChild(HomePage),
+        RouterModule.forChild(homeRoutes)
+    ],
+    exports: [
+        RouterModule
+    ]
 })
 export class HomePageModule {}

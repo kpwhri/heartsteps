@@ -23,6 +23,7 @@ $app-direction: ltr;
 // http://ionicframework.com/docs/theming/overriding-ionic-variables/
 
 $space-size: 20px;
+$block-size: 70px;
 
 
 // Named Color Variables
@@ -33,14 +34,22 @@ $space-size: 20px;
 // colors so you can add, rename and remove colors as needed.
 // The "primary" color is the only required color in the map.
 
+$color-primary: #488aff;
+$color-secondary: #F57B55;
+$color-danger: #f53d3d;
+$color-gray-light: #f4f4f4;
+$color-gray: #ccc;
+$color-gray-dark: #3d3d3d;
+
 $colors: (
-  primary:    #488aff,
-  secondary:  #F57B55,
-  danger:     #f53d3d,
-  light:      #f4f4f4,
-  dark:       #222,
+  primary:    $color-primary,
+  secondary:  $color-secondary,
+  danger:     $color-danger,
+  light:      $color-gray-light,
+  dark:       $color-gray-dark,
 );
 
+$background-primary: #ffffff;
 
 // App iOS Variables
 // --------------------------------------------------

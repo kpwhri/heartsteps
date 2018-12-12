@@ -9,10 +9,18 @@ import { NotificationsModule } from '@heartsteps/notifications/notifications.mod
 import { LocationModule } from '@heartsteps/locations/location.module';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
+import { Routes, RouterModule } from '@angular/router';
+import { AuthorizationGaurd } from '@heartsteps/participants/auth-gaurd.service';
+
+const onboardRoutes:Routes = [{
+  path: 'onboard',
+  component: OnboardPage,
+  canActivate: [AuthorizationGaurd]
+}]
 
 @NgModule({
   declarations: [
-    OnboardPage
+    OnboardPage,
   ],
   imports: [
     WeeklySurveyModule,
@@ -23,7 +31,11 @@ import { ContactInformationModule } from '@heartsteps/contact-information/contac
     FitbitModule,
     ContactInformationModule,
     ActivitySuggestionsModule,
-    IonicPageModule.forChild(OnboardPage)
+    IonicPageModule.forChild(OnboardPage),
+    RouterModule.forChild(onboardRoutes)
   ],
+  exports: [
+    RouterModule
+  ]
 })
 export class OnboardPageModule {}

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 
-from fitbit_api.models import FitbitAccount, FitbitDay
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay
 
 class ActivitySummaryViewTests(APITestCase):
 
@@ -16,8 +16,11 @@ class ActivitySummaryViewTests(APITestCase):
         self.client.force_authenticate(self.user)
 
         self.account = FitbitAccount.objects.create(
-            user = self.user,
             fitbit_user = "test"
+        )
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = self.account
         )
 
     def create_day(self, date):

@@ -1,16 +1,34 @@
 import pytz
 
+from django.utils import timezone
+
 from timezonefinder import TimezoneFinder
 
-from locations.models import Location, Place
+from locations.models import Location, Place, User
+from locations.serializers import LocationSerializer
+from locations.signals import timezone_updated
 
 class LocationService:
 
     class UnknownLocation(Exception):
         pass
 
+    class InvalidLocation(Exception):
+        pass
+
     def __init__(self, user):
         self.__user = user
+
+    def update_location(self, location_object):
+        serialized_location = LocationSerializer(data=location_object)
+        if serialized_location.is_valid():
+            location = Location(**serialized_location.validated_data)
+            location.user = self.__user
+            location.time = timezone.now()
+            location.save()
+            return location
+        else:
+            raise self.InvalidLocation()
 
     def get_last_location(self):
         location = Location.objects.filter(user = self.__user).first()
@@ -65,3 +83,23 @@ class LocationService:
             latitude = location.latitude,
             longitude = location.longitude
         )
+
+    def check_timezone_change(self):
+        locations = Location.objects.filter(user=self.__user)[:2]
+
+        if not len(locations):
+            pass
+        elif len(locations) < 2:
+            timezone_updated.send(User, username=self.__user.username)
+        else:
+            new_timezone = self.get_timezone_for(
+                latitude = locations[0].latitude,
+                longitude = locations[0].longitude
+            )
+            current_timezone = self.get_timezone_for(
+                latitude = locations[1].latitude,
+                longitude = locations[1].longitude
+            )
+
+            if current_timezone is not new_timezone:
+                timezone_updated.send(User, username=self.__user.username)

@@ -1,27 +1,18 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { PlanPage } from './plan.page';
-import { PlanModal } from '@pages/activity-plan/plan.modal';
-import { PlanComponent } from '@pages/activity-plan/plan.component';
-import { DayPlanComponent } from '@pages/activity-plan/day-plan.component'; 
+import { ActivityModule } from '@heartsteps/activity/activity.module';
 
 @NgModule({
   declarations: [
-    PlanPage,
-    PlanModal,
-    PlanComponent,
-    DayPlanComponent
-  ],
-  entryComponents: [
-    PlanModal,
-    DayPlanComponent
+    PlanPage
   ],
   imports: [
+    ActivityModule,
     IonicPageModule.forChild(PlanPage),
   ],
   exports: [
-    PlanComponent,
-    DayPlanComponent
+    PlanPage
   ]
 })
 export class ActivityPlanModule {}

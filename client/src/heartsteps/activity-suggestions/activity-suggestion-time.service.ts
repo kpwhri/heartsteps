@@ -101,7 +101,7 @@ export class ActivitySuggestionTimeService{
 
     saveTimes(times:any):Promise<boolean> {
         return this.heartstepsServer.post(
-            'activity-suggestions/times',
+            'walking-suggestions/times/',
             times
         )
         .then((data) => {

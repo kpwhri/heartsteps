@@ -23,7 +23,7 @@ class Message(models.Model):
         ('Notification', NOTIFICATION)
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     external_id = models.CharField(max_length=50, null=True, blank=True)
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES)
 
@@ -49,9 +49,6 @@ class MessageReceipt(models.Model):
         (ENGAGED, 'Engaged')
     )
 
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(Message)
-    
     time = models.DateTimeField()
     type = models.CharField(max_length=20, choices=MESSAGE_RECEIPT_CHOICES)

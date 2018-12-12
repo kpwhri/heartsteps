@@ -3,8 +3,3 @@ from .models import ContextTag, MessageTemplate
 
 class MessageTemplateAdmin(admin.ModelAdmin):
     pass
-admin.site.register(MessageTemplate, MessageTemplateAdmin)
-
-class ContextTagAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(ContextTag, ContextTagAdmin)

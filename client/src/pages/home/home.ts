@@ -1,24 +1,66 @@
-import { Component } from '@angular/core';
-import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
-import { DashboardPage } from '@pages/dashboard/dashboard';
-import { PlanPage } from '@pages/activity-plan/plan.page';
-import { ActivityLogPage } from '@pages/activity-log/activity-log';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterEvent } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
 })
-export class HomePage {
+export class HomePage implements OnInit, OnDestroy {
+    public pageTitle: string;
+    public backButton: boolean;
 
-    dashboard:any
-    plan:any
-    activityLog:any
-    resourceLibrary: any
+    private routerSubscription: Subscription;
+     
+    public tabs:Array<any> = [{
+        name:'Dashboard',
+        key: 'dashboard'
+    }, {
+        name: 'Planning',
+        key: 'planning'
+    }, {
+        name: 'Stats',
+        key: 'stats'
+    }, {
+        name: 'Learn',
+        key: 'learn'
+    }];
 
-    constructor() {
-        this.dashboard = DashboardPage
-        this.plan = PlanPage
-        this.activityLog = ActivityLogPage
-        this.resourceLibrary = ResourceLibraryPage
+    constructor(
+        private router: Router
+    ) {}
+
+    ngOnInit() {
+        this.updateWithUrl(this.router.url);
+        this.routerSubscription = this.router.events.subscribe((event:RouterEvent) => {
+            if(event.url) {
+                this.updateWithUrl(event.url);
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        this.routerSubscription.unsubscribe();
+    }
+
+    private updateWithUrl(url:string) {
+        this.setTitle(url);
+        this.toggleBackButton(url);
+    }
+
+    private setTitle(url:string) {
+        this.tabs.forEach((tab:any) => {
+            if(url.indexOf(tab.key) > 0) {
+                this.pageTitle = tab.name;
+            }
+        })
+    }
+
+    private toggleBackButton(url:string) {
+        if(url.indexOf('dashboard') >= 0){
+            this.backButton = false;
+        } else {
+            this.backButton = true;
+        }
     }
 }

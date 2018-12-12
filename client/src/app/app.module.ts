@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -10,10 +12,16 @@ import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationPane } from './notification';
 import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
-import { DashboardModule } from '@pages/dashboard/dashboard.module';
-import { LocationModule } from '@heartsteps/locations/location.module';
-import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { LocationService } from '@heartsteps/locations/location.service';
+import { HomePageModule } from '@pages/home/home.module';
+
+const appRoutes:Routes = [
+{
+    path: '',
+    redirectTo: '/home/dashboard',
+    pathMatch: 'full'
+  }
+]
 
 @NgModule({
   declarations: [
@@ -21,12 +29,17 @@ import { LocationService } from '@heartsteps/locations/location.service';
     NotificationPane
   ],
   imports: [
-    LocationModule,
-    ParticipantModule,
     WelcomePageModule,
     OnboardPageModule,
-    DashboardModule,
-    IonicModule.forRoot(MyApp)
+    HomePageModule,
+    IonicModule.forRoot(MyApp),
+    RouterModule.forRoot(
+      appRoutes,
+      {
+        enableTracing: true,
+        useHash: true
+      }
+    )
   ],
   bootstrap: [IonicApp],
   entryComponents: [

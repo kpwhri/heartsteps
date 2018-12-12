@@ -4,16 +4,16 @@ from celery import shared_task
 
 from django.contrib.auth.models import User
 
-from fitbit_api.services import FitbitClient
+from fitbit_api.services import FitbitClient, FitbitDayService
 from fitbit_api.models import FitbitAccount, FitbitSubscription
 
 @shared_task
 def subscribe_to_fitbit(username):
     try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
+        account = FitbitAccount.objects.get(fitbit_user=username)
+    except FitbitAccount.DoesNotExist:
         return False
-    fitbit_client = FitbitClient(user)
+    fitbit_client = FitbitClient(account=account)
     if not fitbit_client.is_subscribed():
         fitbit_client.subscribe()
         
@@ -21,13 +21,12 @@ def subscribe_to_fitbit(username):
 @shared_task
 def update_fitbit_data(username, date_string):
     try:
-        account = FitbitAccount.objects.get(user__username=username)
+        account = FitbitAccount.objects.get(fitbit_user=username)
     except FitbitAccount.DoesNotExist:
         return False
-    fitbit_service = FitbitClient(account.user)
-    day = fitbit_service.get_day(date_string)
-    
-    fitbit_service.update_steps(day)
-    fitbit_service.update_activities(day)
-    fitbit_service.update_heart_rate(day)
-    day.update()
+
+    fitbit_day = FitbitDayService(
+        account = account,
+        date = FitbitDayService.string_to_date(date_string)
+    )
+    fitbit_day.update()

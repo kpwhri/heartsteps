@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -27,13 +27,16 @@ def create_callback_url(request):
 
 class FitbitClient():
 
-    def __init__(self, user):
-        try:
-            self.account = FitbitAccount.objects.get(user=user)
-        except FitbitAccount.DoesNotExist:
-            raise ValueError("Fitbit Account doesn't exist")
+    def __init__(self, user=None, account=None):
+        if account:
+            self.account = account
+        elif user:
+            try:
+                user_account = FitbitAccountUser.objects.get(user=user)
+                self.account = user_account.account
+            except FitbitAccountUser.DoesNotExist:
+                raise ValueError("Fitbit Account doesn't exist")
         self.client = self.create_client()
-
 
     def create_client(self):
         return create_fitbit(**{
@@ -208,3 +211,27 @@ class FitbitClient():
                     time = step_datetime_utc,
                     steps = stepInterval['value']
                 )
+
+class FitbitDayService:
+
+    def __init__(self, date, user=None, account=None):
+        self.__client = FitbitClient(
+            user = user,
+            account = account
+        )
+        self.__user = user
+        self.__day = self.__client.get_day(
+            date_string = FitbitDayService.date_to_string(date)
+        )
+
+    def date_to_string(date):
+        return date.strftime('%Y-%m-%d')
+    
+    def string_to_date(string):
+        return datetime.strptime(string, '%Y-%m-%d')
+
+    def update(self):
+        self.__client.update_steps(self.__day)
+        self.__client.update_activities(self.__day)
+        self.__client.update_heart_rate(self.__day)
+        self.__day.update()
