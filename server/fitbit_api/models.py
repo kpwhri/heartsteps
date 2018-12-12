@@ -41,6 +41,7 @@ class FitbitUpdate(models.Model):
 
 class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    update = models.ForeignKey(FitbitUpdate, null=True)
     subscription = models.ForeignKey(FitbitSubscription)
     payload = JSONField()
     created = models.DateTimeField(auto_now_add=True)
@@ -92,6 +93,9 @@ class FitbitDay(models.Model):
         self.moderate_minutes = moderate_minutes
         self.vigorous_minutes = vigorous_minutes
         self.save()
+
+    def __str__(self):
+        return "%s: %s" % (self.account, self.format_date())
 
 class FitbitActivity(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
