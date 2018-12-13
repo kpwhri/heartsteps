@@ -60,6 +60,8 @@ class SuggestionTimeUpdateView(APITestCase):
         self.assertEqual(afternoon_time.hour, 15)
         self.assertEqual(afternoon_time.minute, 30)
 
+        self.suggestions_times_updated_signal.assert_called_with(SuggestionTime, username=self.user.username)
+
     def test_requires_all_activity_times(self):
         times = self.get_times()
         del times['midafternoon']
@@ -73,6 +75,8 @@ class SuggestionTimeUpdateView(APITestCase):
         self.assertEqual(response.status_code, 400)
         times = SuggestionTime.objects.filter(user=self.user).all()
         self.assertEqual(len(times), 0)
+
+        self.suggestions_times_updated_signal.assert_not_called()
 
     def test_updates_times(self):
         SuggestionTime.objects.create(
@@ -93,3 +97,5 @@ class SuggestionTimeUpdateView(APITestCase):
         self.assertEqual(len(suggestion_times), 5)
         midafternoon_suggestion_time = SuggestionTime.objects.get(user=self.user, category='midafternoon')
         self.assertEqual(midafternoon_suggestion_time.minute, 30)
+
+        self.suggestions_times_updated_signal.assert_called_with(SuggestionTime, username=self.user.username)

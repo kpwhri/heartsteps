@@ -14,7 +14,7 @@ from walking_suggestion_times.models import SuggestionTime
 
 class Configuration(models.Model):
     user = models.ForeignKey(User)
-    enabled = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
 
     service_initialized = models.BooleanField(default=False)
 

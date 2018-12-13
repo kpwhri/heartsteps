@@ -38,3 +38,15 @@ class ConfigutationTest(TestCase):
         self.assertEqual(daily_task.task.crontab.hour, '15')
         # suggestion minutes should be offset by 5 minutes (see setting override)
         self.assertEqual(daily_task.task.crontab.minute, '10')
+
+    def test_creates_configuration_if_does_not_exist(self):
+        user = User.objects.create(username="test")
+
+        suggestion_times_updated.send(SuggestionTime, username="test")
+
+        configuration = Configuration.objects.get(user__username="test")
+        self.assertEqual(1, Configuration.objects.count())
+
+    def test_does_nothing_if_no_user(self):
+        suggestion_times_updated.send(SuggestionTime, username="test")        
+        self.assertEqual(0, Configuration.objects.count())
