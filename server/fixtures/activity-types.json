@@ -1,0 +1,38 @@
+[
+{
+    "model": "activity_types.activitytype",
+    "pk": 1,
+    "fields": {
+        "name": "walk",
+        "title": "Walking",
+        "user": null
+    }
+},
+{
+    "model": "activity_types.activitytype",
+    "pk": 2,
+    "fields": {
+        "name": "run",
+        "title": "Running",
+        "user": null
+    }
+},
+{
+    "model": "activity_types.activitytype",
+    "pk": 3,
+    "fields": {
+        "name": "swim",
+        "title": "Swimming",
+        "user": null
+    }
+},
+{
+    "model": "activity_types.activitytype",
+    "pk": 4,
+    "fields": {
+        "name": "weights",
+        "title": "Weight lifting",
+        "user": null
+    }
+}
+]
