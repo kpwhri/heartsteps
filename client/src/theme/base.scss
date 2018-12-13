@@ -12,6 +12,11 @@ h3 {
     text-align: center;
 }
 
+button {
+    background: transparent;
+    color: $link-color;
+}
+
 .page {
     > header {
         background-color: $color-gray-light;

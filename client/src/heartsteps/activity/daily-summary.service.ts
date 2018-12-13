@@ -5,20 +5,24 @@ import { BehaviorSubject } from "rxjs";
 import { DailySummary } from "./daily-summary.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { StorageService } from '@infrastructure/storage.service';
+import { ThrowStmt } from '@angular/compiler';
 
 const storageKey = 'heartsteps-activity-daily-summaries';
+const updateTimeKey = 'heartsteps-activity-daily-update';
 const dateFormat = 'YYYY-MM-DD';
 
 @Injectable()
 export class DailySummaryService {
 
     public summaries: BehaviorSubject<Array<DailySummary>>;
+    public updateTime: BehaviorSubject<Date>;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
     ) {
         this.summaries = new BehaviorSubject([]);
+        this.updateTime = new BehaviorSubject(null);
         this.storage.get(storageKey)
         .then((summaries:Array<DailySummary>) => {
             this.summaries.next(summaries);
@@ -26,6 +30,13 @@ export class DailySummaryService {
         .catch(() => {
             console.log("No saved summaries");
         });
+        this.storage.get(updateTimeKey)
+        .then((date:Date) => {
+            this.updateTime.next(date);
+        })
+        .catch(() => {
+            console.log("No saved summaries");
+        })
     }
 
     private parseSummary(response:any):DailySummary {
@@ -39,6 +50,14 @@ export class DailySummaryService {
         return summary;
     }
 
+    private setUpdateTime() {
+        const updateTime:Date = new Date();
+        this.storage.set(updateTimeKey, updateTime)
+        .then(() => {
+            this.updateTime.next(updateTime);
+        });
+    }
+
     public formatDate(date:Date):string {
         return moment(date).format(dateFormat);
     }
@@ -47,6 +66,7 @@ export class DailySummaryService {
         const dateFormatted:string = moment(date).format(dateFormat);
         return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
         .then((response:any) => {
+            this.setUpdateTime();
             const summary = this.parseSummary(response);
             return this.updateSummaries([summary])
             .then(() => {
