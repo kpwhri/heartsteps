@@ -1,7 +1,4 @@
-<div class="last-updated" *ngIf="updatedDate">
-    <p>Last updated <em>{{updatedDate}}</em></p>
-    <button class="refresh" (click)="refresh()">Refresh</button>
-</div>
-<div class="loading" *ngIf="!updateDate">
-    <p>Loading activities</p>
-</div>
+<button *ngIf="!loading" class="refresh" (click)="refresh()">Update Fitbit data</button>
+<p *ngIf="!loading && updatedDate">Last updated {{updatedDate}}</p>
+<p *ngIf="!loading && !updatedDate">Not updated today</p>
+<div *ngIf="loading">Loading activities</div>

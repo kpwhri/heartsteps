@@ -8,6 +8,7 @@ import { DailySummaryService } from "./daily-summary.service";
 })
 export class DailyActivitiesUpdateComponent implements OnInit {
     public loading:Boolean;
+    
 
     constructor(
         private dailySummaryService: DailySummaryService
@@ -16,7 +17,6 @@ export class DailyActivitiesUpdateComponent implements OnInit {
     ngOnInit() {
         this.dailySummaryService.summaries.subscribe(()=>{
             this.loading = false;
-            console.log("updated!");
         })
     }
 

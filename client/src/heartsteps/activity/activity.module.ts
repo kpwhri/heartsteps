@@ -12,6 +12,8 @@ import { IonicPageModule } from 'ionic-angular';
 import { ActivityPlanService } from './activity-plan.service';
 import { DailyActivitiesUpdateComponent } from './daily-activities-update';
 import { ActivityTypeComponent } from './activity-type.component';
+import { ActivityLogService } from './activity-log.service';
+import { ActivityLogComponent } from './activity-log.component';
 
 @NgModule({
     imports: [
@@ -28,7 +30,8 @@ import { ActivityTypeComponent } from './activity-type.component';
         PlanModal,
         PlanComponent,
         DayPlanComponent,
-        DailyActivitiesUpdateComponent
+        DailyActivitiesUpdateComponent,
+        ActivityLogComponent
     ],
     exports: [
         ActivityTypeComponent,
@@ -37,11 +40,13 @@ import { ActivityTypeComponent } from './activity-type.component';
         PlanModal,
         PlanComponent,
         DayPlanComponent,
-        DailyActivitiesUpdateComponent
+        DailyActivitiesUpdateComponent,
+        ActivityLogComponent
     ],
     providers: [
         DailySummaryService,
-        ActivityPlanService
+        ActivityPlanService,
+        ActivityLogService
     ]
 })
 export class ActivityModule {}

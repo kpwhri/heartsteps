@@ -90,6 +90,40 @@ article.page {
     font-weight: bold;
 }
 
+ul.nav {
+    list-style: none;
+    padding: 0px;
+    li {
+        border-bottom: $color-gray-light 1px solid;
+        padding: $space-size/2 0px;
+    }
+    a {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 20px + $space-size;
+        color: $color-gray-dark;
+        > * {
+            flex: 0 1 auto;
+        }
+    }
+    a:after {
+        content: '';
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translate(0%, -50%);
+        display: block;
+        width: 20px;
+        height: 20px;
+        background-color: $color-gray-dark;
+        mask-image: url('/assets/arrow-forward.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+    }
+}
+
 ul.horizontal {
     display: flex;
     flex-direction: row;

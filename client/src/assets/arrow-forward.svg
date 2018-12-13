@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>_/ionicon/arrow-forward-ios</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="9 8.0125 10.009375 7 15 12 15 12 15 12 10.009375 17 9 15.9875 12.978125 12"></polygon>
+    </defs>
+    <g id="_/ionicon/arrow-forward-ios" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <g id="ios-arrow-forward" fill-rule="nonzero"></g>
+        <g id="🎨-color" mask="url(#mask-2)" fill="#4A4A4A">
+            <rect id="icon-color" x="0" y="0" width="24" height="24"></rect>
+        </g>
+    </g>
+</svg>

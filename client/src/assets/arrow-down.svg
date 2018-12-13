@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="15px" height="9px" viewBox="0 0 15 9" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>_/ionicon/arrow-down-b</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M10.3404948,14.250651 L10.422526,14.3463542 L16.6204427,21.4785156 C16.8300781,21.7200521 17.1445312,21.8704427 17.4954427,21.8704427 C17.8463542,21.8704427 18.1608073,21.7154948 18.3704427,21.4785156 L24.5638021,14.360026 L24.6686198,14.2415365 C24.7460937,14.1276042 24.7916667,13.9908854 24.7916667,13.8450521 C24.7916667,13.4485677 24.4544271,13.125 24.0351562,13.125 L10.9648437,13.125 C10.5455729,13.125 10.2083333,13.4485677 10.2083333,13.8450521 C10.2083333,13.9954427 10.2584635,14.1367188 10.3404948,14.250651 Z" id="path-1"></path>
+    </defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="_/down-arrow" transform="translate(-7.000000, -10.000000)">
+            <g id="_/ionicon/arrow-down-b" transform="translate(-3.000000, -3.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="ionicon/arrow-down-b" fill-rule="nonzero"></g>
+                <g id="_/icon/color/primary" mask="url(#mask-2)" fill="#4A4A4A" fill-rule="evenodd">
+                    <rect id="icon-color" x="0" y="0" width="35" height="35"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

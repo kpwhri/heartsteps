@@ -1,0 +1,15 @@
+<div class="page">
+    <header>
+        <h2>Stats</h2>
+        <a class="back" (click)="back()">Back</a>
+    </header>
+    <article>
+        <h3>Activities Tracked</h3>
+        <heartsteps-activity-daily-summary [date]="date"></heartsteps-activity-daily-summary>
+        <ul class="nav">
+            <li *ngFor="let log of logs">
+                <heartsteps-activity-log [activityLog]="log"></heartsteps-activity-log>
+            </li>
+        </ul>
+    </article>
+</div>

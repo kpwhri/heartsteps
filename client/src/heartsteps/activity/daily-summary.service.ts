@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 
 import { Injectable } from "@angular/core";
-import { Subject, BehaviorSubject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { DailySummary } from "./daily-summary.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { StorageService } from '@infrastructure/storage.service';

@@ -6,6 +6,14 @@ export class DateFactory {
 
     constructor(){}
 
+    formatDate(date:Date):String {
+        return moment(date).format('YYYY-MM-DD');
+    }
+
+    parseDate(date:string):Date {
+        return moment(date, 'YYYY-MM-DD').toDate();
+    }
+
     getCurrentWeek():Array<Date> {
         let week:Array<Date> = []
 

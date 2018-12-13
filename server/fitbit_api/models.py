@@ -116,6 +116,10 @@ class FitbitActivity(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    @property
+    def id(self):
+        return str(self.uuid)
+
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)

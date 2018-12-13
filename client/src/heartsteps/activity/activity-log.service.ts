@@ -5,73 +5,40 @@ import { Storage } from "@ionic/storage";
 import {BehaviorSubject} from 'rxjs';
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Activity } from "@heartsteps/activity/activity.model";
-
-const storageKey = 'activityLogs';
+import { ActivityLog } from './activity-log.model';
 
 @Injectable()
 export class ActivityLogService {
 
-    public logs: BehaviorSubject<Array<Activity>>
-
     constructor(
-        private storage:Storage,
         private heartstepsServer:HeartstepsServer
-    ){
-        this.logs = new BehaviorSubject([]);
-        this.updateSubject();
+    ){}
+
+    get(date:Date):Promise<Array<ActivityLog>> {
+        return this.heartstepsServer.get('activity/logs/' + moment(date).format('YYYY-MM-DD'))
+        .then((logs:Array<any>) => {
+            const activityLogs:Array<ActivityLog> = [];
+            logs.forEach((log:any) => {
+                activityLogs.push(
+                    this.deserializeActivityLog(log)
+                );
+            })
+            return activityLogs;
+        });
     }
 
-    updateSubject() {
-        this.loadActivities()
-        .then((activities) => {
-            this.logs.next(activities);
-        })
+    private deserializeActivityLog(log:any):ActivityLog {
+        const activityLog:ActivityLog = new ActivityLog();
+        activityLog.id = log.id;
+        activityLog.type = log.type;
+        activityLog.vigorousMinutes = log.vigorous_minutes;
+        activityLog.moderateMinutes = log.moderate_minutes;
+        activityLog.totalMinutes = log.total_minutes;
+
+        activityLog.start = moment(log.start).toDate();
+        activityLog.end = moment(log.end).toDate();
+
+        return activityLog;
     }
 
-    create(activity:Activity):Promise<Activity> {
-        return this.heartstepsServer.post('/activity/logs', activity.serialize())
-        .then((response:any) => {
-            const activity = new Activity(response);
-            return this.storeActivity(activity);
-        })
-        .then((activity:Activity) => {
-            this.updateSubject();
-            return new Activity(activity);
-        })
-    }
-
-    update(){}
-
-    delete(){}
-
-    private loadActivities():Promise<Array<Activity>> {
-        return this.storage.get(storageKey)
-        .then((logs) => {
-            if(logs) {
-                let activities = [];
-                Object.keys(logs).forEach((logId:string) => {
-                    let activity = new Activity(logs[logId]);
-                    activity.id = logId;
-                    activities.push(activity);
-                });
-                return activities;
-            } else {
-                return [];
-            }
-        })
-    }
-
-    private storeActivity(activity:Activity):Promise<Activity> {
-        return this.storage.get(storageKey)
-        .then((logs) => {
-            if (!logs) {
-                logs = {};
-            }
-            logs[activity.id] = activity.serialize();
-            return this.storage.set(storageKey, logs)
-        })
-        .then(() => {
-            return activity;
-        })
-    }
 }

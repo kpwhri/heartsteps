@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { DailySummary } from '@heartsteps/activity/daily-summary.model';
 import { DailySummaryService } from './daily-summary.service';
 import { Subscription } from 'rxjs';
@@ -8,10 +8,11 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'heartsteps-activity-daily-summary',
     templateUrl: './daily-summary.html',
+    inputs: ['date']
 })
 export class DailySummaryComponent implements OnInit, OnDestroy {
 
-    public date: Date;
+    @Input() date:Date;
     public formattedDate: string;
     public updatedDate: string;
     public activitySummary: DailySummary;
@@ -19,17 +20,19 @@ export class DailySummaryComponent implements OnInit, OnDestroy {
 
     constructor(
         private dailySummaryService: DailySummaryService
-    ) {
-        this.date = new Date();
+    ) {}
+
+    ngOnInit() {
+        if(!this.date) {
+            this.date = new Date();
+        } 
         const isToday:boolean = moment(new Date()).isSame(this.date);
         if(isToday) {
             this.formattedDate = 'Today ' + moment(this.date).format('MMM D')
         } else {
             this.formattedDate = moment(this.date).format('ddd MMM D')
         }
-    }
-
-    ngOnInit() {
+        
         this.updateSubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
             summaries.forEach((summary:DailySummary) => {
                 if(summary.date == moment(this.date).format('YYYY-MM-DD')) {

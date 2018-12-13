@@ -1,27 +1,11 @@
 from rest_framework import serializers
 
-from fitbit_api.models import FitbitDay
-
-from .models import AbstractActivity, ActivityType
+from fitbit_api.models import FitbitDay, FitbitActivity
+from activity_types.models import ActivityType
 
 class TimeRangeSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
-
-class ActivitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AbstractActivity
-        fields = ('type', 'vigorous', 'start', 'duration')
-
-    type = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset = ActivityType.objects.filter(user=None).all()
-        )
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['id'] = str(instance.uuid)
-        return representation
 
 class FitbitDaySerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,5 +14,27 @@ class FitbitDaySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['total_minutes'] = instance.moderate_minutes + instance.vigorous_minutes*2
+        return representation
+
+class FitbitActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FitbitActivity
+        fields = ('type', 'start_time', 'end_time', 'vigorous_minutes', 'moderate_minutes')
+
+    type = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset = ActivityType.objects.filter(user=None).all()
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id'] = instance.id
+        
+        representation['start'] = representation['start_time']
+        del representation['start_time']
+        representation['end'] = representation['end_time']
+        del representation['end_time']
+
         representation['total_minutes'] = instance.moderate_minutes + instance.vigorous_minutes*2
         return representation
