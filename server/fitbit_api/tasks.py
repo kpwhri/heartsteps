@@ -14,6 +14,7 @@ def subscribe_to_fitbit(username):
     except FitbitAccount.DoesNotExist:
         return False
     fitbit_client = FitbitClient(account=account)
+    fitbit_client.subscriptions_update()
     if not fitbit_client.is_subscribed():
         fitbit_client.subscribe()
         

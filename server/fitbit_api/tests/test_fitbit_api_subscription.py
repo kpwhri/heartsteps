@@ -26,18 +26,20 @@ def make_fitbit_account(username='test'):
 
 class FitbitApiSubscriptionTest(TestCase):
 
+    @patch.object(FitbitClient, 'subscriptions_update')
     @patch.object(FitbitClient, 'is_subscribed', return_value=False)
     @patch.object(FitbitClient, 'subscribe', return_value=True)
-    def test_creates_subscription(self, subscribe, is_subscribed):
+    def test_creates_subscription(self, subscribe, is_subscribed, subscriptions_update):
         fitbit_account = make_fitbit_account()
 
         subscribe_to_fitbit(fitbit_account.fitbit_user)
 
         subscribe.assert_called()
 
+    @patch.object(FitbitClient, 'subscriptions_update')
     @patch.object(FitbitClient, 'is_subscribed', return_value=True)
     @patch.object(FitbitClient, 'subscribe', return_value=True)
-    def test_subscription_does_not_create_if_exists(self, subscribe, is_subscribed):
+    def test_subscription_does_not_create_if_exists(self, subscribe, is_subscribed, subscriptions_update):
         fitbit_account = make_fitbit_account()
 
         subscribe_to_fitbit(fitbit_account.fitbit_user)

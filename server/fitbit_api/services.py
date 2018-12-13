@@ -53,14 +53,35 @@ class FitbitClient():
         self.account.save()
 
     def is_subscribed(self):
-        if not hasattr(self.account, 'subscription'):
+        subscriptions = FitbitSubscription.objects.filter(fitbit_account = self.account).all()
+        if len(subscriptions) > 0:
+            return True
+        else:
             return False
+
+    def subscriptions_update(self):
+        existing_subscription_ids = []
+        for subscription in FitbitSubscription.objects.filter(fitbit_account = self.account).all():
+            existing_subscription_ids.append(subscription.uuid)
+        fitbit_subscription_ids = self.list_subscriptions()
+        for subscription_id in fitbit_subscription_ids:
+            if not subscription_id in existing_subscription_ids:
+                FitbitSubscription.objects.create(
+                    uuid = subscription_id,
+                    fitbit_account = self.account
+                )
+        for existing_id in existing_subscription_ids:
+            if existing_id not in fitbit_subscription_ids:
+                FitbitSubscription.objects.filter(uuid=existing_id).delete()
+        return False
+
+    def list_subscriptions(self):
+        subscription_ids = []
         response = self.client.list_subscriptions()
         if 'apiSubscriptions' in response:
             for subscription in response['apiSubscriptions']:
-                if subscription['subscriptionId'] == str(self.account.subscription.uuid):
-                    return True
-        return False
+                subscription_ids.append(subscription['subscriptionId'])
+        return subscription_ids
 
     def subscribe(self):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
