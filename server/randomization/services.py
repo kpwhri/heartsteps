@@ -53,7 +53,7 @@ class DecisionService():
         ).all()
         context_requests = []
         for obj in objects:
-            message = obj.object
+            message = obj.content_object
             if message.message_type == Message.DATA:
                 context_requests.append(message)            
         return context_requests
