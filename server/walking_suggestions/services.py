@@ -45,9 +45,14 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
     def decide(self):
         try:
             configuration = Configuration.objects.get(user=self.user)
-            service = ActivitySuggestionService(configuration)
+        except: Configuration.DoesNotExist:
+            self.decision.a_it = False
+            self.decision.save()
+            return False
+        try:
+            service = WalkingSuggestionService(configuration)
             service.decide(self.decision)
-        except (ImproperlyConfigured, Configuration.DoesNotExist):
+        except ImproperlyConfigured:
             self.decision.decide()
         return self.decision.a_it
 
