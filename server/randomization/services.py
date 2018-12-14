@@ -47,12 +47,13 @@ class DecisionService():
             return False
     
     def get_context_requests(self):
-        messages = DecisionContext.objects.filter(
+        objects = DecisionContext.objects.filter(
             decision = self.decision,
             content_type = ContentType.objects.get_for_model(Message)
         ).all()
         context_requests = []
-        for message in messages:
+        for obj in objects:
+            message = obj.object
             if message.message_type == Message.DATA:
                 context_requests.append(message)            
         return context_requests
