@@ -12,11 +12,11 @@ from participants.models import Participant
 admin.site.unregister(User)
 admin.site.unregister(Group)
 admin.site.unregister(Token)
-admin.site.unregister(TaskResult)
-admin.site.unregister(IntervalSchedule)
-admin.site.unregister(CrontabSchedule)
-admin.site.unregister(SolarSchedule)
-admin.site.unregister(PeriodicTask)
+# admin.site.unregister(TaskResult)
+# admin.site.unregister(IntervalSchedule)
+# admin.site.unregister(CrontabSchedule)
+# admin.site.unregister(SolarSchedule)
+# admin.site.unregister(PeriodicTask)
 
 class ParticipantAdmin(admin.ModelAdmin):
     pass
