@@ -12353,7 +12353,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 663,
     "fields": {
         "context_tags": [
@@ -12370,7 +12370,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 664,
     "fields": {
         "context_tags": [
@@ -12384,7 +12384,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 665,
     "fields": {
         "context_tags": [
@@ -12400,7 +12400,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 666,
     "fields": {
         "context_tags": [
@@ -12413,7 +12413,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 667,
     "fields": {
         "context_tags": [
@@ -12428,7 +12428,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 668,
     "fields": {
         "context_tags": [
@@ -12442,7 +12442,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 669,
     "fields": {
         "context_tags": [
@@ -12460,7 +12460,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 670,
     "fields": {
         "context_tags": [
@@ -12475,7 +12475,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 671,
     "fields": {
         "context_tags": [
@@ -12492,7 +12492,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 672,
     "fields": {
         "context_tags": [
@@ -12506,7 +12506,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 673,
     "fields": {
         "context_tags": [
@@ -12520,7 +12520,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 674,
     "fields": {
         "context_tags": [
@@ -12533,7 +12533,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 675,
     "fields": {
         "context_tags": [
@@ -12549,7 +12549,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 676,
     "fields": {
         "context_tags": [
@@ -12563,7 +12563,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 677,
     "fields": {
         "context_tags": [
@@ -12579,7 +12579,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 678,
     "fields": {
         "context_tags": [
@@ -12595,7 +12595,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 679,
     "fields": {
         "context_tags": [
@@ -12614,7 +12614,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 680,
     "fields": {
         "context_tags": [
@@ -12631,7 +12631,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 681,
     "fields": {
         "context_tags": [
@@ -12650,7 +12650,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 682,
     "fields": {
         "context_tags": [
@@ -12665,7 +12665,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 683,
     "fields": {
         "context_tags": [
@@ -12682,7 +12682,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 684,
     "fields": {
         "context_tags": [
@@ -12696,7 +12696,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 685,
     "fields": {
         "context_tags": [
@@ -12711,7 +12711,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 686,
     "fields": {
         "context_tags": [
@@ -12725,7 +12725,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 687,
     "fields": {
         "context_tags": [
@@ -12741,7 +12741,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 688,
     "fields": {
         "context_tags": [
@@ -12757,7 +12757,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 689,
     "fields": {
         "context_tags": [
@@ -12773,7 +12773,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 690,
     "fields": {
         "context_tags": [
@@ -12789,7 +12789,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 691,
     "fields": {
         "context_tags": [
@@ -12804,7 +12804,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 692,
     "fields": {
         "context_tags": [
@@ -12820,7 +12820,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 693,
     "fields": {
         "context_tags": [
@@ -12834,7 +12834,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 694,
     "fields": {
         "context_tags": [
@@ -12849,7 +12849,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 695,
     "fields": {
         "context_tags": [
@@ -12865,7 +12865,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 696,
     "fields": {
         "context_tags": [
@@ -12879,7 +12879,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 697,
     "fields": {
         "context_tags": [
@@ -12893,7 +12893,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 698,
     "fields": {
         "context_tags": [
@@ -12910,7 +12910,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 699,
     "fields": {
         "context_tags": [
@@ -12926,7 +12926,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 700,
     "fields": {
         "context_tags": [
@@ -12942,7 +12942,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 701,
     "fields": {
         "context_tags": [
@@ -12957,7 +12957,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 702,
     "fields": {
         "context_tags": [
@@ -12973,7 +12973,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 703,
     "fields": {
         "context_tags": [
@@ -12987,7 +12987,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 704,
     "fields": {
         "context_tags": [
@@ -13002,7 +13002,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 705,
     "fields": {
         "context_tags": [
@@ -13021,7 +13021,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 706,
     "fields": {
         "context_tags": [
@@ -13037,7 +13037,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 707,
     "fields": {
         "context_tags": [
@@ -13052,7 +13052,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 708,
     "fields": {
         "context_tags": [
@@ -13067,7 +13067,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 709,
     "fields": {
         "context_tags": [
@@ -13085,7 +13085,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 710,
     "fields": {
         "context_tags": [
@@ -13100,7 +13100,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 711,
     "fields": {
         "context_tags": [
@@ -13114,7 +13114,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 712,
     "fields": {
         "context_tags": [
@@ -13129,7 +13129,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 713,
     "fields": {
         "context_tags": [
@@ -13144,7 +13144,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 714,
     "fields": {
         "context_tags": [
@@ -13161,7 +13161,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 715,
     "fields": {
         "context_tags": [
@@ -13180,7 +13180,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 716,
     "fields": {
         "context_tags": [
@@ -13200,7 +13200,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 717,
     "fields": {
         "context_tags": [
@@ -13217,7 +13217,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 718,
     "fields": {
         "context_tags": [
@@ -13235,7 +13235,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 719,
     "fields": {
         "context_tags": [
@@ -13248,7 +13248,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 720,
     "fields": {
         "context_tags": [
@@ -13262,7 +13262,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 721,
     "fields": {
         "context_tags": [
@@ -13277,7 +13277,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 722,
     "fields": {
         "context_tags": [
@@ -13291,7 +13291,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 723,
     "fields": {
         "context_tags": [
@@ -13308,7 +13308,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 724,
     "fields": {
         "context_tags": [
@@ -13327,7 +13327,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 725,
     "fields": {
         "context_tags": [
@@ -13346,7 +13346,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 726,
     "fields": {
         "context_tags": [
@@ -13360,7 +13360,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 727,
     "fields": {
         "context_tags": [
@@ -13379,7 +13379,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 728,
     "fields": {
         "context_tags": [
@@ -13394,7 +13394,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 729,
     "fields": {
         "context_tags": [
@@ -13415,7 +13415,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 730,
     "fields": {
         "context_tags": [
@@ -13434,7 +13434,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 731,
     "fields": {
         "context_tags": [
@@ -13448,7 +13448,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 732,
     "fields": {
         "context_tags": [
@@ -13464,7 +13464,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 733,
     "fields": {
         "context_tags": [
@@ -13478,7 +13478,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 734,
     "fields": {
         "context_tags": [
@@ -13494,7 +13494,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 735,
     "fields": {
         "context_tags": [
@@ -13515,7 +13515,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 736,
     "fields": {
         "context_tags": [
@@ -13529,7 +13529,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 737,
     "fields": {
         "context_tags": [
@@ -13545,7 +13545,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 738,
     "fields": {
         "context_tags": [
@@ -13559,7 +13559,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 739,
     "fields": {
         "context_tags": [
@@ -13572,7 +13572,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 740,
     "fields": {
         "context_tags": [
@@ -13590,7 +13590,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 741,
     "fields": {
         "context_tags": [
@@ -13605,7 +13605,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 742,
     "fields": {
         "context_tags": [
@@ -13624,7 +13624,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 743,
     "fields": {
         "context_tags": [
@@ -13640,7 +13640,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 744,
     "fields": {
         "context_tags": [
@@ -13659,7 +13659,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 745,
     "fields": {
         "context_tags": [
@@ -13678,7 +13678,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 746,
     "fields": {
         "context_tags": [
@@ -13694,7 +13694,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 747,
     "fields": {
         "context_tags": [
@@ -13709,7 +13709,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 748,
     "fields": {
         "context_tags": [
@@ -13723,7 +13723,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 749,
     "fields": {
         "context_tags": [
@@ -13738,7 +13738,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 750,
     "fields": {
         "context_tags": [
@@ -13751,7 +13751,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 751,
     "fields": {
         "context_tags": [
@@ -13770,7 +13770,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 752,
     "fields": {
         "context_tags": [
@@ -13783,7 +13783,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 753,
     "fields": {
         "context_tags": [
@@ -13797,7 +13797,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 754,
     "fields": {
         "context_tags": [
@@ -13811,7 +13811,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 755,
     "fields": {
         "context_tags": [
@@ -13826,7 +13826,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 756,
     "fields": {
         "context_tags": [
@@ -13841,7 +13841,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 757,
     "fields": {
         "context_tags": [
@@ -13859,7 +13859,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 758,
     "fields": {
         "context_tags": [
@@ -13877,7 +13877,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 759,
     "fields": {
         "context_tags": [
@@ -13897,7 +13897,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 760,
     "fields": {
         "context_tags": [
@@ -13911,7 +13911,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 761,
     "fields": {
         "context_tags": [
@@ -13931,7 +13931,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 762,
     "fields": {
         "context_tags": [
@@ -13945,7 +13945,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 763,
     "fields": {
         "context_tags": [
@@ -13960,7 +13960,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 764,
     "fields": {
         "context_tags": [
@@ -13973,7 +13973,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 765,
     "fields": {
         "context_tags": [
@@ -13988,7 +13988,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 766,
     "fields": {
         "context_tags": [
@@ -14005,7 +14005,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 767,
     "fields": {
         "context_tags": [
@@ -14019,7 +14019,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 768,
     "fields": {
         "context_tags": [
@@ -14034,7 +14034,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 769,
     "fields": {
         "context_tags": [
@@ -14049,7 +14049,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 770,
     "fields": {
         "context_tags": [
@@ -14065,7 +14065,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 771,
     "fields": {
         "context_tags": [
@@ -14079,7 +14079,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 772,
     "fields": {
         "context_tags": [
@@ -14094,7 +14094,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 773,
     "fields": {
         "context_tags": [
@@ -14113,7 +14113,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 774,
     "fields": {
         "context_tags": [
@@ -14131,7 +14131,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 775,
     "fields": {
         "context_tags": [
@@ -14150,7 +14150,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 776,
     "fields": {
         "context_tags": [
@@ -14164,7 +14164,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 777,
     "fields": {
         "context_tags": [
@@ -14179,7 +14179,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 778,
     "fields": {
         "context_tags": [
@@ -14193,7 +14193,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 779,
     "fields": {
         "context_tags": [
@@ -14208,7 +14208,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 780,
     "fields": {
         "context_tags": [
@@ -14223,7 +14223,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 781,
     "fields": {
         "context_tags": [
@@ -14239,7 +14239,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 782,
     "fields": {
         "context_tags": [
@@ -14255,7 +14255,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 783,
     "fields": {
         "context_tags": [
@@ -14271,7 +14271,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 784,
     "fields": {
         "context_tags": [
@@ -14287,7 +14287,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 785,
     "fields": {
         "context_tags": [
@@ -14306,7 +14306,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 786,
     "fields": {
         "context_tags": [
@@ -14320,7 +14320,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 787,
     "fields": {
         "context_tags": [
@@ -14335,7 +14335,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 788,
     "fields": {
         "context_tags": [
@@ -14350,7 +14350,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 789,
     "fields": {
         "context_tags": [
@@ -14364,7 +14364,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 790,
     "fields": {
         "context_tags": [
@@ -14384,7 +14384,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 791,
     "fields": {
         "context_tags": [
@@ -14403,7 +14403,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 792,
     "fields": {
         "context_tags": [
@@ -14418,7 +14418,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 793,
     "fields": {
         "context_tags": [
@@ -14431,7 +14431,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 794,
     "fields": {
         "context_tags": [
@@ -14444,7 +14444,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 795,
     "fields": {
         "context_tags": [
@@ -14460,7 +14460,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 796,
     "fields": {
         "context_tags": [
@@ -14473,7 +14473,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 797,
     "fields": {
         "context_tags": [
@@ -14489,7 +14489,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 798,
     "fields": {
         "context_tags": [
@@ -14505,7 +14505,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 799,
     "fields": {
         "context_tags": [
@@ -14519,7 +14519,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 800,
     "fields": {
         "context_tags": [
@@ -14538,7 +14538,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 801,
     "fields": {
         "context_tags": [
@@ -14553,7 +14553,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 802,
     "fields": {
         "context_tags": [
@@ -14571,7 +14571,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 803,
     "fields": {
         "context_tags": [
@@ -14587,7 +14587,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 804,
     "fields": {
         "context_tags": [
@@ -14605,7 +14605,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 805,
     "fields": {
         "context_tags": [
@@ -14620,7 +14620,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 806,
     "fields": {
         "context_tags": [
@@ -14634,7 +14634,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 807,
     "fields": {
         "context_tags": [
@@ -14648,7 +14648,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 808,
     "fields": {
         "context_tags": [
@@ -14664,7 +14664,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 809,
     "fields": {
         "context_tags": [
@@ -14679,7 +14679,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 810,
     "fields": {
         "context_tags": [
@@ -14695,7 +14695,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 811,
     "fields": {
         "context_tags": [
@@ -14709,7 +14709,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 812,
     "fields": {
         "context_tags": [
@@ -14725,7 +14725,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 813,
     "fields": {
         "context_tags": [
@@ -14738,7 +14738,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 814,
     "fields": {
         "context_tags": [
@@ -14754,7 +14754,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 815,
     "fields": {
         "context_tags": [
@@ -14768,7 +14768,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 816,
     "fields": {
         "context_tags": [
@@ -14783,7 +14783,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 817,
     "fields": {
         "context_tags": [
@@ -14797,7 +14797,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 818,
     "fields": {
         "context_tags": [
@@ -14814,7 +14814,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 819,
     "fields": {
         "context_tags": [
@@ -14829,7 +14829,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 820,
     "fields": {
         "context_tags": [
@@ -14846,7 +14846,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 821,
     "fields": {
         "context_tags": [
@@ -14862,7 +14862,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 822,
     "fields": {
         "context_tags": [
@@ -14877,7 +14877,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 823,
     "fields": {
         "context_tags": [
@@ -14892,7 +14892,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 824,
     "fields": {
         "context_tags": [
@@ -14910,7 +14910,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 825,
     "fields": {
         "context_tags": [
@@ -14928,7 +14928,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 826,
     "fields": {
         "context_tags": [
@@ -14943,7 +14943,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 827,
     "fields": {
         "context_tags": [
@@ -14959,7 +14959,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 828,
     "fields": {
         "context_tags": [
@@ -14974,7 +14974,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 829,
     "fields": {
         "context_tags": [
@@ -14989,7 +14989,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 830,
     "fields": {
         "context_tags": [
@@ -15005,7 +15005,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 831,
     "fields": {
         "context_tags": [
@@ -15024,7 +15024,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 832,
     "fields": {
         "context_tags": [
@@ -15040,7 +15040,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 833,
     "fields": {
         "context_tags": [
@@ -15057,7 +15057,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 834,
     "fields": {
         "context_tags": [
@@ -15072,7 +15072,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 835,
     "fields": {
         "context_tags": [
@@ -15090,7 +15090,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 836,
     "fields": {
         "context_tags": [
@@ -15105,7 +15105,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 837,
     "fields": {
         "context_tags": [
@@ -15120,7 +15120,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 838,
     "fields": {
         "context_tags": [
@@ -15136,7 +15136,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 839,
     "fields": {
         "context_tags": [
@@ -15149,7 +15149,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 840,
     "fields": {
         "context_tags": [
@@ -15165,7 +15165,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 841,
     "fields": {
         "context_tags": [
@@ -15180,7 +15180,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 842,
     "fields": {
         "context_tags": [
@@ -15194,7 +15194,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 843,
     "fields": {
         "context_tags": [
@@ -15207,7 +15207,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 844,
     "fields": {
         "context_tags": [
@@ -15222,7 +15222,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 845,
     "fields": {
         "context_tags": [
@@ -15238,7 +15238,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 846,
     "fields": {
         "context_tags": [
@@ -15253,7 +15253,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 847,
     "fields": {
         "context_tags": [
@@ -15267,7 +15267,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 848,
     "fields": {
         "context_tags": [
@@ -15282,7 +15282,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 849,
     "fields": {
         "context_tags": [
@@ -15296,7 +15296,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 850,
     "fields": {
         "context_tags": [
@@ -15311,7 +15311,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 851,
     "fields": {
         "context_tags": [
@@ -15331,7 +15331,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 852,
     "fields": {
         "context_tags": [
@@ -15345,7 +15345,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 853,
     "fields": {
         "context_tags": [
@@ -15361,7 +15361,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 854,
     "fields": {
         "context_tags": [
@@ -15377,7 +15377,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 855,
     "fields": {
         "context_tags": [
@@ -15392,7 +15392,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 856,
     "fields": {
         "context_tags": [
@@ -15406,7 +15406,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 857,
     "fields": {
         "context_tags": [
@@ -15421,7 +15421,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 858,
     "fields": {
         "context_tags": [
@@ -15436,7 +15436,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 859,
     "fields": {
         "context_tags": [
@@ -15452,7 +15452,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 860,
     "fields": {
         "context_tags": [
@@ -15468,7 +15468,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 861,
     "fields": {
         "context_tags": [
@@ -15482,7 +15482,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 862,
     "fields": {
         "context_tags": [
@@ -15498,7 +15498,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 863,
     "fields": {
         "context_tags": [
@@ -15514,7 +15514,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 864,
     "fields": {
         "context_tags": [
@@ -15528,7 +15528,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 865,
     "fields": {
         "context_tags": [
@@ -15543,7 +15543,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 866,
     "fields": {
         "context_tags": [
@@ -15561,7 +15561,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 867,
     "fields": {
         "context_tags": [
@@ -15577,7 +15577,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 868,
     "fields": {
         "context_tags": [
@@ -15591,7 +15591,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 869,
     "fields": {
         "context_tags": [
@@ -15605,7 +15605,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 870,
     "fields": {
         "context_tags": [
@@ -15619,7 +15619,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 871,
     "fields": {
         "context_tags": [
@@ -15640,7 +15640,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 872,
     "fields": {
         "context_tags": [
@@ -15656,7 +15656,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 873,
     "fields": {
         "context_tags": [
@@ -15672,7 +15672,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 874,
     "fields": {
         "context_tags": [
@@ -15686,7 +15686,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 875,
     "fields": {
         "context_tags": [
@@ -15699,7 +15699,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 876,
     "fields": {
         "context_tags": [
@@ -15716,7 +15716,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 877,
     "fields": {
         "context_tags": [
@@ -15732,7 +15732,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 878,
     "fields": {
         "context_tags": [
@@ -15747,7 +15747,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 879,
     "fields": {
         "context_tags": [
@@ -15765,7 +15765,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 880,
     "fields": {
         "context_tags": [
@@ -15779,7 +15779,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 881,
     "fields": {
         "context_tags": [
@@ -15795,7 +15795,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 882,
     "fields": {
         "context_tags": [
@@ -15809,7 +15809,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 883,
     "fields": {
         "context_tags": [
@@ -15824,7 +15824,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 884,
     "fields": {
         "context_tags": [
@@ -15842,7 +15842,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 885,
     "fields": {
         "context_tags": [
@@ -15861,7 +15861,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 886,
     "fields": {
         "context_tags": [
@@ -15877,7 +15877,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 887,
     "fields": {
         "context_tags": [
@@ -15893,7 +15893,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 888,
     "fields": {
         "context_tags": [
@@ -15909,7 +15909,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 889,
     "fields": {
         "context_tags": [
@@ -15924,7 +15924,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 890,
     "fields": {
         "context_tags": [
@@ -15938,7 +15938,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 891,
     "fields": {
         "context_tags": [
@@ -15952,7 +15952,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 892,
     "fields": {
         "context_tags": [
@@ -15968,7 +15968,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 893,
     "fields": {
         "context_tags": [
@@ -15982,7 +15982,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 894,
     "fields": {
         "context_tags": [
@@ -15999,7 +15999,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 895,
     "fields": {
         "context_tags": [
@@ -16013,7 +16013,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 896,
     "fields": {
         "context_tags": [
@@ -16028,7 +16028,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 897,
     "fields": {
         "context_tags": [
@@ -16042,7 +16042,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 898,
     "fields": {
         "context_tags": [
@@ -16059,7 +16059,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 899,
     "fields": {
         "context_tags": [
@@ -16076,7 +16076,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 900,
     "fields": {
         "context_tags": [
@@ -16090,7 +16090,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 901,
     "fields": {
         "context_tags": [
@@ -16107,7 +16107,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 902,
     "fields": {
         "context_tags": [
@@ -16122,7 +16122,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 903,
     "fields": {
         "context_tags": [
@@ -16141,7 +16141,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 904,
     "fields": {
         "context_tags": [
@@ -16158,7 +16158,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 905,
     "fields": {
         "context_tags": [
@@ -16175,7 +16175,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 906,
     "fields": {
         "context_tags": [
@@ -16190,7 +16190,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 907,
     "fields": {
         "context_tags": [
@@ -16205,7 +16205,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 908,
     "fields": {
         "context_tags": [
@@ -16224,7 +16224,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 909,
     "fields": {
         "context_tags": [
@@ -16243,7 +16243,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 910,
     "fields": {
         "context_tags": [
@@ -16258,7 +16258,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 911,
     "fields": {
         "context_tags": [
@@ -16271,7 +16271,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 912,
     "fields": {
         "context_tags": [
@@ -16289,7 +16289,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 913,
     "fields": {
         "context_tags": [
@@ -16304,7 +16304,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 914,
     "fields": {
         "context_tags": [
@@ -16318,7 +16318,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 915,
     "fields": {
         "context_tags": [
@@ -16339,7 +16339,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 916,
     "fields": {
         "context_tags": [
@@ -16352,7 +16352,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 917,
     "fields": {
         "context_tags": [
@@ -16367,7 +16367,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 918,
     "fields": {
         "context_tags": [
@@ -16388,7 +16388,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 919,
     "fields": {
         "context_tags": [
@@ -16403,7 +16403,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 920,
     "fields": {
         "context_tags": [
@@ -16416,7 +16416,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 921,
     "fields": {
         "context_tags": [
@@ -16429,7 +16429,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 922,
     "fields": {
         "context_tags": [
@@ -16445,7 +16445,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 923,
     "fields": {
         "context_tags": [
@@ -16462,7 +16462,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 924,
     "fields": {
         "context_tags": [
@@ -16478,7 +16478,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 925,
     "fields": {
         "context_tags": [
@@ -16491,7 +16491,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 926,
     "fields": {
         "context_tags": [
@@ -16508,7 +16508,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 927,
     "fields": {
         "context_tags": [
@@ -16528,7 +16528,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 928,
     "fields": {
         "context_tags": [
@@ -16542,7 +16542,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 929,
     "fields": {
         "context_tags": [
@@ -16555,7 +16555,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 930,
     "fields": {
         "context_tags": [
@@ -16570,7 +16570,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 931,
     "fields": {
         "context_tags": [
@@ -16584,7 +16584,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 932,
     "fields": {
         "context_tags": [
@@ -16600,7 +16600,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 933,
     "fields": {
         "context_tags": [
@@ -16618,7 +16618,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 934,
     "fields": {
         "context_tags": [
@@ -16636,7 +16636,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 935,
     "fields": {
         "context_tags": [
@@ -16652,7 +16652,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 936,
     "fields": {
         "context_tags": [
@@ -16666,7 +16666,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 937,
     "fields": {
         "context_tags": [
@@ -16686,7 +16686,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 938,
     "fields": {
         "context_tags": [
@@ -16701,7 +16701,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 939,
     "fields": {
         "context_tags": [
@@ -16717,7 +16717,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 940,
     "fields": {
         "context_tags": [
@@ -16732,7 +16732,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 941,
     "fields": {
         "context_tags": [
@@ -16749,7 +16749,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 942,
     "fields": {
         "context_tags": [
@@ -16766,7 +16766,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 943,
     "fields": {
         "context_tags": [
@@ -16779,7 +16779,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 944,
     "fields": {
         "context_tags": [
@@ -16792,7 +16792,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 945,
     "fields": {
         "context_tags": [
@@ -16807,7 +16807,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 946,
     "fields": {
         "context_tags": [
@@ -16824,7 +16824,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 947,
     "fields": {
         "context_tags": [
@@ -16839,7 +16839,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 948,
     "fields": {
         "context_tags": [
@@ -16857,7 +16857,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 949,
     "fields": {
         "context_tags": [
@@ -16872,7 +16872,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 950,
     "fields": {
         "context_tags": [
@@ -16888,7 +16888,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 951,
     "fields": {
         "context_tags": [
@@ -16904,7 +16904,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 952,
     "fields": {
         "context_tags": [
@@ -16920,7 +16920,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 953,
     "fields": {
         "context_tags": [
@@ -16938,7 +16938,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 954,
     "fields": {
         "context_tags": [
@@ -16952,7 +16952,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 955,
     "fields": {
         "context_tags": [
@@ -16967,7 +16967,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 956,
     "fields": {
         "context_tags": [
@@ -16982,7 +16982,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 957,
     "fields": {
         "context_tags": [
@@ -16997,7 +16997,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 958,
     "fields": {
         "context_tags": [
@@ -17010,7 +17010,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 959,
     "fields": {
         "context_tags": [
@@ -17027,7 +17027,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 960,
     "fields": {
         "context_tags": [
@@ -17044,7 +17044,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 961,
     "fields": {
         "context_tags": [
@@ -17062,7 +17062,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 962,
     "fields": {
         "context_tags": [
@@ -17077,7 +17077,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 963,
     "fields": {
         "context_tags": [
@@ -17093,7 +17093,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 964,
     "fields": {
         "context_tags": [
@@ -17113,7 +17113,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 965,
     "fields": {
         "context_tags": [
@@ -17131,7 +17131,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 966,
     "fields": {
         "context_tags": [
@@ -17145,7 +17145,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 967,
     "fields": {
         "context_tags": [
@@ -17159,7 +17159,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 968,
     "fields": {
         "context_tags": [
@@ -17175,7 +17175,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 969,
     "fields": {
         "context_tags": [
@@ -17189,7 +17189,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 970,
     "fields": {
         "context_tags": [
@@ -17207,7 +17207,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 971,
     "fields": {
         "context_tags": [
@@ -17224,7 +17224,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 972,
     "fields": {
         "context_tags": [
@@ -17238,7 +17238,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 973,
     "fields": {
         "context_tags": [
@@ -17253,7 +17253,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 974,
     "fields": {
         "context_tags": [
@@ -17272,7 +17272,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 975,
     "fields": {
         "context_tags": [
@@ -17287,7 +17287,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 976,
     "fields": {
         "context_tags": [
@@ -17302,7 +17302,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 977,
     "fields": {
         "context_tags": [
@@ -17323,7 +17323,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 978,
     "fields": {
         "context_tags": [
@@ -17337,7 +17337,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 979,
     "fields": {
         "context_tags": [
@@ -17354,7 +17354,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 980,
     "fields": {
         "context_tags": [
@@ -17371,7 +17371,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 981,
     "fields": {
         "context_tags": [
@@ -17388,7 +17388,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 982,
     "fields": {
         "context_tags": [
@@ -17403,7 +17403,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 983,
     "fields": {
         "context_tags": [
@@ -17416,7 +17416,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 984,
     "fields": {
         "context_tags": [
@@ -17433,7 +17433,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 985,
     "fields": {
         "context_tags": [
@@ -17449,7 +17449,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 986,
     "fields": {
         "context_tags": [
@@ -17466,7 +17466,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 987,
     "fields": {
         "context_tags": [
@@ -17482,7 +17482,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 988,
     "fields": {
         "context_tags": [
@@ -17498,7 +17498,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 989,
     "fields": {
         "context_tags": [
@@ -17512,7 +17512,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 990,
     "fields": {
         "context_tags": [
@@ -17529,7 +17529,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 991,
     "fields": {
         "context_tags": [
@@ -17542,7 +17542,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 992,
     "fields": {
         "context_tags": [
@@ -17558,7 +17558,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 993,
     "fields": {
         "context_tags": [
@@ -17574,7 +17574,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 994,
     "fields": {
         "context_tags": [
@@ -17588,7 +17588,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 995,
     "fields": {
         "context_tags": [
@@ -17604,7 +17604,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 996,
     "fields": {
         "context_tags": [
@@ -17619,7 +17619,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 997,
     "fields": {
         "context_tags": [
@@ -17633,7 +17633,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 998,
     "fields": {
         "context_tags": [
@@ -17649,7 +17649,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 999,
     "fields": {
         "context_tags": [
@@ -17662,7 +17662,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1000,
     "fields": {
         "context_tags": [
@@ -17676,7 +17676,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1001,
     "fields": {
         "context_tags": [
@@ -17690,7 +17690,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1002,
     "fields": {
         "context_tags": [
@@ -17708,7 +17708,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1003,
     "fields": {
         "context_tags": [
@@ -17724,7 +17724,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1004,
     "fields": {
         "context_tags": [
@@ -17739,7 +17739,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1005,
     "fields": {
         "context_tags": [
@@ -17757,7 +17757,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1006,
     "fields": {
         "context_tags": [
@@ -17771,7 +17771,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1007,
     "fields": {
         "context_tags": [
@@ -17787,7 +17787,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1008,
     "fields": {
         "context_tags": [
@@ -17803,7 +17803,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1009,
     "fields": {
         "context_tags": [
@@ -17817,7 +17817,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1010,
     "fields": {
         "context_tags": [
@@ -17837,7 +17837,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1011,
     "fields": {
         "context_tags": [
@@ -17854,7 +17854,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1012,
     "fields": {
         "context_tags": [
@@ -17872,7 +17872,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1013,
     "fields": {
         "context_tags": [
@@ -17889,7 +17889,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1014,
     "fields": {
         "context_tags": [
@@ -17907,7 +17907,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1015,
     "fields": {
         "context_tags": [
@@ -17923,7 +17923,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1016,
     "fields": {
         "context_tags": [
@@ -17940,7 +17940,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1017,
     "fields": {
         "context_tags": [
@@ -17955,7 +17955,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1018,
     "fields": {
         "context_tags": [
@@ -17970,7 +17970,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1019,
     "fields": {
         "context_tags": [
@@ -17984,7 +17984,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1020,
     "fields": {
         "context_tags": [
@@ -17997,7 +17997,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1021,
     "fields": {
         "context_tags": [
@@ -18012,7 +18012,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1022,
     "fields": {
         "context_tags": [
@@ -18027,7 +18027,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1023,
     "fields": {
         "context_tags": [
@@ -18042,7 +18042,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1024,
     "fields": {
         "context_tags": [
@@ -18063,7 +18063,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1025,
     "fields": {
         "context_tags": [
@@ -18078,7 +18078,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1026,
     "fields": {
         "context_tags": [
@@ -18096,7 +18096,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1027,
     "fields": {
         "context_tags": [
@@ -18115,7 +18115,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1028,
     "fields": {
         "context_tags": [
@@ -18130,7 +18130,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1029,
     "fields": {
         "context_tags": [
@@ -18150,7 +18150,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1030,
     "fields": {
         "context_tags": [
@@ -18167,7 +18167,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1031,
     "fields": {
         "context_tags": [
@@ -18185,7 +18185,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1032,
     "fields": {
         "context_tags": [
@@ -18204,7 +18204,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1033,
     "fields": {
         "context_tags": [
@@ -18218,7 +18218,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1034,
     "fields": {
         "context_tags": [
@@ -18235,7 +18235,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1035,
     "fields": {
         "context_tags": [
@@ -18253,7 +18253,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1036,
     "fields": {
         "context_tags": [
@@ -18271,7 +18271,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1037,
     "fields": {
         "context_tags": [
@@ -18286,7 +18286,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1038,
     "fields": {
         "context_tags": [
@@ -18299,7 +18299,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1039,
     "fields": {
         "context_tags": [
@@ -18313,7 +18313,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1040,
     "fields": {
         "context_tags": [
@@ -18329,7 +18329,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1041,
     "fields": {
         "context_tags": [
@@ -18345,7 +18345,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1042,
     "fields": {
         "context_tags": [
@@ -18361,7 +18361,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1043,
     "fields": {
         "context_tags": [
@@ -18379,7 +18379,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1044,
     "fields": {
         "context_tags": [
@@ -18397,7 +18397,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1045,
     "fields": {
         "context_tags": [
@@ -18410,7 +18410,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1046,
     "fields": {
         "context_tags": [
@@ -18431,7 +18431,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1047,
     "fields": {
         "context_tags": [
@@ -18446,7 +18446,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1048,
     "fields": {
         "context_tags": [
@@ -18462,7 +18462,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1049,
     "fields": {
         "context_tags": [
@@ -18476,7 +18476,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1050,
     "fields": {
         "context_tags": [
@@ -18494,7 +18494,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1051,
     "fields": {
         "context_tags": [
@@ -18508,7 +18508,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1052,
     "fields": {
         "context_tags": [
@@ -18521,7 +18521,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1053,
     "fields": {
         "context_tags": [
@@ -18538,7 +18538,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1054,
     "fields": {
         "context_tags": [
@@ -18554,7 +18554,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1055,
     "fields": {
         "context_tags": [
@@ -18570,7 +18570,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1056,
     "fields": {
         "context_tags": [
@@ -18585,7 +18585,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1057,
     "fields": {
         "context_tags": [
@@ -18602,7 +18602,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1058,
     "fields": {
         "context_tags": [
@@ -18621,7 +18621,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1059,
     "fields": {
         "context_tags": [
@@ -18638,7 +18638,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1060,
     "fields": {
         "context_tags": [
@@ -18652,7 +18652,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1061,
     "fields": {
         "context_tags": [
@@ -18667,7 +18667,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1062,
     "fields": {
         "context_tags": [
@@ -18682,7 +18682,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1063,
     "fields": {
         "context_tags": [
@@ -18695,7 +18695,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1064,
     "fields": {
         "context_tags": [
@@ -18713,7 +18713,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1065,
     "fields": {
         "context_tags": [
@@ -18732,7 +18732,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1066,
     "fields": {
         "context_tags": [
@@ -18746,7 +18746,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1067,
     "fields": {
         "context_tags": [
@@ -18762,7 +18762,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1068,
     "fields": {
         "context_tags": [
@@ -18778,7 +18778,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1069,
     "fields": {
         "context_tags": [
@@ -18793,7 +18793,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1070,
     "fields": {
         "context_tags": [
@@ -18811,7 +18811,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1071,
     "fields": {
         "context_tags": [
@@ -18828,7 +18828,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1072,
     "fields": {
         "context_tags": [
@@ -18846,7 +18846,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1073,
     "fields": {
         "context_tags": [
@@ -18861,7 +18861,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1074,
     "fields": {
         "context_tags": [
@@ -18875,7 +18875,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1075,
     "fields": {
         "context_tags": [
@@ -18892,7 +18892,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1076,
     "fields": {
         "context_tags": [
@@ -18906,7 +18906,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1077,
     "fields": {
         "context_tags": [
@@ -18922,7 +18922,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1078,
     "fields": {
         "context_tags": [
@@ -18939,7 +18939,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1079,
     "fields": {
         "context_tags": [
@@ -18953,7 +18953,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1080,
     "fields": {
         "context_tags": [
@@ -18968,7 +18968,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1081,
     "fields": {
         "context_tags": [
@@ -18987,7 +18987,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1082,
     "fields": {
         "context_tags": [
@@ -19001,7 +19001,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1083,
     "fields": {
         "context_tags": [
@@ -19018,7 +19018,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1084,
     "fields": {
         "context_tags": [
@@ -19033,7 +19033,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1085,
     "fields": {
         "context_tags": [
@@ -19050,7 +19050,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1086,
     "fields": {
         "context_tags": [
@@ -19066,7 +19066,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1087,
     "fields": {
         "context_tags": [
@@ -19083,7 +19083,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1088,
     "fields": {
         "context_tags": [
@@ -19098,7 +19098,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1089,
     "fields": {
         "context_tags": [
@@ -19115,7 +19115,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1090,
     "fields": {
         "context_tags": [
@@ -19130,7 +19130,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1091,
     "fields": {
         "context_tags": [
@@ -19144,7 +19144,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1092,
     "fields": {
         "context_tags": [
@@ -19158,7 +19158,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1093,
     "fields": {
         "context_tags": [
@@ -19173,7 +19173,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1094,
     "fields": {
         "context_tags": [
@@ -19190,7 +19190,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1095,
     "fields": {
         "context_tags": [
@@ -19207,7 +19207,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1096,
     "fields": {
         "context_tags": [
@@ -19222,7 +19222,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1097,
     "fields": {
         "context_tags": [
@@ -19237,7 +19237,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1098,
     "fields": {
         "context_tags": [
@@ -19252,7 +19252,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1099,
     "fields": {
         "context_tags": [
@@ -19269,7 +19269,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1100,
     "fields": {
         "context_tags": [
@@ -19284,7 +19284,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1101,
     "fields": {
         "context_tags": [
@@ -19297,7 +19297,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1102,
     "fields": {
         "context_tags": [
@@ -19312,7 +19312,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1103,
     "fields": {
         "context_tags": [
@@ -19331,7 +19331,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1104,
     "fields": {
         "context_tags": [
@@ -19348,7 +19348,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1105,
     "fields": {
         "context_tags": [
@@ -19366,7 +19366,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1106,
     "fields": {
         "context_tags": [
@@ -19385,7 +19385,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1107,
     "fields": {
         "context_tags": [
@@ -19399,7 +19399,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1108,
     "fields": {
         "context_tags": [
@@ -19416,7 +19416,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1109,
     "fields": {
         "context_tags": [
@@ -19431,7 +19431,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1110,
     "fields": {
         "context_tags": [
@@ -19450,7 +19450,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1111,
     "fields": {
         "context_tags": [
@@ -19464,7 +19464,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1112,
     "fields": {
         "context_tags": [
@@ -19482,7 +19482,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1113,
     "fields": {
         "context_tags": [
@@ -19498,7 +19498,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1114,
     "fields": {
         "context_tags": [
@@ -19514,7 +19514,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1115,
     "fields": {
         "context_tags": [
@@ -19530,7 +19530,7 @@
     }
 },
 {
-    "model": "activity_suggestions.activitysuggestionmessagetemplate",
+    "model": "walking_suggestions.walkingsuggestionmessagetemplate",
     "pk": 1116,
     "fields": {
         "context_tags": [
