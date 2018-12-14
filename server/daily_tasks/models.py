@@ -5,7 +5,7 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 
-from django_celery_beat.models import PeriodicTask, PeriodicTasks, CrontabSchedule
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from locations.services import LocationService
 
@@ -60,7 +60,6 @@ class DailyTask(models.Model):
         self.task.crontab.hour = utc_time.hour
         self.task.crontab.minute = utc_time.minute
         self.task.crontab.save()
-        PeriodicTasks.changed(self.task)
 
     def update_timezone(self):
         self.set_time(
