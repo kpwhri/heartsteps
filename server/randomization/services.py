@@ -234,12 +234,22 @@ class DecisionMessageService(DecisionService):
             push_message_service = PushMessageService(self.user)
         except PushMessageService.DeviceMissingError:
             return False
+        try:
+            context_object = DecisionContext.objects.get(
+                decision = self.decision,
+                content_type = ContentType.objects.get_for_model(MessageTemplate)
+            )
+            message_template = context_object.content_object
+        except:
+            return False
         message = push_message_service.send_notification(
-            self.message.message_template.body,
-            title = self.message.message_template.title
+            message_template.body,
+            title = message_template.title
             )
         if message:
-            self.message.sent_message = message
-            self.message.save()
+            DecisionContext.objects.create(
+                decision = self.decision,
+                content_objects = message
+            )
             return True
         return False
