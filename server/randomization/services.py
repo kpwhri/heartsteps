@@ -198,15 +198,7 @@ class DecisionContextService(DecisionService):
 
 class DecisionMessageService(DecisionService):
 
-    def create_message(self):
-        message_template = self.get_message_template()
-        if not message_template:
-            raise ValueError("No matching message template")
-        DecisionContext.objects.create(
-            decision = self.decision,
-            content_object = message_template
-        )
-        return message_template
+    MESSAGE_TEMPLATE_MODEL = MessageTemplate
 
     def get_message_template_tags(self):
         message_tags_query = Q()
@@ -214,11 +206,8 @@ class DecisionMessageService(DecisionService):
             message_tags_query |= Q(tag=tag.tag)
         return MessageTag.objects.filter(message_tags_query).all()
 
-    def get_message_template_query(self):
-        return MessageTemplate.objects
-
-    def get_message_template(self):
-        query = self.get_message_template_query()
+    def create_message_template(self):
+        query = self.MESSAGE_TEMPLATE_MODEL.objects
         for tag in self.get_message_template_tags():
             query = query.filter(context_tags__in=[tag])
         message_templates = query.all()
@@ -229,27 +218,36 @@ class DecisionMessageService(DecisionService):
             return message_templates[0]
         return message_templates[randint(0, len(message_templates)-1)]
 
-    def send_message(self):
-        try:
-            push_message_service = PushMessageService(self.user)
-        except PushMessageService.DeviceMissingError:
-            return False
+        if not message_template:
+            raise ValueError("No matching message template")
+        return message_template
+
+    def get_message_template(self):
+        if hasattr(self, '__message_template'):
+            return self.__message_template
         try:
             context_object = DecisionContext.objects.get(
                 decision = self.decision,
-                content_type = ContentType.objects.get_for_model(MessageTemplate)
+                content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
             )
-            message_template = context_object.content_object
-        except:
-            return False
+            return context_object.content_object
+        except DecisionContext.DoesNotExist:
+            message_template = self.create_message_template()
+            DecisionContext.objects.create(
+                decision = self.decision,
+                content_object = message_template
+            )
+            self.__message_template = message_template
+            return message_template
+
+    def send_message(self):
+        push_message_service = PushMessageService(self.user)
+        message_template = self.get_message_template()
         message = push_message_service.send_notification(
             message_template.body,
             title = message_template.title
             )
-        if message:
-            DecisionContext.objects.create(
-                decision = self.decision,
-                content_objects = message
-            )
-            return True
-        return False
+        DecisionContext.objects.create(
+            decision = self.decision,
+            content_object = message
+        )

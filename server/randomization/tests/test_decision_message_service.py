@@ -7,16 +7,20 @@ from django.test import override_settings, TestCase
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
-from push_messages.models import Message as PushMessage
+from push_messages.models import Message as PushMessage, Device
+from push_messages.services import PushMessageService
 
-from randomization.models import Decision
+from randomization.models import Decision, DecisionContext
 from randomization.services import DecisionMessageService
 
 class DecisionMessageTest(TestCase):
 
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
     def make_decision_service(self):
         decision = Decision.objects.create(
-            user = User.objects.create(username="test"),
+            user = self.user,
             time = timezone.now()
         )
         return DecisionMessageService(decision)
@@ -25,7 +29,7 @@ class DecisionMessageTest(TestCase):
         decision_service = self.make_decision_service()
         message_template = MessageTemplate.objects.create(body="Test message")
 
-        message = decision_service.create_message()
+        message = decision_service.create_message_template()
 
         self.assertEqual(message.body, message_template.body)
 
@@ -40,7 +44,7 @@ class DecisionMessageTest(TestCase):
         decision_service = self.make_decision_service()
         decision_service.add_context("tag")
         
-        message = decision_service.create_message()
+        message = decision_service.create_message_template()
 
         self.assertNotEqual(message.body, "Not this message")
 
@@ -61,7 +65,7 @@ class DecisionMessageTest(TestCase):
         decision_service.add_context("tag")
         decision_service.add_context("specific tag")
         
-        message = decision_service.create_message()
+        message = decision_service.create_message_template()
 
         self.assertEqual(message.body, specific_template.body)
 
@@ -74,6 +78,30 @@ class DecisionMessageTest(TestCase):
         decision_service.add_context("tag")
         decision_service.add_context("not a message tag")
         
-        message = decision_service.create_message()
+        message = decision_service.create_message_template()
 
         self.assertEqual(message.body, "Test message")
+
+    @patch.object(PushMessageService, 'send_notification')
+    def test_sends_message(self, send_notification):
+        decision_service = self.make_decision_service()
+        Device.objects.create(
+            user = self.user,
+            active = True,
+            token ="123"
+        )
+        message_template = MessageTemplate.objects.create(body="Test message")
+        push_message = PushMessage.objects.create(
+            recipient = self.user,
+            content = "foo",
+            message_type = PushMessage.NOTIFICATION
+        )
+        send_notification.return_value = push_message
+
+        decision_service.send_message()
+
+        send_notification.assert_called_with(message_template.body, title=message_template.title)
+
+        context_objects = [obj.content_object for obj in DecisionContext.objects.all()]
+        self.assertIn(message_template, context_objects)
+        self.assertIn(push_message, context_objects)

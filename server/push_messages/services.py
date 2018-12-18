@@ -161,7 +161,7 @@ class PushMessageService():
             external_id = self._service.send(request)
         except:
             message.save()
-            return False        
+            return message        
         message.external_id = external_id
         message.save()
 

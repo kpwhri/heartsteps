@@ -18,6 +18,8 @@ from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, Wa
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
+    MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
+
     def determine_availability(self):
         if self.get_fitbit_step_count() > 250:
             return False

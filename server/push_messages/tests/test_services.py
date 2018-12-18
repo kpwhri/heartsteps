@@ -85,8 +85,6 @@ class TestPushMessageService(TestCase):
         push_message_service = PushMessageService(user)
 
         result = push_message_service.send_notification("Hello World")
-        
-        self.assertFalse(result)
 
         message = Message.objects.get(recipient=user)
         self.assertIsNone(message.external_id)

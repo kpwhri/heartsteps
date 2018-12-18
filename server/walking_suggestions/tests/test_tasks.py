@@ -76,10 +76,6 @@ class MakeDecisionTest(TestCase):
         self.addCleanup(update_context_patch.stop)
         self.update_context = update_context_patch.start()
 
-        create_message_patch = patch.object(WalkingSuggestionDecisionService, 'create_message')
-        self.addCleanup(create_message_patch.stop)
-        self.create_message = create_message_patch.start()
-
         send_message_patch = patch.object(WalkingSuggestionDecisionService, 'send_message')
         self.addCleanup(send_message_patch.stop)
         self.send_message = send_message_patch.start()
@@ -90,7 +86,6 @@ class MakeDecisionTest(TestCase):
 
         self.update_context.assert_called()
         decide.assert_called()
-        self.create_message.assert_called()
         self.send_message.assert_called()
 
     @patch.object(WalkingSuggestionDecisionService, 'decide', return_value=False)
@@ -99,7 +94,6 @@ class MakeDecisionTest(TestCase):
 
         self.update_context.assert_called()
         decide.assert_called()
-        self.create_message.assert_not_called()
         self.send_message.assert_not_called()
 
 class InitializeTaskTests(TestCase):
