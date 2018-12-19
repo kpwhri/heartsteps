@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 
 
-class GoodMorningMessagesConfig(AppConfig):
-    name = 'good_morning_messages'
+class MorningMessagesConfig(AppConfig):
+    name = 'morning_messages'
+
+    def ready(self):
+        import morning_messages.receivers

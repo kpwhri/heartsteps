@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 
 from daily_tasks.models import DailyTask
+from morning_messages.models import Configuration as MorningMessageConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
 from participants.models import Participant, User
@@ -19,7 +20,7 @@ class InitializeTask(TestCase):
     def test_starts_nightly_update_task(self):
         initialize_participant("test")
 
-        daily_task = DailyTask.objects.get(user__username="test")
+        daily_task = DailyTask.objects.get(user__username="test", category='participant update')
         self.assertEqual(daily_task.hour, 4)
         self.assertEqual(daily_task.minute, 15)
     
@@ -28,3 +29,9 @@ class InitializeTask(TestCase):
 
         configuration = WalkingSuggestionConfiguration.objects.get(user__username="test")
         self.assertIsNotNone(configuration)
+
+    def test_creates_morning_message_configuration(self):
+        initialize_participant("test")
+
+        configuration = MorningMessageConfiguration.objects.get()
+        self.assertEqual(configuration.user.username, "test")

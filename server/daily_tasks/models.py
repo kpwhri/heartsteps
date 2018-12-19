@@ -11,11 +11,31 @@ from locations.services import LocationService
 
 class DailyTask(models.Model):
     user = models.ForeignKey(User)
-    category = models.CharField(max_length=20)
+    category = models.CharField(max_length=20, null=True)
     task = models.ForeignKey(PeriodicTask, null=True)
 
     hour = models.IntegerField(null=True)
     minute = models.IntegerField(null=True)
+
+    def __str__(self):
+        if self.task:
+            return self.task.name
+        else:
+            return "%s (no task)" % (self.user)
+
+    @property
+    def enabled(self):
+        return self.task.enabled
+
+    def enable(self):
+        if not self.enabled:
+            self.task.enabled = True
+            self.task.save()
+
+    def disable(self):
+        if self.enabled:
+            self.task.enabled = False
+            self.task.save()
 
     def create_daily_task(user, category, task, name, arguments, hour, minute):
         daily_task = DailyTask.objects.create(
@@ -31,6 +51,7 @@ class DailyTask(models.Model):
             hour = hour,
             minute = minute
         )
+        return daily_task
 
     def create_task(self, task, name, arguments):
         self.task = PeriodicTask.objects.create(
@@ -67,6 +88,6 @@ class DailyTask(models.Model):
             minute = self.minute
         )
 
-    def delete_task():
+    def delete_task(self):
         self.task.crontab.delete()
         self.task.delete()

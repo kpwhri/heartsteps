@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from daily_tasks.models import DailyTask
 from fitbit_api.services import FitbitDayService
 from locations.services import LocationService
+from morning_messages.models import Configuration as MorningMessagesConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
 from participants.models import Participant
@@ -30,6 +31,7 @@ def initialize_participant(username):
         minute = int(update_minute)
     )
 
+    MorningMessagesConfiguration.objects.update_or_create(user=participant.user)
     WalkingSuggestionConfiguration.objects.update_or_create(user=participant.user)
 
 @shared_task
