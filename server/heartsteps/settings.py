@@ -56,10 +56,9 @@ INSTALLED_APPS = [
     'fitbit_api',
     'fitbit_authorize',
     'behavioral_messages',
-    'morning_messages',
     'push_messages',
+    'morning_messages',
     'weekly_reflection',
-    'participants',
     'locations',
     'weather',
     'randomization',
@@ -68,7 +67,8 @@ INSTALLED_APPS = [
     'activity_types',
     'activity_logs',
     'activity_plans',
-    'anti_seds'
+    'anti_seds',
+    'participants'
 ]
 
 MIDDLEWARE = [
