@@ -14,8 +14,9 @@ export class NotificationService {
         private geolocation: Geolocation,
         private heartstepsServer: HeartstepsServer,
         private modalCtrl: ModalController
-    ) {
+    ) {}
 
+    setup() {
         this.notifications.notificationMessage.subscribe((notification: Notification) => {
             this.showMessage(notification);
         });

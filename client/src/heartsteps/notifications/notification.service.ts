@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
-import { Observable } from 'rxjs/Observable';
 import { PushService, Device } from '@infrastructure/push.service';
 import { Storage } from "@ionic/storage";
 import { Subject } from 'rxjs';

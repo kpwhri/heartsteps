@@ -5,6 +5,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { BackgroundService } from '@app/background.service';
 import { Router } from '@angular/router';
+import { NotificationService } from './notification.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -16,13 +17,14 @@ export class MyApp {
         splashScreen: SplashScreen,
         private router: Router,
         private participant:ParticipantService,
-        private backgroundService: BackgroundService
+        private backgroundService: BackgroundService,
+        private notificationService: NotificationService
     ) {
         platform.ready()
         .then(() => {
             this.participant.onChange().subscribe((participant: any) => {
                 this.setupBackgroundProcess(participant);
-                this.updateRootPage(participant);
+                this.setupNotifications(participant);
             })
             return this.participant.update();
         })
@@ -32,14 +34,10 @@ export class MyApp {
         });
     }
 
-    updateRootPage(participant:any) {
-        // if (participant.profileComplete) {
-        //     this.router.navigate(['/dashboard']);
-        // } else if (participant.enrolled) {
-        //     this.router.navigate(['/onboard']);
-        // } else {
-        //     this.router.navigate['/'];
-        // }
+    setupNotifications(participant:any) {
+        if(participant.profileComplete) {
+            this.notificationService.setup();
+        }
     }
 
     setupBackgroundProcess(participant:any) {

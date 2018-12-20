@@ -14,6 +14,7 @@ import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
 import { LocationService } from '@heartsteps/locations/location.service';
 import { HomePageModule } from '@pages/home/home.module';
+import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 
 const appRoutes:Routes = [
 {
@@ -32,6 +33,7 @@ const appRoutes:Routes = [
     WelcomePageModule,
     OnboardPageModule,
     HomePageModule,
+    NotificationsModule,
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
       appRoutes,
