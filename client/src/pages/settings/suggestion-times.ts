@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { Location } from "@angular/common";
+
 
 @Component({
     templateUrl: 'suggestion-times.html'
@@ -7,10 +8,10 @@ import { Router } from "@angular/router";
 export class SuggestionTimesPage {
 
     constructor(
-        private router: Router
+        private location:Location
     ){}
 
     goBack() {
-        this.router.navigate(['settings']);
+        this.location.back();
     }
 }

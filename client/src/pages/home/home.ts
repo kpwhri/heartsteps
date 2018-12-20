@@ -24,6 +24,9 @@ export class HomePage implements OnInit, OnDestroy {
     }, {
         name: 'Learn',
         key: 'library'
+    }, {
+        name: 'Settings',
+        key: 'settings'
     }];
 
     constructor(
@@ -45,7 +48,6 @@ export class HomePage implements OnInit, OnDestroy {
 
     private updateWithUrl(url:string) {
         this.setTitle(url);
-        this.toggleBackButton(url);
     }
 
     private setTitle(url:string) {
@@ -56,11 +58,5 @@ export class HomePage implements OnInit, OnDestroy {
         })
     }
 
-    private toggleBackButton(url:string) {
-        if(url.indexOf('dashboard') >= 0){
-            this.backButton = false;
-        } else {
-            this.backButton = true;
-        }
-    }
+
 }

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { Location } from "@angular/common";
 
 
 @Component({
@@ -8,10 +8,10 @@ import { Router } from "@angular/router";
 export class ReflectionTimePage {
 
     constructor(
-        private router: Router
+        private location:Location
     ){}
 
     goBack() {
-        this.router.navigate(['settings']);
+        this.location.back();
     }
 }

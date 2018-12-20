@@ -12,9 +12,6 @@ import { ActivitySuggestionsModule } from '@heartsteps/activity-suggestions/acti
 
 const settingsRoutes: Routes = [
     {
-        path: 'settings',
-        component: SettingsPage
-    }, {
         path: 'settings/contact',
         component: ContactPage
     }, {

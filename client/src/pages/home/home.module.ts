@@ -13,6 +13,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-gaurd.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
+import { SettingsPage } from '@pages/settings/settings-page';
 
 const homeRoutes: Routes = [{
     path: 'home',
@@ -30,7 +31,12 @@ const homeRoutes: Routes = [{
     }, {
         path: 'library',
         component: ResourceLibraryPage
-    }, {
+    }, 
+    {
+        path: 'settings',
+        component: SettingsPage
+    },
+    {
         path: '**',
         redirectTo: 'dashboard'
     }]
