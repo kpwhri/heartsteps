@@ -17,9 +17,6 @@ class Participant(models.Model):
     enrollment_token = models.CharField(max_length=10, unique=True)
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 
-    day_start = models.CharField(max_length=10, default="8:00")
-    day_end = models.CharField(max_length=10, default="20:00")
-
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
 
     def enroll(self):
@@ -30,6 +27,7 @@ class Participant(models.Model):
         self.save()
 
         if created:
+            print("created the user?")
             participant_enrolled.send(User, username=user.username)
 
     def __str__(self):
