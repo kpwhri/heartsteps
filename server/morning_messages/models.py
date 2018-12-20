@@ -1,9 +1,11 @@
+import random
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
 from daily_tasks.models import DailyTask
 
-from behavioral_messages.models import MessageTemplate, ContextTag
+from behavioral_messages.models import MessageTemplate
 from randomization.models import Decision
 
 User = get_user_model()
@@ -48,4 +50,42 @@ class MorningMessageTemplate(MessageTemplate):
     anchor_message = models.CharField(max_length=255)
 
 class MorningMessageDecision(Decision):
-    pass
+
+    FRAME_GAIN_ACTIVE = "gain and active"
+    FRAME_GAIN_SEDENTARY = "gain and sedentary"
+    FRAME_LOSS_ACTIVE = "loss and active"
+    FRAME_LOSS_SEDENTARY = "loss and secentary"
+    
+    FRAMES = [
+        FRAME_GAIN_ACTIVE,
+        FRAME_GAIN_SEDENTARY,
+        FRAME_LOSS_ACTIVE,
+        FRAME_LOSS_SEDENTARY
+    ]
+
+    FRAME_CHOICES = [(frame, frame) for frame in FRAMES]
+
+    framing = models.CharField(max_length=50, null=True, editable=False, choices=FRAME_CHOICES)
+
+    def get_message_frame(self):
+        if self.a_it:
+            return self.framing
+        framing = random.choice(self.FRAMES + [None, None, None])
+        self.framing = framing
+        self.a_it = True
+        self.save()
+
+        if framing is self.FRAME_GAIN_ACTIVE:
+            self.add_context('gain')
+            self.add_context('active')
+        if framing is self.FRAME_GAIN_SEDENTARY:
+            self.add_context('gain')
+            self.add_context('sedentary')
+        if framing is self.FRAME_LOSS_ACTIVE:
+            self.add_context('loss')
+            self.add_context('active')
+        if framing is self.FRAME_LOSS_SEDENTARY:
+            self.add_context('loss')
+            self.add_context('sedentary')
+
+        return framing

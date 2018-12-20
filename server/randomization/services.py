@@ -213,14 +213,10 @@ class DecisionMessageService(DecisionService):
         message_templates = query.all()
 
         if len(message_templates) == 0:
-            return False
+            raise ValueError("No matching message template")
         if len(message_templates) == 1:
             return message_templates[0]
         return message_templates[randint(0, len(message_templates)-1)]
-
-        if not message_template:
-            raise ValueError("No matching message template")
-        return message_template
 
     def get_message_template(self):
         if hasattr(self, '__message_template'):
@@ -230,7 +226,8 @@ class DecisionMessageService(DecisionService):
                 decision = self.decision,
                 content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
             )
-            return context_object.content_object
+            message_template = context_object.content_object
+            return message_template
         except DecisionContext.DoesNotExist:
             message_template = self.create_message_template()
             DecisionContext.objects.create(
