@@ -12,15 +12,13 @@ export class WalkingSuggestionService {
     ){}
 
     sendDecisionContext(decisionId:string) {
-
-        this.locationService.getLocation().then((position:Position) => {
+        this.locationService.getLocation().then((position:any) => {
             this.heartstepsServer.post('/walking-suggestions/'+decisionId, {
                 location: {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
+                    latitude: position.latitude,
+                    longitude: position.longitude
                 }
-            })
-        })
-
+            });
+        });
     }
 }
