@@ -1,19 +1,17 @@
 import { Injectable } from "@angular/core";
 import { NotificationService as HeartstepsNotificationService } from '@heartsteps/notifications/notification.service';
-import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Geolocation } from "@ionic-native/geolocation";
 import { ModalController } from "ionic-angular";
 import { NotificationPane } from "@app/notification";
 import { Notification } from "@heartsteps/notifications/notification.model";
+import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 
 @Injectable()
 export class NotificationService {
     
     constructor(
         private notifications: HeartstepsNotificationService,
-        private geolocation: Geolocation,
-        private heartstepsServer: HeartstepsServer,
-        private modalCtrl: ModalController
+        private modalCtrl: ModalController,
+        private walkingSuggestionService: WalkingSuggestionService
     ) {}
 
     setup() {
@@ -22,15 +20,8 @@ export class NotificationService {
         });
 
         this.notifications.dataMessage.subscribe((payload:any) => {
-            if(payload.type == 'get_context' && payload.decision_id) {
-                this.geolocation.getCurrentPosition().then((position:Position) => {
-                    this.heartstepsServer.post('/decisions/'+payload.decision_id, {
-                        location: {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        }
-                    })
-                })
+            if(payload.type == 'request_context' && payload.decisionId) {
+                this.walkingSuggestionService.sendDecisionContext(payload.decisionId);
             }
         })
     }
