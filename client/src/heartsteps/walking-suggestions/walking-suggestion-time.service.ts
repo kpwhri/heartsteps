@@ -3,7 +3,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Storage } from "@ionic/storage";
 
 @Injectable()
-export class ActivitySuggestionTimeService{
+export class WalkingSuggestionTimeService{
 
     constructor(
         private heartstepsServer:HeartstepsServer,

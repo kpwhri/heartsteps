@@ -2,16 +2,13 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
 import { loadingService } from '@infrastructure/loading.service';
-import { ActivitySuggestionTimeService } from '@heartsteps/activity-suggestions/activity-suggestion-time.service';
+import { WalkingSuggestionTimeService } from './walking-suggestion-time.service';
 
 @Component({
-  selector: 'heartsteps-activity-suggestion-times',
-  templateUrl: 'activity-suggestion-times.html',
-  providers: [
-      ActivitySuggestionTimeService
-  ]
+  selector: 'heartsteps-walking-suggestion-times',
+  templateUrl: './walking-suggestion-times.component.html'
 })
-export class ActivitySuggestionTimes implements OnInit {
+export class WalkingSuggestionTimesComponent implements OnInit {
     @Output() saved = new EventEmitter<boolean>();
 
     public timeFields:Array<any>;
@@ -20,7 +17,7 @@ export class ActivitySuggestionTimes implements OnInit {
     public timesForm:FormGroup
 
     constructor(
-        private activitySuggestionTimeService:ActivitySuggestionTimeService,
+        private activitySuggestionTimeService:WalkingSuggestionTimeService,
         private loadingService:loadingService
     ) {}
 

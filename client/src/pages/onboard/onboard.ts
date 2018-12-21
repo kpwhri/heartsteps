@@ -5,7 +5,7 @@ import { NotificationsPermission } from '@heartsteps/notifications/notifications
 import { LocationPermission } from '@heartsteps/locations/location-permission';
 import { Subscription } from 'rxjs';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
-import { ActivitySuggestionTimes } from '@heartsteps/activity-suggestions/activity-suggestion-times';
+import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
 import { ProfileService } from '@heartsteps/participants/profile.factory';
 import { Router } from '@angular/router';
@@ -25,9 +25,9 @@ const onboardingPages:Array<any> = [{
     title: 'Reflection Time',
     component: WeeklyReflectionTimePage
 }, {
-    key: 'activitySuggestionTimes',
+    key: 'walkingSuggestionTimes',
     title: 'Suggestion Times',
-    component: ActivitySuggestionTimes
+    component: WalkingSuggestionTimesComponent
 }, {
     key: 'locationPermission',
     title: 'Locations',
@@ -49,7 +49,7 @@ const onboardingPages:Array<any> = [{
         NotificationsPermission,
         LocationPermission,
         WeeklyReflectionTimePage,
-        ActivitySuggestionTimes,
+        WalkingSuggestionTimesComponent,
         LocationPermission,
         PlacesList
     ]

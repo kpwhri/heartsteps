@@ -8,7 +8,7 @@ import { PlacesModule } from '@heartsteps/places/places.module';
 import { ReflectionTimePage } from './reflection-time-page';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
 import { SuggestionTimesPage } from './suggestion-times';
-import { ActivitySuggestionsModule } from '@heartsteps/activity-suggestions/activity-suggestions.module';
+import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 
 const settingsRoutes: Routes = [
     {
@@ -44,7 +44,7 @@ const settingsRoutes: Routes = [
         ContactInformationModule,
         PlacesModule,
         WeeklySurveyModule,
-        ActivitySuggestionsModule,
+        WalkingSuggestionsModule,
         RouterModule.forChild(settingsRoutes)
     ],
 })

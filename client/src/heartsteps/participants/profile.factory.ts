@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NotificationService } from "@heartsteps/notifications/notification.service";
-import { ActivitySuggestionTimeService } from "@heartsteps/activity-suggestions/activity-suggestion-time.service";
+import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
 import { LocationService as GeolocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
@@ -13,7 +13,7 @@ export class ProfileService {
 
     constructor(
         private notificationService: NotificationService,
-        private activitySuggestionTimeService:ActivitySuggestionTimeService,
+        private walkingSuggestionTimeService:WalkingSuggestionTimeService,
         private geolocationService:GeolocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
@@ -44,7 +44,7 @@ export class ProfileService {
     getProfile():Promise<any> {
         return Promise.all([
             this.checkNotificationsEnabled(),
-            this.checkActivitySuggestions(),
+            this.checkWalkingSuggestions(),
             this.checkLocationPermission(),
             this.checkPlacesSet(),
             this.checkReflectionTime(),
@@ -54,7 +54,7 @@ export class ProfileService {
         .then((results) => {
             return {
                 notificationsEnabled: results[0],
-                activitySuggestionTimes: results[1],
+                walkingSuggestionTimes: results[1],
                 locationPermission: results[2],
                 places: results[3],
                 weeklyReflectionTime: results[4],
@@ -97,8 +97,8 @@ export class ProfileService {
         })
     }
 
-    checkActivitySuggestions():Promise<boolean> {
-        return this.activitySuggestionTimeService.getTimes()
+    checkWalkingSuggestions():Promise<boolean> {
+        return this.walkingSuggestionTimeService.getTimes()
         .then(() => {
             return true
         })

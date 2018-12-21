@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { OnboardPage } from './onboard';
-import { ActivitySuggestionsModule } from '@heartsteps/activity-suggestions/activity-suggestions.module';
+import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
 import { PlacesModule } from '@heartsteps/places/places.module';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
@@ -30,7 +30,7 @@ const onboardRoutes:Routes = [{
     LocationModule,
     FitbitModule,
     ContactInformationModule,
-    ActivitySuggestionsModule,
+    WalkingSuggestionsModule,
     IonicPageModule.forChild(OnboardPage),
     RouterModule.forChild(onboardRoutes)
   ],
