@@ -17,7 +17,7 @@ export class WalkingSuggestionService {
 
     sendDecisionContext(decisionId:string):Promise<boolean> {
         return this.locationService.getLocation().then((position:any) => {
-            this.heartstepsServer.post('/walking-suggestions/'+decisionId, {
+            return this.heartstepsServer.post('/walking-suggestions/'+decisionId, {
                 location: {
                     latitude: position.latitude,
                     longitude: position.longitude
