@@ -56,6 +56,11 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         return total_steps
 
     def decide(self):
+        if self.decision.test:
+            self.decision.a_it = True
+            self.decision.pi_it = 1
+            self.decision.save()
+            return self.decision.a_it
         try:
             configuration = Configuration.objects.get(user=self.user)
         except Configuration.DoesNotExist:
