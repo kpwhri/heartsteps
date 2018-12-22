@@ -20,6 +20,17 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
+    def create_decision(user, category, time=None, test=False):
+        if not time:
+            time = timezone.now()
+        decision = WalkingSuggestionDecision.objects.create(
+            user = user,
+            time = time,
+            test = test
+        )
+        decision.add_context(category)
+        return WalkingSuggestionDecisionService(decision)
+
     def determine_availability(self):
         if self.get_fitbit_step_count() > 250:
             return False

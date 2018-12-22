@@ -27,7 +27,6 @@ class Participant(models.Model):
         self.save()
 
         if created:
-            print("created the user?")
             participant_enrolled.send(User, username=user.username)
 
     def __str__(self):

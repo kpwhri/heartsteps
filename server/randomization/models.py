@@ -23,6 +23,7 @@ class ContextTag(models.Model):
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
+    test = models.BooleanField(default=False)
 
     time = models.DateTimeField()
 

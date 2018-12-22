@@ -7,8 +7,28 @@ from rest_framework.test import APITestCase
 
 from locations.services import LocationService
 
-from walking_suggestions.models import WalkingSuggestionDecision, User
+from walking_suggestions.models import WalkingSuggestionDecision, SuggestionTime, User
+from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.tasks import make_decision
+
+class WalkingSuggestionCreateTest(APITestCase):
+    
+    @patch.object(WalkingSuggestionDecisionService, 'request_context')
+    def test_create(self, request_context):
+        user = User.objects.create(username="test")
+
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse('walking-suggestions-create'), {
+            'category': SuggestionTime.MORNING
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        request_context.assert_called()
+        
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(user, decision.user)
+        self.assertTrue(decision.test)
+
 
 class WalkingSuggestionContextUpdate(APITestCase):
 

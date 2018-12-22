@@ -12,6 +12,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { OneSignal } from '@ionic-native/onesignal';
 import { BackgroundProcessService } from '@infrastructure/background-process.service';
 import { StorageService } from './storage.service';
+import { ChoiceDialogController } from './choice-dialog.controler';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { StorageService } from './storage.service';
       BrowserService,
       SafariViewController,
       InAppBrowser,
-      OneSignal
+      OneSignal,
+      ChoiceDialogController
   ]
 })
 export class InfrastructureModule {}

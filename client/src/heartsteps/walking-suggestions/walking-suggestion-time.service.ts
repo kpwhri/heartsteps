@@ -10,7 +10,7 @@ export class WalkingSuggestionTimeService{
         private storage:Storage
     ){}
 
-    getTimeFields():Promise<any> {
+    getTimeFields():Promise<Array<any>> {
         return Promise.resolve([
             { key:'morning', name:'Morning'},
             { key:'lunch', name:'Lunch'},

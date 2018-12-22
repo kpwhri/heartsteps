@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { ModalController, ActionSheetController } from 'ionic-angular';
+import { ModalController } from 'ionic-angular';
 import { PlacesService } from './places.service';
 import { PlaceEdit } from './place-edit';
+import { ChoiceDialogController } from '@infrastructure/choice-dialog.controler';
 
 @Component({
     selector: 'heartsteps-places-list',
@@ -17,7 +18,7 @@ export class PlacesList implements OnInit {
     constructor(
         private modalCtrl:ModalController,
         private locationsService:PlacesService,
-        private actionSheetCtrl:ActionSheetController
+        private choiceDialog: ChoiceDialogController
     ) {}
 
     ngOnInit() {
@@ -67,35 +68,16 @@ export class PlacesList implements OnInit {
     }
 
     pickPlaceType():Promise<string> {
-        return new Promise((resolve, reject) => {
-            let actionSheet = this.actionSheetCtrl.create({
-                title: 'Type of place to create',
-                buttons: [
-                    {
-                        text: 'Home',
-                        handler: ()=> {
-                            resolve('home')
-                        }
-                    }, {
-                        text: 'Work',
-                        handler: () => {
-                            resolve('work')
-                        }
-                    }, {
-                        text: 'Other',
-                        handler: () => {
-                            resolve('other')
-                        }
-                    }, {
-                        text: 'Cancel',
-                        handler: () => {
-                            reject()
-                        }
-                    }
-                ]
-            })
-            actionSheet.present()
-        })
+        return this.choiceDialog.showChoices('Type of place to create', [{
+            text: 'Home',
+            value: 'home'
+        }, {
+            text: 'Work',
+            value: 'work'
+        }, {
+            text: 'Other',
+            value: 'other'
+        }]);
     }
 
     showLocationPopover(location:any):Promise<any> {

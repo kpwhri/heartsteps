@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 
 
 @Component({
@@ -6,5 +7,11 @@ import { Component } from "@angular/core";
 })
 export class SettingsPage {
 
-    constructor(){}
+    constructor(
+        private walkingSuggestionService:WalkingSuggestionService
+    ){}
+
+    public testWalkingSuggestion() {
+        this.walkingSuggestionService.createTestDecision();
+    }
 } 
