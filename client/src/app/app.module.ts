@@ -15,6 +15,7 @@ import { BackgroundService } from '@app/background.service';
 import { LocationService } from '@heartsteps/locations/location.service';
 import { HomePageModule } from '@pages/home/home.module';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+import { AuthorizationService } from './authorization.service';
 
 const appRoutes:Routes = [
 {
@@ -53,7 +54,8 @@ const appRoutes:Routes = [
     SplashScreen,
     NotificationService,
     BackgroundService,
-    LocationService
+    LocationService,
+    AuthorizationService
   ]
 })
 export class AppModule {}

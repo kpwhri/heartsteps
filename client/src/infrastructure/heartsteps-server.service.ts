@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { AuthorizationService } from './authorization.service';
 import { Platform } from 'ionic-angular';
 import urljoin from 'url-join';
+import { Subject } from 'rxjs';
 
 declare var process: {
     env: {
@@ -17,8 +18,12 @@ export class HeartstepsServer {
     private heartstepsUrl:string
     private http:any;
 
+    public unauthorized:Subject<boolean>
+
     constructor(private authorizationService:AuthorizationService, private platform:Platform) {
         this.heartstepsUrl = process.env.HEARTSTEPS_URL;
+
+        this.unauthorized = new Subject();
 
         if(this.platform.is('ios') || this.platform.is('android')) {
             this.http = new HTTP()
@@ -58,7 +63,7 @@ export class HeartstepsServer {
             return response.data
         })
         .catch((error) => {
-            return Promise.reject(error.message);
+            return this.handleError(error);
         });
     }
 
@@ -78,6 +83,9 @@ export class HeartstepsServer {
         })
         .then((response) => {
             return response.data;
+        })
+        .catch((error) => {
+            return this.handleError(error);
         });
     }
 
@@ -90,6 +98,9 @@ export class HeartstepsServer {
                 return this.http.delete(this.makeUrl(url), {headers: headers});
             }
         })
+        .catch((error) => {
+            return this.handleError(error);
+        })
     }
 
     parseResponse(response) {
@@ -97,6 +108,16 @@ export class HeartstepsServer {
             response.data = JSON.parse(response.data);
         }
         return response;
+    }
+
+    handleError(error:any) {
+        if(error.response.status === 401) {
+            return this.authorizationService.retryAuthorization()
+            .catch(() => {
+                return Promise.reject(error.message);
+            })
+        }
+        return Promise.reject(error.message);
     }
 
     setAuthorizationHeaderToken():Promise<any> {

@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Platform, ModalController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { BackgroundService } from '@app/background.service';
-import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
+import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { EnrollmentModal } from '@heartsteps/enrollment/enroll';
+import { AuthorizationService } from './authorization.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -15,17 +17,18 @@ export class MyApp {
         platform: Platform,
         statusBar: StatusBar,
         splashScreen: SplashScreen,
-        private router: Router,
         private participant:ParticipantService,
         private backgroundService: BackgroundService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private authorizationService: AuthorizationService
     ) {
         platform.ready()
         .then(() => {
             this.participant.onChange().subscribe((participant: any) => {
                 this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
-            })
+                this.setupAuthorization(participant);
+            });
             return this.participant.update();
         })
         .then(() => {
@@ -43,6 +46,14 @@ export class MyApp {
     setupBackgroundProcess(participant:any) {
         if(participant.profileComplete) {
             this.backgroundService.init();
+        }
+    }
+
+    setupAuthorization(participant:any) {
+        if(participant) {
+            this.authorizationService.setup()
+        } else {
+            this.authorizationService.reset();
         }
     }
 }

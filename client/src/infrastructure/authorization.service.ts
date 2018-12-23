@@ -4,6 +4,9 @@ import { Storage } from '@ionic/storage';
 @Injectable()
 export class AuthorizationService {
 
+    private retryMethod:Function;
+    private retryPromise:Promise<boolean>;
+
     constructor(
         private storage:Storage
     ) {}
@@ -14,6 +17,25 @@ export class AuthorizationService {
             .then(resolve)
             .catch(reject);
         })
+    }
+
+    retryAuthorization():Promise<boolean> {
+        if(this.retryPromise) {
+            return this.retryPromise;
+        }
+        if(this.retryMethod) {
+            this.retryPromise = this.retryMethod();
+            return this.retryPromise;
+        }
+        return Promise.reject();
+    }
+
+    onRetryAuthorization(fn: Function) {
+        this.retryMethod = fn;
+    }
+
+    removeRetryAuthorization() {
+        this.retryMethod = null;
     }
 
     setAuthorization(token:string) {

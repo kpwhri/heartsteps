@@ -48,6 +48,10 @@ export class ParticipantService {
         })
     }
 
+    remove():Promise<boolean> {
+        return Promise.resolve(true);
+    }
+
     setHeartstepsId(heartstepsId:string):Promise<boolean> {
         return this.storage.set(storageKey, heartstepsId)
         .then(() => {
