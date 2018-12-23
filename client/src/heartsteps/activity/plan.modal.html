@@ -1,4 +1,8 @@
-<ion-content padding>
+<article class="page">
+<header>
+    <h2>Activity Plan</h2>
+    <a class="back" (click)="dismiss()">Back</a>
+</header>
 <form *ngIf="planForm" [formGroup]="planForm">
     <div>
         <label for="activity-plan-type">Activity</label>
@@ -17,10 +21,10 @@
             </li>
         </ul>
     </fieldset>
-    <div>
-        <label for="activity-plan-duration">Duration</label>
-        <input id="activity-plan-duration" formControlName="duration" type="number" />
-    </div>
+    <ion-item>
+        <ion-label>Duration</ion-label>
+        <ion-input formControlName="duration" type="number"></ion-input>
+    </ion-item>
     <ion-item>
         <ion-label for="activity-plan-date">Date</ion-label>
         <ion-select id="activity-plan-date" formControlName="date">
@@ -39,4 +43,4 @@
         <button *ngIf="updateView" (click)="delete()">Delete</button>
     </div>
 </form>
-</ion-content>
+</article>

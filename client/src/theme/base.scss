@@ -8,16 +8,35 @@
     color: gray;  
 }
 
-h3 {
+h1, h2 {
     text-align: center;
+    font-size: 1.5em;
+}
+
+h3, h4 {
+    text-align: left;
+    font-size: 1em;
 }
 
 button {
     background: transparent;
     color: $link-color;
+    font-size: 1em;
+}
+
+ul {
+    margin:0px;
+    padding: 0px;
+    list-style-type: none;
+
+    > li {
+        margin: $space-size/2 0px;
+    }
 }
 
 .page {
+    font-size: 1.6rem;
+
     > header {
         background-color: $color-gray-light;
         border-bottom: $color-gray-dark 1px solid;
@@ -27,6 +46,13 @@ button {
         align-items: center;
         justify-content: center;
         padding: $space-size $block-size+$space-size;
+
+        h1, h2, h3 {
+            font-size: 1em;
+            margin: 0px;
+            padding: 0px;
+        }
+
         a.back, button.back {
             display: block;
             position: absolute;
@@ -41,11 +67,19 @@ article {
     background-color: $background-primary;
     margin: $space-size/2 0px;
     padding: $space-size;
+
+    > header > h3 {
+        font-size: 1em;
+        margin: 0.5em 0px;
+        text-align: left;
+        text-transform: uppercase;
+    }
 }
 
 article.page {
     margin: 0px;
     padding: 0px;
+    height: 100%;
     background: $background-primary;
     
     > * {
