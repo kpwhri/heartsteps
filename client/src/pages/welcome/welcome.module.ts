@@ -20,5 +20,8 @@ const welcomeRoutes: Routes = [{
     IonicPageModule.forChild(WelcomePage),
     RouterModule.forChild(welcomeRoutes)
   ],
+  exports: [
+    RouterModule
+  ]
 })
 export class WelcomePageModule {}

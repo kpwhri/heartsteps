@@ -32,6 +32,7 @@ const appRoutes:Routes = [
   ],
   imports: [
     WelcomePageModule,
+    NotificationsModule,
     OnboardPageModule,
     HomePageModule,
     NotificationsModule,

@@ -4,6 +4,7 @@ import { ModalController } from "ionic-angular";
 import { NotificationPane } from "@app/notification";
 import { Notification } from "@heartsteps/notifications/notification.model";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class NotificationService {
@@ -11,12 +12,13 @@ export class NotificationService {
     constructor(
         private notifications: HeartstepsNotificationService,
         private modalCtrl: ModalController,
-        private walkingSuggestionService: WalkingSuggestionService
+        private walkingSuggestionService: WalkingSuggestionService,
+        private router: Router
     ) {}
 
     setup() {
         this.notifications.notificationMessage.subscribe((notification: Notification) => {
-            this.showMessage(notification);
+            this.router.navigate(['notification']);
         });
 
         this.notifications.dataMessage.subscribe((payload:any) => {
