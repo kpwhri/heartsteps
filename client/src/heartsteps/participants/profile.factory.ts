@@ -53,7 +53,7 @@ export class ProfileService {
             return Promise.resolve(true);
         })
         .catch(() => {
-            return Promise.reject();
+            return Promise.reject("Complete participant did not load");
         });
     }
 
@@ -71,7 +71,7 @@ export class ProfileService {
             return Promise.resolve(true);
         })
         .catch(() => {
-            return Promise.reject();
+            return Promise.reject("Error removing participant");
         });
     }
 

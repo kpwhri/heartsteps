@@ -38,7 +38,7 @@ export class WalkingSuggestionTimeService{
             return times;
         })
         .catch(() => {
-            return Promise.reject();
+            return Promise.reject("No saved suggestion times");
         })
     }
 
@@ -51,16 +51,6 @@ export class WalkingSuggestionTimeService{
 
     removeTimes():Promise<any> {
         return this.storage.remove(storageKey);
-    }
-
-    loadTimes():Promise<any> {
-        return this.getTimes()
-        .catch(() => {
-            return this.heartstepsServer.get('walking-suggestion-times');
-        })
-        .then((times) => {
-            return this.setTimes(times);
-        });
     }
 
     updateTimes(times:any):Promise<boolean> {
@@ -131,6 +121,16 @@ export class WalkingSuggestionTimeService{
         .then(() => {
             return Promise.resolve(true)
         })
+    }
+
+    loadTimes():Promise<any> {
+        return this.getTimes()
+        .catch(() => {
+            return this.heartstepsServer.get('walking-suggestions/times/');
+        })
+        .then((times) => {
+            return this.setTimes(times);
+        });
     }
 
 }

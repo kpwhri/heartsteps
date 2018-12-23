@@ -27,7 +27,7 @@ export class AuthorizationService {
             this.retryPromise = this.retryMethod();
             return this.retryPromise;
         }
-        return Promise.reject();
+        return Promise.reject("Authorization failed");
     }
 
     onRetryAuthorization(fn: Function) {

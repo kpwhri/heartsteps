@@ -37,7 +37,7 @@ export class ReflectionTimeService{
     }
 
     load():Promise<boolean> {
-        return this.heartstepsServer.get('reflecetion-time')
+        return this.heartstepsServer.get('reflection-time')
         .then((time) => {
             return this.set(time);
         })
