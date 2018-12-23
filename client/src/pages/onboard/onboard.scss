@@ -1,32 +1,4 @@
 
 pages-onboarding {
 
-    .pagination-bullets {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        & > * {
-            display: block;
-            margin: $space-size/4;
-            height: 1em;
-            width: 1em;
-            border-radius: 50%;
-            background-color: $color-gray-light;
-            overflow: hidden;
-            text-indent: -3000em;
-        }
-        & > .active {
-            background-color: $color-primary;
-        }
-        height: 1em;
-    }
-
-    .page > header {
-        background-color: transparent;
-        border-bottom: 0px;
-        flex-direction: column-reverse;
-        > .pagination-bullets {
-            order: -1;
-        }
-    }
 }

@@ -16,6 +16,7 @@ import { HomePageModule } from '@pages/home/home.module';
 import { NotificationsModule as NotificationsPageModule } from '@pages/notifications/notifications.module';
 import { AuthorizationService } from './authorization.service';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+import { WeeklySurveyModule } from '@pages/weekly-survey/weekly-survey.module';
 
 const appRoutes:Routes = [
 {
@@ -35,6 +36,7 @@ const appRoutes:Routes = [
     OnboardPageModule,
     HomePageModule,
     NotificationsModule,
+    WeeklySurveyModule,
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
       appRoutes,

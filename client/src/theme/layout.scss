@@ -76,3 +76,15 @@ router-outlet {
         }
     }
 }
+
+.page.slider {
+    > header {
+        background-color: transparent;
+        border-bottom: 0px;
+        flex-direction: column-reverse;
+        > .pagination-bullets {
+            order: -1;
+        }
+    }
+}
+
