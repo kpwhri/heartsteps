@@ -16,9 +16,21 @@ form {
     > .controls {
         flex-grow: 1;
 
-        button {
+        > * {
+            margin: 0.25em 0px;
+        }
+
+        button.primary {
             @extend .heartsteps-primary-button;
         }
+    }
+
+    .label {
+        @extend .label;
+    }
+
+    label, .item .label-md {
+        @extend .label;
     }
 }
 
@@ -48,6 +60,25 @@ fieldset {
 fieldset legend {
     font-weight: bold;
     padding-top: $space-size;
+}
+
+fieldset.input-group {
+    legend {
+        color: $color-gray;
+        font-weight: normal;
+        padding: 0px;
+    }
+
+    li {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    li > label {
+        color: $text-color;
+        padding: 0em 1em;
+    }
 }
 
 form .ion-item {

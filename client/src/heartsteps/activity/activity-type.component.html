@@ -1,4 +1,4 @@
-<button *ngIf="activityType" (click)="reset()" class="activity-type activity-type-{{activityType.name}}">{{activityType.title}}</button>
+<button *ngIf="activityType" (click)="reset()" class="activity-type activity-type-{{activityType.name}} remove">{{activityType.title}}</button>
 <ul *ngIf="!activityType">
     <li *ngFor="let activityType of activityTypeList">
         <button (click)="select(activityType)" class="activity-type activity-type-{{activityType.name}}">

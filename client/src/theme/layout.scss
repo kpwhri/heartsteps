@@ -25,7 +25,7 @@ router-outlet {
     display:flex;
     flex-direction: column;
     flex-grow: 1;
-    background-color: $color-gray;
+    background-color: $color-gray-light;
 
     > * {
         flex: 1 1 auto;
@@ -39,6 +39,7 @@ router-outlet {
 
     > nav {
         background-color: $color-gray-light;
+        border-top: $color-gray 1px solid;
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;

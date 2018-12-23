@@ -1,0 +1,8 @@
+heartsteps-activity-type {
+
+    > button {
+        @extend button.inline;
+        @extend button.remove;
+    }
+
+}

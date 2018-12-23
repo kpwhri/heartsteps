@@ -1,4 +1,4 @@
 <article *ngFor="let date of dates">
     <activity-plan-day [date]="date"></activity-plan-day>
-    <button ion-button block clear (click)="addActivity(date)" >Add an activity</button>
+    <button (click)="addActivity(date)" >Add an activity</button>
 </article>

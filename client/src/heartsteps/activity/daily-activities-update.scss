@@ -3,8 +3,7 @@ heartsteps-activity-daily-update {
     flex-direction: row;
 
     button {
-        position: relative;
-        font-size: 1em;
+        @extend button.bottom;
     }
 
     button:before {

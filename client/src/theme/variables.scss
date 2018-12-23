@@ -38,8 +38,10 @@ $color-primary: #488aff;
 $color-secondary: #F57B55;
 $color-danger: #f53d3d;
 $color-gray-light: #f4f4f4;
-$color-gray: #ccc;
+$color-gray: #555f61;
 $color-gray-dark: #3d3d3d;
+$color-white: #ffffff;
+$color-block: #000000;
 
 $colors: (
   primary:    $color-primary,
@@ -49,8 +51,8 @@ $colors: (
   dark:       $color-gray-dark,
 );
 
-$background-primary: #ffffff;
-
+$background-primary: $color-white;
+$text-color: $color-gray-dark;
 $link-color: $color-primary;
 
 // App iOS Variables

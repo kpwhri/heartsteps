@@ -1,15 +1,19 @@
 <form>
-    <h2>Where do you live and work?</h2>
-    <p>Heartsteps will use these places to customize suggestions for physical activity nearby.</p>
-    <ion-list>
-        <ion-item *ngFor="let location of locations" (click)="editLocation(location)" (ngClass)="{invalid:location.invalid}">
-            {{location.address}}
-            <em>{{location.type}}</em>
-        </ion-item>
-        <button ion-item (click)="newLocation()">Add Place</button>
-    </ion-list>
+    <fieldset>
+        <legend>Where do you live and work?</legend>
+        <p>Heartsteps will use these places to customize suggestions for physical activity nearby.</p>
+        <ul>
+            <li *ngFor="let location of locations">
+                <button (click)="editLocation(location)" (ngClass)="{invalid:location.invalid}">
+                    <em>{{location.type}}</em>
+                    {{location.address}}
+                </button>    
+            </li>
+        </ul>
+        <button class="bottom" (click)="newLocation()">Add Place</button>
+    </fieldset>
     <div class="controls">
         <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
-        <button (click)="saveLocations()">Save</button>
+        <button class="primary" (click)="saveLocations()">Save</button>
     </div>
 </form>

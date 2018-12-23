@@ -5,7 +5,7 @@
 
 .label {
     display:block;
-    color: gray;  
+    color: $color-gray;  
 }
 
 h1, h2 {
@@ -15,12 +15,6 @@ h1, h2 {
 
 h3, h4 {
     text-align: left;
-    font-size: 1em;
-}
-
-button {
-    background: transparent;
-    color: $link-color;
     font-size: 1em;
 }
 
@@ -39,7 +33,7 @@ ul {
 
     > header {
         background-color: $color-gray-light;
-        border-bottom: $color-gray-dark 1px solid;
+        border-bottom: $color-gray 1px solid;
         height: $block-size;
         display: flex;
         flex-direction: column;
@@ -59,6 +53,7 @@ ul {
             left: 0px;
             width: $block-size;
             padding: $space-size/2;
+            border-width: 0px;
         }
     }
 }
@@ -91,15 +86,84 @@ article.page {
     }
 }
 
-.heartsteps-primary-button {
+.heartsteps-button,
+.heartsteps-primary-button,
+.heartsteps-danger-button {
     display: block;
-    color: map-get($colors, primary);
-    border: 1px map-get($colors, primary) solid;
+    position: relative;
+    color: $color-primary;
+    border: 1px $color-primary solid;
     background: transparent;
     padding: 1em;
     text-align: center;
     display: block;
     width: 100%;
+    font-size: 1em;
+
+    > span {
+        color: $text-color;
+    }
+}
+
+.heartsteps-primary-button {
+    color: $color-white;
+    background-color: $color-primary;
+    border: 0px;
+}
+
+.heartsteps-danger-button {
+    color: $color-danger;
+    border-color: $color-danger;
+}
+
+.page {
+    button {
+        @extend .heartsteps-button;
+    }
+    
+    button.danger {
+        @extend .heartsteps-danger-button;
+    }
+}
+
+.page button.inline,
+button.inline {
+    border-width:0px;
+    text-align: left;
+    padding: 0.25em 0px;
+    color: $text-color;
+}
+
+button.item-cover {
+    border: 0px;
+    position: absolute;
+    padding: 0px;
+    margin: 0px;
+}
+
+.page button.bottom,
+button.bottom,
+.page article > button,
+article > button {
+    border-width: 0px;
+    border-top: $color-gray-light 1px solid;
+}
+
+li > button {
+    @extend button.inline;
+}
+
+button.remove {
+    color: $text-color;
+    padding-right: 40px;
+
+    &:after {
+        content: "x";
+        position: absolute;
+        top: 50%;
+        right: $space-size;
+        color: $color-primary;
+    }
 }
 
 .error {
