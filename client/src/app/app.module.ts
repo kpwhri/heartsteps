@@ -9,13 +9,13 @@ import { MyApp } from './app.component';
 
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
-import { NotificationPane } from './notification';
 import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
 import { LocationService } from '@heartsteps/locations/location.service';
 import { HomePageModule } from '@pages/home/home.module';
-import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+import { NotificationsModule as NotificationsPageModule } from '@pages/notifications/notifications.module';
 import { AuthorizationService } from './authorization.service';
+import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 
 const appRoutes:Routes = [
 {
@@ -27,12 +27,11 @@ const appRoutes:Routes = [
 
 @NgModule({
   declarations: [
-    MyApp,
-    NotificationPane
+    MyApp
   ],
   imports: [
     WelcomePageModule,
-    NotificationsModule,
+    NotificationsPageModule,
     OnboardPageModule,
     HomePageModule,
     NotificationsModule,
@@ -47,8 +46,7 @@ const appRoutes:Routes = [
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp,
-    NotificationPane
+    MyApp
   ],
   providers: [
     StatusBar,

@@ -1,1 +1,4 @@
-<p>Hi i'm a notification!</p>
+<div *ngIf="notification">
+    <p class="large">{{notification.body}}</p>
+    <button (click)="dismiss()">Ok</button>
+</div>

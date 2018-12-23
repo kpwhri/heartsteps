@@ -1,15 +1,10 @@
-<ion-header>
-
-  <ion-navbar>
-    <ion-title>Enroll</ion-title>
-  </ion-navbar>
-
-</ion-header>
-
-
-<ion-content padding>
-  <p>Enter the entry token included in the invitation letter you received in the mail.</p>
+<article class="page">
+  <header>
+    <h2>Enroll</h2>
+    <a *ngIf="dismissable" class="close">Close</a>
+  </header>
   <form [formGroup]="enrollmentForm" (ngSubmit)="enroll()" >
+    <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <ion-item>
       <ion-label stacked>Entry Code</ion-label>
       <ion-input type="text" formControlName="entryToken"></ion-input>
@@ -23,4 +18,4 @@
         <button >Enroll</button>
     </div>
   </form>
-</ion-content>
+</article>

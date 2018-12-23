@@ -5,7 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { NotificationPage } from './notification.page';
 
 const notificationRoutes: Routes = [{
-  path: 'notification',
+  path: 'notification/:notificationId',
   component: NotificationPage
 }];
 

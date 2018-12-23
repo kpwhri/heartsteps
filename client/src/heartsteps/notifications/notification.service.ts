@@ -117,4 +117,20 @@ export class NotificationService {
     deleteDevice(): Promise<boolean> {
         return this.storage.remove(storageKey);
     }
+
+    getNotification(notificationId:string):Promise<Notification> {
+        return this.storage.get('notifications')
+        .then((notifications:any) => {
+            if(notifications[notificationId]) {
+                const notification = new Notification(
+                    notificationId,
+                    notifications[notificationId].title,
+                    notifications[notificationId].body
+                )
+                return Promise.resolve(notification);
+            } else {
+                return Promise.reject("Notification not found")
+            }
+        })
+    }
 }
