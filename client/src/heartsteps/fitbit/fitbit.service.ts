@@ -50,6 +50,11 @@ export class FitbitService {
         });
     }
 
+    remove():Promise<boolean> {
+        // Tell server to stop pulling fitbit data
+        return this.storage.remove(storageKey);
+    }
+
     isAuthorized(): Promise<boolean> {
         return this.storage.get(storageKey)
         .then((fitbitId) => {

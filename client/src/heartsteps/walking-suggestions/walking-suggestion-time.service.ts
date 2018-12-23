@@ -1,13 +1,15 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Storage } from "@ionic/storage";
+import { StorageService } from "@infrastructure/storage.service";
+
+const storageKey:string = 'activity-suggestion-times'
 
 @Injectable()
 export class WalkingSuggestionTimeService{
 
     constructor(
         private heartstepsServer:HeartstepsServer,
-        private storage:Storage
+        private storage:StorageService
     ){}
 
     getTimeFields():Promise<Array<any>> {
@@ -31,15 +33,34 @@ export class WalkingSuggestionTimeService{
     }
 
     getTimes():Promise<any> {
-        return this.storage.get('activity-suggestion-times')
+        return this.storage.get(storageKey)
         .then((times) => {
-            if(times) {
-                return times;
-            } else {
-                return Promise.reject("Unset times");
-            }
-            
+            return times;
         })
+        .catch(() => {
+            return Promise.reject();
+        })
+    }
+
+    setTimes(times):Promise<any> {
+        return this.storage.set(storageKey, times)
+        .then(() => {
+            return times;
+        });
+    }
+
+    removeTimes():Promise<any> {
+        return this.storage.remove(storageKey);
+    }
+
+    loadTimes():Promise<any> {
+        return this.getTimes()
+        .catch(() => {
+            return this.heartstepsServer.get('walking-suggestion-times');
+        })
+        .then((times) => {
+            return this.setTimes(times);
+        });
     }
 
     updateTimes(times:any):Promise<boolean> {
@@ -105,7 +126,7 @@ export class WalkingSuggestionTimeService{
             times
         )
         .then((data) => {
-            return this.storage.set('activity-suggestion-times', data)
+            return this.setTimes(data);
         })
         .then(() => {
             return Promise.resolve(true)

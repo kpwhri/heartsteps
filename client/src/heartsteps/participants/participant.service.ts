@@ -1,26 +1,24 @@
 import { Injectable } from "@angular/core";
-import { Storage } from "@ionic/storage";
 import { Subject } from "rxjs/Subject";
-import { Observable } from "rxjs/Observable";
 import { ProfileService } from "./profile.factory";
+import { StorageService } from "@infrastructure/storage.service";
 
+export class Participant{
+    profileComplete: boolean;
+}
 
 const storageKey = 'heartsteps-id'
 
 @Injectable()
 export class ParticipantService {
 
-    private subject:Subject<any>;
+    public participant:Subject<any>;
 
     constructor(
-        private storage:Storage,
+        private storage:StorageService,
         private profileService: ProfileService
     ) {
-        this.subject = new Subject();
-    }
-
-    onChange():Observable<any> {
-        return this.subject.asObservable();
+        this.participant = new Subject();
     }
 
     update():Promise<boolean> {
@@ -28,14 +26,14 @@ export class ParticipantService {
         .then(() => {
             return this.profileService.isComplete()
             .then(() => {
-                this.subject.next({
+                this.participant.next({
                     enrolled: true,
                     profileComplete: true
                 })
                 return true;
             })
             .catch(() => {
-                this.subject.next({
+                this.participant.next({
                     enrolled: true,
                     profileComplete: false
                 })
@@ -43,17 +41,27 @@ export class ParticipantService {
             })
         })
         .catch(() => {
-            this.subject.next(false)
+            this.participant.next(false)
             return true;
         })
     }
 
     remove():Promise<boolean> {
-        return Promise.resolve(true);
+        return this.profileService.remove()
+        .then(() => {
+            return this.storage.remove(storageKey);
+        })
+        .then(() => {
+            this.participant.next(false);
+            return true;
+        });
     }
 
     setHeartstepsId(heartstepsId:string):Promise<boolean> {
         return this.storage.set(storageKey, heartstepsId)
+        .then(() => {
+            return this.profileService.load();
+        })
         .then(() => {
             return this.update();
         });

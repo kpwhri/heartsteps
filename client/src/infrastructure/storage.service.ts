@@ -26,4 +26,12 @@ export class StorageService {
             return value;
         });
     }
+
+    public remove(key:string):Promise<any> {
+        return this.storage.remove(key);
+    }
+
+    public clear():Promise<any> {
+        return this.storage.clear();
+    }
 }

@@ -36,4 +36,26 @@ export class ReflectionTimeService{
         })
     }
 
+    load():Promise<boolean> {
+        return this.heartstepsServer.get('reflecetion-time')
+        .then((time) => {
+            return this.set(time);
+        })
+        .then(() => {
+            return Promise.resolve(true);
+        });
+    }
+
+    set(time:any):Promise<any> {
+        return this.storage.set(storageKey, time)
+        .then(() => {
+            return time;
+        });
+    }
+
+    remove():Promise<boolean> {
+        // TODO: Remove reflection time from server
+        return this.storage.remove(storageKey);
+    }
+
 }

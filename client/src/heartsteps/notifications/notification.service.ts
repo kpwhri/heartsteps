@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 import { PushService, Device } from '@infrastructure/push.service';
-import { Storage } from "@ionic/storage";
 import { Subject } from 'rxjs';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
 import { Notification } from '@heartsteps/notifications/notification.model';
+import { StorageService } from '@infrastructure/storage.service';
 
 const storageKey: string = 'notificationServiceDevice';
 
@@ -18,7 +18,7 @@ export class NotificationService {
         private pushService: PushService,
         private messageReceiptService: MessageReceiptService,
         private heartstepsServer:HeartstepsServer,
-        private storage:Storage
+        private storage:StorageService
     ){
         this.dataMessage = new Subject();
         this.notificationMessage = new Subject();
@@ -61,6 +61,10 @@ export class NotificationService {
         })
     }
 
+    disable():Promise<boolean> {
+        return this.deleteDevice();
+    }
+
     watchDeviceUpdate() {
         this.pushService.device.subscribe((device: Device) => {
             if(device) {
@@ -83,7 +87,6 @@ export class NotificationService {
             type: device.type
         })
         .then(() => {
-            console.log("device update sent");
             return this.saveDevice(device);
         })
         .then(() => {
@@ -97,9 +100,6 @@ export class NotificationService {
     getDevice(): Promise<Device> {
         return this.storage.get(storageKey)
         .then((data: any) => {
-            if(!data) {
-                return Promise.reject("No device");
-            }
             return Promise.resolve(new Device(
                 data.token,
                 data.string

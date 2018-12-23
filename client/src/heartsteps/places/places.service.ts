@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { Storage } from "@ionic/storage";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { StorageService } from "@infrastructure/storage.service";
 
 const locationsKey = 'participant-locations'
 
@@ -9,7 +9,7 @@ export class PlacesService{
 
     constructor(
         private heartstepsServer:HeartstepsServer,
-        private storage:Storage
+        private storage:StorageService
     ){}
 
     getLocations():Promise<any> {
@@ -23,6 +23,24 @@ export class PlacesService{
         })
         .catch(() => {
             return Promise.reject(false)
+        })
+    }
+
+    set(locations):Promise<any> {
+        return this.storage.set(locationsKey, locations);
+    }
+
+    remove():Promise<boolean> {
+        return this.storage.remove(locationsKey);
+    }
+
+    load():Promise<any> {
+        return this.heartstepsServer.get('places')
+        .then((places) => {
+            return this.set(places);
+        })
+        .then((places) => {
+            return places;
         })
     }
 
@@ -61,7 +79,7 @@ export class PlacesService{
     saveLocations(locations:any):Promise<Boolean> {
         return this.heartstepsServer.post('places', locations)
         .then((locations) => {
-            return this.storage.set(locationsKey, locations)
+            return this.set(locations)
         })
         .then(() => {
             return Promise.resolve(true)

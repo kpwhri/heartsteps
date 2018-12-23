@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { LocationService as LocationInfrastructureService } from '@infrastructure/location.service';
-import { Geoposition } from "@ionic-native/geolocation";
 
 
 @Injectable()

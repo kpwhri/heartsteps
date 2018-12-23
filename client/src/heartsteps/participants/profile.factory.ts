@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NotificationService } from "@heartsteps/notifications/notification.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
-import { LocationService as GeolocationService } from "@infrastructure/location.service";
+import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
@@ -14,15 +14,15 @@ export class ProfileService {
     constructor(
         private notificationService: NotificationService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
-        private geolocationService:GeolocationService,
+        private locationService:LocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService
     ) {}
 
-    isComplete():Promise<boolean> {
-        return this.getProfile()
+    public isComplete():Promise<boolean> {
+        return this.get()
         .then((profile) => {
             let complete = true
             Object.keys(profile).forEach((key) => {
@@ -41,7 +41,41 @@ export class ProfileService {
         })
     }
 
-    getProfile():Promise<any> {
+    public load():Promise<boolean> {
+        return Promise.all([
+            this.loadWalkingSuggestions(),
+            this.loadPlaces(),
+            this.loadReflectionTime(),
+            this.loadContactInformation(),
+            this.loadFitbit()
+        ])
+        .then(() => {
+            return Promise.resolve(true);
+        })
+        .catch(() => {
+            return Promise.reject();
+        });
+    }
+
+    public remove():Promise<boolean> {
+        return Promise.all([
+            this.walkingSuggestionTimeService.removeTimes(),
+            this.notificationService.disable(),
+            this.locationService.removePermission(),
+            this.placesService.remove(),
+            this.reflectionTimeService.remove(),
+            this.contactInformationService.remove(),
+            this.fitbitService.remove()
+        ])
+        .then(() => {
+            return Promise.resolve(true);
+        })
+        .catch(() => {
+            return Promise.reject();
+        });
+    }
+
+    public get():Promise<any> {
         return Promise.all([
             this.checkNotificationsEnabled(),
             this.checkWalkingSuggestions(),
@@ -67,7 +101,7 @@ export class ProfileService {
         })
     }
 
-    checkReflectionTime():Promise<boolean> {
+    private checkReflectionTime():Promise<boolean> {
         return this.reflectionTimeService.getTime()
         .then(() => {
             return true
@@ -77,7 +111,17 @@ export class ProfileService {
         })
     }
 
-    checkContactInformation():Promise<boolean> {
+    private loadReflectionTime():Promise<boolean> {
+        return this.reflectionTimeService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    private checkContactInformation():Promise<boolean> {
         return this.contactInformationService.get()
         .then(() => {
             return true
@@ -87,7 +131,17 @@ export class ProfileService {
         })
     }
 
-    checkNotificationsEnabled():Promise<boolean> {
+    private loadContactInformation():Promise<boolean> {
+        return this.contactInformationService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.reject(false);
+        });
+    }
+
+    private checkNotificationsEnabled():Promise<boolean> {
         return this.notificationService.isEnabled()
         .then(() => {
             return true
@@ -97,7 +151,7 @@ export class ProfileService {
         })
     }
 
-    checkWalkingSuggestions():Promise<boolean> {
+    private checkWalkingSuggestions():Promise<boolean> {
         return this.walkingSuggestionTimeService.getTimes()
         .then(() => {
             return true
@@ -107,8 +161,18 @@ export class ProfileService {
         })
     }
 
-    checkLocationPermission():Promise<boolean> {
-        return this.geolocationService.hasPermission()
+    private loadWalkingSuggestions():Promise<boolean> {
+        return this.walkingSuggestionTimeService.loadTimes()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private checkLocationPermission():Promise<boolean> {
+        return this.locationService.hasPermission()
         .then(() => {
             return true
         })
@@ -117,7 +181,7 @@ export class ProfileService {
         })
     }
 
-    checkPlacesSet():Promise<boolean> {
+    private checkPlacesSet():Promise<boolean> {
         return this.placesService.getLocations()
         .then(() => {
             return true
@@ -127,8 +191,28 @@ export class ProfileService {
         })
     }
 
+    private loadPlaces():Promise<boolean> {
+        return this.placesService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(true);
+        })
+    }
+
     checkFitbit():Promise<boolean> {
         return this.fitbitService.isAuthorized()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    loadFitbit():Promise<boolean> {
+        return this.fitbitService.updateAuthorization()
         .then(() => {
             return true;
         })

@@ -17,19 +17,19 @@ export class MyApp {
         platform: Platform,
         statusBar: StatusBar,
         splashScreen: SplashScreen,
-        private participant:ParticipantService,
+        private participantService:ParticipantService,
         private backgroundService: BackgroundService,
         private notificationService: NotificationService,
         private authorizationService: AuthorizationService
     ) {
         platform.ready()
         .then(() => {
-            this.participant.onChange().subscribe((participant: any) => {
+            this.participantService.participant.subscribe((participant: any) => {
                 this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
                 this.setupAuthorization(participant);
             });
-            return this.participant.update();
+            return this.participantService.update();
         })
         .then(() => {
             statusBar.styleDefault();

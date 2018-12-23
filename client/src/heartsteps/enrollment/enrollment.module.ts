@@ -3,6 +3,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { EnrollmentModal } from './enroll';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { EnrollmentController } from './enrollment.controller';
+import { EnrollmentService } from './enrollment.service';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { EnrollmentController } from './enrollment.controller';
     IonicPageModule.forChild(EnrollmentModal)
   ],
   providers: [
-    EnrollmentController
+    EnrollmentController,
+    EnrollmentService
   ]
 })
 export class EnrollmentModule {}

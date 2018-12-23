@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Storage } from "@ionic/storage";
+import { StorageService } from "@infrastructure/storage.service";
 
 const storageKey = 'contact-information'
 
@@ -9,7 +9,7 @@ export class ContactInformationService {
 
     constructor(
         private heartstepsServer:HeartstepsServer,
-        private storage:Storage
+        private storage:StorageService
     ){}
 
     get():Promise<any> {
@@ -26,7 +26,11 @@ export class ContactInformationService {
         })
     }
 
-    getFromServer():Promise<any> {
+    remove():Promise<any> {
+        return this.storage.remove(storageKey);
+    }
+
+    load():Promise<any> {
         return this.heartstepsServer.get('contact-information')
         .then((data) => {
             return this.storage.set(storageKey, data)

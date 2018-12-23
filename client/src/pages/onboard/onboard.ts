@@ -13,7 +13,7 @@ import { ParticipantInformation } from '@heartsteps/contact-information/particip
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 
 const onboardingPages:Array<any> = [{
-    key: 'contact',
+    key: 'contactInformation',
     title: 'Contact Information',
     component: ParticipantInformation
 }, {
@@ -69,7 +69,7 @@ export class OnboardPage implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.profileService.getProfile()
+        this.profileService.get()
         .then((profile) => {
             this.pages = [];
             onboardingPages.forEach((page) => {
