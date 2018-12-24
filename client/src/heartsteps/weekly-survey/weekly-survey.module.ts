@@ -5,6 +5,7 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { IonicPageModule } from 'ionic-angular';
 import { ReflectionTimeService } from './reflection-time.service';
 import { WeeklyReflectionTimePage } from './weekly-reflection-time.page';
+import { WeekService } from './week.service';
 
 @NgModule({
     imports: [
@@ -13,7 +14,8 @@ import { WeeklyReflectionTimePage } from './weekly-reflection-time.page';
         IonicPageModule.forChild(WeeklyReflectionTimePage),
     ],
     providers: [
-        ReflectionTimeService
+        ReflectionTimeService,
+        WeekService
     ],
     declarations: [
         WeeklyReflectionTimePage

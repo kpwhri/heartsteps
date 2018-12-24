@@ -3,6 +3,8 @@ import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walkin
 import { EnrollmentService } from "@heartsteps/enrollment/enrollment.service";
 import { Router } from "@angular/router";
 import { AlertController } from "ionic-angular";
+import { WeekService } from "@heartsteps/weekly-survey/week.service";
+import { Week } from "@heartsteps/weekly-survey/week.model";
 
 
 @Component({
@@ -14,7 +16,8 @@ export class SettingsPage {
         private walkingSuggestionService:WalkingSuggestionService,
         private enrollmentService:EnrollmentService,
         private router:Router,
-        private alertCtrl: AlertController
+        private alertCtrl: AlertController,
+        private weekService: WeekService
     ){}
 
     public testWalkingSuggestion() {
@@ -42,6 +45,13 @@ export class SettingsPage {
             buttons: ['Ok']
         });
         alert.present();
+    }
+
+    public navigateToCurrentWeek() {
+        this.weekService.getCurrentWeek()
+        .then((week:Week) => {
+            this.router.navigate(['weekly-survey', week.id]);
+        })
     }
 
     public unenroll() {
