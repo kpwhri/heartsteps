@@ -8,8 +8,10 @@ from weeks.services import WeekService
 
 @receiver(pre_save, sender=ReflectionTime)
 def pre_save_update_daily_task(sender, instance, *args, **kwargs):
-    # instance.update_daily_task()
-    pass
+    if not instance.daily_task:
+        instance.create_daily_task()
+    else:
+        instance.update_daily_task()
 
 @receiver(post_save, sender=ReflectionTime)
 def post_save_update_weekend(sender, instance, *args, **kwargs):

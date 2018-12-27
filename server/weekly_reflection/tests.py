@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 from locations.services import LocationService
 from weeks.models import Week
 
-from .models import ReflectionTime, User
+from .models import ReflectionTime, User 
 
 class ReflectionTimeUpdatesWeek(TestCase):
 
@@ -21,7 +21,7 @@ class ReflectionTimeUpdatesWeek(TestCase):
 
         timezone_patch = patch.object(timezone, 'now')
         self.now = timezone_patch.start()
-        self.now.return_value = datetime(2018, 12, 27, 18)
+        self.now.return_value = datetime(2018, 12, 27, 18).astimezone(pytz.UTC)
         self.addCleanup(timezone_patch.stop)
 
         location_timezone_patch = patch.object(LocationService, 'get_current_timezone')
@@ -60,6 +60,12 @@ class ReflectionTimeUpdatesWeek(TestCase):
         
 
 class ReflectionTimeView(APITestCase):
+
+    def setUp(self):
+        location_timezone_patch = patch.object(LocationService, 'get_current_timezone')
+        self.addCleanup(location_timezone_patch.stop)
+        location_timezone = location_timezone_patch.start()
+        location_timezone.return_value = pytz.timezone('US/Pacific')
 
     def test_returns_reflection_time(self):
         user = User.objects.create(username="test")
@@ -102,7 +108,7 @@ class ReflectionTimeView(APITestCase):
 
     def test_updates_reflection_time(self):
         user = User.objects.create(username="test")
-        ReflectionTime.objects.create(
+        time = ReflectionTime.objects.create(
             user = user,
             day = 'sunday',
             time = '19:00'

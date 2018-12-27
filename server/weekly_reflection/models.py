@@ -39,7 +39,7 @@ class ReflectionTime(models.Model):
     time = models.CharField(max_length=15)
 
     active = models.BooleanField(default=True)
-    # daily_task = models.ForeignKey(DailyTask)
+    daily_task = models.ForeignKey(DailyTask, null=True)
 
     def __str__(self):
         if self.active:
@@ -47,18 +47,30 @@ class ReflectionTime(models.Model):
         else:
             return "Inactive (%s)" % (self.user)
 
-    # def update_daily_task(self):
-    #     self.daily_task = DailyTask.create_daily_task(
-    #         user = self.user,
-    #         category = None,
-    #         task = 'weekly_reflection.tasks.send_reflection',
-    #         name = 'weekly reflection for %s' % (self.user.username),
-    #         arguments = {
-    #             'username': self.user.username
-    #         },
-    #         hour = self.hour,
-    #         minute = self.minute
-    #     )
+    def create_daily_task(self):
+        task_name = 'weekly reflection for %s' % (self.user.username)
+        try:
+            self.daily_task = DailyTask.objects.get(task__name=task_name)
+        except DailyTask.DoesNotExist:
+            self.daily_task = DailyTask.create_daily_task(
+                user = self.user,
+                category = None,
+                task = 'weekly_reflection.tasks.send_reflection',
+                name = task_name,
+                arguments = {
+                    'username': self.user.username
+                },
+                day = self.day,
+                hour = self.hour,
+                minute = self.minute
+            )
+
+    def update_daily_task(self):
+        self.daily_task.set_time(
+            day = self.day,
+            hour = self.hour,
+            minute = self.minute
+        )
 
     @property
     def hour(self):
