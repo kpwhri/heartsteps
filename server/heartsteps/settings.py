@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'behavioral_messages',
     'push_messages',
     'morning_messages',
+    'weeks',
     'weekly_reflection',
     'locations',
     'weather',

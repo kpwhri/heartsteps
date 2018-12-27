@@ -1,11 +1,63 @@
+from datetime import datetime, date
 import json
+import pytz
+from unittest.mock import patch
+
 from django.test import TestCase
+from django.urls import reverse
+from django.utils import timezone
 
 from rest_framework.test import APITestCase
-from django.urls import reverse
 
-from django.contrib.auth.models import User
-from .models import ReflectionTime
+from locations.services import LocationService
+from weeks.models import Week
+
+from .models import ReflectionTime, User
+
+class ReflectionTimeUpdatesWeek(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+        timezone_patch = patch.object(timezone, 'now')
+        self.now = timezone_patch.start()
+        self.now.return_value = datetime(2018, 12, 27, 18)
+        self.addCleanup(timezone_patch.stop)
+
+        location_timezone_patch = patch.object(LocationService, 'get_current_timezone')
+        self.addCleanup(location_timezone_patch.stop)
+        location_timezone = location_timezone_patch.start()
+        location_timezone.return_value = pytz.timezone('US/Pacific')
+
+    def test_creates_week_if_none_exists(self):
+
+        ReflectionTime.objects.create(
+            user = self.user,
+            day = 'sunday',
+            time = '8:30'
+        )
+
+        week = Week.objects.get(user=self.user)
+        self.assertEqual(week.start_date, date(2018, 12, 24))
+        self.assertEqual(week.end_date, date(2018, 12, 30))
+
+    def test_updates_week_end_date(self):
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2018, 12, 24),
+            end_date = date(2018, 12, 30)
+        )
+
+        ReflectionTime.objects.create(
+            user = self.user,
+            day = 'saturday',
+            time = '17:00'
+        )
+
+        week = Week.objects.get(user=self.user)
+        self.assertEqual(week.start_date, date(2018, 12, 24))
+        self.assertEqual(week.end_date, date(2018, 12, 29))
+        
 
 class ReflectionTimeView(APITestCase):
 

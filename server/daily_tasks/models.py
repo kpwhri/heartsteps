@@ -91,3 +91,6 @@ class DailyTask(models.Model):
     def delete_task(self):
         self.task.crontab.delete()
         self.task.delete()
+
+    def get_next_run_time(self):
+        pass

@@ -1,23 +1,45 @@
+from datetime import timedelta
+
+from django.utils import timezone
+
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+from daily_tasks.models import DailyTask
+from locations.services import LocationService
+
+User = get_user_model()
 
 DAYS_OF_WEEK = [
-    ('monday', 'Monday'),
-    ('tuesday', 'Tuesday'),
-    ('wednesday', 'Wednesday'),
-    ('thursday', 'Thursday'),
-    ('friday', 'Friday'),
-    ('saturday', 'Saturday'),
-    ('sunday', 'Sunday')
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday'
 ]
+
+DAYS_OF_WEEK_NAMES = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
+
+DAYS_OF_WEEK_CHOICES = zip(DAYS_OF_WEEK, DAYS_OF_WEEK_NAMES)
 
 class ReflectionTime(models.Model):
     user = models.ForeignKey(User)
 
-    day = models.CharField(max_length=15, choices=DAYS_OF_WEEK)
+    day = models.CharField(max_length=15, choices=DAYS_OF_WEEK_CHOICES)
     time = models.CharField(max_length=15)
 
     active = models.BooleanField(default=True)
+    # daily_task = models.ForeignKey(DailyTask)
 
     def __str__(self):
         if self.active:
@@ -25,13 +47,42 @@ class ReflectionTime(models.Model):
         else:
             return "Inactive (%s)" % (self.user)
 
-class Week(models.Model):
-    user = models.ForeignKey(User)
-    
-    start_date = models.DateField()
-    end_date = models.DateField()
+    # def update_daily_task(self):
+    #     self.daily_task = DailyTask.create_daily_task(
+    #         user = self.user,
+    #         category = None,
+    #         task = 'weekly_reflection.tasks.send_reflection',
+    #         name = 'weekly reflection for %s' % (self.user.username),
+    #         arguments = {
+    #             'username': self.user.username
+    #         },
+    #         hour = self.hour,
+    #         minute = self.minute
+    #     )
 
-    reflection_time = models.ForeignKey(ReflectionTime)
+    @property
+    def hour(self):
+        return int(self.time.split(':')[0])
 
-    def __str__(self):
-        return "%s to %s (%s)" % (self.start_date, self.end_date, self.user)
+    @property
+    def minute(self):
+        return int(self.time.split(':')[1])
+
+    def get_next_time(self):
+        location_service = LocationService(self.user)
+        now = timezone.now().astimezone(location_service.get_current_timezone())
+
+        current_day_of_week = now.weekday()
+        reflection_day_of_week = DAYS_OF_WEEK.index(self.day)
+        days_offset = reflection_day_of_week - current_day_of_week
+        
+        reflection_time = now + timedelta(days=days_offset)
+        reflection_time.replace(
+            hour = self.hour,
+            minute = self.minute
+        )
+
+        if reflection_time < now:
+            return reflection_time + timedelta(days=7)
+        else:
+            return reflection_time

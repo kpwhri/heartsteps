@@ -1,0 +1,1 @@
+default_app_config = 'weekly_reflection.apps.WeeklyReflectionConfig'
