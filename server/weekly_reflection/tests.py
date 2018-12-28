@@ -10,11 +10,13 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from locations.services import LocationService
+from push_messages.services import PushMessageService, Device
 from weeks.models import Week
 
-from .models import ReflectionTime, User 
+from .models import ReflectionTime, User
+from .tasks import send_reflection
 
-class ReflectionTimeUpdatesWeek(TestCase):
+class BaseTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
@@ -28,6 +30,8 @@ class ReflectionTimeUpdatesWeek(TestCase):
         self.addCleanup(location_timezone_patch.stop)
         location_timezone = location_timezone_patch.start()
         location_timezone.return_value = pytz.timezone('US/Pacific')
+
+class ReflectionTimeModelUpdatesWeekModel(BaseTestCase):
 
     def test_creates_week_if_none_exists(self):
 
@@ -57,7 +61,48 @@ class ReflectionTimeUpdatesWeek(TestCase):
         week = Week.objects.get(user=self.user)
         self.assertEqual(week.start_date, date(2018, 12, 24))
         self.assertEqual(week.end_date, date(2018, 12, 29))
-        
+
+class WeeklyReflectionTask(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        push_message_mock = patch.object(PushMessageService, 'send_notification')
+        self.addCleanup(push_message_mock.stop)
+        self.send_notification = push_message_mock.start()
+
+        Device.objects.create(
+            user = self.user,
+            active = True
+        )
+
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2018, 12, 24),
+            end_date = date(2018, 12, 30),
+        )
+
+    def test_send_reflection_sends_push_notification(self):
+        send_reflection('test')
+
+        self.send_notification.assert_called()
+
+    def test_send_reflection_creates_next_week(self):
+        send_reflection('test')
+
+        self.assertEqual(2, Week.objects.count())
+
+    def test_send_reflection_does_not_create_next_week_if_exists(self):
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2018, 12, 31),
+            end_date = date(2019, 1, 3)
+        )
+
+        send_reflection('test')
+
+        next_week = Week.objects.last()
+        self.assertEqual(next_week.end_date, date(2019, 1, 3))
 
 class ReflectionTimeView(APITestCase):
 

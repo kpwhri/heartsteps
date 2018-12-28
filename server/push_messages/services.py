@@ -133,7 +133,9 @@ class PushMessageService():
 
     DeviceMissingError = DeviceMissingError
 
-    def __init__(self, user):
+    def __init__(self, user=None, username=None):
+        if username:
+            user = User.objects.get(username=username)
         self.user = user
         self.device = self.get_device_for_user(self.user)
         # map methods depending on device type.

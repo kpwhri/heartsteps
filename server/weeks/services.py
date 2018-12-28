@@ -40,3 +40,7 @@ class WeekService:
             )
         except Week.DoesNotExist:
             raise WeekService.WeekDoesNotExist()
+
+    def get_current_week(self):
+        today = timezone.now()
+        return self.get_week_for_date(today)
