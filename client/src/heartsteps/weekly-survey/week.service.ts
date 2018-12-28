@@ -1,16 +1,24 @@
 import { Injectable } from "@angular/core";
 import { Week } from "./week.model";
+import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
 
 @Injectable()
 export class WeekService {
     
-    constructor(){}
+    constructor(
+        private heartstepsServer: HeartstepsServer
+    ){}
 
     getCurrentWeek():Promise<Week> {
-        const week = new Week();
-        week.id = "1234";
-        return Promise.resolve(week);
+        return this.heartstepsServer.get('weeks')
+        .then((data:any) => {
+            const week = new Week();
+            week.id = data.id;
+            week.start = new Date(data.start);
+            week.end = new Date(data.end);
+            return week;
+        });
     }
 
 }
