@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^api/activity/', include('activity_plans.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
+    url(r'^api/', include('weekly_goals.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('participants.urls')),
     url(r'^api/', include('anti_seds.urls')),
