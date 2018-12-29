@@ -22,17 +22,10 @@ def send_reflection(username):
         body = "Time for weekly reflection",
         data = {
             'type': 'weekly reflection',
-            'weeks': {
-                'current': {
-                    'id': current_week.id,
-                    'start': current_week.start_date.strftime('%Y-%m-%d'),
-                    'end': current_week.end_date.strftime('%Y-%m-%d')
-                },
-                'next': {
-                    'id': next_week.id,
-                    'start': next_week.start_date.strftime('%Y-%m-%d'),
-                    'end': next_week.end_date.strftime('%Y-%m-%d')
-                }
+            'week': {
+                'id': current_week.number,
+                'start': current_week.start_date.strftime('%Y-%m-%d'),
+                'end': current_week.end_date.strftime('%Y-%m-%d')
             }
         }
     )    

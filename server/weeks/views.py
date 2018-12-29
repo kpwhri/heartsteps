@@ -11,37 +11,36 @@ from .services import WeekService
 class WeekView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_week(self, week_id, user):
+    def get_week(self, week_number, user):
         try:
             return Week.objects.get(
-                uuid = week_id,
+                number = week_number,
                 user = user
             )
         except Week.DoesNotExist:
             raise Http404()
 
-    def get(self, request, week_id=None):
-        if week_id is not None:
-            week = self.get_week(week_id, request.user)
+    def get(self, request, week_number=None):
+        if week_number is not None:
+            week = self.get_week(week_number, request.user)
         else:
             service = WeekService(request.user)
             week = service.get_current_week()
         return Response({
-            'id': week.id,
+            'id': week.number,
             'start': week.start_date.strftime('%Y-%m-%d'),
             'end': week.end_date.strftime('%Y-%m-%d')
         }, status=status.HTTP_200_OK)
 
 class NextWeekView(WeekView):
 
-    def get(self, request, week_id):
-        week = self.get_week(week_id, request.user)
+    def get(self, request, week_number):
+        week = self.get_week(week_number, request.user)
 
         service = WeekService(request.user)
         next_week = service.get_week_after(week=week)
-
         return Response({
-            'id': next_week.id,
+            'id': next_week.number,
             'start': next_week.start_date.strftime('%Y-%m-%d'),
             'end': next_week.end_date.strftime('%Y-%m-%d')
         }, status=status.HTTP_200_OK)

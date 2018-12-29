@@ -1,7 +1,12 @@
-from datetime import date
+from datetime import date, datetime
+from unittest.mock import patch
+import pytz
 
 from django.test import TestCase
 from django.utils import timezone
+from django.urls import reverse
+
+from rest_framework.test import APITestCase
 
 from .models import User, Week
 from .services import WeekService
@@ -81,3 +86,68 @@ class WeeksModel(TestCase):
         week_other = Week.objects.get(uuid=week_other.uuid)
         self.assertEqual(week_other.start_date, date(2018, 12, 17))
         self.assertEqual(week_other.end_date, date(2018, 12, 20))
+
+class WeekViewsTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.client.force_authenticate(user=self.user)
+
+        timezone_patch = patch.object(timezone, 'now')
+        self.now = timezone_patch.start()
+        self.now.return_value = datetime(2019, 1, 6, 8).astimezone(pytz.UTC)
+        self.addCleanup(timezone_patch.stop)
+
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 1, 1),
+            end_date = date(2019, 1, 3),
+            number = 0
+        )
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 1, 4),
+            end_date = date(2019, 1, 10),
+            number = 1
+        )
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 1, 11),
+            end_date = date(2019, 1, 17),
+            number = 2
+        )
+
+    def test_get_current_week(self):
+        response = self.client.get(reverse('weeks-current'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 1)
+        self.assertEqual(response.data['start'], '2019-01-04')
+
+    def test_get_week_2(self):
+        response = self.client.get(reverse('weeks', kwargs={
+            'week_number': 2
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 2)
+        self.assertEqual(response.data['start'], '2019-01-11')
+
+    def test_get_next_week(self):
+        response = self.client.get(reverse('weeks', kwargs={
+            'week_number': 3
+        }))
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(reverse('weeks-next', kwargs={
+            'week_number': 2
+        }))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 3)
+        self.assertEqual(response.data['start'], '2019-01-18')
+        self.assertEqual(response.data['end'], '2019-01-24')
+
+        response = self.client.get(reverse('weeks', kwargs={
+            'week_number': 3
+        }))
+        self.assertEqual(response.status_code, 200)
