@@ -1,14 +1,2 @@
-<form>
-    <div>
-        Suggested goal
-    </div>
-    <div>
-        Weekly charts
-    </div>
-    <div>
-        Confidence
-    </div>
-    <div class="controls">
-        <button class="primary" (click)="next()">Set Goal</button>
-    </div>
-</form>
+<heartsteps-weekly-goal [week]="nextWeek" (saved)="nextPage()"></heartsteps-weekly-goal>
+<button (click)="nextPage()">Skip</button>

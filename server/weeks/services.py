@@ -31,6 +31,13 @@ class WeekService:
             end_date = end_date
         )
 
+    def get_week_after(self, week):
+        next_week_start_day = week.end_date + timedelta(days=1)
+        try:
+            return self.get_week_for_date(next_week_start_day)
+        except WeekService.WeekDoesNotExist:
+            return self.create_week(start_date=next_week_start_day)
+
     def get_week_for_date(self, date):
         try:
             return Week.objects.get(

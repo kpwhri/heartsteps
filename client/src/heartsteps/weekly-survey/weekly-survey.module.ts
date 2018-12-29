@@ -6,6 +6,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { ReflectionTimeService } from './reflection-time.service';
 import { WeeklyReflectionTimePage } from './weekly-reflection-time.page';
 import { WeekService } from './week.service';
+import { WeeklyGoalComponent } from './weekly-goal.component';
 
 @NgModule({
     imports: [
@@ -18,10 +19,12 @@ import { WeekService } from './week.service';
         WeekService
     ],
     declarations: [
-        WeeklyReflectionTimePage
+        WeeklyReflectionTimePage,
+        WeeklyGoalComponent
     ],
     exports: [
-        WeeklyReflectionTimePage
+        WeeklyReflectionTimePage,
+        WeeklyGoalComponent
     ]
 })
 export class WeeklySurveyModule {}

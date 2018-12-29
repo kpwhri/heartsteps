@@ -34,7 +34,12 @@ class GoalView(APIView):
                 week = week
             )
         except WeeklyGoal.DoesNotExist:
-            return Response('', status=status.HTTP_404_NOT_FOUND)
+            weekly_goal = WeeklyGoal.objects.create(
+                user = request.user,
+                week = week,
+                minutes = 95,
+                confidence = 0.5
+            )
         return Response({
             'minutes': weekly_goal.minutes,
             'confidence': weekly_goal.confidence

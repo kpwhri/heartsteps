@@ -9,6 +9,7 @@ import { ReflectionTimePage } from './reflection-time-page';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
 import { SuggestionTimesPage } from './suggestion-times';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
+import { GoalPage } from './goal.page';
 
 const settingsRoutes: Routes = [
     {
@@ -23,6 +24,9 @@ const settingsRoutes: Routes = [
     }, {
         path: 'settings/suggestion-times',
         component: SuggestionTimesPage
+    }, {
+        path: 'settings/weekly-goal',
+        component: GoalPage
     }
 ]
 
@@ -32,7 +36,8 @@ const settingsRoutes: Routes = [
         SuggestionTimesPage,
         ContactPage,
         PlacesPage,
-        ReflectionTimePage
+        ReflectionTimePage,
+        GoalPage
     ],
     entryComponents: [
         SettingsPage

@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { Router } from "@angular/router";
+import { Week } from "@heartsteps/weekly-survey/week.model";
+import { WeekService } from "@heartsteps/weekly-survey/week.service";
 
 
 @Injectable()
@@ -10,25 +12,26 @@ export class WeeklySurveyService {
     private pageIndex:number = 0;
     public pages:Array<string> = ['start', 'survey', 'goal', 'review'];
 
-    private week:any;
+    public week:Week;
+    public nextWeek:Week;
 
     constructor(
-        private router:Router
+        private router:Router,
+        private weekService: WeekService
     ){
         this.currentPage = new BehaviorSubject(null);
     }
 
-    loadWeek(weekId:string):Promise<any> {
-        this.week = {
-            id: weekId,
-            start: new Date(),
-            end: new Date(),
-            goal: 42
-        };
-
-        this.currentPage.next(this.pages[0]);
-        
-        return Promise.resolve(this.week);
+    loadWeek(weekId:string):Promise<Week> {
+        return this.weekService.getWeek(weekId)
+        .then((week:Week) => {
+            this.week = week;
+            return this.weekService.getWeekAfter(week);
+        })
+        .then((nextWeek:Week) => {
+            this.nextWeek = nextWeek;
+            return this.week;
+        });
     }
 
     nextPage() {

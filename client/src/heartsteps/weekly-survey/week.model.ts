@@ -4,4 +4,5 @@ export class Week {
     start:Date;
     end:Date;
     goal:number;
+    confidence: number;
 }
