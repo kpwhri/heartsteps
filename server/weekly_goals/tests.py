@@ -43,13 +43,6 @@ class WeeklyGoalTestCase(APITestCase):
         self.assertEqual(response.data['minutes'], 15)
         self.assertEqual(response.data['confidence'], 1)
 
-    def test_404_if_does_not_exist(self):
-        response = self.client.get(reverse('weekly-goal', kwargs={
-            'week_id': self.week.id
-        }))
-
-        self.assertEqual(response.status_code, 404)
-
     def test_updates_goal(self):
         WeeklyGoal.objects.create(
             user = self.user,

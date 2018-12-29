@@ -101,7 +101,7 @@ class WeeklyReflectionTask(BaseTestCase):
 
         send_reflection('test')
 
-        next_week = Week.objects.last()
+        next_week = Week.objects.get(start_date=date(2018, 12, 31))
         self.assertEqual(next_week.end_date, date(2019, 1, 3))
 
 class ReflectionTimeView(APITestCase):
