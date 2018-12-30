@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
+from weeks.views import WeekView
+
 from .models import WeeklyGoal, Week
 
 class GoalsListView(APIView):
@@ -14,20 +16,10 @@ class GoalsListView(APIView):
     def get(self, request):
         return Response('', status=status.HTTP_400_BAD_REQUEST)
 
-class GoalView(APIView):
-    permission_classes = (IsAuthenticated,)
+class GoalView(WeekView):
 
-    def get_week(self, week_id, user):
-        try:
-            return Week.objects.get(
-                uuid = week_id,
-                user = user
-            )
-        except Week.DoesNotExist:
-            raise Http404()
-
-    def get(self, request, week_id):
-        week = self.get_week(week_id, request.user)
+    def get(self, request, week_number):
+        week = self.get_week(week_number, request.user)
         try:
             weekly_goal = WeeklyGoal.objects.get(
                 user = request.user,
@@ -45,8 +37,8 @@ class GoalView(APIView):
             'confidence': weekly_goal.confidence
         }, status = status.HTTP_200_OK)
 
-    def post(self, request, week_id):
-        week = self.get_week(week_id, request.user)
+    def post(self, request, week_number):
+        week = self.get_week(week_number, request.user)
         weekly_goal, _ = WeeklyGoal.objects.update_or_create(
             user = request.user,
             week = week,
