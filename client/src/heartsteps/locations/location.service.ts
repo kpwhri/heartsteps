@@ -24,4 +24,8 @@ export class LocationService {
             return Promise.resolve(true);
         });
     }
+
+    getPermission():Promise<boolean> {
+        return this.location.getPermission();
+    }
 }

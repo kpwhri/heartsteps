@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { loadingService } from '@infrastructure/loading.service';
-import { LocationService } from '@infrastructure/location.service';
+import { LocationService } from './location.service';
 
 @Component({
   selector: 'heartsteps-location-permission',
@@ -17,6 +17,9 @@ export class LocationPermission {
   getPermission() {
     this.loadingService.show("Getting location permission")
     this.locationService.getPermission()
+    .then(() => {
+      return this.locationService.saveLocation();
+    })
     .then(() => {
       this.loadingService.dismiss()
       this.saved.emit(true);
