@@ -7,9 +7,13 @@ import { WeeklySurveyService } from "./weekly-survey.service";
 })
 export class SurveyReviewComponent {
 
+    goal: number;
+
     constructor(
         private weeklySurveyService: WeeklySurveyService
-    ) {}
+    ) {
+        this.goal = this.weeklySurveyService.nextWeek.goal;
+    }
 
     next() {
         this.weeklySurveyService.nextPage();

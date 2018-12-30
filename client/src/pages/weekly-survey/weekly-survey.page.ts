@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Router, ActivatedRoute, ParamMap, UrlSegment } from "@angular/router";
+import { Router, ActivatedRoute, ParamMap, UrlSegment, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { WeeklySurveyService } from "./weekly-survey.service";
+import { urlToNavGroupStrings } from "ionic-angular/umd/navigation/url-serializer";
 
 @Component({
     templateUrl: './weekly-survey.page.html'
@@ -16,33 +17,42 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
 
     constructor(
         private weeklySurveyService: WeeklySurveyService,
-        private activeRoute: ActivatedRoute
+        private activeRoute: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit() {
+        this.pages = this.weeklySurveyService.pages;
+        
+        this.updatePage();
+        this.pageSubscription = this.router.events
+        .filter((event) => event instanceof NavigationEnd)
+        .subscribe(() => {
+            this.updatePage();
+        });
+
         const weekId:string = this.activeRoute.snapshot.paramMap.get('weekId');
-        this.weeklySurveyService.loadWeek(weekId)
-        .then(() => {
-            this.pages = this.weeklySurveyService.pages;
-            this.pageSubscription = this.weeklySurveyService.currentPage.subscribe((page:string) => {
-                this.activePage = page;
-                this.setPageTitle(page);
-                if(this.pages.indexOf(this.activePage) === 0) {
-                    this.firstPage = true;
-                } else {
-                    this.firstPage = false;
-                }
-            });
-        })
+        this.weeklySurveyService.loadWeek(weekId);
     }
 
-    setPageTitle(page:string) {
-        if (page == 'survey') {
-            this.title = "Weekly Questions";
-        } else if (page == 'goal') {
-            this.title = "New goal for upcoming week"
+    updatePage() {
+        this.activePage = this.activeRoute.snapshot.firstChild.url[0].path;
+
+        switch(this.activePage) {
+            case 'survey':
+                this.title = "Weekly Questions";
+                break;
+            case 'goal':
+                this.title = "New goal for upcoming week";
+                break;
+            default:
+                this.title = "Weekly Review"
+        }
+
+        if(this.pages.indexOf(this.activePage) === 0) {
+            this.firstPage = true;
         } else {
-            this.title = "Weekly Review";
+            this.firstPage = false;
         }
     }
 

@@ -8,7 +8,6 @@ import { WeekService } from "@heartsteps/weekly-survey/week.service";
 @Injectable()
 export class WeeklySurveyService {
 
-    public currentPage:BehaviorSubject<string>;
     private pageIndex:number = 0;
     public pages:Array<string> = ['start', 'survey', 'goal', 'review'];
 
@@ -18,9 +17,7 @@ export class WeeklySurveyService {
     constructor(
         private router:Router,
         private weekService: WeekService
-    ){
-        this.currentPage = new BehaviorSubject(null);
-    }
+    ){}
 
     loadWeek(weekId:string):Promise<Week> {
         return this.weekService.getWeek(weekId)
@@ -53,9 +50,8 @@ export class WeeklySurveyService {
     }
 
     navigateToPage(page:string) {
-        this.router.navigate(['weekly-survey', this.week.id, page]);
         this.pageIndex = this.pages.indexOf(page);
-        this.currentPage.next(page);
+        this.router.navigate(['weekly-survey', this.week.id, page]);
     }
 
     finish() {
