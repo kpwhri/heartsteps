@@ -1,0 +1,27 @@
+heartsteps-range {
+    display: flex;
+    flex-direction: row;
+
+    > * {
+        flex: 1 0 auto;
+        margin: 0.5em;
+        padding: 0px;
+    }
+
+    > ion-range.range.range-md.range-has-pin {
+        padding:0px;
+    }
+
+    > span.max,
+    > span.min {
+        display:flex;
+        flex-direction: column;
+        flex: 0 1 auto;
+        justify-content: center;
+        color: $color-primary;
+    }
+
+    > span.min {
+        order: -1;
+    }
+}

@@ -14,12 +14,21 @@ import { BackgroundProcessService } from '@infrastructure/background-process.ser
 import { StorageService } from './storage.service';
 import { ChoiceDialogController } from './choice-dialog.controler';
 import { AlertDialogController } from './alert-dialog.controller';
+import { IonicPageModule } from 'ionic-angular';
+import { HeartstepsRangeComponent } from './range.component';
+import { HeartstepsIncrementComponent } from './increment.component';
+import { BrowserModule } from '@angular/platform-browser';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    HeartstepsRangeComponent,
+    HeartstepsIncrementComponent
+  ],
   imports: [
-    IonicStorageModule.forRoot()
+    BrowserModule,
+    IonicStorageModule.forRoot(),
+    IonicPageModule.forChild(HeartstepsRangeComponent)
   ],
   entryComponents: [],
   providers: [
@@ -37,6 +46,10 @@ import { AlertDialogController } from './alert-dialog.controller';
       OneSignal,
       ChoiceDialogController,
       AlertDialogController
+  ],
+  exports: [
+    HeartstepsRangeComponent,
+    HeartstepsIncrementComponent
   ]
 })
 export class InfrastructureModule {}

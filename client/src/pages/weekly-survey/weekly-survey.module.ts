@@ -15,8 +15,7 @@ const routes: Routes = [{
   path: 'weekly-survey/:weekId',
   component: WeeklySurveyPage,
   resolve: {
-    week: WeekResolver,
-    nextWeek: NextWeekResolver
+    weeks: WeekResolver
   },
   children: [{
       path: 'start',

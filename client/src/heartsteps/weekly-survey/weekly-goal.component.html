@@ -1,15 +1,19 @@
 <form>
-    <fieldset>
-        <legend>Suggested goal</legend>
-        <span>{{minutes}} min</span>
-        <button class="add" (click)="addFiveMinutes()">Add 5 minutes</button>
-        <button class="remove" (click)="removeFiveMinutes()">Remove 5 minutes</button>
-    </fieldset>
+    <div>
+        <label>Suggested goal</label>
+        <heartsteps-increment
+        [(ngModel)]="minutes"
+        name="goal"
+        units="min"
+        ></heartsteps-increment>
+    </div>
+
     <div>
         Insert Weekly charts
     </div>
     <div>
-        Confidence
+        <label>How confident are you that you can achieve next week's goal?</label>
+        <heartsteps-range [(ngModel)]="confidence" name="confidence"></heartsteps-range>
     </div>
     <div class="controls">
         <button (click)="save()">Set Goal</button>

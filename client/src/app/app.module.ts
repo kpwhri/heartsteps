@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -37,6 +38,7 @@ const appRoutes:Routes = [
     HomePageModule,
     NotificationsModule,
     WeeklySurveyModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
       appRoutes,

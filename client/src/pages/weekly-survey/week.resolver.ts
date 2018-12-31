@@ -12,6 +12,24 @@ export class WeekResolver implements Resolve<Week> {
     ){}
 
     resolve(route:ActivatedRouteSnapshot) {
-        return this.weekService.getWeek(route.paramMap.get('weekId'))
+        return this.getWeeks(route.paramMap.get('weekId'));
+    }
+
+    private getWeeks(weekId:string):Promise<any> {
+        return this.weekService.getWeek(weekId)
+        .then((week:Week) => {
+            return this.weekService.getWeekAfter(week)
+            .then((nextWeek:Week) => {
+                return [
+                    week,
+                    nextWeek
+                ];
+            })
+            .catch(() => {
+                return [
+                    week
+                ];
+            });
+        });
     }
 }

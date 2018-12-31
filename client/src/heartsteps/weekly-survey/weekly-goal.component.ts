@@ -1,8 +1,9 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Input, ViewChild } from '@angular/core';
 
 import { loadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
 import { WeekService } from './week.service';
+import { Range } from 'ionic-angular';
 
 @Component({
   selector: 'heartsteps-weekly-goal',
@@ -28,18 +29,6 @@ export class WeeklyGoalComponent {
             this._week = week;
             this.minutes = week.goal;
             this.confidence = week.confidence;
-        }
-    }
-
-    addFiveMinutes() {
-        this.minutes += 5;
-    }
-
-    removeFiveMinutes() {
-        if(this.minutes - 5 <= 0) {
-            this.minutes = 0;
-        } else {
-            this.minutes -= 5;
         }
     }
 

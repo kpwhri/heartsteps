@@ -24,9 +24,9 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.week = this.activatedRoute.snapshot.data['week'];
+        this.week = this.activatedRoute.snapshot.data['weeks'][0];
         this.weeklySurveyService.week = this.week;
-        this.weeklySurveyService.nextWeek = this.activatedRoute.snapshot.data['nextWeek'];
+        this.weeklySurveyService.nextWeek = this.activatedRoute.snapshot.data['weeks'][1];
 
         this.weeklySurveyService.change.subscribe(() => {
             this.nextPage();

@@ -12,6 +12,7 @@ import { WeeklyGoalComponent } from './weekly-goal.component';
     imports: [
         InfrastructureModule,
         BrowserModule,
+        IonicPageModule.forChild(WeeklyGoalComponent),
         IonicPageModule.forChild(WeeklyReflectionTimePage),
     ],
     providers: [
