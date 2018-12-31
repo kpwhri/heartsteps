@@ -14,7 +14,7 @@
       <ion-input type="number" formControlName="birthYear"></ion-input>
     </ion-item>
     <div class="controls">
-        <p *ngIf="error" class="error">The entry token you entered is incorrect.</p>
+        <p *ngIf="error" class="error">{{error}}</p>
         <button >Enroll</button>
     </div>
   </form>

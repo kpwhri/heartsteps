@@ -30,8 +30,8 @@ export class EnrollmentService {
         .then(() => {
             return true;
         })
-        .catch(() => {
-            return Promise.reject(false);
+        .catch((error) => {
+            return Promise.reject(error);
         });
     }
 

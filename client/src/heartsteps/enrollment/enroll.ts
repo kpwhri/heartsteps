@@ -10,7 +10,7 @@ import { ViewController } from 'ionic-angular';
     providers: [ EnrollmentService ]
 })
 export class EnrollmentModal {
-    public error:Boolean
+    public error:string
     public enrollmentForm:FormGroup
 
     constructor(
@@ -25,7 +25,7 @@ export class EnrollmentModal {
     }
 
     enroll() {
-        this.error = false;
+        this.error = null;
 
         if(this.enrollmentForm.valid) {
             this.loadingService.show('Authenticating entry code');
@@ -37,8 +37,8 @@ export class EnrollmentModal {
                 this.loadingService.dismiss();
                 this.viewCtrl.dismiss();
             })
-            .catch(() => {
-                this.error = true;
+            .catch((error) => {
+                this.error = error;
                 this.loadingService.dismiss();
             })
         } else {

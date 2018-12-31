@@ -137,7 +137,7 @@ export class ProfileService {
             return true;
         })
         .catch(() => {
-            return Promise.reject(false);
+            return Promise.resolve(false);
         });
     }
 
@@ -197,7 +197,7 @@ export class ProfileService {
             return true;
         })
         .catch(() => {
-            return Promise.resolve(true);
+            return Promise.resolve(false);
         })
     }
 

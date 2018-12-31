@@ -32,6 +32,12 @@ export class DailyActivitiesUpdateComponent implements OnInit {
 
     public refresh() {
         this.loading = true;
-        this.dailySummaryService.getDate(new Date());
+        this.dailySummaryService.getDate(new Date())
+        .catch(() => {
+
+        })
+        .then(() => {
+            this.loading = false;
+        });
     }
 }

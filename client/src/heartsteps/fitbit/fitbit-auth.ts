@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { loadingService } from '@infrastructure/loading.service';
 import { FitbitService } from './fitbit.service';
+import { AlertDialogController } from '@infrastructure/alert-dialog.controller';
 
 @Component({
     selector: 'heartsteps-fitbit-auth',
@@ -11,6 +12,7 @@ export class FitbitAuth {
 
     constructor(
         private loadingService:loadingService,
+        private alertController: AlertDialogController,
         private fitbitService: FitbitService
     ) {}
 
@@ -21,7 +23,7 @@ export class FitbitAuth {
             this.saved.emit(true);
         })
         .catch(() => {
-            console.log("Authorization failed")
+            this.alertController.show("There was a problem authorizing Fitbit. Please try again.");
         })
         .then(() => {
             this.loadingService.dismiss();

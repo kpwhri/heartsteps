@@ -15,21 +15,19 @@ export class FitbitService {
     ) {}
 
     authorize():Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            return this.getAuthorizationToken()
-            .then((token: string)=> {
-                const url = this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
-                return this.browser.open(url);
-            })
-            .then(() => {
-                return this.updateAuthorization()
-            })
-            .then(() => {
-                resolve(true);
-            })
-            .catch(() => {
-                reject("Fitbit authorization failed");
-            })
+        return this.getAuthorizationToken()
+        .then((token: string)=> {
+            const url = this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
+            return this.browser.open(url);
+        })
+        .then(() => {
+            return this.updateAuthorization()
+        })
+        .then(() => {
+            return Promise.resolve(true);
+        })
+        .catch(() => {
+            return Promise.reject("Fitbit authorization failed");
         });
     }
 
@@ -45,8 +43,7 @@ export class FitbitService {
         .then((response) => {
             return this.storage.set(storageKey, response.fitbit);
         }).catch((error) => {
-            console.log(error);
-            console.log("update fitbit authorization failed");
+            return Promise.reject(error);
         });
     }
 
