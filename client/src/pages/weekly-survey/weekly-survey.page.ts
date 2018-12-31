@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Router, ActivatedRoute, ParamMap, UrlSegment, NavigationEnd } from "@angular/router";
+import { Router, ActivatedRoute, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { WeeklySurveyService } from "./weekly-survey.service";
-import { urlToNavGroupStrings } from "ionic-angular/umd/navigation/url-serializer";
+import { Week } from "@heartsteps/weekly-survey/week.model";
 
 @Component({
     templateUrl: './weekly-survey.page.html'
@@ -15,14 +15,24 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
     firstPage: boolean;
     title:string;
 
+    week:Week;
+
     constructor(
         private weeklySurveyService: WeeklySurveyService,
-        private activeRoute: ActivatedRoute,
+        private activatedRoute: ActivatedRoute,
         private router: Router
     ) {}
 
     ngOnInit() {
-        this.pages = this.weeklySurveyService.pages;
+        this.week = this.activatedRoute.snapshot.data['week'];
+        this.weeklySurveyService.week = this.week;
+        this.weeklySurveyService.nextWeek = this.activatedRoute.snapshot.data['nextWeek'];
+
+        this.weeklySurveyService.change.subscribe(() => {
+            this.nextPage();
+        });
+
+        this.pages = ['start', 'survey', 'goal', 'review'];
         
         this.updatePage();
         this.pageSubscription = this.router.events
@@ -30,13 +40,10 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
         .subscribe(() => {
             this.updatePage();
         });
-
-        const weekId:string = this.activeRoute.snapshot.paramMap.get('weekId');
-        this.weeklySurveyService.loadWeek(weekId);
     }
 
     updatePage() {
-        this.activePage = this.activeRoute.snapshot.firstChild.url[0].path;
+        this.activePage = this.activatedRoute.snapshot.firstChild.url[0].path;
 
         switch(this.activePage) {
             case 'survey':
@@ -56,8 +63,32 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
         }
     }
 
-    prevPage() {
-        this.weeklySurveyService.previousPage();
+    finish(){
+        this.router.navigate(['/']);
+    }
+
+    nextPage() {
+        const pageIndex:number = this.pages.indexOf(this.activePage); 
+        const nextPage:number = pageIndex + 1;
+        if(nextPage >= this.pages.length) {
+            this.finish();
+        } else {
+            this.navigateToPage(this.pages[nextPage]);
+        }
+    }
+
+    previousPage() {
+        const pageIndex:number = this.pages.indexOf(this.activePage); 
+        const previousPage: number = pageIndex - 1;
+        if(previousPage < 0) {
+            this.navigateToPage(this.pages[0]);
+        } else {
+            this.navigateToPage(this.pages[previousPage]);
+        }
+    }
+
+    navigateToPage(page:string) {
+        this.router.navigate(['weekly-survey', this.week.id, page]);
     }
 
     ngOnDestroy() {

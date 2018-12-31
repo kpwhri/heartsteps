@@ -8,10 +8,16 @@ import { WeeklySurveyService } from './weekly-survey.service';
 import { GoalComponent } from './goal.component';
 import { SurveyComponent } from './survey.component';
 import { WeeklySurveyModule as HeartstepsWeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module'
+import { WeekResolver } from './week.resolver';
+import { NextWeekResolver } from './next-week.resolver';
 
 const routes: Routes = [{
   path: 'weekly-survey/:weekId',
   component: WeeklySurveyPage,
+  resolve: {
+    week: WeekResolver,
+    nextWeek: NextWeekResolver
+  },
   children: [{
       path: 'start',
       component: SurveyStartPage
@@ -39,7 +45,9 @@ const routes: Routes = [{
     SurveyComponent
   ],
   providers: [
-      WeeklySurveyService
+      WeeklySurveyService,
+      WeekResolver,
+      NextWeekResolver
   ],
   imports: [
     HeartstepsWeeklySurveyModule,

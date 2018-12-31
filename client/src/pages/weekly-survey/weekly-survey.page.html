@@ -1,7 +1,7 @@
 <article class="page slider">
     <header>
         <h2>{{title}}</h2>
-        <button *ngIf="!firstPage" (click)="prevPage()" class="back">Back</button>
+        <button *ngIf="!firstPage" (click)="previousPage()" class="back">Back</button>
         <div class="pagination-bullets">
             <span *ngFor="let page of pages" class="pagination-bullet" [ngClass]="{active: page == activePage}" >{{i}}</span>
         </div>
