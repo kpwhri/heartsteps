@@ -1,15 +1,26 @@
 import pytz
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from locations.services import LocationService
 
 DAYS_OF_WEEK = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday'
+]
+
+CRON_DAYS_OF_WEEK = [
     'sunday',
     'monday',
     'tuesday',
@@ -48,6 +59,14 @@ class DailyTask(models.Model):
             self.task.enabled = False
             self.task.save()
 
+    @property
+    def timezone(self):
+        try:
+            location_service = LocationService(self.user)
+            return location_service.get_current_timezone()
+        except LocationService.UnknownLocation:
+            return pytz.UTC
+
     def create_daily_task(user, category, task, name, arguments, hour, minute, day=None):
         daily_task = DailyTask.objects.create(
             user = user,
@@ -59,7 +78,7 @@ class DailyTask(models.Model):
             arguments = arguments
         )
         daily_task.set_time(
-            day = None,
+            day = day,
             hour = hour,
             minute = minute
         )
@@ -80,13 +99,7 @@ class DailyTask(models.Model):
         self.minute = minute
         self.save()
 
-        try:
-            location_service = LocationService(self.user)
-            timezone = location_service.get_current_timezone()
-        except LocationService.UnknownLocation:
-            timezone = pytz.UTC
-
-        time = datetime.now(timezone).replace(
+        time = datetime.now(self.timezone).replace(
             hour = hour,
             minute = minute
         )
@@ -94,7 +107,7 @@ class DailyTask(models.Model):
         self.task.crontab.hour = utc_time.hour
         self.task.crontab.minute = utc_time.minute
         if self.day:
-            self.task.crontab.day = DAYS_OF_WEEK.index(self.day)
+            self.task.crontab.day = CRON_DAYS_OF_WEEK.index(self.day)
         else:
             self.task.crontab.day = '*'
         self.task.crontab.save()
@@ -110,4 +123,20 @@ class DailyTask(models.Model):
         self.task.delete()
 
     def get_next_run_time(self):
-        pass
+        location_service = LocationService(self.user)
+        now = timezone.now().astimezone(self.timezone)
+        next_run = datetime(now.year, now.month, now.day, self.hour, self.minute, tzinfo=now.tzinfo)
+
+        if self.day:
+            current_day_of_week = now.weekday()
+            reflection_day_of_week = DAYS_OF_WEEK.index(self.day)
+            days_offset = reflection_day_of_week - current_day_of_week
+            next_run = next_run + timedelta(days=days_offset)
+
+        if next_run < now:
+            if self.day:
+                return next_run + timedelta(days=7)
+            else:
+                return next_run + timedelta(days=1)
+        else:
+            return next_run

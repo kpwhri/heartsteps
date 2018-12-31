@@ -6,7 +6,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from daily_tasks.models import DailyTask
-from locations.services import LocationService
 
 User = get_user_model()
 
@@ -81,20 +80,4 @@ class ReflectionTime(models.Model):
         return int(self.time.split(':')[1])
 
     def get_next_time(self):
-        location_service = LocationService(self.user)
-        now = timezone.now().astimezone(location_service.get_current_timezone())
-
-        current_day_of_week = now.weekday()
-        reflection_day_of_week = DAYS_OF_WEEK.index(self.day)
-        days_offset = reflection_day_of_week - current_day_of_week
-        
-        reflection_time = now + timedelta(days=days_offset)
-        reflection_time.replace(
-            hour = self.hour,
-            minute = self.minute
-        )
-
-        if reflection_time < now:
-            return reflection_time + timedelta(days=7)
-        else:
-            return reflection_time
+        return self.daily_task.get_next_run_time()

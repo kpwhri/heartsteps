@@ -48,14 +48,14 @@ class ReflectionTimeModelUpdatesWeekModel(BaseTestCase):
     def test_updates_week_end_date(self):
         Week.objects.create(
             user = self.user,
-            start_date = date(2018, 12, 24),
-            end_date = date(2018, 12, 30)
+            start_date = date(2018, 12, 24), #Monday
+            end_date = date(2018, 12, 30) #Sunday
         )
 
         ReflectionTime.objects.create(
             user = self.user,
             day = 'saturday',
-            time = '17:00'
+            time = '20:00'
         )
 
         week = Week.objects.get(user=self.user)
