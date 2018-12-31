@@ -16,13 +16,14 @@ class WeeklyGoalTestCase(APITestCase):
 
         self.week = Week.objects.create(
             user = self.user,
+            number = 7,
             start_date = timezone.now(),
             end_date = timezone.now() + timedelta(days=3)
         )
 
     def test_returns_error_if_no_week(self):
         response = self.client.get(reverse('weekly-goal', kwargs={
-            'week_id': 'ABCD-1234'
+            'week_number': '1234'
         }))
 
         self.assertEqual(response.status_code, 404)
@@ -36,7 +37,7 @@ class WeeklyGoalTestCase(APITestCase):
         )
 
         response = self.client.get(reverse('weekly-goal', kwargs={
-            'week_id': self.week.id
+            'week_number': self.week.number
         }))
 
         self.assertEqual(response.status_code, 200)
@@ -52,7 +53,7 @@ class WeeklyGoalTestCase(APITestCase):
         )
         
         response = self.client.post(reverse('weekly-goal', kwargs={
-            'week_id': self.week.id
+            'week_number': self.week.number
         }), {
             'minutes': 75,
             'confidence': 0.75
