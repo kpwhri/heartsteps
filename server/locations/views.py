@@ -17,6 +17,8 @@ class PlacesView(APIView):
 
     def get(self, request, format=None):        
         places = Place.objects.filter(user=request.user).all()
+        if not len(places):
+            return Response('', status=status.HTTP_404_NOT_FOUND)
         serializer = PlaceSerializer(places, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
