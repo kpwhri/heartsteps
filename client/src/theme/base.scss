@@ -28,13 +28,26 @@ ul {
     }
 }
 
+.content,
+.content-md {
+    background: transparent;
+}
+
 .page {
     font-size: 1.6rem;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: $background-alternate;
+
+    > header,
+    > nav,
+    > footer {
+        background-color: $background-alternate;
+        box-shadow: $color-gray 0em 0em 0.5em;
+        height: $block-size;
+    }
 
     > header {
-        background-color: $color-gray-light;
-        border-bottom: $color-gray 1px solid;
-        height: $block-size;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -81,7 +94,9 @@ article.page {
         margin: $space-size/2 $space-size;
     }
 
-    > header, > nav {
+    > header,
+    > footer,
+    > nav {
         margin: 0px;
     }
 }
@@ -176,16 +191,6 @@ button.remove {
     justify-content: flex-end;
 }
 
-
-.scroll-content {
-    display: flex;
-    flex-direction: column;
-
-    > form {
-        flex-grow: 1;
-    }
-}
-
 .callout-progress {
     display: block;
     text-align: center;
@@ -221,7 +226,7 @@ ul.nav {
         width: 20px;
         height: 20px;
         background-color: $color-gray-dark;
-        mask-image: url('/assets/arrow-forward.svg');
+        mask-image: url('../assets/arrow-forward.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
     }

@@ -14,22 +14,22 @@
     }
 
     &.activity-type-swim:before {
-        mask-image: url('/assets/swim.svg');
+        mask-image: url('../assets/swim.svg');
     }
 
     &.activity-type-run:before {
-        mask-image: url('/assets/walk.svg');
+        mask-image: url('../assets/walk.svg');
     }
 
     &.activity-type-walk:before {
-        mask-image: url('/assets/walk.svg');
+        mask-image: url('../assets/walk.svg');
     }
 
     &.activity-type-weights:before {
-        mask-image: url('/assets/weights.svg');
+        mask-image: url('../assets/weights.svg');
     }
 
     &.activity-type-bike:before {
-        mask-image: url('/assets/bike.svg');
+        mask-image: url('../assets/bike.svg');
     }
 }

@@ -91,7 +91,7 @@ form {
             padding-right: 30px;
             &:after{
                 content: ' ';
-                mask: url('/assets/error-icon.svg') no-repeat 0px 0px;
+                mask: url('../assets/error-icon.svg') no-repeat 0px 0px;
                 mask-size: contain;
                 width: 20px;
                 height: 20px;

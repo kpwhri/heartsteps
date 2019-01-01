@@ -2,9 +2,9 @@
     <header>
         <h2>{{pageTitle}}</h2>
     </header>
-    <div>
+    <ion-content>
         <router-outlet></router-outlet>
-    </div>
+    </ion-content>
     <nav>
         <a *ngFor="let tab of tabs" class="{{tab.key}}" routerLink="/home/{{tab.key}}" routerLinkActive="active" >{{tab.name}}</a>
     </nav>

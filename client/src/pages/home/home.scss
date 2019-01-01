@@ -1,19 +1,19 @@
 page-home {
     > .page > nav {
         .dashboard:before {
-            mask-image: url('/assets/dashboard.svg');
+            mask-image: url('../assets/dashboard.svg');
         }
         .planning:before {
-            mask-image: url('/assets/planning.svg');
+            mask-image: url('../assets/planning.svg');
         }
         .stats:before {
-            mask-image: url('/assets/stats.svg');
+            mask-image: url('../assets/stats.svg');
         }
         .library:before {
-            mask-image: url('/assets/library.svg');
+            mask-image: url('../assets/library.svg');
         }
         .settings:before {
-            mask-image: url('/assets/settings.svg');
+            mask-image: url('../assets/settings.svg');
         }
     }
 }

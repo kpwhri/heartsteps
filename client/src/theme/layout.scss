@@ -32,18 +32,25 @@ router-outlet {
         overflow: auto;
     }
 
-    > header, nav {
+    > header,
+    > nav,
+    > footer {
         flex: 0 0 auto;
         overflow: hidden;
+        position: relative;
+        z-index: 10;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+
+        > * {
+            flex: 0 1 auto;
+        }
     }
 
     > nav {
-        background-color: $color-gray-light;
-        border-top: $color-gray 1px solid;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        height: 70px;
         > * {
             display: block;
             position: relative;
