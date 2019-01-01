@@ -15,15 +15,26 @@ export class MessageReceiptService {
     ){}
 
     received(messageId:string): Promise<boolean> {
-        return this.setMessageState(messageId, 'received');
+        return this.sendMessageState(messageId, 'received');
     }
 
     opened(messageId:string): Promise<boolean> {
-        return this.setMessageState(messageId, 'opened');
+        return this.sendMessageState(messageId, 'opened');
     }
 
     engaged(messageId:string) {
-        return this.setMessageState(messageId, 'engaged');
+        return this.sendMessageState(messageId, 'engaged');
+    }
+
+    private sendMessageState(messageId: string, state: string):Promise<boolean> {
+        const messageObj: any = {
+            id: messageId
+        };
+        messageObj[state] = moment().utc().format('YYYY-MM-DD HH:mm:ss')
+        return this.heartstepsServer.post('messages', messageObj)
+        .then(() => {
+            return true;
+        });
     }
 
     private setMessageState(messageId: string, state: string): Promise<boolean> {
@@ -36,7 +47,7 @@ export class MessageReceiptService {
                 messages[messageId] = {}
             }
             if (messages[messageId][state]) {
-                return Promise.reject("Message state already set.")
+                return Promise.reject("Message state already set")
             }
 
             messages[messageId][state] = moment().utc().format('YYYY-MM-DD HH:mm:ss')
