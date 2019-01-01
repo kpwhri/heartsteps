@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export class DailySummary {
     public date: string;
     public updated: Date;
@@ -8,4 +10,8 @@ export class DailySummary {
 
     public totalSteps: number = 0;
     public totalMiles: number = 0;
+
+    public isToday():boolean {
+        return moment(new Date()).isSame(this.date);
+    }
 }

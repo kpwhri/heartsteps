@@ -5,8 +5,6 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { BackgroundService } from '@app/background.service';
 import { NotificationService } from './notification.service';
-import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
-import { EnrollmentModal } from '@heartsteps/enrollment/enroll';
 import { AuthorizationService } from './authorization.service';
 
 @Component({

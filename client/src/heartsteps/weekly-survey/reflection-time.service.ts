@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { CurrentWeekService } from "./current-week.service";
 
 const storageKey = 'weeklyReflectionTime'
 
@@ -9,6 +10,7 @@ export class ReflectionTimeService{
 
     constructor(
         private heartstepsServer:HeartstepsServer,
+        private currentWeekService:CurrentWeekService,
         private storage:Storage
     ){}
 
@@ -29,7 +31,7 @@ export class ReflectionTimeService{
     setTime(data:any):Promise<boolean> {
         return this.heartstepsServer.post('reflection-time', data)
         .then(() => {
-            return this.storage.set(storageKey, data);
+            return this.set(data);
         })
         .then(() => {
             return true;
@@ -48,6 +50,9 @@ export class ReflectionTimeService{
 
     set(time:any):Promise<any> {
         return this.storage.set(storageKey, time)
+        .then(() => {
+            return this.currentWeekService.update();
+        })
         .then(() => {
             return time;
         });

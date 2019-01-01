@@ -5,7 +5,6 @@ import { BehaviorSubject } from "rxjs";
 import { DailySummary } from "./daily-summary.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { StorageService } from '@infrastructure/storage.service';
-import { ThrowStmt } from '@angular/compiler';
 
 const storageKey = 'heartsteps-activity-daily-summaries';
 const updateTimeKey = 'heartsteps-activity-daily-update';
@@ -14,6 +13,7 @@ const dateFormat = 'YYYY-MM-DD';
 @Injectable()
 export class DailySummaryService {
 
+    public today: BehaviorSubject<DailySummary>;
     public summaries: BehaviorSubject<Array<DailySummary>>;
     public updateTime: BehaviorSubject<Date>;
 
@@ -23,6 +23,8 @@ export class DailySummaryService {
     ) {
         this.summaries = new BehaviorSubject([]);
         this.updateTime = new BehaviorSubject(null);
+        this.today = new BehaviorSubject(null);
+        
         this.storage.get(storageKey)
         .then((summaries:Array<DailySummary>) => {
             this.summaries.next(summaries);

@@ -1,22 +1,19 @@
 import * as moment from 'moment';
 
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { DailySummary } from '@heartsteps/activity/daily-summary.model';
 import { DailySummaryService } from './daily-summary.service';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'heartsteps-activity-daily-summary',
     templateUrl: './daily-summary.html',
     inputs: ['date']
 })
-export class DailySummaryComponent implements OnInit, OnDestroy {
+export class DailySummaryComponent implements OnInit {
 
     @Input() date:Date;
     public formattedDate: string;
-    public updatedDate: string;
     public activitySummary: DailySummary;
-    private updateSubscription: Subscription;
 
     constructor(
         private dailySummaryService: DailySummaryService
@@ -25,7 +22,8 @@ export class DailySummaryComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if(!this.date) {
             this.date = new Date();
-        } 
+        }
+
         const isToday:boolean = moment(new Date()).isSame(this.date);
         if(isToday) {
             this.formattedDate = 'Today ' + moment(this.date).format('MMM D')
@@ -33,18 +31,12 @@ export class DailySummaryComponent implements OnInit, OnDestroy {
             this.formattedDate = moment(this.date).format('ddd MMM D')
         }
         
-        this.updateSubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
-            summaries.forEach((summary:DailySummary) => {
-                if(summary.date == moment(this.date).format('YYYY-MM-DD')) {
-                    this.activitySummary = summary;
-                    this.updatedDate = moment(this.date).format('YYYY MM DD h:m')
-                }
-            });
+        this.dailySummaryService.getDate(this.date)
+        .then((summary:DailySummary) => {
+            this.activitySummary = summary;
+        })
+        .catch(() => {
+            this.activitySummary = null;
         });
-        this.dailySummaryService.getDate(this.date);
-    }
-
-    ngOnDestroy() {
-        this.updateSubscription.unsubscribe();
     }
 }

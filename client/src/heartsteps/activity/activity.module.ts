@@ -1,9 +1,8 @@
-import { NgModule, forwardRef } from '@angular/core';
+import { NgModule } from '@angular/core';
 
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { DailySummaryComponent } from '@heartsteps/activity/daily-summary.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { WeeklyProgressComponent } from './weekly-progress.component';
 import { DailySummaryService } from './daily-summary.service';
 import { PlanModal } from './plan.modal';
 import { PlanComponent } from './plan.component';
@@ -26,7 +25,6 @@ import { ActivityLogComponent } from './activity-log.component';
     declarations: [
         ActivityTypeComponent,
         DailySummaryComponent,
-        WeeklyProgressComponent,
         PlanModal,
         PlanComponent,
         DayPlanComponent,
@@ -36,7 +34,6 @@ import { ActivityLogComponent } from './activity-log.component';
     exports: [
         ActivityTypeComponent,
         DailySummaryComponent,
-        WeeklyProgressComponent,
         PlanModal,
         PlanComponent,
         DayPlanComponent,

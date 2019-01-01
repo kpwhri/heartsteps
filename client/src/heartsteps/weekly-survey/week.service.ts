@@ -28,12 +28,14 @@ export class WeekService {
         });
     }
 
-    setWeekGoal(week:Week):Promise<Week> {
+    setWeekGoal(week:Week, minutes:number, confidence:number):Promise<Week> {
         return this.heartstepsServer.post('weeks/' + week.id + '/goal', {
-            minutes: week.goal,
-            confidence: week.confidence
+            minutes: minutes,
+            confidence: confidence
         })
         .then(() => {
+            week.goal = minutes;
+            week.confidence = confidence;
             return week;
         });
     }
@@ -59,7 +61,7 @@ export class WeekService {
     }
 
     private deserializeWeek(data:any):Week {
-        const week = new Week();
+        const week = new Week(this);
         week.id = data.id;
         week.start = new Date(data.start);
         week.end = new Date(data.end);

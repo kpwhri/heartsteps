@@ -1,9 +1,7 @@
-import { Component, Output, EventEmitter, Input, ViewChild } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 import { loadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
-import { WeekService } from './week.service';
-import { Range } from 'ionic-angular';
 
 @Component({
   selector: 'heartsteps-weekly-goal',
@@ -19,8 +17,7 @@ export class WeeklyGoalComponent {
     private _week:Week;
 
     constructor(
-        private loadingService:loadingService,
-        private weekService:WeekService
+        private loadingService:loadingService
     ) {}
 
     @Input()
@@ -33,14 +30,12 @@ export class WeeklyGoalComponent {
     }
 
     save() {
-        this._week.goal = this.minutes;
-        this._week.confidence = this.confidence;
         this.loadingService.show("Saving goal");
-        this.weekService.setWeekGoal(this._week)
+        this._week.setGoal(this.minutes, this.confidence)
         .then(() => {
             this.loadingService.dismiss();
             this.saved.emit();
-        });
+        })
     }
     
 

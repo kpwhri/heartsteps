@@ -1,9 +1,11 @@
 import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
-import { DailySummary } from './daily-summary.model';
+import { DailySummary } from '@heartsteps/activity/daily-summary.model';
 import { DateFactory } from '@infrastructure/date.factory';
-import { DailySummaryService } from './daily-summary.service';
+import { DailySummaryService } from '@heartsteps/activity/daily-summary.service';
 import { Subscription } from 'rxjs';
+import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.service';
+import { Week } from '@heartsteps/weekly-survey/week.model';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -12,7 +14,7 @@ const orderedAttributes: Array<string> = [COMPLETE, TODAY, INCOMPLETE];
 
 @Component({
     selector: 'heartsteps-weekly-progress',
-    templateUrl: 'weekly-progress.html',
+    templateUrl: 'weekly-progress.component.html',
     providers: [
         DateFactory
     ]
@@ -27,12 +29,12 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private complete: number;
     private current: number;
 
-    private summarySubscription: Subscription;
+    private weekSubscription: Subscription;
 
     constructor(
         private elementRef:ElementRef,
         private dailySummaryService: DailySummaryService,
-        private dateFactory: DateFactory
+        private currentWeekService: CurrentWeekService
     ) {
         this.total = 150;
         this.complete = 0;
@@ -43,27 +45,31 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         this.initializeChart();
         this.drawChart();
 
-        const currentWeek = this.dateFactory.getCurrentWeek();
-        const start:Date = currentWeek[0];
-        const end:Date = currentWeek.reverse()[0];
+        this.weekSubscription = this.currentWeekService.week
+        .filter((week) => week !== null)
+        .subscribe((week:Week) => {
+            this.total = week.goal;
 
-        this.summarySubscription = this.dailySummaryService.summaries.subscribe((summaries:Array<DailySummary>) => {
-            this.complete = 0;
-            this.current = 0;
-            const today:string = this.dailySummaryService.formatDate(new Date());
-            summaries.forEach((summary:DailySummary) => {
-                this.complete += summary.totalMinutes;
-                if(summary.date == today) {
-                    this.current = summary.totalMinutes;
-                }
+            this.dailySummaryService.getWeek(week.start, week.end)
+            .then((summaries:Array<DailySummary>) => {
+                this.complete = 0;
+                this.current = 0;
+                summaries.forEach((summary:DailySummary) => {
+                    this.complete += summary.totalMinutes;
+                    if(summary.isToday()) {
+                        this.current = summary.totalMinutes;
+                    }
+                })
             })
-            this.updateChart();
+            .catch(() => {})
+            .then(() => {
+                this.updateChart();
+            })
         });
-        this.dailySummaryService.getWeek(start, end);
     }
 
     ngOnDestroy() {
-        this.summarySubscription.unsubscribe();
+        this.weekSubscription.unsubscribe();
     }
 
     private initializeChart() {
