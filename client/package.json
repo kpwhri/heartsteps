@@ -32,6 +32,7 @@
     "@ionic-native/geolocation": "^4.9.2",
     "@ionic-native/http": "^4.9.1",
     "@ionic-native/in-app-browser": "^4.15.0",
+    "@ionic-native/local-notifications": "^4.18.0",
     "@ionic-native/onesignal": "^4.15.0",
     "@ionic-native/push": "^4.14.0",
     "@ionic-native/safari-view-controller": "^4.15.0",
@@ -51,6 +52,7 @@
     "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-ionic-keyboard": "^2.0.5",
     "cordova-plugin-ionic-webview": "^1.1.19",
+    "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-safariviewcontroller": "^1.5.4",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
@@ -125,7 +127,8 @@
       "cordova-plugin-background-fetch": {},
       "cordova-plugin-geolocation": {
         "GEOLOCATION_USAGE_DESCRIPTION": "Your location will be used to tailor activity suggestions"
-      }
+      },
+      "cordova-plugin-local-notification": {}
     },
     "platforms": [
       "android",

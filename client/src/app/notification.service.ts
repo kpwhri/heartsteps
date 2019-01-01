@@ -3,6 +3,7 @@ import { NotificationService as HeartstepsNotificationService } from '@heartstep
 import { Notification } from "@heartsteps/notifications/notification.model";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { Router } from "@angular/router";
+import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 
 @Injectable()
 export class NotificationService {
@@ -10,6 +11,7 @@ export class NotificationService {
     constructor(
         private notifications: HeartstepsNotificationService,
         private walkingSuggestionService: WalkingSuggestionService,
+        private weeklySurveyService: WeeklySurveyService,
         private router: Router
     ) {}
 
@@ -19,6 +21,10 @@ export class NotificationService {
         });
 
         this.notifications.dataMessage.subscribe((payload:any) => {
+            if(payload.type == 'weekly_survey' && payload.weekId) {
+                this.weeklySurveyService.set(payload.weekId);
+            }
+
             if(payload.type == 'request_context' && payload.decisionId) {
                 this.walkingSuggestionService.sendDecisionContext(payload.decisionId);
             }

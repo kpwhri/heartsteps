@@ -5,6 +5,7 @@ import { Router } from "@angular/router";
 import { AlertController } from "ionic-angular";
 import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
+import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 
 
 @Component({
@@ -17,7 +18,8 @@ export class SettingsPage {
         private enrollmentService:EnrollmentService,
         private router:Router,
         private alertCtrl: AlertController,
-        private weekService: WeekService
+        private weekService: WeekService,
+        private weeklySurveyService: WeeklySurveyService
     ){}
 
     public testWalkingSuggestion() {
@@ -45,6 +47,13 @@ export class SettingsPage {
             buttons: ['Ok']
         });
         alert.present();
+    }
+
+    public testWeeklySurveyMessage() {
+        this.weekService.getCurrentWeek()
+        .then((week:Week) => {
+            this.weeklySurveyService.set(week.id);
+        });
     }
 
     public navigateToCurrentWeek() {
