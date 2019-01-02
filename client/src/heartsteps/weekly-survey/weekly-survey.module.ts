@@ -8,6 +8,7 @@ import { WeeklyReflectionTimePage } from './weekly-reflection-time.page';
 import { WeekService } from './week.service';
 import { WeeklyGoalComponent } from './weekly-goal.component';
 import { CurrentWeekService } from './current-week.service';
+import { WeeklySurveyService } from './weekly-survey.service';
 
 @NgModule({
     imports: [
@@ -19,7 +20,8 @@ import { CurrentWeekService } from './current-week.service';
     providers: [
         ReflectionTimeService,
         WeekService,
-        CurrentWeekService
+        CurrentWeekService,
+        WeeklySurveyService
     ],
     declarations: [
         WeeklyReflectionTimePage,

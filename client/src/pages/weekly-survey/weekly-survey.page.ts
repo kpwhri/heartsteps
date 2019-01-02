@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { WeeklySurveyService } from "./weekly-survey.service";
+import { WeeklySurveyService as HeartstepsWeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
 
 @Component({
@@ -18,6 +19,7 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
     week:Week;
 
     constructor(
+        private weeklySurvey: HeartstepsWeeklySurveyService,
         private weeklySurveyService: WeeklySurveyService,
         private activatedRoute: ActivatedRoute,
         private router: Router
@@ -63,7 +65,8 @@ export class WeeklySurveyPage implements OnInit, OnDestroy {
         }
     }
 
-    finish(){
+    finish() {
+        this.weeklySurvey.complete();
         this.router.navigate(['/']);
     }
 

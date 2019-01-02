@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
 import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
 import { DateFactory } from '@infrastructure/date.factory';
+import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/weekly-survey.service';
 
 @IonicPage()
 @Component({
@@ -13,13 +14,18 @@ import { DateFactory } from '@infrastructure/date.factory';
     ]
 })
 export class DashboardPage {
-    @ViewChild('chart') chart: ElementRef;
 
-    public remainingDaysOfWeek: Array<Date>;
+    public weeklySurvey:WeeklySurvey
 
     constructor(
-        private dateFactory:DateFactory
+        private weeklySurveyService: WeeklySurveyService
     ) {
-        this.remainingDaysOfWeek = this.dateFactory.getRemainingDaysInWeek();
+        this.weeklySurveyService.survey.subscribe((survey) => {
+            this.weeklySurvey = survey;
+        });
+    }
+
+    public navigateToWeeklySurvey() {
+        this.weeklySurveyService.show();
     }
 }

@@ -3,6 +3,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { DashboardPage } from './dashboard';
 import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { WeeklyActivityModule } from '@heartsteps/weekly-activity/weekly-activity.module';
+import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
 
 @NgModule({
   declarations: [
@@ -10,6 +11,7 @@ import { WeeklyActivityModule } from '@heartsteps/weekly-activity/weekly-activit
   ],
   imports: [
     ActivityModule,
+    WeeklySurveyModule,
     WeeklyActivityModule,
     IonicPageModule.forChild(DashboardPage)
   ]
