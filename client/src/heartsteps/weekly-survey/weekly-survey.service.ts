@@ -3,6 +3,7 @@ import { StorageService } from "@infrastructure/storage.service";
 import { Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
+import { LocalNotifications } from '@ionic-native/local-notifications';
 
 export class WeeklySurvey {
     public weekId:string
@@ -20,13 +21,14 @@ export class WeeklySurveyService {
     constructor(
         private storage:StorageService,
         private messageReceiptService: MessageReceiptService,
-        private router:Router
+        private router:Router,
+        private localNotifications: LocalNotifications
     ){
         this.survey = new BehaviorSubject(null);
         this.getSurvey()
         .then((survey:WeeklySurvey) => {
             this.survey.next(survey);
-        })
+        });
     }
 
     public complete() {
@@ -50,7 +52,7 @@ export class WeeklySurveyService {
     public checkExpiration():Promise<boolean> {
         return this.getSurvey()
         .then((survey) => {
-            if (survey.expires >= new Date()) {
+            if (survey.expires <= new Date()) {
                 return this.clear()
                 .then(() => {
                     return Promise.resolve(true);
@@ -70,7 +72,10 @@ export class WeeklySurveyService {
         
         return this.setSurvey(weekId, messageId, expireDate)
         .then((survey:WeeklySurvey) => {
-
+            this.localNotifications.schedule({
+                id: Number(weekId),
+                text: 'Hello Im the weekly survey notification!'
+            })
             this.survey.next(survey);
             return survey;
         });
