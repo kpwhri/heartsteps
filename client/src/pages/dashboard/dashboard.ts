@@ -20,6 +20,7 @@ export class DashboardPage {
     constructor(
         private weeklySurveyService: WeeklySurveyService
     ) {
+        this.weeklySurveyService.checkExpiration();
         this.weeklySurveyService.survey.subscribe((survey) => {
             this.weeklySurvey = survey;
         });

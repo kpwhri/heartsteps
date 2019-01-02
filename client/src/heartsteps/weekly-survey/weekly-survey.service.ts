@@ -39,13 +39,36 @@ export class WeeklySurveyService {
         });
     }
 
-    public clear() {
-        this.storage.remove(storageKey);
-        this.survey.next(null);
+    public clear():Promise<boolean> {
+        return this.storage.remove(storageKey)
+        .then(() => {
+            this.survey.next(null);
+            return true;
+        });
+    }
+
+    public checkExpiration():Promise<boolean> {
+        return this.getSurvey()
+        .then((survey) => {
+            if (survey.expires >= new Date()) {
+                return this.clear()
+                .then(() => {
+                    return Promise.resolve(true);
+                });
+            } else {
+                return Promise.resolve(false);
+            }
+        })
+        .catch(() => {
+            return Promise.resolve(true);
+        });
     }
 
     public set(weekId:string, messageId?:string):Promise<WeeklySurvey> {
-        return this.setSurvey(weekId) // set timeout in 24 hours....
+        const expireDate:Date = new Date();
+        expireDate.setDate(expireDate.getDate() + 1);
+        
+        return this.setSurvey(weekId, messageId, expireDate)
         .then((survey:WeeklySurvey) => {
 
             this.survey.next(survey);
@@ -64,10 +87,6 @@ export class WeeklySurveyService {
     private getSurvey():Promise<WeeklySurvey> {
         return this.storage.get(storageKey)
         .then((data) => {
-            this.weekId = data.weekId;
-            this.messageId = data.messageId;
-            this.expires = data.expires;
-
             const survey = new WeeklySurvey();
             survey.weekId = data.weekId;
             survey.messageId = data.messageId;
@@ -76,9 +95,11 @@ export class WeeklySurveyService {
         });
     }
 
-    private setSurvey(weekId:string):Promise<WeeklySurvey> {
+    private setSurvey(weekId:string, messageId:string, expires:Date):Promise<WeeklySurvey> {
         return this.storage.set(storageKey, {
-            weekId: weekId
+            weekId: weekId,
+            messageId: messageId,
+            expires: expires
         })
         .then(() => {
             return this.getSurvey();
