@@ -3,7 +3,7 @@ import { StorageService } from "@infrastructure/storage.service";
 import { Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
-import { LocalNotifications } from '@ionic-native/local-notifications';
+import { NotificationService } from "@infrastructure/notification.service";
 
 export class WeeklySurvey {
     public weekId:string
@@ -22,7 +22,7 @@ export class WeeklySurveyService {
         private storage:StorageService,
         private messageReceiptService: MessageReceiptService,
         private router:Router,
-        private localNotifications: LocalNotifications
+        private notificationService: NotificationService
     ){
         this.survey = new BehaviorSubject(null);
         this.getSurvey()
@@ -72,10 +72,10 @@ export class WeeklySurveyService {
         
         return this.setSurvey(weekId, messageId, expireDate)
         .then((survey:WeeklySurvey) => {
-            this.localNotifications.schedule({
-                id: Number(weekId),
-                text: 'Hello Im the weekly survey notification!'
-            })
+            this.notificationService.create('weekly-survey', 'Take weekly survey', {
+                weekId: weekId,
+                messageId: messageId
+            });
             this.survey.next(survey);
             return survey;
         });

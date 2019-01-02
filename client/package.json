@@ -32,7 +32,6 @@
     "@ionic-native/geolocation": "^4.9.2",
     "@ionic-native/http": "^4.9.1",
     "@ionic-native/in-app-browser": "^4.15.0",
-    "@ionic-native/local-notifications": "^4.18.0",
     "@ionic-native/onesignal": "^4.15.0",
     "@ionic-native/push": "^4.14.0",
     "@ionic-native/safari-view-controller": "^4.15.0",

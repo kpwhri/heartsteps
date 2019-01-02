@@ -18,6 +18,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { HeartstepsRangeComponent } from './range.component';
 import { HeartstepsIncrementComponent } from './increment.component';
 import { BrowserModule } from '@angular/platform-browser';
+import { NotificationService } from './notification.service';
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import { BrowserModule } from '@angular/platform-browser';
       InAppBrowser,
       OneSignal,
       ChoiceDialogController,
-      AlertDialogController
+      AlertDialogController,
+      NotificationService
   ],
   exports: [
     HeartstepsRangeComponent,

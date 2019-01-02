@@ -1,18 +1,17 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { NotificationService as HeartstepsNotificationService } from '@heartsteps/notifications/notification.service';
+import { NotificationService as InfrastructureNotificationService } from '@infrastructure/notification.service';
 import { Notification } from "@heartsteps/notifications/notification.model";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { Router } from "@angular/router";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
-import { LocalNotifications } from "@ionic-native/local-notifications";
 
 @Injectable()
 export class NotificationService {
     
     constructor(
-        private localNotifications: LocalNotifications,
-        private zone:NgZone,
         private notifications: HeartstepsNotificationService,
+        private notificationService: InfrastructureNotificationService,
         private walkingSuggestionService: WalkingSuggestionService,
         private weeklySurveyService: WeeklySurveyService,
         private router: Router
@@ -20,12 +19,15 @@ export class NotificationService {
 
     setup() {
 
-        this.localNotifications.on('click').subscribe((event) => {
-            console.log(event);
-            this.zone.run(() => {
+        this.notificationService.notification.subscribe((notification) => {
+            if(notification.type === 'weekly-survey') {
                 this.weeklySurveyService.show();
-            });
+            } else {
+                console.log(notification);
+            }
         });
+
+        this.notificationService.setupNotificationListener();
 
         this.notifications.notificationMessage.subscribe((notification: Notification) => {
             this.router.navigate(['notification', notification.id]);
