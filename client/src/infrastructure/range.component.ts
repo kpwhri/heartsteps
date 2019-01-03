@@ -15,7 +15,7 @@ export class HeartstepsRangeComponent implements OnInit, ControlValueAccessor  {
     private onChange:Function;
     private onTouched:Function;
 
-    public sliderValue:number;
+    public sliderValue:number = 3;
     public sliderMax: number = 5;
     public sliderMin: number = 1;
 
@@ -29,7 +29,7 @@ export class HeartstepsRangeComponent implements OnInit, ControlValueAccessor  {
         });
         this.range.max = this.sliderMax;
         this.range.min = this.sliderMin;
-        this.range.pin = true;
+        this.writeValue(0.5);
     }
 
     updateValue() {
