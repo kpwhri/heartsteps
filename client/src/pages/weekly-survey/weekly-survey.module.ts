@@ -11,6 +11,7 @@ import { WeeklySurveyModule as HeartstepsWeeklySurveyModule } from '@heartsteps/
 import { WeekResolver } from './week.resolver';
 import { NextWeekResolver } from './next-week.resolver';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { WeeklyActivityModule } from '@heartsteps/weekly-activity/weekly-activity.module';
 
 const routes: Routes = [{
   path: 'weekly-survey/:weekId',
@@ -52,6 +53,7 @@ const routes: Routes = [{
   imports: [
     InfrastructureModule,
     HeartstepsWeeklySurveyModule,
+    WeeklyActivityModule,
     IonicPageModule.forChild(WeeklySurveyPage),
     RouterModule.forChild(routes)
   ],

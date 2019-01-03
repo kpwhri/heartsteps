@@ -114,9 +114,7 @@ article.page {
     }
 }
 
-.heartsteps-button,
-.heartsteps-primary-button,
-.heartsteps-danger-button {
+.heartsteps-button {
     display: block;
     position: relative;
     color: $color-primary;
@@ -134,14 +132,21 @@ article.page {
 }
 
 .heartsteps-primary-button {
+    @extend .heartsteps-button;
     color: $color-white;
     background-color: $color-primary;
     border: 0px;
 }
 
 .heartsteps-danger-button {
+    @extend .heartsteps-button;
     color: $color-danger;
     border-color: $color-danger;
+}
+
+.heartsteps-minor-button {
+    @extend .heartsteps-button;
+    border: 0px;
 }
 
 .page {
@@ -151,6 +156,10 @@ article.page {
     
     button.danger {
         @extend .heartsteps-danger-button;
+    }
+
+    button.minor {
+        @extend .heartsteps-minor-button;
     }
 }
 

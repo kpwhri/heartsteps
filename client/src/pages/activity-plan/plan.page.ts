@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { DateFactory } from '@infrastructure/date.factory';
-import { ModalController } from 'ionic-angular';
-import { PlanModal } from '@heartsteps/activity/plan.modal';
 import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.service';
+import { Week } from '@heartsteps/weekly-survey/week.model';
 
 @Component({
     selector: 'page-plan',
@@ -11,21 +10,13 @@ import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.servi
 })
 export class PlanPage {
 
-    dates:Array<Date>
+    private week:Week
 
     constructor(
-        private currentWeekService: CurrentWeekService,
-        private modalCtrl:ModalController
+        private currentWeekService: CurrentWeekService
     ) {
-        this.currentWeekService.getDays().then((dates) => {
-            this.dates = dates;
-        })
-    }
-
-    addActivity(date:Date) {
-        let modal = this.modalCtrl.create(PlanModal, {
-            date: date
+        this.currentWeekService.week.subscribe((week) => {
+            this.week = week;
         });
-        modal.present()
     }
 }

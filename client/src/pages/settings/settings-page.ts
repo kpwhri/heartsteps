@@ -6,6 +6,7 @@ import { AlertController } from "ionic-angular";
 import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 
 
 @Component({
@@ -17,7 +18,7 @@ export class SettingsPage {
         private walkingSuggestionService:WalkingSuggestionService,
         private enrollmentService:EnrollmentService,
         private router:Router,
-        private alertCtrl: AlertController,
+        private alertDialog: AlertDialogController,
         private weekService: WeekService,
         private weeklySurveyService: WeeklySurveyService
     ){}
@@ -25,28 +26,16 @@ export class SettingsPage {
     public testWalkingSuggestion() {
         this.walkingSuggestionService.createTestDecision()
         .then(() => {
-            const alert = this.alertCtrl.create({
-                title: 'Walking suggestion sending',
-                buttons: ['Ok']
-            });
-            alert.present();
+            this.alertDialog.show('Walking suggestion sending');
         });
     }
 
     public testAntisedentaryMessage() {
-        const alert = this.alertCtrl.create({
-            title: 'Not implemented',
-            buttons: ['Ok']
-        });
-        alert.present();
+        this.alertDialog.show('Not implemented');
     }
 
-    public testMoringMessage() {
-        const alert = this.alertCtrl.create({
-            title: 'Not implemented',
-            buttons: ['Ok']
-        });
-        alert.present();
+    public testMorningMessage() {
+        this.alertDialog.show('Not implemented');
     }
 
     public testWeeklySurveyMessage() {
@@ -54,13 +43,6 @@ export class SettingsPage {
         .then((week:Week) => {
             this.weeklySurveyService.set(week.id);
         });
-    }
-
-    public navigateToCurrentWeek() {
-        this.weekService.getCurrentWeek()
-        .then((week:Week) => {
-            this.router.navigate(['weekly-survey', week.id]);
-        })
     }
 
     public unenroll() {

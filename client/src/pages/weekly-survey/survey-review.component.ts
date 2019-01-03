@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { WeeklySurveyService } from "./weekly-survey.service";
+import { Week } from "@heartsteps/weekly-survey/week.model";
 
 
 @Component({
@@ -7,12 +8,14 @@ import { WeeklySurveyService } from "./weekly-survey.service";
 })
 export class SurveyReviewComponent {
 
-    goal: number;
+    nextWeek:Week;
 
     constructor(
         private weeklySurveyService: WeeklySurveyService
     ) {
-        this.goal = this.weeklySurveyService.nextWeek.goal;
+        setTimeout(() => {
+            this.nextWeek = this.weeklySurveyService.nextWeek;
+        }, 100);
     }
 
     next() {

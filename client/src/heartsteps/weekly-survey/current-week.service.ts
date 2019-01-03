@@ -1,5 +1,3 @@
-import * as moment from 'moment';
-
 import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 import { WeekService } from "./week.service";
@@ -24,13 +22,7 @@ export class CurrentWeekService {
     public getDays():Promise<Array<Date>> {
         return this.load()
         .then((week:Week) => {
-            const days:Array<Date> = [];
-            let _date:Date = week.start;
-            while(_date <= week.end) {
-                days.push(_date);
-                _date = moment(_date).add(1, 'days').toDate();
-            }
-            return days;
+            return week.getDays();
         })
     }
 

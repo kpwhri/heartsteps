@@ -6,10 +6,11 @@ import { Week } from './week.model';
 @Component({
   selector: 'heartsteps-weekly-goal',
   templateUrl: './weekly-goal.component.html',
-  inputs: ['week']
+  inputs: ['week', 'call-to-action']
 })
 export class WeeklyGoalComponent {
 
+    @Input('call-to-action') cta:string = "Set goal";
     @Output() saved = new EventEmitter<boolean>();
 
     public minutes:number;
