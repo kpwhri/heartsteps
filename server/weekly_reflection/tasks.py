@@ -21,4 +21,4 @@ def send_reflection(username):
     push_service.send_data({
         'type': 'weekly-reflection',
         'weekId': current_week.number
-    )    
+    })    
