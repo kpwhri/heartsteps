@@ -18,14 +18,7 @@ def send_reflection(username):
         )
 
     push_service = PushMessageService(username=username)
-    push_service.send_notification(
-        body = "Time for weekly reflection",
-        data = {
-            'type': 'weekly reflection',
-            'week': {
-                'id': current_week.number,
-                'start': current_week.start_date.strftime('%Y-%m-%d'),
-                'end': current_week.end_date.strftime('%Y-%m-%d')
-            }
-        }
+    push_service.send_data({
+        'type': 'weekly-reflection',
+        'weekId': current_week.number
     )    

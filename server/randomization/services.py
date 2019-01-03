@@ -35,7 +35,7 @@ class DecisionService():
         except PushMessageService.DeviceMissingError:
             return False
         message = push_message_service.send_data({
-            'type': 'request_context',
+            'type': 'request-context',
             'decisionId': str(self.decision.id)
         })
         if message:

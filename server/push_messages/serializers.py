@@ -20,7 +20,7 @@ class MessageReceiptSerializer(serializers.Serializer):
     
     def to_internal_value(self, data):
         try:
-            message = Message.objects.get(id=data['id'], recipient=self.user)
+            message = Message.objects.get(uuid=data['id'], recipient=self.user)
         except Message.DoesNotExist:
             raise serializers.ValidationError({
                 'id': 'Message does not exist'
