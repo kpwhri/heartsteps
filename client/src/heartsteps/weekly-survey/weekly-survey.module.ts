@@ -9,7 +9,6 @@ import { WeekService } from './week.service';
 import { WeeklyGoalComponent } from './weekly-goal.component';
 import { CurrentWeekService } from './current-week.service';
 import { WeeklySurveyService } from './weekly-survey.service';
-import { LocalNotifications } from '@ionic-native/local-notifications';
 
 @NgModule({
     imports: [
@@ -22,8 +21,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications';
         ReflectionTimeService,
         WeekService,
         CurrentWeekService,
-        WeeklySurveyService,
-        LocalNotifications
+        WeeklySurveyService
     ],
     declarations: [
         WeeklyReflectionTimePage,

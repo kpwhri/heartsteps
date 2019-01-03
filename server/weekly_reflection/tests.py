@@ -67,9 +67,9 @@ class WeeklyReflectionTask(BaseTestCase):
     def setUp(self):
         super().setUp()
 
-        push_message_mock = patch.object(PushMessageService, 'send_notification')
+        push_message_mock = patch.object(PushMessageService, 'send_data')
         self.addCleanup(push_message_mock.stop)
-        self.send_notification = push_message_mock.start()
+        self.send_data = push_message_mock.start()
 
         Device.objects.create(
             user = self.user,
@@ -85,7 +85,7 @@ class WeeklyReflectionTask(BaseTestCase):
     def test_send_reflection_sends_push_notification(self):
         send_reflection('test')
 
-        self.send_notification.assert_called()
+        self.send_data.assert_called()
 
     def test_send_reflection_creates_next_week(self):
         send_reflection('test')

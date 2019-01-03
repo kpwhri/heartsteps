@@ -20,7 +20,7 @@ class MessageRecievedTests(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('messages-received'), [
             {
-                'id': message.id,
+                'id': message.uuid,
                 'received': '2007-07-12 04:07:02'
             }
         ], format='json')
@@ -41,7 +41,7 @@ class MessageRecievedTests(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('messages-received'), [
             {
-                'id': message.id,
+                'id': message.uuid,
                 'received': str(timezone.now())
             }
         ], format='json')
@@ -60,12 +60,12 @@ class MessageRecievedTests(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('messages-received'), [
             {
-                'id': message.id,
+                'id': message.uuid,
                 'received': '2007-07-07 07:07:07',
                 'opened': '2007-07-07 07:07:08',
                 'engaged': '2007-07-07 07:08:08'
             }, {
-                'id': other_message.id,
+                'id': other_message.uuid,
                 'received': '2010-10-10 10:10:10'
             }
         ], format='json')
