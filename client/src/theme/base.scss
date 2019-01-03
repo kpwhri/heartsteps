@@ -43,19 +43,20 @@ ul {
     > nav,
     > footer {
         background-color: $background-alternate;
-        box-shadow: $color-gray 0em 0em 0.5em;
         height: $block-size;
     }
 
     > header {
+        padding: $space-size $block-size+$space-size;
+        border-bottom: $color-gray 1px solid;
+
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: $space-size $block-size+$space-size;
 
         h1, h2, h3 {
-            font-size: 1em;
+            font-size: 1.25em;
             margin: 0px;
             padding: 0px;
         }
@@ -69,19 +70,31 @@ ul {
             border-width: 0px;
         }
     }
+
+    > nav,
+    > footer {
+        border-top: $color-gray 1px solid;
+    }
 }
 
 article {
     background-color: $background-primary;
     margin: $space-size/2 0px;
     padding: $space-size;
+}
 
-    > header > h3 {
-        font-size: 1em;
-        margin: 0.5em 0px;
-        text-align: left;
-        text-transform: uppercase;
-    }
+.article-title,
+article header .title {
+    font-size: 1em;
+    margin: 0.5em 0px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+article > h2,
+article > h3,
+article > h4 {
+    @extend .article-title;
 }
 
 article.page {

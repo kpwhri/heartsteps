@@ -11,19 +11,15 @@ import { Subscription } from 'rxjs';
 export class DayPlanComponent implements OnInit, OnDestroy {
 
     @Input() date: Date;
-    dateFormatted: string;
+    plans: Array<any>;
 
     activityPlanSubscription: Subscription;
-
-    plans: Array<any>;
 
     constructor(
         private activityPlanService:ActivityPlanService
     ) {}
 
     ngOnInit(){
-        this.dateFormatted = moment(this.date).format("dddd, M/D");
-
         this.activityPlanSubscription = this.activityPlanService.plans.subscribe((plans) => {
             this.filterPlans(plans);
         });
