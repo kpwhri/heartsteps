@@ -21,8 +21,12 @@ class AbstractActivity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def id(self):
+        return str(self.uuid)
+
 class ActivityLog(AbstractActivity):
-    enjoyed = models.IntegerField(null=True, blank=True)
+    enjoyed = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return "%s on %s (%s)" % (self.type, self.start, self.user)
