@@ -4,34 +4,18 @@ from fitbit_api.models import FitbitDay, FitbitActivity
 
 from activity_logs.models import ActivityLog, ActivityType
 
-class FitbitDaySerializer(serializers.ModelSerializer):
+from .models import Day
+
+class DaySerializer(serializers.ModelSerializer):
     class Meta:
-        model = FitbitDay
-        fields = ('date', 'moderate_minutes', 'vigorous_minutes', 'step_count')
+        model = Day
+        fields = ('date', 'moderate_minutes', 'vigorous_minutes', 'steps', 'miles')
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['total_minutes'] = instance.moderate_minutes + instance.vigorous_minutes*2
-        return representation
-
-class FitbitActivitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FitbitActivity
-        fields = ('type', 'start_time', 'end_time', 'vigorous_minutes', 'moderate_minutes')
-
-    type = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset = ActivityType.objects.filter(user=None).all()
-        )
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['id'] = instance.id
-        
-        representation['start'] = representation['start_time']
-        del representation['start_time']
-        representation['end'] = representation['end_time']
-        del representation['end_time']
-
-        representation['total_minutes'] = instance.moderate_minutes + instance.vigorous_minutes*2
+        representation['minutes'] = instance.total_minutes
+        representation['moderateMinutes'] = representation['moderate_minutes']
+        del representation['moderate_minutes']
+        representation['vigorousMinutes'] = representation['vigorous_minutes']
+        del representation['vigorous_minutes']
         return representation

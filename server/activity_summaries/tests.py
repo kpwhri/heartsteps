@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 import uuid
 
@@ -8,34 +8,48 @@ from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay, User
-
+from .models import Day, User
 
 class ActivitySummaryViewTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username = "test",
+            date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.utc) 
+        )
         self.client.force_authenticate(self.user)
 
-        self.account = FitbitAccount.objects.create(
-            fitbit_user = "test"
-        )
-        FitbitAccountUser.objects.create(
-            user = self.user,
-            account = self.account
-        )
-
     def create_day(self, date):
-        FitbitDay.objects.create(
-            account = self.account,
+        Day.objects.create(
+            user = self.user,
             date = date,
             moderate_minutes = 10,
             vigorous_minutes = 5,
-            step_count = 10
+            steps = 10,
+            miles = 0.25
         )
 
+    def test_get_invalid_date(self):
+        response = self.client.get(reverse('activity-summary-day', kwargs={
+            'day': '2018-9-6'
+        }))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_default_date(self):
+        response = self.client.get(reverse('activity-summary-day', kwargs={
+            'day': '2018-12-10'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['steps'], 0)
+        self.assertEqual(response.data['miles'], 0)
+        self.assertEqual(response.data['minutes'], 0)
+        self.assertEqual(response.data['moderateMinutes'], 0)
+        self.assertEqual(response.data['vigorousMinutes'], 0)
+
     def test_get_day(self):
-        self.create_day(datetime(2018, 10, 16))
+        self.create_day(date(2018, 10, 16))
 
         response = self.client.get(reverse('activity-summary-day', kwargs={
             'day': '2018-10-16'
@@ -43,16 +57,11 @@ class ActivitySummaryViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['date'], '2018-10-16')
-        self.assertEqual(response.data['step_count'], 10)
-        self.assertEqual(response.data['moderate_minutes'], 10)
-        self.assertEqual(response.data['vigorous_minutes'], 5)
-        self.assertEqual(response.data['total_minutes'], 20)
-
-    def test_get_missing_day(self):
-        response = self.client.get(reverse('activity-summary-day', kwargs={
-            'day': '2018-10-16'
-        }))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data['steps'], 10)
+        self.assertEqual(response.data['miles'], 0.25)
+        self.assertEqual(response.data['moderateMinutes'], 10)
+        self.assertEqual(response.data['vigorousMinutes'], 5)
+        self.assertEqual(response.data['minutes'], 20)
 
 
     def test_get_date_range(self):
