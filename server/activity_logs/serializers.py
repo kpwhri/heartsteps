@@ -1,11 +1,27 @@
 from rest_framework import serializers
 
 from fitbit_api.models import FitbitDay, FitbitActivity
-from activity_types.models import ActivityType
+
+from activity_logs.models import ActivityLog, ActivityType
 
 class TimeRangeSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityLog
+        fields = ('type', 'vigorous', 'start', 'duration')
+
+    type = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset = ActivityType.objects.filter(user=None).all()
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id'] = instance.id
+        return representation
 
 class FitbitDaySerializer(serializers.ModelSerializer):
     class Meta:
