@@ -40,3 +40,14 @@ export function parseSettingsValue(jsonValue: string){
   }
   return val;
 }
+
+// Add zero in front of numbers < 10
+export function zeroPad(i: number) {
+  let zi: number;
+  if (i < 10) {
+    zi = Number("0" + i);
+  } else {
+    zi = i;
+  }
+  return zi;
+}

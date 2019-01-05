@@ -1,13 +1,7 @@
-<svg class="background" id="background">
-  <text x="50%" y="50" class="title bold">
-    HeartSteps 2.0
-  </text>
-  <text x="50%" y="100">
-    HeartSteps integration status
-  </text>
-  <text x="50%" y="140" class="bold" id="hs-integration">
-  </text>
-  <text x="50%" y="200" class="small">
-    Thanks for your help in keeping people healthy!
-  </text>
+<svg class="background">
+  <text id="timeLabel"/>
+  <text id="dateLabel" />
+  <text id="heartrateLabel" />
+  <text id="batteryLabel" />
+  <text id="stepsLabel" />
 </svg>

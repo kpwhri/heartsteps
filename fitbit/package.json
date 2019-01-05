@@ -1,16 +1,16 @@
 {
-  "name": "test",
-  "version": "0.1.0",
+  "name": "HeartStepsClock",
+  "version": "0.2.0",
   "private": true,
   "license": "UNLICENSED",
   "devDependencies": {
-    "@fitbit/sdk": "~1.0.4",
-    "@fitbit/sdk-cli": "^1.0.2",
+    "@fitbit/sdk": "~3.0.0",
+    "@fitbit/sdk-cli": "^1.5.0",
     "fitbit-sdk-types": "^2.0.2"
   },
   "fitbit": {
-    "appUUID": "39992ebd-00e7-4cee-bf48-67af6d0b725a",
-    "appType": "app",
+    "appUUID": "2f31df92-95de-4824-8b40-555c23ce35a0",
+    "appType": "clockface",
     "appDisplayName": "HeartSteps 2.0",
     "iconFile": "resources/icon.png",
     "wipeColor": "#0000ff",

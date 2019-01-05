@@ -1,24 +1,44 @@
 .background {
-  viewport-fill: fb-blue;
+  viewport-fill: black;
 }
 
-text {
-  font-size: 24;
-  font-family: System-Regular;
-  font-weight: regular;
-  text-length: 32;
-  fill: white;
-  text-anchor: middle;
-}
-
-text.title {
-  font-size: 32;
-}
-
-text.bold {
+#timeLabel {
+  font-size: 70;
   font-family: System-Bold;
+  text-length: 8;
+  text-anchor: start;
+  x: 65;
+  y: 100;
+  fill: grey;
 }
 
-text.small {
-  font-size: 16;
+#heartrateLabel {
+  font-size: 50;
+  font-family: System-Bold;
+  text-length: 3;
+  text-anchor: middle;
+  x: 20%;
+  y: 80%;
+  fill: red;
+}
+
+#batteryLabel {
+  font-size: 15;
+  font-family: System-Bold;
+  text-length: 32;
+  text-anchor: start;
+  x: 5%;
+  y: 5%;
+  fill: blue;
+}
+
+
+#stepsLabel {
+  font-size: 20;
+  font-family: System-Bold;
+  text-length: 16;
+  text-anchor: start;
+  x: 65%;
+  y: 80%;
+  fill: white;
 }
