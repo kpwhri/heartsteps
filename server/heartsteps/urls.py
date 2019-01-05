@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^api/activity/', include('activity_types.urls')),
     url(r'^api/activity/', include('activity_logs.urls')),
     url(r'^api/activity/', include('activity_plans.urls')),
+    url(r'^api/activity/', include('activity_summaries.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
     url(r'^api/', include('weekly_goals.urls')),

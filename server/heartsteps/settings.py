@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'activity_types',
     'activity_logs',
     'activity_plans',
+    'activity_summaries',
     'anti_seds',
     'participants'
 ]
