@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from activity_plans.models import ActivityPlan, ActivityType, User
+from activity_plans.models import ActivityLog, ActivityPlan, ActivityType, User
 
 class ActivityPlanCreateTest(APITestCase):
 
@@ -59,38 +59,106 @@ class ActivityPlanListTest(APITestCase):
 
 class ActivityPlanViewTest(APITestCase):
 
-    def test_update_activity_plan(self):
-        plan = ActivityPlan.objects.create(
-            user = User.objects.create(username="test"),
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.client.force_authenticate(user=self.user)
+
+        self.plan = ActivityPlan.objects.create(
+            user = self.user,
             type = ActivityType.objects.create(name="walk"),
             start = timezone.now(),
             duration = 15
         )
 
-        self.client.force_authenticate(user=plan.user)
-        response = self.client.post(reverse('activity-plan-detail', kwargs={
+    def test_can_not_get_other_activity_plan(self):
+        plan = ActivityPlan.objects.create(
+            user = User.objects.create(username="other"),
+            type = ActivityType.objects.create(name="run"),
+            start = timezone.now(),
+            duration = 7
+        )
+
+        response = self.client.get(reverse('activity-plan-detail', kwargs={
             'plan_id': plan.id
+        }))
+
+        self.assertEqual(404, response.status_code)
+
+    def test_get_activity_plan(self):
+        response = self.client.get(reverse('activity-plan-detail', kwargs={
+            'plan_id': self.plan.id
+        }))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(self.plan.id, response.data['id'])
+        self.assertEqual('walk', response.data['type'])
+
+    def test_update_activity_plan(self):
+        ActivityType.objects.create(name="swim")
+
+        response = self.client.post(reverse('activity-plan-detail', kwargs={
+            'plan_id': self.plan.id
         }), {
-            'type': 'walk',
+            'type': 'swim',
             'start': '2018-09-05T14:45',
-            'duration': '30',
+            'duration': 30,
             'vigorous': True,
             'complete': False
         })
 
-        self.assertEqual(response.status_code, 200)    
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(self.plan.id, response.data['id'])
+        self.assertEqual('swim', response.data['type'])
+        self.assertEqual(response.data['start'], '2018-09-05T14:45:00Z')
+        self.assertEqual(response.data['duration'], 30)
+        self.assertEqual(response.data['vigorous'], True)
+        self.assertEqual(response.data['complete'], False)
+
+    def test_complete_plan_creates_log(self):
+        response = self.client.post(reverse('activity-plan-detail', kwargs={
+            'plan_id': self.plan.id
+        }), {
+            'type': 'walk',
+            'start': timezone.now(),
+            'duration': 30,
+            'vigorous': True,
+            'complete': True
+        })
+
+        activity_log = ActivityLog.objects.get()
+        activity_plan = ActivityPlan.objects.get()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['complete'], True)
+        self.assertEqual(response.data['activityLog'], activity_log.id)
+
+        self.assertEqual(activity_log.user, self.user)
+        self.assertEqual(activity_plan.activity_log.id, activity_log.id)
+        self.assertEqual(activity_plan.type, activity_log.type)
+        self.assertEqual(activity_plan.vigorous, activity_log.vigorous)
+        self.assertEqual(activity_plan.start, activity_log.start)
+        self.assertEqual(activity_plan.duration, activity_log.duration)
+
+    def test_uncomplete_plan_destroys_log(self):
+        self.plan.update_activity_log()
+
+        self.assertEqual(ActivityLog.objects.count(), 1)
+
+        response = self.client.post(reverse('activity-plan-detail', kwargs={
+            'plan_id': self.plan.id
+        }), {
+            'type': 'walk',
+            'start': timezone.now(),
+            'duration': 30,
+            'vigorous': True,
+            'complete': False
+        })
+
+        self.assertEqual(ActivityLog.objects.count(), 0)
 
     def test_delete_activity_plan(self):
-        plan = ActivityPlan.objects.create(
-            user = User.objects.create(username="test"),
-            type = ActivityType.objects.create(name="walk"),
-            start = timezone.now(),
-            duration = 15
-        )
-
-        self.client.force_authenticate(user=plan.user)
         response = self.client.delete(reverse('activity-plan-detail', kwargs={
-            'plan_id': plan.id
+            'plan_id': self.plan.id
         }))
 
         self.assertEqual(response.status_code, 204)

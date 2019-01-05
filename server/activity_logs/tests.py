@@ -86,14 +86,8 @@ class ActivityLogsViewTests(APITestCase):
         self.user = User.objects.create()
         self.client.force_authenticate(self.user)
 
-        ActivityType.objects.create(
-            name="run",
-            title="Run"
-        )
-        ActivityType.objects.create(
-            name="swim",
-            title="Run"
-        )
+        ActivityType.objects.create(name="run")
+        ActivityType.objects.create(name="swim")
 
     def create_activity_log(self):
         activity_log = ActivityLog.objects.create(

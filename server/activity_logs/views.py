@@ -31,16 +31,10 @@ class ActivityLogsDetail(APIView):
 
     def post(self, request, log_id):
         activity_log = self.get_activity(request.user, log_id)
-        serialized = ActivityLogSerializer(data=request.data)
+        serialized = ActivityLogSerializer(activity_log, data=request.data)
         if serialized.is_valid():
-            activity_log.type = serialized.validated_data['type']
-            activity_log.vigorous = serialized.validated_data['vigorous']
-            activity_log.start = serialized.validated_data['start']
-            activity_log.duration = serialized.validated_data['duration']
-            activity_log.save()
-
-            serialized_log = ActivityLogSerializer(activity_log)
-            return Response(serialized_log.data, status=status.HTTP_200_OK)
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_200_OK)
         else:
             return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -34,23 +34,28 @@ class ActivityPlansList(APIView):
     def post(self, request):
         serialized = ActivityPlanSerializer(data=request.data)
         if serialized.is_valid():
-            activity_plan = ActivityPlan(**serialized.validated_data)
-            activity_plan.user = request.user
-            activity_plan.save()
-            serialzied_plan = ActivityPlanSerializer(activity_plan)
-            return Response(serialzied_plan.data, status=status.HTTP_201_CREATED)
+            serialized.save(user=request.user)
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ActivityPlanView(APIView):
 
-    def get_plan(self, plan_id):
+    def get_plan(self, user, plan_id):
         try:
-            return ActivityPlan.objects.get(uuid=plan_id)
+            return ActivityPlan.objects.get(
+                user = user,
+                uuid = plan_id
+            )
         except ActivityPlan.DoesNotExist:
             raise Http404
 
+    def get(self, request, plan_id):
+        plan = self.get_plan(request.user, plan_id)
+        serialized = ActivityPlanSerializer(plan)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
     def post(self, request, plan_id):
-        plan = self.get_plan(plan_id)
+        plan = self.get_plan(request.user, plan_id)
         serialized = ActivityPlanSerializer(plan, data=request.data)
         if serialized.is_valid():
             serialized.save()
@@ -58,7 +63,7 @@ class ActivityPlanView(APIView):
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, plan_id):
-        plan = self.get_plan(plan_id)
+        plan = self.get_plan(request.user, plan_id)
         plan.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
