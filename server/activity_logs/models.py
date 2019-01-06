@@ -28,5 +28,12 @@ class AbstractActivity(models.Model):
 class ActivityLog(AbstractActivity):
     enjoyed = models.FloatField(null=True, blank=True)
 
+    @property
+    def earned_minutes(self):
+        if self.vigorous:
+            return self.duration*2
+        else:
+            return self.duration
+
     def __str__(self):
         return "%s on %s (%s)" % (self.type, self.start, self.user)

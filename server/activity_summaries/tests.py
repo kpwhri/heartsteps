@@ -3,12 +3,16 @@ from datetime import datetime, date
 import pytz
 import uuid
 
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
-from .models import Day, User
+from activity_logs.models import ActivityLog, ActivityType
+from fitbit_api.services import FitbitService
+
+from .models import Day, User, FitbitDay
 
 class ActivitySummaryViewTests(APITestCase):
 
@@ -25,6 +29,7 @@ class ActivitySummaryViewTests(APITestCase):
             date = date,
             moderate_minutes = 10,
             vigorous_minutes = 5,
+            total_minutes = 20,
             steps = 10,
             miles = 0.25
         )
@@ -86,3 +91,91 @@ class ActivitySummaryViewTests(APITestCase):
         }))
 
         self.assertEqual(response.status_code, 404)
+
+class FitbitDayUpdatesDay(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.account = FitbitService.create_account(
+            user = self.user
+        )
+        
+    def test_fitbit_day_creates_summary(self):
+        FitbitDay.objects.create(
+            account = self.account,
+            date = date(2019, 1 , 6)
+        )
+
+        day = Day.objects.get()
+        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.date, date(2019, 1, 6))
+
+    def test_fitbit_day_updates_summary(self):
+        _day = Day.objects.create(
+            user = self.user,
+            date = date(2019, 1, 6)
+        )
+
+        fitbit_day = FitbitDay.objects.create(
+            account = self.account,
+            date = date(2019, 1 , 6),
+            step_count = 700
+        )
+
+        day = Day.objects.get()
+        self.assertEqual(day.id, _day.id)
+        self.assertEqual(day.steps, fitbit_day.step_count)
+
+        fitbit_day.step_count = 900
+        fitbit_day.save()
+
+        day = Day.objects.get()
+        self.assertEqual(day.id, _day.id)
+        self.assertEqual(day.steps, fitbit_day.step_count)
+
+class ActivitLogUpdateDay(TestCase):
+    
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+    def create_log_for_date(self, date, vigorous=False):
+        activity_type, created = ActivityType.objects.get_or_create(name="run")
+        ActivityLog.objects.create(
+            user = self.user,
+            type = activity_type,
+            start = timezone.now().replace(
+                year = date.year,
+                month = date.month,
+                day = date.day
+            ),
+            duration = 10,
+            vigorous = vigorous
+        )
+
+    def test_activity_log_creates_day(self):
+        self.create_log_for_date(date(2019, 1, 6))
+
+        day = Day.objects.get()
+        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.moderate_minutes, 10)
+
+    def test_activity_log_updates_day(self):
+        self.create_log_for_date(date(2019, 1, 6))
+
+        day = Day.objects.get()
+        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.moderate_minutes, 10)
+
+        self.create_log_for_date(date(2019, 1, 6))
+
+        day = Day.objects.get()
+        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.moderate_minutes, 20)
+
+        self.create_log_for_date(date(2019, 1, 6), True)
+        
+        day = Day.objects.get()
+        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.moderate_minutes, 20)
+        self.assertEqual(day.vigorous_minutes, 10)
+        self.assertEqual(day.total_minutes, 40)

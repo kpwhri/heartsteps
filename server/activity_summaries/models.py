@@ -1,7 +1,13 @@
+import pytz
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from fitbit_api.models import FitbitAccountUser, FitbitDay, FitbitActivity
+from locations.services import LocationService
+from activity_logs.models import ActivityLog
+from fitbit_api.models import FitbitDay
+from fitbit_api.services import FitbitService
 
 User = get_user_model()
 
@@ -14,28 +20,57 @@ class Day(models.Model):
 
     moderate_minutes = models.PositiveIntegerField(default=0)
     vigorous_minutes = models.PositiveIntegerField(default=0)
+    total_minutes = models.PositiveIntegerField(default=0)
 
     @property
-    def total_minutes(self):
-        return self.moderate_minutes + self.vigorous_minutes*2
+    def timezone(self):
+        if hasattr(self, '__timezone'):
+            return self.__timezone
+        try:
+            location_service = LocationService(user=self.user)
+            self.__timezone = location_service.get_timezone_on(self.date)
+        except LocationService.UnknownLocation:
+            self.__timezone = pytz.UTC
+        return self.__timezone
 
-    def get_fitbit_account(self):
-        account_user = FitbitAccountUser.objects.get(user=self.user)
-        return account_user.account
+    @property
+    def day_start(self):
+        return self.timezone.localize(
+            datetime(self.date.year, self.date.month, self.date.day)
+        )
+
+    @property
+    def day_end(self):
+        return self.day_start + timedelta(days=1)
 
     def update_from_fitbit(self):
         try:
+            account = FitbitService.get_account(self.user)
             fitbit_day = FitbitDay.objects.get(
-                account = self.get_fitbit_account(),
-                date__year = date.year,
-                date__month = date.month,
-                date__day = date.day
+                account = account,
+                date__year = self.date.year,
+                date__month = self.date.month,
+                date__day = self.date.day
             )
             self.steps = fitbit_day.step_count
-            self.miles = fitbit_day.distance
             self.save()
-        except (FitbitAccountUser.DoesNotExist, FitbitDay.DoesNotExist):
+        except (FitbitService.NoAccount, FitbitDay.DoesNotExist):
             pass
     
     def update_from_activities(self):
-        pass
+        self.moderate_minutes = 0
+        self.vigorous_minutes = 0
+        self.total_minutes = 0
+
+        activities = ActivityLog.objects.filter(
+            user = self.user,
+            start__gte = self.day_start,
+            start__lte = self.day_end
+        ).all()
+        for activity in activities:
+            self.total_minutes += activity.earned_minutes
+            if activity.vigorous:
+                self.vigorous_minutes += activity.duration
+            else:
+                self.moderate_minutes += activity.duration
+        self.save()

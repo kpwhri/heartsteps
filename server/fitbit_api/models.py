@@ -62,7 +62,7 @@ class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
     date = models.DateField()
-    timezone = models.CharField(max_length=50)
+    timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
     moderate_minutes = models.FloatField(default=0)
     vigorous_minutes = models.FloatField(default=0)

@@ -8,7 +8,50 @@ from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+from fitbit_api.models import User, FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+
+class FitbitService:
+
+    class NoAccount(ImproperlyConfigured):
+        pass
+
+    def __init__(self, account=None, user=None, username=None):
+        if username:
+            user = User.objects.get(username=username)
+        if user:
+            account = FitbitService.get_account(user)
+        if not account:
+            raise FitbitService.NoAccount()
+        self.__account = account
+        self.__user = user
+
+    def get_users(self):
+        users = []
+        for account_user in FitbitAccountUser.objects.filter(account=self.__account).all():
+            users.append(account_user.user)
+        return users
+
+    def get_account(user):
+        try:
+            account_user = FitbitAccountUser.objects.get(user=user)
+            return account_user.account
+        except FitbitAccountUser.DoesNotExist:
+            raise FitbitService.NoAccount()
+
+    def create_account(user, fitbit_username=None):
+        if not fitbit_username:
+            fitbit_username = user.username
+        account, created = FitbitAccount.objects.get_or_create(
+            fitbit_user = fitbit_username
+        )
+        account_user, created = FitbitAccountUser.objects.update_or_create(
+            user = user,
+            defaults = {
+                'account': account
+            }
+        )
+        return account
+
 
 def create_fitbit(**kwargs):
     consumer_key = None
