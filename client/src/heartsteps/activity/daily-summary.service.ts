@@ -41,14 +41,14 @@ export class DailySummaryService {
         })
     }
 
-    private parseSummary(response:any):DailySummary {
+    private deserializeSummary(response:any):DailySummary {
         const summary:DailySummary = new DailySummary();
         summary.date = response.date;
         summary.updated = new Date();
-        summary.moderateMinutes = response.moderate_minutes;
-        summary.vigorousMinutes = response.vigorous_minutes;
-        summary.totalMinutes = response.total_minutes;
-        summary.totalSteps = response.step_count;
+        summary.moderateMinutes = response.moderateMinutes;
+        summary.vigorousMinutes = response.vigorousMinutes;
+        summary.totalMinutes = response.minutes;
+        summary.totalSteps = response.steps;
         return summary;
     }
 
@@ -69,7 +69,7 @@ export class DailySummaryService {
         return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
         .then((response:any) => {
             this.setUpdateTime();
-            const summary = this.parseSummary(response);
+            const summary = this.deserializeSummary(response);
             return this.updateSummaries([summary])
             .then(() => {
                 return summary;
@@ -84,7 +84,7 @@ export class DailySummaryService {
         .then((response:Array<any>) => {
             const summaries:Array<DailySummary> = [];
             response.forEach((res)=> {
-                summaries.push(this.parseSummary(res));
+                summaries.push(this.deserializeSummary(res));
             })
             return this.updateSummaries(summaries)
             .then(() => {

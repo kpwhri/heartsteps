@@ -29,15 +29,13 @@ export class CurrentWeekService {
     public load():Promise<Week> {
         return this.storage.get(storageKey)
         .then((data) => {
-            const week:Week = new Week(this.weekService);
-            week.id = data.id;
-            week.start = data.start;
-            week.end = data.end;
-            week.goal = data.goal;
-            week.confidence = data.confidence;
-            this.week.next(week);
-            return week;
-        })
+            const week:Week = this.weekService.deserializeWeek(data);
+            if(week.start < new Date()) {
+                return this.update();
+            } else {
+                return Promise.resolve(week);
+            }
+        });
     }
 
     public update():Promise<Week> {

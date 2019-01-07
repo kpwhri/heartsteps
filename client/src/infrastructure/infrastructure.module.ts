@@ -19,6 +19,7 @@ import { HeartstepsRangeComponent } from './range.component';
 import { HeartstepsIncrementComponent } from './increment.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NotificationService } from './notification.service';
+import { DocumentStorageService } from './document-storage.service';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { NotificationService } from './notification.service';
       BackgroundProcessService,
       LocationService,
       StorageService,
+      DocumentStorageService,
       BrowserService,
       SafariViewController,
       InAppBrowser,

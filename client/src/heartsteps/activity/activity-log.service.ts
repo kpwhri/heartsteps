@@ -1,10 +1,7 @@
 import * as moment from 'moment';
 
 import { Injectable } from "@angular/core";
-import { Storage } from "@ionic/storage";
-import {BehaviorSubject} from 'rxjs';
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Activity } from "@heartsteps/activity/activity.model";
 import { ActivityLog } from './activity-log.model';
 
 @Injectable()

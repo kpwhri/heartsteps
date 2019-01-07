@@ -1,8 +1,3 @@
-<article class="page">
-<header>
-    <h2>Activity Plan</h2>
-    <a class="back" (click)="dismiss()">Back</a>
-</header>
 <form *ngIf="planForm" [formGroup]="planForm">
     <div>
         <label for="activity-plan-type">Activity</label>
@@ -12,11 +7,11 @@
         <legend>Intensity</legend>
         <ul>
             <li>
-                <input id="activity-plan-intensity-moderate" type="radio" name="vigorous" value="false" />
+                <input id="activity-plan-intensity-moderate" type="radio" name="vigorous" formControlName="vigorous" [value]="false" />
                 <label for="activity-plan-intensity-moderate">Moderate</label>
             </li>
             <li>
-                <input id="activity-plan-intensity-vigorous" type="radio" name="vigorous" value="true" />
+                <input id="activity-plan-intensity-vigorous" type="radio" name="vigorous" formControlName="vigorous" [value]="true" />
                 <label for="activity-plan-intensity-vigorous">Vigorous</label>
             </li>
         </ul>
@@ -43,4 +38,3 @@
         <button *ngIf="updateView" (click)="delete()">Delete</button>
     </div>
 </form>
-</article>

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { HomePage } from './home';
 import { DashboardModule } from '@pages/dashboard/dashboard.module';
-import { ActivityPlanModule } from '@pages/activity-plan/plan.module';
+import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { ActivityLogModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
 import { DashboardPage } from '@pages/dashboard/dashboard';
@@ -54,7 +54,7 @@ const homeRoutes: Routes = [{
     ],
     imports: [
         DashboardModule,
-        ActivityPlanModule,
+        ActivityPlanPageModule,
         ActivityLogModule,
         ResourceLibraryModule,
         SettingsModule,

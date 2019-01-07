@@ -1,7 +1,6 @@
 import { Component, forwardRef, OnInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ActivityTypeService, ActivityType } from './activity-type.service';
-import { timeHours } from 'd3';
 
 @Component({
     selector: 'heartsteps-activity-type',
@@ -11,8 +10,7 @@ import { timeHours } from 'd3';
             provide: NG_VALUE_ACCESSOR,
             multi: true,
             useExisting: forwardRef(() => ActivityTypeComponent)
-        },
-        ActivityTypeService
+        }
     ]
 })
 export class ActivityTypeComponent implements ControlValueAccessor, OnInit {
@@ -25,7 +23,8 @@ export class ActivityTypeComponent implements ControlValueAccessor, OnInit {
     ) {}
 
     ngOnInit() {
-        this.activityTypeService.get()
+        
+        this.activityTypeService.load()
         .then((activityTypes) => {
             this.activityTypeList = activityTypes;
         })

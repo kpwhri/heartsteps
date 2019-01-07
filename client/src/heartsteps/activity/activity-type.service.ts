@@ -1,6 +1,7 @@
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
+import { BehaviorSubject } from "rxjs";
 
 const storageKey: string = 'activity-types';
 
@@ -12,10 +13,18 @@ export class ActivityType {
 @Injectable()
 export class ActivityTypeService {
 
+    public activityTypes:BehaviorSubject<Array<ActivityType>>;
+
     constructor(
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
-    ) {}
+    ) {
+        this.activityTypes = new BehaviorSubject(null);
+        this.get()
+        .then((activityTypes) => {
+            this.activityTypes.next(activityTypes);
+        });
+    }
 
     load():Promise<Array<ActivityType>> {
         return this.heartstepsServer.get('activity/types')
@@ -23,21 +32,21 @@ export class ActivityTypeService {
             return this.storage.set(storageKey, response);
         })
         .then((types) => {
-            return this.castActivityTypes(types);
+            return this.deserializeActivityTypes(types);
         });
     }
 
     get():Promise<Array<ActivityType>> {
         return this.storage.get(storageKey)
         .then((types:Array<any>) => {
-            return this.castActivityTypes(types);
+            return this.deserializeActivityTypes(types);
         })
         .catch(() => {
             return this.load();
         });
     }
 
-    private castActivityTypes(list:Array<any>):Array<ActivityType> {
+    private deserializeActivityTypes(list:Array<any>):Array<ActivityType> {
         const activityTypes:Array<ActivityType> = [];
         list.forEach((item:any) => {
             const activityType:ActivityType = new ActivityType();

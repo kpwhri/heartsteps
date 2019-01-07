@@ -1,0 +1,7 @@
+<ion-list *ngIf="plans">
+    <ion-item *ngFor="let plan of plans">
+        <activity-plan [plan]="plan"></activity-plan>
+    </ion-item>
+</ion-list>
+<p *ngIf="!plans">Nothing planned.</p>
+<button *ngIf="canAddActivity" (click)="addActivity()" >Add an activity</button>

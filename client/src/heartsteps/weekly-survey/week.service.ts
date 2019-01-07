@@ -60,11 +60,13 @@ export class WeekService {
         });
     }
 
-    private deserializeWeek(data:any):Week {
+    deserializeWeek(data:any):Week {
         const week = new Week(this);
         week.id = data.id;
         week.start = new Date(data.start);
         week.end = new Date(data.end);
+        if(data.goal) week.goal = data.goal;
+        if(data.confidence) week.confidence = data.confidence;
         return week;
     }
 
