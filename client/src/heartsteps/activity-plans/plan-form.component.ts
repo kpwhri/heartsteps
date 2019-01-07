@@ -25,6 +25,8 @@ export class PlanFormComponent implements OnInit {
     public planForm:FormGroup;
     public error:string;
 
+    public updateView:boolean;
+
     constructor(
         private activityPlanService:ActivityPlanService,
         private dateFactory: DateFactory
@@ -48,6 +50,12 @@ export class PlanFormComponent implements OnInit {
                 time: new FormControl(this.activityPlan.getStartTime(), Validators.required),
                 vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
             });
+            
+            if(activityPlan.id) {
+                this.updateView = true;
+            } else {
+                this.updateView = false;
+            }
         }
     }
 

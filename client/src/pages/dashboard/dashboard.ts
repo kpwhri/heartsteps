@@ -15,11 +15,13 @@ import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/wee
 })
 export class DashboardPage {
 
-    public weeklySurvey:WeeklySurvey
+    public weeklySurvey:WeeklySurvey;
+    public today:Date;
 
     constructor(
         private weeklySurveyService: WeeklySurveyService
     ) {
+        this.today = new Date();
         this.weeklySurveyService.checkExpiration();
         this.weeklySurveyService.survey.subscribe((survey) => {
             this.weeklySurvey = survey;

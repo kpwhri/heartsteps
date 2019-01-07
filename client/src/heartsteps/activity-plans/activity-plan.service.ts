@@ -7,8 +7,7 @@ import { DocumentStorageService, DocumentStorage } from "@infrastructure/documen
 
 @Injectable()
 export class ActivityPlanService {
-
-    private planUpdates:Subject<ActivityPlan> = new Subject();
+    private plans:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
     private storage:DocumentStorage
 
     constructor(
@@ -16,14 +15,14 @@ export class ActivityPlanService {
         documentStorage: DocumentStorageService
     ) {
         this.storage = documentStorage.create('heartsteps-activity-plans');
+        this.loadPlans();
     }
 
     save(activityPlan:ActivityPlan):Promise<ActivityPlan> {
         return this.updateOrCreatePlan(activityPlan)
         .then((activityPlan:ActivityPlan) => {
-            return this.storage.set(activityPlan.id, this.serializeActivityPlan(activityPlan))
+            return this.storePlan(activityPlan)
             .then(() => {
-                this.planUpdates.next(activityPlan);
                 return activityPlan;
             });
         });
@@ -31,6 +30,12 @@ export class ActivityPlanService {
 
     delete(activityPlan:ActivityPlan):Promise<boolean> {
         return this.heartstepsServer.delete('activity/plans/' + activityPlan.id)
+        .then(() => {
+            return this.storage.remove(activityPlan.id)
+        })
+        .then(() => {
+            return this.loadPlans()
+        })
         .then(() => {
             return true;
         });
@@ -42,29 +47,17 @@ export class ActivityPlanService {
     }
 
     getPlansOn(date:Date):Observable<Array<ActivityPlan>> {
-        let plans:Array<ActivityPlan> = [];
-        const plansSubject:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject(plans);
-        
-        this.planUpdates.subscribe((updatedPlan) => {
-            if(moment(date).format("YYYY-MM-DD") !== moment(updatedPlan.start).format("YYYY-MM-DD")) {
-                return;
-            }
-
-            let replaceIndex:number;
-            plans.forEach((plan, index) => {
-                if(plan.id === updatedPlan.id) {
-                    replaceIndex = index;
+        const plansSubject:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
+        this.plans.subscribe((allPlans:Array<ActivityPlan>) => {
+            const plans:Array<ActivityPlan> = allPlans.filter((plan) => {
+                if(moment(date).format("YYYY-MM-DD") === moment(plan.start).format("YYYY-MM-DD")) {
+                    return true;
+                } else {
+                    return false;
                 }
             });
-            if(replaceIndex === undefined) {
-                plans.push(updatedPlan);
-            } else {
-                plans[replaceIndex] = updatedPlan;
-            }
-
             plansSubject.next(plans);
         });
-
         return plansSubject;
     }
 
@@ -75,18 +68,22 @@ export class ActivityPlanService {
         })
         .then((response: Array<any>) => {
             const plans:Array<ActivityPlan> = [];
+            const plansObject:any = {};
             response.forEach((plan: any) => {
+                plansObject[plan.id] = plan;
                 plans.push(this.deserializeActivityPlan(plan));
             });
-            return plans;
+            return this.storage.setMany(plansObject)
+            .then(() => {
+                return this.loadPlans()
+            })
+            .then(() => {
+                return plans;
+            });
         });
     }
 
-    private loadPlans():Promise<Array<ActivityPlan>> {
-        return this.storage.getAll();
-    }
-
-    private updateOrCreatePlan(activityPlan):Promise<ActivityPlan> {
+    private updateOrCreatePlan(activityPlan:ActivityPlan):Promise<ActivityPlan> {
         if(activityPlan.id) {
             return this.updatePlan(activityPlan);
         } else {
@@ -114,6 +111,37 @@ export class ActivityPlanService {
             const activityPlan = this.deserializeActivityPlan(data);
             return activityPlan;
         });
+    }
+
+    private loadPlans():Promise<Array<ActivityPlan>> {
+        return this.storage.getAll()
+        .then((data) => {
+            let plans:Array<ActivityPlan> = Object.keys(data).map((key:string) => {
+                return this.deserializeActivityPlan(data[key]);
+            });
+            plans = this.sortPlans(plans);
+            this.plans.next(plans);
+            return plans;
+        });
+    }
+
+    private storePlan(plan:ActivityPlan):Promise<ActivityPlan> {
+        return this.storage.set(plan.id, this.serializeActivityPlan(plan))
+        .then(() => {
+            return this.loadPlans();
+        })
+        .then(() => {
+            return plan;
+        });
+    }
+
+    private sortPlans(plans:Array<ActivityPlan>):Array<ActivityPlan> {
+        plans.sort((planA:ActivityPlan, planB:ActivityPlan) => {
+            if (planA.start > planB.start) return 1;
+            if (planB.start > planA.start) return -1;
+            return 0;
+        })
+        return plans;
     }
 
     private serializeActivityPlan(activityPlan:ActivityPlan):any {

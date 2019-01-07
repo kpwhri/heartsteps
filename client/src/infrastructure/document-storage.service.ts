@@ -26,6 +26,19 @@ export class DocumentStorage {
         return this.getData();
     }
 
+    public setMany(objects:any):Promise<boolean> {
+        return this.getAll()
+        .then((data) => {
+            Object.keys(objects).forEach((key) => {
+                data[key] = objects[key];
+            })
+            return this.setData(data);
+        })
+        .then(() => {
+            return true;
+        });
+    }
+
     public set(id:string, value:any):Promise<any> {
         return this.getData()
         .then((data) => {
@@ -37,8 +50,15 @@ export class DocumentStorage {
         });
     }
 
-    public remove(id:string) {
-
+    public remove(id:string):Promise<boolean> {
+        return this.getData()
+        .then((data) => {
+            delete data[id];
+            return this.setData(data);
+        })
+        .then(() => {
+            return true;
+        })
     }
 
     public destroy():Promise<boolean> {

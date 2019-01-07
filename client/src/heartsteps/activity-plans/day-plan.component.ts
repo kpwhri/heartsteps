@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import * as moment from 'moment';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { ActivityPlanService } from './activity-plan.service';
 import { Subscription } from 'rxjs';
 import { PlanModalController } from './plan-modal.controller';
@@ -11,7 +10,7 @@ import { ActivityPlan } from './activity-plan.model';
     inputs: ['date'],
     providers: [PlanModalController]
 })
-export class DayPlanComponent implements OnInit, OnDestroy {
+export class DayPlanComponent implements OnDestroy {
 
     public date: Date;
     public canAddActivity:boolean = false;
@@ -24,14 +23,10 @@ export class DayPlanComponent implements OnInit, OnDestroy {
         private planModal:PlanModalController
     ) {}
 
-    ngOnInit(){
-        // this.activityPlanSubscription = this.activityPlanService.plans.subscribe((plans) => {
-        //     this.filterPlans(plans);
-        // });
-    }
-
     ngOnDestroy() {
-        // this.activityPlanSubscription.unsubscribe();
+        if(this.activityPlanSubscription) {
+            this.activityPlanSubscription.unsubscribe();
+        }
     }
 
     @Input('date')
@@ -48,7 +43,7 @@ export class DayPlanComponent implements OnInit, OnDestroy {
     }
 
     getPlans() {
-        this.activityPlanService.getPlansOn(this.date)
+        this.activityPlanSubscription = this.activityPlanService.getPlansOn(this.date)
         .subscribe((plans) => {
             this.plans = plans;
         })

@@ -9,6 +9,7 @@ import { ActivityPlanService } from './activity-plan.service';
 import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { PlanFormComponent } from './plan-form.component';
 import { PlanModalComponent } from './plan-modal.component';
+import { WeeklyPlanComponent } from './weekly-plan.component';
 
 @NgModule({
     imports: [
@@ -23,12 +24,14 @@ import { PlanModalComponent } from './plan-modal.component';
         PlanFormComponent,
         PlanModalComponent,
         PlanComponent,
-        DayPlanComponent
+        DayPlanComponent,
+        WeeklyPlanComponent
     ],
     exports: [
         PlanFormComponent,
         PlanComponent,
-        DayPlanComponent
+        DayPlanComponent,
+        WeeklyPlanComponent
     ],
     entryComponents: [
         PlanModalComponent
