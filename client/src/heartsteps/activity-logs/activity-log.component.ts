@@ -27,7 +27,7 @@ export class ActivityLogComponent implements OnInit {
 
         this.start = this.activityLog.formatStartTime();
         this.end = this.activityLog.formatEndTime();
-        this.totalMinutes = this.activityLog.totalMinutes;
+        this.totalMinutes = this.activityLog.earnedMinutes;
 
     }
 }

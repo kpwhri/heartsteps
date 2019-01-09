@@ -35,17 +35,48 @@ export class ActivityLogService {
         });
     }
 
-    private deserializeActivityLog(log:any):ActivityLog {
-        const activityLog:ActivityLog = new ActivityLog();
-        activityLog.id = log.id;
-        activityLog.type = log.type;
-        activityLog.vigorousMinutes = log.vigorous_minutes;
-        activityLog.moderateMinutes = log.moderate_minutes;
-        activityLog.totalMinutes = log.total_minutes;
+    public getLog(logId:string):Promise<ActivityLog> {
+        return this.heartstepsServer.get('activity/logs/' + logId)
+        .then((data) => {
+            return this.deserializeActivityLog(data);
+        });
+    }
 
-        activityLog.start = moment(log.start).toDate();
-        activityLog.end = moment(log.end).toDate();
+    public save(activityLog:ActivityLog):Promise<ActivityLog> {
+        return this.heartstepsServer.post(
+            'activity/logs/' + activityLog.id,
+            this.serialize(activityLog)    
+        )
+        .then((data) => {
+            return this.deserializeActivityLog(data);
+        });
+    }
 
+    public delete(activityLog:ActivityLog):Promise<boolean> {
+        return this.heartstepsServer.delete('activity/logs/' + activityLog.id)
+        .then(() => {
+            return true;
+        });
+    }
+
+    private serialize(activityLog):any {
+        return {
+            id: activityLog.id,
+            start: activityLog.start,
+            duration: activityLog.duration,
+            type: activityLog.type,
+            vigorous: activityLog.vigorous
+        }
+    }
+
+    private deserializeActivityLog(data:any):ActivityLog {
+        const activityLog:ActivityLog = new ActivityLog(this);
+        activityLog.id = data.id;
+        activityLog.start = moment(data.start).toDate();
+        activityLog.type = data.type;
+        activityLog.duration = data.duration;
+        activityLog.earnedMinutes = data.total_minutes;
+        activityLog.vigorous = data.vigorous;
         return activityLog;
     }
 

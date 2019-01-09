@@ -7,13 +7,17 @@ import { ActivitySummaryPage } from './activity-summary.page';
 import { ActivitySummaryListComponent } from './activity-summary-list.component';
 import { StatsPage } from './stats.page';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
+import { ActivityLogResolver } from './activity-log.resolver';
 
 const routes: Routes = [{
   path: 'activities/:date',
   component: ActivitySummaryPage
 }, {
   path: 'activities/logs/:id',
-  component: ActivityLogPage
+  component: ActivityLogPage,
+  resolve: {
+    'activityLog': ActivityLogResolver
+  }
 }]
 
 @NgModule({
@@ -22,6 +26,9 @@ const routes: Routes = [{
     ActivitySummaryPage,
     ActivitySummaryListComponent,
     StatsPage
+  ],
+  providers: [
+    ActivityLogResolver
   ],
   imports: [
     ActivityModule,
