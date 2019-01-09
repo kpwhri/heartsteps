@@ -46,6 +46,20 @@ export class ActivityTypeService {
         });
     }
 
+    getType(type:string):Promise<ActivityType> {
+        return this.get()
+        .then((types) => {
+            const filteredTypes:Array<ActivityType> = types.filter((activityType) => { 
+                return activityType.name === type 
+            });
+            if(filteredTypes.length === 1) {
+                return Promise.resolve(filteredTypes[0]);
+            } else {
+                return Promise.reject("No matching type");
+            }
+        });
+    }
+
     private deserializeActivityTypes(list:Array<any>):Array<ActivityType> {
         const activityTypes:Array<ActivityType> = [];
         list.forEach((item:any) => {

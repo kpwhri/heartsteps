@@ -1,6 +1,7 @@
 import * as moment from 'moment';
+import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
 
-export class ActivityPlan {
+export class ActivityPlan extends ActivityLog {
 
     public id:string;
     
@@ -9,8 +10,6 @@ export class ActivityPlan {
     public vigorous:boolean;
     public duration:number;
     public complete:boolean = false;
-
-    constructor() {}
 
     isComplete() {
         return this.complete;

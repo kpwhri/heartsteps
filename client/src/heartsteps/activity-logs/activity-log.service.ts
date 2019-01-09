@@ -75,7 +75,7 @@ export class ActivityLogService {
         activityLog.start = moment(data.start).toDate();
         activityLog.type = data.type;
         activityLog.duration = data.duration;
-        activityLog.earnedMinutes = data.total_minutes;
+        activityLog.earnedMinutes = data.earnedMinutes;
         activityLog.vigorous = data.vigorous;
         return activityLog;
     }

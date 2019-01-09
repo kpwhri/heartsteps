@@ -1,21 +1,46 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { ActivityPlan } from './activity-plan.model';
-import { PlanModalController } from './plan-modal.controller';
+import { ActivityTypeService } from '@heartsteps/activity/activity-type.service';
 
 @Component({
     selector: 'activity-plan',
     templateUrl: './plan.component.html',
     inputs: ['plan']
 })
-export class PlanComponent {
+export class PlanComponent implements OnInit {
 
     @Input() plan:ActivityPlan
 
+    public activityType:string;
+    public activityLevel:string;
+    public start: string;
+    public end: string;
+    public complete: boolean;
+    public duration: string;
+
     constructor(
-        private planModal: PlanModalController
+        private activityTypeService: ActivityTypeService,
+        private element:ElementRef,
+        private renderer:Renderer2,
     ) {}
-    
-    openPlan() {
-        this.planModal.show(this.plan);
+
+    ngOnInit() {
+        this.activityTypeService.getType(this.plan.type)
+        .then((activityType) => {
+            this.activityType = activityType.title;
+            this.renderer.addClass(this.element.nativeElement, 'activity-type-'+activityType.name);
+        });
+        if(this.plan.vigorous) {
+            this.activityLevel = "vigorous";
+        } else {
+            this.activityLevel = "moderate";
+        }
+        this.start = this.plan.formatStartTime();
+        this.end = this.plan.formatEndTime();
+        this.duration = this.plan.duration + ' min';
+        this.complete = this.plan.complete;
+        if(this.complete) {
+            this.renderer.addClass(this.element.nativeElement, 'is-complete');
+        }
     }
 }

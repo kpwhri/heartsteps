@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import { ActivityLogService } from './activity-log.service';
 
 export class ActivityLog {
 
@@ -12,13 +11,7 @@ export class ActivityLog {
     public vigorous:boolean;
     public earnedMinutes: number;
 
-    constructor(
-        private activityLogService: ActivityLogService
-    ) {}
-
-    public save() {
-        return this.activityLogService.save(this);
-    }
+    constructor() {}
 
     private formatTime(date:Date):string {
         return moment(date).format('h:mm a')
@@ -29,8 +22,8 @@ export class ActivityLog {
     }
 
     public formatEndTime():string {
-        // Add duration....
-        return this.formatTime(this.start);
+        const endTime:Date = moment(this.start).add(this.duration, 'minutes').toDate();
+        return this.formatTime(endTime);
     }
 
     getStartTime():string {

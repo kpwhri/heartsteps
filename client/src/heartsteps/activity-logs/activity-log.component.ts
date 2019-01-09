@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, ElementRef, Renderer2 } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
+import { ActivityTypeService } from "@heartsteps/activity/activity-type.service";
 
 
 @Component({
@@ -11,23 +12,35 @@ export class ActivityLogComponent implements OnInit {
     @Input() activityLog:ActivityLog;
 
     type:string;
+    activityLevel:string;
     start:string;
     end:string;
 
-    totalMinutes:number;
+    earnedMinutes:number;
 
-    constructor() {}
+    constructor(
+        private activityTypeService: ActivityTypeService,
+        private element: ElementRef,
+        private renderer: Renderer2
+    ) {}
 
     ngOnInit() {
         if(this.activityLog.type) {
-            this.type = this.activityLog.type;
-        } else {
-            this.type = 'Walk'
+            this.activityTypeService.getType(this.activityLog.type)
+            .then((activityType) => {
+                this.type = activityType.title;
+                this.setActivityTypeClass(activityType.name);
+            })
         }
 
         this.start = this.activityLog.formatStartTime();
         this.end = this.activityLog.formatEndTime();
-        this.totalMinutes = this.activityLog.earnedMinutes;
+        this.activityLevel = this.activityLog.vigorous ? 'vigorous': 'moderate';
+        this.earnedMinutes = this.activityLog.earnedMinutes;
 
+    }
+
+    private setActivityTypeClass(type:string) {
+        this.renderer.addClass(this.element.nativeElement, 'activity-type-'+type);
     }
 }

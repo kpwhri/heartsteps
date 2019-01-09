@@ -61,6 +61,7 @@ export class LogFormComponent {
         if(this.form.valid) {
             this.activityLog.type = this.form.value.activity;
             this.activityLog.duration = this.form.value.duration;
+            this.activityLog.vigorous = this.form.value.vigorous;
             this.activityLog.updateStartDate(this.parseDate(this.form.value.date));
             this.activityLog.updateStartTime(this.form.value.time);
             

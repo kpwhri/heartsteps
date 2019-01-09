@@ -1,5 +1,6 @@
 .activity-type {
     display:block;
+    position: relative;
     
     &:before {
         content: '';

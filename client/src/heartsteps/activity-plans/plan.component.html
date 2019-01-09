@@ -1,6 +1,4 @@
-<div class="activity-plan" [ngClass]="activity" (click)="openPlan()">
-    <p>{{plan.type}}, {{plan.duration}}</p>
-    <span>{{plan.start | date:'shortTime'}}</span>
-    <p *ngIf="plan.complete">Complete</p>
-    <p *ngIf="!plan.complete">Planned</p>
-</div>
+<span>{{activityType}}, {{activityLevel}}</span>
+<span>{{start}} - {{end}}</span>
+<span *ngIf="complete">{{duration}} min complete</span>
+<span *ngIf="!complete">{{duration}} min planned</span>

@@ -1,4 +1,18 @@
+.heartsteps-activity-log,
 heartsteps-activity-log {
+    @extend .activity-type;
+    padding-left: 3em;
+
+    &:before {
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        width: 2em;
+        height: 2em;
+        transform: translate(0%, -50%);
+        margin: 0px;
+    }
+
     span {
         display: block;
     }

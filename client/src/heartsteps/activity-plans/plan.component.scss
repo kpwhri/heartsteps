@@ -1,0 +1,23 @@
+activity-plan {
+    @extend .heartsteps-activity-log;
+
+    padding-right: 3em;
+    &:after {
+        content: "";
+        position: absolute;
+        right: 0px;
+        top:0px;
+        height: 100%;
+        width: 2em;
+        mask-image: url('../assets/unchecked.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        display: block;
+        background-color: $color-gray;
+    }
+
+    &.is-complete:after {
+        mask-image: url('../assets/checked.svg');
+        background-color: $color-primary;
+    }
+}
