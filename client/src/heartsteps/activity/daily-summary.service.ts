@@ -41,25 +41,6 @@ export class DailySummaryService {
         })
     }
 
-    private deserializeSummary(response:any):DailySummary {
-        const summary:DailySummary = new DailySummary();
-        summary.date = response.date;
-        summary.updated = new Date();
-        summary.moderateMinutes = response.moderateMinutes;
-        summary.vigorousMinutes = response.vigorousMinutes;
-        summary.totalMinutes = response.minutes;
-        summary.totalSteps = response.steps;
-        return summary;
-    }
-
-    private setUpdateTime() {
-        const updateTime:Date = new Date();
-        this.storage.set(updateTimeKey, updateTime)
-        .then(() => {
-            this.updateTime.next(updateTime);
-        });
-    }
-
     public formatDate(date:Date):string {
         return moment(date).format(dateFormat);
     }
@@ -119,4 +100,22 @@ export class DailySummaryService {
         });
     }
 
+    private deserializeSummary(data:any):DailySummary {
+        const summary:DailySummary = new DailySummary();
+        summary.date = moment(data.date, "YYYY-MM-DD").toDate();
+        summary.updated = new Date();
+        summary.moderateMinutes = data.moderateMinutes;
+        summary.vigorousMinutes = data.vigorousMinutes;
+        summary.totalMinutes = data.minutes;
+        summary.totalSteps = data.steps;
+        return summary;
+    }
+
+    private setUpdateTime() {
+        const updateTime:Date = new Date();
+        this.storage.set(updateTimeKey, updateTime)
+        .then(() => {
+            this.updateTime.next(updateTime);
+        });
+    }
 }
