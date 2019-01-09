@@ -3,6 +3,7 @@ import { ActivityLog } from "./activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import * as moment from 'moment';
+import { ActivityLogService } from "./activity-log.service";
 
 @Component({
     selector: 'heartsteps-activity-log-form',
@@ -19,7 +20,8 @@ export class LogFormComponent {
     @Output('saved') saved:EventEmitter<boolean> = new EventEmitter();
 
     constructor(
-        private dateFactory:DateFactory
+        private dateFactory:DateFactory,
+        private activityLogService: ActivityLogService
     ){}
 
     @Input('activity-log')
@@ -55,23 +57,27 @@ export class LogFormComponent {
         })
     }
 
-    public save():Promise<boolean> {
+    public save() {
         if(this.form.valid) {
             this.activityLog.type = this.form.value.activity;
             this.activityLog.duration = this.form.value.duration;
             this.activityLog.updateStartDate(this.parseDate(this.form.value.date));
             this.activityLog.updateStartTime(this.form.value.time);
             
-            this.activityLog.save()
+            this.activityLogService.save(this.activityLog)
             .then(() => {
                 this.saved.emit();
             })
+        } else {
+            // show error messages.
         }
-        return Promise.resolve(true);
     }
 
-    public delete():Promise<boolean> {
-        return Promise.resolve(true);
+    public delete() {
+        this.activityLogService.delete(this.activityLog)
+        .then(() => {
+            this.saved.emit();
+        });
     }
 
 }

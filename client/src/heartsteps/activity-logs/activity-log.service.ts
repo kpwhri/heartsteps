@@ -70,7 +70,7 @@ export class ActivityLogService {
     }
 
     private deserializeActivityLog(data:any):ActivityLog {
-        const activityLog:ActivityLog = new ActivityLog(this);
+        const activityLog:ActivityLog = new ActivityLog();
         activityLog.id = data.id;
         activityLog.start = moment(data.start).toDate();
         activityLog.type = data.type;
