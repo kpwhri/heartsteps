@@ -11,8 +11,19 @@ export class ActivityLogService {
         private heartstepsServer:HeartstepsServer
     ){}
 
-    get(date:Date):Promise<Array<ActivityLog>> {
-        return this.heartstepsServer.get('activity/logs/' + moment(date).format('YYYY-MM-DD'))
+    getDate(date:Date):Promise<Array<ActivityLog>> {
+        const start:Date = new Date(date.valueOf());
+        start.setHours(0, 0);
+        const end:Date = new Date(date.valueOf());
+        end.setHours(23, 59);
+        return this.get(start, end);
+    }
+
+    get(start:Date, end:Date):Promise<Array<ActivityLog>> {
+        return this.heartstepsServer.get('activity/logs/', {
+            start: start.toISOString(),
+            end: end.toISOString()
+        })
         .then((logs:Array<any>) => {
             const activityLogs:Array<ActivityLog> = [];
             logs.forEach((log:any) => {

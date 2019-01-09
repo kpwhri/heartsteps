@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Location } from '@angular/common';
-import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
-import { ActivityLog } from '@heartsteps/activity/activity-log.model';
+import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
+import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
 
 @Component({
     selector: 'activity-summary-page',
@@ -29,10 +29,14 @@ export class ActivitySummaryPage implements OnInit {
         this.date = this.dateFactory.parseDate(
             this.route.snapshot.paramMap.get('date')
         );
-        this.activityLogService.get(this.date)
+        this.activityLogService.getDate(this.date)
         .then((logs) => {
             this.logs = logs;
         })
+    }
+
+    openActivityLog(log:ActivityLog) {
+        this.router.navigate(['activities', 'logs', log.id]);
     }
 
     back() {

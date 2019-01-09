@@ -3,17 +3,17 @@ import { IonicPageModule } from 'ionic-angular';
 import { HomePage } from './home';
 import { DashboardModule } from '@pages/dashboard/dashboard.module';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
-import { ActivityLogModule } from '@pages/activity-log/activity-log.module';
+import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
 import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from '@pages/activity-plan/plan.page';
-import { ActivityLogPage } from '@pages/activity-log/activity-log';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-gaurd.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
+import { StatsPage } from '@pages/activity-log/stats.page';
 
 const homeRoutes: Routes = [{
     path: 'home',
@@ -24,7 +24,7 @@ const homeRoutes: Routes = [{
         component: DashboardPage
     }, {
         path: 'stats',
-        component: ActivityLogPage
+        component: StatsPage
     }, {
         path: 'planning',
         component: PlanPage
@@ -49,13 +49,13 @@ const homeRoutes: Routes = [{
     entryComponents: [
         DashboardPage,
         PlanPage,
-        ActivityLogPage,
+        StatsPage,
         ResourceLibraryPage
     ],
     imports: [
         DashboardModule,
         ActivityPlanPageModule,
-        ActivityLogModule,
+        ActivityLogPageModule,
         ResourceLibraryModule,
         SettingsModule,
         BrowserModule,

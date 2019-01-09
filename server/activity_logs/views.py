@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .serializers import ActivityLogSerializer
+from .serializers import ActivityLogSerializer, TimeRangeSerializer
 from .models import ActivityLog, ActivityType
 
 class ActivityLogsDetail(APIView):
@@ -42,6 +42,22 @@ class ActivityLogsDetail(APIView):
 
 class ActivityLogsList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        serialized = TimeRangeSerializer(data=request.query_params)
+        if serialized.is_valid():
+            activity_logs = ActivityLog.objects.filter(
+                user = request.user,
+                start__range=(
+                    serialized.validated_data['start'],
+                    serialized.validated_data['end']
+                )
+            ).all()
+            if len(activity_logs) < 1:
+                return Response("", status=status.HTTP_404_NOT_FOUND)
+            serialized_logs = ActivityLogSerializer(activity_logs, many=True)
+            return Response(serialized_logs.data, status = status.HTTP_200_OK)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         serialized = ActivityLogSerializer(data=request.data)

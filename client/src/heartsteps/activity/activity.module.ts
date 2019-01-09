@@ -6,8 +6,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { DailySummaryService } from './daily-summary.service';
 import { DailyActivitiesUpdateComponent } from './daily-activities-update';
 import { ActivityTypeComponent } from './activity-type.component';
-import { ActivityLogService } from './activity-log.service';
-import { ActivityLogComponent } from './activity-log.component';
 import { ActivityTypeService } from './activity-type.service';
 
 @NgModule({
@@ -18,18 +16,15 @@ import { ActivityTypeService } from './activity-type.service';
     declarations: [
         ActivityTypeComponent,
         DailySummaryComponent,
-        DailyActivitiesUpdateComponent,
-        ActivityLogComponent
+        DailyActivitiesUpdateComponent
     ],
     exports: [
         ActivityTypeComponent,
         DailySummaryComponent,
-        DailyActivitiesUpdateComponent,
-        ActivityLogComponent
+        DailyActivitiesUpdateComponent
     ],
     providers: [
         DailySummaryService,
-        ActivityLogService,
         ActivityTypeService
     ]
 })

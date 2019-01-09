@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
-import { ActivityLogService } from '@heartsteps/activity/activity-log.service';
+import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
 import { DateFactory } from '@infrastructure/date.factory';
 import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/weekly-survey.service';
 
