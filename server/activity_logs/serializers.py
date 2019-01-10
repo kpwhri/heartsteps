@@ -21,7 +21,8 @@ class ActivityLogSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['id'] = instance.id
-        representation['earnedMinutes'] = instance.earned_minutes
+        if hasattr(instance, 'earned_minutes'):
+            representation['earnedMinutes'] = instance.earned_minutes
         return representation
 
 class FitbitDaySerializer(serializers.ModelSerializer):
