@@ -100,3 +100,35 @@ form {
         }
     }
 }
+
+form .input-group.intensity {
+    > ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    > ul > li {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    label > span {
+        display: block;
+    }
+
+    input[type=radio] {
+        display: block;
+        width: 2em;
+        height: 2em;
+        background: $color-gray;
+        appearance: none;
+        mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
+    }
+
+    input[type=radio]:checked {
+        background: $color-primary;
+        mask-image: url('../assets/checked.svg');
+    }
+}
