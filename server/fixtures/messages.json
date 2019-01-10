@@ -11772,7 +11772,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 628,
     "fields": {
         "context_tags": [
@@ -11792,7 +11792,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 629,
     "fields": {
         "context_tags": [
@@ -11807,7 +11807,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 630,
     "fields": {
         "context_tags": [
@@ -11821,7 +11821,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 631,
     "fields": {
         "context_tags": [
@@ -11837,7 +11837,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 632,
     "fields": {
         "context_tags": [
@@ -11853,7 +11853,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 633,
     "fields": {
         "context_tags": [
@@ -11868,7 +11868,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 634,
     "fields": {
         "context_tags": [
@@ -11884,7 +11884,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 635,
     "fields": {
         "context_tags": [
@@ -11899,7 +11899,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 636,
     "fields": {
         "context_tags": [
@@ -11915,7 +11915,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 637,
     "fields": {
         "context_tags": [
@@ -11930,7 +11930,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 638,
     "fields": {
         "context_tags": [
@@ -11948,7 +11948,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 639,
     "fields": {
         "context_tags": [
@@ -11964,7 +11964,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 640,
     "fields": {
         "context_tags": [
@@ -11979,7 +11979,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 641,
     "fields": {
         "context_tags": [
@@ -12000,7 +12000,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 642,
     "fields": {
         "context_tags": [
@@ -12022,7 +12022,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 643,
     "fields": {
         "context_tags": [
@@ -12037,7 +12037,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 644,
     "fields": {
         "context_tags": [
@@ -12054,7 +12054,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 645,
     "fields": {
         "context_tags": [
@@ -12075,7 +12075,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 646,
     "fields": {
         "context_tags": [
@@ -12090,7 +12090,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 647,
     "fields": {
         "context_tags": [
@@ -12105,7 +12105,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 648,
     "fields": {
         "context_tags": [
@@ -12121,7 +12121,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 649,
     "fields": {
         "context_tags": [
@@ -12142,7 +12142,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 650,
     "fields": {
         "context_tags": [
@@ -12161,7 +12161,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 651,
     "fields": {
         "context_tags": [
@@ -12175,7 +12175,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 652,
     "fields": {
         "context_tags": [
@@ -12191,7 +12191,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 653,
     "fields": {
         "context_tags": [
@@ -12208,7 +12208,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 654,
     "fields": {
         "context_tags": [
@@ -12222,7 +12222,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 655,
     "fields": {
         "context_tags": [
@@ -12242,7 +12242,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 656,
     "fields": {
         "context_tags": [
@@ -12259,7 +12259,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 657,
     "fields": {
         "context_tags": [
@@ -12274,7 +12274,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 658,
     "fields": {
         "context_tags": [
@@ -12289,7 +12289,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 659,
     "fields": {
         "context_tags": [
@@ -12306,7 +12306,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 660,
     "fields": {
         "context_tags": [
@@ -12320,7 +12320,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 661,
     "fields": {
         "context_tags": [
@@ -12336,7 +12336,7 @@
     }
 },
 {
-    "model": "anti_seds.antisedentarymessagetemplate",
+    "model": "anti_sedentary.antisedentarymessagetemplate",
     "pk": 662,
     "fields": {
         "context_tags": [
