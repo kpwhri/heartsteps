@@ -35,6 +35,10 @@ class RequestContextTaskTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
+        Configuration.objects.create(
+            user = self.user,
+            impute_context = True
+        )
         self.decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()

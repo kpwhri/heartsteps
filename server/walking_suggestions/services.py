@@ -55,6 +55,13 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             total_steps += step_count.steps
         return total_steps
 
+    def can_impute_context(self):
+        try:
+            configuration = Configuration.objects.get(user=self.user)
+        except Configuration.DoesNotExist:
+            return False
+        return configuration.impute_context
+
     def decide(self):
         if self.decision.test:
             self.decision.a_it = True

@@ -71,9 +71,10 @@ def request_decision_context(decision_id):
     decision_service.request_context()
 
     if len(decision_service.get_context_requests()) > settings.WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS:
-        make_decision.apply_async(kwargs={
-            'decision_id': decision_id
-        })
+        if decision_service.can_impute_context():
+            make_decision.apply_async(kwargs={
+                'decision_id': decision_id
+            })
     else:
         request_decision_context.apply_async(kwargs={
             'decision_id': decision_id
