@@ -104,13 +104,7 @@ article.page {
     background: $background-primary;
     
     > * {
-        margin: $space-size/2 $space-size;
-    }
-
-    > header,
-    > footer,
-    > nav {
-        margin: 0px;
+        padding: $space-size/2 $space-size;
     }
 }
 

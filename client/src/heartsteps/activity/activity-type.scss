@@ -1,13 +1,16 @@
-.activity-type {
-    display:block;
+.activity-type,
+button.activity-type {
     position: relative;
-    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
     &:before {
         content: '';
         display: block;
         float: left;
-        width: 1em;
-        height: 1em;
+        width: 2em;
+        height: 2em;
         margin: 0px 0.5em;
         background-color: $text-color;
         mask-repeat: no-repeat;

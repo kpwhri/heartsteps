@@ -55,6 +55,10 @@ export class DayPlanComponent implements OnDestroy {
         this.planModal.show(plan);
     }
 
+    showPlan(plan:ActivityPlan) {
+        this.planModal.show(plan);
+    }
+
     filterPlans(plans) {
         const filteredPlans = [];
         if(plans && plans.length > 0) {
