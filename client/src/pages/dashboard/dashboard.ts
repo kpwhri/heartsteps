@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
 import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
 import { DateFactory } from '@infrastructure/date.factory';

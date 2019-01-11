@@ -19,7 +19,7 @@ class ActivitySummaryViewTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create(
             username = "test",
-            date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.utc) 
+            date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.UTC) 
         )
         self.client.force_authenticate(self.user)
 

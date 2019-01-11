@@ -3,6 +3,7 @@ import { ActivityPlanService } from './activity-plan.service';
 import { Subscription } from 'rxjs';
 import { PlanModalController } from './plan-modal.controller';
 import { ActivityPlan } from './activity-plan.model';
+import * as moment from 'moment';
 
 @Component({
     selector: 'activity-plan-day',
@@ -34,7 +35,7 @@ export class DayPlanComponent implements OnDestroy {
         if(date) {
             this.date = date;
             this.getPlans();
-            if(date >= new Date()) {
+            if(date >= new Date() || moment().isSame(date, 'day')) {
                 this.canAddActivity = true;
             } else {
                 this.canAddActivity = false;
