@@ -1,13 +1,12 @@
 from datetime import date
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 
 from fitbit_api.services import FitbitService
 
 from .models import ActivityLog, Day, FitbitDay
 
-@receiver(post_save, sender=ActivityLog)
 def activity_log_updates_day(sender, instance, *args, **kwargs):
     activity_log = instance
     try:
@@ -23,6 +22,9 @@ def activity_log_updates_day(sender, instance, *args, **kwargs):
             date = date(activity_log.start.year, activity_log.start.month, activity_log.start.day)
         )
     day.update_from_activities()
+
+post_save.connect(activity_log_updates_day, sender=ActivityLog)
+post_delete.connect(activity_log_updates_day, sender=ActivityLog)
 
 @receiver(post_save, sender=FitbitDay)
 def fitbit_day_updates_day(sender, instance, *args, **kwargs):
