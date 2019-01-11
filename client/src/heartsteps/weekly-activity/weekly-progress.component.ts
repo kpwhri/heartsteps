@@ -6,6 +6,7 @@ import { DailySummaryService } from '@heartsteps/activity/daily-summary.service'
 import { Subscription } from 'rxjs';
 import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.service';
 import { Week } from '@heartsteps/weekly-survey/week.model';
+import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -34,7 +35,8 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     constructor(
         private elementRef:ElementRef,
         private dailySummaryService: DailySummaryService,
-        private currentWeekService: CurrentWeekService
+        private currentWeekService: CurrentWeekService,
+        private activityPlanService: ActivityPlanService
     ) {
         this.total = 150;
         this.complete = 0;
@@ -49,27 +51,33 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         .filter((week) => week !== null)
         .subscribe((week:Week) => {
             this.total = week.goal;
-
-            this.dailySummaryService.getWeek(week.start, week.end)
-            .then((summaries:Array<DailySummary>) => {
-                this.complete = 0;
-                this.current = 0;
-                summaries.forEach((summary:DailySummary) => {
-                    this.complete += summary.totalMinutes;
-                    if(summary.isToday()) {
-                        this.current = summary.totalMinutes;
-                    }
-                })
-            })
-            .catch(() => {})
-            .then(() => {
-                this.updateChart();
-            })
+            this.loadDays(week.start, week.end);
+            this.activityPlanService.planCompleted.subscribe(() => {
+                this.loadDays(week.start, week.end);
+            });
         });
     }
 
     ngOnDestroy() {
         this.weekSubscription.unsubscribe();
+    }
+
+    private loadDays(start:Date, end:Date) {
+        this.dailySummaryService.getWeek(start, end)
+        .then((summaries:Array<DailySummary>) => {
+            this.complete = 0;
+            this.current = 0;
+            summaries.forEach((summary:DailySummary) => {
+                this.complete += summary.totalMinutes;
+                if(summary.isToday()) {
+                    this.current = summary.totalMinutes;
+                }
+            })
+        })
+        .catch(() => {})
+        .then(() => {
+            this.updateChart();
+        });
     }
 
     private initializeChart() {

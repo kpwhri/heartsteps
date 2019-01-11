@@ -37,7 +37,7 @@ export class PlanComponent implements OnInit {
         }
         this.start = this.plan.formatStartTime();
         this.end = this.plan.formatEndTime();
-        this.duration = this.plan.duration + ' min';
+        this.duration = String(this.plan.duration);
         this.complete = this.plan.complete;
         if(this.complete) {
             this.renderer.addClass(this.element.nativeElement, 'is-complete');

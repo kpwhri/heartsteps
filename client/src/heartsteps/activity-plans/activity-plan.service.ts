@@ -1,14 +1,16 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ActivityPlan } from "./activity-plan.model";
 import * as moment from 'moment';
-import { Observable, Subject, BehaviorSubject } from "rxjs";
+import { Observable, BehaviorSubject } from "rxjs";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 
 @Injectable()
 export class ActivityPlanService {
     private plans:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
     private storage:DocumentStorage
+
+    public planCompleted:EventEmitter<boolean> = new EventEmitter();
 
     constructor(
         private heartstepsServer:HeartstepsServer,
@@ -43,12 +45,20 @@ export class ActivityPlanService {
 
     uncomplete(activityPlan:ActivityPlan):Promise<ActivityPlan> {
         activityPlan.complete = false;
-        return this.save(activityPlan);
+        return this.save(activityPlan)
+        .then((plan) => {
+            this.planCompleted.emit();
+            return plan;
+        });
     }
 
     complete(activityPlan:ActivityPlan):Promise<ActivityPlan> {
         activityPlan.complete = true;
-        return this.save(activityPlan);
+        return this.save(activityPlan)
+        .then((plan) => {
+            this.planCompleted.emit();
+            return plan;
+        });
     }
 
     getPlansOn(date:Date):Observable<Array<ActivityPlan>> {
