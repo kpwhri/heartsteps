@@ -7,7 +7,7 @@ from activity_logs.models import AbstractActivity, ActivityLog, ActivityType
 
 class ActivityPlan(AbstractActivity):
 
-    activity_log = models.OneToOneField(ActivityLog, null=True)
+    activity_log = models.OneToOneField(ActivityLog, null=True, on_delete=models.SET_NULL)
 
     @property
     def id(self):
