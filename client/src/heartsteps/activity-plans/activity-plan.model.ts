@@ -7,7 +7,7 @@ export class ActivityPlan extends ActivityLog {
     
     public type:string;
     public start:Date = new Date();
-    public vigorous:boolean;
+    public vigorous:boolean = false;
     public duration:number;
     public complete:boolean = false;
 

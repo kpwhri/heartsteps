@@ -41,8 +41,13 @@ export class ActivityPlanService {
         });
     }
 
+    uncomplete(activityPlan:ActivityPlan):Promise<ActivityPlan> {
+        activityPlan.complete = false;
+        return this.save(activityPlan);
+    }
+
     complete(activityPlan:ActivityPlan):Promise<ActivityPlan> {
-        activityPlan.markComplete();
+        activityPlan.complete = true;
         return this.save(activityPlan);
     }
 

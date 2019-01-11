@@ -45,7 +45,11 @@ export class DayPlanComponent implements OnDestroy {
     getPlans() {
         this.activityPlanSubscription = this.activityPlanService.getPlansOn(this.date)
         .subscribe((plans) => {
-            this.plans = plans;
+            if(plans && plans.length) {
+                this.plans = plans;
+            } else {
+                this.plans = null;
+            }
         })
     }
 

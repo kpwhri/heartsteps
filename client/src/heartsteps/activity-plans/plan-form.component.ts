@@ -20,7 +20,7 @@ export class PlanFormComponent implements OnInit {
     @Output() saved = new EventEmitter<boolean>();
 
     public activityPlan:ActivityPlan;
-    public availableDates:Array<string>
+    public availableDates:Array<string>;
 
     public planForm:FormGroup;
     public error:string;
@@ -51,6 +51,10 @@ export class PlanFormComponent implements OnInit {
                 vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
             });
             
+            if(activityPlan.complete) {
+                this.planForm.disable();
+            }
+
             if(activityPlan.id) {
                 this.updateView = true;
             } else {
@@ -75,29 +79,43 @@ export class PlanFormComponent implements OnInit {
         this.activityPlan.updateStartDate(this.parseDate(this.planForm.value.date));
     }
 
-    save() {
-        if (this.planForm.valid) {
+    validateActivity():Promise<ActivityPlan> {
+        if(this.planForm.valid) {
             this.updateActivity();
-            this.activityPlanService.save(this.activityPlan)
-            .then(() => {
-                this.saved.emit();
-            })
-            .catch((error) => {
-                if(error.message) {
-                    this.error = error.message;
-                }
-            })
+            return Promise.resolve(this.activityPlan);
+        } else {
+            return Promise.reject("Invalid form");
         }
     }
 
+    save() {
+        this.validateActivity()
+        .then((activityPlan) => {
+            return this.activityPlanService.save(activityPlan);
+        })
+        .then(() => {
+            this.saved.emit();
+        })
+        .catch((error) => {
+            this.error = error;
+        });
+    }
+
     complete() {
-        if(this.planForm.valid) {
-            this.updateActivity();
-            this.activityPlanService.complete(this.activityPlan)
-            .then(() => {
-                this.saved.emit();
-            })
-        }
+        this.validateActivity()
+        .then((activityPlan) => {
+            return this.activityPlanService.complete(activityPlan);
+        })
+        .then(() => {
+            this.saved.emit();
+        });
+    }
+
+    uncomplete() {
+        this.activityPlanService.uncomplete(this.activityPlan)
+        .then(() => {
+            this.saved.emit();
+        });
     }
 
     delete() {
