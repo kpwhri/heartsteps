@@ -15,7 +15,7 @@ class ActivityPlan(AbstractActivity):
 
     @property
     def complete(self):
-        if self.activity_log:
+        if self.activity_log and self.activity_log.id:
             return True
         else:
             return False
@@ -38,6 +38,8 @@ class ActivityPlan(AbstractActivity):
     def remove_activity_log(self):
         if self.activity_log:
             self.activity_log.delete()
+            self.activity_log = None
+            self.save()
 
     def __str__(self):
         if self.complete:

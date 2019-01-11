@@ -10,6 +10,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from activity_logs.models import ActivityLog, ActivityType
+from locations.services import LocationService
 from fitbit_api.services import FitbitService
 
 from .models import Day, User, FitbitDay

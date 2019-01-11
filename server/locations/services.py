@@ -63,11 +63,7 @@ class LocationService:
         return location
 
     def get_current_timezone(self):
-        location = self.get_last_location()
-        return self.get_timezone_for(
-            latitude = location.latitude,
-            longitude = location.longitude
-        )
+        return self.get_timezone_on(timezone.now())
 
     def get_current_datetime(self):
         timezone = self.get_current_timezone()
@@ -82,11 +78,14 @@ class LocationService:
         return pytz.timezone(timezone)
 
     def get_timezone_on(self, datetime):
-        location = self.get_location_on(datetime)
-        return self.get_timezone_for(
-            latitude = location.latitude,
-            longitude = location.longitude
-        )
+        try:
+            location = self.get_location_on(datetime)
+            return self.get_timezone_for(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+        except LocationService.UnknownLocation:
+            return pytz.UTC 
 
     def check_timezone_change(self):
         locations = Location.objects.filter(user=self.__user)[:2]
