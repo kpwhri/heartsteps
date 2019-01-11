@@ -130,7 +130,6 @@ class ActivityPlanViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['complete'], True)
-        self.assertEqual(response.data['activityLog'], activity_log.id)
 
         self.assertEqual(activity_log.user, self.user)
         self.assertEqual(activity_plan.activity_log.id, activity_log.id)
@@ -148,12 +147,14 @@ class ActivityPlanViewTest(APITestCase):
             'plan_id': self.plan.id
         }), {
             'type': 'walk',
-            'start': timezone.now(),
+            'start': self.plan.start,
             'duration': 30,
             'vigorous': True,
             'complete': False
         })
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['complete'], False)
         self.assertEqual(ActivityLog.objects.count(), 0)
 
     def test_delete_activity_plan(self):
@@ -162,3 +163,4 @@ class ActivityPlanViewTest(APITestCase):
         }))
 
         self.assertEqual(response.status_code, 204)
+        self.assertEqual(ActivityPlan.objects.count(), 0)
