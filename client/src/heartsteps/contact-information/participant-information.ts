@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { ContactInformationService } from '@heartsteps/contact-information/contact-information.service';
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -14,7 +14,7 @@ export class ParticipantInformation {
 
     constructor(
         private contactInformationService:ContactInformationService,
-        private loadingService:loadingService,
+        private loadingService:LoadingService,
         private formBuilder:FormBuilder
     ) {
         this.contactInformationService.get()

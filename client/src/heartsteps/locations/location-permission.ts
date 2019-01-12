@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { LocationService } from './location.service';
 
 @Component({
@@ -11,7 +11,7 @@ export class LocationPermission {
 
   constructor(
     private locationService:LocationService,
-    private loadingService:loadingService
+    private loadingService:LoadingService
   ) {}
 
   getPermission() {

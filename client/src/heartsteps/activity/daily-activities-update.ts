@@ -2,23 +2,23 @@ import { Component, OnInit } from "@angular/core";
 import { DailySummaryService } from "./daily-summary.service";
 
 import * as moment from 'moment';
+import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({
     selector: 'heartsteps-activity-daily-update',
     templateUrl: './daily-activities-update.html'
 })
 export class DailyActivitiesUpdateComponent implements OnInit {
-    public loading:Boolean;
     public lastUpdate:Date;
     public updateTimeFormatted:string;
 
     constructor(
-        private dailySummaryService: DailySummaryService
+        private dailySummaryService: DailySummaryService,
+        private loadingService: LoadingService
     ){}
 
     ngOnInit() {
         this.dailySummaryService.updateTime.subscribe((date:Date)=>{
-            this.loading = false;
             if(date) {
                 this.lastUpdate = date;
                 this.formatTime();
@@ -31,13 +31,13 @@ export class DailyActivitiesUpdateComponent implements OnInit {
     }
 
     public refresh() {
-        this.loading = true;
+        this.loadingService.show("Loading data from Fitbit");
         this.dailySummaryService.getDate(new Date())
         .catch(() => {
 
         })
         .then(() => {
-            this.loading = false;
+            this.loadingService.dismiss();
         });
     }
 }

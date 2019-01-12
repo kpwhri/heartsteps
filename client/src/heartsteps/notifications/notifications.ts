@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { NotificationService } from '@heartsteps/notifications/notification.service';
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 
 @Component({
     selector: 'heartsteps-notifications-permission',
@@ -11,7 +11,7 @@ export class NotificationsPermission {
 
     constructor(
         private notificationService: NotificationService,
-        private loadingService:loadingService
+        private loadingService:LoadingService
     ) {}
 
     getPermission() {

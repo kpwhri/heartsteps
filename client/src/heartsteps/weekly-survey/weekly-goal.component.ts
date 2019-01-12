@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
 
 @Component({
@@ -18,7 +18,7 @@ export class WeeklyGoalComponent {
     private _week:Week;
 
     constructor(
-        private loadingService:loadingService
+        private loadingService:LoadingService
     ) {}
 
     @Input()

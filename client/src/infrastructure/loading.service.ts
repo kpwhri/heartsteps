@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { LoadingController, Loading } from "ionic-angular";
 
 @Injectable()
-export class loadingService {
+export class LoadingService {
 
     private loader:Loading
     private showingLoader:Boolean

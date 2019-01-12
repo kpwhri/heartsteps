@@ -1,5 +1,5 @@
 <h3>{{formattedDate}}</h3>
-<div class="callout-progress" *ngIf="activitySummary">{{activitySummary.totalMinutes}} minutes</div>
+<p class="headline" *ngIf="activitySummary">{{activitySummary.totalMinutes}} minutes</p>
 <ul class="horizontal" *ngIf="activitySummary">
     <li>{{activitySummary.moderateMinutes}} min <span>Moderate</span></li>
     <li>{{activitySummary.vigorousMinutes}} min <span>Vigerous</span></li>

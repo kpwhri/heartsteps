@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { IonicStorageModule } from '@ionic/storage';
 import { HeartstepsServer } from './heartsteps-server.service';
 import { AuthorizationService } from './authorization.service';
-import { loadingService } from './loading.service';
+import { LoadingService } from './loading.service';
 import { Geolocation } from '@ionic-native/geolocation';
 import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
@@ -37,7 +37,7 @@ import { DocumentStorageService } from './document-storage.service';
       AuthorizationService,
       PushService,
       HeartstepsServer,
-      loadingService,
+      LoadingService,
       Geolocation,
       BackgroundProcessService,
       LocationService,

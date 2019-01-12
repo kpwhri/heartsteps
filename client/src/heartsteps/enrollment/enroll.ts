@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { EnrollmentService } from './enrollment.service';
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { ViewController } from 'ionic-angular';
 
@@ -15,7 +15,7 @@ export class EnrollmentModal {
 
     constructor(
         private enrollmentService: EnrollmentService,
-        private loadingService:loadingService,
+        private loadingService:LoadingService,
         private viewCtrl: ViewController
     ) {
         this.enrollmentForm = new FormGroup({

@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { WalkingSuggestionTimeService } from './walking-suggestion-time.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class WalkingSuggestionTimesComponent implements OnInit {
 
     constructor(
         private activitySuggestionTimeService:WalkingSuggestionTimeService,
-        private loadingService:loadingService
+        private loadingService:LoadingService
     ) {}
 
     ngOnInit() {

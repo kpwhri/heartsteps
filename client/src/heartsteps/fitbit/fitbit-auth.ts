@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { FitbitService } from './fitbit.service';
 import { AlertDialogController } from '@infrastructure/alert-dialog.controller';
 
@@ -11,7 +11,7 @@ export class FitbitAuth {
     @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private loadingService:loadingService,
+        private loadingService:LoadingService,
         private alertController: AlertDialogController,
         private fitbitService: FitbitService
     ) {}

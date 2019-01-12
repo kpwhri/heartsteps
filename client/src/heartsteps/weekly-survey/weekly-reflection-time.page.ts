@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
-import { loadingService } from '@infrastructure/loading.service';
+import { LoadingService } from '@infrastructure/loading.service';
 import { ReflectionTimeService } from './reflection-time.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class WeeklyReflectionTimePage {
     @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private loadingService:loadingService,
+        private loadingService:LoadingService,
         private reflectionTimeService:ReflectionTimeService
     ) {
         this.reflectionTimeService.getTime()

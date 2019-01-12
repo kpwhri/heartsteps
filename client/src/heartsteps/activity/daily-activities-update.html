@@ -1,6 +1,5 @@
-<button *ngIf="!loading" (click)="refresh()">
+<button (click)="refresh()">
     Update Fitbit data
     <span *ngIf="!loading && lastUpdate">Last updated {{updateTimeFormatted}}</span>
     <span *ngIf="!loading && !lastUpdate">Not updated today</span>
 </button>
-<div *ngIf="loading">Loading activities</div>

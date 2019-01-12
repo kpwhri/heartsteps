@@ -39,6 +39,15 @@ ul {
     padding-bottom: env(safe-area-inset-bottom);
     background-color: $background-alternate;
 
+    .headline {
+        color: $color-secondary;
+        font-size: 1.25em;
+        font-weight: bold;
+        text-align: center;
+
+        margin: 0.5em 0em;
+    }
+
     > header,
     > nav,
     > footer {
