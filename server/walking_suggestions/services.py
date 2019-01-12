@@ -31,10 +31,15 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         decision.add_context(category)
         return WalkingSuggestionDecisionService(decision)
 
-    def determine_availability(self):
+    def update_availability(self):
+        super().update_availability()
         if self.get_fitbit_step_count() > 250:
-            return False
-        return True
+            self.decision.available = False
+            self.decision.save()
+
+    def determine_availability(self):
+        self.update_availability()
+        return self.decision.available
 
     def get_message_template_query(self):
         return WalkingSuggestionMessageTemplate.objects

@@ -1,5 +1,6 @@
 from random import randint
 import pytz
+from datetime import timedelta
 from timezonefinder import TimezoneFinder
 
 from django.db.models import Q
@@ -69,6 +70,10 @@ class DecisionService():
         new_context = self.generate_context()
         for tag in self.generate_context():
             self.add_context(tag)
+        self.update_availability()
+
+    def update_availability(self):
+        pass
 
     def decide(self):
         return self.decision.decide()
@@ -203,6 +208,22 @@ class DecisionContextService(DecisionService):
 class DecisionMessageService(DecisionService):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
+
+    def update_availability(self):
+        recent_notification_count = Message.objects.filter(
+            recipient = self.decision.user,
+            created__range = [
+                self.decision.time - timedelta(minutes=60),
+                self.decision.time
+            ],
+            message_type = Message.NOTIFICATION
+        ).count()
+        if recent_notification_count > 0:
+            self.decision.available = False
+            self.decision.save()
+        else:
+            self.decision.available = True
+            self.decision.save()
 
     def get_message_template_tags(self):
         message_tags_query = Q()

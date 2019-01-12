@@ -2,6 +2,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from unittest.mock import patch
+from datetime import timedelta
 from django.test import override_settings, TestCase
 
 from django.contrib.auth.models import User
@@ -105,3 +106,36 @@ class DecisionMessageTest(TestCase):
         context_objects = [obj.content_object for obj in DecisionContext.objects.all()]
         self.assertIn(message_template, context_objects)
         self.assertIn(push_message, context_objects)
+
+    def test_is_unavailabe_if_notification_sent_in_last_hour(self):
+        decision_service = self.make_decision_service()
+        message = PushMessage.objects.create(
+            recipient = decision_service.decision.user,
+            message_type = PushMessage.NOTIFICATION
+        )
+        message.created = decision_service.decision.time - timedelta(minutes=30)
+        message.save()
+
+        decision_service.update_availability()
+
+        self.assertFalse(decision_service.decision.available)
+
+    def test_is_availabe_if_no_notification_last_hour(self):
+        decision_service = self.make_decision_service()
+        message = PushMessage.objects.create(
+            recipient = decision_service.decision.user,
+            message_type = PushMessage.NOTIFICATION
+        )
+        message.created = decision_service.decision.time - timedelta(minutes=90)
+        message.save()
+        message = PushMessage.objects.create(
+            recipient = decision_service.decision.user,
+            message_type = PushMessage.DATA
+        )
+        message.created = decision_service.decision.time - timedelta(minutes=30)
+        message.save()
+
+        decision_service.update_availability()
+
+        self.assertTrue(decision_service.decision.available)
+
