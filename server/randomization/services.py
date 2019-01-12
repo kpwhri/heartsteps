@@ -69,6 +69,9 @@ class DecisionService():
         new_context = self.generate_context()
         for tag in self.generate_context():
             self.add_context(tag)
+
+    def decide(self):
+        return self.decision.decide()
     
 
 class DecisionContextService(DecisionService):

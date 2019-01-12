@@ -23,12 +23,14 @@ class ContextTag(models.Model):
 class Decision(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
+
     test = models.BooleanField(default=False)
+    available = models.BooleanField(default=True)
 
     time = models.DateTimeField()
 
-    a_it = models.NullBooleanField(null=True, blank=True)
-    pi_it = models.FloatField(null=True, blank=True)
+    treated = models.NullBooleanField(null=True, blank=True)
+    treatment_probability = models.FloatField(null=True, blank=True)
 
     tags = models.ManyToManyField(ContextTag)
 
@@ -38,7 +40,27 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
+    def get_treated(self):
+        return self.treated
+    
+    def set_treated(self, value):
+        self.treated = value
+
+    a_it = property(get_treated, set_treated)
+
+    def get_treatment_probability(self):
+        return self.treatment_probability
+
+    def set_treatment_probability(self, value):
+        self.treatment_probability = value
+
+    pi_it = property(get_treatment_probability, set_treatment_probability)
+
     def decide(self):
+        if not self.available:
+            self.a_it = False
+            self.save()
+            return self.a_it
         if not self.pi_it:
             if not hasattr(settings, 'RANDOMIZATION_FIXED_PROBABILITY'):
                 raise ImproperlyConfigured("No RANDOMIZATION_FIXED_PROBABILITY")
