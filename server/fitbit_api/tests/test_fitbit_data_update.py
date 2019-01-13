@@ -75,13 +75,7 @@ class GetUpdatedAcitivities(TestCase):
                     'logId': 123,
                     'startTime': '2018-02-14T07:07:00.000-7:00',
                     'duration': 1200000,
-                    'activityLevel': [{
-                        'name': 'sedentary',
-                        'minutes': 15
-                    }, {
-                        'name': 'very',
-                        'minutes': 5
-                    }],
+                    'averageHeartRate': 94,
                     'activityTypeId': 123456,
                     'activityName': 'Foo Ball'
                 }
@@ -101,6 +95,6 @@ class GetUpdatedAcitivities(TestCase):
         make_request.assert_called_with('https://api.fitbit.com/1/user/test/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
         activity = FitbitActivity.objects.get()
         self.assertEqual(activity.fitbit_id, '123')
+        self.assertEqual(activity.type.name, 'Foo Ball')
+        self.assertEqual(activity.average_heart_rate, 94)
         self.assertEqual(activity.end_time, datetime(2018, 2, 14, 14, 27, tzinfo=pytz.UTC))
-        self.assertEqual(activity.vigorous_minutes, 5)
-        self.assertEqual(activity.moderate_minutes, 15)

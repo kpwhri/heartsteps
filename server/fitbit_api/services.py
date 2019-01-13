@@ -218,36 +218,24 @@ class FitbitClient():
     def save_activity(self, activity, fitbit_day):
         start_time = dateutil_parser.parse(activity['startTime'])
         end_time = start_time + timedelta(milliseconds=activity['duration'])
+        average_heart_rate = activity['averageHeartRate']
 
         activity_type, _ = FitbitActivityType.objects.get_or_create(
             fitbit_id = activity['activityTypeId'],
             name = activity['activityName']
         )
 
-        vigorous_minutes, moderate_minutes = self.calculate_active_minutes(activity)
-
         FitbitActivity.objects.update_or_create(
             fitbit_id = activity['logId'], defaults={
                 'account': self.account,
                 'type': activity_type,
                 'day': fitbit_day,
+                'average_heart_rate': average_heart_rate,
                 'start_time': start_time,
                 'end_time': end_time,
-                'moderate_minutes': moderate_minutes,
-                'vigorous_minutes': vigorous_minutes,
                 'payload': activity
             }
         )
-
-    def calculate_active_minutes(self, activity):
-        moderate_minutes = 0
-        vigorous_minutes = 0
-        for level in activity.get('activityLevel', []):
-            if level['name'] == 'very':
-                vigorous_minutes += level['minutes']
-            else:
-                moderate_minutes += level['minutes']
-        return (vigorous_minutes, moderate_minutes)
 
     def update_steps(self, fitbit_day):
         response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())

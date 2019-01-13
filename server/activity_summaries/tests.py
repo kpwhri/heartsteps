@@ -12,8 +12,9 @@ from rest_framework.test import APITestCase
 from activity_logs.models import ActivityLog, ActivityType
 from locations.services import LocationService
 from fitbit_api.services import FitbitService
+from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
 
-from .models import Day, User, FitbitDay
+from .models import Day, User
 
 class ActivitySummaryViewTests(APITestCase):
 
@@ -100,39 +101,37 @@ class FitbitDayUpdatesDay(TestCase):
         self.account = FitbitService.create_account(
             user = self.user
         )
-        
-    def test_fitbit_day_creates_summary(self):
-        FitbitDay.objects.create(
+        self.fitbit_day = FitbitDay.objects.create(
             account = self.account,
-            date = date(2019, 1 , 6)
+            date = date(2019, 1, 6)
         )
 
+    def make_step_count(self, time):
+        FitbitMinuteStepCount.objects.create(
+            account = self.account,
+            day = self.fitbit_day,
+            time = time,
+            steps = 300
+        )
+        
+    def test_fitbit_day_creates_summary(self):
         day = Day.objects.get()
         self.assertEqual(day.user.username, self.user.username)
         self.assertEqual(day.date, date(2019, 1, 6))
 
     def test_fitbit_day_updates_summary(self):
-        _day = Day.objects.create(
-            user = self.user,
-            date = date(2019, 1, 6)
-        )
-
-        fitbit_day = FitbitDay.objects.create(
-            account = self.account,
-            date = date(2019, 1 , 6),
-            step_count = 700
-        )
+        self.make_step_count(datetime(2019, 1, 6, 8, 30))
+        self.make_step_count(datetime(2019, 1, 6, 9, 30))
+        self.fitbit_day.save()
 
         day = Day.objects.get()
-        self.assertEqual(day.id, _day.id)
-        self.assertEqual(day.steps, fitbit_day.step_count)
+        self.assertEqual(day.steps, 600)
 
-        fitbit_day.step_count = 900
-        fitbit_day.save()
+        self.make_step_count(datetime(2019, 1, 6, 9, 30))
+        self.fitbit_day.save()
 
         day = Day.objects.get()
-        self.assertEqual(day.id, _day.id)
-        self.assertEqual(day.steps, fitbit_day.step_count)
+        self.assertEqual(day.steps, 900)
 
 class ActivitLogUpdateDay(TestCase):
     

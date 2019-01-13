@@ -5,8 +5,9 @@ from django.db.models.signals import post_save, post_delete
 
 from locations.services import LocationService
 from fitbit_api.services import FitbitService
+from fitbit_api.models import FitbitDay
 
-from .models import ActivityLog, Day, FitbitDay
+from .models import ActivityLog, Day
 
 def activity_log_updates_day(sender, instance, *args, **kwargs):
     activity_log = instance

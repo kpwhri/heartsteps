@@ -64,9 +64,6 @@ class FitbitDay(models.Model):
     date = models.DateField()
     timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
-    moderate_minutes = models.FloatField(default=0)
-    vigorous_minutes = models.FloatField(default=0)
-
     step_count = models.FloatField(default=0)
 
     def get_timezone(self):
@@ -109,8 +106,7 @@ class FitbitActivity(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
-    moderate_minutes = models.IntegerField(null=True, blank=True)
-    vigorous_minutes = models.IntegerField(null=True, blank=True)
+    average_heart_rate = models.IntegerField(null=True)
 
     payload = JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
