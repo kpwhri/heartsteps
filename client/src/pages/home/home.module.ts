@@ -14,6 +14,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
 import { StatsPage } from '@pages/activity-log/stats.page';
+import { CurrentWeekResolver } from './current-week.resolver';
 
 const homeRoutes: Routes = [{
     path: 'home',
@@ -27,7 +28,10 @@ const homeRoutes: Routes = [{
         component: StatsPage
     }, {
         path: 'planning',
-        component: PlanPage
+        component: PlanPage,
+        resolve: {
+            week: CurrentWeekResolver
+        }
     }, {
         path: 'library',
         component: ResourceLibraryPage
@@ -51,6 +55,9 @@ const homeRoutes: Routes = [{
         PlanPage,
         StatsPage,
         ResourceLibraryPage
+    ],
+    providers: [
+        CurrentWeekResolver
     ],
     imports: [
         DashboardModule,

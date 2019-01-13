@@ -30,11 +30,14 @@ export class CurrentWeekService {
         return this.storage.get(storageKey)
         .then((data) => {
             const week:Week = this.weekService.deserializeWeek(data);
-            if(week.start < new Date()) {
-                return this.update();
+            if(week.end < new Date()) {
+                return Promise.reject("Past end of week");
             } else {
                 return Promise.resolve(week);
             }
+        })
+        .catch(() => {
+            return this.update();
         });
     }
 
@@ -46,13 +49,10 @@ export class CurrentWeekService {
     }
 
     public set(week:Week):Promise<Week> {
-        return this.storage.set(storageKey, {
-            id: week.id,
-            start: week.start,
-            end: week.end,
-            goal: week.goal,
-            confidence: week.confidence
-        })
+        return this.storage.set(
+            storageKey,
+            this.weekService.serializeWeek(week)
+        )
         .then(() => {
             this.week.next(week);
             return Promise.resolve(week);

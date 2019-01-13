@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { DateFactory } from '@infrastructure/date.factory';
-import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.service';
 import { Week } from '@heartsteps/weekly-survey/week.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'page-plan',
@@ -13,10 +13,8 @@ export class PlanPage {
     private week:Week
 
     constructor(
-        private currentWeekService: CurrentWeekService
+        activatedRoute:ActivatedRoute
     ) {
-        this.currentWeekService.week.subscribe((week) => {
-            this.week = week;
-        });
+        this.week = activatedRoute.snapshot.data['week'];
     }
 }
