@@ -11,7 +11,7 @@ export class CurrentWeekResolver implements Resolve<Week> {
         private currentWeekService:CurrentWeekService
     ){}
 
-    resolve(route:ActivatedRouteSnapshot) {
+    resolve(route: ActivatedRouteSnapshot) {
         return this.currentWeekService.load();
     }
 }

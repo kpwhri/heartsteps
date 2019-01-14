@@ -24,8 +24,11 @@ class WeekView(APIView):
         if week_number is not None:
             week = self.get_week(week_number, request.user)
         else:
-            service = WeekService(request.user)
-            week = service.get_current_week()
+            try:
+                service = WeekService(request.user)
+                week = service.get_current_week()
+            except WeekService.WeekDoesNotExist:
+                raise Http404()
         return Response({
             'id': week.number,
             'start': week.start_date.strftime('%Y-%m-%d'),

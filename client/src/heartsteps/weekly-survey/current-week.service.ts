@@ -9,15 +9,12 @@ const storageKey = 'current-week';
 @Injectable()
 export class CurrentWeekService {
 
-    public week:BehaviorSubject<Week>;
+    public week:BehaviorSubject<Week> = new BehaviorSubject(null);
 
     constructor(
         private storage:StorageService,
         private weekService:WeekService
-    ){
-        this.week = new BehaviorSubject(null);
-        this.load();
-    }
+    ) {}
 
     public getDays():Promise<Array<Date>> {
         return this.load()
@@ -29,10 +26,12 @@ export class CurrentWeekService {
     public load():Promise<Week> {
         return this.storage.get(storageKey)
         .then((data) => {
+            console.log(data);
             const week:Week = this.weekService.deserializeWeek(data);
             if(week.end < new Date()) {
                 return Promise.reject("Past end of week");
             } else {
+                this.week.next(week);
                 return Promise.resolve(week);
             }
         })
@@ -45,6 +44,9 @@ export class CurrentWeekService {
         return this.weekService.getCurrentWeek()
         .then((week:Week) => {
             return this.set(week);
+        })
+        .catch(() => {
+            return Promise.reject("No current week");
         });
     }
 
