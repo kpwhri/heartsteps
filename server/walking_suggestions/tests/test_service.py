@@ -211,10 +211,15 @@ class GetStepsTests(ServiceTestCase):
             account = account,
             user = self.user
         )
-        FitbitDay.objects.create(
+        day = FitbitDay.objects.create(
             account = account,
-            date = datetime(2018,10,10),
-            step_count = 400
+            date = datetime(2018,10,10)
+        )
+        FitbitMinuteStepCount.objects.create(
+            account = account,
+            day = day,
+            time = timezone.now(),
+            steps = 400
         )
 
     def test_gets_steps(self):

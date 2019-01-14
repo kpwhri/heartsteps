@@ -61,7 +61,6 @@ class GetUpdatedAcitivities(TestCase):
         service.update_steps(day)
 
         day = FitbitDay.objects.get()
-        day.update_steps()
 
         intraday_time_series.assert_called_with('activities/steps', base_date="2018-02-14")
         self.assertEqual(day.step_count, 10)

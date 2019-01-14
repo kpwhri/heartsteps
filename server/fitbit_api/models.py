@@ -64,7 +64,15 @@ class FitbitDay(models.Model):
     date = models.DateField()
     timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
-    step_count = models.FloatField(default=0)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+
+    @property
+    def step_count(self):
+        total_steps = 0
+        for step_count in FitbitMinuteStepCount.objects.filter(day=self).all():
+            total_steps += step_count.steps
+        return total_steps
 
     def get_timezone(self):
         return pytz.timezone(self.timezone)
@@ -73,24 +81,6 @@ class FitbitDay(models.Model):
         return self.date.strftime('%Y-%m-%d')
 
     def update(self):
-        self.update_steps()
-        self.update_active_minutes()
-
-    def update_steps(self):
-        total_steps = 0
-        for step_count in FitbitMinuteStepCount.objects.filter(day=self).all():
-            total_steps += step_count.steps
-        self.step_count = total_steps
-        self.save()
-
-    def update_active_minutes(self):
-        moderate_minutes = 0
-        vigorous_minutes = 0
-        for activity in FitbitActivity.objects.filter(day=self).all():
-            moderate_minutes += activity.moderate_minutes
-            vigorous_minutes += activity.vigorous_minutes
-        self.moderate_minutes = moderate_minutes
-        self.vigorous_minutes = vigorous_minutes
         self.save()
 
     def __str__(self):
