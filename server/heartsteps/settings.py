@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'activity_logs',
     'activity_plans',
     'activity_summaries',
+    'fitbit_activity_logs',
     'anti_sedentary',
     'anti_seds',
     'participants'

@@ -1,4 +1,4 @@
-import uuid, pytz
+import uuid, pytz, math
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -115,6 +115,11 @@ class FitbitActivity(models.Model):
     @property
     def id(self):
         return str(self.uuid)
+
+    @property
+    def duration(self):
+        difference = self.end_time - self.start_time
+        return math.ceil(difference.seconds/60)
 
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)

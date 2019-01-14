@@ -2,6 +2,8 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from activity_types.models import ActivityType
 
@@ -37,3 +39,19 @@ class ActivityLog(AbstractActivity):
 
     def __str__(self):
         return "%s on %s (%s)" % (self.type, self.start, self.user)
+
+class ActivityLogSource(models.Model):
+    activity_log = models.OneToOneField(ActivityLog)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.CharField(max_length=50)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    updated_at = models.DateTimeField()
+
+    @property
+    def can_update(self):
+        if self.updated_at == self.activity_log.updated_at:
+            return True
+        else:
+            return False
