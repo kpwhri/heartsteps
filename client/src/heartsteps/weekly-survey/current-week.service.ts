@@ -26,7 +26,6 @@ export class CurrentWeekService {
     public load():Promise<Week> {
         return this.storage.get(storageKey)
         .then((data) => {
-            console.log(data);
             const week:Week = this.weekService.deserializeWeek(data);
             if(week.end < new Date()) {
                 return Promise.reject("Past end of week");

@@ -20,10 +20,15 @@ export class NotificationService {
     setup() {
 
         this.notificationService.notification.subscribe((notification) => {
-            if(notification.type === 'weekly-reflection') {
-                this.weeklySurveyService.show();
-            } else {
-                console.log(notification);
+            switch(notification.type) {
+                case 'weekly-reflection':
+                    this.weeklySurveyService.show();
+                    break;
+                case 'morning-message':
+                    this.router.navigate(['morning-message']);
+                    break;
+                default:
+                    console.log(notification);
             }
         });
 
@@ -36,6 +41,9 @@ export class NotificationService {
         this.notifications.dataMessage.subscribe((payload:any) => {
             if(payload.type == 'weekly-reflection' && payload.weekId) {
                 this.weeklySurveyService.set(payload.weekId);
+            }
+            if(payload.type == 'morning-message') {
+
             }
             if(payload.type == 'request-context' && payload.decisionId) {
                 this.walkingSuggestionService.sendDecisionContext(payload.decisionId);

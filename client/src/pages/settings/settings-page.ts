@@ -2,12 +2,10 @@ import { Component } from "@angular/core";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { EnrollmentService } from "@heartsteps/enrollment/enrollment.service";
 import { Router } from "@angular/router";
-import { AlertController } from "ionic-angular";
 import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
-
 
 @Component({
     templateUrl: 'settings-page.html',
@@ -35,7 +33,7 @@ export class SettingsPage {
     }
 
     public testMorningMessage() {
-        this.alertDialog.show('Not implemented');
+        this.router.navigate(['morning-survey']);
     }
 
     public testWeeklySurveyMessage() {

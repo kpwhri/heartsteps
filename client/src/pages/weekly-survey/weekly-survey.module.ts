@@ -9,7 +9,6 @@ import { GoalComponent } from './goal.component';
 import { SurveyComponent } from './survey.component';
 import { WeeklySurveyModule as HeartstepsWeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module'
 import { WeekResolver } from './week.resolver';
-import { NextWeekResolver } from './next-week.resolver';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { WeeklyActivityModule } from '@heartsteps/weekly-activity/weekly-activity.module';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
@@ -48,8 +47,7 @@ const routes: Routes = [{
   ],
   providers: [
       WeeklySurveyService,
-      WeekResolver,
-      NextWeekResolver
+      WeekResolver
   ],
   imports: [
     InfrastructureModule,

@@ -5,6 +5,29 @@ from randomization.services import DecisionMessageService
 
 from .models import Configuration, MorningMessageDecision, MorningMessageTemplate
 
+class MorningMessageService:
+
+    class MessageDoesNotExist(MorningMessageDecision.DoesNotExist):
+        pass
+
+    def __init__(self, user):
+        self.__user = user
+
+    def get_message_on(self, date):
+        try:
+            decision = MorningMessageDecision.objects.get(
+                user = self.__user,
+                time__year = date.year,
+                time__month = date.month,
+                time__day = date.day
+            )
+        except MorningMessageDecision.DoesNotExist:
+            raise MorningMessageService.MessageDoesNotExist()
+        return decision.notification
+        
+
+    
+
 class MorningMessageDecisionService(DecisionMessageService):
 
     class NotConfigured(ImproperlyConfigured):
