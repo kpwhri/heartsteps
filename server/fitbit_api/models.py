@@ -38,6 +38,9 @@ class FitbitUpdate(models.Model):
     payload = JSONField()
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["created"]
+
     def __str__(self):
         return "Update from FitBit at %s" % (self.created)
 
@@ -64,8 +67,11 @@ class FitbitDay(models.Model):
     date = models.DateField()
     timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    class Meta:
+        ordering = ["date"]
 
     @property
     def step_count(self):

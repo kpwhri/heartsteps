@@ -20,6 +20,8 @@ class FitbitAccountAdmin(admin.ModelAdmin):
 admin.site.register(FitbitAccount, FitbitAccountAdmin)
 
 class FitbitUpdateAdmin(admin.ModelAdmin):
+    ordering = ["-created"]
+
     inlines = [
         FitbitSubscriptionUpdateInline
     ]
@@ -27,7 +29,14 @@ class FitbitUpdateAdmin(admin.ModelAdmin):
 admin.site.register(FitbitUpdate, FitbitUpdateAdmin)
 
 class FitbitDayAdmin(admin.ModelAdmin):
+    ordering = ["-date"]
+    list_display = ("__str__", "last_updated")
+    
     inlines = [
         FitbitActivityInline
     ]
+
+    def last_updated(self, fitbit_day):
+        return fitbit_day.updated.strftime("%Y-%m-%d %H:%M")
+
 admin.site.register(FitbitDay, FitbitDayAdmin)
