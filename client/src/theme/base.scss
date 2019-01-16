@@ -132,6 +132,15 @@ article.page {
     > span {
         color: $text-color;
     }
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0.5em 0px $color-primary;
+        outline: none;
+    }
+
+    &:active {
+        box-shadow: inset 0 0 1em 0px $color-primary;
+    }
 }
 
 .heartsteps-primary-button {
@@ -145,11 +154,29 @@ article.page {
     @extend .heartsteps-button;
     color: $color-danger;
     border-color: $color-danger;
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0.5em 0px $color-danger;
+    }
+
+    &:active {
+        box-shadow: inset 0 0 1em 0px $color-danger;
+    }
 }
 
 .heartsteps-minor-button {
     @extend .heartsteps-button;
     border: 0px;
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0em 0px $color-primary;
+        text-shadow: $color-gray 0px 0px 1em;
+    }
+
+    &:active {
+        box-shadow: inset 0 0 0em 0px $color-primary;
+        text-shadow: $color-primary 0px 0px 1em;
+    }
 }
 
 .page {
@@ -168,10 +195,9 @@ article.page {
 
 .page button.inline,
 button.inline {
-    border-width:0px;
+    @extend .heartsteps-minor-button;
     text-align: left;
-    padding: 0.25em 0px;
-    color: $text-color;
+    padding: 0.5em 0em;
 }
 
 button.item-cover {
@@ -185,7 +211,7 @@ button.item-cover {
 button.bottom,
 .page article > button,
 article > button {
-    border-width: 0px;
+    @extend .heartsteps-minor-button;
     border-top: $color-gray-light 1px solid;
 }
 
