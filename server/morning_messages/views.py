@@ -1,4 +1,5 @@
-from datetime import datetime
+import pytz
+from datetime import datetime, date
 
 from django.http import Http404
 
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .services import MorningMessageService
+from .serializers import MorningMessageSerializer
 
 def format_date(date):
     return datetime.strftime(date, '%Y-%m-%d')
@@ -28,12 +30,11 @@ class MorningMessageView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, day):
-        date = parse_date(day)
+        request_date = parse_date(day)
+        check_valid_date(request.user, request_date)
         morning_message_service = MorningMessageService(
             user = request.user
         )
-        try:
-            message = morning_message_service.get(date)
-        except MorningMessageService.MessageDoesNotExist:
-            raise Http404()
-        return Response({}, status=status.HTTP_200_OK)
+        morning_message, _ = morning_message_service.get_or_create(date)
+        serialized = MorningMessageSerializer(morning_message)
+        return Response(serialized.data, status=status.HTTP_200_OK)

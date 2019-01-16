@@ -1,32 +1,100 @@
+from datetime import datetime
+
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
+from locations.services import LocationService
+from push_messages.services import PushMessageService
 from randomization.services import DecisionMessageService
 
-from .models import Configuration, MorningMessageDecision, MorningMessageTemplate
+from .models import Configuration, MorningMessage, MorningMessageDecision, MorningMessageTemplate
+from .serializers import MorningMessageSerializer
 
 class MorningMessageService:
 
-    class MessageDoesNotExist(MorningMessageDecision.DoesNotExist):
+    class NotConfigured(ImproperlyConfigured):
         pass
 
-    def __init__(self, user):
-        self.__user = user
+    class NotEnabled(ImproperlyConfigured):
+        pass
 
-    def get_message_on(self, date):
+    class MessageDoesNotExist(MorningMessage.DoesNotExist):
+        pass
+
+    def __init__(self, configuration=None, user=None, username=None):
+        if configuration:
+            self.__configuration = configuration
+        else:
+            try:
+                if username:
+                    self.__configuration = Configuration.objects.get(user__username=username)
+                elif user:
+                    self.__configuration = Configuration.objects.get(user=user)
+                else:
+                    raise Configuration.DoesNotExist()
+            except Configuration.DoesNotExist:
+                raise self.NotConfigured()
+
+        self.__user = self.__configuration.user
+
+    def get_or_create(self, date):
         try:
-            decision = MorningMessageDecision.objects.get(
+            return (self.get(date), False)
+        except MorningMessageService.MessageDoesNotExist:
+            return (self.create(date), True)
+
+    def get(self, date):
+        try:
+            return MorningMessage.objects.get(
                 user = self.__user,
-                time__year = date.year,
-                time__month = date.month,
-                time__day = date.day
+                date__year = date.year,
+                date__month = date.month,
+                date__day = date.day
             )
-        except MorningMessageDecision.DoesNotExist:
+        except MorningMessage.DoesNotExist:
             raise MorningMessageService.MessageDoesNotExist()
-        return decision.notification
-        
+
+    def create(self, date, message_framing=False):
+        morning_message = MorningMessage.objects.create(
+            user = self.__user,
+            date = date,
+            message_decision = self.create_message_decision(date)
+        )
+        return morning_message
+
+    def create_message_decision(self, date):
+        morning_message_decision = MorningMessageDecision.objects.create(
+            user = self.__user,
+            treated = True,
+            treatment_probability = 1,
+            available = True,
+            time = self.get_message_decision_time(date)
+        )
+        morning_message_decision.set_message_frame()
+        return morning_message_decision 
+
+    def get_message_decision_time(self, date):
+        location_service = LocationService(user=self.__user)
+        timezone = location_service.get_timezone_on(date)
+        return timezone.localize(datetime(date.year, date.month, date.day, 6, 0))
 
     
+    def update_message(self, date, message_framing=False):
+        morning_message, _ = self.get_or_create(date)
+        morning_message.message_decision.set_message_frame(message_framing)
+        morning_message.save()
+
+    def send_notification(self, date):
+        morning_message, _ = self.get_or_create(date)
+
+        if not self.__configuration.enabled:
+            raise MorningMessageService.NotEnabled()
+
+        serialized = MorningMessageSerializer(morning_message).data
+        serialized['type'] = 'morning-message'
+
+        push_service = PushMessageService(user=self.__user)
+        push_service.send_data(serialized)    
 
 class MorningMessageDecisionService(DecisionMessageService):
 
@@ -38,20 +106,6 @@ class MorningMessageDecisionService(DecisionMessageService):
 
     MESSAGE_TEMPLATE_MODEL = MorningMessageTemplate
 
-    def __init__(self, decision=None, user=None, username=None):
-        try:
-            if username:
-                self.configuration = Configuration.objects.get(user__username=username)
-            elif user:
-                self.configuration = Configuration.objects.get(user=user)
-            else:
-                raise Configuration.DoesNotExist()
-        except Configuration.DoesNotExist:
-            raise self.NotConfigured()
-
-        self.user = self.configuration.user
-        self.decision = decision
-
     def get_message_template(self):
         if self.decision.get_message_frame():
             return super(MorningMessageDecisionService, self).get_message_template()
@@ -60,13 +114,3 @@ class MorningMessageDecisionService(DecisionMessageService):
                 body = "Good Morning"
                 title = "Good Morning"
             return DefaultMessageTemplate()
-
-    def send_message(self):
-        if not self.configuration.enabled:
-            raise self.NotEnabled()
-        if not self.decision:
-            self.decision = MorningMessageDecision.objects.create(
-                user = self.user,
-                time = timezone.now()
-            )
-        super(MorningMessageDecisionService, self).send_message()

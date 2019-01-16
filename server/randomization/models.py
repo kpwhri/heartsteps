@@ -99,6 +99,10 @@ class Decision(models.Model):
         )
         self.tags.add(tag)
 
+    def remove_contexts(self, tags_text):
+        for tag in ContextTag.objects.filter(tag__in=tags_text).all():
+            self.tags.remove(tag)
+
     def is_complete(self):
         if self.a_it is not None:
             return True

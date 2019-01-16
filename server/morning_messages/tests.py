@@ -1,47 +1,15 @@
 from unittest.mock import patch
+from datetime import date
 
 from django.test import TestCase
 
 from push_messages.services import PushMessageService, Device, Message
 
-from morning_messages.models import Configuration, DailyTask, MorningMessageDecision, MorningMessageTemplate, User
-from morning_messages.services import MorningMessageDecisionService
+from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageTemplate, User
+from morning_messages.services import MorningMessageService, MorningMessageDecisionService
+from morning_messages.tasks import send_morning_message
 
-class MorningMessageConfigurationTest(TestCase):
-
-    def test_daily_task_created_when_morning_message_created(self):
-
-        configuration = Configuration.objects.create(
-            user = User.objects.create(username="test"),
-        )
-
-        self.assertIsNotNone(configuration.daily_task)
-        self.assertTrue(configuration.daily_task.enabled)
-
-    def test_daily_task_can_be_disabled(self):
-        configuration = Configuration.objects.create(
-            user = User.objects.create(username="test")
-        )
-
-        self.assertTrue(configuration.daily_task.enabled)
-
-        configuration.enabled = False
-        configuration.save()
-
-        self.assertFalse(configuration.daily_task.enabled)
-
-    def test_daily_task_destroyed_with_configuration(self):
-        configuration = Configuration.objects.create(
-            user = User.objects.create(username="test")
-        )
-
-        self.assertIsNotNone(configuration.daily_task)
-
-        configuration.delete()
-
-        self.assertEqual(0, DailyTask.objects.count())
-
-class MorningMessageServiceTest(TestCase):
+class MorningMessageTestBase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
@@ -51,41 +19,130 @@ class MorningMessageServiceTest(TestCase):
             user = self.user,
             active = True
         )
-        patch_send_notification = patch.object(PushMessageService, 'send_notification')
-        self.send_notification = patch_send_notification.start()
-        self.send_notification.return_value = Message.objects.create(
+        patch_send_data = patch.object(PushMessageService, 'send_data')
+        self.send_data = patch_send_data.start()
+        self.send_data.return_value = Message.objects.create(
             recipient = self.user,
             content = "foo"
         )
-        self.addCleanup(patch_send_notification.stop)
-
-        patch_message_frame = patch.object(MorningMessageDecision, 'get_message_frame')
-        self.message_frame = patch_message_frame.start()
-        self.addCleanup(patch_message_frame.stop)
+        self.addCleanup(patch_send_data.stop)
 
         MorningMessageTemplate.objects.create(
             body = 'Example morning message',
             anchor_message = 'Anchor message'
         )
 
-    def test_configuration(self):
-        service = MorningMessageDecisionService(username="test")
+class MorningMessageConfigurationTest(MorningMessageTestBase):
 
-        self.assertEqual(service.user.username, "test")
-        self.assertEqual(service.configuration, self.configuration)
+    def test_daily_task_created_when_morning_message_created(self):
+        self.assertIsNotNone(self.configuration.daily_task)
+        self.assertTrue(self.configuration.daily_task.enabled)
 
-    def test_send_default_message(self):
-        self.message_frame.return_value = None
-        service = MorningMessageDecisionService(username="test")
+    def test_daily_task_can_be_disabled(self):
+        self.assertTrue(self.configuration.daily_task.enabled)
 
-        service.send_message()
+        self.configuration.enabled = False
+        self.configuration.save()
 
-        self.send_notification.assert_called_with("Good Morning", title="Good Morning")
+        self.assertFalse(self.configuration.daily_task.enabled)
 
-    def test_framed_message(self):
-        self.message_frame.return_value = MorningMessageDecision.FRAME_GAIN_ACTIVE
-        service = MorningMessageDecisionService(username="test")
+    def test_daily_task_destroyed_with_configuration(self):
+        self.assertIsNotNone(self.configuration.daily_task)
 
-        service.send_message()
+        self.configuration.delete()
 
-        self.send_notification.assert_called_with("Example morning message", title=None)
+        self.assertEqual(0, DailyTask.objects.count())
+
+class MorningMessageServiceTest(MorningMessageTestBase):
+
+    def setUp(self):
+        super().setUp()
+        self.morning_message_service = MorningMessageService(
+            configuration = self.configuration
+        )
+        self.morning_message_service.create(date(2019, 1, 15))
+
+    def test_get_morning_message(self):
+        morning_message = self.morning_message_service.get(date(2019, 1, 15))
+
+        self.assertEqual(morning_message.user, self.user)
+        self.assertEqual(morning_message.date, date(2019, 1, 15))
+
+    def test_get_morning_message_does_not_exist(self):
+        try:
+            morning_message = self.morning_message_service.get(date(2019, 1, 16))
+        except MorningMessageService.MessageDoesNotExist:
+            morning_message = False
+        self.assertFalse(morning_message)
+
+    def test_create_morning_message(self):
+        morning_message = self.morning_message_service.create(date(2019, 1, 16))
+
+        self.assertEqual(morning_message.user, self.user)
+        self.assertEqual(morning_message.date, date(2019, 1, 16))
+        self.assertIsNotNone(morning_message.message_decision)
+        self.assertTrue(morning_message.message_decision.treated)
+        self.assertEqual(morning_message.message_decision.treatment_probability, 1)
+
+    def test_morning_message_log_matches_morning_message_decision(self):
+        self.morning_message_service.update_message(date(2019, 1, 15), None)
+
+        morning_message = self.morning_message_service.get(date(2019, 1 , 15))
+        self.assertEqual(morning_message.notification, 'Good Morning')
+        self.assertIsNone(morning_message.text)
+        self.assertIsNone(morning_message.anchor)
+
+        MorningMessageTemplate.objects.create(
+            body = "Example morning message",
+            anchor_message = "Anchor message"
+        )
+
+        self.morning_message_service.update_message(date(2019, 1, 15), MorningMessageDecision.FRAME_GAIN_ACTIVE)
+        
+        morning_message = self.morning_message_service.get(date(2019, 1 , 15))
+        self.assertEqual(morning_message.notification, 'Example morning message')
+        self.assertEqual(morning_message.text, 'Example morning message')
+        self.assertEqual(morning_message.anchor, 'Anchor message')
+
+class MorningMessageTaskTest(MorningMessageTestBase):
+
+    def test_creates_morning_message(self):
+        send_morning_message(username="test")
+
+        self.send_data.assert_called()
+        
+        morning_message = MorningMessage.objects.get()
+        self.assertEqual(morning_message.user, self.user)
+        self.assertEqual(morning_message.date, date.today())
+
+    def test_disabled_task_state(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+
+        send_morning_message(username="test")
+
+        self.send_data.assert_not_called()
+
+        morning_message = MorningMessage.objects.get()
+        self.assertEqual(morning_message.user, self.user)
+        self.assertEqual(morning_message.date, date.today())
+
+    @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=None)
+    def test_message_with_no_framing(self, _):
+        send_morning_message(username="test")
+
+        self.send_data.assert_called()
+        sent_data = self.send_data.call_args[0][0]
+        self.assertEqual(sent_data['notification'], 'Good Morning')
+        self.assertEqual(sent_data['text'], None)
+        self.assertEqual(sent_data['anchor'], None)
+
+    @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=MorningMessageDecision.FRAME_GAIN_ACTIVE)
+    def test_message_with_framing(self, _):
+        send_morning_message(username="test")
+
+        self.send_data.assert_called()
+        sent_data = self.send_data.call_args[0][0]
+        self.assertEqual(sent_data['notification'], 'Example morning message')
+        self.assertEqual(sent_data['text'], 'Example morning message')
+        self.assertEqual(sent_data['anchor'], 'Anchor message')

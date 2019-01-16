@@ -68,13 +68,22 @@ class MorningMessageDecision(Decision):
     framing = models.CharField(max_length=50, null=True, editable=False, choices=FRAME_CHOICES)
 
     def get_message_frame(self):
-        if self.a_it:
+        if self.treated:
             return self.framing
-        framing = random.choice(self.FRAMES + [None, None, None])
+        else:
+            return self.set_message_frame()
+
+    def get_random_message_frame(self):
+        return random.choice(self.FRAMES + [None, None, None])
+
+    def set_message_frame(self, framing=False):
+        if framing is False:
+            framing = self.get_random_message_frame()
         self.framing = framing
-        self.a_it = True
         self.save()
 
+        self.remove_contexts(['gain', 'loss', 'active', 'sedentary'])
+        
         if framing is self.FRAME_GAIN_ACTIVE:
             self.add_context('gain')
             self.add_context('active')
@@ -87,5 +96,18 @@ class MorningMessageDecision(Decision):
         if framing is self.FRAME_LOSS_SEDENTARY:
             self.add_context('loss')
             self.add_context('sedentary')
-
         return framing
+
+class MorningMessage(models.Model):
+    user = models.ForeignKey(User)
+    date = models.DateField()
+    randomized = models.BooleanField(default=True)
+
+    message_decision = models.ForeignKey(MorningMessageDecision, null=True, editable=False)
+
+    notification = models.CharField(max_length=150, null=True, editable=False)
+    text = models.CharField(max_length=150, null=True, editable=False)
+    anchor = models.CharField(max_length=150, null=True, editable=False)
+
+    def __str__(self):
+        return "%s: %s" % (user, date.strftime("%Y-%m-%d"))
