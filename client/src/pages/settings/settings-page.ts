@@ -6,6 +6,8 @@ import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
+import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({
     templateUrl: 'settings-page.html',
@@ -16,9 +18,11 @@ export class SettingsPage {
         private walkingSuggestionService:WalkingSuggestionService,
         private enrollmentService:EnrollmentService,
         private router:Router,
+        private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
         private weekService: WeekService,
-        private weeklySurveyService: WeeklySurveyService
+        private weeklySurveyService: WeeklySurveyService,
+        private morningMessageService: MorningMessageService
     ){}
 
     public testWalkingSuggestion() {
@@ -33,7 +37,12 @@ export class SettingsPage {
     }
 
     public testMorningMessage() {
-        this.router.navigate(['morning-survey']);
+        this.loadingService.show("Getting morning message");
+        this.morningMessageService.load()
+        .then(() => {
+            this.loadingService.dismiss();
+            this.router.navigate(['morning-survey']);
+        });
     }
 
     public testWeeklySurveyMessage() {

@@ -19,9 +19,6 @@ export class MorningMessageService {
         return this.storage.get(storageKey)
         .then((data) => {
             return this.deserialize(data);
-        })
-        .catch(() => {
-            return this.load();
         });
     }
 
@@ -37,7 +34,7 @@ export class MorningMessageService {
         return this.heartstepsServer.get('morning-messages/' + today)
         .then((data) => {
             const message = this.deserialize(data);
-            return message;
+            return this.set(message);
         });
     }
 
