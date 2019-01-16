@@ -35,6 +35,6 @@ class MorningMessageView(APIView):
         morning_message_service = MorningMessageService(
             user = request.user
         )
-        morning_message, _ = morning_message_service.get_or_create(date)
+        morning_message, _ = morning_message_service.get_or_create(request_date)
         serialized = MorningMessageSerializer(morning_message)
         return Response(serialized.data, status=status.HTTP_200_OK)

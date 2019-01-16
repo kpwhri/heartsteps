@@ -105,9 +105,9 @@ class MorningMessage(models.Model):
 
     message_decision = models.ForeignKey(MorningMessageDecision, null=True, editable=False)
 
-    notification = models.CharField(max_length=150, null=True, editable=False)
-    text = models.CharField(max_length=150, null=True, editable=False)
-    anchor = models.CharField(max_length=150, null=True, editable=False)
+    notification = models.CharField(max_length=255, null=True, editable=False)
+    text = models.CharField(max_length=255, null=True, editable=False)
+    anchor = models.CharField(max_length=255, null=True, editable=False)
 
     def __str__(self):
         return "%s: %s" % (user, date.strftime("%Y-%m-%d"))
