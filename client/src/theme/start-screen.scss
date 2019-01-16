@@ -2,22 +2,30 @@
 .start-screen.ion-page,
 .alternate-background,
 .heartsteps-message-modal {
-    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
-    color: #FFF;
+    @extend .page;
 
-    text-align: center;
-    padding: 2em;
+    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+    color: $color-white;
+    font-size: 1.6rem;
 
     display: flex;
     flex-direction: column;
 
-    .large {
-        font-size: 1.75em;
+    .headline {
+        margin: 0.5em auto;
+        color: $color-white;
+        font-size: 1.5em;
+        font-weight: normal;
     }
 
     h1 {
         font-weight: normal;
         text-transform: uppercase;
+    }
+
+    header {
+        background-color: transparent;
+        border-width: 0px;
     }
 
     button {
@@ -34,4 +42,19 @@
     .controls {
         flex-grow: 1;
     }
+}
+
+.start-screen form {
+    label {
+        color: $color-white;
+    }
+}
+
+@media (min-width: 600px) {
+
+    .start-screen > * {
+        width: 540px;
+        margin: 1em auto;
+    }
+
 }
