@@ -110,7 +110,7 @@ class Decision(models.Model):
             return False
 
     def __str__(self):
-        formatted_time = self.time.strftime("%Y-%m-%d at %H:%m")
+        formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")
         if self.a_it is None:
             return "On %s for %s (undecided)" % (formatted_time, self.user)
         else:

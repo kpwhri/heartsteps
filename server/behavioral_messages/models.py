@@ -24,3 +24,11 @@ class MessageTemplate(models.Model):
 
     def __str__(self):
         return self.body
+
+    def add_context(self, tag_text):
+        tag, _ = ContextTag.objects.get_or_create(tag = tag_text)
+        self.context_tags.add(tag)
+
+    def remove_context(self, tag_text):
+        tag, _ = ContextTag.objects.get_or_create(tag = tag_text)
+        self.context_tags.remove(tag)

@@ -27,6 +27,5 @@ def make_decision(decision_id):
     
     decision_service = AntiSedentaryDecisionService(decision)
     decision_service.update_context()
-
     if decision_service.decide():
         decision_service.send_message()
