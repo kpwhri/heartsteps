@@ -226,9 +226,12 @@ class DecisionMessageService(DecisionService):
             self.decision.save()
 
     def get_message_template_tags(self):
+        tags = self.decision.get_context()
+        if len(tags) < 1:
+            return []
         message_tags_query = Q()
-        for tag in self.decision.tags.all():
-            message_tags_query |= Q(tag=tag.tag)
+        for tag in tags:
+            message_tags_query |= Q(tag=tag)
         return MessageTag.objects.filter(message_tags_query).all()
 
     def create_message_template(self):
