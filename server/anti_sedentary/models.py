@@ -7,7 +7,9 @@ from randomization.models import Decision
 User = get_user_model()
 
 class AntiSedentaryDecision(Decision):
-    pass
+
+    def get_treatment_probability(self):
+        return 0.15
 
 class AntiSedentaryMessageTemplate(MessageTemplate):
     pass
