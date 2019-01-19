@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
+    'import_export',
     'rest_framework',
     'rest_framework.authtoken',
     'contact',
