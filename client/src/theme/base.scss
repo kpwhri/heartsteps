@@ -134,7 +134,7 @@ article.page {
     }
 
     &:focus, &:hover {
-        box-shadow: inset 0 0 0.5em 0px $color-primary;
+        box-shadow: inset 0 0 0.1em 0px $color-primary;
         outline: none;
     }
 
@@ -156,7 +156,7 @@ article.page {
     border-color: $color-danger;
 
     &:focus, &:hover {
-        box-shadow: inset 0 0 0.5em 0px $color-danger;
+        box-shadow: inset 0 0 0.1em 0px $color-danger;
     }
 
     &:active {
@@ -170,7 +170,7 @@ article.page {
 
     &:focus, &:hover {
         box-shadow: inset 0 0 0em 0px $color-primary;
-        text-shadow: $color-gray 0px 0px 1em;
+        text-shadow: $color-gray-light 0px 0px 1em;
     }
 
     &:active {

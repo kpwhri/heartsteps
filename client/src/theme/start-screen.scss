@@ -11,6 +11,10 @@
     display: flex;
     flex-direction: column;
 
+    > * {
+        margin: 2em 1em;
+    }
+
     .headline {
         margin: 0.5em auto;
         color: $color-white;
@@ -42,6 +46,10 @@
     .controls {
         flex-grow: 1;
     }
+
+    article {
+        background-color: transparent;
+    }
 }
 
 .start-screen form {
@@ -54,7 +62,7 @@
 
     .start-screen > * {
         width: 540px;
-        margin: 1em auto;
+        margin: 4em auto;
     }
 
 }
