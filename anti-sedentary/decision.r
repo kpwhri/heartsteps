@@ -9,17 +9,19 @@ input = fromJSON(args)
 ## Required packages and source files
 source("functions.R")
 #require(mgcv); require(chron);
-# 
-payload = ' {
-  "userid": [ 2 ],
-  "decisionid": [ 1803312 ] ,
-  "time": [ "2018-10-12 10:10" ] ,
-  "daystart": [ "2018-10-12 8:00" ] ,
-  "dayend": [ "2018-10-12 20:00" ] ,
-  "state": [ 1 ]
-}
-'
-input = fromJSON(payload)
+
+# payload = ' {
+#   "userid": [ 2 ],
+#   "decisionid": [ 1803312 ] ,
+#   "time": [ "2018-10-12 10:10" ] ,
+#   "daystart": [ "2018-10-12 8:00" ] ,
+#   "dayend": [ "2018-10-12 20:00" ] ,
+#   "state": [ 1 ],
+#   "steps": [ 10 ],
+#   "available": [ 1 ]
+# }
+# '
+# input = fromJSON(payload)
 
 # Pull in the Necessary CSVs
 setwd("./data/")
@@ -35,8 +37,10 @@ if(file.exists(file_name)) {
   user.data = read.csv(file = file_name, header= TRUE)
 } else {
   user.data = data.frame(userid = input$userid, decisionid = input$decisionid,
-                         time = input$time, daystart = input$dayStart, dayend = input$dayEnd,
-                         probaction = 0.0, action = 0.0, missingindicator = 0, duplicate = FALSE)
+                         time = input$time, daystart = input$daystart, dayend = input$dayend,
+                         online_state = input$state, online_step = input$steps, available = input$available,
+                         batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
+                         missingindicator = 0, duplicate = FALSE)
 }
 
 # Fix the user datetime issue
@@ -78,9 +82,10 @@ current.day.user.data = user.data[current.day.obs,]
 ## Check if duplication
 if( any(is.element(user.data$time,current.time)) ) { 
   user.data$decisionid = as.numeric(user.data$decisionid)
-  temp.data = data.frame(userID = input$userid, decisionID = input$decisionid,
-                         time = current.time, dayStart = beginning.time, dayEnd = final.time,
-                         state = input$currentState, probaction = 0.0, action = 0, 
+  temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+                         time = input$time, daystart = input$daystart, dayend = input$dayend,
+                         online_state = input$state, online_step = input$steps, available = input$available,
+                         batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                          missingindicator = 0, duplicate = TRUE)
   
   write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
@@ -98,7 +103,7 @@ if( any(is.element(user.data$time,current.time)) ) {
   attr(beginning.time, "tzone") <- "GMT"
   
   H.t = data.frame(
-    old.states = current.day.user.data$state,
+    old.states = current.day.user.data$online_state,
     old.A = current.day.user.data$action,
     old.rho = current.day.user.data$probaction,
     time.diff = as.numeric(current.time - current.day.user.data$time)
@@ -127,7 +132,7 @@ if( any(is.element(user.data$time,current.time)) ) {
   
   # remaining.time = length(time.steps) - (t-1)
   remaining.time.in.block = stop.block - (decision.time - 1)
-  if(any(H.t$old.A[H.t$time.diff< 60] == 1)) {
+  if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
     rho.t = 0
     A.t = 0
   } else {
@@ -147,7 +152,8 @@ if( any(is.element(user.data$time,current.time)) ) {
   
   temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
                          time = current.time, daystart = beginning.time, dayend = final.time,
-                         state = input$state, probaction = rho.t, action = A.t, 
+                         online_state = input$state, online_step = input$steps, available = input$available, 
+                         batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                          missingindicator = 0, duplicate = FALSE)
 
   # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)

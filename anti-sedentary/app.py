@@ -10,12 +10,14 @@ app = Flask(__name__)
 @app.route('/decision', methods=['POST'])
 def decision():
     input = {
-        'userId': request.form['userId'],
-        'decisionId': request.form['decisionId'],
+        'userid': request.form['userid'],
+        'decisionid': request.form['decisionid'],
         'time': request.form['time'],
-        'dayStart': request.form['dayStart'],
-        'dayEnd': request.form['dayEnd'],
-        'currentState': request.form['currentState']
+        'daystart': request.form['daystart'],
+        'dayend': request.form['dayend'],
+        'state': request.form['state'],
+        'steps': request.form['steps'],
+        'available': request.form['available']
     }
 
     response = subprocess.run(
