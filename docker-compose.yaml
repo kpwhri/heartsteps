@@ -5,11 +5,11 @@ services:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
-  activity-suggestion:
-    build: ./activity-suggestion
+  walking-suggestion:
+    build: ./walking-suggestion
     command: python app.py
     volumes:
-      - ./activity-suggestion:/activity-suggestion
+      - ./walking-suggestion:/walking-suggestion
     ports:
       - "5000:8080"
   anti-sedentary:
@@ -31,6 +31,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
+      - walking-suggestion
   client:
     build: ./client
     env_file:
