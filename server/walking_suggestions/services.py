@@ -1,5 +1,5 @@
 import requests, json, pytz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date as datetime_date
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -125,7 +125,9 @@ class WalkingSuggestionService():
 
         return json.loads(response.text)
 
-    def initialize(self, date):
+    def initialize(self, date=None):
+        if not date:
+            date = datetime_date.today()
         if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
             raise ImproperlyConfigured('No initialization days specified')
         else:
@@ -217,9 +219,13 @@ class WalkingSuggestionService():
         return day.step_count
 
     def get_availabilities(self, date):
-        for decision in self.get_decisions_for(date):
+        availabilities = []
+        decisions = self.get_decisions_for(date) 
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
             decision_service = WalkingSuggestionDecisionService(decision)
-            yield decision_service.determine_availability()
+            availabilities.append(decision_service.determine_availability())
+        return availabilities
 
     def get_temperatures(self, date):
         temperatures = []
