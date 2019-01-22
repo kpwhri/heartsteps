@@ -10,11 +10,13 @@ import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { PlanFormComponent } from './plan-form.component';
 import { PlanModalComponent } from './plan-modal.component';
 import { WeeklyPlanComponent } from './weekly-plan.component';
+import { FormModule } from '@infrastructure/form/form.module';
 
 @NgModule({
     imports: [
         InfrastructureModule,
         BrowserModule,
+        FormModule,
         ActivityModule,
         IonicPageModule.forChild(PlanFormComponent),
         IonicPageModule.forChild(PlanComponent),

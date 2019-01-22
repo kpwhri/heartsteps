@@ -22,10 +22,11 @@
             </li>
         </ul>
     </fieldset>
-    <ion-item>
-        <ion-label>Duration</ion-label>
-        <ion-input formControlName="duration" type="number"></ion-input>
-    </ion-item>
+    <app-duration-field 
+        formControlName="duration"
+        label="Duration"
+        >
+    </app-duration-field>
     <ion-item>
         <ion-label for="activity-plan-date">Date</ion-label>
         <ion-select id="activity-plan-date" formControlName="date">

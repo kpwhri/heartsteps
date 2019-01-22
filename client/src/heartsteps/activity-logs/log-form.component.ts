@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, Input } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { FormGroup, FormControl, Validators, AbstractControl } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import * as moment from 'moment';
 import { ActivityLogService } from "./activity-log.service";
@@ -70,7 +70,12 @@ export class LogFormComponent {
                 this.saved.emit();
             })
         } else {
-            // show error messages.
+            Object.keys(this.form.controls).forEach((controlName) => {
+                const control:AbstractControl = this.form.controls[controlName];
+                control.markAsTouched({
+                    onlySelf: true
+                });
+            })
         }
     }
 

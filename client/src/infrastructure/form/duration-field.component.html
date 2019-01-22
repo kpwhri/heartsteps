@@ -1,0 +1,11 @@
+<label for="{{name}}">{{label}}</label>
+<input id="{{name}}"
+    attr.aria-describedby="{{name}}-units"
+    type="number"
+    [ngModel]="duration"
+    [disabled]="disabled"
+    (ngModelChange)="updateDuration($event)"
+    (focus)="isFocused()"
+    (blur)="isBlurred()"
+    />
+<span id="{{name}}-units">{{unitLabel}}</span>

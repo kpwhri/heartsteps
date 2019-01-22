@@ -1,0 +1,46 @@
+
+
+.heartsteps-form-field {
+    padding: 0.5em 0em;
+    border-bottom: $color-gray 1px solid;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    > * {
+        flex: 0 0 auto;
+    }
+
+    > input {
+        flex: 1 1 auto;
+        padding: 0.5em;
+        border-width: 0px;
+
+        &:disabled {
+            background-color: transparent;
+        }
+    }
+
+    > input[type=number] {
+        text-align: right;
+    }
+
+}
+
+.heartsteps-form-field.is-focused {
+    border-bottom-color: $color-primary;
+
+    label {
+        color: $color-primary;
+    }
+}
+
+.heartsteps-form-field.is-invalid {
+    border-bottom-color: $color-danger;
+}
+
+.heartsteps-form-field.is-disabled {
+    border-bottom-color: $color-gray-light;
+}
