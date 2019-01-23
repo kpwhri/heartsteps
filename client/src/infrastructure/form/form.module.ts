@@ -8,6 +8,8 @@ import { YearFieldComponent } from "./year-field.component";
 import { DateFieldComponent } from "./date-field.component";
 import { TimeFieldComponent } from "./time-field.component";
 import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
+import { EmailFieldComponent } from "./email-field.component";
+import { PhoneFieldComponent } from "./phone-field.component";
 
 
 @NgModule({
@@ -19,6 +21,8 @@ import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
     declarations: [
         DateFieldComponent,
         DurationFieldComponent,
+        EmailFieldComponent,
+        PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
         YearFieldComponent
@@ -26,6 +30,8 @@ import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
     exports: [
         DateFieldComponent,
         DurationFieldComponent,
+        EmailFieldComponent,
+        PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
         YearFieldComponent

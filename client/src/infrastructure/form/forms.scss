@@ -1,50 +1,82 @@
 
-
-.heartsteps-form-field {
-    padding: 0.5em 0em;
-    border-bottom: $color-gray 1px solid;
-
+.heartsteps-form-input {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
 
+    width: 100%;
+    padding: 0.5em 0em;
+    border: 0px;
+    border-bottom: $color-gray 1px solid;
+
+    > * {
+        flex: 0 1 auto;
+        margin: 0em 0.25em;
+        
+        &:first-child,
+        &:last-child {
+            margin: 0px;
+        }
+    }
+
+    > button,
+    > input {
+        padding: 0em;
+        flex-grow: 1;
+        border: 0px;
+    }
+}
+
+.heartsteps-form-field {
+
     > * {
         flex: 0 0 auto;
     }
 
+    > .input,
     > input,
     > button {
-        flex: 1 1 auto;
-        padding: 0.5em;
-        border-width: 0px;
+        @extend .heartsteps-form-input;
+    }
 
+    button {
+        @extend .heartsteps-minor-button;
+        color: $text-color;
+        text-align: right;
+    }
+
+    input {
         &:disabled {
             background-color: transparent;
         }
-    }
 
-    > button {
-        color: $text-color;
-        text-align: right;
-
-        &:hover,
-        &:focus,
-        &:active {
-            box-shadow: none;
+        &[type=number] {
+            text-align: right;
         }
     }
 
-    > input[type=number] {
-        text-align: right;
-    }
+    > .errors {
+        display: none;
+        color: $color-danger;
 
+        > * {
+            margin: 0.5em 0em 0em;
+        }
+    }
 }
 
 .heartsteps-form-field.is-invalid {
-    border-bottom-color: $color-danger;
 
-    &:after {
+    > .errors {
+        display: block;
+    }
+
+    > .heartsteps-form-input {
+        border-bottom-color: $color-danger;
+    }
+
+    > .heartsteps-form-input:after {
         content: '';
         display: block;
         width: 1em;
@@ -56,17 +88,28 @@
         mask-position: 50% 50%;
         mask-size: 100% 100%;
     }
+
+    label {
+        color: $color-danger;
+    }
 }
 
 .heartsteps-form-field.is-focused.is-invalid,
 .heartsteps-form-field.is-focused {
-    border-bottom-color: $color-primary;
+
+    > .heartsteps-form-input {
+        border-bottom-color: $color-primary;
+    }
 
     label {
         color: $color-primary;
     }
 }
 
+.heartsteps-form-field.is-focused.is-invalid.is-disabled,
+.heartsteps-form-field.is-focused.is-disabled,
 .heartsteps-form-field.is-disabled {
-    border-bottom-color: $color-gray-light;
+    > .heartsteps-form-input {
+        border-bottom-color: $color-gray-light;
+    }
 }

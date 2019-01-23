@@ -1,11 +1,16 @@
-<label for="{{name}}">{{label}}</label>
-<input id="{{name}}"
-    attr.aria-describedby="{{name}}-units"
-    type="number"
-    [ngModel]="duration"
-    [disabled]="disabled"
-    (ngModelChange)="updateDuration($event)"
-    (focus)="isFocused()"
-    (blur)="isBlurred()"
-    />
-<span id="{{name}}-units">{{unitLabel}}</span>
+<div class="input">
+    <label for="{{name}}">{{label}}</label>
+    <input id="{{name}}"
+        attr.aria-labeledby="{{name}}-units {{name-errors}}"
+        type="number"
+        [ngModel]="duration"
+        [disabled]="disabled"
+        (ngModelChange)="updateDuration($event)"
+        (focus)="isFocused()"
+        (blur)="isBlurred()"
+        />
+    <span id="{{name}}-units">{{unitLabel}}</span>
+</div>
+<ul class="errors" id="{{name}}-errors">
+    <li *ngFor="let error of errors">{{error}}</li>
+</ul>

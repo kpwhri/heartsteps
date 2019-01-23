@@ -8,10 +8,6 @@ form {
         flex: 0 0 auto;
         margin: 0.5em 0em;
     }
-    
-    > .item-block {
-        padding: 0px;
-    }
 
     > .controls {
         flex-grow: 1;
@@ -22,11 +18,7 @@ form {
 
     }
 
-    .label {
-        @extend .label;
-    }
-
-    label, .item .label-md {
+    label {
         @extend .label;
     }
 }
@@ -80,25 +72,6 @@ fieldset.input-group {
 
 form .ion-item {
     margin: 0px;
-}
-
-form {
-    .item.ng-invalid.ng-touched {
-        .input {
-            padding-right: 30px;
-            &:after{
-                content: ' ';
-                mask: url('../assets/error-icon.svg') no-repeat 0px 0px;
-                mask-size: contain;
-                width: 20px;
-                height: 20px;
-                background-color: map-get($colors, danger);
-                position: absolute;
-                bottom: 8px;
-                right: 8px;
-            }
-        }
-    }
 }
 
 form .input-group.intensity {

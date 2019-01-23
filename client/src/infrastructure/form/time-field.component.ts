@@ -4,7 +4,7 @@ import { DateFieldComponent } from "./date-field.component";
 
 @Component({
     selector: 'app-time-field',
-    templateUrl: './date-field.component.html',
+    templateUrl: './time-field.component.html',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

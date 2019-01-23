@@ -13,6 +13,7 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
     public onChange: Function;
     public onTouched: Function;
     public disabled: boolean;
+    public errors: Array<string> = [];
 
     public value: any;
 
@@ -29,6 +30,7 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
         this.control = this.formGroup.control.get(this.name);
         this.updateDisabled();
         this.statusChangeSubscription = this.control.statusChanges.subscribe(() => {
+            this.updateErrors();
             this.updateValidity();
             this.updateDisabled();
         });
@@ -54,6 +56,16 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
 
     setDisabledState(isDisabled: boolean): void {
         this.disabled = isDisabled;
+    }
+
+    public updateErrors(): void {
+        this.errors = [];
+        if (!this.control.errors) {
+            return ;
+        }
+        if (this.control.errors.required) {
+            this.errors.push("This field is required");
+        }
     }
 
     private updateValidity(): void {
