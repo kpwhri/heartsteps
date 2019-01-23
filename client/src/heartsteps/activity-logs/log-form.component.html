@@ -27,16 +27,16 @@
         label="Duration"
         >
     </app-duration-field>
-    <ion-item>
-        <ion-label for="activity-plan-date">Date</ion-label>
-        <ion-select id="activity-plan-date" formControlName="date">
-            <ion-option *ngFor="let date of availableDates">{{date}}</ion-option>
-        </ion-select>
-    </ion-item>
-    <ion-item>
-        <ion-label>Start time</ion-label>
-        <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
-    </ion-item>
+    <app-date-field
+        formControlName="date"
+        label="Date"
+        >
+    </app-date-field>
+    <app-time-field
+        formControlName="time"
+        label="Time"
+        >
+    </app-time-field>
     <div class="controls">
         <button (click)="save()">Save</button>
         <button class="danger" (click)="delete()">Delete</button>

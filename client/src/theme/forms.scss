@@ -105,13 +105,14 @@ form .input-group.intensity {
     > ul {
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
     }
 
     > ul > li {
         display: flex;
         flex-direction: row;
         align-items: center;
+
+        flex: 1 1 auto;
     }
 
     label > span {
