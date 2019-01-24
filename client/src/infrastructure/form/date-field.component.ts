@@ -1,9 +1,9 @@
-import { Component, forwardRef, ElementRef, Renderer2, Input } from "@angular/core";
-import { NG_VALUE_ACCESSOR, FormGroupDirective } from "@angular/forms";
-import { AbstractField } from "./abstract-field";
-import { DatePickerDialogController } from "@infrastructure/dialogs/date-picker-dialog.controller";
-import { DateFactory } from "@infrastructure/date.factory";
+import { Component, forwardRef, Input } from "@angular/core";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
 
+import * as moment from 'moment';
+import { SelectFieldComponent } from "./select-field.component";
+import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 
 @Component({
     selector: 'app-date-field',
@@ -16,23 +16,34 @@ import { DateFactory } from "@infrastructure/date.factory";
         }
     ]
 })
-export class DateFieldComponent extends AbstractField {
+export class DateFieldComponent extends SelectFieldComponent {
 
-    @Input('min-date') minDate:Date;
-    @Input('max-date') maxDate:Date;
+    private date: Date;
 
-    constructor(
-        formGroup: FormGroupDirective,
-        element: ElementRef,
-        renderer: Renderer2,
-        private dateFactory: DateFactory,
-        private datePickerDialog: DatePickerDialogController
-    ) {
-        super(formGroup, element, renderer);
+    private formatDate(date:Date):string {
+        return moment(date).format('dddd, MM/DD');
     }
 
-    public select() {
-        const dates = this.dateFactory.getCurrentWeek();
-        this.datePickerDialog.choose(dates);
+    public writeValue(date:Date) {
+        this.date = date;
+        this.value = this.formatDate(date);
+    }
+
+    public updateValue(value:string) {
+        console.log(value);
+        const date:Date = moment(value, 'dddd, MM/DD').toDate();
+        console.log(date);
+        this.writeValue(date);
+        this.onChange(date);
+    }
+
+    @Input('available-dates')
+    set setAvailableDates(dates: Array<Date>) {
+        this.options = dates.map((date: Date) => {
+            const option = new SelectOption();
+            option.name = this.formatDate(date);
+            option.value = this.formatDate(date);
+            return option;
+        })
     }
 }

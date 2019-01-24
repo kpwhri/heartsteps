@@ -1,4 +1,4 @@
-<form *ngIf="form" [formGroup]="form">
+<form *ngIf="form" [formGroup]="form" (ngSubmit)="save()">
     <div>
         <label for="activity-plan-type">Activity</label>
         <heartsteps-activity-type id="activity-plan-type" name="activity" formControlName="activity"></heartsteps-activity-type>
@@ -30,6 +30,7 @@
     <app-date-field
         formControlName="date"
         label="Date"
+        [available-dates]="availableDates"
         >
     </app-date-field>
     <app-time-field
@@ -38,7 +39,7 @@
         >
     </app-time-field>
     <div class="controls">
-        <button (click)="save()">Save</button>
+        <input type="submit" value="Save" />
         <button class="danger" (click)="delete()">Delete</button>
     </div>
 </form>

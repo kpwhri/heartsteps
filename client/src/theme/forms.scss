@@ -21,6 +21,10 @@ form {
     label {
         @extend .label;
     }
+
+    input[type=submit] {
+        @extend .heartsteps-button;
+    }
 }
 
 form > fieldset {

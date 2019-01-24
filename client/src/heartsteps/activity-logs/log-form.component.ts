@@ -2,7 +2,6 @@ import { Component, Output, EventEmitter, Input } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
 import { FormGroup, FormControl, Validators, AbstractControl } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
-import * as moment from 'moment';
 import { ActivityLogService } from "./activity-log.service";
 
 @Component({
@@ -15,7 +14,7 @@ export class LogFormComponent {
 
     public activityLog:ActivityLog
     public form:FormGroup
-    public availableDates:Array<string> = [];
+    public availableDates:Array<Date> = [];
 
     @Output('saved') saved:EventEmitter<boolean> = new EventEmitter();
 
@@ -34,25 +33,15 @@ export class LogFormComponent {
     }
 
     private setAvailableDates() {
-        this.availableDates = this.dateFactory.getCurrentWeek().map((date) => {
-            return this.formatDate(date);
-        })
-    }
-
-    private formatDate(date:Date):string {
-        return moment(date).format('dddd, M/D');
-    }
-
-    private parseDate(str:string):Date {
-        return moment(str, 'dddd, M/D').toDate();
+        this.availableDates = this.dateFactory.getCurrentWeek();
     }
 
     private createForm() {
         this.form = new FormGroup({
             activity: new FormControl(this.activityLog.type, Validators.required),
             duration: new FormControl(this.activityLog.duration, Validators.required),
-            date: new FormControl(this.activityLog.getStartDate(), Validators.required),
-            time: new FormControl(this.activityLog.getStartTime(), Validators.required),
+            date: new FormControl(this.activityLog.start, Validators.required),
+            time: new FormControl(this.activityLog.start, Validators.required),
             vigorous: new FormControl(this.activityLog.vigorous, Validators.required)
         })
     }
@@ -62,8 +51,11 @@ export class LogFormComponent {
             this.activityLog.type = this.form.value.activity;
             this.activityLog.duration = this.form.value.duration;
             this.activityLog.vigorous = this.form.value.vigorous;
-            this.activityLog.updateStartDate(this.parseDate(this.form.value.date));
-            this.activityLog.updateStartTime(this.form.value.time);
+            this.activityLog.start.setFullYear(this.form.value.date.getFullYear());
+            this.activityLog.start.setMonth(this.form.value.date.getMonth());
+            this.activityLog.start.setDate(this.form.value.date.getDate());
+            this.activityLog.start.setHours(this.form.value.time.getHours());
+            this.activityLog.start.setMinutes(this.form.value.time.getMinutes());
             
             this.activityLogService.save(this.activityLog)
             .then(() => {
