@@ -14,9 +14,16 @@ proc.matrix <- function(list) {
   do.call(rbind, lapply(temp, unlist))
 }
 
+
+disc.dosage <- 0.8
+
+
 update.dosage = function(x, increase=TRUE){
   
-  max(1, min(x + ifelse(increase, 2, -1), 100))
+  #max(1, min(x + ifelse(increase, 2, -1), 100))  #discrete
+  
+  disc.dosage * x  + ifelse(increase, 1, 0) #cts
+  
   
 }
 
@@ -70,9 +77,15 @@ warmup.imput = function(x){
   return(new)
 }
 
-std.dosage = function(x) (x-1)/(100-1)
+std.dosage = function(x) {
+  
+  # (x-1)/(100-1) # discrete
+  
+  x * (1-disc.dosage)
+  
+}
 
-winsor = function (x, beta=3, range = c(1, 10)){
+winsor.fn = function (x, beta=3, range = c(1, 10)){
   
   stopifnot(all(is.na(x)==FALSE))
   # compute the winsor scores
@@ -102,6 +115,15 @@ winsor = function (x, beta=3, range = c(1, 10)){
   
   
   return(z)
+  
+}
+
+winsor = function (x, beta=3, range = c(1, 10)){
+  
+
+  x[is.na(x) == FALSE] <- winsor.fn(x[is.na(x) == FALSE], beta, range)
+  return(x)
+
   
 }
 

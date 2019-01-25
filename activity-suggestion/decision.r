@@ -21,22 +21,11 @@ if(server){
   
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
   source("functions.R")
-  input <- fromJSON(file = "./test/test-run/call_2_5.json")
+  input <- fromJSON(file = "./test/test-run/call_1_5.json")
   
 }
 
 
-# should not be any missing
-stopifnot(all(lapply(input, is.null)==FALSE))
-# location in (1, 2, 3)
-stopifnot(input$location %in% c(1, 2, 3))
-# availability, priorAnti, lastActivity can only be true or false
-stopifnot(is.logical(input$availability), is.logical(input$priorAnti), is.logical(input$lastActivity))
-# for the first decision time, last Activity must be false (acc. to defintion)
-if(input$decisionTime == 1){
-  
-  stopifnot(input$lastActivity==FALSE)
-}
 
 # ================ access the user's dataset ================  
 paths <- paste("./data/", "user", input$userID, sep="")
@@ -46,6 +35,19 @@ load(paste(paths, "/daily.Rdata", sep=""))
 
 # policy related
 load(paste(paths, "/policy.Rdata", sep="")) 
+
+
+# ================ Condition checking ================
+
+# check the input list
+stopifnot(all(c("userID", "studyDay", "decisionTime", "availability",
+                "priorAnti", "lastActivity", "location") %in% names(input)))
+# should not be any missing
+stopifnot(all(lapply(input, is.null)==FALSE))
+# location in (1, 2, 3)
+stopifnot(input$location %in% c(1, 2, 3))
+# availability, priorAnti, lastActivity can only be true or false
+stopifnot(is.logical(input$availability), is.logical(input$priorAnti), is.logical(input$lastActivity))
 
 # expect the service will be called every decision time
 if(is.null(data.day$history)){
@@ -137,7 +139,17 @@ if(input$availability){
   # clipping
   prob <- min(c(pi_max, max(c(pi_min, pit0))))
   
+  # output type (1: bandit, 0: MRT)
+  type <- 1
 
+  # MRT period
+  
+  if(input$studyDay < 8){
+    
+    prob <- 0.5
+    type <- 0
+    
+  }
   
 }else{
   
@@ -165,38 +177,28 @@ data.day$history <- rbind(data.day$history,
                             NA, 
                             data.day$sqrtsteps,
                             NA,
+                            NA,
+                            NA,
                             random.num)) 
+stopifnot(ncol(data.day$history) == length(data.day$var.names))
 
-# check if prior action is consistent with system (lastActivity)
-# only need to check when the current decision time > 1 
+
+# save whether the last activity is sent (only when the current decision time > 1)
 
 if(input$decisionTime > 1){
-  
-  action.index <- which(data.day$var.names == "action")
-  prob.index <- which(data.day$var.names == "probability")
-  
-  last.time <- input$decisionTime - 1
-  last.action <- data.day$history[last.time, action.index]  
-  
-  if(input$lastActivity != last.action){
-    
-    # if inconsistent, 
-    # update the action and set the prob to NA to indicate this failure
-    # although in the nightly updates we will set prob = 0
-    data.day$history[last.time, action.index] <- input$lastActivity;
-    data.day$history[last.time, prob.index] <- NA; 
-    
-  }
-  
-  
+
+  data.day$deliever <- c(data.day$deliever, input$lastActivity)
+
+
 }
+
 
 # save to the system
 save(data.day, file = paste(paths, "/daily.Rdata", sep="")) 
 
 
 # ================Output ================
-output <- list(send = action, probability = prob)
+output <- list(send = action, probability = prob, type = type)
 cat(toJSON(output))
 
 
