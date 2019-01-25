@@ -46,8 +46,8 @@ export class PlanFormComponent implements OnInit {
             this.planForm = new FormGroup({
                 activity: new FormControl(this.activityPlan.type, Validators.required),
                 duration: new FormControl(this.activityPlan.duration, Validators.required),
-                date: new FormControl(this.activityPlan.getStartDate(), Validators.required),
-                time: new FormControl(this.activityPlan.getStartTime(), Validators.required),
+                date: new FormControl(this.activityPlan.start, Validators.required),
+                time: new FormControl(this.activityPlan.start, Validators.required),
                 vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
             });
             
@@ -75,8 +75,11 @@ export class PlanFormComponent implements OnInit {
         this.activityPlan.type = this.planForm.value.activity;
         this.activityPlan.duration = this.planForm.value.duration;
         this.activityPlan.vigorous = this.planForm.value.vigorous;
-        this.activityPlan.updateStartTime(this.planForm.value.time);
-        this.activityPlan.updateStartDate(this.parseDate(this.planForm.value.date));
+        this.activityPlan.start.setFullYear(this.planForm.value.date.getFullYear());
+        this.activityPlan.start.setMonth(this.planForm.value.date.getMonth());
+        this.activityPlan.start.setDate(this.planForm.value.date.getDate());
+        this.activityPlan.start.setHours(this.planForm.value.time.getHours());
+        this.activityPlan.start.setMinutes(this.planForm.value.time.getMinutes());
     }
 
     validateActivity():Promise<ActivityPlan> {

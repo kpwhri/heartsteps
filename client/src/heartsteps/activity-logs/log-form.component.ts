@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, Input } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
-import { FormGroup, FormControl, Validators, AbstractControl } from "@angular/forms";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { ActivityLogService } from "./activity-log.service";
 
@@ -47,28 +47,19 @@ export class LogFormComponent {
     }
 
     public save() {
-        if(this.form.valid) {
-            this.activityLog.type = this.form.value.activity;
-            this.activityLog.duration = this.form.value.duration;
-            this.activityLog.vigorous = this.form.value.vigorous;
-            this.activityLog.start.setFullYear(this.form.value.date.getFullYear());
-            this.activityLog.start.setMonth(this.form.value.date.getMonth());
-            this.activityLog.start.setDate(this.form.value.date.getDate());
-            this.activityLog.start.setHours(this.form.value.time.getHours());
-            this.activityLog.start.setMinutes(this.form.value.time.getMinutes());
-            
-            this.activityLogService.save(this.activityLog)
-            .then(() => {
-                this.saved.emit();
-            })
-        } else {
-            Object.keys(this.form.controls).forEach((controlName) => {
-                const control:AbstractControl = this.form.controls[controlName];
-                control.markAsTouched({
-                    onlySelf: true
-                });
-            })
-        }
+        this.activityLog.type = this.form.value.activity;
+        this.activityLog.duration = this.form.value.duration;
+        this.activityLog.vigorous = this.form.value.vigorous;
+        this.activityLog.start.setFullYear(this.form.value.date.getFullYear());
+        this.activityLog.start.setMonth(this.form.value.date.getMonth());
+        this.activityLog.start.setDate(this.form.value.date.getDate());
+        this.activityLog.start.setHours(this.form.value.time.getHours());
+        this.activityLog.start.setMinutes(this.form.value.time.getMinutes());
+        
+        this.activityLogService.save(this.activityLog)
+        .then(() => {
+            this.saved.emit();
+        });
     }
 
     public delete() {

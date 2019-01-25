@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { DurationFieldComponent } from "./duration-field.component";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 
 import { TextFieldComponent } from "./text-field.component";
@@ -10,18 +10,21 @@ import { TimeFieldComponent } from "./time-field.component";
 import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
 import { EmailFieldComponent } from "./email-field.component";
 import { PhoneFieldComponent } from "./phone-field.component";
+import { FormComponent } from "./form.component";
 
 
 @NgModule({
     imports: [
         BrowserModule,
         FormsModule,
+        ReactiveFormsModule,
         DialogsModule
     ],
     declarations: [
         DateFieldComponent,
         DurationFieldComponent,
         EmailFieldComponent,
+        FormComponent,
         PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
@@ -31,6 +34,7 @@ import { PhoneFieldComponent } from "./phone-field.component";
         DateFieldComponent,
         DurationFieldComponent,
         EmailFieldComponent,
+        FormComponent,
         PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
