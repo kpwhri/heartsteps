@@ -20,14 +20,14 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
     private statusChangeSubscription: Subscription;
 
     constructor(
-        // private formGroup: FormGroupDirective,
+        private formGroup: FormGroupDirective,
         private element: ElementRef,
         private renderer: Renderer2
     ) {}
 
     ngOnInit() {
         this.renderer.addClass(this.element.nativeElement, 'heartsteps-form-field');
-        // this.control = this.formGroup.control.get(this.name);
+        this.control = this.formGroup.control.get(this.name);
         this.updateDisabled();
         this.statusChangeSubscription = this.control.statusChanges.subscribe(() => {
             this.updateErrors();
@@ -69,11 +69,11 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
     }
 
     private updateValidity(): void {
-        // if(!this.control.valid && this.formGroup.touched) {
-        //     this.renderer.addClass(this.element.nativeElement, 'is-invalid');
-        // } else {
-        //     this.renderer.removeClass(this.element.nativeElement, 'is-invalid');
-        // }
+        if(!this.control.valid && this.formGroup.touched) {
+            this.renderer.addClass(this.element.nativeElement, 'is-invalid');
+        } else {
+            this.renderer.removeClass(this.element.nativeElement, 'is-invalid');
+        }
     }
 
     private updateDisabled(): void {

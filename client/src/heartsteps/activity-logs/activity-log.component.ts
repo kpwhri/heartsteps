@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ElementRef, Renderer2 } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
-import { ActivityTypeService } from "@heartsteps/activity/activity-type.service";
+import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 
 
 @Component({
@@ -26,7 +26,7 @@ export class ActivityLogComponent implements OnInit {
 
     ngOnInit() {
         if(this.activityLog.type) {
-            this.activityTypeService.getType(this.activityLog.type)
+            this.activityTypeService.get(this.activityLog.type)
             .then((activityType) => {
                 this.type = activityType.title;
                 this.setActivityTypeClass(activityType.name);

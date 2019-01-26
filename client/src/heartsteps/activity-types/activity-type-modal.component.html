@@ -1,0 +1,19 @@
+<article class="page">
+    <header>
+        <h2>Activity Types</h2>
+        <a class="back" (click)="dismiss()">Back</a>
+    </header>
+    <ion-content>
+        <form class="search-form">
+            <input type="text" />
+        </form>
+        <ul>
+            <li *ngFor="let type of activityTypes" class="activity-type activity-type-{{type.name}}">
+                <button (click)="select(type)">{{type.title}}</button>
+            </li>
+        </ul>
+    </ion-content>
+    <footer>
+        <button>New Activity Type</button>
+    </footer>
+</article>

@@ -6,18 +6,18 @@ import { PlanComponent } from './plan.component';
 import { DayPlanComponent } from './day-plan.component';
 import { IonicPageModule } from 'ionic-angular';
 import { ActivityPlanService } from './activity-plan.service';
-import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { PlanFormComponent } from './plan-form.component';
 import { PlanModalComponent } from './plan-modal.component';
 import { WeeklyPlanComponent } from './weekly-plan.component';
 import { FormModule } from '@infrastructure/form/form.module';
+import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.module';
 
 @NgModule({
     imports: [
         InfrastructureModule,
         BrowserModule,
         FormModule,
-        ActivityModule,
+        ActivityTypeModule,
         IonicPageModule.forChild(PlanFormComponent),
         IonicPageModule.forChild(PlanComponent),
         IonicPageModule.forChild(DayPlanComponent)

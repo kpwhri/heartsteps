@@ -19,14 +19,14 @@ export class ActivityTypeService {
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
     ) {
-        this.activityTypes = new BehaviorSubject(null);
-        this.get()
+        this.activityTypes = new BehaviorSubject([]);
+        this.getActivityTypes()
         .then((activityTypes) => {
             this.activityTypes.next(activityTypes);
         });
     }
 
-    load():Promise<Array<ActivityType>> {
+    public load():Promise<Array<ActivityType>> {
         return this.heartstepsServer.get('activity/types')
         .then((response: Array<any>) => {
             return this.storage.set(storageKey, response);
@@ -36,7 +36,7 @@ export class ActivityTypeService {
         });
     }
 
-    get():Promise<Array<ActivityType>> {
+    private getActivityTypes():Promise<Array<ActivityType>> {
         return this.storage.get(storageKey)
         .then((types:Array<any>) => {
             return this.deserializeActivityTypes(types);
@@ -46,8 +46,8 @@ export class ActivityTypeService {
         });
     }
 
-    getType(type:string):Promise<ActivityType> {
-        return this.get()
+    public get(type:string):Promise<ActivityType> {
+        return this.getActivityTypes()
         .then((types) => {
             const filteredTypes:Array<ActivityType> = types.filter((activityType) => { 
                 return activityType.name === type 

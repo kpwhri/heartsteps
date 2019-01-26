@@ -1,6 +1,6 @@
 import { Component, Input, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { ActivityPlan } from './activity-plan.model';
-import { ActivityTypeService } from '@heartsteps/activity/activity-type.service';
+import { ActivityTypeService } from '@heartsteps/activity-types/activity-type.service';
 
 @Component({
     selector: 'activity-plan',
@@ -25,7 +25,7 @@ export class PlanComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.activityTypeService.getType(this.plan.type)
+        this.activityTypeService.get(this.plan.type)
         .then((activityType) => {
             this.activityType = activityType.title;
             this.renderer.addClass(this.element.nativeElement, 'activity-type-'+activityType.name);

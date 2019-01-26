@@ -5,8 +5,6 @@ import { DailySummaryComponent } from '@heartsteps/activity/daily-summary.compon
 import { BrowserModule } from '@angular/platform-browser';
 import { DailySummaryService } from './daily-summary.service';
 import { DailyActivitiesUpdateComponent } from './daily-activities-update';
-import { ActivityTypeComponent } from './activity-type.component';
-import { ActivityTypeService } from './activity-type.service';
 
 @NgModule({
     imports: [
@@ -14,18 +12,15 @@ import { ActivityTypeService } from './activity-type.service';
         BrowserModule
     ],
     declarations: [
-        ActivityTypeComponent,
         DailySummaryComponent,
         DailyActivitiesUpdateComponent
     ],
     exports: [
-        ActivityTypeComponent,
         DailySummaryComponent,
         DailyActivitiesUpdateComponent
     ],
     providers: [
         DailySummaryService,
-        ActivityTypeService
     ]
 })
 export class ActivityModule {}

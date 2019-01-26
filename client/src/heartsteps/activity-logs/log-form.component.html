@@ -1,8 +1,9 @@
 <app-form [formGroup]="form" (onSubmit)="save()">
-    <div>
-        <label for="activity-plan-type">Activity</label>
-        <heartsteps-activity-type id="activity-plan-type" name="activity" formControlName="activity"></heartsteps-activity-type>
-    </div>
+    <heartsteps-activity-type-field
+        formControlName="activity"
+        label="Activity type"
+        >
+    </heartsteps-activity-type-field>
     <fieldset class="intensity input-group">
         <legend>Intensity</legend>
         <ul>
