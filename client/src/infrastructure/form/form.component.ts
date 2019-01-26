@@ -10,24 +10,30 @@ export class FormComponent {
 
     @Output('onSubmit') public onSubmit: EventEmitter<boolean> = new EventEmitter();
 
-    public formGroup: FormGroup;
+    public form: FormGroup;
 
     private errorMessage: string;
     private submitCTA: string = 'Save';
 
     constructor() {}
 
-    @Input('form')
+    @Input('formGroup')
     set setForm(form: FormGroup) {
         if (form) {
-            this.formGroup = form;
+            this.form = form;
         }
+    }
+    
+    public formSubmit() {
+        this.submit()
+        .then(() => {
+            this.onSubmit.emit();
+        });
     }
 
     public submit(): Promise<boolean> {
         this.errorMessage = undefined;
-        if(this.formGroup.valid) {
-            this.onSubmit.emit();
+        if(this.form.valid) {
             return Promise.resolve(true);
         } else {
             this.errorMessage = 'Invalid form';

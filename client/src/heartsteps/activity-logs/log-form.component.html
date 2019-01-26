@@ -1,4 +1,4 @@
-<app-form [form]="form" (onSubmit)="save()">
+<app-form [formGroup]="form" (onSubmit)="save()">
     <div>
         <label for="activity-plan-type">Activity</label>
         <heartsteps-activity-type id="activity-plan-type" name="activity" formControlName="activity"></heartsteps-activity-type>
@@ -38,4 +38,7 @@
         label="Time"
         >
     </app-time-field>
+    <div app-form-controls>
+        <button class="danger" (click)="delete()" >Delete</button>
+    </div>
 </app-form>

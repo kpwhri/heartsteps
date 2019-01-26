@@ -1,8 +1,9 @@
-import { Component, Output, EventEmitter, Input } from "@angular/core";
+import { Component, Output, EventEmitter, Input, ViewChild, AfterViewInit } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { ActivityLogService } from "./activity-log.service";
+import { FormComponent } from "@infrastructure/form/form.component";
 
 @Component({
     selector: 'heartsteps-activity-log-form',
@@ -11,6 +12,8 @@ import { ActivityLogService } from "./activity-log.service";
     providers: [DateFactory]
 })
 export class LogFormComponent {
+
+    @ViewChild(FormComponent) private formCtrl:FormComponent;
 
     public activityLog:ActivityLog
     public form:FormGroup
@@ -24,7 +27,7 @@ export class LogFormComponent {
     ){}
 
     @Input('activity-log')
-    set asetActivityLog(log:ActivityLog) {
+    set setActivityLog(log:ActivityLog) {
         if (log) {
             this.activityLog = log;
             this.setAvailableDates();

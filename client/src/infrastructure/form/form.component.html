@@ -1,7 +1,10 @@
-<form *ngIf="formGroup" [formGroup]="formGroup" (ngSubmit)="submit()" >
+<form [formGroup]="form" (ngSubmit)="formSubmit()" >
     <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
-    <ng-content></ng-content>
+    <div class="form">
+        <ng-content></ng-content>
+    </div>
     <div class="controls">
         <input type="submit" value="{{submitCTA}}" />
+        <ng-content select="[app-form-controls]"></ng-content>
     </div>
 </form>

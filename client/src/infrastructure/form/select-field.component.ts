@@ -19,12 +19,12 @@ export class SelectFieldComponent extends AbstractField {
     @Input('options') public options:Array<SelectOption>
 
     constructor(
-        formGroup: FormGroupDirective,
+        // formGroup: FormGroupDirective,
         element: ElementRef,
         renderer: Renderer2,
         public selectDialog: SelectDialogController
     ) {
-        super(formGroup, element, renderer);
+        super(element, renderer);
     }
 
     public select() {
