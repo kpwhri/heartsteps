@@ -1,12 +1,8 @@
 import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
-import { DailySummary } from '@heartsteps/activity/daily-summary.model';
 import { DateFactory } from '@infrastructure/date.factory';
-import { DailySummaryService } from '@heartsteps/activity/daily-summary.service';
 import { Subscription } from 'rxjs';
-import { CurrentWeekService } from '@heartsteps/weekly-survey/current-week.service';
-import { Week } from '@heartsteps/weekly-survey/week.model';
-import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.service';
+import { CurrentActivityLogService } from './current-activity-log.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -26,58 +22,38 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private arc: any;
     private pieGenerator: any;
 
-    private total: number;
-    private complete: number;
-    private current: number;
+    private total: number = 150;
+    private complete: number = 0;
+    private current: number = 0;
 
-    private weekSubscription: Subscription;
+    private activityLogSubscription: Subscription;
 
     constructor(
         private elementRef:ElementRef,
-        private dailySummaryService: DailySummaryService,
-        private currentWeekService: CurrentWeekService,
-        private activityPlanService: ActivityPlanService
-    ) {
-        this.total = 150;
-        this.complete = 0;
-        this.current = 0;
-    }
+        private currentActivityLogService: CurrentActivityLogService
+    ) {}
 
     ngOnInit() {
         this.initializeChart();
         this.drawChart();
 
-        this.weekSubscription = this.currentWeekService.week
-        .filter((week) => week !== null)
-        .subscribe((week:Week) => {
-            this.total = week.goal;
-            this.loadDays(week.start, week.end);
-            this.activityPlanService.planCompleted.subscribe(() => {
-                this.loadDays(week.start, week.end);
-            });
+        this.activityLogSubscription = this.currentActivityLogService.activityLogs.subscribe((logs) => {
+            this.current = 0;
+            this.complete = 0;
+
+            logs.forEach((activityLog) => {
+                this.complete += activityLog.earnedMinutes;
+                if (activityLog.isToday()) {
+                    this.current += activityLog.earnedMinutes;
+                }
+            })
+
+            this.updateChart();
         });
     }
 
     ngOnDestroy() {
-        this.weekSubscription.unsubscribe();
-    }
-
-    private loadDays(start:Date, end:Date) {
-        this.dailySummaryService.getWeek(start, end)
-        .then((summaries:Array<DailySummary>) => {
-            this.complete = 0;
-            this.current = 0;
-            summaries.forEach((summary:DailySummary) => {
-                this.complete += summary.totalMinutes;
-                if(summary.isToday()) {
-                    this.current = summary.totalMinutes;
-                }
-            })
-        })
-        .catch(() => {})
-        .then(() => {
-            this.updateChart();
-        });
+        this.activityLogSubscription.unsubscribe();
     }
 
     private initializeChart() {

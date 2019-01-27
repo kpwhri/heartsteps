@@ -13,6 +13,10 @@ export class ActivityLog {
 
     constructor() {}
 
+    public isToday() {
+        return moment(this.start).isSame(new Date(), 'day');
+    }
+
     private formatTime(date:Date):string {
         return moment(date).format('h:mm a')
     }
