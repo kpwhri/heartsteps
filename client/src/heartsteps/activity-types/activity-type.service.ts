@@ -28,21 +28,11 @@ export class ActivityTypeService {
 
     public load():Promise<Array<ActivityType>> {
         return this.heartstepsServer.get('activity/types')
-        .then((response: Array<any>) => {
+        .then((response: Array<ActivityType>) => {
             return this.storage.set(storageKey, response);
         })
-        .then((types) => {
-            return this.deserializeActivityTypes(types);
-        });
-    }
-
-    private getActivityTypes():Promise<Array<ActivityType>> {
-        return this.storage.get(storageKey)
-        .then((types:Array<any>) => {
-            return this.deserializeActivityTypes(types);
-        })
-        .catch(() => {
-            return this.load();
+        .then(() => {
+            return this.getActivityTypes();
         });
     }
 
@@ -60,6 +50,17 @@ export class ActivityTypeService {
         });
     }
 
+    private getActivityTypes():Promise<Array<ActivityType>> {
+        return this.storage.get(storageKey)
+        .then((types:Array<any>) => {
+            const activityTypes = this.deserializeActivityTypes(types);
+            return this.sortByName(activityTypes);
+        })
+        .catch(() => {
+            return this.load();
+        });
+    }
+
     private deserializeActivityTypes(list:Array<any>):Array<ActivityType> {
         const activityTypes:Array<ActivityType> = [];
         list.forEach((item:any) => {
@@ -69,5 +70,13 @@ export class ActivityTypeService {
             activityTypes.push(activityType);
         });
         return activityTypes;
+    }
+
+    private sortByName(activityTypes: Array<ActivityType>): Array<ActivityType> {
+        return [...activityTypes].sort((a, b) => {
+            if(a.name > b.name) return 1;
+            if(a.name < b.name) return -1;
+            return 0;
+        });
     }
 }

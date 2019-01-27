@@ -1,6 +1,5 @@
-import { Component, Input, ComponentFactoryResolver, ElementRef, ViewChild, ViewContainerRef, EventEmitter, Output, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, ComponentFactoryResolver, ViewChild, ViewContainerRef, EventEmitter, Output, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router, ParamMap } from "@angular/router";
-import { containerEnd } from "@angular/core/src/render3/instructions";
 import { Subscription } from "rxjs";
 
 export class Step {
