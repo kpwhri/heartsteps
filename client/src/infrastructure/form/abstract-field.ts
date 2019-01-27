@@ -2,7 +2,9 @@ import { FormGroupDirective, AbstractControl, ControlValueAccessor } from "@angu
 import { ElementRef, Renderer2, OnInit, OnDestroy, Input, Component } from "@angular/core";
 import { Subscription } from "rxjs";
 
-@Component({})
+@Component({
+    template: '<p>Overwrite me</p>'
+})
 export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
 
     public control: AbstractControl;

@@ -11,6 +11,8 @@ import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
 import { EmailFieldComponent } from "./email-field.component";
 import { PhoneFieldComponent } from "./phone-field.component";
 import { FormComponent } from "./form.component";
+import { AbstractField } from "./abstract-field";
+import { SelectFieldComponent } from "./select-field.component";
 
 
 @NgModule({
@@ -21,11 +23,13 @@ import { FormComponent } from "./form.component";
         DialogsModule
     ],
     declarations: [
+        AbstractField,
         DateFieldComponent,
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
         PhoneFieldComponent,
+        SelectFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
         YearFieldComponent
