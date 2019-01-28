@@ -1,42 +1,29 @@
 import * as moment from 'moment';
 
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { DailySummary } from './daily-summary.model';
-import { DailySummaryService } from './daily-summary.service';
 
 @Component({
     selector: 'heartsteps-daily-summary',
-    templateUrl: './daily-summary.html',
-    inputs: ['date']
+    templateUrl: './daily-summary.html'
 })
-export class DailySummaryComponent implements OnInit {
+export class DailySummaryComponent {
 
-    @Input() date:Date;
     public formattedDate: string;
     public activitySummary: DailySummary;
 
-    constructor(
-        private dailySummaryService: DailySummaryService
-    ) {}
+    constructor() {}
 
-    ngOnInit() {
-        if(!this.date) {
-            this.date = new Date();
-        }
-
-        const isToday:boolean = moment(new Date()).isSame(this.date);
-        if(isToday) {
-            this.formattedDate = 'Today ' + moment(this.date).format('MMM D')
-        } else {
-            this.formattedDate = moment(this.date).format('ddd MMM D')
-        }
-        
-        this.dailySummaryService.getDate(this.date)
-        .then((summary:DailySummary) => {
+    @Input('summary')
+    set setActivitySummary(summary) {
+        if(summary) {
             this.activitySummary = summary;
-        })
-        .catch(() => {
-            this.activitySummary = null;
-        });
+            const summaryMoment = moment(this.activitySummary.date);
+            if(summaryMoment.isSame(new Date(), 'day')) {
+                this.formattedDate = 'Today ' + summaryMoment.format('MMM D')
+            } else {
+                this.formattedDate = summaryMoment.format('ddd MMM D')
+            }
+        }
     }
 }
