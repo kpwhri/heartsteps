@@ -6,6 +6,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
 import { ActivityTypeModalComponent } from "./activity-type-modal.component";
 import { IonicPageModule } from "ionic-angular";
+import { ActivityIntensityFieldComponent } from "./activity-intensity-field.component";
 
 @NgModule({
     imports: [
@@ -16,13 +17,15 @@ import { IonicPageModule } from "ionic-angular";
     ],
     declarations: [
         ActivityTypeFieldComponent,
-        ActivityTypeModalComponent
+        ActivityTypeModalComponent,
+        ActivityIntensityFieldComponent
     ],
     entryComponents: [
         ActivityTypeModalComponent
     ],
     exports: [
-        ActivityTypeFieldComponent
+        ActivityTypeFieldComponent,
+        ActivityIntensityFieldComponent
     ],
     providers: [
         ActivityTypeService

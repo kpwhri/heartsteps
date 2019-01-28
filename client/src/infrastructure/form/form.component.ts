@@ -25,6 +25,13 @@ export class FormComponent {
             this.form = form;
         }
     }
+
+    @Input('error')
+    set setErrorMessage(error: string) {
+        if (error || (error === undefined && this.errorMessage)) {
+            this.errorMessage = error;
+        }
+    }
     
     public formSubmit() {
         this.submit()

@@ -24,7 +24,16 @@ ul {
     list-style-type: none;
 
     > li {
-        margin: $space-size/2 0px;
+        margin: 0.25em 0em;
+    }
+}
+
+dl {
+    margin: 0em;
+    padding: 0em;
+
+    dd, dt {
+        margin: 0.25em 0em;
     }
 }
 
