@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { ReplaySubject, BehaviorSubject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
-import { CurrentWeekService } from "@heartsteps/weekly-survey/current-week.service";
+import { CurrentWeekService } from "./current-week.service";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 
 @Injectable()

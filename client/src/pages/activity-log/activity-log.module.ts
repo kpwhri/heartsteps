@@ -5,7 +5,6 @@ import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { RouterModule, Routes } from '@angular/router';
 import { ActivitySummaryPage } from './activity-summary.page';
 import { ActivitySummaryListComponent } from './activity-summary-list.component';
-import { StatsPage } from './stats.page';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 import { ActivityLogResolver } from './activity-log.resolver';
 
@@ -24,8 +23,7 @@ const routes: Routes = [{
   declarations: [
     ActivityLogPage,
     ActivitySummaryPage,
-    ActivitySummaryListComponent,
-    StatsPage
+    ActivitySummaryListComponent
   ],
   providers: [
     ActivityLogResolver
@@ -37,8 +35,7 @@ const routes: Routes = [{
     RouterModule.forChild(routes)
   ],
   exports: [
-    RouterModule,
-    StatsPage
+    RouterModule
   ]
 })
 export class ActivityLogPageModule {}

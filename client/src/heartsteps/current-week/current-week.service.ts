@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
-import { WeekService } from "./week.service";
-import { Week } from "./week.model";
+import { WeekService } from "@heartsteps/weekly-survey/week.service";
+import { Week } from "@heartsteps/weekly-survey/week.model";
 
 const storageKey = 'current-week';
 

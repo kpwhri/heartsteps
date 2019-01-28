@@ -6,6 +6,7 @@ import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.m
 import { ActivityModule } from '@heartsteps/activity/activity.module';
 import { CurrentActivityLogService } from './current-activity-log.service';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
+import { CurrentWeekService } from './current-week.service';
 
 @NgModule({
     imports: [
@@ -22,7 +23,8 @@ import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.modul
         WeeklyProgressComponent
     ],
     providers: [
-        CurrentActivityLogService
+        CurrentActivityLogService,
+        CurrentWeekService
     ]
 })
-export class WeeklyActivityModule {}
+export class CurrentWeekModule {}

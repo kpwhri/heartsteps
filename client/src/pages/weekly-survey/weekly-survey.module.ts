@@ -10,7 +10,7 @@ import { SurveyComponent } from './survey.component';
 import { WeeklySurveyModule as HeartstepsWeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module'
 import { WeekResolver } from './week.resolver';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
-import { WeeklyActivityModule } from '@heartsteps/weekly-activity/weekly-activity.module';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
 
 const routes: Routes = [{
@@ -53,7 +53,7 @@ const routes: Routes = [{
     InfrastructureModule,
     HeartstepsWeeklySurveyModule,
     ActivityPlansModule,
-    WeeklyActivityModule,
+    CurrentWeekModule,
     IonicPageModule.forChild(WeeklySurveyPage),
     RouterModule.forChild(routes)
   ],
