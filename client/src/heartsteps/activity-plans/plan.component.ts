@@ -3,7 +3,7 @@ import { ActivityPlan } from './activity-plan.model';
 import { ActivityTypeService } from '@heartsteps/activity-types/activity-type.service';
 
 @Component({
-    selector: 'activity-plan',
+    selector: 'heartsteps-activity-plan',
     templateUrl: './plan.component.html',
     inputs: ['plan']
 })

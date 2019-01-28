@@ -15,6 +15,8 @@ export class FormComponent {
     private errorMessage: string;
     private submitCTA: string = 'Save';
 
+    @Input('defaultSubmit') showSubmit: boolean = true;
+
     constructor() {}
 
     @Input('formGroup')

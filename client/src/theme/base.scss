@@ -217,6 +217,7 @@ article > button {
 
 li > button {
     @extend button.inline;
+    color: $text-color;
 }
 
 button.remove {
@@ -224,11 +225,26 @@ button.remove {
     padding-right: 40px;
 
     &:after {
-        content: "x";
+        content: "";
         position: absolute;
         top: 50%;
-        right: $space-size;
+        transform: translate(0%, -50%);
+        right: 0em;
+        background-color: $text-color;
+        width: 2em;
+        height: 2em;
+        mask-image: url('../assets/close-icon.svg');
+    }
+
+    &:focus {
         color: $color-primary;
+    }
+    &:focus:after {
+        background-color: $color-danger;
+    }
+
+    &:disabled:after {
+        content: none;
     }
 }
 

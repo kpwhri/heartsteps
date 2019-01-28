@@ -1,4 +1,7 @@
-<form *ngIf="planForm" [formGroup]="planForm">
+<app-form 
+    [formGroup]="planForm"
+    [defaultSubmit]="false"
+    >
     <heartsteps-activity-type-field
         formControlName="activity"
         label="Activity type"
@@ -38,12 +41,11 @@
         label="Time"
         >
     </app-time-field>
-    <div class="controls">
-        <p *ngIf="error">{{error}}</p>
+    <div app-form-controls>
         <button *ngIf="!updateView" (click)="save()" >Save</button>
         <button *ngIf="!activityPlan.complete && updateView" (click)="complete()" class="primary">Complete</button>
         <button *ngIf="activityPlan.complete && updateView" (click)="uncomplete()">Mark incomplete</button>
         <button *ngIf="updateView && !activityPlan.complete" (click)="save()" >Update</button>
         <button *ngIf="updateView && !activityPlan.complete" (click)="delete()" class="danger">Delete</button>
     </div>
-</form>
+</app-form>

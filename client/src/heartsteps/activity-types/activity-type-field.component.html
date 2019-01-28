@@ -1,21 +1,32 @@
-<fieldset>
+<fieldset class="heartsteps-form-field">
     <legend>{{label}}</legend>
-    <button *ngIf="activityType" (click)="reset()" class="activity-type activity-type-{{activityType.name}} remove">{{activityType.title}}</button>
+    <button *ngIf="activityType"
+        (click)="reset()"
+        [disabled]="isDisabled"
+        class="activity-type activity-type-{{activityType.name}} remove"
+        >
+        {{activityType.title}}
+    </button>
     <ul *ngIf="!activityType">
         <li *ngFor="let activityType of activityTypeList">
             <button 
                 (click)="select(activityType)"
+                [disabled]="isDisabled"
                 class="activity-type activity-type-{{activityType.name}}"
                 type="button"
                 >
                 {{activityType.title}}
             </button>
         </li>
-        <li><button *ngIf="!activityType" 
-            (click)="pickOtherActivityType()"
-            type="button"
-            >
-            Other activity
-        </button></li>
+        <li>
+            <button *ngIf="!activityType" 
+                (click)="pickOtherActivityType()"
+                [disabled]="isDisabled"
+                class="bottom"
+                type="button"
+                >
+                Other activity
+            </button>
+        </li>
     </ul>
 </fieldset>

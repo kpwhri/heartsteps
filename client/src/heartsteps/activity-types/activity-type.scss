@@ -1,9 +1,18 @@
-.activity-type,
-button.activity-type {
+.activity-type {
     position: relative;
     display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
+
+    > * {
+        flex: 1 1 auto;
+    }
+
+    &:before,
+    &:after {
+        flex: 0 0 auto;
+    }
 
     &:before {
         content: '';
@@ -15,6 +24,10 @@ button.activity-type {
         background-color: $text-color;
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
+    }
+
+    &:focus:before {
+        background-color: $color-primary;
     }
 
     &.activity-type-swim:before {
@@ -35,5 +48,16 @@ button.activity-type {
 
     &.activity-type-bike:before {
         mask-image: url('../assets/bike.svg');
+    }
+}
+
+button.activity-type {
+    @extend .heartsteps-minor-button;
+    @extend .activity-type;
+    display: flex !important;
+    color: $text-color !important;
+
+    &:focus {
+        color: $color-primary !important;
     }
 }
