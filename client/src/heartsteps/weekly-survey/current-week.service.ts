@@ -1,7 +1,6 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 import { WeekService } from "./week.service";
-import { BehaviorSubject } from "rxjs";
 import { Week } from "./week.model";
 
 const storageKey = 'current-week';
@@ -9,12 +8,19 @@ const storageKey = 'current-week';
 @Injectable()
 export class CurrentWeekService {
 
-    public week:BehaviorSubject<Week> = new BehaviorSubject(null);
+    public updated: EventEmitter<Week> = new EventEmitter();
 
     constructor(
         private storage:StorageService,
         private weekService:WeekService
     ) {}
+
+    public get():Promise<Week> {
+        return this.storage.get(storageKey)
+        .then((data) => {
+            return this.weekService.deserializeWeek(data)
+        });
+    }
 
     public getDays():Promise<Array<Date>> {
         return this.load()
@@ -24,13 +30,11 @@ export class CurrentWeekService {
     }
 
     public load():Promise<Week> {
-        return this.storage.get(storageKey)
-        .then((data) => {
-            const week:Week = this.weekService.deserializeWeek(data);
+        return this.get()
+        .then((week) => {
             if(week.end < new Date()) {
                 return Promise.reject("Past end of week");
             } else {
-                this.week.next(week);
                 return Promise.resolve(week);
             }
         })
@@ -55,7 +59,6 @@ export class CurrentWeekService {
             this.weekService.serializeWeek(week)
         )
         .then(() => {
-            this.week.next(week);
             return Promise.resolve(week);
         });
     }

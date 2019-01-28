@@ -36,6 +36,7 @@ export class DocumentStorage {
     }
 
     public setAll(objects:any): Promise<boolean> {
+        console.log(objects);
         return this.setData(objects);
     }
 

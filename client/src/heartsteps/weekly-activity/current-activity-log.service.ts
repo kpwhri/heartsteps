@@ -1,47 +1,48 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { ReplaySubject, BehaviorSubject } from "rxjs";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { CurrentWeekService } from "@heartsteps/weekly-survey/current-week.service";
-
+import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 
 @Injectable()
 export class CurrentActivityLogService {
 
-    public activityLogs: BehaviorSubject<Array<ActivityLog>> = new BehaviorSubject([]);
-    public goal: BehaviorSubject<Array<number>> = new BehaviorSubject(null);
-
-    private activityLogStore: DocumentStorage;
+    public activityLogs: BehaviorSubject<Array<ActivityLog>> = new BehaviorSubject(undefined);
+    
+    private storage: DocumentStorage;
 
     constructor(
-        private storage: DocumentStorageService,
-        private currentWeekService: CurrentWeekService,
-        private activityLogService: ActivityLogService
+        documentStorageService: DocumentStorageService,
+        private activityLogService: ActivityLogService,
+        private activityPlanService: ActivityPlanService,
+        private currentWeekService: CurrentWeekService
     ) {
-        this.activityLogStore = this.storage.create('activity-logs');
+        this.storage = documentStorageService.create('activity-logs');
+        this.load();
 
-        this.currentWeekService.week.subscribe((week) => {
-            this.refreshActivityLogs(week.start, week.end);
-        });
+        this.activityPlanService.planCompleted.subscribe(() => {
+            this.update();
+        })
 
-        this.activityLogService.created.subscribe((activityLog: ActivityLog) => {
-            this.activityLogStore.set(activityLog.id, this.activityLogService.serialize(activityLog))
+        this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
+            this.storage.set(activityLog.id, this.activityLogService.serialize(activityLog))
             .then(() => {
-                this.loadActivityLogs();
+                this.load();
             });
         });
 
         this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
-            this.activityLogStore.remove(activityLog.id)
+            this.storage.remove(activityLog.id)
             .then(() => {
-                this.loadActivityLogs();
+                this.load();
             })
         });
     }
 
-    private loadActivityLogs(): Promise<Array<ActivityLog>> {
-        return this.activityLogStore.getList()
+    private load(): Promise<Array<ActivityLog>> {
+        return this.storage.getList()
         .then((items) => {
             return items.map((data) => {
                 return this.activityLogService.deserialize(data);
@@ -53,17 +54,20 @@ export class CurrentActivityLogService {
         });
     }
 
-    private refreshActivityLogs(start: Date, end: Date): Promise<Array<ActivityLog>> {
-        return this.activityLogService.get(start, end)
+    public update(): Promise<Array<ActivityLog>> {
+        return this.currentWeekService.get()
+        .then((week) => {
+            return this.activityLogService.get(week.start, week.end)
+        })
         .then((logs) => {
             const logObj: any = {};
             logs.forEach((log) => {
                 logObj[log.id] = this.activityLogService.serialize(log);
             })
-            return this.activityLogStore.setAll(logObj);
+            return this.storage.setAll(logObj);
         })
         .then(() => {
-            return this.loadActivityLogs();
+            return this.load();
         })
     }
 

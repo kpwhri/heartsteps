@@ -7,7 +7,7 @@ import { ActivityLog } from './activity-log.model';
 @Injectable()
 export class ActivityLogService {
 
-    public created: EventEmitter<ActivityLog> = new EventEmitter();
+    public updated: EventEmitter<ActivityLog> = new EventEmitter();
     public deleted: EventEmitter<ActivityLog> = new EventEmitter();
 
     constructor(
@@ -28,13 +28,9 @@ export class ActivityLogService {
             end: end.toISOString()
         })
         .then((logs:Array<any>) => {
-            const activityLogs:Array<ActivityLog> = [];
-            logs.forEach((log:any) => {
-                activityLogs.push(
-                    this.deserialize(log)
-                );
-            })
-            return activityLogs;
+            return logs.map((log) => {
+                return this.deserialize(log);
+            });
         });
     }
 
@@ -54,7 +50,7 @@ export class ActivityLogService {
             return this.deserialize(data);
         })
         .then((activityLog: ActivityLog) => {
-            this.created.emit(activityLog);
+            this.updated.emit(activityLog);
             return activityLog;
         });
     }

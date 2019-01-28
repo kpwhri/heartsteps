@@ -9,24 +9,18 @@ import { Subscription } from 'rxjs';
     templateUrl: 'plan.page.html',
     providers: [DateFactory]
 })
-export class PlanPage implements OnInit, OnDestroy {
+export class PlanPage implements OnInit {
 
-    private week:Week;
-    private weekSubscription: Subscription;
+    public week:Week;
 
     constructor(
         private currentWeekService: CurrentWeekService
     ) {}
 
     ngOnInit() {
-        this.weekSubscription = this.currentWeekService.week.subscribe((week) => {
+        this.currentWeekService.get()
+        .then((week) => {
             this.week = week;
         });
-    }
-
-    ngOnDestroy() {
-        if(this.weekSubscription) {
-            this.weekSubscription.unsubscribe();
-        }
     }
 }
