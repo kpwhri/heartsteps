@@ -1,11 +1,11 @@
 import * as moment from 'moment';
 
 import { Component, OnInit, Input } from '@angular/core';
-import { DailySummary } from '@heartsteps/activity/daily-summary.model';
+import { DailySummary } from './daily-summary.model';
 import { DailySummaryService } from './daily-summary.service';
 
 @Component({
-    selector: 'heartsteps-activity-daily-summary',
+    selector: 'heartsteps-daily-summary',
     templateUrl: './daily-summary.html',
     inputs: ['date']
 })
