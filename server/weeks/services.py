@@ -1,6 +1,6 @@
 from datetime import timedelta, date
 
-from django.utils import timezone
+from locations.services import LocationService
 
 from .models import Week, User
 
@@ -30,7 +30,7 @@ class WeekService:
             start_date = start_date,
             end_date = end_date
         )
-
+    
     def get_week_after(self, week):
         next_week_start_day = week.end_date + timedelta(days=1)
         try:
@@ -49,5 +49,6 @@ class WeekService:
             raise WeekService.WeekDoesNotExist()
 
     def get_current_week(self):
-        today = timezone.now()
-        return self.get_week_for_date(today)
+        location_service = LocationService(self.__user)
+        now = location_service.get_current_datetime()
+        return self.get_week_for_date(date(now.year, now.month, now.day))

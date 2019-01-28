@@ -66,8 +66,8 @@ class LocationService:
         return self.get_timezone_on(timezone.now())
 
     def get_current_datetime(self):
-        timezone = self.get_current_timezone()
-        return timezone.now().astimezone(timezone)
+        tz = self.get_current_timezone()
+        return timezone.now().astimezone(tz)
 
     def get_timezone_for(self, latitude, longitude):
         timezone_finder = TimezoneFinder()
