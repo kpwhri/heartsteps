@@ -8,7 +8,6 @@ import { ActivityPlan } from './activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'activity-plan-form',
@@ -24,7 +23,7 @@ export class PlanFormComponent implements OnInit {
     @ViewChild(FormComponent) form: FormComponent;
 
     public activityPlan:ActivityPlan;
-    public availableDates:Array<string>;
+    public availableDates:Array<Date>;
 
     public planForm:FormGroup;
     public error:string;
@@ -34,15 +33,11 @@ export class PlanFormComponent implements OnInit {
     constructor(
         private activityPlanService:ActivityPlanService,
         private dateFactory: DateFactory,
-        private loadingService: LoadingService,
-        private router: Router
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit() {
-        this.availableDates = [];
-        this.dateFactory.getRemainingDaysInWeek().forEach((date:Date) => {
-            this.availableDates.push(this.formatDate(date));
-        });
+        this.availableDates = this.dateFactory.getCurrentWeek();
     }
 
     @Input('plan')
@@ -67,14 +62,6 @@ export class PlanFormComponent implements OnInit {
                 this.updateView = false;
             }
         }
-    }
-
-    formatDate(date:Date):string {
-        return moment(date).format('dddd, M/D');
-    }
-
-    parseDate(str:string):Date {
-        return moment(str, 'dddd, M/D').toDate();
     }
 
     updateActivity() {
