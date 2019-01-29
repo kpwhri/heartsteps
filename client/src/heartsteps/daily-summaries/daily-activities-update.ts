@@ -34,7 +34,7 @@ export class DailyActivitiesUpdateComponent {
     public refresh() {
         if (this.summary) {
             this.loadingService.show("Loading data from Fitbit");
-            this.dailySummaryService.get(this.summary.date)
+            this.dailySummaryService.update(this.summary.date)
             .then((summary) => {
                 this.summary = summary;
                 this.formatTime();

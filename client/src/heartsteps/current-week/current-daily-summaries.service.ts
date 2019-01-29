@@ -8,6 +8,7 @@ import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { merge } from "rxjs/observable/merge";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { DailySummarySerializer } from "@heartsteps/daily-summaries/daily-summary.serializer";
+import { weekdays } from "moment";
 
 @Injectable()
 export class CurrentDailySummariesService {
@@ -27,15 +28,21 @@ export class CurrentDailySummariesService {
         this.storage = documentStorageService.create('current-daily-summaries')
         this.reload();
 
+        this.dailySummaryService.updated.subscribe((summary:DailySummary) => {
+            this.currentWeekService.isWithinWeek(summary.date)
+            .then(() => {
+                this.set(summary);
+                this.reload();
+            });
+        });
+
         merge(
             this.activityLogService.updated.asObservable(),
             this.activityLogService.deleted.asObservable()
         ).subscribe((log: ActivityLog) => {
-            this.currentWeekService.get()
-            .then((week) => {
-                if (log.start >= week.start && log.start <= week.end) {
-                    this.update(log.start);
-                }
+            this.currentWeekService.isWithinWeek(log.start)
+            .then(() => {
+                this.update(log.start);
             });
         });
     }
@@ -62,7 +69,7 @@ export class CurrentDailySummariesService {
         });
     }
 
-    private set(summary: DailySummary) {
+    private set(summary: DailySummary): Promise<any> {
         const serialized = this.dailySummarySerializer.serialize(summary);
         return this.storage.set(serialized['date'], serialized);
     }

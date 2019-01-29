@@ -8,6 +8,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
+from fitbit_api.services import FitbitDayService
+
 from .models import Day
 from .serializers import DaySerializer
 
@@ -26,27 +28,31 @@ def check_valid_date(user, date):
     if dt < user.date_joined:
         raise Http404()
 
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def day_summary(request, day):
-    date = parse_date(day)
-    check_valid_date(request.user, date)
+def get_summary(user, date):
     try:
-        day = Day.objects.get(
-            user = request.user,
+        return Day.objects.get(
+            user = user,
             date__year = date.year,
             date__month = date.month,
             date__day = date.day
         )
     except Day.DoesNotExist:
         day = Day.objects.create(
-            user = request.user,
+            user = user,
             date = date
         )
         day.update_from_fitbit()
         day.update_from_activities()
-    
-    serialized = DaySerializer(day)
+        return day
+
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def day_summary(request, day):
+    date = parse_date(day)
+    check_valid_date(request.user, date)
+    summary = get_summary(request.user, date)
+    serialized = DaySerializer(summary)
     return Response(serialized.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -81,4 +87,21 @@ def date_range_summary(request, start, end):
             summaries.append(day)
         index_date = index_date + timedelta(days=1)
     serialized = DaySerializer(summaries, many=True)
+    return Response(serialized.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def day_summary_update(request, day):
+    date = parse_date(day)
+    check_valid_date(request.user, date)
+    try:
+        service = FitbitDayService(
+            date = date,
+            user = request.user
+            )
+        service.update()
+    except:
+        return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
+    summary = get_summary(request.user, date)
+    serialized = DaySerializer(summary)
     return Response(serialized.data, status=status.HTTP_200_OK)

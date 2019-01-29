@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { DailySummary } from "./daily-summary.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { DailySummarySerializer } from './daily-summary.serializer';
@@ -9,6 +9,8 @@ const dateFormat = 'YYYY-MM-DD';
 
 @Injectable()
 export class DailySummaryService {
+
+    public updated: EventEmitter<DailySummary> = new EventEmitter();
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -20,6 +22,16 @@ export class DailySummaryService {
         return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
         .then((response:any) => {
             const summary = this.deserializeSummary(response);
+            return summary;
+        });
+    }
+
+    public update(date: Date): Promise<DailySummary> {
+        const dateFormatted:string = moment(date).format(dateFormat);
+        return this.heartstepsServer.get(`/activity/summary/update/${dateFormatted}`)
+        .then((response:any) => {
+            const summary = this.deserializeSummary(response);
+            this.updated.emit(summary);
             return summary;
         });
     }

@@ -15,6 +15,17 @@ export class CurrentWeekService {
         private weekService:WeekService
     ) {}
 
+    public isWithinWeek(date: Date): Promise<boolean> {
+        return this.get()
+        .then((week) => {
+            if(date >= week.start && date <= week.end) {
+                return Promise.resolve(true);
+            } else {
+                return Promise.reject('Not within week');
+            }
+        })
+    }
+
     public get():Promise<Week> {
         return this.storage.get(storageKey)
         .then((data) => {

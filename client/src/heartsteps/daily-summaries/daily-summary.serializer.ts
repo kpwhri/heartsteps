@@ -22,7 +22,7 @@ export class DailySummarySerializer {
     public deserialize(data: any): DailySummary {
         const summary:DailySummary = new DailySummary();
         summary.date = moment(data.date, dateFormat).toDate();
-        summary.updated = new Date();
+        summary.updated = new Date(data.updated);
         summary.moderateMinutes = data.moderateMinutes;
         summary.vigorousMinutes = data.vigorousMinutes;
         summary.minutes = data.minutes;
