@@ -8,6 +8,7 @@
                 [ngModel]="isVigorous"
                 (ngModelChange)="update($event)"
                 [value]="false"
+                [disabled]="isDisabled"
                 />
             <label for="activity-intensity-moderate">
                 Moderate
@@ -21,6 +22,7 @@
                 [ngModel]="isVigorous"
                 (ngModelChange)="update($event)"
                 [value]="true"
+                [disabled]="isDisabled"
                 />
             <label for="activity-intensity-vigorous">
                 Vigorous

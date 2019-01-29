@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import pytz
 
 from django.http import Http404
@@ -53,16 +53,32 @@ def day_summary(request, day):
 @permission_classes((permissions.IsAuthenticated,))
 def date_range_summary(request, start, end):
     start_date = parse_date(start)
+    check_valid_date(request.user, start_date)
     end_date = parse_date(end)
+    check_valid_date(request.user, end_date)
+
+    if start_date > end_date:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
     results = Day.objects.filter(
         user = request.user,
-        date__year__gte=start_date.year,
-        date__month__gte=start_date.month,
-        date__day__gte=start_date.day,
-        date__year__lte=end_date.year,
-        date__month__lte=end_date.month,
-        date__day__lte=end_date.day
+        date__range=[start_date, end_date]
     ).order_by('date').all()
-    serialized = DaySerializer(results, many=True)
+    results = list(results)
+
+    summaries = []
+    index_date = start_date
+    while index_date <= end_date:
+        if results and results[0].date == index_date:
+            summaries.append(results.pop(0))
+        else:
+            day = Day.objects.create(
+                user = request.user,
+                date = index_date
+            )
+            day.update_from_fitbit()
+            day.update_from_activities()
+            summaries.append(day)
+        index_date = index_date + timedelta(days=1)
+    serialized = DaySerializer(summaries, many=True)
     return Response(serialized.data, status=status.HTTP_200_OK)

@@ -1,43 +1,50 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { DailySummaryService } from "./daily-summary.service";
 
 import * as moment from 'moment';
 import { LoadingService } from "@infrastructure/loading.service";
+import { DailySummary } from "./daily-summary.model";
 
 @Component({
     selector: 'heartsteps-activity-daily-update',
     templateUrl: './daily-activities-update.html'
 })
-export class DailyActivitiesUpdateComponent implements OnInit {
-    public lastUpdate:Date;
+export class DailyActivitiesUpdateComponent {
+    
     public updateTimeFormatted:string;
+    private summary: DailySummary;
 
     constructor(
         private dailySummaryService: DailySummaryService,
         private loadingService: LoadingService
     ){}
 
-    ngOnInit() {
-        this.dailySummaryService.updateTime.subscribe((date:Date)=>{
-            if(date) {
-                this.lastUpdate = date;
-                this.formatTime();
-            }
-        });
+    @Input('summary')
+    set setSummary(summary: DailySummary) {
+        if(summary) {
+            this.summary = summary
+            this.formatTime();
+        }
     }
 
     private formatTime() {
-        this.updateTimeFormatted = moment(this.lastUpdate).fromNow();
+        this.updateTimeFormatted = moment(this.summary.updated).fromNow();
     }
 
     public refresh() {
-        this.loadingService.show("Loading data from Fitbit");
-        this.dailySummaryService.getDate(new Date())
-        .catch(() => {
-
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        if (this.summary) {
+            this.loadingService.show("Loading data from Fitbit");
+            this.dailySummaryService.get(this.summary.date)
+            .then((summary) => {
+                this.summary = summary;
+                this.formatTime();
+            })
+            .catch(() => {
+                console.log('Could not get summary');
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
+        }
     }
 }

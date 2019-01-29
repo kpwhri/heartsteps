@@ -7,10 +7,16 @@ import { DailySummaryListComponent } from './daily-summary-list.component';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 import { ActivityLogResolver } from './activity-log.resolver';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
+import { DayActivityLogsResolver } from './day-activity-logs.resolver';
+import { DailySummaryResolver } from './daily-summary.resolver';
 
 const routes: Routes = [{
   path: 'activities/:date',
-  component: ActivitySummaryPage
+  component: ActivitySummaryPage,
+  resolve: {
+    'dailySummary': DailySummaryResolver,
+    'activityLogs': DayActivityLogsResolver
+  }
 }, {
   path: 'activities/logs/:id',
   component: ActivityLogPage,
@@ -26,7 +32,9 @@ const routes: Routes = [{
     DailySummaryListComponent
   ],
   providers: [
-    ActivityLogResolver
+    ActivityLogResolver,
+    DailySummaryResolver,
+    DayActivityLogsResolver,
   ],
   imports: [
     DailySummaryModule,

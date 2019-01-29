@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Subscription } from 'rxjs';
 import { CurrentActivityLogService } from './current-activity-log.service';
+import { CurrentDailySummariesService } from './current-daily-summaries.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -28,27 +29,27 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private complete: number = 0;
     private current: number = 0;
 
-    private activityLogSubscription: Subscription;
+    private subscription: Subscription;
 
     constructor(
         private elementRef:ElementRef,
-        private currentActivityLogService: CurrentActivityLogService
+        private currentDailySummaries: CurrentDailySummariesService
     ) {}
 
     ngOnInit() {
         this.initializeChart();
         this.drawChart();
 
-        this.activityLogSubscription = this.currentActivityLogService.activityLogs
-        .filter(logs => logs !== undefined)
-        .subscribe((logs) => {
+        this.subscription = this.currentDailySummaries.week
+        .filter(summary => summary !== undefined)
+        .subscribe((summaries) => {
             this.current = 0;
             this.complete = 0;
 
-            logs.forEach((activityLog) => {
-                this.complete += activityLog.earnedMinutes;
-                if (activityLog.isToday()) {
-                    this.current += activityLog.earnedMinutes;
+            summaries.forEach((summary) => {
+                this.complete += summary.minutes;
+                if (summary.isToday()) {
+                    this.current += summary.minutes;
                 }
             })
 
@@ -57,7 +58,7 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.activityLogSubscription.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     private initializeChart() {

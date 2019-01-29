@@ -4,7 +4,6 @@ import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { CurrentWeekService } from "./current-week.service";
-import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 
 @Injectable()
 export class CurrentActivityLogService {
@@ -16,15 +15,10 @@ export class CurrentActivityLogService {
     constructor(
         documentStorageService: DocumentStorageService,
         private activityLogService: ActivityLogService,
-        private activityPlanService: ActivityPlanService,
         private currentWeekService: CurrentWeekService
     ) {
         this.storage = documentStorageService.create('activity-logs');
         this.load();
-
-        this.activityPlanService.planCompleted.subscribe(() => {
-            this.update();
-        })
 
         this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
             this.storage.set(activityLog.id, this.activityLogService.serialize(activityLog))

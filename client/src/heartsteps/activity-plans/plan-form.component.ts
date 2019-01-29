@@ -8,6 +8,7 @@ import { ActivityPlan } from './activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'activity-plan-form',
@@ -33,7 +34,8 @@ export class PlanFormComponent implements OnInit {
     constructor(
         private activityPlanService:ActivityPlanService,
         private dateFactory: DateFactory,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private router: Router
     ) {}
 
     ngOnInit() {

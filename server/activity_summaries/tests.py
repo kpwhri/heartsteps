@@ -86,6 +86,26 @@ class ActivitySummaryViewTests(APITestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[-1]['date'], '2018-10-18')
 
+    def test_get_date_range_creates_days(self):
+        self.assertEqual(Day.objects.count(), 0)
+
+        response = self.client.get(reverse('activity-summary-date-range', kwargs={
+            'start': '2018-10-16',
+            'end': '2018-10-18'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(Day.objects.count(), 3)
+
+        response = self.client.get(reverse('activity-summary-date-range', kwargs={
+            'start': '2018-10-17',
+            'end': '2018-10-19'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Day.objects.count(), 4)
+
     def test_date_range_misformatted(self):
         response = self.client.get(reverse('activity-summary-date-range', kwargs={
             'start': '2018/10/16',

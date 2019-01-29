@@ -2,7 +2,7 @@
     <li *ngFor="let summary of summaries">
         <a (click)="goTo(summary.date)">
             <span>{{summary.date | date}}</span>
-            <span>{{summary.totalMinutes}} min</span>
+            <span>{{summary.minutes}} min</span>
         </a>
     </li>
 </ul>

@@ -5,7 +5,7 @@
     </header>
     <div>
         <h3>Activities Tracked</h3>
-        <heartsteps-daily-summary></heartsteps-daily-summary>
+        <heartsteps-daily-summary [summary]="dailySummary"></heartsteps-daily-summary>
         <nav>
             <ul>
                 <li *ngFor="let log of logs">
