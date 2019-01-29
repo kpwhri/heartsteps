@@ -87,7 +87,7 @@ export class TimeFieldComponent extends SelectFieldComponent {
         let i:number = 1;
         while(i <= 12) {
             hours.push({
-                name: String(i),
+                name: this.formatNumber(i),
                 value: i
             })
             i++;
@@ -96,16 +96,23 @@ export class TimeFieldComponent extends SelectFieldComponent {
     }
 
     private getMinuteOptions(): Array<SelectOption> {
-        const minutes: Array<SelectOption> = [];
+        const minutes: Array<Number> = [];
         let i:number = 0;
-        while(i <= 60) {
-            minutes.push({
-                name: String(i),
-                value: i
-            });
+        while(i < 60) {
+            minutes.push(i);
             i = i + 5;
         }
-        return minutes;
+        const selectedMinute:Number = this.getMinutes();
+        if (minutes.indexOf(selectedMinute) < 0) {
+            minutes.push(selectedMinute);
+            minutes.sort();
+        }
+        return minutes.map((minute) => {
+            return {
+                name: this.formatNumber(minute),
+                value: minute
+            }
+        })
     }
 
     private getAMPMOptions(): Array<SelectOption> {
@@ -116,6 +123,14 @@ export class TimeFieldComponent extends SelectFieldComponent {
             name: 'pm',
             value: true
         }];
+    }
+
+    private formatNumber(num: Number): string {
+        if(num < 10) {
+            return '0' + String(num);
+        } else {
+            return String(num);
+        }
     }
 
 }
