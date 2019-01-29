@@ -67,8 +67,8 @@ class FitbitDay(models.Model):
     date = models.DateField()
     timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["date"]
