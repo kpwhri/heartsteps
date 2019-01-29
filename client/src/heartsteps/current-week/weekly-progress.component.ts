@@ -2,8 +2,8 @@ import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Subscription } from 'rxjs';
-import { CurrentActivityLogService } from './current-activity-log.service';
 import { CurrentDailySummariesService } from './current-daily-summaries.service';
+import { CurrentWeekService } from './current-week.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -33,32 +33,41 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
 
     constructor(
         private elementRef:ElementRef,
-        private currentDailySummaries: CurrentDailySummariesService
+        private currentDailySummaries: CurrentDailySummariesService,
+        private currentWeekService: CurrentWeekService
     ) {}
 
     ngOnInit() {
         this.initializeChart();
         this.drawChart();
 
-        this.subscription = this.currentDailySummaries.week
-        .filter(summary => summary !== undefined)
-        .subscribe((summaries) => {
-            this.current = 0;
-            this.complete = 0;
-
-            summaries.forEach((summary) => {
-                this.complete += summary.minutes;
-                if (summary.isToday()) {
-                    this.current += summary.minutes;
-                }
-            })
-
-            this.updateChart();
-        });
+        this.currentWeekService.get()
+        .then((week) => {
+            this.total = week.goal;
+        })
+        .then(() => {
+            this.subscription = this.currentDailySummaries.week
+            .filter(summary => summary !== undefined)
+            .subscribe((summaries) => {
+                this.current = 0;
+                this.complete = 0;
+    
+                summaries.forEach((summary) => {
+                    this.complete += summary.minutes;
+                    if (summary.isToday()) {
+                        this.current += summary.minutes;
+                    }
+                })
+    
+                this.updateChart();
+            });
+        })
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
     }
 
     private initializeChart() {
