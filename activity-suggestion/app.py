@@ -7,7 +7,7 @@ import subprocess
 
 app = Flask(__name__)
 
-def run_r_script_output(filename, request_object={}):
+def run_r_script(filename, request_object={}):
   response = subprocess.run(
     "Rscript %s '%s'" % (filename, json.dumps(request_object)),
     shell=True,
@@ -16,37 +16,32 @@ def run_r_script_output(filename, request_object={}):
     universal_newlines=True)
 
   if response.returncode > 0:
-    return response.stdout
+    raise RuntimeError(response.stdout)
   else:
-    response_json = json.loads(response.stdout)
-    return json.dumps(response_json)
-
-def run_r_script_no_output(filename, request_object={}):
-    response = subprocess.run(
-        "Rscript %s '%s'" % (filename, json.dumps(request_object)),
-        shell=True,
-        stdout=subprocess.PIPE,
-	stderr=subprocess.STDOUT,
-        universal_newlines=True
-        )
-    if response.returncode > 0:
-       return response.stdout
-    else:
-       return "Successful Initialization/Update"
+    return response.stdout       
     
 @app.route('/initialize', methods=['POST'])
 def initialize():
-    return run_r_script_no_output('initialize.r', request.json)
-
+    try:
+        run_r_script('initialize.r', request.json)
+        return "Successful Initialization"
+    except RuntimeError as error:
+        return repr(error), 400
 
 @app.route('/decision', methods=['POST'])
 def decision():
-    return run_r_script_output('decision.r', request.json)
+    try:
+        return run_r_script('decision.r', request.json)
+    except RuntimeError as error:
+        return repr(error), 400
 
 @app.route('/nightly', methods=['POST'])
 def nightly():
-    return run_r_script_no_output('nightly.r', request.json)
-
+    try:
+        run_r_script('nightly.r', request.json)
+        return "Successful Update"
+    except RuntimeError as error:
+        return repr(error), 400
 
 if __name__ == "__main__":
     app.run(
