@@ -108,7 +108,7 @@ class WalkingSuggestionService():
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
-        data['userId'] = self.__user.username
+        data['userID'] = self.__user.username
         request_record = ServiceRequest(
             user = self.__user,
             url = url,
@@ -116,14 +116,17 @@ class WalkingSuggestionService():
             request_time = timezone.now()
         )
 
-        response = requests.post(url, data=data)
+        response = requests.post(url, json=data)
 
         request_record.response_code = response.status_code
         request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
 
-        return json.loads(response.text)
+        try:
+            return json.loads(response.text)
+        except:
+            return response.text
 
     def initialize(self, date=None):
         if not date:

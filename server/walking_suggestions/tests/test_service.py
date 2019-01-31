@@ -50,22 +50,21 @@ class MakeRequestTests(ServiceTestCase):
         }))
 
     def test_make_request(self):
+        example_request = {
+            'foo': 'bar',
+            'userID': 'test'
+        }
+
         response = self.service.make_request('example',
             data = {'foo': 'bar'}
         )
 
         self.requests_post.assert_called_with(
             'http://example/example',
-            data = {
-                'userId': 'test',
-                'foo': 'bar'
-            }
+            data = example_request
         )
         request_record = ServiceRequest.objects.get()
-        self.assertEqual(request_record.request_data, json.dumps({
-            'foo': 'bar',
-            'userId': 'test'
-        }))
+        self.assertEqual(request_record.request_data, json.dumps(example_request))
         self.assertEqual(request_record.response_data, json.dumps({'success':1}))
 
     def test_returns_json(self):
