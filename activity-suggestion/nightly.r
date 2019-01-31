@@ -24,15 +24,20 @@ if(server){
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  input <- fromJSON(file = "./test/test-run/update_2.json")
+  input <- fromJSON(file = "./test/test-run/update_1.json")
   
 }
 
+
+# check if we have all the information 
+stopifnot(all(c("userID", "studyDay", "priorAnti", "lastActivity",
+                "temperatureArray", "appClick", "totalSteps", 
+                "preStepsArray", "postStepsArray") %in% names(input)))
+
+# convert NULL to NA
 names.array <- c("temperatureArray", "preStepsArray", "postStepsArray")
 for(name in names.array){
-  
   input[[name]] <- proc.array(input[[name]])
-  
 }
 
 # check if the length is 5 
@@ -59,28 +64,31 @@ stopifnot(nrow(data.day$history) == 5)
 stopifnot(data.day$study.day == input$studyDay)
 
 
-# ================ update the history by adding the history in daily dataset ================ 
+# ================ update the history by adding the (imputed) daily dataset  ================ 
 
-# might need to alter the action in 5th decision time 
-action.index <- which(data.day$var.names == "action")
-prob.index <- which(data.day$var.names == "probability")
-last.time <- 5
-last.action <- data.day$history[last.time, action.index]  
-if(input$lastActivity != last.action){
-  
-  # if inconsistent, 
-  # update the action and set the prob to NA to indicate this failure
-  
-  data.day$history[last.time, action.index] <- input$lastActivity;
-  data.day$history[last.time, prob.index] <- NA; 
-  
-  
-}
+# add the last deliever indicator
+data.day$deliever <- as.numeric(c(data.day$deliever, input$lastActivity))
 
 # filling in the states and rewards (require imputation and standardization)
 day.history <- data.day$history
 colnames(day.history) <- data.day$var.names
 day.history <- data.frame(day.history)
+
+# deliever indiactor
+day.history$deliever <- data.day$deliever
+
+# today's app click (impute if missing)
+
+if(is.na(input$appClick)){
+  
+  avg.click <- mean(data.imputation$appclicks)
+  day.history$appclick <- avg.click
+  
+}else{
+  
+  day.history$appclick <- input$appClick
+  
+}
 
 # temperature (should have no missingness, i.e already imputed by HS server; checked before)
 day.history$temperature <- input$temperatureArray
@@ -144,36 +152,43 @@ day.history$prepoststeps <- poststep.temp + prestep.temp
 # reward (possibly missing, but no imputation)
 day.history$reward <- log(0.5+input$postStepsArray)
 
-# updatee the history 
+# update the history 
 data.history <- rbind(data.history, day.history)
 
 # ================ Update the policy using the updated history ================ 
-# A batch version update
 
-# 1. Standarization (using the whole dataset)
-#    (dosage, temperature, logpresteps, sqrtsteps) requires standarize
+# 1. Create the training dataset: winsoration, standarization (using the whole dataset)
+#    (dosage, temperature, logpresteps, sqrtsteps) requires standarize. And adjust the mismatch
 
-std.history <- data.history
-std.history$dosage <- sapply(data.history$dosage, std.dosage)
-std.history$temperature <- winsor(data.history$temperature, beta = 3, range = c(-15.6, 36.1))
-std.history$logpresteps <- winsor.upp(data.history$logpresteps, beta = 3, range = c(log(0.5), 8.60), min.val = log(0.5))
-std.history$sqrt.totalsteps <- winsor(data.history$sqrt.totalsteps, beta = 3, range = c(0, 209))
 
-# modify the NA prob (due to inconsistency). 
-# Note the action is whether it is delievered
-index.set <- is.na(std.history$probability)
-std.history$probability[index.set] <- ifelse(std.history$action[index.set] == 1, 1, 0)
+train.dat <- data.history
+train.dat$dosage <- sapply(data.history$dosage, std.dosage)
+train.dat$temperature <- winsor(data.history$temperature, beta = 3, range = c(-15.6, 36.1))
+train.dat$logpresteps <- winsor.upp(data.history$logpresteps, beta = 3, range = c(log(0.5), 8.60), min.val = log(0.5))
+daily.steps <- data.history$sqrt.totalsteps[data.history$decision.time==1]
+train.dat$sqrt.totalsteps <- rep(winsor(daily.steps, beta = 3, range = c(0, 209)), each = 5)
 
+
+
+# remove the prestudy data
+train.dat <- subset(train.dat, day > 0)
+
+# modify the mistmach case
+index.set <- (train.dat$deliever != train.dat$action)
+train.dat$action <- train.dat$deliever
+train.dat$probability[index.set] <- ifelse(train.dat$action[index.set] == 1, 1, 0)
+
+# select the needed column for the analysis 
+train.dat <- subset(train.dat, is.na(reward) == FALSE, select = -c(random.number, prepoststeps, appclick, deliever))
+
+# should not have any missing data
+stopifnot(all(complete.cases(train.dat)))
 
 
 # 2. Posterior for all parameters (Hierarchy, action-centered). 
-train.dat <- subset(std.history,day > 0, select = -c(random.number, prepoststeps))
 
-# missing can only be in reward; other will be imputed
-stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
-
-# available, completed cases
-index.set <- (train.dat$availability * (is.na(train.dat$reward) == FALSE)) == 1
+# available cases
+index.set <- (train.dat$availability == 1)
 
 # posterior update if there is available, non-missing reward case
 if(sum(index.set) > 0){
@@ -194,102 +209,100 @@ if(sum(index.set) > 0){
 # 3. Margin update
 if(bandit.spec$weight.vec[input$studyDay] > 0){
   
-  # MDP update: transition, reward function
-  
-  ## txt effect
-  
-  train.dat <- subset(std.history, day > 0, select = -c(random.number, prepoststeps))
-  
-  # missing can only be in reward; other will be imputed
-  stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
-  
-  # available, completed cases
-  index.set <- (train.dat$availability * (is.na(train.dat$reward) == FALSE)) == 1
-  
-  # posterior update if there is available, non-missing reward case
-  if(sum(index.set) > 0){
-    
-    # restrict to the available, non-missing reward
-    # batch version of posterior calculation
-    wm <- posterior.cal(train.dat[index.set, ], 
-                        mu0 = bandit.spec$prior.mean.txt, Sigma0 = bandit.spec$prior.var.txt, sigma = bandit.spec$sigma.txt,
-                        int.names = c("dosage"),
-                        nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps", "engagement", "work.location", "other.location", "variation"))
-    
-    theta.txt <- wm$mu
-    
-  }else{
-    
-    theta.txt <- tail(bandit.spec$prior.mean.txt, 2)
-    
-  }
-  
-  
-  
-  ### available baseline
-  
-  train.dat <- subset(std.history, select = c(availability, action, dosage, reward))
-  
-  # missing can only be in reward; other will be imputed
-  stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
-  
-  # available, no treatment, completed cases
-  index.set <- (train.dat$availability * (train.dat$action == 0) * (is.na(train.dat$reward) == FALSE)) == 1
-  
-  if(sum(index.set) > 0){
-    
-    
-    wm = posterior.cal.mar (train.dat[index.set,], 
-                            mu0 = bandit.spec$prior.mean.base, 
-                            Sigma0 = bandit.spec$prior.var.base, 
-                            sigma = bandit.spec$sigma.base.avail)
-    
-    theta.base = wm$mu
-    
-  }else{
-    
-    theta.base <- bandit.spec$prior.mean.base
-  }
-  
-  ### unavailable baseline
-  
-  # UN-available (no treatment) completed cases
-  stopifnot(all(train.dat$action[train.dat$availability == F] == 0))
-  index.set <- ((train.dat$availability == F) * (is.na(train.dat$reward) == FALSE)) == 1
-  
-  if(sum(index.set) > 0){
-    
-    
-    wm = posterior.cal.mar (train.dat[index.set,], 
-                            mu0 = bandit.spec$prior.mean.unavail, 
-                            Sigma0 = bandit.spec$prior.var.unavail, 
-                            sigma = bandit.spec$sigma.unavail)
-    
-    theta.unavail = wm$mu
-    
-  }else{
-    
-    theta.unavail <- bandit.spec$prior.mean.unavail
-  }
-  
-  ### estimated reward function
-  feat.val = function(x) c(1, std.dosage(x))
-  rwrd.est = function(x, i, a) c(ifelse(i==1, sum(feat.val(x) * theta.base) + a*sum(feat.val(x) * theta.txt), 
-                                        sum(feat.val(x) * theta.unavail)))
-  
-  ## trainsition model for availability
-  prob_avail <- mean(data.history$availability)
-  
-  # get the estimated value function
-  Q.est = Cal.Q(rwrd.est, prob_avail, bandit.spec$gamma.mdp, bandit.spec$alpha0, bandit.spec$alpha1)
-  
-  # weighted average between initial
-  weight <- bandit.spec$weight.vec[input$studyDay]
-  Q.int <- bandit.spec$init.Q.mat
-  Q.mat <- (1-weight) * Q.int + weight* Q.est
-  
-  # update the policy data
-  data.policy$Q.mat <- Q.mat
+  # # MDP update: transition, reward function
+  # 
+  # ## txt effect
+  # 
+  # 
+  # # missing can only be in reward; other will be imputed
+  # stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
+  # 
+  # # available, completed cases
+  # index.set <- (train.dat$availability * (is.na(train.dat$reward) == FALSE)) == 1
+  # 
+  # # posterior update if there is available, non-missing reward case
+  # if(sum(index.set) > 0){
+  #   
+  #   # restrict to the available, non-missing reward
+  #   # batch version of posterior calculation
+  #   wm <- posterior.cal(train.dat[index.set, ], 
+  #                       mu0 = bandit.spec$prior.mean.txt, Sigma0 = bandit.spec$prior.var.txt, sigma = bandit.spec$sigma.txt,
+  #                       int.names = c("dosage"),
+  #                       nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps", "engagement", "work.location", "other.location", "variation"))
+  #   
+  #   theta.txt <- wm$mu
+  #   
+  # }else{
+  #   
+  #   theta.txt <- tail(bandit.spec$prior.mean.txt, 2)
+  #   
+  # }
+  # 
+  # 
+  # 
+  # ### available baseline
+  # train.dat <- subset(std.history, day > 0, select = c(availability, action, dosage, reward))
+  # 
+  # # missing can only be in reward; other will be imputed
+  # stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
+  # 
+  # # available, no treatment, completed cases
+  # index.set <- (train.dat$availability * (train.dat$action == 0) * (is.na(train.dat$reward) == FALSE)) == 1
+  # 
+  # if(sum(index.set) > 0){
+  #   
+  #   
+  #   wm = posterior.cal.mar (train.dat[index.set,], 
+  #                           mu0 = bandit.spec$prior.mean.base, 
+  #                           Sigma0 = bandit.spec$prior.var.base, 
+  #                           sigma = bandit.spec$sigma.base.avail)
+  #   
+  #   theta.base = wm$mu
+  #   
+  # }else{
+  #   
+  #   theta.base <- bandit.spec$prior.mean.base
+  # }
+  # 
+  # ### unavailable baseline
+  # 
+  # # UN-available (no treatment) completed cases
+  # stopifnot(all(train.dat$action[train.dat$availability == F] == 0))
+  # index.set <- ((train.dat$availability == F) * (is.na(train.dat$reward) == FALSE)) == 1
+  # 
+  # if(sum(index.set) > 0){
+  #   
+  #   
+  #   wm = posterior.cal.mar (train.dat[index.set,], 
+  #                           mu0 = bandit.spec$prior.mean.unavail, 
+  #                           Sigma0 = bandit.spec$prior.var.unavail, 
+  #                           sigma = bandit.spec$sigma.unavail)
+  #   
+  #   theta.unavail = wm$mu
+  #   
+  # }else{
+  #   
+  #   theta.unavail <- bandit.spec$prior.mean.unavail
+  # }
+  # 
+  # ### estimated reward function
+  # feat.val = function(x) c(1, std.dosage(x))
+  # rwrd.est = function(x, i, a) c(ifelse(i==1, sum(feat.val(x) * theta.base) + a*sum(feat.val(x) * theta.txt), 
+  #                                       sum(feat.val(x) * theta.unavail)))
+  # 
+  # ## trainsition model for availability
+  # prob_avail <- mean(data.history$availability, na.rm = TRUE)
+  # 
+  # # get the estimated value function
+  # Q.est = Cal.Q(rwrd.est, prob_avail, bandit.spec$gamma.mdp, bandit.spec$alpha0, bandit.spec$alpha1)
+  # 
+  # # weighted average between initial
+  # weight <- bandit.spec$weight.vec[input$studyDay]
+  # Q.int <- bandit.spec$init.Q.mat
+  # Q.mat <- (1-weight) * Q.int + weight* Q.est
+  # 
+  # # update the policy data
+  # data.policy$Q.mat <- Q.mat
   
 }
 
@@ -303,26 +316,20 @@ yesterdayLast.dosage <- data.day$history[5, dosage.index]
 fifth.act <- input$lastActivity
 fifthToEnd.anti <- input$priorAnti 
 
-# engagement (cannot be missing)
-engagement.indc <- (input$appClick >= data.imputation$thres.appclick);
-if(is.na(engagement.indc)){
-  
-  # app click data is missing
-  avg.click <- mean(data.imputation$appclicks)
-  engagement.indc <- (avg.click > data.imputation$thres.appclick)
-  
-}
+# engagement
+today.click <- day.history$appclick[1];
+daily.click <- subset(data.history, day > 0 & decision.time == 1)$appclick;
+threshold <- as.numeric(quantile(daily.click, probs = 0.4))
+engagement.indc <- (today.click >= threshold)
 
-
-# variation (cannot be missing) 
+# variation
 variation.indc <- rep(NA, 5)
-
 for(k in 1:5){
 
   
   temp <- data.history$prepoststeps[data.history$decision.time == k]
   temp <- rollapply(temp, width=7, FUN=sd, align='right', fill = NA) # rolling sd over past 7 days (including today)
-  temp <- tail(temp, 1+input$studyDay) # exclude the warm-up period
+  temp <- tail(temp, 1+input$studyDay) # the first one corresponds to the sd calculated in the first week with no app
   
   Y1 <- temp[length(temp)] # today's sd
   Y0 <- median(temp[1:(length(temp)-1)]) # median of the past
@@ -330,7 +337,7 @@ for(k in 1:5){
 
 }
 
-# sqrt steps (can be missing) 
+# sqrt steps 
 sqrt.steps <- sqrt(input$totalSteps)
 if(is.na(sqrt.steps)){
   
@@ -355,16 +362,20 @@ data.day$var.names <- colnames(data.history)
 # ================ Update the imputation dataset ================ 
 
 # applicks last 7 days
-data.imputation$appclicks <- append.array(data.imputation$appclicks, input$appClick)
+data.imputation$appclicks <- append.array(data.imputation$appclicks, 
+                                          input$appClick)
 
 # total steps last 7 days
-data.imputation$totalsteps <- append.array(data.imputation$totalsteps, input$totalSteps)
+data.imputation$totalsteps <- append.array(data.imputation$totalsteps, 
+                                           input$totalSteps)
 
 # pre and post steps last 7 days per decision time
 for(i in 1:5){
   
-  data.imputation$presteps[[i]] <- append.array(data.imputation$presteps[[i]], input$preStepsArray[i])
-  data.imputation$poststeps[[i]] <- append.array(data.imputation$poststeps[[i]], input$postStepsArray[i])
+  data.imputation$presteps[[i]] <- append.array(data.imputation$presteps[[i]], 
+                                                input$preStepsArray[i])
+  data.imputation$poststeps[[i]] <- append.array(data.imputation$poststeps[[i]], 
+                                                 input$postStepsArray[i])
   
 }
 

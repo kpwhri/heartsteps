@@ -31,12 +31,20 @@ if(server){
 }
 
 
+
+
+
+# check if we have all the information 
+stopifnot(all(c("userID", "totalStepsArray", "preStepsMatrix", "postStepsMatrix") %in% names(input)))
+
 # convert NULL to NA and tranform into vector/matrix
-names.array <- c("appClicksArray", "totalStepsArray")
-names.matrix <- c("availMatrix", "temperatureMatrix", "preStepsMatrix", "postStepsMatrix")
+names.array <- c("totalStepsArray")
+names.matrix <- c("preStepsMatrix", "postStepsMatrix")
 for(name in names.array) input[[name]] <- proc.array(input[[name]])
 for(name in names.matrix) input[[name]] <- proc.matrix(input[[name]])
-  
+
+
+
 # check if we have identical days' data for each variables
 len.all <- c(sapply(names.array, function(x) length(input[[x]])), 
              sapply(names.matrix, function(x) nrow(input[[x]])))
@@ -49,15 +57,6 @@ stopifnot(ndays == 7)
 # check if we have all five decision times for the matrics
 ncol.all <- sapply(names.matrix, function(x) ncol(input[[x]]))
 stopifnot(ncol.all == 5)
-
-# ensure availability is logicial (no missing)
-stopifnot(all(c(input$availMatrix) %in% c(0, 1)))
-
-# ensure temperature is imputed by the server
-stopifnot(all(is.na(input$temperatureMatrix)==FALSE))
-
-# need to ensure we have app clicks data 
-stopifnot(all(is.na(input$appClicksArray)) == FALSE)
 
 # need to ensure we have, for each dt, any pre/post steps data)
 stopifnot(all(apply(input$preStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
@@ -72,11 +71,8 @@ stopifnot(all(is.na(input$totalStepsArray)) == FALSE)
 data.imputation <- list()
 data.imputation$userID <- input$userID
 
-# threshold to standarize the app click
-data.imputation$thres.appclick <- mean(input$appClicksArray, na.rm=TRUE)
-
-# applicks last 7 days (update daily)
-data.imputation$appclicks <- tail(input$appClicksArray[is.na(input$appClicksArray)==FALSE], 7)
+# appclicks last 7 known days (update daily; to impute the missing app clicks)
+data.imputation$appclicks <- NA
 
 # total steps last 7 days (update daily)
 data.imputation$totalsteps <- NA
@@ -151,7 +147,7 @@ data.policy$Q.mat <- bandit.spec$init.Q.mat
 var.names <- c("day", "decision.time", 
            "availability", "probability", "action", "reward",
            "dosage", "engagement", "work.location", "other.location", "variation",
-           "temperature", "logpresteps", "sqrt.totalsteps", "prepoststeps", "random.number")
+           "temperature", "logpresteps", "sqrt.totalsteps", "prepoststeps", "deliever", "appclick" ,"random.number")
 
 data.history <- matrix(NA, nrow = 5*ndays, ncol = length(var.names))
 colnames(data.history) <- var.names
@@ -160,12 +156,12 @@ data.history <- data.frame(data.history)
 # just fill in the variables might be used later (avail, action, reward, cts variables)
 data.history$day <- -rep(ndays:1, each = 5) # negative represents before the study
 data.history$decision.time <- rep(1:5, times = ndays)
-data.history$availability <- c(t(input$availMatrix))
-data.history$probability <- 0;
-data.history$action <- 0;
-data.history$dosage <- 1;
-data.history$reward <- log(0.5 + c(t(input$postStepsMatrix)))
-data.history$temperature <- c(t(input$temperatureMatrix))
+data.history$availability <- NA
+data.history$probability <- NA;
+data.history$action <- NA;
+data.history$dosage <- NA;
+data.history$reward <- NA
+data.history$temperature <- NA
 
 # the imputed pre and post steps using cumulative averages
 # if the first one is missing, then use the total average
@@ -180,8 +176,7 @@ data.history$prepoststeps <- c(t(prestep.mat + poststep.mat))
 data.history$logpresteps <- log(0.5 + c(t(prestep.mat)))
 
 # imputed total steps
-data.history$sqrt.totalsteps <- sqrt(warmup.imput(input$totalStepsArray) )
-
+data.history$sqrt.totalsteps <- rep(c(NA, sqrt(warmup.imput(input$totalStepsArray)[1:(ndays-1)])), each = 5)
 
 
 # =====  Data Holder for the first day ==== ####
@@ -194,7 +189,7 @@ data.day <- list()
 data.day$study.day <- 1
 
 # dosage related
-data.day$yesterdayLast.dosage <-  1 # dosage at the fifth decision yesterday prior to treatment
+data.day$yesterdayLast.dosage <-  0 # dosage at the fifth decision yesterday prior to treatment
 data.day$fifthToEnd.anti <- FALSE # indicator of whether there is anti-sed msg sent between 5th to the end of yesterday
 data.day$fifth.act <- FALSE # indicator of whether there is activity msg sent at fifth decision time yesterday
 
@@ -216,14 +211,8 @@ if(is.na(data.day$sqrtsteps)){
   
 }
 
-# app engagement (imputed if last day is missing)
-data.day$engagement <- (input$appClicksArray[ndays] >= data.imputation$thres.appclick)
-if(is.na(data.day$engagement)){
-  
-  # use the known average, then we get true 
-  data.day$engagement <- (mean(input$appClicksArray, na.rm=T) >= data.imputation$thres.appclick)
-  
-}
+# app engagement (initialize to be TRUE)
+data.day$engagement <- TRUE
 
 # use the history to define it based on the protocol 
 data.day$variation <- rep(NA, 5)
@@ -234,6 +223,7 @@ for(k in 1:5){
   data.day$variation[k] <- (Y1 >= Y0)
   
 }
+
 
 # keep the names to ensure the format is same
 data.day$var.names <- var.names

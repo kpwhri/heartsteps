@@ -1,11 +1,14 @@
 import * as moment from 'moment';
 
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ActivityLog } from './activity-log.model';
 
 @Injectable()
 export class ActivityLogService {
+
+    public updated: EventEmitter<ActivityLog> = new EventEmitter();
+    public deleted: EventEmitter<ActivityLog> = new EventEmitter();
 
     constructor(
         private heartstepsServer:HeartstepsServer
@@ -25,20 +28,16 @@ export class ActivityLogService {
             end: end.toISOString()
         })
         .then((logs:Array<any>) => {
-            const activityLogs:Array<ActivityLog> = [];
-            logs.forEach((log:any) => {
-                activityLogs.push(
-                    this.deserializeActivityLog(log)
-                );
-            })
-            return activityLogs;
+            return logs.map((log) => {
+                return this.deserialize(log);
+            });
         });
     }
 
     public getLog(logId:string):Promise<ActivityLog> {
         return this.heartstepsServer.get('activity/logs/' + logId)
         .then((data) => {
-            return this.deserializeActivityLog(data);
+            return this.deserialize(data);
         });
     }
 
@@ -48,28 +47,34 @@ export class ActivityLogService {
             this.serialize(activityLog)    
         )
         .then((data) => {
-            return this.deserializeActivityLog(data);
+            return this.deserialize(data);
+        })
+        .then((activityLog: ActivityLog) => {
+            this.updated.emit(activityLog);
+            return activityLog;
         });
     }
 
     public delete(activityLog:ActivityLog):Promise<boolean> {
         return this.heartstepsServer.delete('activity/logs/' + activityLog.id)
         .then(() => {
+            this.deleted.emit(activityLog);
             return true;
         });
     }
 
-    private serialize(activityLog):any {
+    public serialize(activityLog):any {
         return {
             id: activityLog.id,
             start: activityLog.start,
             duration: activityLog.duration,
             type: activityLog.type,
-            vigorous: activityLog.vigorous
+            vigorous: activityLog.vigorous,
+            earnedMinutes: activityLog.earnedMinutes
         }
     }
 
-    private deserializeActivityLog(data:any):ActivityLog {
+    public deserialize(data:any):ActivityLog {
         const activityLog:ActivityLog = new ActivityLog();
         activityLog.id = data.id;
         activityLog.start = moment(data.start).toDate();

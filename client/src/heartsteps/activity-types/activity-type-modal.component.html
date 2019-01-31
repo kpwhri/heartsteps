@@ -1,0 +1,10 @@
+<app-modal-dialog
+    title="Activity Types"
+    >
+    <button (click)="create()">Create New Activity Type</button>
+    <ul>
+        <li *ngFor="let type of activityTypes" class="activity-type activity-type-{{type.name}}">
+            <button (click)="select(type)">{{type.title}}</button>
+        </li>
+    </ul>
+</app-modal-dialog>

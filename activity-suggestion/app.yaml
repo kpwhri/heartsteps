@@ -1,6 +1,6 @@
 runtime: custom
 env: flex
-service: activity-suggestion
+service: walking-suggestion
 
 beta_settings:
   cloud_sql_instances: heartsteps-kpwhri:us-west2:heartsteps-dev

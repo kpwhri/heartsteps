@@ -1,47 +1,40 @@
-<form *ngIf="planForm" [formGroup]="planForm">
-    <div>
-        <label for="activity-plan-type">Activity</label>
-        <heartsteps-activity-type id="activity-plan-type" name="activity" formControlName="activity"></heartsteps-activity-type>
+<button *ngIf="!activityPlan.complete && updateView" (click)="complete()" class="primary">Complete</button>
+<app-form 
+    [formGroup]="planForm"
+    [defaultSubmit]="false"
+    [error]="error"
+    (onSubmit)="save()"
+    >
+    <heartsteps-activity-type-field
+        formControlName="activity"
+        label="Activity type"
+        >
+    </heartsteps-activity-type-field>
+    <heartsteps-activity-intensity-field
+        formControlName="vigorous"
+        label="Intensity"
+        >
+    </heartsteps-activity-intensity-field>
+    <app-duration-field 
+        formControlName="duration"
+        label="Duration"
+        >
+    </app-duration-field>
+    <app-date-field
+        formControlName="date"
+        label="Date"
+        [available-dates]="availableDates"
+        >
+    </app-date-field>
+    <app-time-field
+        formControlName="time"
+        label="Time"
+        >
+    </app-time-field>
+    <div app-form-controls>
+        <input *ngIf="!updateView" type="submit" value="Save" />
+        <input *ngIf="updateView && !activityPlan.complete" type="submit" value="Update" />
     </div>
-    <fieldset class="intensity input-group">
-        <legend>Intensity</legend>
-        <ul>
-            <li>
-                <input id="activity-plan-intensity-moderate" type="radio" name="vigorous" formControlName="vigorous" [value]="false" />
-                <label for="activity-plan-intensity-moderate">
-                    Moderate
-                    <span>1x time credit</span>
-                </label>
-            </li>
-            <li>
-                <input id="activity-plan-intensity-vigorous" type="radio" name="vigorous" formControlName="vigorous" [value]="true" />
-                <label for="activity-plan-intensity-vigorous">
-                    Vigorous
-                    <span>2x time credit</span>
-                </label>
-            </li>
-        </ul>
-    </fieldset>
-    <ion-item>
-        <ion-label>Duration</ion-label>
-        <ion-input formControlName="duration" type="number"></ion-input>
-    </ion-item>
-    <ion-item>
-        <ion-label for="activity-plan-date">Date</ion-label>
-        <ion-select id="activity-plan-date" formControlName="date">
-            <ion-option *ngFor="let date of availableDates">{{date}}</ion-option>
-        </ion-select>
-    </ion-item>
-    <ion-item>
-        <ion-label>Start time</ion-label>
-        <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,15,30,45"></ion-datetime>
-    </ion-item>
-    <div class="controls">
-        <p *ngIf="error">{{error}}</p>
-        <button *ngIf="!updateView" (click)="save()" >Save</button>
-        <button *ngIf="!activityPlan.complete && updateView" (click)="complete()" class="primary">Complete</button>
-        <button *ngIf="activityPlan.complete && updateView" (click)="uncomplete()">Mark incomplete</button>
-        <button *ngIf="updateView && !activityPlan.complete" (click)="save()" >Update</button>
-        <button *ngIf="updateView && !activityPlan.complete" (click)="delete()" class="danger">Delete</button>
-    </div>
-</form>
+</app-form>
+<button *ngIf="updateView && !activityPlan.complete" (click)="delete()" class="danger">Delete</button>
+<button *ngIf="activityPlan.complete && updateView" (click)="uncomplete()">Mark incomplete</button>

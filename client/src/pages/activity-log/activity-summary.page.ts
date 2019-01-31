@@ -4,6 +4,7 @@ import { DateFactory } from '@infrastructure/date.factory';
 import { Location } from '@angular/common';
 import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
 import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
+import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 
 @Component({
     selector: 'activity-summary-page',
@@ -14,11 +15,11 @@ import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
 })
 export class ActivitySummaryPage implements OnInit {
 
-    date:Date;
-    logs:Array<ActivityLog>;
+    public dailySummary: DailySummary;
+    public logs:Array<ActivityLog>;
 
     constructor(
-        private route: ActivatedRoute,
+        private activatedRoute: ActivatedRoute,
         private router: Router,
         private dateFactory: DateFactory,
         private location: Location,
@@ -26,13 +27,8 @@ export class ActivitySummaryPage implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.date = this.dateFactory.parseDate(
-            this.route.snapshot.paramMap.get('date')
-        );
-        this.activityLogService.getDate(this.date)
-        .then((logs) => {
-            this.logs = logs;
-        })
+        this.logs = this.activatedRoute.snapshot.data['activityLogs'];
+        this.dailySummary = this.activatedRoute.snapshot.data['dailySummary'];
     }
 
     openActivityLog(log:ActivityLog) {

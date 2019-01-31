@@ -1,8 +1,0 @@
-<ul class="nav">
-    <li *ngFor="let summary of summaries">
-        <a (click)="goTo(summary.date)">
-            <span>{{summary.date | date}}</span>
-            <span>{{summary.totalMinutes}} min</span>
-        </a>
-    </li>
-</ul>

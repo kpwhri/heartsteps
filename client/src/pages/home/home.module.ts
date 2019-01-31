@@ -12,7 +12,7 @@ import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
-import { StatsPage } from '@pages/activity-log/stats.page';
+import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
 
@@ -49,7 +49,8 @@ const homeRoutes: Routes = [{
 @NgModule({
     declarations: [
         HomePage,
-        PlanPage
+        PlanPage,
+        StatsPage
     ],
     entryComponents: [
         DashboardPage,

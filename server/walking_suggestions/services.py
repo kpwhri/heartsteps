@@ -1,5 +1,5 @@
 import requests, json, pytz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date as datetime_date
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -108,7 +108,7 @@ class WalkingSuggestionService():
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
-        data['userId'] = self.__user.username
+        data['userID'] = self.__user.username
         request_record = ServiceRequest(
             user = self.__user,
             url = url,
@@ -116,16 +116,21 @@ class WalkingSuggestionService():
             request_time = timezone.now()
         )
 
-        response = requests.post(url, data=data)
+        response = requests.post(url, json=data)
 
         request_record.response_code = response.status_code
         request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
 
-        return json.loads(response.text)
+        try:
+            return json.loads(response.text)
+        except:
+            return response.text
 
-    def initialize(self, date):
+    def initialize(self, date=None):
+        if not date:
+            date = datetime_date.today()
         if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
             raise ImproperlyConfigured('No initialization days specified')
         else:
@@ -217,9 +222,13 @@ class WalkingSuggestionService():
         return day.step_count
 
     def get_availabilities(self, date):
-        for decision in self.get_decisions_for(date):
+        availabilities = []
+        decisions = self.get_decisions_for(date) 
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
             decision_service = WalkingSuggestionDecisionService(decision)
-            yield decision_service.determine_availability()
+            availabilities.append(decision_service.determine_availability())
+        return availabilities
 
     def get_temperatures(self, date):
         temperatures = []

@@ -1,0 +1,8 @@
+<label for="{{name}}">{{label}}</label>
+<input id="{{name}}"
+    name="{{name}}"
+    type="number"
+    [ngModel]="value"
+    (ngModelChange)="onChange($event)"
+    (focus)="isFocused()"
+    (blur)="isBlurred()" />

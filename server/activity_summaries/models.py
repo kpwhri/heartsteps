@@ -22,6 +22,8 @@ class Day(models.Model):
     vigorous_minutes = models.PositiveIntegerField(default=0)
     total_minutes = models.PositiveIntegerField(default=0)
 
+    updated = models.DateTimeField(auto_now=True)
+
     @property
     def timezone(self):
         if hasattr(self, '__timezone'):

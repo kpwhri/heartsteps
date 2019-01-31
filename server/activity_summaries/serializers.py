@@ -9,7 +9,7 @@ from .models import Day
 class DaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Day
-        fields = ('date', 'moderate_minutes', 'vigorous_minutes', 'steps', 'miles')
+        fields = ('date', 'moderate_minutes', 'vigorous_minutes', 'steps', 'miles', 'updated')
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

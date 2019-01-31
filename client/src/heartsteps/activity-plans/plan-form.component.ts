@@ -1,11 +1,13 @@
 import * as moment from 'moment';
 
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { ActivityPlanService } from './activity-plan.service';
 import { ActivityPlan } from './activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
+import { FormComponent } from '@infrastructure/form/form.component';
+import { LoadingService } from '@infrastructure/loading.service';
 
 @Component({
     selector: 'activity-plan-form',
@@ -18,9 +20,10 @@ import { DateFactory } from '@infrastructure/date.factory';
 export class PlanFormComponent implements OnInit {
 
     @Output() saved = new EventEmitter<boolean>();
+    @ViewChild(FormComponent) form: FormComponent;
 
     public activityPlan:ActivityPlan;
-    public availableDates:Array<string>;
+    public availableDates:Array<Date>;
 
     public planForm:FormGroup;
     public error:string;
@@ -29,14 +32,12 @@ export class PlanFormComponent implements OnInit {
 
     constructor(
         private activityPlanService:ActivityPlanService,
-        private dateFactory: DateFactory
+        private dateFactory: DateFactory,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit() {
-        this.availableDates = [];
-        this.dateFactory.getRemainingDaysInWeek().forEach((date:Date) => {
-            this.availableDates.push(this.formatDate(date));
-        });
+        this.availableDates = this.dateFactory.getCurrentWeek();
     }
 
     @Input('plan')
@@ -45,9 +46,9 @@ export class PlanFormComponent implements OnInit {
             this.activityPlan = activityPlan;
             this.planForm = new FormGroup({
                 activity: new FormControl(this.activityPlan.type, Validators.required),
-                duration: new FormControl(this.activityPlan.duration, Validators.required),
-                date: new FormControl(this.activityPlan.getStartDate(), Validators.required),
-                time: new FormControl(this.activityPlan.getStartTime(), Validators.required),
+                duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
+                date: new FormControl(this.activityPlan.start, Validators.required),
+                time: new FormControl(this.activityPlan.start, Validators.required),
                 vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
             });
             
@@ -63,33 +64,28 @@ export class PlanFormComponent implements OnInit {
         }
     }
 
-    formatDate(date:Date):string {
-        return moment(date).format('dddd, M/D');
-    }
-
-    parseDate(str:string):Date {
-        return moment(str, 'dddd, M/D').toDate();
-    }
-
     updateActivity() {
         this.activityPlan.type = this.planForm.value.activity;
         this.activityPlan.duration = this.planForm.value.duration;
         this.activityPlan.vigorous = this.planForm.value.vigorous;
-        this.activityPlan.updateStartTime(this.planForm.value.time);
-        this.activityPlan.updateStartDate(this.parseDate(this.planForm.value.date));
+        this.activityPlan.start.setFullYear(this.planForm.value.date.getFullYear());
+        this.activityPlan.start.setMonth(this.planForm.value.date.getMonth());
+        this.activityPlan.start.setDate(this.planForm.value.date.getDate());
+        this.activityPlan.start.setHours(this.planForm.value.time.getHours());
+        this.activityPlan.start.setMinutes(this.planForm.value.time.getMinutes());
     }
 
-    validateActivity():Promise<ActivityPlan> {
-        if(this.planForm.valid) {
+    private validateActivity():Promise<ActivityPlan> {
+        return this.form.submit()
+        .then(() => {
             this.updateActivity();
-            return Promise.resolve(this.activityPlan);
-        } else {
-            return Promise.reject("Invalid form");
-        }
+            return this.activityPlan;
+        });
     }
 
-    save() {
-        this.validateActivity()
+    public save() {
+        this.loadingService.show('Saving activity plan');
+        return this.validateActivity()
         .then((activityPlan) => {
             return this.activityPlanService.save(activityPlan);
         })
@@ -98,30 +94,53 @@ export class PlanFormComponent implements OnInit {
         })
         .catch((error) => {
             this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
-    complete() {
+    public complete() {
+        this.loadingService.show('Completing activity plan');
         this.validateActivity()
         .then((activityPlan) => {
             return this.activityPlanService.complete(activityPlan);
         })
         .then(() => {
             this.saved.emit();
+        })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
-    uncomplete() {
+    public uncomplete() {
+        this.loadingService.show('Uncompleting activity plan');
         this.activityPlanService.uncomplete(this.activityPlan)
         .then(() => {
             this.saved.emit();
+        })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
-    delete() {
+    public delete() {
         this.activityPlanService.delete(this.activityPlan)
         .then(() => {
             this.saved.emit();
+        })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 

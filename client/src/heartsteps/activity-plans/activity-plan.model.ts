@@ -11,6 +11,8 @@ export class ActivityPlan extends ActivityLog {
     public duration:number;
     public complete:boolean = false;
 
+    public activityLogId: string;
+
     isComplete() {
         return this.complete;
     }

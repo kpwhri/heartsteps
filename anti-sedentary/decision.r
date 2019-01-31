@@ -11,12 +11,14 @@ source("functions.R")
 #require(mgcv); require(chron);
 
 # payload = ' {
-#   "userId": [ 1 ],
-#   "decisionId": [ 1803312 ] ,
+#   "userid": [ 2 ],
+#   "decisionid": [ 1803312 ] ,
 #   "time": [ "2018-10-12 10:10" ] ,
-#   "dayStart": [ "2018-10-12 8:00" ] ,
-#   "dayEnd": [ "2018-10-12 20:00" ] ,
-#   "currentState": [ 1 ]
+#   "daystart": [ "2018-10-12 8:00" ] ,
+#   "dayend": [ "2018-10-12 20:00" ] ,
+#   "state": [ 1 ],
+#   "steps": [ 10 ],
+#   "available": [ 1 ]
 # }
 # '
 # input = fromJSON(payload)
@@ -29,25 +31,27 @@ Sedentary.length = read.csv("sed_length.csv")
 
 # If userID file exists then pull that in
 # Otherwise construct a dataframe
-file_name = paste("user_",input$userId,"_antised_data.csv", sep = "")
+file_name = paste("user_",input$userid,"_antised_data.csv", sep = "")
 
 if(file.exists(file_name)) {
-  user.data = read.csv(file = file_name)
+  user.data = read.csv(file = file_name, header= TRUE)
 } else {
-  user.data = data.frame(userid = input$userId, decisionId = input$decisionId,
-                         time = input$time, dayStart = input$dayStart, dayEnd = input$dayEnd,
-                         probaction = 0.0, action = 0.0)
+  user.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+                         time = input$time, daystart = input$daystart, dayend = input$dayend,
+                         online_state = input$state, online_step = input$steps, available = input$available,
+                         batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
+                         missingindicator = 0, duplicate = FALSE)
 }
 
 # Fix the user datetime issue
 if( any(is.na(strptime(user.data$time, "%Y-%m-%d %H:%M"))) ) {
   user.data$time = as.POSIXct(strptime(user.data$time, "%m/%d/%y %H:%M"), tz = "Etc/GMT+6")
-  user.data$dayStart = as.POSIXct(strptime(user.data$dayStart, "%m/%d/%y %H:%M"), tz = "Etc/GMT+6")
-  user.data$dayEnd = as.POSIXct(strptime(user.data$dayEnd, "%m/%d/%y %H:%M"), tz = "Etc/GMT+6")
+  user.data$daystart = as.POSIXct(strptime(user.data$daystart, "%m/%d/%y %H:%M"), tz = "Etc/GMT+6")
+  user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%m/%d/%y %H:%M"), tz = "Etc/GMT+6")
 } else {
   user.data$time = as.POSIXct(strptime(user.data$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  user.data$dayStart = as.POSIXct(strptime(user.data$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  user.data$dayEnd = as.POSIXct(strptime(user.data$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+  user.data$daystart = as.POSIXct(strptime(user.data$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+  user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 }
 
 # setwd("../")
@@ -67,8 +71,8 @@ names(fraction.df) = c("current.hour", "mean", "var")
 
 ## Build history from existing database
 current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-final.time = as.POSIXct(strptime(input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-beginning.time = as.POSIXct(strptime(input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
 library('chron')
 current.day.obs = user.data$time < current.time & days(user.data$time) == days(current.time)
@@ -76,12 +80,12 @@ current.day.obs = user.data$time < current.time & days(user.data$time) == days(c
 current.day.user.data = user.data[current.day.obs,]
 
 ## Check if duplication
-
 if( any(is.element(user.data$time,current.time)) ) { 
-  user.data$decisionID = as.numeric(user.data$decisionID)
-  temp.data = data.frame(userID = input$userId, decisionID = input$decisionId,
-                         time = current.time, dayStart = beginning.time, dayEnd = final.time,
-                         state = input$currentState, probaction = 0.0, action = 0, 
+  user.data$decisionid = as.numeric(user.data$decisionid)
+  temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+                         time = input$time, daystart = input$daystart, dayend = input$dayend,
+                         online_state = input$state, online_step = input$steps, available = input$available,
+                         batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                          missingindicator = 0, duplicate = TRUE)
   
   write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
@@ -99,7 +103,7 @@ if( any(is.element(user.data$time,current.time)) ) {
   attr(beginning.time, "tzone") <- "GMT"
   
   H.t = data.frame(
-    old.states = current.day.user.data$state,
+    old.states = current.day.user.data$online_state,
     old.A = current.day.user.data$action,
     old.rho = current.day.user.data$probaction,
     time.diff = as.numeric(current.time - current.day.user.data$time)
@@ -128,7 +132,7 @@ if( any(is.element(user.data$time,current.time)) ) {
   
   # remaining.time = length(time.steps) - (t-1)
   remaining.time.in.block = stop.block - (decision.time - 1)
-  if(any(H.t$old.A[(max(1,decision.time-12)):(decision.time-1)] == 1)) {
+  if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
     rho.t = 0
     A.t = 0
   } else {
@@ -143,15 +147,16 @@ if( any(is.element(user.data$time,current.time)) ) {
   
   ## Write output to the file
   current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  final.time = as.POSIXct(strptime(input$dayEnd, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  beginning.time = as.POSIXct(strptime(input$dayStart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+  final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+  beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   
-  temp.data = data.frame(userID = input$userId, decisionID = input$decisionId,
-                         time = current.time, dayStart = beginning.time, dayEnd = final.time,
-                         state = input$currentState, probaction = rho.t, action = A.t, 
+  temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+                         time = current.time, daystart = beginning.time, dayend = final.time,
+                         online_state = input$state, online_step = input$steps, available = input$available, 
+                         batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                          missingindicator = 0, duplicate = FALSE)
-  
-  write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+
+  # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
 }
 
 # output the results

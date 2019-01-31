@@ -4,16 +4,17 @@ import { ActivityPlan } from "./activity-plan.model";
 import * as moment from 'moment';
 import { Observable, BehaviorSubject } from "rxjs";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
+import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
+import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 
 @Injectable()
 export class ActivityPlanService {
     private plans:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
     private storage:DocumentStorage
 
-    public planCompleted:EventEmitter<boolean> = new EventEmitter();
-
     constructor(
         private heartstepsServer:HeartstepsServer,
+        private activityLogService: ActivityLogService,
         documentStorage: DocumentStorageService
     ) {
         this.storage = documentStorage.create('heartsteps-activity-plans');
@@ -47,7 +48,12 @@ export class ActivityPlanService {
         activityPlan.complete = false;
         return this.save(activityPlan)
         .then((plan) => {
-            this.planCompleted.emit();
+            if(activityPlan.activityLogId) {
+                const mockActivityLog = new ActivityLog();
+                mockActivityLog.id = activityPlan.activityLogId;
+                mockActivityLog.start = activityPlan.start;
+                this.activityLogService.deleted.emit(mockActivityLog);
+            }
             return plan;
         });
     }
@@ -56,7 +62,17 @@ export class ActivityPlanService {
         activityPlan.complete = true;
         return this.save(activityPlan)
         .then((plan) => {
-            this.planCompleted.emit();
+            if(plan.activityLogId) {
+                return this.activityLogService.getLog(plan.activityLogId)
+                .then((log) => {
+                    this.activityLogService.updated.emit(log);
+                    return Promise.resolve()
+                })
+                .catch(() => {})
+                .then(() => {
+                    return plan;
+                });
+            }
             return plan;
         });
     }
@@ -166,7 +182,8 @@ export class ActivityPlanService {
             start: activityPlan.start.toISOString(),
             duration: activityPlan.duration,
             vigorous: activityPlan.vigorous,
-            complete: activityPlan.complete
+            complete: activityPlan.complete,
+            activityLogId: activityPlan.activityLogId || undefined
         };
     }
 
@@ -177,6 +194,7 @@ export class ActivityPlanService {
         activityPlan.duration = data.duration;
         activityPlan.vigorous = data.vigorous || false;
         activityPlan.complete = data.complete || false;
+        activityPlan.activityLogId = data.activityLogId || undefined;
 
         if(data.start) {
             const localMoment = moment.utc(data.start).local();

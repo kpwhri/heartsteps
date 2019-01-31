@@ -11,7 +11,7 @@ from rest_framework.test import APITestCase
 
 from activity_logs.models import ActivityLog, ActivityType
 from locations.services import LocationService
-from fitbit_api.services import FitbitService
+from fitbit_api.services import FitbitService, FitbitClient, FitbitDayService
 from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
 
 from .models import Day, User
@@ -54,6 +54,7 @@ class ActivitySummaryViewTests(APITestCase):
         self.assertEqual(response.data['minutes'], 0)
         self.assertEqual(response.data['moderateMinutes'], 0)
         self.assertEqual(response.data['vigorousMinutes'], 0)
+        self.assertIsNotNone(response.data['updated'])
 
     def test_get_day(self):
         self.create_day(date(2018, 10, 16))
@@ -86,6 +87,26 @@ class ActivitySummaryViewTests(APITestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[-1]['date'], '2018-10-18')
 
+    def test_get_date_range_creates_days(self):
+        self.assertEqual(Day.objects.count(), 0)
+
+        response = self.client.get(reverse('activity-summary-date-range', kwargs={
+            'start': '2018-10-16',
+            'end': '2018-10-18'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(Day.objects.count(), 3)
+
+        response = self.client.get(reverse('activity-summary-date-range', kwargs={
+            'start': '2018-10-17',
+            'end': '2018-10-19'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Day.objects.count(), 4)
+
     def test_date_range_misformatted(self):
         response = self.client.get(reverse('activity-summary-date-range', kwargs={
             'start': '2018/10/16',
@@ -93,6 +114,36 @@ class ActivitySummaryViewTests(APITestCase):
         }))
 
         self.assertEqual(response.status_code, 404)
+
+    @patch.object(FitbitClient, 'get_timezone', return_value=pytz.UTC)
+    @patch.object(FitbitDayService, 'update')
+    def test_updates_day(self, fitbit_day_update, get_timezone):
+        FitbitService.create_account(
+            user = self.user
+        )
+
+        response = self.client.get(reverse('activity-summary-day-update', kwargs={
+            'day': '2018-12-10'
+        }))
+
+        fitbit_day_update.assert_called()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['steps'], 0)
+        self.assertEqual(response.data['miles'], 0)
+        self.assertEqual(response.data['minutes'], 0)
+        self.assertEqual(response.data['moderateMinutes'], 0)
+        self.assertEqual(response.data['vigorousMinutes'], 0)
+
+    @patch.object(FitbitDayService, 'update')
+    def test_update_day_fails(self, fitbit_day_update):
+        response = self.client.get(reverse('activity-summary-day-update', kwargs={
+            'day': '2018-12-10'
+        }))
+
+        fitbit_day_update.assert_not_called()
+
+        self.assertEqual(response.status_code, 400)
 
 class FitbitDayUpdatesDay(TestCase):
 

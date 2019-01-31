@@ -14,6 +14,8 @@ class ActivityPlanSerializer(ActivityLogSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['complete'] = instance.complete
+        if instance.complete:
+            representation['activityLogId'] = instance.activity_log.id
         return representation
 
     def save(self, **kwargs):

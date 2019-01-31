@@ -4,6 +4,7 @@ import { EnrollmentModal } from './enroll';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { EnrollmentController } from './enrollment.controller';
 import { EnrollmentService } from './enrollment.service';
+import { FormModule } from '@infrastructure/form/form.module';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { EnrollmentService } from './enrollment.service';
   ],
   imports: [
     InfrastructureModule,
+    FormModule,
     IonicPageModule.forChild(EnrollmentModal)
   ],
   providers: [

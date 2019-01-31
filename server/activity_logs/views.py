@@ -53,8 +53,6 @@ class ActivityLogsList(APIView):
                     serialized.validated_data['end']
                 )
             ).all()
-            if len(activity_logs) < 1:
-                return Response("", status=status.HTTP_404_NOT_FOUND)
             serialized_logs = ActivityLogSerializer(activity_logs, many=True)
             return Response(serialized_logs.data, status = status.HTTP_200_OK)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

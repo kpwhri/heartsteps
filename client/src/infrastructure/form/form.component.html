@@ -1,0 +1,10 @@
+<form [formGroup]="form" (ngSubmit)="formSubmit()" class="heartsteps-form" >
+    <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
+    <div class="form">
+        <ng-content></ng-content>
+    </div>
+    <div class="controls">
+        <input *ngIf="showSubmit" type="submit" value="{{submitCTA}}" />
+        <ng-content select="[app-form-controls]"></ng-content>
+    </div>
+</form>
