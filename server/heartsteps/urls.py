@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^api/', include('push_messages.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'api-auth', include('rest_framework.urls')),
-    url(r'export', include('data_export.urls')),
+    url(r'export/', include('data_export.urls')),
 ]
