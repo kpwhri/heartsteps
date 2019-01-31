@@ -29,4 +29,4 @@ class SuggestionTime(models.Model):
     minute = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "%s:%s (%s) - %s" % (self.hour, self.minute, self.category, self.configuration.user)         
+        return "%s:%s (%s) - %s" % (self.hour, self.minute, self.category, self.user)         
