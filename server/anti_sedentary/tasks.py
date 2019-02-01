@@ -26,6 +26,6 @@ def make_decision(decision_id):
         return False
     
     decision_service = AntiSedentaryDecisionService(decision)
-    decision_service.update_context()
     if decision_service.decide():
+        decision_service.update_context()
         decision_service.send_message()
