@@ -54,3 +54,6 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 
 data/
+
+*.feather
+*.RData
