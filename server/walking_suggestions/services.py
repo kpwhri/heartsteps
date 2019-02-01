@@ -68,6 +68,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         return configuration.impute_context
 
     def decide(self):
+        self.update_availability()
         if self.decision.test:
             self.decision.a_it = True
             self.decision.pi_it = 1

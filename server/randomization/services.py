@@ -70,12 +70,12 @@ class DecisionService():
         new_context = self.generate_context()
         for tag in self.generate_context():
             self.add_context(tag)
-        self.update_availability()
 
     def update_availability(self):
         pass
 
     def decide(self):
+        self.update_availability()
         return self.decision.decide()
     
 
