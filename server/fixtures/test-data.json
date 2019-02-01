@@ -39,7 +39,7 @@
     "model": "participants.participant",
     "pk": "test",
     "fields": {
-        "enrollment_token": "token",
+        "enrollment_token": "test-test",
         "birth_year": 1980,
         "user": null
     }
