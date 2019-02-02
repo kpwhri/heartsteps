@@ -61,7 +61,7 @@ class MakeRequestTests(ServiceTestCase):
 
         self.requests_post.assert_called_with(
             'http://example/example',
-            data = example_request
+            json = example_request
         )
         request_record = ServiceRequest.objects.get()
         self.assertEqual(request_record.request_data, json.dumps(example_request))
