@@ -29,4 +29,4 @@ after_success:
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
 # upload client web app to gae
-- gcloud app deploy -q -v master server/app.yaml static/app.yaml activity-suggestion/app.yaml dispatch.yaml
+- gcloud app deploy -q -v master server/app.yaml static/app.yaml walking-suggestion-service/app.yaml dispatch.yaml
