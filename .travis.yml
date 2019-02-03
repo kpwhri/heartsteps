@@ -30,3 +30,12 @@ after_success:
 - gcloud config set project ${GAE_PROJECT_ID}
 # upload client web app to gae
 - gcloud app deploy -q -v master server/app.yaml static/app.yaml dispatch.yaml
+# build services
+- docker-compose build service-template walking-suggestion-service anti-sedentary-service
+# upload walking suggestion service
+- docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
+- docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
+- gcloud compute instances update-container "walking-suggestion-service" --container-image="gcr.io/heartsteps-kpwhri/walking-suggestion-service"
+# upload anti-sedentary service
+- docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
+- docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
