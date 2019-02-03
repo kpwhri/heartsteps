@@ -10,8 +10,10 @@ services:
     command: python app.py
     volumes:
       - ./walking-suggestion-service:/walking-suggestion-service
+      - ./credentials:/credentials
     ports:
       - "5000:8080"
+    privileged: true
   anti-sedentary-service:
     build: ./anti-sedentary-service
     command: python app.py
