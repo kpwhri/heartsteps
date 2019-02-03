@@ -5,6 +5,10 @@ services:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+  service-template:
+    build:
+      context: ./
+      dockerfile: ./service-template/Dockerfile
   walking-suggestion-service:
     build: ./walking-suggestion-service
     command: python app.py
