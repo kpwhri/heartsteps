@@ -31,13 +31,27 @@ class Participant(models.Model):
         self.user = user
         self.save()
         participant_enrolled.send(User, username=user.username)
-
-    @property
-    def enrolled(self):
-        if self.daily_task:
+    
+    def _is_enrolled(self):
+        if self.user:
             return True
         else:
             return False
+    _is_enrolled.boolean = True
+
+    def _is_active(self):
+        try:
+            daily_task = self.__get_daily_task()
+            if daily_task.enabled:
+                return True
+        except DailyTask.DoesNotExist:
+            pass
+        return False
+    _is_active.boolean = True
+
+    @property
+    def enrolled(self):
+        return self._is_enrolled()
 
     @property
     def daily_task_name(self):

@@ -33,6 +33,8 @@ def update_participant(modeladmin, request, queryset):
 class ParticipantAdmin(admin.ModelAdmin):
     readonly_fields = ['daily_update']
 
+    list_display = ['__str__', '_is_enrolled', '_is_active']
+
     actions = [enroll_participant, unenroll_participant, update_participant]
 
     def daily_update(self, instance):
