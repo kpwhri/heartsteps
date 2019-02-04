@@ -124,6 +124,8 @@ class DailyTask(models.Model):
             self.task.delete()
 
     def get_next_run_time(self):
+        if not self.enabled:
+            return None
         location_service = LocationService(self.user)
         now = timezone.now().astimezone(self.timezone)
         next_run = datetime(now.year, now.month, now.day, self.hour, self.minute, tzinfo=now.tzinfo)
