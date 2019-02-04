@@ -11,8 +11,7 @@ ADD . /activity-suggestion
 #Load python dependencies
 RUN pip install -r requirements.txt
 
-#Load R dependencies
-RUN Rscript install.r
+
 
 # Run the server
 CMD gunicorn -b 0.0.0.0:8080 wsgi
