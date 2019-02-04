@@ -5,16 +5,9 @@ RUN apt-get update && \
     apt-get install -y r-base
 
 # Create and add files to Docker
-WORKDIR /activity-suggestion
-ADD . /activity-suggestion
+WORKDIR /pooling-service
+ADD . /pooling-service
 
-#Load python dependencies
-RUN pip install -r requirements.txt
-
-
-
-# Run the server
-CMD gunicorn -b 0.0.0.0:8080 wsgi
 
 RUN apt-get install -y vim
 
@@ -32,6 +25,10 @@ ENV PATH /root/anaconda3/bin:$PATH
 RUN conda create -n py36 python=3.6
 
 ENV PATH /root/anaconda3/envs/py36/bin:$PATH
+
+RUN source activate py36
+
+RUN conda update jupyter
 
 RUN conda install -c conda-forge gpflow
 
