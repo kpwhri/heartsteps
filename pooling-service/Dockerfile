@@ -8,6 +8,7 @@ RUN apt-get update && \
 WORKDIR /pooling-service
 ADD . /pooling-service
 
+RUN wget https://repo.continuum.io/archive/Anaconda3-5.2.0-Linux-x86_64.sh
 RUN bash Anaconda3-5.2.0-Linux-x86_64.sh -b
 
 #ENV PATH /root/anaconda3/bin:$PATH
