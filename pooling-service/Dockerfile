@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.6.8
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && \
@@ -6,7 +6,7 @@ RUN apt-get update && \
 
 # Create and add files to Docker
 WORKDIR /pooling-service
-ADD ./pooling-service
+ADD . /pooling-service
 
 
 RUN apt-get install -y vim
