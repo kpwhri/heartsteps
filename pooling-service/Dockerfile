@@ -8,9 +8,6 @@ RUN apt-get update && \
 WORKDIR /pooling-service
 ADD . /pooling-service
 
+RUN conda create -n py36 python=3.6
 
-ENV PATH /root/anaconda3/envs/py36/bin:$PATH
-
-RUN echo "source activate env" > ~/.bashrc
-
-RUN conda install jupyter
+RUN conda install --name py36 jupyter
