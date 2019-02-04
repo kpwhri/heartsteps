@@ -26,7 +26,7 @@ RUN conda create -n py36 python=3.6
 
 ENV PATH /root/anaconda3/envs/py36/bin:$PATH
 
-RUN conda update Conda
+RUN conda update conda
 
 RUN conda update jupyter
 
