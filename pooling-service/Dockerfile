@@ -12,6 +12,6 @@ ADD . /pooling-service
 ENV PATH /root/anaconda3/envs/py36/bin:$PATH
 
 
-RUN source activate py36
+RUN /bin/bash -c "source activate py36"
 
 RUN conda install jupyter
