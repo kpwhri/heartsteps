@@ -29,7 +29,7 @@ ENV PATH /root/anaconda3/bin:$PATH
 
 
 
-RUN conda create -n myenv python=3.6
+RUN conda create -n py36 python=3.6
 
 RUN source activate py36
 
