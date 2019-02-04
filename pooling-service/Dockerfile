@@ -26,7 +26,7 @@ RUN conda create -n py36 python=3.6
 
 ENV PATH /root/anaconda3/envs/py36/bin:$PATH
 
-RUN source activate py36
+RUN conda update Conda
 
 RUN conda update jupyter
 
