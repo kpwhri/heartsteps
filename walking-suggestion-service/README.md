@@ -1,4 +1,14 @@
-# BANDIT SERVICE IN HEARTSTEPS 2.0 
+# Walking Suggestion Service
+The walking suggestion service suggests if the heartsteps-server should send a walking-suggestion message to the participant.
+
+## Installation and runtime
+To run the walking-suggestion-service, the heartsteps_service-template image needs to be built first. The following commands will build the heartsteps_service-template and then run the walking-suggestion-service.
+
+``` bash
+docker-compose build service-template
+docker-compose run --service-ports walking-suggestion-service
+```
+
 ## 1. Initialization
 
 ### WHEN TO CALL
