@@ -1,18 +1,11 @@
-FROM python:3.6
-ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update && \
-    apt-get install -y r-base
+FROM heartsteps_service-template:latest
 
 # Create and add files to Docker
-WORKDIR /anti-sedentary
-ADD . /anti-sedentary
+WORKDIR /anti-sedentary-service
+ADD . /anti-sedentary-service
 
-#Load python dependencies
 RUN pip install -r requirements.txt
-
-#Load R dependencies
 RUN Rscript install.r
 
 # Run the server
-CMD gunicorn -b 0.0.0.0:8080 wsgi
+CMD gcsfuse anti-sedentary-data ./data && gunicorn -b 0.0.0.0:8080 wsgi

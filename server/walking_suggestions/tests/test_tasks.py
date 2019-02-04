@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_activity_suggestion_service, update_activity_suggestion_service
+from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_walking_suggestion_service, update_walking_suggestion_service
 
 
 class StartTaskTests(TestCase):
@@ -109,7 +109,7 @@ class InitializeTaskTests(TestCase):
             user = User.objects.create(username='test')
         )
 
-        initialize_activity_suggestion_service('test')
+        initialize_walking_suggestion_service('test')
 
         initialize.assert_called()
 
@@ -122,6 +122,6 @@ class NightlyUpdateTaskTests(TestCase):
             user = User.objects.create(username='test')
         )
 
-        update_activity_suggestion_service('test')
+        update_walking_suggestion_service('test')
 
         update.assert_called()

@@ -6,7 +6,7 @@ from daily_tasks.models import DailyTask
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
-from participants.models import Participant, User
+from participants.models import Participant, User, TASK_CATEGORY
 from participants.tasks import initialize_participant
 
 @override_settings(PARTICIPANT_NIGHTLY_UPDATE_TIME='4:15')
@@ -20,7 +20,7 @@ class InitializeTask(TestCase):
     def test_starts_nightly_update_task(self):
         initialize_participant("test")
 
-        daily_task = DailyTask.objects.get(user__username="test", category='participant update')
+        daily_task = DailyTask.objects.get(user__username="test", category=TASK_CATEGORY)
         self.assertEqual(daily_task.hour, 4)
         self.assertEqual(daily_task.minute, 15)
     

@@ -5,13 +5,28 @@ services:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+  service-template:
+    build:
+      context: ./
+      dockerfile: ./service-template/Dockerfile
   walking-suggestion-service:
     build: ./walking-suggestion-service
     command: python app.py
     volumes:
       - ./walking-suggestion-service:/walking-suggestion-service
+      - ./credentials:/credentials
     ports:
       - "5000:8080"
+    privileged: true
+
+  pooling-service:
+      build: ./pooling-service
+      volumes:
+        - ./pooling-service:/pooling-service
+        - ./credentials:/credentials
+      ports:
+        - "8888:8893"
+      privileged: true
   anti-sedentary-service:
     build: ./anti-sedentary-service
     command: python app.py
