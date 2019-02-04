@@ -10,7 +10,7 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from walking_suggestions.services import WalkingSuggestionService
 
 from participants.models import Participant, User
-from participants.tasks import nightly_update
+from participants.tasks import daily_update
 
 @override_settings(PARTICIPANT_NIGHTLY_UPDATE_TIME='2:00')
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
@@ -37,7 +37,7 @@ class NightlyUpdateTest(TestCase):
             user = self.user
         )
 
-        nightly_update(username=self.user.username)
+        daily_update(username=self.user.username)
 
         fitbit_day_update.assert_called()
 
@@ -48,7 +48,7 @@ class NightlyUpdateTest(TestCase):
             user = self.user
         )
 
-        nightly_update(username=self.user.username)
+        daily_update(username=self.user.username)
 
         walking_suggestion_service.assert_called()
 
@@ -59,6 +59,6 @@ class NightlyUpdateTest(TestCase):
             enabled = False
         )
 
-        nightly_update(username=self.user.username)
+        daily_update(username=self.user.username)
 
         walking_suggestion_service.assert_not_called()
