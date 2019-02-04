@@ -18,6 +18,15 @@ services:
     ports:
       - "5000:8080"
     privileged: true
+
+  pooling-service:
+      build: ./pooling-service
+      volumes:
+        - ./pooling-service:/pooling-service
+        - ./credentials:/credentials
+      ports:
+        - "8888:8893"
+      privileged: true
   anti-sedentary-service:
     build: ./anti-sedentary-service
     command: python app.py
