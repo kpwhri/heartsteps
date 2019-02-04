@@ -119,8 +119,9 @@ class DailyTask(models.Model):
         )
 
     def delete_task(self):
-        self.task.crontab.delete()
-        self.task.delete()
+        if self.task:
+            self.task.crontab.delete()
+            self.task.delete()
 
     def get_next_run_time(self):
         location_service = LocationService(self.user)

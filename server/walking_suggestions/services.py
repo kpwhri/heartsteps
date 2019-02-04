@@ -99,9 +99,19 @@ class WalkingSuggestionService():
     class NotInitialized(ImproperlyConfigured):
         pass
 
-    def __init__(self, configuration):
+    def __init__(self, configuration=None, user=None, username=None):
+        try:
+            if username:
+                configuration = Configuration.objects.get(user__username=username)
+            if user:
+                configuration = Configuration.objects.get(user=user)
+        except Configuration.DoesNotExist:
+            raise self.Unavailable('No configuration')
+
         self.__configuration = configuration
         self.__user = configuration.user
+        if not self.__configuration.enabled:
+            raise self.Unavailable('Configuration not enabled')
         if not hasattr(settings,'WALKING_SUGGESTION_SERVICE_URL'):
             raise self.Unavailable("No WALKING_SUGGESTION_SERVICE_URL")
         else:
@@ -284,7 +294,9 @@ class WalkingSuggestionService():
         )
         for time_category in SuggestionTime.TIMES:
             try:
-                decision = decision_query.filter(tags__tag=time_category).get()
+                decision = decision_query.get(tags__tag=time_category)
+            except WalkingSuggestionDecision.MultipleObjectsReturned:
+                decision = decision_query.filter(tags__tag=time_category).first()
             except WalkingSuggestionDecision.DoesNotExist:
                 decision = self.create_decision_for(date, time_category)
             decision_times[time_category] = decision

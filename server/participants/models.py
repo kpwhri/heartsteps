@@ -3,9 +3,14 @@ import pytz
 from datetime import datetime
 
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 
-from participants.signals import participant_enrolled
+from daily_tasks.models import DailyTask
+
+from .signals import participant_enrolled
+
+TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
 class Participant(models.Model):
     """
@@ -25,11 +30,55 @@ class Participant(models.Model):
         )
         self.user = user
         self.save()
+        participant_enrolled.send(User, username=user.username)
 
-        if created:
-            participant_enrolled.send(User, username=user.username)
+    @property
+    def enrolled(self):
+        if self.daily_task:
+            return True
+        else:
+            return False
+
+    @property
+    def daily_task_name(self):
+        return '%s daily update' % (self.user.username)
+
+    @property
+    def daily_task(self):
+        try:
+            return self.__get_daily_task()
+        except DailyTask.DoesNotExist:
+            return None
+
+    def set_daily_task(self):
+        if not hasattr(settings, 'PARTICIPANT_NIGHTLY_UPDATE_TIME'):
+            raise ImproperlyConfigured('Participant nightly update time not configured')
+        hour, minute = settings.PARTICIPANT_NIGHTLY_UPDATE_TIME.split(':')
+        try:
+            daily_task = self.__get_daily_task()
+        except DailyTask.DoesNotExist:
+            daily_task = self.__create_daily_task()
+        daily_task.set_time(int(hour), int(minute))
+
+    def __get_daily_task(self):
+        return DailyTask.objects.get(
+            user = self.user,
+            category = TASK_CATEGORY
+        )
+    
+    def __create_daily_task(self):
+        task = DailyTask.objects.create(
+            user = self.user,
+            category = TASK_CATEGORY
+        )
+        task.create_task(
+            task = 'participants.tasks.daily_update',
+            name = self.daily_task_name,
+            arguments = {
+                'username': self.user.username
+            }
+        )
+        return task
 
     def __str__(self):
-            if self.user:
-                return "%s (enrolled)" % (self.heartsteps_id)
-            return self.heartsteps_id
+        return self.heartsteps_id
