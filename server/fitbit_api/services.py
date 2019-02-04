@@ -23,6 +23,7 @@ class FitbitService:
         if not account:
             raise FitbitService.NoAccount()
         self.__account = account
+        self.account = account
         self.__user = user
 
     def get_users(self):
@@ -264,14 +265,13 @@ class FitbitClient():
                     steps = stepInterval['value']
                 )
 
-class FitbitDayService:
+class FitbitDayService(FitbitService):
 
-    def __init__(self, date, user=None, account=None):
+    def __init__(self, date, account=None, user=None, username=None):
+        super().__init__(account, user, username)
         self.__client = FitbitClient(
-            user = user,
-            account = account
+            account = self.account
         )
-        self.__user = user
         self.__day = self.__client.get_day(
             date_string = FitbitDayService.date_to_string(date)
         )

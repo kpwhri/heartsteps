@@ -5,12 +5,13 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from daily_tasks.models import DailyTask
-from fitbit_api.services import FitbitDayService
 from locations.services import LocationService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
+from fitbit_api.services import FitbitDayService
 from participants.models import Participant
+from walking_suggestions.services import WalkingSuggestionService
 
 @shared_task
 def initialize_participant(username):
@@ -52,12 +53,22 @@ def nightly_update(username):
 
     # Study adherence nightly update run
     ## Looks at participant data, sends activity alerts
+    try:
+        fitbit_day = FitbitDayService(
+            user = participant.user,
+            date = yesterday
+        )
+        fitbit_day.update()
+    except FitbitDayService.NoAccount:
+        pass
 
-    fitbit_day = FitbitDayService(
-        user = participant.user,
-        date = yesterday
-    )
-    fitbit_day.update()
+    try:
+        walking_suggestion_service = WalkingSuggestionService(
+            user = participant.user
+        )
+        walking_suggestion_service.update(yesterday)
+    except WalkingSuggestionService.Unavailable:
+        pass
 
     ## Maybe following is just update task from app
     # if walking suggestions configuration has suggestion times

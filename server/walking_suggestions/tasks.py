@@ -11,7 +11,7 @@ from .models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from .services import WalkingSuggestionService, WalkingSuggestionDecisionService
 
 @shared_task
-def initialize_activity_suggestion_service(username):
+def initialize_walking_suggestion_service(username):
     try:
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
@@ -23,7 +23,7 @@ def initialize_activity_suggestion_service(username):
     service.initialize()
 
 @shared_task
-def update_activity_suggestion_service(username):
+def update_walking_suggestion_service(username):
     try:
         configuration = Configuration.objects.get(user__username=username)
     except Configuration.DoesNotExist:
