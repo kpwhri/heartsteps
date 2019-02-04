@@ -6,7 +6,7 @@ RUN apt-get update && \
 
 # Create and add files to Docker
 WORKDIR /pooling-service
-ADD . /pooling-service
+ADD ./pooling-service
 
 
 RUN apt-get install -y vim
@@ -27,8 +27,6 @@ RUN conda create -n py36 python=3.6
 ENV PATH /root/anaconda3/envs/py36/bin:$PATH
 
 RUN conda update conda
-
-RUN conda update jupyter
 
 RUN conda install -c conda-forge gpflow
 
