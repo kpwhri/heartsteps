@@ -27,7 +27,12 @@ RUN rm Anaconda3-5.0.1-Linux-x86_64.sh
 #ENV PATH /root/anaconda3/bin:$PATH
 ENV PATH /root/anaconda3/bin:$PATH
 
-RUN conda install -c conda-forge gpflow
 
+
+RUN conda create -n myenv python=3.6
+
+RUN source activate py36
+
+RUN conda install -c conda-forge gpflow
 
 
