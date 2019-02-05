@@ -4,7 +4,7 @@ from celery import shared_task
 
 from django.contrib.auth.models import User
 
-from fitbit_api.services import FitbitClient, FitbitDayService
+from fitbit_api.services import FitbitClient, FitbitDayService, parse_fitbit_date
 from fitbit_api.models import FitbitAccount, FitbitSubscription
 
 @shared_task
@@ -28,6 +28,6 @@ def update_fitbit_data(username, date_string):
 
     fitbit_day = FitbitDayService(
         account = account,
-        date = FitbitDayService.string_to_date(date_string)
+        date = parse_fitbit_date(date_string)
     )
     fitbit_day.update()

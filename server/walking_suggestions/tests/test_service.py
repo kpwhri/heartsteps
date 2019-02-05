@@ -212,13 +212,8 @@ class GetStepsTests(ServiceTestCase):
         )
         day = FitbitDay.objects.create(
             account = account,
-            date = datetime(2018,10,10)
-        )
-        FitbitMinuteStepCount.objects.create(
-            account = account,
-            day = day,
-            time = timezone.now(),
-            steps = 400
+            date = datetime(2018,10,10),
+            step_count = 400
         )
 
     def test_gets_steps(self):
@@ -272,49 +267,38 @@ class StepCountTests(ServiceTestCase):
         )
         decision.add_context('activity suggestion')
         decision.add_context(SuggestionTime.POSTDINNER)
-        day = FitbitDay.objects.create(
-            account = account,
-            date = datetime(2018,10,10)
-        )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 10, 0, tzinfo=pytz.utc),
             steps = 50
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 9, 0, tzinfo=pytz.utc),
             steps = 10
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 10, 20, tzinfo=pytz.utc),
             steps = 120
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 21, 45, tzinfo=pytz.utc),
             steps = 10
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 22, 7, tzinfo=pytz.utc),
             steps = 10
         )
         # Following step counts shouldn't be considered
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 9, 39, tzinfo=pytz.utc),
             steps = 50
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 22, 31, tzinfo=pytz.utc),
             steps = 50
@@ -379,18 +363,12 @@ class DecisionAvailabilityTest(TestCase):
             account = self.account,
             user = self.user 
         )
-        self.day = FitbitDay.objects.create(
-            account = self.account,
-            date = timezone.now()
-        )
         FitbitMinuteStepCount.objects.create(
-            day = self.day,
             account = self.account,
             time = timezone.now() - timedelta(minutes=15),
             steps = 10
         )
         FitbitMinuteStepCount.objects.create(
-            day = self.day,
             account = self.account,
             time = timezone.now() - timedelta(minutes=30),
             steps = 120
@@ -412,7 +390,6 @@ class DecisionAvailabilityTest(TestCase):
 
     def test_fitbit_steps_unavailable(self):
         FitbitMinuteStepCount.objects.create(
-            day = self.day,
             account = self.account,
             time = timezone.now() - timedelta(minutes=5),
             steps = 300

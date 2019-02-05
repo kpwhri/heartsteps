@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 from dateutil import parser as dateutil_parser
+from decimal import Decimal
 import pytz
 
 from django.conf import settings
@@ -69,7 +70,16 @@ def create_callback_url(request):
     if 'https://' not in complete_url:
         complete_url = complete_url.replace('http://', 'https://')
 
+def format_fitbit_date(date):
+    return date.strftime('%Y-%m-%d')
+
+def parse_fitbit_date(date_string):
+    return datetime.strptime(date_string, '%Y-%m-%d')
+
 class FitbitClient():
+
+    class Unauthorized(RuntimeError):
+        pass
 
     def __init__(self, user=None, account=None):
         if account:
@@ -161,109 +171,62 @@ class FitbitClient():
         self.__timezone = pytz.timezone(timezone)
         return self.__timezone
 
-    def get_day(self, date_string):
-        date = datetime.strptime(date_string, '%Y-%m-%d')
-        try:
-            day = FitbitDay.objects.get(
-                account = self.account,
-                date = date
-            )
-        except FitbitDay.DoesNotExist:
-            timezone = self.get_timezone()
-            day = FitbitDay.objects.create(
-                account = self.account,
-                date = date,
-                timezone = timezone.zone
-            )
-        return day
-
-    def update_heart_rate(self, fitbit_day):
+    def get_heart_rate(self, date):
         url = "{0}/{1}/user/{user_id}/activities/heart/date/{date}/1d/1min.json".format(
             *self.client._get_common_args(),
             user_id = self.account.fitbit_user,
-            date = fitbit_day.format_date()
+            date = format_fitbit_date(date)
         )
         response = self.client.make_request(url)
-        timezone = fitbit_day.get_timezone()
-        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'category': 'heart rate',
-            'payload': response,
-            'timezone': timezone.zone
-        })
+        return {
+            'heart_rate': response['activities-heart'][0]['restingHeartRate'],
+            'dataset': response['activities-heart-intraday']['dataset']
+        }
+        
 
-    def request_activities(self, fitbit_day):
+    def __request_activities(self, date):
         url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
             *self.client._get_common_args(),
             user_id = self.account.fitbit_user,
-            after_date = fitbit_day.format_date()
+            after_date = format_fitbit_date(date)
         )
         response = self.client.make_request(url)
         return response
 
-    def update_activities(self, fitbit_day, request_url=None):
+    def get_activities(self, date, request_url=None, activities=[]):
         if request_url:
             response = self.client.make_request(request_url)
         else:   
-            response = self.request_activities(fitbit_day)
-        activities = response['activities']
-        for activity in activities:
+            response = self.__request_activities(date)
+        
+        more_activities = True
+        for activity in response['activities']:
             startTime = dateutil_parser.parse(activity['startTime'])
-            if startTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
-                self.save_activity(activity, fitbit_day)
-        if len(activities) > 0:
-            lastActivityStartTime = dateutil_parser.parse(activities[-1]['startTime'])
-            if lastActivityStartTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
-                if response['pagination']['next'] is not '':
-                    self.update_activities(fitbit_day, request_url=response['pagination']['next'])
+            if startTime.strftime('%Y-%m-%d') == date.strftime('%Y-%m-%d'):
+                activities.append(activity)
+            else:
+                more_activities = False
+        if more_activities and response['pagination']['next'] is not '':
+            return self.get_activities(
+                date = date,
+                request_url=response['pagination']['next'],
+                activities = activities    
+            )
+        else:
+            return activities
 
-    def save_activity(self, activity, fitbit_day):
-        start_time = dateutil_parser.parse(activity['startTime'])
-        end_time = start_time + timedelta(milliseconds=activity['duration'])
-        average_heart_rate = activity['averageHeartRate']
-
-        activity_type, _ = FitbitActivityType.objects.get_or_create(
-            fitbit_id = activity['activityTypeId'],
-            name = activity['activityName']
-        )
-
-        FitbitActivity.objects.update_or_create(
-            fitbit_id = activity['logId'], defaults={
-                'account': self.account,
-                'type': activity_type,
-                'day': fitbit_day,
-                'average_heart_rate': average_heart_rate,
-                'start_time': start_time,
-                'end_time': end_time,
-                'payload': activity
-            }
-        )
-
-    def update_steps(self, fitbit_day):
-        response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
+    def format_date(self, date):
+        return format_fitbit_date(date)
+    
+    def parse_date(self, date):
+        return parse_fitbit_date(date)
         
-        timezone = fitbit_day.get_timezone()
-        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'category': 'steps',
-            'payload': response,
-            'timezone': timezone.zone
-        })
-        FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
-        
-        for stepInterval in response['activities-steps-intraday']['dataset']:
-            if stepInterval['value'] > 0:
-                step_datetime = datetime.strptime(
-                        "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
-                        "%Y-%m-%d %H:%M:%S"
-                    )
-                step_datetime = timezone.localize(step_datetime)
-                step_datetime_utc = step_datetime.astimezone(pytz.utc)
-
-                FitbitMinuteStepCount.objects.create(
-                    account = self.account,
-                    day = fitbit_day,
-                    time = step_datetime_utc,
-                    steps = stepInterval['value']
-                )
+    def get_intraday_activity(self, activity_type, date):
+        response = self.client.intraday_time_series(
+            'activities/%s' % activity_type,
+            base_date = self.format_date(date)
+        )
+        return response['activities-%s-intraday' % activity_type]['dataset']
 
 class FitbitDayService(FitbitService):
 
@@ -274,21 +237,118 @@ class FitbitDayService(FitbitService):
         self.__client = FitbitClient(
             account = self.account
         )
-        if fitbit_day:
-            self.__day = fitbit_day
-        else:
-            self.__day = self.__client.get_day(
-                date_string = FitbitDayService.date_to_string(date)
+        if not fitbit_day and not date:
+            raise ImproperlyConfigured('No date supplied')
+        if date:
+            fitbit_day = self.__get_fitbit_day(date)
+        self.day = fitbit_day
+        self.date = fitbit_day.date
+
+    def __get_fitbit_day(self, date):
+        try:
+            return FitbitDay.objects.get(
+                account = self.account,
+                date = date
+            )
+        except FitbitDay.DoesNotExist:
+            timezone = self.__client.get_timezone()
+            return FitbitDay.objects.create(
+                account = self.account,
+                date = date,
+                _timezone = timezone.zone
             )
 
-    def date_to_string(date):
-        return date.strftime('%Y-%m-%d')
-    
-    def string_to_date(string):
-        return datetime.strptime(string, '%Y-%m-%d')
-
     def update(self):
-        self.__client.update_steps(self.__day)
-        self.__client.update_activities(self.__day)
-        self.__client.update_heart_rate(self.__day)
-        self.__day.update()
+        self.day.step_count = self.update_steps()
+        self.day._distance = self.update_distance()
+        self.day.average_heart_rate = self.update_heart_rate() 
+        self.update_activities()
+        
+        self.day.save()
+
+    def update_activities(self):
+        for activity in self.__client.get_activities(self.date):
+            start_time = dateutil_parser.parse(activity['startTime'])
+            end_time = start_time + timedelta(milliseconds=activity['duration'])
+            average_heart_rate = activity['averageHeartRate']
+
+            activity_type, _ = FitbitActivityType.objects.get_or_create(
+                fitbit_id = activity['activityTypeId'],
+                name = activity['activityName']
+            )
+
+            FitbitActivity.objects.update_or_create(
+                fitbit_id = activity['logId'], defaults={
+                    'account': self.account,
+                    'type': activity_type,
+                    'day': self.day,
+                    'average_heart_rate': average_heart_rate,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'payload': activity
+                }
+            )
+
+    def update_heart_rate(self):
+        response = self.__client.get_heart_rate(self.date)
+        timezone = fitbit_day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
+            'category': 'heart rate',
+            'payload': response['dataset'],
+            'timezone': timezone.zone
+        })
+        return response['heart_rate']
+
+    def _get_intraday_time_series(self, activity_type):
+        timezone = self.day.get_timezone()
+        data = self.__client.get_intraday_activity(activity_type, self.date)
+        FitbitDailyUnprocessedData.objects.update_or_create(
+            account=self.account,
+            day=self.day,
+            category = activity_type,
+            defaults={
+                'payload': data,
+                'timezone': timezone.zone
+            }
+        )
+
+        processed_data = []
+        for interval in data:
+            interval_datetime = datetime.strptime(
+                    "%s %s" % (
+                        format_fitbit_date(self.date),
+                        interval['time']
+                    ),
+                    "%Y-%m-%d %H:%M:%S"
+                )
+            interval_datetime = timezone.localize(interval_datetime)
+            processed_data.append({
+                'datetime': interval_datetime.astimezone(pytz.utc),
+                'value': interval['value']
+            })
+        return processed_data
+
+    def update_steps(self):
+        step_intervals = []
+        total_steps = 0
+        for interval in self._get_intraday_time_series('steps'):
+            if interval['value'] > 0:
+                total_steps += interval['value']
+                step_intervals.append(FitbitMinuteStepCount(
+                    account = self.account,
+                    time = interval['datetime'],
+                    steps = interval['value']
+                ))
+        
+        FitbitMinuteStepCount.objects.filter(
+            time__range = [self.day.get_start_datetime(), self.day.get_end_datetime()]
+        ).delete()
+
+        FitbitMinuteStepCount.objects.bulk_create(step_intervals)
+        return total_steps
+
+    def update_distance(self):
+        total_distance = Decimal(0)
+        for interval in self._get_intraday_time_series('distance'):
+            total_distance += Decimal(interval['value'])
+        return total_distance

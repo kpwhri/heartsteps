@@ -160,7 +160,6 @@ class FitbitDayUpdatesDay(TestCase):
     def make_step_count(self, time):
         FitbitMinuteStepCount.objects.create(
             account = self.account,
-            day = self.fitbit_day,
             time = time,
             steps = 300
         )
