@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib import messages
+
 from .models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitActivity, FitbitUpdate, FitbitSubscriptionUpdate
+from .services import FitbitDayService
 
 class FitbitSubscriptionUpdateInline(admin.StackedInline):
     model = FitbitSubscriptionUpdate
@@ -28,9 +31,19 @@ class FitbitUpdateAdmin(admin.ModelAdmin):
 
 admin.site.register(FitbitUpdate, FitbitUpdateAdmin)
 
+def update_fitbit_day(modeladmin, request, queryset):
+    for day in queryset:
+        service = FitbitDayService(fitbit_day = day)
+        service.update()
+        messages.add_message(request, messages.INFO, 'Updated %s' % (day))
+
+
 class FitbitDayAdmin(admin.ModelAdmin):
     ordering = ["-date"]
     list_display = ("__str__", "last_updated")
+
+    readonly_fields = ['step_count']
+    actions = [update_fitbit_day]
     
     inlines = [
         FitbitActivityInline

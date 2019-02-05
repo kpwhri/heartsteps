@@ -267,14 +267,19 @@ class FitbitClient():
 
 class FitbitDayService(FitbitService):
 
-    def __init__(self, date, account=None, user=None, username=None):
+    def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None):
+        if fitbit_day:
+            account = fitbit_day.account
         super().__init__(account, user, username)
         self.__client = FitbitClient(
             account = self.account
         )
-        self.__day = self.__client.get_day(
-            date_string = FitbitDayService.date_to_string(date)
-        )
+        if fitbit_day:
+            self.__day = fitbit_day
+        else:
+            self.__day = self.__client.get_day(
+                date_string = FitbitDayService.date_to_string(date)
+            )
 
     def date_to_string(date):
         return date.strftime('%Y-%m-%d')
