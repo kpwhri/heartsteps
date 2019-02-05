@@ -80,6 +80,7 @@ class FitbitDay(models.Model):
 
     class Meta:
         ordering = ["date"]
+        unique_together = ('account', 'date')
 
     @property
     def timezone(self):
@@ -107,7 +108,7 @@ class FitbitDay(models.Model):
         return start_time + timedelta(days=1)
 
     def __str__(self):
-        return "%s: %s" % (self.account, self.format_date())
+        return "%s: %s" % (self.account, self.date.strftime('%Y-%m-%d'))
 
 class FitbitActivity(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
@@ -147,7 +148,7 @@ class FitbitDailyUnprocessedData(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
     account = models.ForeignKey(FitbitAccount)
-    day = models.OneToOneField(FitbitDay)
+    day = models.ForeignKey(FitbitDay)
     category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 
@@ -155,3 +156,6 @@ class FitbitDailyUnprocessedData(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('day', 'category')

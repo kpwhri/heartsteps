@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib import messages
 
 from .models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitActivity, FitbitUpdate, FitbitSubscriptionUpdate
-from .services import FitbitDayService
+from .services import FitbitClient, FitbitDayService
 
 class FitbitSubscriptionUpdateInline(admin.StackedInline):
     model = FitbitSubscriptionUpdate
@@ -38,9 +38,12 @@ admin.site.register(FitbitUpdate, FitbitUpdateAdmin)
 
 def update_fitbit_day(modeladmin, request, queryset):
     for day in queryset:
-        service = FitbitDayService(fitbit_day = day)
-        service.update()
-        messages.add_message(request, messages.INFO, 'Updated %s' % (day))
+        try:
+            service = FitbitDayService(fitbit_day = day)
+            service.update()
+            messages.add_message(request, messages.INFO, 'Updated %s' % day)
+        except FitbitClient.ClientError:
+            messages.add_message(request, messages.ERROR, 'Failed to update %s' % day)
 
 
 class FitbitDayAdmin(admin.ModelAdmin):

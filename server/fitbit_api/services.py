@@ -80,6 +80,9 @@ class FitbitClient():
 
     class Unauthorized(RuntimeError):
         pass
+    
+    class ClientError(RuntimeError):
+        pass
 
     def __init__(self, user=None, account=None):
         if account:
@@ -105,6 +108,18 @@ class FitbitClient():
         self.account.refresh_token = token['refresh_token']
         self.account.expires_at = token['expires_at']
         self.account.save()
+
+    def make_request(self, url):
+        formatted_url = '{0}/{1}/{url}'.format(
+            *self.client._get_common_args(),
+            url = url
+        )
+        print(formatted_url)
+        try:
+            return self.client.make_request(formatted_url)
+        except Exception as e:
+            print(e)
+            raise FitbitClient.ClientError('Unknown error')
 
     def is_subscribed(self):
         subscriptions = FitbitSubscription.objects.filter(fitbit_account = self.account).all()
@@ -172,25 +187,22 @@ class FitbitClient():
         return self.__timezone
 
     def get_heart_rate(self, date):
-        url = "{0}/{1}/user/{user_id}/activities/heart/date/{date}/1d/1min.json".format(
+        url = "user/-/activities/heart/date/{date}/1d/1min.json".format(
             *self.client._get_common_args(),
-            user_id = self.account.fitbit_user,
             date = format_fitbit_date(date)
         )
-        response = self.client.make_request(url)
+        response = self.make_request(url)
         return {
-            'heart_rate': response['activities-heart'][0]['restingHeartRate'],
+            'heart_rate': response['activities-heart'][0]['value']['restingHeartRate'],
             'dataset': response['activities-heart-intraday']['dataset']
         }
         
 
     def __request_activities(self, date):
-        url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
-            *self.client._get_common_args(),
-            user_id = self.account.fitbit_user,
+        url = "user/-/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
             after_date = format_fitbit_date(date)
         )
-        response = self.client.make_request(url)
+        response = self.make_request(url)
         return response
 
     def get_activities(self, date, request_url=None, activities=[]):
@@ -291,12 +303,16 @@ class FitbitDayService(FitbitService):
 
     def update_heart_rate(self):
         response = self.__client.get_heart_rate(self.date)
-        timezone = fitbit_day.get_timezone()
-        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'category': 'heart rate',
-            'payload': response['dataset'],
-            'timezone': timezone.zone
-        })
+        timezone = self.day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(
+            account=self.account,
+            day=self.day,
+            category = 'heart rate',
+            defaults={
+                'payload': response['dataset'],
+                'timezone': timezone.zone
+            }
+        )
         return response['heart_rate']
 
     def _get_intraday_time_series(self, activity_type):
