@@ -11,6 +11,11 @@ class FitbitSubscriptionUpdateInline(admin.StackedInline):
 class FitbitActivityInline(admin.StackedInline):
     model = FitbitActivity
     extra = 0
+    fields = ['type', 'duration', 'average_heart_rate']
+    readonly_fields = ['type', 'duration', 'average_heart_rate']
+
+    def duration(self, instance):
+        return '%s minutes' % instance.duration
 
 class FitbitAccountUserInline(admin.StackedInline):
     model = FitbitAccountUser
@@ -42,7 +47,8 @@ class FitbitDayAdmin(admin.ModelAdmin):
     ordering = ["-date"]
     list_display = ("__str__", "last_updated")
 
-    readonly_fields = ['step_count']
+    exclude = ['uuid']
+    readonly_fields = ['account', 'date', 'timezone','step_count']
     actions = [update_fitbit_day]
     
     inlines = [

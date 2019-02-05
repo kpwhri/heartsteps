@@ -60,6 +60,9 @@ class FitbitActivityType(models.Model):
     fitbit_id = models.IntegerField()
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.name
+
 
 class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
@@ -114,8 +117,11 @@ class FitbitActivity(models.Model):
 
     @property
     def duration(self):
-        difference = self.end_time - self.start_time
-        return math.ceil(difference.seconds/60)
+        if self.start_time and self.end_time:
+            difference = self.end_time - self.start_time
+            return math.ceil(difference.seconds/60)
+        else:
+            return 0
 
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
