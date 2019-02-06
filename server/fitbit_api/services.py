@@ -55,6 +55,16 @@ class FitbitService:
         )
         return account
 
+    @property
+    def fitbit_user(self):
+        return self.account.fitbit_user
+
+    def is_authorized(self):
+        if self.account.access_token:
+            return True
+        else:
+            return False
+
 
 def create_fitbit(**kwargs):
     consumer_key = None
