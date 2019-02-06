@@ -89,6 +89,10 @@ class FitbitDay(models.Model):
     @property
     def distance(self):
         return float(self._distance)
+    
+    @distance.setter
+    def distance(self, value):
+        self._distance = value
 
     def get_timezone(self):
         return pytz.timezone(self._timezone)
