@@ -9,6 +9,8 @@ services:
     build:
       context: ./
       dockerfile: ./service-template/Dockerfile
+    volumes:
+      - ./service-template/utils:/utils
   walking-suggestion-service:
     build: ./walking-suggestion-service
     command: python app.py
@@ -18,7 +20,6 @@ services:
     ports:
       - "5000:8080"
     privileged: true
-
   pooling-service:
       build: ./pooling-service
       volumes:
