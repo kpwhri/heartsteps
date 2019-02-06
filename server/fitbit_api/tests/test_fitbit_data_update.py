@@ -53,9 +53,9 @@ class FitbitDayUpdates(TestBase):
 
 class FitbitStepUpdates(TestBase):
 
-    @patch.object(Fitbit, 'intraday_time_series')
-    def testUpdatesSteps(self, intraday_time_series):
-        intraday_time_series.return_value = {'activities-steps-intraday': { 'dataset': [
+    @patch.object(Fitbit, 'make_request')
+    def testUpdatesSteps(self, make_request):
+        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 5
@@ -75,10 +75,10 @@ class FitbitStepUpdates(TestBase):
         step_count = service.update_steps()
 
         self.assertEqual(step_count, 10)
-        intraday_time_series.assert_called_with('activities/steps', base_date="2018-02-14")
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/steps/date/2018-02-14/1d/1min.json')
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
 
-        intraday_time_series.return_value = {'activities-steps-intraday': { 'dataset': [
+        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 15
@@ -91,9 +91,9 @@ class FitbitStepUpdates(TestBase):
 
 class FitbitUpdatesDistance(TestBase):
 
-    @patch.object(Fitbit, 'intraday_time_series')
-    def testUpdatesDistance(self, intraday_time_series):
-        intraday_time_series.return_value = { 'activities-distance-intraday': { 'dataset': [
+    @patch.object(Fitbit, 'make_request')
+    def testUpdatesDistance(self, make_request):
+        make_request.return_value = { 'activities-distance-intraday': { 'dataset': [
             {
                 'time': '10:00:00',
                 'value': '0.57'
@@ -110,7 +110,7 @@ class FitbitUpdatesDistance(TestBase):
         distance = service.update_distance()
 
         self.assertEqual(float(distance), 0.9)
-        intraday_time_series.assert_called()
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/distance/date/2018-02-14/1d/1min.json')
 
 
 class FitbitActivityUpdates(TestBase):
@@ -139,7 +139,7 @@ class FitbitActivityUpdates(TestBase):
 
         service.update_activities()
 
-        make_request.assert_called_with('https://api.fitbit.com/1/user/test/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
         activity = FitbitActivity.objects.get()
         self.assertEqual(activity.fitbit_id, '123')
         self.assertEqual(activity.type.name, 'Foo Ball')

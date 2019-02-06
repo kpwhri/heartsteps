@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
+from fitbit.exceptions import HTTPUnauthorized
 
 from fitbit_api.models import User, FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
 
@@ -78,10 +79,10 @@ def parse_fitbit_date(date_string):
 
 class FitbitClient():
 
-    class Unauthorized(RuntimeError):
-        pass
-    
     class ClientError(RuntimeError):
+        pass
+
+    class Unauthorized(ClientError):
         pass
 
     def __init__(self, user=None, account=None):
@@ -114,11 +115,11 @@ class FitbitClient():
             *self.client._get_common_args(),
             url = url
         )
-        print(formatted_url)
         try:
             return self.client.make_request(formatted_url)
+        except HTTPUnauthorized:
+            raise FitbitClient.Unauthorized('Fitbit unauthorized')
         except Exception as e:
-            print(e)
             raise FitbitClient.ClientError('Unknown error')
 
     def is_subscribed(self):
@@ -234,10 +235,10 @@ class FitbitClient():
         return parse_fitbit_date(date)
         
     def get_intraday_activity(self, activity_type, date):
-        response = self.client.intraday_time_series(
-            'activities/%s' % activity_type,
-            base_date = self.format_date(date)
-        )
+        response = self.make_request('user/-/activities/{activity_type}/date/{date}/1d/1min.json'.format(
+            activity_type = activity_type,
+            date = self.format_date(date)
+        ))
         return response['activities-%s-intraday' % activity_type]['dataset']
 
 class FitbitDayService(FitbitService):
