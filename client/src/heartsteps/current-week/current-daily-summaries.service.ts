@@ -8,7 +8,6 @@ import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { merge } from "rxjs/observable/merge";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { DailySummarySerializer } from "@heartsteps/daily-summaries/daily-summary.serializer";
-import { weekdays } from "moment";
 
 @Injectable()
 export class CurrentDailySummariesService {
@@ -31,7 +30,9 @@ export class CurrentDailySummariesService {
         this.dailySummaryService.updated.subscribe((summary:DailySummary) => {
             this.currentWeekService.isWithinWeek(summary.date)
             .then(() => {
-                this.set(summary);
+                return this.set(summary);
+            })
+            .then(() => {
                 this.reload();
             });
         });
