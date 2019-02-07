@@ -30,7 +30,7 @@ class TestBase(TestCase):
 
 class FitbitDayUpdates(TestBase):
 
-    @patch.object(FitbitDayService, 'update_heart_rate', return_value=50)
+    @patch.object(FitbitDayService, 'update_heart_rate')
     @patch.object(FitbitDayService, 'update_activities')
     @patch.object(FitbitDayService, 'update_steps', return_value=20)
     @patch.object(FitbitDayService, 'update_distance', return_value=0.123)
@@ -44,7 +44,6 @@ class FitbitDayUpdates(TestBase):
         self.assertEqual(fitbit_day.date.strftime('%Y-%m-%d'), "2018-02-14")
         self.assertEqual(fitbit_day.step_count, 20)
         self.assertEqual(fitbit_day.distance, 0.123)
-        self.assertEqual(fitbit_day.average_heart_rate, 50)
 
         update_steps.assert_called()
         update_distance.assert_called()
