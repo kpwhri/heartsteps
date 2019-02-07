@@ -203,11 +203,7 @@ class FitbitClient():
             date = format_fitbit_date(date)
         )
         response = self.make_request(url)
-        return {
-            'heart_rate': response['activities-heart'][0]['value']['restingHeartRate'],
-            'dataset': response['activities-heart-intraday']['dataset']
-        }
-        
+        return response['activities-heart-intraday']['dataset']
 
     def __request_activities(self, date):
         url = "user/-/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
@@ -284,7 +280,7 @@ class FitbitDayService(FitbitService):
     def update(self):
         self.day.step_count = self.update_steps()
         self.day._distance = self.update_distance()
-        self.day.average_heart_rate = self.update_heart_rate() 
+        self.update_heart_rate() 
         self.update_activities()
         
         self.day.save()
@@ -313,18 +309,18 @@ class FitbitDayService(FitbitService):
             )
 
     def update_heart_rate(self):
-        response = self.__client.get_heart_rate(self.date)
+        data = self.__client.get_heart_rate(self.date)
         timezone = self.day.get_timezone()
         FitbitDailyUnprocessedData.objects.update_or_create(
             account=self.account,
             day=self.day,
             category = 'heart rate',
             defaults={
-                'payload': response['dataset'],
+                'payload': data,
                 'timezone': timezone.zone
             }
         )
-        return response['heart_rate']
+        return data
 
     def _get_intraday_time_series(self, activity_type):
         timezone = self.day.get_timezone()
