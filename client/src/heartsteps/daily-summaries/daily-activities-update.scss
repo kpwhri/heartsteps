@@ -6,6 +6,10 @@ heartsteps-activity-daily-update {
         @extend button.bottom;
     }
 
+    button.is-loading {
+        opacity: 0.7;
+    }
+
     button:before {
         content: '';
         display: inline-block;
