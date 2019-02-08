@@ -35,7 +35,6 @@ export class MorningSurveyPage implements OnInit {
     }
 
     finish() {
-        console.log("finish");
         this.router.navigate(['home', 'dashboard']);
     }
 

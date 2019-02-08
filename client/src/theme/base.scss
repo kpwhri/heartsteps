@@ -44,8 +44,6 @@ dl {
 
 .page {
     font-size: 1.6rem;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
     background-color: $background-alternate;
 
     .headline {
@@ -120,10 +118,6 @@ article.page {
     padding: 0px;
     height: 100%;
     background: $background-primary;
-    
-    > * {
-        padding: $space-size/2 $space-size;
-    }
 }
 
 .heartsteps-button {

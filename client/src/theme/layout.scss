@@ -1,4 +1,3 @@
-
 .app-root {
     display: flex;
     flex-direction: column;
@@ -10,6 +9,13 @@
     > router-outlet {
         display: none;
     }
+}
+
+
+article.page,
+.page {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .content {

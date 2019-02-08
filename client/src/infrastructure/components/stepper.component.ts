@@ -20,6 +20,9 @@ export class HeartstepsStepperComponent implements OnInit, OnDestroy {
     private param:string;
     private current_key:string;
 
+    public title: string;
+    public firstStep: boolean;
+
     @Output('at-end') atEnd:EventEmitter<boolean> = new EventEmitter();
     @Output('at-start') atStart:EventEmitter<boolean> = new EventEmitter();
 
@@ -74,6 +77,17 @@ export class HeartstepsStepperComponent implements OnInit, OnDestroy {
 
     private loadStep(step:Step) {
         this.container.clear();
+
+        if(step === this.steps[0]) {
+            this.firstStep = true;
+        } else {
+            this.firstStep = false;
+        }
+        if (step.title) {
+            this.title = step.title;
+        } else {
+            this.title = undefined;
+        }
 
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(step.component);
         const componentRef = this.container.createComponent(componentFactory);

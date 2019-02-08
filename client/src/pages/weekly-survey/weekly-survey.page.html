@@ -1,10 +1,8 @@
-<article class="page slider">
-    <header>
-        <h2>{{title}}</h2>
-        <button *ngIf="!firstPage" (click)="previousPage()" class="back">Back</button>
-        <div class="pagination-bullets">
-            <span *ngFor="let page of pages" class="pagination-bullet" [ngClass]="{active: page == activePage}" >{{i}}</span>
-        </div>
-    </header>
-    <router-outlet></router-outlet>
+<article class="page">
+    <heartsteps-stepper
+        param="page"
+        [steps]="pages"
+        (at-end)="finish()"
+        >
+    </heartsteps-stepper>
 </article>

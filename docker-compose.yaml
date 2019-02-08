@@ -64,7 +64,6 @@ services:
       - db
       - server
     privileged: true
-    network_mode: "host"
 volumes:
   client-node-modules:
   pgdata:
