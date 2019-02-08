@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
 import { OnboardPage } from './onboard';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
@@ -11,18 +10,25 @@ import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthorizationGaurd } from '@heartsteps/participants/auth-gaurd.service';
+import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 
-const onboardRoutes:Routes = [{
-  path: 'onboard',
-  component: OnboardPage,
-  canActivate: [AuthorizationGaurd]
-}]
+const onboardRoutes:Routes = [
+    {
+        path: 'onboard/:page',
+        component: OnboardPage,
+        canActivate: [AuthorizationGaurd]
+    }, {
+        path: 'onboard',
+        redirectTo: 'onboard/start'
+    }
+];
 
 @NgModule({
   declarations: [
     OnboardPage,
   ],
   imports: [
+    HeartstepsComponentsModule,
     WeeklySurveyModule,
     PlacesModule,
     ParticipantModule,
@@ -31,7 +37,6 @@ const onboardRoutes:Routes = [{
     FitbitModule,
     ContactInformationModule,
     WalkingSuggestionsModule,
-    IonicPageModule.forChild(OnboardPage),
     RouterModule.forChild(onboardRoutes)
   ],
   exports: [

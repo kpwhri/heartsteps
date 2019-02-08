@@ -95,11 +95,20 @@ export class StepperComponent implements OnInit, OnDestroy {
         this.current_key = step.key;
 
         const instance:any = componentRef.instance;
-        const pageSubscription = instance.next.subscribe(() => {
+        let pageSubscription:Subscription = undefined;
+        const nextFunction: Function = () => {
             pageSubscription.unsubscribe();
             this.container.clear();
             this.nextStep();
-        });
+        };
+
+        if(instance.next) {
+            pageSubscription = instance.next.subscribe(nextFunction);
+        } else if (instance.saved) {
+            pageSubscription = instance.saved.subscribe(nextFunction);
+        } else {
+            console.log('No next step event');
+        }
     }
 
     public nextStep(){

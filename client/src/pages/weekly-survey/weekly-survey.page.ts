@@ -13,10 +13,6 @@ import { NextWeekPlansComponent } from "./next-week-plans.component";
 export class WeeklySurveyPage implements OnInit {
 
     pages:Array<any>;
-    activePage:string;
-    firstPage: boolean;
-    title:string;
-
     week:Week;
 
     constructor(
