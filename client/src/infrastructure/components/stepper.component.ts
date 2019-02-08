@@ -13,7 +13,7 @@ export class Step {
     templateUrl: './stepper.component.html',
     inputs: ['pages', 'param']
 })
-export class HeartstepsStepperComponent implements OnInit, OnDestroy {
+export class StepperComponent implements OnInit, OnDestroy {
     @ViewChild("container", { read: ViewContainerRef }) container: ViewContainerRef;
 
     private steps:Array<Step> = [];

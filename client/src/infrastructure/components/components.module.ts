@@ -1,20 +1,22 @@
 import { NgModule } from '@angular/core';
-import { HeartstepsStepperComponent } from './stepper.component';
+import { StepperComponent } from './stepper.component';
 import { BrowserModule } from '@angular/platform-browser';
+import { IonicPageModule } from 'ionic-angular';
 
 @NgModule({
     declarations: [
-        HeartstepsStepperComponent
+        StepperComponent
     ],
     imports: [
-        BrowserModule
+        BrowserModule,
+        IonicPageModule.forChild(StepperComponent)
     ],
     entryComponents: [
-        HeartstepsStepperComponent
+        StepperComponent
     ],
     providers: [],
     exports: [
-        HeartstepsStepperComponent
+        StepperComponent
     ]
 })
 export class HeartstepsComponentsModule {}
