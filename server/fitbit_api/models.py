@@ -61,6 +61,10 @@ class FitbitActivityType(models.Model):
     fitbit_id = models.IntegerField()
     name = models.CharField(max_length=50)
 
+    @property
+    def id(self):
+        return str(uuid)
+
     def __str__(self):
         return self.name
 
