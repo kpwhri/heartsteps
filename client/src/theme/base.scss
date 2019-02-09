@@ -39,10 +39,14 @@ dl {
     }
 }
 
+.heartsteps-content {
+    padding: 0em 1em;
+}
+
 .heartsteps-page,
 .page {
     font-size: 1.6rem;
-    background-color: $background-alternate;
+    background-color: $background-primary;
 
     .headline {
         color: $color-secondary;
@@ -73,8 +77,8 @@ dl {
 
 article {
     background-color: $background-primary;
-    margin: $space-size/2 0px;
-    padding: $space-size;
+    margin: 0.5em 0px;
+    padding: 1em;
 }
 
 .article-title,
@@ -94,8 +98,6 @@ article > h4 {
 article.page {
     margin: 0px;
     padding: 0px;
-    height: 100%;
-    background: $background-primary;
 }
 
 .heartsteps-page,

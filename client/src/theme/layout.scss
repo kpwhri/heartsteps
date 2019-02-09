@@ -28,8 +28,12 @@ router-outlet {
 
 article.page,
 .page {
-    padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
+    height: 100%
+}
+
+.page > header {
+    padding-top: env(safe-area-inset-top);
 }
 
 .page {
@@ -65,7 +69,7 @@ footer,
 
     > * {
         flex: 0 1 auto;
-        margin: 0em 0.5em;
+        margin: 0.5em;
     }
 
     > .title,
