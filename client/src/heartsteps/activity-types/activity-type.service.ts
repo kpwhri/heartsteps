@@ -50,6 +50,19 @@ export class ActivityTypeService {
         });
     }
 
+    public create(type:string): Promise<ActivityType> {
+        return this.heartstepsServer.post('activity/types', {
+            name: type
+        })
+        .then((data) => {
+            const activityType = this.deserialize(data);
+            return this.load()
+            .then(() => {
+                return activityType;
+            })
+        });
+    }
+
     private getActivityTypes():Promise<Array<ActivityType>> {
         return this.storage.get(storageKey)
         .then((types:Array<any>) => {
@@ -64,12 +77,17 @@ export class ActivityTypeService {
     private deserializeActivityTypes(list:Array<any>):Array<ActivityType> {
         const activityTypes:Array<ActivityType> = [];
         list.forEach((item:any) => {
-            const activityType:ActivityType = new ActivityType();
-            activityType.name = item.name;
-            activityType.title = item.title;
+            const activityType = this.deserialize(item);
             activityTypes.push(activityType);
         });
         return activityTypes;
+    }
+
+    private deserialize(data:any): ActivityType {
+        const activityType = new ActivityType();
+        activityType.name = data.name;
+        activityType.title = data.title;
+        return activityType;
     }
 
     private sortByName(activityTypes: Array<ActivityType>): Array<ActivityType> {
