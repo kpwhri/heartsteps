@@ -1,4 +1,22 @@
-<div *ngIf="steps.length > 1" class="pagination-bullets">
-    <span *ngFor="let step of steps;" class="pagination-bullet" [ngClass]="{active: step.key == current_key}" >{{i}}</span>
+<header>
+    <h2 *ngIf="title">{{title}}</h2>
+    <a *ngIf="!firstStep"
+        class="back"
+        (click)="previousStep()"
+        >
+        Back
+    </a>
+</header>
+<div *ngIf="steps.length > 1"
+    class="pagination-bullets"
+    >
+    <span *ngFor="let step of steps;"
+        class="pagination-bullet"
+        [ngClass]="{active: step.key == current_key}"
+        >
+        {{i}}
+    </span>
 </div>
-<div #container></div>
+<ion-content>
+    <div #container></div>
+</ion-content>

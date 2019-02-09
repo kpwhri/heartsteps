@@ -1,18 +1,16 @@
-import { Component } from "@angular/core";
-import { WeeklySurveyService } from "./weekly-survey.service";
-
+import { Component, Output, EventEmitter } from "@angular/core";
 
 @Component({
     templateUrl: './survey.component.html'
 })
 export class SurveyComponent {
 
-    constructor(
-        private weeklySurveyService:WeeklySurveyService
-    ) {}
+    @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
-    next() {
-        this.weeklySurveyService.nextPage();
+    constructor() {}
+
+    nextPage() {
+        this.next.emit();
     }
 
 }

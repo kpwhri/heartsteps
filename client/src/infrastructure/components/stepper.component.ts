@@ -13,12 +13,15 @@ export class Step {
     templateUrl: './stepper.component.html',
     inputs: ['pages', 'param']
 })
-export class HeartstepsStepperComponent implements OnInit, OnDestroy {
+export class StepperComponent implements OnInit, OnDestroy {
     @ViewChild("container", { read: ViewContainerRef }) container: ViewContainerRef;
 
     private steps:Array<Step> = [];
     private param:string;
     private current_key:string;
+
+    public title: string;
+    public firstStep: boolean;
 
     @Output('at-end') atEnd:EventEmitter<boolean> = new EventEmitter();
     @Output('at-start') atStart:EventEmitter<boolean> = new EventEmitter();
@@ -75,17 +78,37 @@ export class HeartstepsStepperComponent implements OnInit, OnDestroy {
     private loadStep(step:Step) {
         this.container.clear();
 
+        if(step === this.steps[0]) {
+            this.firstStep = true;
+        } else {
+            this.firstStep = false;
+        }
+        if (step.title) {
+            this.title = step.title;
+        } else {
+            this.title = undefined;
+        }
+
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(step.component);
         const componentRef = this.container.createComponent(componentFactory);
 
         this.current_key = step.key;
 
         const instance:any = componentRef.instance;
-        const pageSubscription = instance.next.subscribe(() => {
+        let pageSubscription:Subscription = undefined;
+        const nextFunction: Function = () => {
             pageSubscription.unsubscribe();
             this.container.clear();
             this.nextStep();
-        });
+        };
+
+        if(instance.next) {
+            pageSubscription = instance.next.subscribe(nextFunction);
+        } else if (instance.saved) {
+            pageSubscription = instance.saved.subscribe(nextFunction);
+        } else {
+            console.log('No next step event');
+        }
     }
 
     public nextStep(){

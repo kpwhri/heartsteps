@@ -1,0 +1,103 @@
+.heartsteps-button {
+    display: block;
+    position: relative;
+    color: $color-primary;
+    border: 1px $color-primary solid;
+    background: transparent;
+    padding: 1em;
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-size: 1em;
+
+    > span {
+        color: $text-color;
+    }
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0.1em 0px $color-primary;
+        outline: none;
+    }
+
+    &:active {
+        box-shadow: inset 0 0 1em 0px $color-primary;
+    }
+}
+
+.heartsteps-primary-button {
+    @extend .heartsteps-button;
+    color: $color-white;
+    background-color: $color-primary;
+    border: 0px;
+}
+
+.heartsteps-danger-button {
+    @extend .heartsteps-button;
+    color: $color-danger;
+    border-color: $color-danger;
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0.1em 0px $color-danger;
+    }
+
+    &:active {
+        box-shadow: inset 0 0 1em 0px $color-danger;
+    }
+}
+
+.heartsteps-minor-button {
+    @extend .heartsteps-button;
+    border: 0px;
+
+    &:focus, &:hover {
+        box-shadow: none;
+        box-shadow: inset 0 0 0px 0px $color-primary;
+        text-decoration: underline;
+    }
+
+    &:active {
+        box-shadow: none;
+        opacity: 0.5;
+    }
+}
+
+button.item-cover {
+    border: 0px;
+    position: absolute;
+    padding: 0px;
+    margin: 0px;
+}
+
+button.inline {
+    @extend .heartsteps-minor-button;
+    text-align: left;
+    padding: 0.5em 0em;
+}
+
+button.remove {
+    color: $text-color;
+    padding-right: 40px;
+
+    &:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        transform: translate(0%, -50%);
+        right: 0em;
+        background-color: $text-color;
+        width: 2em;
+        height: 2em;
+        mask-image: url('../assets/close-icon.svg');
+    }
+
+    &:focus {
+        color: $color-primary;
+    }
+    &:focus:after {
+        background-color: $color-danger;
+    }
+
+    &:disabled:after {
+        content: none;
+    }
+}

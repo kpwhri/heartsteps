@@ -1,4 +1,5 @@
 import uuid, pytz, math
+from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -60,37 +61,58 @@ class FitbitActivityType(models.Model):
     fitbit_id = models.IntegerField()
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.name
+
 
 class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
     date = models.DateField()
-    timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
+    _timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
+
+    step_count = models.PositiveIntegerField(default=0)
+    _distance = models.DecimalField(default=0, max_digits=9, decimal_places=3)
+    average_heart_rate = models.PositiveIntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["date"]
+        unique_together = ('account', 'date')
 
     @property
-    def step_count(self):
-        total_steps = 0
-        for step_count in FitbitMinuteStepCount.objects.filter(day=self).all():
-            total_steps += step_count.steps
-        return total_steps
+    def timezone(self):
+        return self.get_timezone()
+
+    @property
+    def distance(self):
+        return float(self._distance)
+    
+    @distance.setter
+    def distance(self, value):
+        self._distance = value
 
     def get_timezone(self):
-        return pytz.timezone(self.timezone)
+        return pytz.timezone(self._timezone)
+    
+    def get_start_datetime(self):
+        timezone = self.get_timezone()
+        return timezone.localize(datetime(
+            year = self.date.year,
+            month = self.date.month,
+            day = self.date.day,
+            hour = 0,
+            minute = 0
+        ))
 
-    def format_date(self):
-        return self.date.strftime('%Y-%m-%d')
-
-    def update(self):
-        self.save()
+    def get_end_datetime(self):
+        start_time = self.get_start_datetime()
+        return start_time + timedelta(days=1)
 
     def __str__(self):
-        return "%s: %s" % (self.account, self.format_date())
+        return "%s: %s" % (self.account, self.date.strftime('%Y-%m-%d'))
 
 class FitbitActivity(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
@@ -114,14 +136,15 @@ class FitbitActivity(models.Model):
 
     @property
     def duration(self):
-        difference = self.end_time - self.start_time
-        return math.ceil(difference.seconds/60)
+        if self.start_time and self.end_time:
+            difference = self.end_time - self.start_time
+            return math.ceil(difference.seconds/60)
+        else:
+            return 0
 
 class FitbitMinuteStepCount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
-
-    day = models.ForeignKey(FitbitDay)
     time = models.DateTimeField()
     steps = models.IntegerField()
 
@@ -129,7 +152,7 @@ class FitbitDailyUnprocessedData(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
     account = models.ForeignKey(FitbitAccount)
-    day = models.OneToOneField(FitbitDay)
+    day = models.ForeignKey(FitbitDay)
     category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 
@@ -137,3 +160,6 @@ class FitbitDailyUnprocessedData(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('day', 'category')

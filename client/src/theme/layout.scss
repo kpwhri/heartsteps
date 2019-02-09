@@ -1,24 +1,35 @@
 
-.app-root {
+.heartsteps-container {
     display: flex;
     flex-direction: column;
-    & > * {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
+    flex: 1 0 auto;
+
+    > * {
+        flex: 0 0 auto;
     }
-    > router-outlet {
-        display: none;
+
+    > .content {
+        flex-grow: 1;
     }
 }
 
-.content {
-    display: flex;
-    flex-direction: column;
+.app-root,
+.app-root > ng-component {
+    @extend .heartsteps-container;
+
+    > * {
+        flex-grow: 1;
+    }
 }
 
 router-outlet {
     display: none;
+}
+
+article.page,
+.page {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .page {
@@ -31,67 +42,43 @@ router-outlet {
         flex: 1 1 auto;
         overflow: auto;
     }
-
-    > header,
-    > nav,
-    > footer {
-        flex: 0 0 auto;
-        overflow: hidden;
-        position: relative;
-        z-index: 10;
-
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-evenly;
-
-        > * {
-            flex: 0 1 auto;
-        }
-    }
-
-    > nav {
-        > * {
-            display: block;
-            position: relative;
-            width: 70px;
-            padding: $space-size/2 0px;
-            padding-top: 50px;
-            text-align: center;
-            font-size: 12px;
-            text-decoration: none;
-            color: $color-gray-dark;
-        }
-        > *:before {
-            content: ' ';
-            mask-repeat: no-repeat;
-            mask-position: 50% 50%;
-            background-color: $color-gray-dark;
-            display: block;
-            position: absolute;
-            top: $space-size/2;
-            left: 50%;
-            transform: translate(-50%, 0%);
-            height: 35px;
-            width: 35px;
-        }
-        > .active {
-            color: $color-primary;
-            &:before {
-                background-color: $color-primary;
-            }
-        }
-    }
 }
 
-.page.slider {
-    > header {
-        background-color: transparent;
-        border-bottom: 0px;
-        flex-direction: column-reverse;
-        > .pagination-bullets {
-            order: -1;
-        }
-    }
+header,
+footer,
+.page > header,
+.page > nav,
+.page > footer {
+    @extend .heartsteps-controls;
 }
 
+.heartsteps-controls {
+    flex: 0 0 auto;
+    overflow: hidden;
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+    > * {
+        flex: 0 1 auto;
+        margin: 0em 0.5em;
+    }
+
+    > .title,
+    > h2 {
+        flex-grow: 1;
+    }
+
+    .back {
+        order: -1;
+    }
+
+    button {
+        @extend .heartsteps-minor-button;
+        width: auto;
+    }
+}

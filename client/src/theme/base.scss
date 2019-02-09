@@ -1,4 +1,6 @@
 
+@import 'buttons.scss';
+
 .title {
     text-transform: uppercase;
 }
@@ -37,15 +39,9 @@ dl {
     }
 }
 
-.content,
-.content-md {
-    background: transparent;
-}
-
+.heartsteps-page,
 .page {
     font-size: 1.6rem;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
     background-color: $background-alternate;
 
     .headline {
@@ -65,28 +61,8 @@ dl {
     }
 
     > header {
-        padding: $space-size $block-size+$space-size;
+        padding: $space-size;
         border-bottom: $color-gray 1px solid;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        h1, h2, h3 {
-            font-size: 1.25em;
-            margin: 0px;
-            padding: 0px;
-        }
-
-        a.back, button.back {
-            display: block;
-            position: absolute;
-            left: 0px;
-            width: $block-size;
-            padding: $space-size/2;
-            border-width: 0px;
-        }
     }
 
     > nav,
@@ -120,74 +96,9 @@ article.page {
     padding: 0px;
     height: 100%;
     background: $background-primary;
-    
-    > * {
-        padding: $space-size/2 $space-size;
-    }
 }
 
-.heartsteps-button {
-    display: block;
-    position: relative;
-    color: $color-primary;
-    border: 1px $color-primary solid;
-    background: transparent;
-    padding: 1em;
-    text-align: center;
-    display: block;
-    width: 100%;
-    font-size: 1em;
-
-    > span {
-        color: $text-color;
-    }
-
-    &:focus, &:hover {
-        box-shadow: inset 0 0 0.1em 0px $color-primary;
-        outline: none;
-    }
-
-    &:active {
-        box-shadow: inset 0 0 1em 0px $color-primary;
-    }
-}
-
-.heartsteps-primary-button {
-    @extend .heartsteps-button;
-    color: $color-white;
-    background-color: $color-primary;
-    border: 0px;
-}
-
-.heartsteps-danger-button {
-    @extend .heartsteps-button;
-    color: $color-danger;
-    border-color: $color-danger;
-
-    &:focus, &:hover {
-        box-shadow: inset 0 0 0.1em 0px $color-danger;
-    }
-
-    &:active {
-        box-shadow: inset 0 0 1em 0px $color-danger;
-    }
-}
-
-.heartsteps-minor-button {
-    @extend .heartsteps-button;
-    border: 0px;
-
-    &:focus, &:hover {
-        box-shadow: none;
-        opacity: 0.8;
-    }
-
-    &:active {
-        box-shadow: none;
-        opacity: 0.5;
-    }
-}
-
+.heartsteps-page,
 .page {
     button {
         @extend .heartsteps-button;
@@ -202,20 +113,6 @@ article.page {
     }
 }
 
-.page button.inline,
-button.inline {
-    @extend .heartsteps-minor-button;
-    text-align: left;
-    padding: 0.5em 0em;
-}
-
-button.item-cover {
-    border: 0px;
-    position: absolute;
-    padding: 0px;
-    margin: 0px;
-}
-
 .page button.bottom,
 button.bottom,
 .page article > button,
@@ -227,34 +124,6 @@ article > button {
 li > button {
     @extend button.inline;
     color: $text-color;
-}
-
-button.remove {
-    color: $text-color;
-    padding-right: 40px;
-
-    &:after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        transform: translate(0%, -50%);
-        right: 0em;
-        background-color: $text-color;
-        width: 2em;
-        height: 2em;
-        mask-image: url('../assets/close-icon.svg');
-    }
-
-    &:focus {
-        color: $color-primary;
-    }
-    &:focus:after {
-        background-color: $color-danger;
-    }
-
-    &:disabled:after {
-        content: none;
-    }
 }
 
 .error {
@@ -320,24 +189,4 @@ ul.horizontal li {
     & > span {
         @extend .label;
     }
-}
-
-.pagination-bullets {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    & > * {
-        display: block;
-        margin: $space-size/4;
-        height: 1em;
-        width: 1em;
-        border-radius: 50%;
-        background-color: $color-gray-light;
-        overflow: hidden;
-        text-indent: -3000em;
-    }
-    & > .active {
-        background-color: $color-primary;
-    }
-    height: 1em;
 }

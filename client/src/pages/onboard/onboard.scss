@@ -1,4 +1,8 @@
 
 pages-onboarding {
+    @extend .heartsteps-container;
 
+    > * {
+        flex-grow: 1;
+    }
 }

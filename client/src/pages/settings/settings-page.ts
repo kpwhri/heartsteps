@@ -53,7 +53,9 @@ export class SettingsPage {
     }
 
     public unenroll() {
-        this.enrollmentService.unenroll();
-        this.router.navigate(['']);
+        this.enrollmentService.unenroll()
+        .then(() => {
+            this.router.navigate(['']);
+        });
     }
 } 

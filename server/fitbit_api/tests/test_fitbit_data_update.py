@@ -1,6 +1,6 @@
 import pytz
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, date
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -8,10 +8,10 @@ from django.contrib.auth.models import User
 from fitbit import Fitbit
 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitMinuteStepCount, FitbitActivity
-from fitbit_api.services import FitbitClient
+from fitbit_api.services import FitbitClient, FitbitDayService
 from fitbit_api.tasks import update_fitbit_data
 
-class GetUpdatedAcitivities(TestCase):
+class TestBase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
@@ -23,23 +23,38 @@ class GetUpdatedAcitivities(TestCase):
             account = self.account
         )
 
-    @patch.object(FitbitClient, 'update_heart_rate')
-    @patch.object(FitbitClient, 'update_activities')
-    @patch.object(FitbitClient, 'update_steps')
-    @patch.object(FitbitClient, 'get_timezone', return_value=pytz.timezone("Poland"))
-    def test_pull_account_data(self, get_timezone, update_steps, update_activities, update_heart_rate):
-        update_fitbit_data(username="test", date_string="2018-02-14")
+        timezone_patch = patch.object(FitbitClient, 'get_timezone')
+        self.timezone = timezone_patch.start()
+        self.timezone.return_value = pytz.timezone('UTC')
+        self.addCleanup(timezone_patch.stop)
+
+class FitbitDayUpdates(TestBase):
+
+    @patch.object(FitbitDayService, 'update_heart_rate')
+    @patch.object(FitbitDayService, 'update_activities')
+    @patch.object(FitbitDayService, 'update_steps', return_value=20)
+    @patch.object(FitbitDayService, 'update_distance', return_value=0.123)
+    def testUpdateTaskCreatesDay(self, update_distance, update_steps, update_activities, update_heart_rate):
+        self.timezone.return_value = pytz.timezone('Poland')
+
+        update_fitbit_data(username=self.account.fitbit_user, date_string="2018-02-14")
 
         fitbit_day = FitbitDay.objects.get(account=self.account)
         self.assertEqual(fitbit_day.get_timezone().zone, "Poland")
-        self.assertEqual(fitbit_day.format_date(), "2018-02-14")
+        self.assertEqual(fitbit_day.date.strftime('%Y-%m-%d'), "2018-02-14")
+        self.assertEqual(fitbit_day.step_count, 20)
+        self.assertEqual(fitbit_day.distance, 0.123)
+
         update_steps.assert_called()
+        update_distance.assert_called()
         update_activities.assert_called()
         update_heart_rate.assert_called()
 
-    @patch.object(Fitbit, 'intraday_time_series')
-    def test_gets_total_steps_for_day(self, intraday_time_series):
-        intraday_time_series.return_value = {'activities-steps-intraday': { 'dataset': [
+class FitbitStepUpdates(TestBase):
+
+    @patch.object(Fitbit, 'make_request')
+    def testUpdatesSteps(self, make_request):
+        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 5
@@ -51,23 +66,56 @@ class GetUpdatedAcitivities(TestCase):
                 'value': 0
             }
         ]}}
-        day = FitbitDay.objects.create(
+        service = FitbitDayService(
             account = self.account,
-            date = datetime(2018,2,14),
-            timezone = "UTC"
+            date = date(2018,2,14)
         )
-        service = FitbitClient(self.user)
 
-        service.update_steps(day)
+        step_count = service.update_steps()
 
-        day = FitbitDay.objects.get()
-
-        intraday_time_series.assert_called_with('activities/steps', base_date="2018-02-14")
-        self.assertEqual(day.step_count, 10)
+        self.assertEqual(step_count, 10)
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/steps/date/2018-02-14/1d/1min.json')
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
 
+        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
+            {
+                'time': '10:10:00',
+                'value': 15
+            }
+        ]}}
+
+        step_count = service.update_steps()
+        self.assertEqual(step_count, 15)
+        self.assertEqual(FitbitMinuteStepCount.objects.count(), 1)
+
+class FitbitUpdatesDistance(TestBase):
+
     @patch.object(Fitbit, 'make_request')
-    def test_gets_activities_for_day(self, make_request):
+    def testUpdatesDistance(self, make_request):
+        make_request.return_value = { 'activities-distance-intraday': { 'dataset': [
+            {
+                'time': '10:00:00',
+                'value': '0.57'
+            }, {
+                'time': '11:00:00',
+                'value': '0.33'
+            }
+        ]}}
+        service = FitbitDayService(
+            account = self.account,
+            date = date(2018,2,14)
+        )
+
+        distance = service.update_distance()
+
+        self.assertEqual(float(distance), 0.9)
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/distance/date/2018-02-14/1d/1min.json')
+
+
+class FitbitActivityUpdates(TestBase):
+
+    @patch.object(Fitbit, 'make_request')
+    def testUpdateActivitiesOnDay(self, make_request):
         make_request.return_value = {
             'activities': [
                 {
@@ -83,15 +131,14 @@ class GetUpdatedAcitivities(TestCase):
                 'next': ''
             }
             }
-        day = FitbitDay.objects.create(
+        service = FitbitDayService(
             account = self.account,
-            date = datetime(2018,2,14)
+            date = date(2018,2,14)
         )
-        service = FitbitClient(self.user)
 
-        service.update_activities(day)
+        service.update_activities()
 
-        make_request.assert_called_with('https://api.fitbit.com/1/user/test/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
+        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2018-02-14&offset=0&limit=20&sort=asc')
         activity = FitbitActivity.objects.get()
         self.assertEqual(activity.fitbit_id, '123')
         self.assertEqual(activity.type.name, 'Foo Ball')

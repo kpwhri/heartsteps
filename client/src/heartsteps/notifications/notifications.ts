@@ -18,12 +18,13 @@ export class NotificationsPermission {
         this.loadingService.show("Getting permission")
         this.notificationService.enable()
         .then(() => {
-            this.loadingService.dismiss()
             this.saved.emit(true);
         })
         .catch(() => {
-            this.loadingService.dismiss()
-            console.log('No permission')
+            console.log('No permission');
         })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 }

@@ -1,4 +1,7 @@
-<button (click)="refresh()">
+<button 
+    (click)="refresh()"
+    [ngClass]="{'is-loading':loading}"
+    >
     Update Fitbit data
     <span>Last updated {{updateTimeFormatted}}</span>
 </button>

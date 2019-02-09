@@ -1,9 +1,6 @@
-import { Component, ViewChild, OnInit, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
-
-import { ParticipantService } from '@heartsteps/participants/participant.service';
+import { Component, OnInit } from '@angular/core';
 import { NotificationsPermission } from '@heartsteps/notifications/notifications';
 import { LocationPermission } from '@heartsteps/locations/location-permission';
-import { Subscription } from 'rxjs';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
@@ -11,8 +8,9 @@ import { ProfileService } from '@heartsteps/participants/profile.factory';
 import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
+import { Step } from '@infrastructure/components/stepper.component';
 
-const onboardingPages:Array<any> = [{
+const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
     title: 'Contact Information',
     component: ParticipantInformation
@@ -55,17 +53,11 @@ const onboardingPages:Array<any> = [{
     ]
 })
 export class OnboardPage implements OnInit {
-    @ViewChild("screenDisplay", { read: ViewContainerRef }) container: ViewContainerRef;
-    index:number = 0;
-    pages:Array<any>;
-
-    public pageTitle:string;
-    private pageSubscription:Subscription;
+    pages:Array<Step>;
 
     constructor(
-        private router: Router,
         private profileService: ProfileService,
-        private componentFactoryResolver: ComponentFactoryResolver
+        private router: Router
     ) {}
 
     ngOnInit() {
@@ -77,46 +69,11 @@ export class OnboardPage implements OnInit {
                     this.pages.push(page);
                 }
             });
-            this.loadPage(0);
         });
     }
 
-    nextPage() {
-        this.loadPage(this.index + 1);
-    }
-
-    prevPage() {
-        this.loadPage(this.index - 1);
-    }
-
-    loadPage(pageNumber:number) {
-        if(pageNumber >= this.pages.length) {
-            this.router.navigate(['/']);
-            return;
-        }
-        const page:any = this.pages[pageNumber];
-        if(!page) {
-            return;
-        } else {
-            this.index = pageNumber;
-        }
-
-        if(this.pageSubscription) {
-            this.pageSubscription.unsubscribe();
-        }
-        this.container.clear();
-
-        this.pageTitle = page.title;
-        let componentFactory = this.componentFactoryResolver.resolveComponentFactory(page.component);
-        let componentRef = this.container.createComponent(componentFactory);
-
-        let instance:any = componentRef.instance;
-        this.pageSubscription = instance.saved.subscribe(() => {
-            this.pageSubscription.unsubscribe();
-            this.pageSubscription = null;
-
-            this.nextPage();
-        });
+    public finish() {
+        this.router.navigate(['/']);
     }
 
 }
