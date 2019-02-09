@@ -70,7 +70,8 @@ export class ActivityLogService {
             duration: activityLog.duration,
             type: activityLog.type,
             vigorous: activityLog.vigorous,
-            earnedMinutes: activityLog.earnedMinutes
+            earnedMinutes: activityLog.earnedMinutes,
+            enjoyed: activityLog.enjoyed
         }
     }
 
@@ -82,6 +83,7 @@ export class ActivityLogService {
         activityLog.duration = data.duration;
         activityLog.earnedMinutes = data.earnedMinutes;
         activityLog.vigorous = data.vigorous;
+        activityLog.enjoyed = data.enjoyed;
         return activityLog;
     }
 

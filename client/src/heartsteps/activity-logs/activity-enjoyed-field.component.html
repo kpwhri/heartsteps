@@ -1,0 +1,17 @@
+<fieldset class="input-group">
+    <legend>How much did you enjoy this activity?</legend>
+    <ul>
+        <li *ngFor="let option of options; let index = index">
+            <input id="activity-enjoyed-{{index}}"
+                type="radio"
+                [value]="index"
+                [ngModel]="selectedIndex"
+                (ngModelChange)="select($event)"
+                [disabled]="isDisabled"
+                />
+            <label for="activity-enjoyed-{{index}}">
+                {{option}}
+            </label>
+        </li>
+    </ul>
+</fieldset>

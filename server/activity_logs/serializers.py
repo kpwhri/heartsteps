@@ -11,7 +11,7 @@ class TimeRangeSerializer(serializers.Serializer):
 class ActivityLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityLog
-        fields = ('type', 'vigorous', 'start', 'duration')
+        fields = ('type', 'vigorous', 'start', 'duration', 'enjoyed')
 
     type = serializers.SlugRelatedField(
         slug_field='name',

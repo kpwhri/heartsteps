@@ -1,0 +1,15 @@
+<app-modal-dialog
+    title="Did you enjoy it?"
+    >
+    <app-form
+        [formGroup]="form"
+        (onSubmit)="save()"
+        >
+        <activity-enjoyed-field
+            formControlName="enjoyed"
+            class="centered"
+            >
+        </activity-enjoyed-field>
+    </app-form>
+    <button class="minor" (click)="skip()">Skip</button>
+</app-modal-dialog>

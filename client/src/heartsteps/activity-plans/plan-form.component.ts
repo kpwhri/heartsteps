@@ -1,5 +1,3 @@
-import * as moment from 'moment';
-
 import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -8,12 +6,15 @@ import { ActivityPlan } from './activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
+import { ModalDialogController } from '@infrastructure/dialogs/modal-dialog.controller';
+import { ActivityEnjoyedModalComponent } from '@heartsteps/activity-logs/activity-enjoyed-modal.component';
 
 @Component({
     selector: 'activity-plan-form',
     templateUrl: './plan-form.component.html',
     providers: [
-        DateFactory
+        DateFactory,
+        ModalDialogController
     ],
     inputs: ['plan']
 })
@@ -33,7 +34,8 @@ export class PlanFormComponent implements OnInit {
     constructor(
         private activityPlanService:ActivityPlanService,
         private dateFactory: DateFactory,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private modalDialog: ModalDialogController
     ) {}
 
     ngOnInit() {
@@ -106,6 +108,9 @@ export class PlanFormComponent implements OnInit {
         .then((activityPlan) => {
             return this.activityPlanService.complete(activityPlan);
         })
+        .then((plan) => {
+            return this.rateActivity(plan)
+        })
         .then(() => {
             this.saved.emit();
         })
@@ -114,6 +119,15 @@ export class PlanFormComponent implements OnInit {
         })
         .then(() => {
             this.loadingService.dismiss();
+        });
+    }
+
+    private rateActivity(plan: ActivityPlan): Promise<boolean> {
+        return this.modalDialog.createModal(ActivityEnjoyedModalComponent, {
+            activityLogId: plan.activityLogId
+        })
+        .then(() => {
+            return Promise.resolve(true);
         });
     }
 
