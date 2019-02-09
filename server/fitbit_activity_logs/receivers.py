@@ -32,7 +32,8 @@ def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs)
 def update_activity_log_from_fitbit_activity(sender, instance, *args, **kwargs):
     fitbit_activity = instance
 
-    activity_type = get_or_create_activity_type(fitbit_activity.type)
+    connection = FitbitActivityToActivityType.objects.get(fitbit_activity=fitbit_activity.type)
+    activity_type = connection.activity_type
     
     fitbit_service = FitbitService(account = fitbit_activity.account)
     for user in fitbit_service.get_users():
