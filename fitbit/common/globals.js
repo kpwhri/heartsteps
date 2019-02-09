@@ -22,7 +22,7 @@ export const ID_INVALID = "heartsteps id invalid";
 export const INITIALIZE_ENROLLMENT = "initialize enrollment";
 export const UNKNOWN_INVALID = "unknown error";
 
-export function isNotNull(val: string){
+export function isNotNull(val) {
   return (typeof val !== "undefined"
       &&  val != ""
       &&  val != null);
@@ -31,23 +31,12 @@ export function isNotNull(val: string){
 // Get the name component (value) of the newValue JSON settings object
 // evt (events) have properties key, newValue & oldValue (& isTrusted)
 // The value properties take the form {"name":"actual-value"}
-export function parseSettingsValue(jsonValue: string){
-  let val: string;
+export function parseSettingsValue(jsonValue) {
+  let val;
   if (isNotNull(jsonValue)) {
     val = JSON.parse(jsonValue).name;
   } else {
     val = ""
   }
   return val;
-}
-
-// Add zero in front of numbers < 10
-export function zeroPad(i: number) {
-  let zi: number;
-  if (i < 10) {
-    zi = Number("0" + i);
-  } else {
-    zi = i;
-  }
-  return zi;
 }

@@ -1,44 +1,93 @@
-.background {
-  viewport-fill: black;
+#background {
+  x: 0;
+  y: 0;
+  width: 100%;
+  height: 100%;
+  fill: #000000;
 }
 
-#timeLabel {
-  font-size: 70;
-  font-family: System-Bold;
-  text-length: 8;
-  text-anchor: start;
-  x: 65;
-  y: 100;
-  fill: grey;
-}
-
-#heartrateLabel {
-  font-size: 50;
-  font-family: System-Bold;
-  text-length: 3;
+.clock-text {
+  font-family: Seville-Book;
+  font-size: 88;
   text-anchor: middle;
-  x: 20%;
-  y: 80%;
-  fill: red;
+  text-length: 10;
+  x: 50%;
+  y: 41%;
+  width: 92%;
+  height: 25%;
+  fill: #2490DD;
 }
 
-#batteryLabel {
-  font-size: 15;
-  font-family: System-Bold;
+.date-text {
+  font-family: Seville-Regular;
+  font-size: 22;
+  text-anchor: middle;
   text-length: 32;
-  text-anchor: start;
-  x: 5%;
-  y: 5%;
-  fill: blue;
+  x: 50%;
+  y: 64%;
+  width: 92%;
+  height: 8%;
+  fill: #FFFFFF;
 }
 
-
-#stepsLabel {
-  font-size: 20;
-  font-family: System-Bold;
-  text-length: 16;
-  text-anchor: start;
-  x: 65%;
-  y: 80%;
+.divider {
+  x: 4%;
+  width: 92%;
+  height: 1;
   fill: white;
+}
+
+.divider-top {
+  y: 52%;
+}
+
+.divider-btm {
+  y: 70%;
+}
+
+.stats {
+  x: 50%-111;
+  y: 50%+72;
+  width: 222;
+  height: 48;
+}
+
+.stats text {
+  font-family: Seville-Regular;
+  font-size: 22;
+  text-length: 16;
+  fill: #2490DD;
+}
+
+#iconHRM {
+  width: 24;
+  height: 24;
+  y: 15;
+  x: 1;
+  fill: white;
+}
+
+.stat-left {
+  x: 31;
+}
+
+.stat-right {
+  x: 100%;
+  width: 100%;
+  text-anchor: end;
+}
+
+#stats-cycle {
+  x: 40%;
+  y: 0;
+  width: 60%;
+  height: 100%;
+}
+
+.cycle-item image {
+  x: 50%;
+  y: 15;
+  fill: #FFFFFF;
+  width: 24;
+  height: 24;
 }
