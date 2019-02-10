@@ -13,16 +13,20 @@ export class ActivityType {
 @Injectable()
 export class ActivityTypeService {
 
-    public activityTypes:BehaviorSubject<Array<ActivityType>>;
+    public activityTypes:BehaviorSubject<Array<ActivityType>> = new BehaviorSubject([]);
 
     constructor(
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
     ) {
-        this.activityTypes = new BehaviorSubject([]);
-        this.getActivityTypes()
+        this.update();
+    }
+
+    public update():Promise<Array<ActivityType>> {
+        return this.getActivityTypes()
         .then((activityTypes) => {
             this.activityTypes.next(activityTypes);
+            return activityTypes;
         });
     }
 
@@ -32,7 +36,7 @@ export class ActivityTypeService {
             return this.storage.set(storageKey, response);
         })
         .then(() => {
-            return this.getActivityTypes();
+            return this.update();
         });
     }
 
