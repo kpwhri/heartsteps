@@ -3,3 +3,12 @@
 .content-md {
     background-color: transparent;
 }
+
+ion-content.content {
+    padding: 0px;
+
+    > .scroll-content {
+        @extend .heartsteps-content;
+    }
+}
+

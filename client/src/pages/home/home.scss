@@ -51,4 +51,8 @@ page-home {
             mask-image: url('../assets/settings.svg');
         }
     }
+
+    ion-content.content > .scroll-content {
+        padding: 0px;
+    }
 }

@@ -47,6 +47,14 @@ article.page,
     }
 }
 
+.heartsteps-content {
+    padding: $space-size
+}
+
+.page .content {
+    @extend .heartsteps-content;
+}
+
 .heartsteps-controls {
     flex: 0 0 auto;
     overflow: hidden;
@@ -77,7 +85,7 @@ footer,
     @extend .heartsteps-controls;
 }
 
-.page > header {
+.heartsteps-page-header {
     display: block;
 
     > * {
@@ -95,4 +103,8 @@ footer,
         width: $block-size;
         text-align: left;
     }
+}
+
+.page > header {
+    @extend .heartsteps-page-header;
 }
