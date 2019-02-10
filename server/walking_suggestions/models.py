@@ -24,6 +24,9 @@ class Configuration(models.Model):
     day_end_hour = models.PositiveSmallIntegerField(default=21)
     day_end_minute = models.PositiveSmallIntegerField(default=0)
 
+    def __str__(self):
+        return self.user.username
+
     @property
     def timezone(self):
         try:
@@ -52,8 +55,24 @@ class Configuration(models.Model):
             tzinfo = self.timezone
         )
 
+    @property
+    def suggestion_times(self):
+        results = SuggestionTime.objects.filter(user=self.user).all()
+        return list(results)
+
+    def get_suggestion_tasks(self):
+        return list(DailyTask.objects.filter(
+            user = self.user,
+            category__in = SuggestionTime.TIMES
+        ).all())
+
+    def get_next_suggestion_time(self):
+        times = [daily_task.get_next_run_time() for daily_task in self.get_suggestion_tasks()]
+        times.sort()
+        return times.pop(0)
+
     def update_suggestion_times(self):
-        for suggestion_time in SuggestionTime.objects.filter(user=self.user).all():
+        for suggestion_time in self.suggestion_times:
             self._update_suggestion_time_task(suggestion_time)
 
     def _update_suggestion_time_task(self, suggestion_time):
