@@ -89,7 +89,7 @@ footer,
     display: block;
 
     > * {
-        margin: 0.5em $space-size+$block-size;
+        margin: 1em $space-size+$block-size 0.5em;
     }
 
     .back {

@@ -10,6 +10,7 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { SuggestionTimesPage } from './suggestion-times';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 import { GoalPage } from './goal.page';
+import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 
 const settingsRoutes: Routes = [
     {
@@ -47,6 +48,7 @@ const settingsRoutes: Routes = [
     ],
     imports: [
         ContactInformationModule,
+        HeartstepsComponentsModule,
         PlacesModule,
         WeeklySurveyModule,
         WalkingSuggestionsModule,
