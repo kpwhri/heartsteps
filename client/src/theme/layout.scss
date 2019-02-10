@@ -47,14 +47,6 @@ article.page,
     }
 }
 
-header,
-footer,
-.page > header,
-.page > nav,
-.page > footer {
-    @extend .heartsteps-controls;
-}
-
 .heartsteps-controls {
     flex: 0 0 auto;
     overflow: hidden;
@@ -71,17 +63,36 @@ footer,
         margin: 0.5em;
     }
 
-    > .title,
-    > h2 {
-        flex-grow: 1;
-    }
-
-    .back {
-        order: -1;
-    }
-
     button {
         @extend .heartsteps-minor-button;
         width: auto;
+    }
+}
+
+header,
+footer,
+.page > header,
+.page > nav,
+.page > footer {
+    @extend .heartsteps-controls;
+}
+
+.page > header {
+    display: block;
+
+    > * {
+        margin: 0.5em $space-size+$block-size;
+    }
+
+    .back {
+        @extend .heartsteps-minor-button;   
+        position: absolute;
+        top:50%;
+        left: $space-size/2;
+        padding: 0px;
+        margin: 0px;
+        transform: translate(0%, -50%);
+        width: $block-size;
+        text-align: left;
     }
 }
