@@ -1,16 +1,6 @@
 activity-enjoyed-field {
     ul {
-        display: flex;
-        flex-direction: row;
-        
-        > * {
-            flex:0 0 auto
-        }
-    }
-
-    ul li {
-        display: block;
-        position: relative;
+        @extend ul.horizontal;
     }
 
     ul li label {
@@ -32,6 +22,7 @@ activity-enjoyed-field {
         mask-image: url('../assets/enjoyed-none.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
+        mask-size: 100% 100%;
 
         &:checked {
             background-color: $color-primary;

@@ -32,7 +32,9 @@ export class ActivityTypeModalComponent {
     public create() {
         this.modalDialogController.createModal(ActivityTypeCreateModalComponent)
         .then((activityType) => {
-            this.modal.dismiss(activityType);
+            if(activityType) {
+                this.modal.dismiss(activityType);
+            }
         })
         .catch(() => {
             console.log('Create modal closed');

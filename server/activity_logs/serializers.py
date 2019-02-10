@@ -15,7 +15,7 @@ class ActivityLogSerializer(serializers.ModelSerializer):
 
     type = serializers.SlugRelatedField(
         slug_field='name',
-        queryset = ActivityType.objects.filter(user=None).all()
+        queryset = ActivityType.objects.all()
         )
 
     def to_representation(self, instance):
