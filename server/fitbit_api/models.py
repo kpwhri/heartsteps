@@ -55,20 +55,6 @@ class FitbitSubscriptionUpdate(models.Model):
     def __str__(self):
         return 'Updated %s at %s' % (str(self.subscription), self.created)
 
-class FitbitActivityType(models.Model):
-    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-    
-    fitbit_id = models.IntegerField()
-    name = models.CharField(max_length=50)
-
-    @property
-    def id(self):
-        return str(uuid)
-
-    def __str__(self):
-        return self.name
-
-
 class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
@@ -118,10 +104,23 @@ class FitbitDay(models.Model):
     def __str__(self):
         return "%s: %s" % (self.account, self.date.strftime('%Y-%m-%d'))
 
+class FitbitActivityType(models.Model):
+    uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
+    
+    fitbit_id = models.IntegerField(unique=True)
+    name = models.CharField(max_length=50)
+
+    @property
+    def id(self):
+        return str(uuid)
+
+    def __str__(self):
+        return self.name
+
 class FitbitActivity(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
-    fitbit_id = models.CharField(max_length=50)
+    fitbit_id = models.CharField(max_length=50, unique=True)
 
     type = models.ForeignKey(FitbitActivityType, null=True, blank=True)
     day = models.ForeignKey(FitbitDay)
@@ -133,6 +132,9 @@ class FitbitActivity(models.Model):
     payload = JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['start_time']
 
     @property
     def id(self):
