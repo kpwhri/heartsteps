@@ -46,39 +46,40 @@ def start_decision(username, category):
         raise ImproperlyConfigured('No walking suggestion time offset')
 
     decision_time = timezone.now() + timedelta(minutes=settings.WALKING_SUGGESTION_TIME_OFFSET)
-    decision = WalkingSuggestionDecision.objects.create(
+    service = WalkingSuggestionDecisionService.create_decision(
         user = user,
+        category = category,
         time = decision_time
     )
-    decision.add_context(category)
-
     request_decision_context.apply_async(kwargs={
-        'decision_id': str(decision.id)
+        'decision_id': str(service.decision.id)
     })
 
 @shared_task
 def request_decision_context(decision_id):
-    decision = WalkingSuggestionDecision.objects.get(id=decision_id)
-
     if not hasattr(settings, 'WALKING_SUGGESTION_REQUEST_RETRY_TIME'):
         raise ImproperlyConfigured('No walking suggestion request retry time')
     if not hasattr(settings, 'WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS'):
         raise ImproperlyConfigured('No walking suggestion request retry attempts')
-
-    if decision.is_complete():
-        return False
+    
+    decision = WalkingSuggestionDecision.objects.get(id=decision_id)
     decision_service = WalkingSuggestionDecisionService(decision)
-    decision_service.request_context()
 
-    if len(decision_service.get_context_requests()) > settings.WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS:
-        if decision_service.can_impute_context():
+    if not decision.is_complete():
+
+        if len(decision_service.get_context_requests()) > settings.WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS:
+
+            decision.available = False
+            decision.save()
+
             make_decision.apply_async(kwargs={
                 'decision_id': decision_id
             })
-    else:
-        request_decision_context.apply_async(kwargs={
-            'decision_id': decision_id
-        }, eta=timezone.now() + timedelta(minutes=settings.WALKING_SUGGESTION_REQUEST_RETRY_TIME))
+        else:
+            decision_service.request_context()
+            request_decision_context.apply_async(kwargs={
+                'decision_id': decision_id
+            }, eta=timezone.now() + timedelta(minutes=settings.WALKING_SUGGESTION_REQUEST_RETRY_TIME))
 
 @shared_task
 def make_decision(decision_id):

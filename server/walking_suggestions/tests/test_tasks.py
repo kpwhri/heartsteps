@@ -36,13 +36,13 @@ class RequestContextTaskTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test")
         Configuration.objects.create(
-            user = self.user,
-            impute_context = True
+            user = self.user
         )
-        self.decision = WalkingSuggestionDecision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
+        self.decision_id = str(decision.id)
 
         patch_apply_async = patch.object(request_decision_context, 'apply_async')
         self.apply_async = patch_apply_async.start()
@@ -51,20 +51,26 @@ class RequestContextTaskTests(TestCase):
     @patch.object(WalkingSuggestionDecisionService, 'request_context')
     def test_requests_context(self, request_context):
         request_decision_context(
-            decision_id = str(self.decision.id)
+            decision_id = self.decision_id
         )
 
         request_context.assert_called()
         self.apply_async.assert_called()
+        # Get fresh object, because decision not mutated.
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
 
     @patch.object(WalkingSuggestionDecisionService, 'get_context_requests', return_value=['foo', 'bar'])
     @patch.object(make_decision, 'apply_async')
     def test_request_context_makes_decision(self, make_decision, get_context_requests):
         request_decision_context(
-            decision_id = str(self.decision.id)
+            decision_id = self.decision_id
         )
 
         make_decision.assert_called()
+        # Get fresh object, because decision not mutated.
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
 
 
 class MakeDecisionTest(TestCase):

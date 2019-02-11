@@ -18,6 +18,9 @@ from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, Wa
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
+    class DecisionDoesNotExist(ImproperlyConfigured):
+        pass
+
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
     def create_decision(user, category, time=None, test=False):
@@ -30,6 +33,13 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         )
         decision.add_context(category)
         return WalkingSuggestionDecisionService(decision)
+    
+    def get_decision(decision_id):
+        try:
+            decision = WalkingSuggestionDecision.objects.get(id=decision_id)
+            return WalkingSuggestionDecisionService(decision)
+        except WalkingSuggestionDecision.DoesNotExist:
+            raise WalkingSuggestionDecisionService.DecisionDoesNotExist('Decision not found')
 
     def update_availability(self):
         super().update_availability()
@@ -59,13 +69,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         for step_count in step_counts:
             total_steps += step_count.steps
         return total_steps
-
-    def can_impute_context(self):
-        try:
-            configuration = Configuration.objects.get(user=self.user)
-        except Configuration.DoesNotExist:
-            return False
-        return configuration.impute_context
 
     def decide(self):
         self.update_availability()
