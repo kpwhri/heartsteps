@@ -165,7 +165,7 @@ class WalkingSuggestionService():
         self.__configuration.save()
 
     def update(self, date):
-        if not self.__configuration.service_initialized:
+        if not self.is_initialized():
             raise self.NotInitialized()
 
         postdinner_decision = WalkingSuggestionDecision.objects.filter(
@@ -202,7 +202,7 @@ class WalkingSuggestionService():
         )
     
     def decide(self, decision):
-        if not self.__configuration.service_initialized:
+        if not self.is_initialized():
             raise self.NotInitialized()
         decision_service = WalkingSuggestionDecisionService(decision)
         response = self.make_request('decision',
@@ -218,6 +218,9 @@ class WalkingSuggestionService():
         decision.a_it = response['send']
         decision.pi_id = response['probability']
         decision.save()
+
+    def is_initialized(self):
+        return self.__configuration.service_initialized
 
     def get_clicks(self, date):
         return 0
@@ -351,7 +354,7 @@ class WalkingSuggestionService():
 
     def get_study_day(self, date):
         difference = date - self.__configuration.service_initialized_date
-        return difference.days + 1
+        return difference.days
     
     def categorize_suggestion_time(self, decision):
         for tag in decision.get_context():

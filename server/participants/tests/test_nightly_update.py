@@ -1,5 +1,6 @@
 import pytz
 from unittest.mock import patch
+from datetime import date
 
 from django.test import TestCase, override_settings
 
@@ -40,12 +41,24 @@ class NightlyUpdateTest(TestCase):
         daily_update(username=self.user.username)
 
         fitbit_day_update.assert_called()
+    
+    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
+    @patch.object(WalkingSuggestionService, 'initialize')
+    def testWalkingSUggestionServiceInitialize(self, initialize):
+        WalkingSuggestionConfiguration.objects.create(
+            user = self.user
+        )
+
+        daily_update(username=self.user.username)
+
+        initialize.assert_called()
 
     @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
     @patch.object(WalkingSuggestionService, 'update')
     def testWalkingSuggestionServiceUpdate(self, walking_suggestion_service):
         WalkingSuggestionConfiguration.objects.create(
-            user = self.user
+            user = self.user,
+            service_initialized_date = date.today()
         )
 
         daily_update(username=self.user.username)

@@ -88,7 +88,10 @@ class ParticipantService:
             walking_suggestion_service = WalkingSuggestionService(
                 user = self.participant.user
             )
-            walking_suggestion_service.update(day)
+            if walking_suggestion_service.is_initialized():
+                walking_suggestion_service.update(day)
+            else:
+                walking_suggestion_service.initialize(day)
         except WalkingSuggestionService.Unavailable:
             pass
 

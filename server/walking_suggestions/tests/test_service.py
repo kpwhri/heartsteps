@@ -27,7 +27,7 @@ class ServiceTestCase(TestCase):
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
-            service_initialized_date = timezone.now()
+            service_initialized_date = timezone.now() - timedelta(days=1)
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
