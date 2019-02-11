@@ -26,6 +26,7 @@ class Decision(models.Model):
 
     test = models.BooleanField(default=False)
     available = models.BooleanField(default=True)
+    unavailable_reason = models.CharField(max_length=150, null=True, blank=True)
 
     time = models.DateTimeField()
 
