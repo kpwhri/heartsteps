@@ -46,7 +46,8 @@ class NightlyUpdateTest(TestCase):
     @patch.object(WalkingSuggestionService, 'initialize')
     def testWalkingSUggestionServiceInitialize(self, initialize):
         WalkingSuggestionConfiguration.objects.create(
-            user = self.user
+            user = self.user,
+            enabled = True
         )
 
         daily_update(username=self.user.username)
@@ -55,18 +56,20 @@ class NightlyUpdateTest(TestCase):
 
     @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
     @patch.object(WalkingSuggestionService, 'update')
-    def testWalkingSuggestionServiceUpdate(self, walking_suggestion_service):
+    def testWalkingSuggestionServiceUpdate(self, update):
         WalkingSuggestionConfiguration.objects.create(
             user = self.user,
+            enabled = True,
             service_initialized_date = date.today()
         )
 
         daily_update(username=self.user.username)
 
-        walking_suggestion_service.assert_called()
+        update.assert_called()
 
+    @patch.object(WalkingSuggestionService, 'initialize')
     @patch.object(WalkingSuggestionService, 'update')
-    def testWalkingSuggestionServiceUpdateDisabled(self, walking_suggestion_service):
+    def testWalkingSuggestionServiceUpdateDisabled(self, update, initialize):
         WalkingSuggestionConfiguration.objects.create(
             user = self.user,
             enabled = False
@@ -74,4 +77,5 @@ class NightlyUpdateTest(TestCase):
 
         daily_update(username=self.user.username)
 
-        walking_suggestion_service.assert_not_called()
+        update.assert_not_called()
+        initialize.assert_not_called()

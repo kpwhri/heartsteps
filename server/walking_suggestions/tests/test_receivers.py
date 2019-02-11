@@ -46,6 +46,7 @@ class ConfigutationTest(TestCase):
 
         configuration = Configuration.objects.get(user__username="test")
         self.assertEqual(1, Configuration.objects.count())
+        self.assertTrue(configuration.enabled)
 
     def test_does_nothing_if_no_user(self):
         suggestion_times_updated.send(SuggestionTime, username="test")        

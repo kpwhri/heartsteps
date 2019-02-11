@@ -10,5 +10,10 @@ def post_save_configuration(sender, username, *args, **kwargs):
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return False
-    configuration, _ = Configuration.objects.get_or_create(user = user)
+    configuration, _ = Configuration.objects.update_or_create(
+        user = user,
+        defaults = {
+            'enabled': True
+        }
+    )
     configuration.update_suggestion_times()
