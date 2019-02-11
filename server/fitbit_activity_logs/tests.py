@@ -51,7 +51,7 @@ class FitbitActivityLogTests(TestCase):
     
     def test_similar_fitbit_activity_types_grouped_together(self):
         FitbitActivityType.objects.create(fitbit_id="567", name="FooBar")
-        FitbitActivityType.objects.create(fitbit_id="567", name="FooBar")
+        FitbitActivityType.objects.create(fitbit_id="577", name="Foobar")
 
         activity_type = ActivityType.objects.get()
         self.assertEqual(activity_type.name, 'foobar')
