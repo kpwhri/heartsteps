@@ -11,31 +11,6 @@ from .models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from .services import WalkingSuggestionService, WalkingSuggestionDecisionService
 
 @shared_task
-def initialize_walking_suggestion_service(username):
-    try:
-        configuration = Configuration.objects.get(user__username=username)
-    except Configuration.DoesNotExist:
-        return False
-    try:
-        service = WalkingSuggestionService(configuration)
-    except WalkingSuggestionService.Unavailable:
-        return False
-    service.initialize()
-
-@shared_task
-def update_walking_suggestion_service(username):
-    try:
-        configuration = Configuration.objects.get(user__username=username)
-    except Configuration.DoesNotExist:
-        return False
-    yesterday = datetime.now(configuration.timezone) - timedelta(days=1)
-    try:
-        service = WalkingSuggestionService(configuration)
-    except WalkingSuggestionService.Unavailable:
-        return False
-    service.update(yesterday)
-
-@shared_task
 def start_decision(username, category):
     try:
         user = User.objects.get(username=username)

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_walking_suggestion_service, update_walking_suggestion_service
+from walking_suggestions.tasks import start_decision, request_decision_context, make_decision
 
 
 class StartTaskTests(TestCase):
@@ -105,29 +105,3 @@ class MakeDecisionTest(TestCase):
         self.update_context.assert_called()
         decide.assert_called()
         self.send_message.assert_not_called()
-
-class InitializeTaskTests(TestCase):
-
-    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'initialize')
-    def test_initialize(self, initialize):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
-
-        initialize_walking_suggestion_service('test')
-
-        initialize.assert_called()
-
-class NightlyUpdateTaskTests(TestCase):
-    
-    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'update', return_value="None")
-    def test_update(self, update):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
-
-        update_walking_suggestion_service('test')
-
-        update.assert_called()
