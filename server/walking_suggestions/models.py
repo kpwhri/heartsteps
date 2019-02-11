@@ -75,7 +75,10 @@ class Configuration(models.Model):
     def get_next_suggestion_time(self):
         times = [daily_task.get_next_run_time() for daily_task in self.get_suggestion_tasks()]
         times.sort()
-        return times.pop(0)
+        if len(times) > 0:
+            return times.pop(0)
+        else:
+            raise RuntimeError('No suggestion time')
 
     def update_suggestion_times(self):
         for suggestion_time in self.suggestion_times:

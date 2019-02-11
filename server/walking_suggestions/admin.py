@@ -33,16 +33,26 @@ admin.site.register(WalkingSuggestionMessageTemplate, WalkingSuggestionMessageTe
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'enabled', 'service_initialized']
     exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
-    readonly_fields = ['service_initialized', 'walking_suggestion_times', 'next_walking_suggestion_time']
+    readonly_fields = [
+        'service_initialized_date',
+        'walking_suggestion_times',
+        'next_walking_suggestion_time'
+    ]
 
     def walking_suggestion_times(self, configuration):
         times = []
         for suggestion_time in configuration.suggestion_times:
             times.append('%s %s:%s' % (suggestion_time.category, suggestion_time.hour, suggestion_time.minute))
-        return ' '.join(times)
+        if len(times) > 0:
+            return ' '.join(times)
+        else:
+            return 'Not set'
     
     def next_walking_suggestion_time(self, configuration):
-        next_run = configuration.get_next_suggestion_time()
-        return next_run.strftime('%Y-%m-%d %H:%M')
+        try:
+            next_run = configuration.get_next_suggestion_time()
+            return next_run.strftime('%Y-%m-%d %H:%M')
+        except RuntimeError:
+            return 'None'
 
 admin.site.register(Configuration, ConfigurationAdmin)
