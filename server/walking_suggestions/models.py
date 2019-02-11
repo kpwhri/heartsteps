@@ -16,7 +16,7 @@ class Configuration(models.Model):
     user = models.ForeignKey(User)
     enabled = models.BooleanField(default=True)
 
-    service_initialized = models.BooleanField(default=False)
+    service_initialized_date = models.DateField(null=True)
 
     day_start_hour = models.PositiveSmallIntegerField(default=6)
     day_start_minute = models.PositiveSmallIntegerField(default=0)
@@ -25,6 +25,13 @@ class Configuration(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    @property
+    def service_initialized(self):
+        if self.service_initialized_date is not None:
+            return True
+        else:
+            return False
 
     @property
     def timezone(self):

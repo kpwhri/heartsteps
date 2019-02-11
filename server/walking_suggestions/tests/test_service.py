@@ -27,7 +27,7 @@ class ServiceTestCase(TestCase):
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
-            service_initialized = True
+            service_initialized_date = timezone.now()
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
@@ -144,7 +144,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             time = timezone.now()
         )
         decision.add_context(SuggestionTime.MORNING)
-        self.configuration.service_initialized = False
+        self.configuration.service_initialized_date = None
         self.configuration.save()
         
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
@@ -176,7 +176,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         })
 
     def test_update_throws_error_not_initialized(self):
-        self.configuration.service_initialized = False
+        self.configuration.service_initialized_date = None
         self.configuration.save()
 
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
@@ -191,11 +191,8 @@ class StudyDayNumberTests(ServiceTestCase):
         self.assertEqual(day_number, 1)
 
     def test_get_day_number(self):
-        self.user.date_joined = self.user.date_joined - timedelta(days=5)
-        self.user.save()
-
-        today = timezone.now()
-        day_number = self.service.get_study_day(today)
+        later_date = timezone.now() + timedelta(days=5)
+        day_number = self.service.get_study_day(later_date)
 
         self.assertEqual(day_number, 6)
 

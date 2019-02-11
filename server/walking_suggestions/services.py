@@ -161,7 +161,7 @@ class WalkingSuggestionService():
         self.make_request('initialize',
             data = data
         )
-        self.__configuration.service_initialized = True
+        self.__configuration.service_initialized_date = date
         self.__configuration.save()
 
     def update(self, date):
@@ -350,7 +350,7 @@ class WalkingSuggestionService():
         return total_steps
 
     def get_study_day(self, date):
-        difference = date - self.__user.date_joined
+        difference = date - self.__configuration.service_initialized_date
         return difference.days + 1
     
     def categorize_suggestion_time(self, decision):
