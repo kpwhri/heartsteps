@@ -3,9 +3,9 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 
 from .models import Participant
+from .services import ParticipantService
 
 class EnrollView(APIView):
     """
@@ -18,21 +18,22 @@ class EnrollView(APIView):
         birth_year = request.data.get('birthYear', None)
         if enrollment_token:
             try:
-                participant = Participant.objects.get(
-                    enrollment_token__iexact=enrollment_token,
+                service = ParticipantService.get_participant(
+                    token = enrollment_token,
                     birth_year = birth_year
                 )
-            except Participant.DoesNotExist:
+            except ParticipantService.NoParticipant:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
 
-            participant.enroll()
-            token, created = Token.objects.get_or_create(user=participant.user)
-
+            service.initialize()
+            auth_token = service.get_authorization_token()
+            heartsteps_id = service.get_heartsteps_id()
+            
             response_data = {
-                'heartstepsId': participant.heartsteps_id
+                'heartstepsId': heartsteps_id
             }
             response_headers = {
-                'Authorization-Token': token
+                'Authorization-Token': auth_token
             }
 
             return Response(response_data, headers=response_headers)
