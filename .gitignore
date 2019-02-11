@@ -57,3 +57,7 @@ data/
 
 *.feather
 *.RData
+
+# Ignore fitbit build components
+fitbit/build
+fitbit/node_modules
