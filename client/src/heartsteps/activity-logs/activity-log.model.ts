@@ -11,6 +11,8 @@ export class ActivityLog {
     public vigorous:boolean;
     public earnedMinutes: number;
 
+    public enjoyed: number;
+
     constructor() {}
 
     public isToday() {

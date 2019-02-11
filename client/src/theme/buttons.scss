@@ -68,12 +68,6 @@ button.item-cover {
     margin: 0px;
 }
 
-button.inline {
-    @extend .heartsteps-minor-button;
-    text-align: left;
-    padding: 0.5em 0em;
-}
-
 button.remove {
     color: $text-color;
     padding-right: 40px;

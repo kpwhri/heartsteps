@@ -70,6 +70,7 @@ export class ActivityTypeFieldComponent implements ControlValueAccessor, OnInit 
         if(!this.isDisabled) {
             this.activityType = activityType;
             this.onChange(activityType.name);
+            this.onTouched();
         }
     }
 
@@ -83,7 +84,7 @@ export class ActivityTypeFieldComponent implements ControlValueAccessor, OnInit 
     public pickOtherActivityType() {
         this.activityTypeModalController.pick()
         .then((activityType) => {
-            this.activityType = activityType;
+            this.select(activityType);
         })
         .catch(() => {
             console.log('Dismissed');

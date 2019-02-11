@@ -20,7 +20,8 @@
         float: left;
         width: 2em;
         height: 2em;
-        margin: 0px 0.5em;
+        margin: 0em;
+        margin-right: 0.5em;
         background-color: $text-color;
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
@@ -54,8 +55,8 @@
 button.activity-type {
     @extend .heartsteps-minor-button;
     @extend .activity-type;
-    display: flex !important;
-    color: $text-color !important;
+    // display: flex !important;
+    // color: $text-color !important;
 
     &:focus {
         color: $color-primary !important;

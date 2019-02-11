@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_walking_suggestion_service, update_walking_suggestion_service
+from walking_suggestions.tasks import start_decision, request_decision_context, make_decision
 
 
 class StartTaskTests(TestCase):
@@ -36,13 +36,13 @@ class RequestContextTaskTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test")
         Configuration.objects.create(
-            user = self.user,
-            impute_context = True
+            user = self.user
         )
-        self.decision = WalkingSuggestionDecision.objects.create(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
+        self.decision_id = str(decision.id)
 
         patch_apply_async = patch.object(request_decision_context, 'apply_async')
         self.apply_async = patch_apply_async.start()
@@ -51,20 +51,26 @@ class RequestContextTaskTests(TestCase):
     @patch.object(WalkingSuggestionDecisionService, 'request_context')
     def test_requests_context(self, request_context):
         request_decision_context(
-            decision_id = str(self.decision.id)
+            decision_id = self.decision_id
         )
 
         request_context.assert_called()
         self.apply_async.assert_called()
+        # Get fresh object, because decision not mutated.
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
 
     @patch.object(WalkingSuggestionDecisionService, 'get_context_requests', return_value=['foo', 'bar'])
     @patch.object(make_decision, 'apply_async')
     def test_request_context_makes_decision(self, make_decision, get_context_requests):
         request_decision_context(
-            decision_id = str(self.decision.id)
+            decision_id = self.decision_id
         )
 
         make_decision.assert_called()
+        # Get fresh object, because decision not mutated.
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
 
 
 class MakeDecisionTest(TestCase):
@@ -99,29 +105,3 @@ class MakeDecisionTest(TestCase):
         self.update_context.assert_called()
         decide.assert_called()
         self.send_message.assert_not_called()
-
-class InitializeTaskTests(TestCase):
-
-    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'initialize')
-    def test_initialize(self, initialize):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
-
-        initialize_walking_suggestion_service('test')
-
-        initialize.assert_called()
-
-class NightlyUpdateTaskTests(TestCase):
-    
-    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'update', return_value="None")
-    def test_update(self, update):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
-
-        update_walking_suggestion_service('test')
-
-        update.assert_called()

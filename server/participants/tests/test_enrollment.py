@@ -7,14 +7,8 @@ from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
 from participants.models import Participant
-from participants.tasks import initialize_participant
 
 class EnrollViewTests(APITestCase):
-    
-    def setUp(self):
-        initialize_patch = patch.object(initialize_participant, 'apply_async')
-        self.addCleanup(initialize_patch.stop)
-        self.initialize_participant = initialize_patch.start()
 
     def test_enrollment_token(self):
         """

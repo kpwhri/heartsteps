@@ -1,9 +1,11 @@
-<article class="page">
-  <header>
-    <h2>Enroll</h2>
-    <a *ngIf="dismissable" class="close">Close</a>
-  </header>
-  <form [formGroup]="enrollmentForm" (ngSubmit)="enroll()" >
+<app-modal-dialog
+  title="Enroll"
+  >
+  <app-form
+    [formGroup]="enrollmentForm"
+    (onSubmit)="enroll()"
+    [defaultSubmit]="false"
+    >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <app-text-field
       formControlName="entryToken"
@@ -15,9 +17,8 @@
       label="Birth year"
       >
     </app-year-field>
-    <div class="controls">
-        <p *ngIf="error" class="error">{{error}}</p>
-        <button >Enroll</button>
+    <div app-form-controls>
+        <input type="submit" value="Enroll" />
     </div>
-  </form>
-</article>
+  </app-form>
+</app-modal-dialog>

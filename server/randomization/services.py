@@ -74,6 +74,9 @@ class DecisionService():
     def update_availability(self):
         pass
 
+    def is_complete(self):
+        return self.decision.is_complete()
+
     def decide(self):
         self.update_availability()
         return self.decision.decide()

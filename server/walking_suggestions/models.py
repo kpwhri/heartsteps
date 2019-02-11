@@ -14,15 +14,24 @@ from walking_suggestion_times.models import SuggestionTime
 
 class Configuration(models.Model):
     user = models.ForeignKey(User)
-    enabled = models.BooleanField(default=True)
-    impute_context = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=False)
 
-    service_initialized = models.BooleanField(default=False)
+    service_initialized_date = models.DateField(null=True)
 
     day_start_hour = models.PositiveSmallIntegerField(default=6)
     day_start_minute = models.PositiveSmallIntegerField(default=0)
     day_end_hour = models.PositiveSmallIntegerField(default=21)
     day_end_minute = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.user.username
+    
+    @property
+    def service_initialized(self):
+        if self.service_initialized_date is not None:
+            return True
+        else:
+            return False
 
     @property
     def timezone(self):
@@ -52,8 +61,27 @@ class Configuration(models.Model):
             tzinfo = self.timezone
         )
 
+    @property
+    def suggestion_times(self):
+        results = SuggestionTime.objects.filter(user=self.user).all()
+        return list(results)
+
+    def get_suggestion_tasks(self):
+        return list(DailyTask.objects.filter(
+            user = self.user,
+            category__in = SuggestionTime.TIMES
+        ).all())
+
+    def get_next_suggestion_time(self):
+        times = [daily_task.get_next_run_time() for daily_task in self.get_suggestion_tasks()]
+        times.sort()
+        if len(times) > 0:
+            return times.pop(0)
+        else:
+            raise RuntimeError('No suggestion time')
+
     def update_suggestion_times(self):
-        for suggestion_time in SuggestionTime.objects.filter(user=self.user).all():
+        for suggestion_time in self.suggestion_times:
             self._update_suggestion_time_task(suggestion_time)
 
     def _update_suggestion_time_task(self, suggestion_time):

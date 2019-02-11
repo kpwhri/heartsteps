@@ -18,6 +18,9 @@ from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, Wa
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
+    class DecisionDoesNotExist(ImproperlyConfigured):
+        pass
+
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
     def create_decision(user, category, time=None, test=False):
@@ -30,6 +33,13 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         )
         decision.add_context(category)
         return WalkingSuggestionDecisionService(decision)
+    
+    def get_decision(decision_id):
+        try:
+            decision = WalkingSuggestionDecision.objects.get(id=decision_id)
+            return WalkingSuggestionDecisionService(decision)
+        except WalkingSuggestionDecision.DoesNotExist:
+            raise WalkingSuggestionDecisionService.DecisionDoesNotExist('Decision not found')
 
     def update_availability(self):
         super().update_availability()
@@ -59,13 +69,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         for step_count in step_counts:
             total_steps += step_count.steps
         return total_steps
-
-    def can_impute_context(self):
-        try:
-            configuration = Configuration.objects.get(user=self.user)
-        except Configuration.DoesNotExist:
-            return False
-        return configuration.impute_context
 
     def decide(self):
         self.update_availability()
@@ -158,11 +161,11 @@ class WalkingSuggestionService():
         self.make_request('initialize',
             data = data
         )
-        self.__configuration.service_initialized = True
+        self.__configuration.service_initialized_date = date
         self.__configuration.save()
 
     def update(self, date):
-        if not self.__configuration.service_initialized:
+        if not self.is_initialized():
             raise self.NotInitialized()
 
         postdinner_decision = WalkingSuggestionDecision.objects.filter(
@@ -199,7 +202,7 @@ class WalkingSuggestionService():
         )
     
     def decide(self, decision):
-        if not self.__configuration.service_initialized:
+        if not self.is_initialized():
             raise self.NotInitialized()
         decision_service = WalkingSuggestionDecisionService(decision)
         response = self.make_request('decision',
@@ -215,6 +218,9 @@ class WalkingSuggestionService():
         decision.a_it = response['send']
         decision.pi_id = response['probability']
         decision.save()
+
+    def is_initialized(self):
+        return self.__configuration.service_initialized
 
     def get_clicks(self, date):
         return 0
@@ -347,8 +353,8 @@ class WalkingSuggestionService():
         return total_steps
 
     def get_study_day(self, date):
-        difference = date - self.__user.date_joined
-        return difference.days + 1
+        difference = date - self.__configuration.service_initialized_date
+        return difference.days
     
     def categorize_suggestion_time(self, decision):
         for tag in decision.get_context():

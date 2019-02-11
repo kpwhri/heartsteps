@@ -1,0 +1,15 @@
+<article class="page">
+    <header>
+        <h2>{{title}}</h2>
+        <button *ngIf="dismissible"
+            class="back"
+            (click)="dismiss()"
+            >
+            {{dismissText}}
+        </button>
+    </header>
+    <ion-content>
+        <ng-content></ng-content>
+        <ng-content select="[app-page-controls]"></ng-content>
+    </ion-content>
+</article>

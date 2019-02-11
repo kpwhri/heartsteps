@@ -21,12 +21,38 @@ h3, h4 {
 }
 
 ul {
-    margin:0px;
-    padding: 0px;
+    margin:0em;
+    padding: 1em 0em;
     list-style-type: none;
 
     > li {
-        margin: 0.25em 0em;
+        position: relative;
+        display: block;
+        margin: 0em;
+        margin-top: 1em;
+
+        &:first-child {
+            margin-top: 0em;
+        }
+    }
+}
+
+ul.horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    > li {
+        margin: 0.5em;
+        margin-top: 0.5em;
+    
+        &:first-child {
+            margin-top: 0.5em;
+        }
+    
+        & > span {
+            @extend .label;
+        }
     }
 }
 
@@ -39,10 +65,14 @@ dl {
     }
 }
 
+.heartsteps-content {
+    padding: 0em 1em;
+}
+
 .heartsteps-page,
 .page {
     font-size: 1.6rem;
-    background-color: $background-alternate;
+    background-color: $background-primary;
 
     .headline {
         color: $color-secondary;
@@ -57,11 +87,9 @@ dl {
     > nav,
     > footer {
         background-color: $background-alternate;
-        height: $block-size;
     }
 
     > header {
-        padding: $space-size;
         border-bottom: $color-gray 1px solid;
     }
 
@@ -73,8 +101,8 @@ dl {
 
 article {
     background-color: $background-primary;
-    margin: $space-size/2 0px;
-    padding: $space-size;
+    margin: 0.5em 0px;
+    padding: 1em;
 }
 
 .article-title,
@@ -94,8 +122,6 @@ article > h4 {
 article.page {
     margin: 0px;
     padding: 0px;
-    height: 100%;
-    background: $background-primary;
 }
 
 .heartsteps-page,
@@ -111,6 +137,21 @@ article.page {
     button.minor {
         @extend .heartsteps-minor-button;
     }
+
+    button.inline {
+        @extend .heartsteps-minor-button;
+        text-align: left;
+        padding: 0em;
+    }
+}
+
+.page ul > li > button {
+    @extend .heartsteps-minor-button;
+    display: flex;
+    color: $text-color;
+    flex-direction: row;
+    text-align: left;
+    padding: 0em;
 }
 
 .page button.bottom,
@@ -119,11 +160,6 @@ button.bottom,
 article > button {
     @extend .heartsteps-minor-button;
     border-top: $color-gray-light 1px solid;
-}
-
-li > button {
-    @extend button.inline;
-    color: $text-color;
 }
 
 .error {
@@ -174,19 +210,5 @@ ul.nav {
         mask-image: url('../assets/arrow-forward.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
-    }
-}
-
-ul.horizontal {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-ul.horizontal li {
-    display: block;
-    padding: $space-size/2;
-    & > span {
-        @extend .label;
     }
 }

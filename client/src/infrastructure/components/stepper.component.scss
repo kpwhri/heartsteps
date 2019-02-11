@@ -5,6 +5,7 @@ heartsteps-stepper {
     background-color: $color-white;
 
     > header {
+        @extend .heartsteps-page-header;
         background-color: transparent;
         border-bottom: 0px;
     }

@@ -1,6 +1,6 @@
 from django.conf.urls import url
-from .views import activity_types
+from .views import ActivityTypesList
 
 urlpatterns = [
-    url(r'types', activity_types, name='activity-types')
+    url(r'types', ActivityTypesList.as_view(), name='activity-types')
 ]

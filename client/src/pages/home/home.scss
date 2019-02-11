@@ -1,5 +1,6 @@
 page-home {
     @extend .page;
+    background-color: $background-alternate;
     
      > nav {
 
@@ -49,5 +50,9 @@ page-home {
         .settings:before {
             mask-image: url('../assets/settings.svg');
         }
+    }
+
+    ion-content.content > .scroll-content {
+        padding: 0px;
     }
 }

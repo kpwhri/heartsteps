@@ -28,15 +28,18 @@ router-outlet {
 
 article.page,
 .page {
-    padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
+    height: 100%
+}
+
+.page > header {
+    padding-top: env(safe-area-inset-top);
 }
 
 .page {
     display:flex;
     flex-direction: column;
     flex-grow: 1;
-    background-color: $color-gray-light;
 
     > * {
         flex: 1 1 auto;
@@ -44,12 +47,12 @@ article.page,
     }
 }
 
-header,
-footer,
-.page > header,
-.page > nav,
-.page > footer {
-    @extend .heartsteps-controls;
+.heartsteps-content {
+    padding: $space-size
+}
+
+.page .content {
+    @extend .heartsteps-content;
 }
 
 .heartsteps-controls {
@@ -65,20 +68,43 @@ footer,
 
     > * {
         flex: 0 1 auto;
-        margin: 0em 0.5em;
-    }
-
-    > .title,
-    > h2 {
-        flex-grow: 1;
-    }
-
-    .back {
-        order: -1;
+        margin: 0.5em;
     }
 
     button {
         @extend .heartsteps-minor-button;
         width: auto;
     }
+}
+
+header,
+footer,
+.page > header,
+.page > nav,
+.page > footer {
+    @extend .heartsteps-controls;
+}
+
+.heartsteps-page-header {
+    display: block;
+
+    > * {
+        margin: 1em $space-size+$block-size 0.5em;
+    }
+
+    .back {
+        @extend .heartsteps-minor-button;   
+        position: absolute;
+        top:50%;
+        left: $space-size/2;
+        padding: 0px;
+        margin: 0px;
+        transform: translate(0%, -50%);
+        width: $block-size;
+        text-align: left;
+    }
+}
+
+.page > header {
+    @extend .heartsteps-page-header;
 }

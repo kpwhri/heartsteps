@@ -43,6 +43,10 @@
         width: 100%;
     }
 
+    a {
+        color: $color-white;
+    }
+
     .controls {
         flex-grow: 1;
     }
@@ -55,6 +59,19 @@
 .start-screen form {
     label {
         color: $color-white;
+    }
+}
+
+.start-screen heartsteps-stepper {
+    background-color: transparent;
+
+    .pagination-bullets > * {
+        background-color: transparent;
+        border: $color-white 1px solid;
+
+        &.active {
+            background-color: $color-white;
+        }
     }
 }
 

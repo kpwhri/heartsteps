@@ -15,15 +15,15 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 admin.site.unregister(Token)
 
-def enroll_participant(modeladmin, request, queryset):
+def initialize_participant(modeladmin, request, queryset):
     for participant in queryset.all():
         service = ParticipantService(participant)
-        service.enroll()
+        service.initialize()
 
-def unenroll_participant(modeladmin, request, queryset):
+def deactivate_participant(modeladmin, request, queryset):
     for participant in queryset.all():
         service = ParticipantService(participant)
-        service.unenroll()
+        service.deactivate()
 
 def update_participant(modeladmin, request, queryset):
     for participant in queryset.all():
@@ -35,7 +35,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     list_display = ['__str__', '_is_enrolled', '_is_active']
 
-    actions = [enroll_participant, unenroll_participant, update_participant]
+    actions = [initialize_participant, deactivate_participant, update_participant]
 
     def daily_update(self, instance):
         if instance.daily_task:
