@@ -1,0 +1,1 @@
+default_app_config = 'anti_sedentary.apps.AntiSedentaryConfig'
