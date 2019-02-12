@@ -7,6 +7,7 @@ from anti_seds.models import StepCount
 from locations.services import LocationService
 from randomization.services import DecisionMessageService, DecisionContextService
 
+from anti_sedentary.clients import AntiSedentaryClient
 from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
 
 class AntiSedentaryService:
@@ -30,6 +31,13 @@ class AntiSedentaryService:
         self.__configuration = configuration
         self.__user = configuration.user
 
+        try:
+            self.__client = AntiSedentaryClient(
+                user = self.__user
+            )
+        except AntiSedentaryClient.NoConfiguration:
+            self.__client = None
+
     def create_decision(self):
         decision = AntiSedentaryDecision.objects.create(
             user = self.__user,
@@ -37,13 +45,34 @@ class AntiSedentaryService:
         )
         return decision
 
-    def time_within_day(self, time):
+    def decide(self, decision):
+        if self.__client:
+            return self.__client.decide(
+                decision = decision,
+                step_count = self.get_step_count_change_at(decision.time),
+                day_start = self.get_day_start(decision.time),
+                day_end = self.get_day_end(decision.time)
+            )
+        else:
+            return decision.decide()
+
+    def get_day_end(self, time):
         location_service = LocationService(self.__user)
         local_timezone = location_service.get_timezone_on(time)
         local_time = time.astimezone(local_timezone)
 
-        end_of_day = local_time.replace(hour=20, minute=0)
-        start_of_day = local_time.replace(hour=8, minute=0)
+        return local_time.replace(hour=20, minute=0)
+
+    def get_day_start(self, time):
+        location_service = LocationService(self.__user)
+        local_timezone = location_service.get_timezone_on(time)
+        local_time = time.astimezone(local_timezone)
+
+        return local_time.replace(hour=8, minute=0)
+
+    def time_within_day(self, time):
+        end_of_day = self.get_day_end(time)
+        start_of_day = self.get_day_start(time)
 
         if time > start_of_day and time < end_of_day:
             return True
@@ -112,7 +141,7 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
     def __init__(self, decision):
         super().__init__(decision)
         self.__anti_sedentary_service = AntiSedentaryService(
-            user = decision.user
+            user = self.decision.user
         )
 
     def generate_context(self):
@@ -164,3 +193,6 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
             time = timezone.now()
         )
         return AntiSedentaryDecisionService(decision)
+    
+    def decide(self):
+        return self.__anti_sedentary_service.decide(self.decision)

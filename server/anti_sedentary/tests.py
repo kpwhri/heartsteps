@@ -2,7 +2,7 @@ import pytz
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from anti_seds.models import StepCount
@@ -10,6 +10,7 @@ from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
 
+from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, User, Configuration
 from .services import AntiSedentaryService, AntiSedentaryDecisionService
 from .tasks import make_decision, start_decision
@@ -195,6 +196,7 @@ class MakeDecisionTests(TestBase):
             time = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
+    def testSendNoClient(self):
         decision_decide_patch = patch.object(AntiSedentaryDecision, 'decide')
         self.addCleanup(decision_decide_patch.stop)
         self.decision_decide = decision_decide_patch.start()
@@ -205,9 +207,23 @@ class MakeDecisionTests(TestBase):
             return True
         self.decision_decide.side_effect = mock_decide
 
-    def test_sends_anti_sedentary_message(self):
         make_decision(self.decision.id)
 
+        self.send_notification.assert_called_with("Example message", title=None)
+    
+    @override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
+    @patch.object(AntiSedentaryClient, 'make_request')
+    def testSendWithClient(self, make_request):
+        make_request.return_value = {
+            'a_it': 1,
+            'pi_it': 0.75
+        }
+
+        make_decision(self.decision.id)
+
+        decision = AntiSedentaryDecision.objects.get()
+        self.assertTrue(decision.treated)
+        self.assertEqual(decision.treatment_probability, 0.75)
         self.send_notification.assert_called_with("Example message", title=None)
 
 class DetermineSedentary(TestBase):
