@@ -45,6 +45,9 @@ class FitbitStepCountService:
 
 class AntiSedentaryService:
 
+    class Unavailable(ImproperlyConfigured):
+        pass
+
     class NoConfiguration(ImproperlyConfigured):
         pass
     
@@ -181,7 +184,7 @@ class AntiSedentaryService:
 
     def update(self, date):
         if not self.__client:
-            raise ImproperlyConfigured('No client')
+            raise AntiSedentaryService.Unavailable('No client')
 
         decision_times = []
         day_start = self.get_day_start(date)

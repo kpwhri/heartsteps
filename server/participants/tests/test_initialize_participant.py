@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 
 from daily_tasks.models import DailyTask
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
@@ -38,4 +39,11 @@ class InitializeTask(TestCase):
         service.initialize()
 
         configuration = MorningMessageConfiguration.objects.get()
+        self.assertEqual(configuration.user.username, "test")
+
+    def test_creates_anti_sedentary_configuration(self):
+        service = ParticipantService(username="test")
+        service.initialize()
+
+        configuration = AntiSedentaryConfiguration.objects.get()
         self.assertEqual(configuration.user.username, "test")
