@@ -1,14 +1,47 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
 from anti_seds.models import StepCount
+from fitbit_api.models import FitbitMinuteStepCount
+from fitbit_api.services import FitbitService
 from locations.services import LocationService
 from randomization.services import DecisionMessageService, DecisionContextService
 
 from anti_sedentary.clients import AntiSedentaryClient
 from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
+
+class FitbitStepCountService:
+
+    def __init__(self, user, date):
+        self.user = user
+        self.date = date
+        
+        self.fitbit_account = FitbitService.get_account(user)
+
+    def get_step_count_between(self, start, end):
+        step_counts = FitbitMinuteStepCount.objects.filter(
+            account = self.fitbit_account,
+            time__range = [start, end]
+        ).all()
+        total_steps = 0
+        for step_count in step_counts:
+            total_steps += step_count.steps
+        return total_steps
+
+    def is_sedentary_at(self, time):
+        step_count = self.get_step_count_between(
+            start = time - timedelta(minutes=40),
+            end = time
+        )
+        return False
+
+    def steps_at(self, time):
+        return self.get_step_count_between(
+            start = time - timedelta(minutes=5),
+            end = time
+        )
 
 class AntiSedentaryService:
 
@@ -44,6 +77,23 @@ class AntiSedentaryService:
             time = timezone.now()
         )
         return decision
+    
+    def get_decision(self, time):
+        try:
+            return AntiSedentaryDecision.objects.get(
+                user = self.__user,
+                time__range = [
+                    time - timedelta(minutes=4, seconds=59),
+                    time
+                ]
+            )
+        except AntiSedentaryDecision.DoesNotExist:
+            return AntiSedentaryDecision.objects.create(
+                user = self.__user,
+                time = time,
+                imputed = True,
+                available = False
+            )
 
     def decide(self, decision):
         if self.__client:
@@ -130,7 +180,35 @@ class AntiSedentaryService:
             return False
 
     def update(self, date):
-        pass
+        if not self.__client:
+            raise ImproperlyConfigured('No client')
+
+        decision_times = []
+        day_start = self.get_day_start(date)
+        day_end = self.get_day_end(date)
+
+        steps_service = FitbitStepCountService(
+            user = self.__user,
+            date = date
+        )
+
+        decision_interval = 5
+        current_time = day_start
+        while current_time <= day_end:
+            decision = self.get_decision(time = current_time)
+            decision_times.append({
+                'id': str(decision.id),
+                'time': current_time,
+                'sedentary': steps_service.is_sedentary_at(current_time),
+                'steps': steps_service.steps_at(current_time)
+            })
+            current_time = current_time + timedelta(minutes=decision_interval)
+
+        self.__client.update(
+            decisions = decision_times,
+            day_start = day_start,
+            day_end = day_end
+        )
 
     
 

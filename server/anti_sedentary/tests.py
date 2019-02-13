@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from anti_seds.models import StepCount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
@@ -326,4 +327,33 @@ class DetermineSedentary(TestBase):
         step_change = self.service.get_step_count_change_at(now)
 
         self.assertEqual(step_change, 0)
-        
+
+
+@override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
+class UpdateAntiSedentaryService(TestBase):
+
+    def setUp(self):
+        super().setUp()
+
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = FitbitAccount.objects.create(
+                fitbit_user = 'test'
+            )
+        )
+
+        make_request_mock = patch.object(AntiSedentaryClient, 'make_request')
+        self.make_request = make_request_mock.start()
+        self.make_request.return_value = None
+        self.addCleanup(make_request_mock.stop)
+
+    def testUpdate(self):
+        service = AntiSedentaryService(
+            configuration = self.configuration
+        )
+        today = self.localize_time(datetime(2019, 1, 18, 14, 0))
+
+        service.update(today)
+
+        self.assertEqual(self.make_request.call_count, 145)
+        self.assertEqual(AntiSedentaryDecision.objects.count(), 145)

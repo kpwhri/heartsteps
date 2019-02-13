@@ -41,7 +41,7 @@ class AntiSedentaryClient:
             request_time = timezone.now()
         )
         try:
-            response = requests.post(url, json)
+            response = requests.post(url, data)
         except:
             request_record.save()
             raise RequestError('Error making request')
@@ -94,5 +94,20 @@ class AntiSedentaryClient:
         return decision.treated
 
     
-    def update(self, data):
-        pass
+    def update(self, decisions, day_start, day_end):
+        for decision in decisions:
+            try:
+                response = self.make_request(
+                    uri = 'nightly',
+                    data = {
+                        'daystart': self.__format_datetime(day_start),
+                        'dayend': self.__format_datetime(day_end),
+                        'decisionid': decision['id'],
+                        'time': self.__format_datetime(decision['time']),
+                        'state': decision['sedentary'],
+                        'steps': decision['steps']
+                    }
+                )
+            except AntiSedentaryClient.RequestError:
+                pass
+
