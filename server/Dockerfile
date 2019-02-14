@@ -8,6 +8,8 @@ RUN apt-get update && \
 WORKDIR /server
 ADD . /server
 
+RUN easy_install apns2
+
 #Load python dependencies
 RUN pip install -r requirements.txt
 
