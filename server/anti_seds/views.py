@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
 from .models import StepCount
-from .tasks import start_decision
 
 
 class StepCountSerializer(serializers.ModelSerializer):
@@ -33,8 +32,5 @@ class StepCountUpdateView(APIView):
             step_count = StepCount(**serialized.validated_data)
             step_count.user = request.user
             step_count.save()
-            start_decision.apply_async(kwargs={
-                'step_count_id': step_count.id
-            })
             return Response({}, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

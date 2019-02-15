@@ -352,8 +352,15 @@ class WalkingSuggestionService():
             total_steps += step_count.steps
         return total_steps
 
-    def get_study_day(self, date):
-        difference = date - self.__configuration.service_initialized_date
+    def get_study_day(self, time):
+        normalized_time = time.tzinfo.localize(datetime(
+            self.__configuration.service_initialized_date.year,
+            self.__configuration.service_initialized_date.month,
+            self.__configuration.service_initialized_date.day,
+            time.hour,
+            time.minute
+        ))
+        difference = time - normalized_time
         return difference.days
     
     def categorize_suggestion_time(self, decision):

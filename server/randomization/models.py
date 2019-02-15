@@ -25,6 +25,8 @@ class Decision(models.Model):
     user = models.ForeignKey(User)
 
     test = models.BooleanField(default=False)
+    imputed = models.BooleanField(default=False)
+    
     available = models.BooleanField(default=True)
     unavailable_reason = models.CharField(max_length=150, null=True, blank=True)
 

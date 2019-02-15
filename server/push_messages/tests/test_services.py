@@ -5,7 +5,7 @@ import requests
 from django.contrib.auth.models import User
 
 from push_messages.models import Message, Device, MessageReceipt
-from push_messages.services import PushMessageService, FirebaseMessageService, DeviceMissingError, MessageSendError
+from push_messages.services import PushMessageService, ClientBase, FirebaseMessageService, DeviceMissingError
 
 class TestPushMessageService(TestCase):
 
@@ -37,7 +37,7 @@ class TestPushMessageService(TestCase):
 
         self.assertIsNotNone(push_message_service.device)
 
-    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_notification(self, send):
         user = self.make_user()
         push_message_service = PushMessageService(user)
@@ -47,10 +47,10 @@ class TestPushMessageService(TestCase):
         self.assertTrue(result)
         message = Message.objects.get(recipient=user)
         self.assertEqual(message.external_id, "example-uuid")
-        self.assertEqual(str(message.uuid), send.call_args[0][0]['data']['messageId'])
+        self.assertEqual(str(message.uuid), send.call_args[0][0]['messageId'])
         self.assertEqual(message.message_type, Message.NOTIFICATION)
 
-    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_data(self, send):
         user = self.make_user()
         push_message_service = PushMessageService(user)
@@ -63,10 +63,10 @@ class TestPushMessageService(TestCase):
         self.assertTrue(result)
         message = Message.objects.get(recipient=user)
         self.assertEqual(message.external_id, "example-uuid")
-        self.assertEqual(str(message.uuid), send.call_args[0][0]['data']['messageId'])
+        self.assertEqual(str(message.uuid), send.call_args[0][0]['messageId'])
         self.assertEqual(message.message_type, Message.DATA)
 
-    @patch.object(FirebaseMessageService, 'send', return_value="example-uuid")
+    @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_makes_message_receipt(self, send):
         user = self.make_user()
         push_message_service = PushMessageService(user)
@@ -79,7 +79,7 @@ class TestPushMessageService(TestCase):
     def raise_message_failure(self, request):
         raise MessageSendError
 
-    @patch.object(FirebaseMessageService, 'send', raise_message_failure)
+    @patch.object(ClientBase, 'send', raise_message_failure)
     def test_handles_message_send_failure(self):
         user = self.make_user()
         push_message_service = PushMessageService(user)
@@ -139,7 +139,7 @@ class TestFirebaseMessageService(TestCase):
         failed = False
         try:
             firebase_message_service.send({})
-        except MessageSendError:
+        except FirebaseMessageService.MessageSendError:
             failed = True
         
         self.assertTrue(failed)

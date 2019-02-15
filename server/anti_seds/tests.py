@@ -9,11 +9,9 @@ from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
-from anti_sedentary.models import AntiSedentaryDecision
-from anti_sedentary.tasks import make_decision
+from anti_sedentary.tasks import start_decision
 
 from .models import StepCount
-from .tasks import start_decision
 
 def make_fitbit_stepcount(steps):
     timestamp = int(time.time())
@@ -25,8 +23,12 @@ def make_fitbit_stepcount(steps):
 
 class AntiSedViewTests(APITestCase):
 
-    @patch.object(start_decision, 'apply_async')
-    def test_post_data(self, start_decision):
+    def setUp(self):
+        start_decision_mock = patch.object(start_decision, 'apply_async')
+        start_decision_mock.start()
+        self.addCleanup(start_decision_mock.stop)
+
+    def testPost(self):
         user = User.objects.create(username="test")
         self.client.force_authenticate(user=user)
 
@@ -42,41 +44,3 @@ class AntiSedViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(StepCount.objects.filter(user=user).count(), 1)
         self.assertEqual(response_object.step_number, steps)
-
-        start_decision.assert_called_with(kwargs={
-            'step_count_id': StepCount.objects.get().id
-        })
-
-class StartDecisionTaskTest(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create(username="test")
-    
-    @patch.object(make_decision, 'apply_async')
-    def test_starts_decision(self, make_decision):
-        step_count = StepCount.objects.create(
-            user = self.user,
-            step_number = 7,
-            step_dtm = timezone.now()
-        )
-
-        start_decision(step_count.id)
-
-        decision = AntiSedentaryDecision.objects.get()
-        self.assertEqual(decision.user.id, step_count.user.id)
-        make_decision.assert_called_with(kwargs={
-            'decision_id': str(decision.id)
-        })
-
-    @patch.object(make_decision, 'apply_async')
-    def test_does_not_start_decision(self, make_decision):
-        step_count = StepCount.objects.create(
-            user = self.user,
-            step_number = 157,
-            step_dtm = timezone.now()
-        )
-
-        start_decision(step_count.id)
-
-        self.assertEqual(0, AntiSedentaryDecision.objects.count())
-        make_decision.assert_not_called()

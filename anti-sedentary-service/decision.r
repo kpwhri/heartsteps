@@ -10,22 +10,24 @@ input = fromJSON(args)
 source("functions.R")
 #require(mgcv); require(chron);
 
-# payload = ' {
-#   "userid": [ 2 ],
-#   "decisionid": [ 1803312 ] ,
-#   "time": [ "2018-10-12 10:10" ] ,
-#   "daystart": [ "2018-10-12 8:00" ] ,
-#   "dayend": [ "2018-10-12 20:00" ] ,
-#   "state": [ 1 ],
-#   "steps": [ 10 ],
-#   "available": [ 1 ]
-# }
-# '
-# input = fromJSON(payload)
+payload = ' {
+  "userid": [ 2 ],
+  "decisionid": [ 1803312 ] ,
+  "time": [ "2018-10-12 10:10" ] ,
+  "daystart": [ "2018-10-12 8:00" ] ,
+  "dayend": [ "2018-10-12 20:00" ] ,
+  "state": [ 1 ],
+  "steps": [ 10 ],
+  "available": [ 1 ]
+}
+'
+input = fromJSON(payload)
 
 # Pull in the Necessary CSVs
 setwd("./data/")
-window.time = read.csv("window_time.csv")
+# window.time = read.csv("window_time.csv")
+r_min_x.table = readRDS("rminx.RDS")
+r_minus_x_plus.table = readRDS("rminusxplus.RDS")
 Sedentary.values = read.csv("sed_values.csv")
 Sedentary.length = read.csv("sed_length.csv")
 
@@ -58,7 +60,7 @@ if( any(is.na(strptime(user.data$time, "%Y-%m-%d %H:%M"))) ) {
 bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
 buckets = list(bucket1,bucket2, bucket3)
 
-window.time$window.utime = as.POSIXct(window.time$window.utime, tz = "GMT")
+# window.time$window.utime = as.POSIXct(window.time$window.utime, tz = "GMT")
 
 ## Create a data.frame for Expected time Remaining
 ## Range of current hour = c(14:23,0:1)
@@ -114,7 +116,7 @@ if( any(is.element(user.data$time,current.time)) ) {
   block.steps = unlist(lapply(hour, FUN = which.block))
   
   ## Apply function
-  current.state = 1
+  current.state = input$state
   current.hour = hours(current.time)
   current.block = which.block(current.hour)
   which.blocks = which(block.steps == current.block)

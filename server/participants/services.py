@@ -4,6 +4,8 @@ from rest_framework.authtoken.models import Token
 
 from fitbit_api.services import FitbitDayService
 from locations.services import LocationService
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from anti_sedentary.services import AntiSedentaryService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
@@ -54,6 +56,9 @@ class ParticipantService:
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
+        AntiSedentaryConfiguration.objects.update_or_create(
+            user = self.participant.user
+        )
         MorningMessagesConfiguration.objects.update_or_create(
             user=self.participant.user
         )
@@ -93,6 +98,14 @@ class ParticipantService:
             else:
                 walking_suggestion_service.initialize(day)
         except WalkingSuggestionService.Unavailable:
+            pass
+
+        try:
+            anti_sedentary_service = AntiSedentaryService(
+                user = self.participant.user
+            )
+            anti_sedentary_service.update(day)
+        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
             pass
 
         ## Maybe following is just update task from app

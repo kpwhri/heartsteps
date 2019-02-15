@@ -1,23 +1,21 @@
 import pytz
 from celery import shared_task
 
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-from anti_sedentary.services import AntiSedentaryDecisionService
+from anti_sedentary.services import AntiSedentaryDecisionService, AntiSedentaryService
 from anti_sedentary.models import AntiSedentaryDecision
 
 @shared_task
-def start_decision(username, step_count):
-    User = get_user_model()
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return False
-    
-    decision_service = AntiSedentaryDecisionService.create_decision(user)
-    make_decision.apply_async(kwargs={
-        'decision_id': str(decision_service.decision.id)
-    })
+def start_decision(username):
+    service = AntiSedentaryService(username=username)
+
+    if service.can_randomize_now():
+        decision = service.create_decision()
+        make_decision.apply_async(kwargs={
+            'decision_id': str(decision.id)
+        })
 
 @shared_task
 def make_decision(decision_id):
