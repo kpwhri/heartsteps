@@ -12,7 +12,7 @@
   text-anchor: middle;
   text-length: 10;
   x: 50%;
-  y: 41%;
+  y: 40%;
   width: 92%;
   height: 25%;
   fill: #2490DD;
@@ -20,7 +20,7 @@
 
 .date-text {
   font-family: Seville-Regular;
-  font-size: 22;
+  font-size: 24;
   text-anchor: middle;
   text-length: 32;
   x: 50%;
@@ -54,7 +54,7 @@
 
 .stats text {
   font-family: Seville-Regular;
-  font-size: 22;
+  font-size: 24;
   text-length: 16;
   fill: #2490DD;
 }
