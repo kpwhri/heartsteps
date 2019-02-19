@@ -14,6 +14,9 @@ class PushMessageService():
     Handles sending messages to a user and creating message reciepts.
     """
 
+    class MessageSendError(RuntimeError):
+        pass
+
     class UnknownClient(RuntimeError):
         pass
 
@@ -25,11 +28,12 @@ class PushMessageService():
         self.user = user
         self.device = self.get_device_for_user(self.user)
         self._service = self.get_client()
+        self.__client = self._service
 
     def get_client(self):
         client_types = {
             'apns': ApplePushClient,
-            'apns-development': AppleDevelopmentPushClient,
+            'apns-dev': AppleDevelopmentPushClient,
             'firebase': FirebaseMessageService
         }
 
@@ -53,21 +57,16 @@ class PushMessageService():
             device = self.device
         )
 
-    def send(self, message, request):
+    def __send(self, message, request):
         try:
-            external_id = self._service.send(request)
-        except:
-            message.save()
-            return message        
-        message.external_id = external_id
-        message.save()
-
+            self.__client.send(request)
+        except self.__client.MessageSendError as error:
+            raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
             message = message,
             time = timezone.now(),
             type = MessageReceipt.SENT
         )
-
         return message
 
     def send_notification(self, body, title=None, data={}):
@@ -78,7 +77,9 @@ class PushMessageService():
             title = "HeartSteps"
         request = self._service.format_notification(body, title, data)
         message.content = json.dumps(request)
-        return self.send(message, request)
+        message.save()
+
+        return self.__send(message, request)
 
     def send_data(self, data):
         message = self.init_message()
@@ -86,4 +87,6 @@ class PushMessageService():
         data['messageId'] = str(message.uuid)
         request = self._service.format_data(data)
         message.content = json.dumps(request)
-        return self.send(message, request)
+        message.save()
+
+        return self.__send(message, request)

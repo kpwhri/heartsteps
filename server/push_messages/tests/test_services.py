@@ -46,7 +46,6 @@ class TestPushMessageService(TestCase):
 
         self.assertTrue(result)
         message = Message.objects.get(recipient=user)
-        self.assertEqual(message.external_id, "example-uuid")
         self.assertEqual(str(message.uuid), send.call_args[0][0]['messageId'])
         self.assertEqual(message.message_type, Message.NOTIFICATION)
 
@@ -62,7 +61,6 @@ class TestPushMessageService(TestCase):
 
         self.assertTrue(result)
         message = Message.objects.get(recipient=user)
-        self.assertEqual(message.external_id, "example-uuid")
         self.assertEqual(str(message.uuid), send.call_args[0][0]['messageId'])
         self.assertEqual(message.message_type, Message.DATA)
 
@@ -77,18 +75,15 @@ class TestPushMessageService(TestCase):
         self.assertEqual(message_receipt.type, MessageReceipt.SENT)
 
     def raise_message_failure(self, request):
-        raise MessageSendError
+        raise ClientBase.MessageSendError('Mock error')
 
     @patch.object(ClientBase, 'send', raise_message_failure)
     def test_handles_message_send_failure(self):
         user = self.make_user()
         push_message_service = PushMessageService(user)
 
-        result = push_message_service.send_notification("Hello World")
-
-        message = Message.objects.get(recipient=user)
-        self.assertIsNone(message.external_id)
-        self.assertEqual(MessageReceipt.objects.filter(message=message).count(), 0)
+        with self.assertRaises(push_message_service.MessageSendError):
+            result = push_message_service.send_notification("Hello World")
 
 class TestFirebaseMessageService(TestCase):
 

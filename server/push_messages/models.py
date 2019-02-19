@@ -24,7 +24,6 @@ class Message(models.Model):
     ]
 
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    external_id = models.CharField(max_length=50, null=True, blank=True)
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES)
 
     recipient = models.ForeignKey(User)
