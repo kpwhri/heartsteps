@@ -6,10 +6,8 @@ import { LoadingService } from './loading.service';
 import { Geolocation } from '@ionic-native/geolocation';
 import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
-import { PushService } from '@infrastructure/push.service';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-import { OneSignal } from '@ionic-native/onesignal';
 import { BackgroundProcessService } from '@infrastructure/background-process.service';
 import { StorageService } from './storage.service';
 import { ChoiceDialogController } from './choice-dialog.controler';
@@ -35,7 +33,6 @@ import { DocumentStorageService } from './document-storage.service';
   entryComponents: [],
   providers: [
       AuthorizationService,
-      PushService,
       HeartstepsServer,
       LoadingService,
       Geolocation,
@@ -46,7 +43,6 @@ import { DocumentStorageService } from './document-storage.service';
       BrowserService,
       SafariViewController,
       InAppBrowser,
-      OneSignal,
       ChoiceDialogController,
       AlertDialogController,
       NotificationService

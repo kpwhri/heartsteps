@@ -104,9 +104,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
 
-ONESIGNAL_APP_ID = env('ONESIGNAL_APP_ID', default='onesignal-app-id')
-ONESIGNAL_API_KEY = env('ONESIGNAL_API_KEY', default='onesignal-api-key')
-
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
