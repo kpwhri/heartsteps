@@ -1,30 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
-import { PushService, Device } from '@infrastructure/push.service';
 import { Subject } from 'rxjs';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
 import { Notification } from '@heartsteps/notifications/notification.model';
 import { StorageService } from '@infrastructure/storage.service';
+import { PushNotificationService, Device } from '@infrastructure/notifications/push-notification.service';
 
 const storageKey: string = 'notificationServiceDevice';
 
 @Injectable()
 export class NotificationService {
 
-    dataMessage: Subject<any>;
-    notificationMessage: Subject<Notification>;
+    public dataMessage: Subject<any> = new Subject();
+    public notificationMessage: Subject<Notification> = new Subject();
 
     constructor(
-        private pushService: PushService,
+        private pushNotificationService: PushNotificationService,
         private messageReceiptService: MessageReceiptService,
         private heartstepsServer:HeartstepsServer,
         private storage:StorageService
-    ){
-        this.dataMessage = new Subject();
-        this.notificationMessage = new Subject();
-        
-        this.watchDeviceUpdate();
-        this.pushService.message.subscribe((data: any) => {
+    ){        
+        this.pushNotificationService.device.subscribe((device: Device) => {
+            this.checkDevice(device);
+        });
+        this.pushNotificationService.notifications.subscribe((data: any) => {
             this.processMessage(data);
         });
     }
@@ -52,33 +51,29 @@ export class NotificationService {
     }
 
     enable():Promise<boolean> {
-        return this.pushService.getPermission()
+        return this.pushNotificationService.getPermission()
         .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.reject("Notifications not enabled");
-        })
+            const device = this.pushNotificationService.device.getValue();
+            return this.updateDevice(device);
+        });
     }
 
     disable():Promise<boolean> {
         return this.deleteDevice();
     }
 
-    watchDeviceUpdate() {
-        this.pushService.device.subscribe((device: Device) => {
-            if(device) {
-                this.getDevice()
-                .then((storedDevice)=> {
-                    if(storedDevice.token !== device.token) {
-                        return Promise.reject("Device needs to be updated");
-                    }
-                })
-                .catch(() => {
-                    this.updateDevice(device);
-                });
-            }
-        })
+    checkDevice(device: Device) {
+        if(device) {
+            this.getDevice()
+            .then((storedDevice)=> {
+                if(storedDevice.token !== device.token) {
+                    return Promise.reject("Device needs to be updated");
+                }
+            })
+            .catch(() => {
+                this.updateDevice(device);
+            });
+        }
     }
 
     updateDevice(device: Device):Promise<boolean> {

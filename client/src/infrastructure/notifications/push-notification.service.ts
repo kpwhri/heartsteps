@@ -1,0 +1,79 @@
+import { Injectable } from "@angular/core";
+import { Platform } from "ionic-angular";
+import { BehaviorSubject, Subject } from "rxjs";
+
+declare var PushNotification;
+
+export class Device {
+    public token: string;
+    public type: string;
+
+    constructor(token:string, type:string) {
+        this.token = token;
+        this.type = type;
+    }
+}
+
+@Injectable()
+export class PushNotificationService {
+
+    private push: any;
+    public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
+    public notifications: Subject<any> = new Subject();
+
+    constructor(
+        platform: Platform
+    ) {
+        platform.ready()
+        .then(() => {
+            this.setup();
+        })
+    }
+
+    public getPermission():Promise<boolean> {
+        return Promise.resolve(true);
+    }
+
+    private setup() {
+        this.push = PushNotification.init({
+            ios: {
+                voip: true
+            }
+        });
+
+        this.push.on('notification', (data:any) => {
+            console.log('Notivigiaiotn received');
+            console.log(data);
+
+            if(data.additionalData) {
+                this.createNotification(data.additionalData);
+            }
+        })
+
+        this.push.on('registration', (data:any) => {
+            this.device.next(new Device(
+                data.registrationId,
+                'apns-dev'
+            ));
+        });
+    }
+
+    private createNotification(data:any) {
+        const title: string = data.title;
+        const body: string = data.body;
+        const messageId: string = data.messageId;
+
+        const customData: any = Object.assign({}, data);
+        delete customData.title;
+        delete customData.body;
+        delete customData.messageId;
+
+        this.notifications.next({
+            title: title,
+            body: body,
+            data: customData,
+            messageId: messageId
+        });
+    }
+
+}

@@ -34,10 +34,10 @@ const appRoutes:Routes = [
   ],
   imports: [
     WelcomePageModule,
-    NotificationsPageModule,
     OnboardPageModule,
     HomePageModule,
     NotificationsModule,
+    NotificationsPageModule,
     WeeklySurveyModule,
     MorningSurveyPageModule,
     BrowserAnimationsModule,

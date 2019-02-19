@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NotificationService as HeartstepsNotificationService } from '@heartsteps/notifications/notification.service';
-import { NotificationService as InfrastructureNotificationService } from '@infrastructure/notification.service';
+import { NotificationService as LocalNotificationService } from '@infrastructure/notification.service';
 import { Notification } from "@heartsteps/notifications/notification.model";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { Router } from "@angular/router";
@@ -11,7 +11,7 @@ export class NotificationService {
     
     constructor(
         private notifications: HeartstepsNotificationService,
-        private notificationService: InfrastructureNotificationService,
+        private notificationService: LocalNotificationService,
         private walkingSuggestionService: WalkingSuggestionService,
         private weeklySurveyService: WeeklySurveyService,
         private router: Router
@@ -28,14 +28,16 @@ export class NotificationService {
                     this.router.navigate(['morning-message']);
                     break;
                 default:
-                    console.log(notification);
+                    this.router.navigate(['notification', notification.context['messageId']]);
             }
         });
 
         this.notificationService.setupNotificationListener();
 
         this.notifications.notificationMessage.subscribe((notification: Notification) => {
-            this.router.navigate(['notification', notification.id]);
+            this.notificationService.create('notification',notification.body, {
+                messageId: notification.id
+            });
         });
 
         this.notifications.dataMessage.subscribe((payload:any) => {

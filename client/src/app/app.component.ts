@@ -36,7 +36,7 @@ export class MyApp {
     }
 
     setupNotifications(participant:any) {
-        if(participant.profileComplete) {
+        if(participant) {
             this.notificationService.setup();
         }
     }
