@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { NotificationService } from "@heartsteps/notifications/notification.service";
+import { MessageService } from "@heartsteps/notifications/message.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
 import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
@@ -12,7 +12,7 @@ import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 export class ProfileService {
 
     constructor(
-        private notificationService: NotificationService,
+        private messageService: MessageService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
         private locationService:LocationService,
         private placesService:PlacesService,
@@ -60,7 +60,7 @@ export class ProfileService {
     public remove():Promise<boolean> {
         return Promise.all([
             this.walkingSuggestionTimeService.removeTimes(),
-            this.notificationService.disable(),
+            this.messageService.disable(),
             this.locationService.removePermission(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
@@ -142,7 +142,7 @@ export class ProfileService {
     }
 
     private checkNotificationsEnabled():Promise<boolean> {
-        return this.notificationService.isEnabled()
+        return this.messageService.isEnabled()
         .then(() => {
             return true
         })

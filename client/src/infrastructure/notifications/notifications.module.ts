@@ -1,10 +1,12 @@
 import { NgModule } from "@angular/core";
 import { PushNotificationService } from "./push-notification.service";
+import { LocalNotificationService } from "./local-notification.service";
 
 
 @NgModule({
     providers: [
-        PushNotificationService
+        PushNotificationService,
+        LocalNotificationService
     ]
 })
 export class NotificationsModule {}

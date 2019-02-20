@@ -27,7 +27,7 @@ export class PushNotificationService {
         platform.ready()
         .then(() => {
             this.setup();
-        })
+        });
     }
 
     public getPermission():Promise<boolean> {
@@ -42,9 +42,6 @@ export class PushNotificationService {
         });
 
         this.push.on('notification', (data:any) => {
-            console.log('Notivigiaiotn received');
-            console.log(data);
-
             if(data.additionalData) {
                 this.createNotification(data.additionalData);
             }
@@ -67,12 +64,16 @@ export class PushNotificationService {
         delete customData.title;
         delete customData.body;
         delete customData.messageId;
+        delete customData.coldstart;
+        delete customData.foreground;
+        delete customData['content-available'];
 
         this.notifications.next({
-            title: title,
-            body: body,
-            data: customData,
-            messageId: messageId
+            title: data.title,
+            body: data.body,
+            context: customData,
+            id: data.messageId,
+            type: data.type
         });
     }
 

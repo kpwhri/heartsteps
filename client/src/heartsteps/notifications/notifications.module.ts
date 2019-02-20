@@ -2,11 +2,9 @@ import { NgModule } from '@angular/core';
 
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { NotificationsModule as InfrastructureNotificationsModule } from '@infrastructure/notifications/notifications.module'; 
-import { NotificationService } from '@heartsteps/notifications/notification.service';
+import { MessageService } from '@heartsteps/notifications/message.service';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
-import { NotificationsPermission } from './notifications';
-
-
+import { NotificationsPermissionComponent } from './notification-permission.component';
 
 @NgModule({
     imports: [
@@ -14,14 +12,14 @@ import { NotificationsPermission } from './notifications';
         InfrastructureNotificationsModule
     ],
     providers: [
-        NotificationService,
+        MessageService,
         MessageReceiptService
     ],
     declarations: [
-        NotificationsPermission
+        NotificationsPermissionComponent
     ],
     exports: [
-        NotificationsPermission
+        NotificationsPermissionComponent
     ]
 })
 export class NotificationsModule {}

@@ -16,7 +16,6 @@ import { IonicPageModule } from 'ionic-angular';
 import { HeartstepsRangeComponent } from './range.component';
 import { HeartstepsIncrementComponent } from './increment.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { NotificationService } from './notification.service';
 import { DocumentStorageService } from './document-storage.service';
 
 
@@ -44,8 +43,7 @@ import { DocumentStorageService } from './document-storage.service';
       SafariViewController,
       InAppBrowser,
       ChoiceDialogController,
-      AlertDialogController,
-      NotificationService
+      AlertDialogController
   ],
   exports: [
     HeartstepsRangeComponent,

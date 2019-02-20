@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificationsPermission } from '@heartsteps/notifications/notifications';
+import { NotificationsPermissionComponent } from '@heartsteps/notifications/notification-permission.component';
 import { LocationPermission } from '@heartsteps/locations/location-permission';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
@@ -17,7 +17,7 @@ const onboardingPages:Array<Step> = [{
 }, {
     key: 'notificationsEnabled',
     title: 'Notifications',
-    component: NotificationsPermission
+    component: NotificationsPermissionComponent
 }, {
     key: 'weeklyReflectionTime',
     title: 'Reflection Time',
@@ -44,7 +44,7 @@ const onboardingPages:Array<Step> = [{
     selector: 'pages-onboarding',
     templateUrl: 'onboard.html',
     entryComponents: [
-        NotificationsPermission,
+        NotificationsPermissionComponent,
         LocationPermission,
         WeeklyReflectionTimePage,
         WalkingSuggestionTimesComponent,

@@ -1,22 +1,22 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { NotificationService } from '@heartsteps/notifications/notification.service';
+import { MessageService } from '@heartsteps/notifications/message.service';
 import { LoadingService } from '@infrastructure/loading.service';
 
 @Component({
     selector: 'heartsteps-notifications-permission',
-    templateUrl: 'notifications.html',
+    templateUrl: 'notification-permission.component.html',
 })
-export class NotificationsPermission {
+export class NotificationsPermissionComponent {
     @Output() saved = new EventEmitter<boolean>();
 
     constructor(
-        private notificationService: NotificationService,
+        private messageService: MessageService,
         private loadingService:LoadingService
     ) {}
 
     getPermission() {
         this.loadingService.show("Getting permission")
-        this.notificationService.enable()
+        this.messageService.enable()
         .then(() => {
             this.saved.emit(true);
         })

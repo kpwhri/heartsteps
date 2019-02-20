@@ -3,7 +3,7 @@ import { StorageService } from "@infrastructure/storage.service";
 import { Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
-import { NotificationService } from "@infrastructure/notification.service";
+import { MessageService } from "@heartsteps/notifications/message.service";
 
 export class WeeklySurvey {
     public weekId:string
@@ -22,7 +22,7 @@ export class WeeklySurveyService {
         private storage:StorageService,
         private messageReceiptService: MessageReceiptService,
         private router:Router,
-        private notificationService: NotificationService
+        private messageService: MessageService
     ){
         this.survey = new BehaviorSubject(null);
         this.getSurvey()
@@ -72,10 +72,6 @@ export class WeeklySurveyService {
         
         return this.setSurvey(weekId, messageId, expireDate)
         .then((survey:WeeklySurvey) => {
-            this.notificationService.create('weekly-survey', 'Take weekly survey', {
-                weekId: weekId,
-                messageId: messageId
-            });
             this.survey.next(survey);
             return survey;
         });
