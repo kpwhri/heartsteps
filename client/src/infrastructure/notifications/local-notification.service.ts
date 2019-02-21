@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
-import { Platform } from "ionic-angular";
 
 declare var cordova:any;
 
@@ -13,14 +12,8 @@ export class LocalNotificationService {
     public clicked:Subject<string> = new Subject();
 
     constructor(
-        private zone: NgZone,
-        platform: Platform
-    ) {
-        platform.ready()
-        .then(() => {
-            this.setup();
-        });
-    }
+        private zone: NgZone
+    ) {}
 
     public setup() {
         if (cordova) {

@@ -39,6 +39,8 @@ export class MessageService {
         this.pushNotificationService.notifications.subscribe((data: any) => {
             this.receiveMessage(data);
         });
+        this.localNotificationService.setup();
+        this.pushNotificationService.setup();
     }
 
     private openMessage(messageId:string) {

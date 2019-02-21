@@ -4,6 +4,12 @@ import { BehaviorSubject, Subject } from "rxjs";
 
 declare var PushNotification;
 
+declare var process: {
+    env: {
+        PUSH_NOTIFICATION_DEVICE_TYPE: string
+    }
+}
+
 export class Device {
     public token: string;
     public type: string;
@@ -21,25 +27,14 @@ export class PushNotificationService {
     public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
     public notifications: Subject<any> = new Subject();
 
-    constructor(
-        platform: Platform
-    ) {
-        platform.ready()
-        .then(() => {
-            this.setup();
-        });
-    }
+    constructor() {}
 
     public getPermission():Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    private setup() {
-        this.push = PushNotification.init({
-            ios: {
-                voip: true
-            }
-        });
+    public setup() {
+        this.push = PushNotification.init({ios:{voip: "true"}});
 
         this.push.on('notification', (data:any) => {
             if(data.additionalData) {
@@ -50,7 +45,7 @@ export class PushNotificationService {
         this.push.on('registration', (data:any) => {
             this.device.next(new Device(
                 data.registrationId,
-                'apns-dev'
+                process.env.PUSH_NOTIFICATION_DEVICE_TYPE
             ));
         });
     }
