@@ -62,7 +62,7 @@
     "ionicons": "3.0.0",
     "moment": "^2.24.0",
     "node-sass": "^4.9.0",
-    "phonegap-plugin-push": "^2.1.3",
+    "phonegap-plugin-push": "git+https://github.com/phonegap/phonegap-plugin-push.git#v2.2.3",
     "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
     "url-join": "^4.0.0",
@@ -130,9 +130,7 @@
         "GEOLOCATION_USAGE_DESCRIPTION": "Your location will be used to tailor activity suggestions"
       },
       "cordova-plugin-local-notification": {},
-      "phonegap-plugin-push": {
-        "FCM_VERSION": "11.6.2"
-      }
+      "phonegap-plugin-push": {}
     },
     "platforms": [
       "android",

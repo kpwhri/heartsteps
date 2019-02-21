@@ -100,9 +100,7 @@
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
-    <plugin name="phonegap-plugin-push" spec="^2.1.3">
-        <variable name="FCM_VERSION" value="11.6.2" />
-    </plugin>
+    <plugin name="phonegap-plugin-push" spec="https://github.com/phonegap/phonegap-plugin-push#v2.2.3" />
     <engine name="android" spec="7.1.4" />
     <engine name="ios" spec="4.5.5" />
 </widget>
