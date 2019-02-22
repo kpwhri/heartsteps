@@ -117,7 +117,13 @@ class Configuration(models.Model):
         }
 
 class WalkingSuggestionDecision(Decision):
-    pass
+    
+    @property
+    def category(self):
+        for tag in self.tags.all():
+            if tag.tag in SuggestionTime.TIMES:
+                return tag.tag
+        return None
 
 class WalkingSuggestionMessageTemplate(MessageTemplate):
     pass

@@ -22,6 +22,10 @@ class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
 
 class WalkingSuggestionDecisionAdmin(DecisionAdmin):
     list_filter = [WalkingSuggestionTimeFilters]
+    list_display = ['decision', 'time', 'available', 'treated']
+
+    def decision(self, decision):
+        return '%s (%s)' % (decision.user.username, decision.category)
 
 admin.site.register(WalkingSuggestionDecision, WalkingSuggestionDecisionAdmin)
 
