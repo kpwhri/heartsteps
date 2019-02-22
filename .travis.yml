@@ -3,6 +3,7 @@ services:
 sudo: required
 
 install: 
+- docker-compose build service-template
 # install google cloud sdk
 # - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
 # - echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -28,6 +29,8 @@ after_success:
 - gcloud auth activate-service-account --key-file=credentials/gce.json
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
+# copy credentials to server (this is hacky)
+- cp -r credentials server/credentials
 # upload client web app to gae
 - gcloud app deploy -q -v master server/app.yaml static/app.yaml dispatch.yaml
 # build services

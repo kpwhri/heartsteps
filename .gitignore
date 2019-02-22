@@ -58,6 +58,9 @@ data/
 *.feather
 *.RData
 
+# this is to cover up a dirty hack...
+server/credentials
+
 # Ignore fitbit build components
 fitbit/build
 fitbit/node_modules

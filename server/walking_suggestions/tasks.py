@@ -41,12 +41,9 @@ def request_decision_context(decision_id):
     decision_service = WalkingSuggestionDecisionService(decision)
 
     if not decision.is_complete():
-
         if len(decision_service.get_context_requests()) > settings.WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS:
-
             decision.available = False
             decision.save()
-
             make_decision.apply_async(kwargs={
                 'decision_id': decision_id
             })

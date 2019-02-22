@@ -8,6 +8,9 @@ RUN apt-get update && \
 WORKDIR /server
 ADD . /server
 
+RUN mkdir -p credentials && \
+    mv credentials /credentials
+
 RUN easy_install apns2
 
 #Load python dependencies
