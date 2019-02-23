@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
+from locations.models import Place
 from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
@@ -118,7 +119,8 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
 
-    def test_decision(self):
+    @patch.object(WalkingSuggestionDecisionService, 'get_location_context', return_value=Place.HOME)
+    def test_decision(self, get_location_context):
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
@@ -136,7 +138,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'decision')
         request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 1)
-        assert 'location' in request_data
+        self.assertEqual(request_data['location'], 2)
 
     def test_decision_throws_error_not_initialized(self):
         decision = WalkingSuggestionDecision.objects.create(

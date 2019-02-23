@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 from fitbit_api.models import FitbitAccountUser, FitbitDay, FitbitMinuteStepCount
+from locations.models import Place
 from service_requests.models import  ServiceRequest
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
@@ -88,6 +89,12 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             service.decide(self.decision)
         except ImproperlyConfigured:
             self.decision.decide()
+        except service.RequestError:
+            self.decision.treated = False
+            self.decision.treatment_probability = 1
+            self.decision.available = False
+            self.decision.unavailable_reason = "Walking suggestion service error"
+            self.decision.save()
         return self.decision.a_it
 
 class WalkingSuggestionService():
@@ -100,6 +107,9 @@ class WalkingSuggestionService():
         pass
 
     class NotInitialized(ImproperlyConfigured):
+        pass
+
+    class RequestError(RuntimeError):
         pass
 
     def __init__(self, configuration=None, user=None, username=None):
@@ -136,6 +146,9 @@ class WalkingSuggestionService():
         request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
+
+        if response.status_code >= 400:
+            raise self.RequestError('Request failed')
 
         try:
             return json.loads(response.text)
@@ -205,14 +218,22 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
         decision_service = WalkingSuggestionDecisionService(decision)
+        available = decision_service.determine_availability()
+        location = decision_service.get_location_context()
+        location_value = 0
+        if location is Place.HOME:
+            location_value = 2
+        if location is Place.WORK:
+            location_value = 1
+
         response = self.make_request('decision',
             data = {
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
-                'availability': decision_service.determine_availability(),
+                'availability': available,
                 'priorAnti': self.notified_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
-                'location': decision_service.get_location_context()
+                'location': location_value
             }
         )
         decision.a_it = response['send']

@@ -94,11 +94,15 @@ class RequestContextTaskTests(TestCase):
         self.assertFalse(decision.available)
         self.assertEqual(decision.unavailable_reason, 'Sample error message')
 
-
 class MakeDecisionTest(TestCase):
 
     def setUp(self):
         user = User.objects.create(username="test")
+        Configuration.objects.create(
+            user = user,
+            enabled = True,
+            service_initialized_date = timezone.now()
+        )
         self.decision = WalkingSuggestionDecision.objects.create(
             user = user,
             time = timezone.now()
@@ -127,3 +131,16 @@ class MakeDecisionTest(TestCase):
         self.update_context.assert_called()
         decide.assert_called()
         self.send_message.assert_not_called()
+
+    def raise_service_error(self):
+        raise WalkingSuggestionService.RequestError('Walking suggestion service error')
+
+    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
+    @patch.object(WalkingSuggestionService, 'decide', side_effect=raise_service_error)
+    def test_walking_suggestion_service_error(self, decide):
+        make_decision(str(self.decision.id))
+
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.treated)
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Walking suggestion service error')
