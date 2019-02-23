@@ -45,8 +45,12 @@ class RequestContextTaskTests(TestCase):
         self.decision_id = str(decision.id)
 
         patch_apply_async = patch.object(request_decision_context, 'apply_async')
-        self.apply_async = patch_apply_async.start()
+        self.request_decision_context = patch_apply_async.start()
         self.addCleanup(patch_apply_async.stop)
+
+        patch_make_decision = patch.object(make_decision, 'apply_async')
+        self.make_decision = patch_make_decision.start()
+        self.addCleanup(patch_make_decision.stop)
 
     @patch.object(WalkingSuggestionDecisionService, 'request_context')
     def test_requests_context(self, request_context):
@@ -55,22 +59,40 @@ class RequestContextTaskTests(TestCase):
         )
 
         request_context.assert_called()
-        self.apply_async.assert_called()
+        self.make_decision.assert_not_called()
+        self.request_decision_context.assert_called()
         # Get fresh object, because decision not mutated.
         decision = WalkingSuggestionDecision.objects.get()
         self.assertTrue(decision.available)
 
     @patch.object(WalkingSuggestionDecisionService, 'get_context_requests', return_value=['foo', 'bar'])
-    @patch.object(make_decision, 'apply_async')
-    def test_request_context_makes_decision(self, make_decision, get_context_requests):
+    def test_request_context_makes_decision(self, get_context_requests):
         request_decision_context(
             decision_id = self.decision_id
         )
 
-        make_decision.assert_called()
+        self.make_decision.assert_called()
+        self.request_decision_context.assert_not_called()
         # Get fresh object, because decision not mutated.
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Unreachable')
+
+    def raise_unreachable(self):
+         raise WalkingSuggestionDecisionService.Unreachable('Sample error message')
+
+    @patch.object(WalkingSuggestionDecisionService, 'request_context')
+    def test_request_context_no_device(self, request_context):
+        request_context.side_effect = self.raise_unreachable
+        
+        request_decision_context(
+            decision_id = self.decision_id
+        )
+
+        self.make_decision.assert_called()
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Sample error message')
 
 
 class MakeDecisionTest(TestCase):

@@ -17,6 +17,10 @@ from weather.models import WeatherForecast
 from randomization.models import Decision, DecisionContext, ContextTag
 
 class DecisionService():
+
+    class Unreachable(RuntimeError):
+        pass
+
     def __init__(self, decision):
         self.decision = decision
         self.user = decision.user
@@ -34,11 +38,15 @@ class DecisionService():
         try:
             push_message_service = PushMessageService(self.user)
         except PushMessageService.DeviceMissingError:
-            return False
-        message = push_message_service.send_data({
-            'type': 'request-context',
-            'decisionId': str(self.decision.id)
-        })
+            raise DecisionService.Unreachable('No device')
+        try:
+            message = push_message_service.send_data({
+                'type': 'request-context',
+                'decisionId': str(self.decision.id)
+            })
+        except PushMessageService.MessageSendError:
+            raise DecisionService.Unreachable('Unable to send')
+
         if message:
             DecisionContext.objects.create(
                 decision = self.decision,
