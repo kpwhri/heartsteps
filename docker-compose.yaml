@@ -33,6 +33,8 @@ services:
     command: python app.py
     volumes:
       - ./anti-sedentary-service:/anti-sedentary-service
+      - ./credentials:/credentials
+    privileged: true
     ports:
       - "5001:8000"
   server:

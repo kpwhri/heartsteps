@@ -8,4 +8,5 @@ RUN pip install -r requirements.txt
 RUN Rscript install.r
 
 # Run the server
-CMD gcsfuse anti-sedentary-data ./data && gunicorn -b 0.0.0.0:8080 wsgi
+RUN mkdir -p ./data
+CMD gcsfuse --implicit-dirs anti-sedentary-data ./data && gunicorn -b 0.0.0.0:8080 wsgi
