@@ -14,13 +14,16 @@ class Device(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return '%s (%s)' % (self.type, self.token)
+
 class Message(models.Model):
 
     DATA = 'data'
     NOTIFICATION = 'notification'
     MESSAGE_TYPES = [
-        ('Data', DATA),
-        ('Notification', NOTIFICATION)
+        (DATA, 'Data'),
+        (NOTIFICATION, 'Notification')
     ]
 
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
@@ -32,6 +35,32 @@ class Message(models.Model):
     content = models.TextField()
 
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '%s (%s)' % (self.recipient.username, self.message_type)
+
+    def __get_receipt_time(self, type):
+        try:
+            receipt = MessageReceipt.objects.filter(message=self, type=type).last()
+            return receipt.time
+        except:
+            return None
+
+    @property
+    def sent(self):
+        return self.__get_receipt_time(MessageReceipt.SENT)
+
+    @property
+    def received(self):
+        return self.__get_receipt_time(MessageReceipt.RECEIVED)
+    
+    @property
+    def opened(self):
+        return self.__get_receipt_time(MessageReceipt.OPENED)
+
+    @property
+    def engaged(self):
+        return self.__get_receipt_time(MessageReceipt.ENGAGED)
 
 class MessageReceipt(models.Model):
     SENT = 'sent'
