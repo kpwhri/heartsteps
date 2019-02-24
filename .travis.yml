@@ -42,3 +42,4 @@ after_success:
 # upload anti-sedentary service
 - docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
 - docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
+- gcloud compute instances update-container "anti-sedentary-service" --container-image="gcr.io/heartsteps-kpwhri/anti-sedentary-service"
