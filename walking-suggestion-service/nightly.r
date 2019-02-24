@@ -21,10 +21,10 @@ if(server){
   
 }else{
   
-  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
+  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  input <- fromJSON(file = "./test/test-run/update_1.json")
+  input <- fromJSON(file = "./test/update_2.json")
   
 }
 
@@ -49,6 +49,8 @@ stopifnot(all(is.na(input$temperatureArray)) == FALSE)
 # priorAnti, lastActivity can only be true or false
 stopifnot(is.logical(input$priorAnti), is.logical(input$lastActivity))
 
+# total steps null to NA
+input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
 
 # ================ Asscess the day's data ================ 
 paths <- paste("./data/", "user", input$userID, sep="")

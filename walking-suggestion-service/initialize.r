@@ -22,11 +22,11 @@ if(server){
 }else{
   
 
-  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
+  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
   
-  input <- fromJSON(file = "./test/test-run/start.json")
+  input <- fromJSON(file = "./test/start.json")
   
 }
 

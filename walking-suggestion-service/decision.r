@@ -19,12 +19,13 @@ if(server){
   
 }else{
   
-  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/activity-suggestion/")
+  setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service")
   source("functions.R")
-  input <- fromJSON(file = "./test/test-run/call_1_5.json")
+  input <- fromJSON(file = "./test/call_2_5.json")
   
 }
 
+print(input)
 
 
 # ================ access the user's dataset ================  
@@ -45,7 +46,7 @@ stopifnot(all(c("userID", "studyDay", "decisionTime", "availability",
 # should not be any missing
 stopifnot(all(lapply(input, is.null)==FALSE))
 # location in (1, 2, 3)
-stopifnot(input$location %in% c(1, 2, 3))
+stopifnot(input$location %in% c(0, 1, 2))
 # availability, priorAnti, lastActivity can only be true or false
 stopifnot(is.logical(input$availability), is.logical(input$priorAnti), is.logical(input$lastActivity))
 
