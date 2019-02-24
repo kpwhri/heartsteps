@@ -220,11 +220,11 @@ class WalkingSuggestionService():
         decision_service = WalkingSuggestionDecisionService(decision)
         available = decision_service.determine_availability()
         location = decision_service.get_location_context()
-        location_value = 1
+        location_value = 0
         if location is Place.HOME:
-            location_value = 3
-        if location is Place.WORK:
             location_value = 2
+        if location is Place.WORK:
+            location_value = 1
 
         response = self.make_request('decision',
             data = {
@@ -256,7 +256,7 @@ class WalkingSuggestionService():
                 date__day = date.day
             )
         except FitbitDay.DoesNotExist:
-            return 0
+            return None
         return day.step_count
 
     def get_availabilities(self, date):

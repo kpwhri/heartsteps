@@ -138,7 +138,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'decision')
         request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 1)
-        self.assertEqual(request_data['location'], 3)
+        self.assertEqual(request_data['location'], 2)
 
     def test_decision_throws_error_not_initialized(self):
         decision = WalkingSuggestionDecision.objects.create(
@@ -221,7 +221,7 @@ class GetStepsTests(ServiceTestCase):
 
     def test_gets_no_steps(self):
         steps = self.service.get_steps(datetime(2018,10,11))
-        assert steps is 0
+        assert steps is None
 
 class StepCountTests(ServiceTestCase):
 
