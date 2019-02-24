@@ -4,7 +4,7 @@ from walking_suggestion_times.signals import suggestion_times_updated
 
 from .models import SuggestionTime, Configuration, User
 
-@receiver(suggestion_times_updated, sender=SuggestionTime)
+@receiver(suggestion_times_updated, sender=User)
 def post_save_configuration(sender, username, *args, **kwargs):
     try:
         user = User.objects.get(username=username)

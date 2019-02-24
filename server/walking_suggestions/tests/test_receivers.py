@@ -32,7 +32,7 @@ class ConfigutationTest(TestCase):
             user = user
         )
 
-        suggestion_times_updated.send(SuggestionTime, username="test")
+        suggestion_times_updated.send(User, username="test")
 
         daily_task = DailyTask.objects.get(user=user, category='morning')
         self.assertEqual(daily_task.task.crontab.hour, '15')
@@ -42,12 +42,12 @@ class ConfigutationTest(TestCase):
     def test_creates_configuration_if_does_not_exist(self):
         user = User.objects.create(username="test")
 
-        suggestion_times_updated.send(SuggestionTime, username="test")
+        suggestion_times_updated.send(User, username="test")
 
         configuration = Configuration.objects.get(user__username="test")
         self.assertEqual(1, Configuration.objects.count())
         self.assertTrue(configuration.enabled)
 
     def test_does_nothing_if_no_user(self):
-        suggestion_times_updated.send(SuggestionTime, username="test")        
+        suggestion_times_updated.send(User, username="test")        
         self.assertEqual(0, Configuration.objects.count())

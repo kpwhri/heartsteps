@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from django_celery_beat.models import PeriodicTasks
 
-from .models import SuggestionTime
+from .models import SuggestionTime, User
 from .serializers import SuggestionTimeSerializer
 from .signals import suggestion_times_updated
 
@@ -32,6 +32,6 @@ class SuggestionTimeList(APIView):
                     category = category,
                     defaults = serialized_times.validated_data[category]
                 )
-            suggestion_times_updated.send(SuggestionTime, username=request.user.username)
+            suggestion_times_updated.send(User, username=request.user.username)
             return Response(request.data, status.HTTP_200_OK)
         return Response(serialized_times.errors, status.HTTP_400_BAD_REQUEST)
