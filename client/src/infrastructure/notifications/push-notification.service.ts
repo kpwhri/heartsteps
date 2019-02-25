@@ -27,7 +27,15 @@ export class PushNotificationService {
     public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
     public notifications: Subject<any> = new Subject();
 
-    constructor() {}
+    constructor(
+        private platform: Platform
+    ) {
+        if(this.platform.is('ios') || this.platform.is('android')) {
+
+        } else {
+            this.device.next(new Device('fake-device', 'fake'));
+        }
+    }
 
     public getPermission():Promise<boolean> {
         return Promise.resolve(true);

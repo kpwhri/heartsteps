@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
+import { Platform } from "ionic-angular";
 
 declare var cordova:any;
 
@@ -12,6 +13,7 @@ export class LocalNotificationService {
     public clicked:Subject<string> = new Subject();
 
     constructor(
+        private platform: Platform,
         private zone: NgZone
     ) {}
 
@@ -29,7 +31,7 @@ export class LocalNotificationService {
     }
 
     public enable(): Promise<boolean> {
-        if(cordova) {
+        if(this.platform.is('ios') || this.platform.is('android')) {
             return this.requestPermission();
         } else {
             return Promise.resolve(true);
@@ -37,7 +39,7 @@ export class LocalNotificationService {
     }
 
     public isEnabled():Promise<boolean> {
-        if(cordova) {
+        if(this.platform.is('ios') || this.platform.is('android')) {
             return this.hasPermission();
         } else {
             return Promise.resolve(true);
