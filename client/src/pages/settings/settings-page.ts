@@ -38,10 +38,12 @@ export class SettingsPage {
 
     public testMorningMessage() {
         this.loadingService.show("Getting morning message");
-        this.morningMessageService.load()
+        this.morningMessageService.requestNotification()
+        .catch((error) => {
+            return this.alertDialog.show(error);
+        })
         .then(() => {
             this.loadingService.dismiss();
-            this.router.navigate(['morning-survey']);
         });
     }
 

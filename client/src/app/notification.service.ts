@@ -4,6 +4,7 @@ import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walkin
 import { Router } from "@angular/router";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { Message } from "@heartsteps/notifications/message.model";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 @Injectable()
 export class NotificationService {
@@ -12,6 +13,7 @@ export class NotificationService {
         private messageService: MessageService,
         private walkingSuggestionService: WalkingSuggestionService,
         private weeklySurveyService: WeeklySurveyService,
+        private morningMessageService: MorningMessageService,
         private router: Router
     ) {}
 
@@ -35,7 +37,12 @@ export class NotificationService {
                     this.messageService.createNotification(message.id, 'Take weekly survey');
                     break;
                 case 'morning-message':
-                    this.messageService.createNotification(message.id, 'Good morning');
+                    this.morningMessageService.set({
+                        id: message.id,
+                        notification: message.context.notification,
+                        text: message.context.text,
+                        anchor: message.context.anchor
+                    });
                     break;
                 case 'request-context':
                     this.walkingSuggestionService.sendDecisionContext(message.context.decisionId);
