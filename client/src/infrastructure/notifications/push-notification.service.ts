@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
 declare var PushNotification;
 
@@ -29,19 +29,13 @@ export class PushNotificationService {
 
     constructor(
         private platform: Platform
-    ) {
-        if(this.platform.is('ios') || this.platform.is('android')) {
-
-        } else {
-            this.device.next(new Device('fake-device', 'fake'));
-        }
-    }
+    ) {}
 
     public getPermission():Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    public setup() {
+    public setup():Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
             this.push = PushNotification.init({ios:{voip: "true"}});
 
@@ -57,6 +51,19 @@ export class PushNotificationService {
                     process.env.PUSH_NOTIFICATION_DEVICE_TYPE
                 ));
             });
+
+            return new Promise((resolve) => {
+                const subscription:Subscription = this.device
+                .filter(device => device !== undefined)
+                .subscribe(() => {
+                    subscription.unsubscribe();
+                    resolve(true);
+                });
+            });
+
+        } else {
+            this.device.next(new Device('fake-device', 'fake'));
+            return Promise.resolve(true);
         }
     }
 

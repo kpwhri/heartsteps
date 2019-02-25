@@ -7,6 +7,7 @@ import { PushNotificationService, Device } from '@infrastructure/notifications/p
 import { LocalNotificationService } from '@infrastructure/notifications/local-notification.service';
 import { DocumentStorage, DocumentStorageService } from '@infrastructure/document-storage.service';
 import { Message } from './message.model';
+import { rejects } from 'assert';
 
 const storageKey: string = 'notificationServiceDevice';
 
@@ -17,6 +18,8 @@ export class MessageService {
 
     public received: Subject<any> = new Subject();
     public opened: Subject<any> = new Subject();
+
+    private isSetup: boolean = false;
 
     constructor(
         private pushNotificationService: PushNotificationService,
@@ -29,18 +32,28 @@ export class MessageService {
         this.messageStorage = documentStorageService.create('heartsteps-messages');
     }
 
-    public setup() {
-        this.localNotificationService.clicked.subscribe((messageId: string) => {
-            this.openMessage(messageId)
-        });
-        this.pushNotificationService.device.subscribe((device: Device) => {
-            this.checkDevice(device);
-        });
-        this.pushNotificationService.notifications.subscribe((data: any) => {
-            this.receiveMessage(data);
-        });
-        this.localNotificationService.setup();
-        this.pushNotificationService.setup();
+    public setup():Promise<boolean> {
+        if(this.isSetup) {
+            return Promise.resolve(true);
+        } else {
+            this.isSetup = true;
+            this.localNotificationService.clicked.subscribe((messageId: string) => {
+                this.openMessage(messageId)
+            });
+            this.pushNotificationService.device.subscribe((device: Device) => {
+                this.checkDevice(device);
+            });
+            this.pushNotificationService.notifications.subscribe((data: any) => {
+                this.receiveMessage(data);
+            });
+            return Promise.all([
+                this.localNotificationService.setup(),
+                this.pushNotificationService.setup()
+            ])
+            .then(() => {
+                return true;
+            });
+        }
     }
 
     private openMessage(messageId:string) {
@@ -82,13 +95,34 @@ export class MessageService {
     }
 
     public enable():Promise<boolean> {
-        return this.pushNotificationService.getPermission()
+        return this.setup()
+        .then(() => {
+            return this.pushNotificationService.getPermission();
+        })
         .then(() => {
             return this.localNotificationService.enable();
         })
         .then(() => {
-            const device = this.pushNotificationService.device.getValue();
-            return this.updateDevice(device);
+            return this.waitForDevice();
+        });
+    }
+
+    private waitForDevice():Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const subscription = this.pushNotificationService.device
+            .filter(device => device !== undefined)
+            .subscribe((device) =>  {
+                this.updateDevice(device)
+                .then(() => {
+                    resolve(true);
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+                .then(() => {
+                    subscription.unsubscribe();
+                });
+            });
         });
     }
 

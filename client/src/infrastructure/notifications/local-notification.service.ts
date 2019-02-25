@@ -17,12 +17,15 @@ export class LocalNotificationService {
         private zone: NgZone
     ) {}
 
-    public setup() {
+    public setup():Promise<boolean> {
         if (this.platform.is('ios') || this.platform.is('android')) {
             this.setupNotificationListener();
             if(cordova.plugins.notification.local.fireQueuedEvents) {
                 cordova.plugins.notification.local.fireQueuedEvents();
             }
+            return Promise.resolve(true);
+        } else {
+            return Promise.resolve(true);
         }
     }
 
