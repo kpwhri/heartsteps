@@ -23,7 +23,7 @@ export class ActivityLogService {
     }
 
     get(start:Date, end:Date):Promise<Array<ActivityLog>> {
-        return this.heartstepsServer.get('activity/logs/', {
+        return this.heartstepsServer.get('activity/logs', {
             start: start.toISOString(),
             end: end.toISOString()
         })
