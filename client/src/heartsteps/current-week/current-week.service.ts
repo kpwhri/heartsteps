@@ -32,7 +32,7 @@ export class CurrentWeekService {
             return this.weekService.deserializeWeek(data)
         })
         .catch(() => {
-            return this.load();
+            return this.update();
         });
     }
 
