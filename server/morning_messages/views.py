@@ -38,3 +38,10 @@ class MorningMessageView(APIView):
         morning_message, _ = morning_message_service.get_or_create(request_date)
         serialized = MorningMessageSerializer(morning_message)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
+    def post(self, request, day):
+        request_date = parse_date(day)
+        check_valid_date(request.user, request_date)
+        morning_message_service = MorningMessageService(user = request.user)
+        morning_message_service.send_notification(request_date)
+        return Response({}, status=status.HTTP_201_CREATED)
