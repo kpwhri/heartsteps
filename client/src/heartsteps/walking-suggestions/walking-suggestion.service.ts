@@ -16,13 +16,20 @@ export class WalkingSuggestionService {
     ){}
 
     sendDecisionContext(decisionId:string):Promise<boolean> {
-        return this.locationService.getLocation().then((position:any) => {
-            return this.heartstepsServer.post('/walking-suggestions/'+decisionId, {
-                location: {
-                    latitude: position.latitude,
-                    longitude: position.longitude
-                }
-            })
+        const decisionContext = {};
+        return this.locationService.getLocation()
+        .then((position:any) => {
+            decisionContext['location'] = {
+                latitude: position.latitude,
+                longitude: position.longitude
+            }
+            return true;
+        })
+        .catch(() => {
+            return true;
+        })
+        .then(() => {
+            return this.heartstepsServer.post('/walking-suggestions/'+decisionId, decisionContext);
         })
         .then(() => {
             return true;
