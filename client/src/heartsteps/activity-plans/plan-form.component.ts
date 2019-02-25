@@ -109,6 +109,7 @@ export class PlanFormComponent implements OnInit {
             return this.activityPlanService.complete(activityPlan);
         })
         .then((plan) => {
+            this.loadingService.dismiss();
             return this.rateActivity(plan)
         })
         .then(() => {
