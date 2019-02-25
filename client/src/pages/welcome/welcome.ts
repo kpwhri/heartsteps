@@ -15,15 +15,11 @@ export class WelcomePage implements OnInit {
   constructor(
     private el:ElementRef,
     private renderer:Renderer2,
-    private modalCtrl: ModalController,
-    private router: Router
+    private modalCtrl: ModalController
   ) {}
 
   goToEnrollPage() {
     let modal = this.modalCtrl.create(EnrollmentModal);
-    modal.onDidDismiss(()=> {
-      this.router.navigate(['']);
-    })
     modal.present();
   }
 

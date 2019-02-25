@@ -42,20 +42,22 @@ export class PushNotificationService {
     }
 
     public setup() {
-        this.push = PushNotification.init({ios:{voip: "true"}});
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            this.push = PushNotification.init({ios:{voip: "true"}});
 
-        this.push.on('notification', (data:any) => {
-            if(data.additionalData) {
-                this.createNotification(data.additionalData);
-            }
-        })
-
-        this.push.on('registration', (data:any) => {
-            this.device.next(new Device(
-                data.registrationId,
-                process.env.PUSH_NOTIFICATION_DEVICE_TYPE
-            ));
-        });
+            this.push.on('notification', (data:any) => {
+                if(data.additionalData) {
+                    this.createNotification(data.additionalData);
+                }
+            })
+    
+            this.push.on('registration', (data:any) => {
+                this.device.next(new Device(
+                    data.registrationId,
+                    process.env.PUSH_NOTIFICATION_DEVICE_TYPE
+                ));
+            });
+        }
     }
 
     private createNotification(data:any) {

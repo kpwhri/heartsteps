@@ -3,7 +3,6 @@ import { MessageService } from '@heartsteps/notifications/message.service';
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { Router } from "@angular/router";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
-import { Notification } from "@heartsteps/notifications/notification.model";
 import { Message } from "@heartsteps/notifications/message.model";
 
 @Injectable()

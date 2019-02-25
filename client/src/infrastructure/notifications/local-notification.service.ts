@@ -18,7 +18,7 @@ export class LocalNotificationService {
     ) {}
 
     public setup() {
-        if (cordova) {
+        if (this.platform.is('ios') || this.platform.is('android')) {
             this.setupNotificationListener();
             if(cordova.plugins.notification.local.fireQueuedEvents) {
                 cordova.plugins.notification.local.fireQueuedEvents();

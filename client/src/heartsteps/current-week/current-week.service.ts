@@ -30,6 +30,9 @@ export class CurrentWeekService {
         return this.storage.get(storageKey)
         .then((data) => {
             return this.weekService.deserializeWeek(data)
+        })
+        .catch(() => {
+            return this.load();
         });
     }
 

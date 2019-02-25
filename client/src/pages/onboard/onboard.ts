@@ -4,11 +4,11 @@ import { LocationPermission } from '@heartsteps/locations/location-permission';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
-import { ProfileService } from '@heartsteps/participants/profile.factory';
 import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
@@ -56,12 +56,12 @@ export class OnboardPage implements OnInit {
     pages:Array<Step>;
 
     constructor(
-        private profileService: ProfileService,
+        private participantService: ParticipantService,
         private router: Router
     ) {}
 
     ngOnInit() {
-        this.profileService.get()
+        this.participantService.getProfile()
         .then((profile) => {
             this.pages = [];
             onboardingPages.forEach((page) => {
@@ -73,7 +73,10 @@ export class OnboardPage implements OnInit {
     }
 
     public finish() {
-        this.router.navigate(['/']);
+        this.participantService.update()
+        .then(() => {
+            this.router.navigate(['/']);
+        });
     }
 
 }

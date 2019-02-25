@@ -17,34 +17,26 @@ import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
 
 const homeRoutes: Routes = [{
-    path: 'home',
-    component: HomePage,
-    canActivate: [AuthorizationGaurd, OnboardGaurd],
-    resolve: {
-        currentWeek: CurrentWeekResolver
-    },
-    children: [{
         path: 'dashboard',
-        component: DashboardPage
+        component: DashboardPage,
+        outlet: 'home'
     }, {
         path: 'stats',
-        component: StatsPage
+        component: StatsPage,
+        outlet: 'home'
     }, {
         path: 'planning',
-        component: PlanPage
+        component: PlanPage,
+        outlet: 'home'
     }, {
         path: 'library',
-        component: ResourceLibraryPage
-    }, 
-    {
+        component: ResourceLibraryPage,
+        outlet: 'home'
+    }, {
         path: 'settings',
-        component: SettingsPage
-    },
-    {
-        path: '**',
-        redirectTo: 'dashboard'
-    }]
-}]
+        component: SettingsPage,
+        outlet: 'home'
+}];
 
 @NgModule({
     declarations: [
@@ -72,6 +64,7 @@ const homeRoutes: Routes = [{
         RouterModule.forChild(homeRoutes)
     ],
     exports: [
+        HomePage,
         RouterModule
     ]
 })

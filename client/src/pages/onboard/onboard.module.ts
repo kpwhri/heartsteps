@@ -9,14 +9,12 @@ import { LocationModule } from '@heartsteps/locations/location.module';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthorizationGaurd } from '@heartsteps/participants/auth-gaurd.service';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 
 const onboardRoutes:Routes = [
     {
         path: 'onboard/:page',
-        component: OnboardPage,
-        canActivate: [AuthorizationGaurd]
+        component: OnboardPage
     }, {
         path: 'onboard',
         redirectTo: 'onboard/start'

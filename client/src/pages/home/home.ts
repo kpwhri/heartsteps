@@ -1,6 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterEvent } from '@angular/router';
+import { Router, RouterEvent, NavigationEnd, ActivatedRoute, RouterState } from '@angular/router';
 import { Subscription } from 'rxjs';
+
+class Tab {
+    name:string;
+    key: string;
+}
 
 @Component({
     selector: 'page-home',
@@ -8,11 +13,12 @@ import { Subscription } from 'rxjs';
 })
 export class HomePage implements OnInit, OnDestroy {
     public pageTitle: string;
+    public activeTab: string;
     public backButton: boolean;
 
     private routerSubscription: Subscription;
      
-    public tabs:Array<any> = [{
+    public tabs:Array<Tab> = [{
         name:'Dashboard',
         key: 'dashboard'
     }, {
@@ -34,11 +40,11 @@ export class HomePage implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.updateWithUrl(this.router.url);
-        this.routerSubscription = this.router.events.subscribe((event:RouterEvent) => {
-            if(event.url) {
-                this.updateWithUrl(event.url);
-            }
+        this.updateFromUrl(this.router.url);
+        this.routerSubscription = this.router.events
+        .filter(event => event instanceof NavigationEnd)
+        .subscribe((event:RouterEvent) => {
+            this.updateFromUrl(event.url);
         });
     }
 
@@ -46,16 +52,37 @@ export class HomePage implements OnInit, OnDestroy {
         this.routerSubscription.unsubscribe();
     }
 
-    private updateWithUrl(url:string) {
-        this.setTitle(url);
+    private updateFromUrl(url:string) {
+        this.getActiveTab(url)
+        .then((activeTab: Tab) => {
+            this.pageTitle = activeTab.name;
+            this.activeTab = activeTab.key;
+        })
+        .catch(() => {
+            this.show('dashboard');
+        });
     }
 
-    private setTitle(url:string) {
-        this.tabs.forEach((tab:any) => {
-            if(url.indexOf(tab.key) > 0) {
-                this.pageTitle = tab.name;
+    private getActiveTab(url:string):Promise<Tab> {
+        return new Promise((resolve, reject) => {
+            let matchingTab:Tab = null;
+            this.tabs.forEach((tab: Tab) => {
+                const outputPath:string = '(home:' + tab.key + ')'
+                if(url.indexOf(outputPath) >= 0) {
+                    matchingTab = tab;
+                }
+            });
+
+            if(matchingTab) {
+                resolve(matchingTab);
+            } else {
+                reject('No matching tab');
             }
-        })
+        });
+    }
+
+    public show(key:any) {
+        this.router.navigate([{outlets: {home: key}}]);
     }
 
 

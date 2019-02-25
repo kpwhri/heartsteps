@@ -13,15 +13,6 @@
     }
 }
 
-.app-root,
-.app-root > ng-component {
-    @extend .heartsteps-container;
-
-    > * {
-        flex-grow: 1;
-    }
-}
-
 router-outlet {
     display: none;
 }
