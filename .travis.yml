@@ -38,8 +38,8 @@ after_success:
 # upload walking suggestion service
 - docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
 - docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
-- gcloud compute instances update-container "walking-suggestion-service" --container-image="gcr.io/heartsteps-kpwhri/walking-suggestion-service"
+- gcloud compute instances update-container "walking-suggestion-service" --zone="us-central1-a" --container-image="gcr.io/heartsteps-kpwhri/walking-suggestion-service"
 # upload anti-sedentary service
 - docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
 - docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
-- gcloud compute instances update-container "anti-sedentary-service" --container-image="gcr.io/heartsteps-kpwhri/anti-sedentary-service"
+- gcloud compute instances update-container "anti-sedentary-service" --zone="us-west1-b" --container-image="gcr.io/heartsteps-kpwhri/anti-sedentary-service"
