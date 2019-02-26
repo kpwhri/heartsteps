@@ -25,8 +25,6 @@ if(server){
   
 }
 
-print(input)
-
 
 # ================ access the user's dataset ================  
 paths <- paste("./data/", "user", input$userID, sep="")
