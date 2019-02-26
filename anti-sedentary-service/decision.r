@@ -10,18 +10,18 @@ input = fromJSON(args)
 source("functions.R")
 #require(mgcv); require(chron);
 
-payload = ' {
-  "userid": [ 2 ],
-  "decisionid": [ 1803312 ] ,
-  "time": [ "2018-10-12 10:10" ] ,
-  "daystart": [ "2018-10-12 8:00" ] ,
-  "dayend": [ "2018-10-12 20:00" ] ,
-  "state": [ 1 ],
-  "steps": [ 10 ],
-  "available": [ 1 ]
-}
-'
-input = fromJSON(payload)
+# payload = ' {
+#   "userid": [ 2 ],
+#   "decisionid": [ 1803312 ] ,
+#   "time": [ "2018-10-12 10:10" ] ,
+#   "daystart": [ "2018-10-12 8:00" ] ,
+#   "dayend": [ "2018-10-12 20:00" ] ,
+#   "state": [ 1 ],
+#   "steps": [ 10 ],
+#   "available": [ 1 ]
+# }
+# '
+# input = fromJSON(payload)
 
 # Pull in the Necessary CSVs
 setwd("./data/")
