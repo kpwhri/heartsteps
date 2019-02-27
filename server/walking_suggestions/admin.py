@@ -1,3 +1,5 @@
+import random
+
 from django.contrib import admin
 
 from behavioral_messages.admin import MessageTemplateAdmin
@@ -5,7 +7,8 @@ from randomization.admin import DecisionAdmin
 
 from walking_suggestion_times.models import SuggestionTime
 
-from .models import SuggestionTime, Configuration, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.services import WalkingSuggestionDecisionService
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -34,6 +37,18 @@ class WalkingSuggestionMessageTemplateAdmin(MessageTemplateAdmin):
 
 admin.site.register(WalkingSuggestionMessageTemplate, WalkingSuggestionMessageTemplateAdmin)
 
+def send_walking_suggestion(modeladmin, request, queryset):
+    for configuration in queryset:
+        category = random.choice(SuggestionTime.TIMES)
+        decision_service = WalkingSuggestionDecisionService.create_decision(
+            user = configuration.user,
+            category = category,
+            test = True
+        )
+        decision_service.update_context()
+        decision_service.decide()
+        decision_service.send_message()
+
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'enabled', 'service_initialized']
     exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
@@ -42,6 +57,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
         'walking_suggestion_times',
         'next_walking_suggestion_time'
     ]
+    actions = [send_walking_suggestion]
 
     def walking_suggestion_times(self, configuration):
         times = []
