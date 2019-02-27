@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.utils import timezone
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from anti_seds.models import StepCount
@@ -61,18 +62,25 @@ class AntiSedentaryService:
             if user:
                 configuration = Configuration.objects.get(user=user)
         except Configuration.DoesNotExist:
-            raise AntiSedentaryService.NoConfiguration('No configuration found')
+            pass
         if not configuration:
             raise AntiSedentaryService.NoConfiguration('No configuration')
         self.__configuration = configuration
         self.__user = configuration.user
 
+        if hasattr(settings, 'ANTI_SEDENTARY_DECISION_MINUTE_INTERVAL'):
+            self.decision_minute_interval = settings.ANTI_SEDENTARY_DECISION_MINUTE_INTERVAL
+        else:
+            raise ImproperlyConfigured('No decision minute interval set')
+
         try:
-            self.__client = AntiSedentaryClient(
+            self._client = AntiSedentaryClient(
                 user = self.__user
             )
+            print('has client')
         except AntiSedentaryClient.NoConfiguration:
-            self.__client = None
+            self._client = None
+            print('no client')
 
     def create_decision(self):
         decision = AntiSedentaryDecision.objects.create(
@@ -83,10 +91,11 @@ class AntiSedentaryService:
     
     def get_decision(self, time):
         try:
+            delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
             return AntiSedentaryDecision.objects.get(
                 user = self.__user,
                 time__range = [
-                    time - timedelta(minutes=4, seconds=59),
+                    time - delta,
                     time
                 ]
             )
@@ -99,8 +108,8 @@ class AntiSedentaryService:
             )
 
     def decide(self, decision):
-        if self.__client:
-            return self.__client.decide(
+        if self._client:
+            return self._client.decide(
                 decision = decision,
                 step_count = self.get_step_count_change_at(decision.time),
                 day_start = self.get_day_start(decision.time),
@@ -183,7 +192,7 @@ class AntiSedentaryService:
             return False
 
     def update(self, date):
-        if not self.__client:
+        if not self._client:
             raise AntiSedentaryService.Unavailable('No client')
 
         decision_times = []
@@ -195,7 +204,7 @@ class AntiSedentaryService:
             date = date
         )
 
-        decision_interval = 5
+        decision_interval = self.decision_minute_interval
         current_time = day_start
         while current_time <= day_end:
             decision = self.get_decision(time = current_time)
@@ -207,7 +216,7 @@ class AntiSedentaryService:
             })
             current_time = current_time + timedelta(minutes=decision_interval)
 
-        self.__client.update(
+        self._client.update(
             decisions = decision_times,
             day_start = day_start,
             day_end = day_end

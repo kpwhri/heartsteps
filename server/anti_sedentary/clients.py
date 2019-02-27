@@ -1,4 +1,5 @@
-import requests, json
+import requests, json, math
+from datetime import timedelta
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -29,11 +30,14 @@ class AntiSedentaryClient:
 
         if not hasattr(settings, 'ANTI_SEDENTARY_SERVICE_URL'):
             raise AntiSedentaryClient.NoConfiguration('No anti-sedentary service url')
+        if not hasattr(settings, 'ANTI_SEDENTARY_DECISION_MINUTE_INTERVAL'):
+            raise AntiSedentaryClient.NoConfiguration('No anti-sedentary minute interval')
+        self.minute_interval = settings.ANTI_SEDENTARY_DECISION_MINUTE_INTERVAL
         self.service_url = settings.ANTI_SEDENTARY_SERVICE_URL
 
     def make_request(self, uri, data):
         url = urljoin(self.service_url, uri)
-        data['userid'] = str(self.__user.id)
+        data['userid'] = str(self.__user.username)
         request_record = ServiceRequest(
             user = self.__user,
             url = url,
@@ -41,7 +45,7 @@ class AntiSedentaryClient:
             request_time = timezone.now()
         )
         try:
-            response = requests.post(url, data)
+            response = requests.post(url, json=data)
         except:
             request_record.save()
             raise RequestError('Error making request')
@@ -55,23 +59,31 @@ class AntiSedentaryClient:
         except:
             return response.text
 
-    def __format_datetime(self, time):
+    def format_decision_datetime(self, time):
+        rounded_minutes = math.ceil(time.minute/self.minute_interval)*self.minute_interval
+        difference = timedelta(minutes=rounded_minutes) - timedelta(minutes=time.minute)
+        rounded_time = time + difference
+        return self.format_datetime(rounded_time)
+
+    def format_datetime(self, time):
         return time.strftime('%Y-%m-%d %H:%M')
+
+    def format_boolean(self, bool):
+        if bool:
+            return 1
+        else:
+            return 0
 
     def decide(self, decision, step_count, day_start, day_end):
         data = {
             'decisionid': str(decision.id),
-            'time': self.__format_datetime(decision.time),
-            'daystart': self.__format_datetime(day_start),
-            'dayend': self.__format_datetime(day_end),
-            'state': 0,
-            'available': 0,
+            'time': self.format_decision_datetime(decision.time),
+            'daystart': self.format_datetime(day_start),
+            'dayend': self.format_datetime(day_end),
+            'state': self.format_boolean(decision.sedentary),
+            'available': self.format_boolean(decision.available),
             'steps': step_count
         }
-        if decision.sedentary:
-            data['state'] = 1
-        if decision.available:
-            data['available'] = 1
         try:
             response = self.make_request(
                 uri = 'decision',
@@ -100,11 +112,11 @@ class AntiSedentaryClient:
                 response = self.make_request(
                     uri = 'nightly',
                     data = {
-                        'daystart': self.__format_datetime(day_start),
-                        'dayend': self.__format_datetime(day_end),
+                        'daystart': self.format_datetime(day_start),
+                        'dayend': self.format_datetime(day_end),
                         'decisionid': decision['id'],
-                        'time': self.__format_datetime(decision['time']),
-                        'state': decision['sedentary'],
+                        'time': self.format_decision_datetime(decision['time']),
+                        'state': self.format_boolean(decision['sedentary']),
                         'steps': decision['steps']
                     }
                 )
