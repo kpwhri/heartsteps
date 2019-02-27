@@ -15,7 +15,7 @@ payload = {
 }
 
 
-r = requests.post(url, data=payload)
+r = requests.post(url, json=payload)
 print(r.text)
 
 
@@ -31,5 +31,5 @@ payload = {
 }
 
 
-r = requests.post(url, data=payload)
+r = requests.post(url, json=payload)
 print(r.text)
