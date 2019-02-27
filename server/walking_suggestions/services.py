@@ -318,6 +318,7 @@ class WalkingSuggestionService():
 
         decision_query = WalkingSuggestionDecision.objects.filter(
             user=self.__user,
+            test=False,
             time__range = self.get_time_range(date)
         )
         for time_category in SuggestionTime.TIMES:
