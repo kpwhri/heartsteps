@@ -12,5 +12,17 @@ class ServiceRequest(models.Model):
     response_data = models.TextField(null=True, editable=False)
     response_time = models.DateTimeField(null=True, editable=False)
 
+    @property
+    def sucessful(self):
+        if self.response_code < 400:
+            return True
+        else:
+            return False
+
+    @property
+    def duration(self):
+        delta = self.response_time - self.request_time
+        return delta.seconds
+
     def __str__(self):
         return "%s (%d) %s" % (self.user, self.response_code, self.url)
