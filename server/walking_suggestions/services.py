@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from fitbit_api.models import FitbitAccountUser, FitbitDay, FitbitMinuteStepCount
 from locations.models import Place
+from locations.services import LocationService
 from service_requests.models import  ServiceRequest
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
@@ -374,14 +375,15 @@ class WalkingSuggestionService():
         return total_steps
 
     def get_study_day(self, time):
-        normalized_time = time.tzinfo.localize(datetime(
-            self.__configuration.service_initialized_date.year,
-            self.__configuration.service_initialized_date.month,
-            self.__configuration.service_initialized_date.day,
-            time.hour,
-            time.minute
-        ))
-        difference = time - normalized_time
+        location_service = LocationService(self.__user)
+        tz = location_service.get_timezone_on(time)
+        local_time = time.astimezone(tz)
+        initialized_time = local_time.replace(
+            year = self.__configuration.service_initialized_date.year,
+            month = self.__configuration.service_initialized_date.month,
+            day = self.__configuration.service_initialized_date.day
+        )
+        difference = local_time - initialized_time
         return difference.days
     
     def categorize_suggestion_time(self, decision):
