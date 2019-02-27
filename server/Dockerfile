@@ -17,4 +17,4 @@ RUN easy_install apns2
 RUN pip install -r requirements.txt
 
 # Run the server
-CMD honcho start web celery rabbitmq
+CMD honcho -f Procfile-prod start
