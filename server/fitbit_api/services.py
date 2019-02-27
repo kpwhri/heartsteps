@@ -212,7 +212,9 @@ class FitbitClient():
         response = self.make_request(url)
         return response
 
-    def get_activities(self, date, request_url=None, activities=[]):
+    def get_activities(self, date, request_url=None, activities=None):
+        if not activities:
+            activities = []
         if request_url:
             response = self.client.make_request(request_url)
         else:   
@@ -297,10 +299,10 @@ class FitbitDayService(FitbitService):
             )
 
             FitbitActivity.objects.update_or_create(
-                fitbit_id = activity['logId'], defaults={
-                    'account': self.account,
+                fitbit_id = activity['logId'],
+                account = self.account,
+                defaults = {
                     'type': activity_type,
-                    'day': self.day,
                     'average_heart_rate': average_heart_rate,
                     'start_time': start_time,
                     'end_time': end_time,

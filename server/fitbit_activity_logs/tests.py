@@ -30,7 +30,6 @@ class FitbitActivityLogTests(TestCase):
         return FitbitActivity.objects.create(
             account = self.account,
             type = fitbit_activity_type,
-            day = fitbit_day,
             start_time = now - timedelta(minutes=20),
             end_time = now,
             average_heart_rate = 70

@@ -101,6 +101,14 @@ class FitbitDay(models.Model):
         start_time = self.get_start_datetime()
         return start_time + timedelta(days=1)
 
+    @property
+    def activities(self):
+        activities = FitbitActivity.objects.filter(
+            account = self.account,
+            start_time__range = [self.get_start_datetime(), self.get_end_datetime()]
+        )
+        return list(activities)
+
     def __str__(self):
         return "%s: %s" % (self.account, self.date.strftime('%Y-%m-%d'))
 
@@ -120,10 +128,9 @@ class FitbitActivityType(models.Model):
 class FitbitActivity(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     account = models.ForeignKey(FitbitAccount)
-    fitbit_id = models.CharField(max_length=50, unique=True)
+    fitbit_id = models.CharField(max_length=50)
 
     type = models.ForeignKey(FitbitActivityType, null=True, blank=True)
-    day = models.ForeignKey(FitbitDay)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
@@ -135,6 +142,7 @@ class FitbitActivity(models.Model):
 
     class Meta:
         ordering = ['start_time']
+        unique_together = [('account', 'fitbit_id')]
 
     @property
     def id(self):
