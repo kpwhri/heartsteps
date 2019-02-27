@@ -77,10 +77,8 @@ class AntiSedentaryService:
             self._client = AntiSedentaryClient(
                 user = self.__user
             )
-            print('has client')
         except AntiSedentaryClient.NoConfiguration:
             self._client = None
-            print('no client')
 
     def create_decision(self):
         decision = AntiSedentaryDecision.objects.create(
