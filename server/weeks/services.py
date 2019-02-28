@@ -14,17 +14,26 @@ class WeekService:
             user = User.objects.get(username=username)
         self.__user = user
 
-    def create_week(self, start_date=None, end_date=None):
-        if start_date and end_date:
-            pass
-        elif start_date:
-            end_date = start_date + timedelta(days=6)
-        elif end_date:
-            start_date = end_date - timedelta(days=6)
-        else:
-            start_date = date.today()
-            end_date = start_date + timedelta(days=6)
-        
+    def update_weeks(self):
+        location_service = LocationService(self.__user)
+        now = location_service.get_current_datetime()
+        start_date = self.__user.date_joined
+
+        week = self.get_or_create_week(start_date)
+        while week.end < now:
+            next_day = week.end + timedelta(days=1)
+            week = self.get_or_create_week(next_day)
+    
+    def get_or_create_week(self, day):
+        try:
+            return self.get_week(day)
+        except WeekService.WeekDoesNotExist:
+            return self.create_week(day)
+
+    def create_week(self, day):
+        weekday = day.weekday()
+        start_date = day - timedelta(days=weekday)
+        end_date = start_date + timedelta(days=6)
         return Week.objects.create(
             user=self.__user,
             start_date = start_date,
@@ -33,17 +42,14 @@ class WeekService:
     
     def get_week_after(self, week):
         next_week_start_day = week.end_date + timedelta(days=1)
-        try:
-            return self.get_week_for_date(next_week_start_day)
-        except WeekService.WeekDoesNotExist:
-            return self.create_week(start_date=next_week_start_day)
+        return self.get_or_create_week(next_week_start_day)
 
-    def get_week_for_date(self, date):
+    def get_week(self, day):
         try:
             return Week.objects.get(
                 user = self.__user,
-                start_date__lte = date,
-                end_date__gte = date
+                start_date__lte = day,
+                end_date__gte = day
             )
         except Week.DoesNotExist:
             raise WeekService.WeekDoesNotExist()
@@ -51,4 +57,4 @@ class WeekService:
     def get_current_week(self):
         location_service = LocationService(self.__user)
         now = location_service.get_current_datetime()
-        return self.get_week_for_date(date(now.year, now.month, now.day))
+        return self.get_week(date(now.year, now.month, now.day))

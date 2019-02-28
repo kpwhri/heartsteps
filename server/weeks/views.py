@@ -41,11 +41,11 @@ class WeekView(APIView):
 
 class NextWeekView(WeekView):
 
-    def get(self, request, week_number):
-        week = self.get_week(week_number, request.user)
-
+    def get(self, request):
         service = WeekService(request.user)
-        next_week = service.get_week_after(week=week)
+        current_week = service.get_current_week()
+        next_week = service.get_week_after(current_week)
+
         return Response({
             'id': next_week.number,
             'start': next_week.start_date.strftime('%Y-%m-%d'),
