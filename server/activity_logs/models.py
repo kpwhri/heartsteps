@@ -42,6 +42,7 @@ class ActivityLog(AbstractActivity):
 
 class ActivityLogSource(models.Model):
     activity_log = models.OneToOneField(ActivityLog)
+    user = models.ForeignKey(User, null=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=50)
