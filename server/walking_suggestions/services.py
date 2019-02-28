@@ -7,7 +7,8 @@ from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
-from fitbit_api.models import FitbitAccountUser, FitbitDay, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 from locations.models import Place
 from locations.services import LocationService
 from service_requests.models import  ServiceRequest

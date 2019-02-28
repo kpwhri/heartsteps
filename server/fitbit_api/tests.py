@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import datetime
 
 from django.test import TestCase
 from django.urls import reverse
@@ -9,6 +10,7 @@ from rest_framework.test import APITestCase
 from fitbit_api.models import FitbitSubscription, FitbitSubscriptionUpdate, FitbitAccount, FitbitAccountUser
 from fitbit_api.services import FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
+from fitbit_api.signals import update_date
 
 def make_fitbit_account(username='test'):
     user = User.objects.create(username=username)
@@ -67,8 +69,8 @@ class FitbitApiSubscriptionVerify(APITestCase):
 class SubscriptionUpdate(APITestCase):
 
     def setUp(self):
-        self.patcher = patch('fitbit_api.tasks.update_fitbit_data.apply_async')
-        self.mock_update_fitbit = self.patcher.start()
+        self.patcher = patch.object(update_date, 'send')
+        self.update_date = self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
     def test_subscription_update(self):
@@ -85,7 +87,11 @@ class SubscriptionUpdate(APITestCase):
         self.assertEqual(response.status_code, 204)
         updates = FitbitSubscriptionUpdate.objects.all()
         self.assertEqual(len(updates), 1)
-        self.mock_update_fitbit.assert_called()
+        self.update_date.assert_called_with(
+            sender = FitbitAccount,
+            fitbit_user = subscription.fitbit_account.fitbit_user,
+            date = '2018-08-17'
+        )
 
     def test_subscription_updates_with_multiple_subscriptions(self):
         subscription = FitbitSubscription.objects.create(
@@ -114,16 +120,19 @@ class SubscriptionUpdate(APITestCase):
         self.assertEqual(response.status_code, 204)
         updates = FitbitSubscriptionUpdate.objects.all()
         self.assertEqual(len(updates), 3)
-        self.assertEqual(self.mock_update_fitbit.call_count, 3)
-        self.mock_update_fitbit.assert_any_call(kwargs={
-            'username': subscription.fitbit_account.fitbit_user,
-            'date_string': '2018-09-18'
-        })
-        self.mock_update_fitbit.assert_any_call(kwargs={
-            'username': subscription.fitbit_account.fitbit_user,
-            'date_string': '2018-09-20'
-        })
-        self.mock_update_fitbit.assert_any_call(kwargs={
-            'username': other_subscription.fitbit_account.fitbit_user,
-            'date_string': '2018-09-20'
-        })
+        self.assertEqual(self.update_date.call_count, 3)
+        self.update_date.assert_any_call(
+            sender = FitbitAccount,
+            fitbit_user = subscription.fitbit_account.fitbit_user,
+            date = '2018-09-18'
+        )
+        self.update_date.assert_any_call(
+            sender = FitbitAccount,
+            fitbit_user = subscription.fitbit_account.fitbit_user,
+            date = '2018-09-20'
+        )
+        self.update_date.assert_any_call(
+            sender = FitbitAccount,
+            fitbit_user = other_subscription.fitbit_account.fitbit_user,
+            date = '2018-09-20'
+        )

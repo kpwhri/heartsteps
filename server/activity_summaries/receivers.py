@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete
 
 from locations.services import LocationService
 from fitbit_api.services import FitbitService
-from fitbit_api.models import FitbitDay
+from fitbit_activities.models import FitbitDay
 
 from .models import ActivityLog, Day
 

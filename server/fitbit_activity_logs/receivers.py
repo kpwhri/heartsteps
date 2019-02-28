@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete
 from django.contrib.contenttypes.models import ContentType
 
 from activity_logs.models import ActivityType, ActivityLog, ActivityLogSource
-from fitbit_api.models import FitbitActivity, FitbitActivityType
+from fitbit_activities.models import FitbitActivity, FitbitActivityType
 from fitbit_api.services import FitbitService
 
 from .models import FitbitActivityToActivityType
@@ -14,7 +14,7 @@ from .models import FitbitActivityToActivityType
 def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs):
     fitbit_activity_type = instance
     try:
-        FitbitActivityToActivityType.objects.get(fitbit_activity=fitbit_activity_type)
+        FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type)
     except FitbitActivityToActivityType.DoesNotExist:
         activity_type_name = fitbit_activity_type.name.lower()
         activity_type, _ = ActivityType.objects.get_or_create(
@@ -24,7 +24,7 @@ def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs)
             }
         )
         FitbitActivityToActivityType.objects.create(
-            fitbit_activity = fitbit_activity_type,
+            fitbit_activity_type = fitbit_activity_type,
             activity_type = activity_type
         )
 
@@ -32,7 +32,7 @@ def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs)
 def update_activity_log_from_fitbit_activity(sender, instance, *args, **kwargs):
     fitbit_activity = instance
 
-    connection = FitbitActivityToActivityType.objects.get(fitbit_activity=fitbit_activity.type)
+    connection = FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity.type)
     activity_type = connection.activity_type
     
     fitbit_service = FitbitService(account = fitbit_activity.account)

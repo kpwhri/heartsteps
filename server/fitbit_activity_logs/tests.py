@@ -4,7 +4,8 @@ from datetime import date, datetime, timedelta
 from django.test import TestCase
 from django.utils import timezone
 
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitActivityType, FitbitDay, FitbitActivity
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_activities.models import FitbitActivityType, FitbitDay, FitbitActivity
 from activity_logs.models import ActivityType, ActivityLog, User
 
 from .models import FitbitActivityToActivityType
@@ -46,7 +47,7 @@ class FitbitActivityLogTests(TestCase):
         self.assertEqual(activity_type.title, 'Foobar')
         connector = FitbitActivityToActivityType.objects.get()
         self.assertEqual(connector.activity_type, activity_type)
-        self.assertEqual(connector.fitbit_activity.id, fitbit_activity_type.id)
+        self.assertEqual(connector.fitbit_activity_type.id, fitbit_activity_type.id)
     
     def test_similar_fitbit_activity_types_grouped_together(self):
         FitbitActivityType.objects.create(fitbit_id="567", name="FooBar")

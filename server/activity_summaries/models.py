@@ -6,8 +6,7 @@ from django.contrib.auth import get_user_model
 
 from locations.services import LocationService
 from activity_logs.models import ActivityLog
-from fitbit_api.models import FitbitDay
-from fitbit_api.services import FitbitService
+from fitbit_activities.services import FitbitDayService
 
 User = get_user_model()
 
@@ -50,15 +49,9 @@ class Day(models.Model):
 
     def update_from_fitbit(self):
         try:
-            account = FitbitService.get_account(self.user)
-        except FitbitService.NoAccount:
-            return False
-        try:
-            fitbit_day = FitbitDay.objects.get(
-                account = account,
-                date = self.date
-            )
-        except FitbitDay.DoesNotExist:
+            fitbitday_service = FitbitDayService(self.date, user=self.user)
+            fitbit_day = fitbitday_service.day
+        except FitbitDayService.NoAccount:
             return False
         self.steps = fitbit_day.step_count
         self.miles = fitbit_day.distance

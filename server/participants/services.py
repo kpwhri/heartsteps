@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from rest_framework.authtoken.models import Token
 
-from fitbit_api.services import FitbitDayService
+from fitbit_activities.services import FitbitDayService
 from locations.services import LocationService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService

@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.services import FitbitDayService
+from fitbit_activities.services import FitbitDayService
 
 from .models import Day
 from .serializers import DaySerializer

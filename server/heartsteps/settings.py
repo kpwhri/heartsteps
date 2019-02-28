@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'daily_tasks',
     'fitbit_api',
     'fitbit_authorize',
+    'fitbit_activities',
     'behavioral_messages',
     'push_messages',
     'morning_messages',

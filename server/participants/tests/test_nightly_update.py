@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
-from fitbit_api.services import FitbitDayService, FitbitClient
+from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService

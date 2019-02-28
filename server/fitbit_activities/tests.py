@@ -7,9 +7,12 @@ from django.contrib.auth.models import User
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitDay, FitbitMinuteStepCount, FitbitActivity
-from fitbit_api.services import FitbitClient, FitbitDayService
-from fitbit_api.tasks import update_fitbit_data
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_api.services import FitbitClient
+
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount, FitbitActivity
+from fitbit_activities.services import FitbitDayService
+from fitbit_activities.tasks import update_fitbit_data
 
 class TestBase(TestCase):
 

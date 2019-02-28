@@ -11,8 +11,9 @@ from rest_framework.test import APITestCase
 
 from activity_logs.models import ActivityLog, ActivityType
 from locations.services import LocationService
-from fitbit_api.services import FitbitService, FitbitClient, FitbitDayService
-from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.services import FitbitService, FitbitClient
+from fitbit_activities.services import FitbitDayService
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 
 from .models import Day, User
 

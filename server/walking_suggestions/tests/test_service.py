@@ -12,7 +12,8 @@ from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
 from weather.models import WeatherForecast
-from fitbit_api.models import FitbitDay, FitbitAccount, FitbitAccountUser, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
