@@ -9,6 +9,7 @@ from fitbit import Fitbit
 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_api.services import FitbitClient
+from fitbit_api.signals import update_date as fitbit_update_date
 
 from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount, FitbitActivity
 from fitbit_activities.services import FitbitDayService
@@ -40,7 +41,7 @@ class FitbitDayUpdates(TestBase):
     def testUpdateTaskCreatesDay(self, update_distance, update_steps, update_activities, update_heart_rate):
         self.timezone.return_value = pytz.timezone('Poland')
 
-        update_fitbit_data(username=self.account.fitbit_user, date_string="2018-02-14")
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2018-02-14")
 
         fitbit_day = FitbitDay.objects.get(account=self.account)
         self.assertEqual(fitbit_day.get_timezone().zone, "Poland")
@@ -147,3 +148,24 @@ class FitbitActivityUpdates(TestBase):
         self.assertEqual(activity.type.name, 'Foo Ball')
         self.assertEqual(activity.average_heart_rate, 94)
         self.assertEqual(activity.end_time, datetime(2018, 2, 14, 14, 27, tzinfo=pytz.UTC))
+
+class UpdateFitbitDay(TestBase):
+
+    def setUp(self):
+        super().setUp()
+
+        patcher = patch.object(update_fitbit_data, 'apply_async')
+        self.update_fitbit_data = patcher.start()
+        self.addCleanup(patcher.stop)        
+
+    def test_queues_update_task(self):
+        fitbit_update_date.send(
+            sender = FitbitAccount,
+            fitbit_user = self.account.fitbit_user,
+            date = '2019-02-22'
+        )
+
+        self.update_fitbit_data.assert_called_with(kwargs={
+            'fitbit_user': 'test',
+            'date_string': '2019-02-22'
+        })

@@ -9,10 +9,10 @@ from fitbit_activities.models import FitbitDay, FitbitActivity, FitbitActivityTy
 
 class FitbitDayService(FitbitService):
 
-    def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None):
+    def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None, fitbit_user=None):
         if fitbit_day:
             account = fitbit_day.account
-        super().__init__(account, user, username)
+        super().__init__(account, user, username, fitbit_user)
         self.__client = FitbitClient(
             account = self.account
         )

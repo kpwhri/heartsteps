@@ -16,11 +16,16 @@ class FitbitService:
     class NoAccount(ImproperlyConfigured):
         pass
 
-    def __init__(self, account=None, user=None, username=None):
+    def __init__(self, account=None, user=None, username=None, fitbit_user=None):
         if username:
             user = User.objects.get(username=username)
         if user:
             account = FitbitService.get_account(user)
+        if fitbit_user:
+            try:
+                account = FitbitAccount.objects.get(fitbit_user=fitbit_user)
+            except FitbitAccount.DoesNotExist:
+                raise FitbitService.NoAccount()
         if not account:
             raise FitbitService.NoAccount()
         self.__account = account
