@@ -1,3 +1,4 @@
+from unittest.mock import patch
 import pytz
 from datetime import date, datetime, timedelta
 
@@ -7,6 +8,7 @@ from django.utils import timezone
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.models import FitbitActivityType, FitbitDay, FitbitActivity
 from activity_logs.models import ActivityType, ActivityLog, User
+from participants.models import Participant
 
 from .models import FitbitActivityToActivityType
 
@@ -14,13 +16,19 @@ class FitbitActivityLogTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
+        self.participant = Participant.objects.create(
+            user = self.user,
+            heartsteps_id = "test",
+            enrollment_token = "test",
+            birth_year = 1990
+        )
         self.account = FitbitAccount.objects.create(fitbit_user="test")
         FitbitAccountUser.objects.create(
             user = self.user,
             account = self.account
         )
 
-    def create_fitbit_activity(self, fitbit_activity_type=None):
+    def create_fitbit_activity(self, fitbit_activity_type=None, average_heart_rate=70):
         now = timezone.now()
         fitbit_day, _ = FitbitDay.objects.get_or_create(
             account = self.account,
@@ -33,7 +41,7 @@ class FitbitActivityLogTests(TestCase):
             type = fitbit_activity_type,
             start_time = now - timedelta(minutes=20),
             end_time = now,
-            average_heart_rate = 70
+            average_heart_rate = average_heart_rate
         )
 
     def test_fitbit_activity_types_linked_to_activity_type(self):
@@ -90,4 +98,23 @@ class FitbitActivityLogTests(TestCase):
 
         activity_log = ActivityLog.objects.get()
         self.assertEqual(activity_log.duration, 20)
-        
+    
+    @patch.object(timezone, 'now', return_value=datetime(2020, 1, 1, 0, 0, tzinfo=pytz.UTC))
+    def test_marks_activity_as_vigorous(self, timezone):
+        self.participant.birth_year = 1970
+        self.participant.save()
+
+        fitbit_activity = self.create_fitbit_activity(average_heart_rate = 120)
+
+        activity_log = ActivityLog.objects.get()
+        self.assertTrue(activity_log.vigorous)
+
+    @patch.object(timezone, 'now', return_value=datetime(2020, 1, 1, 0, 0, tzinfo=pytz.UTC))
+    def test_marks_activity_not_vigorous(self, timezone):
+        self.participant.birth_year = 1970
+        self.participant.save()
+
+        fitbit_activity = self.create_fitbit_activity(average_heart_rate = 110)
+
+        activity_log = ActivityLog.objects.get()
+        self.assertFalse(activity_log.vigorous)
