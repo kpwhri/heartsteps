@@ -34,9 +34,10 @@ def update_activity_log_from_fitbit_activity(sender, instance, *args, **kwargs):
 
     fitbit_service = FitbitService(account = fitbit_activity.account)
     for user in fitbit_service.get_users():
-        service = FitbitActivityLogService(user = user)
-        try:
-            activity_log = service.get_activity_log(fitbit_activity)
-            service.update_activity_log(activity_log, fitbit_activity)
-        except FitbitActivityLogService.NoActivityLog:
-            service.create_activity_log(fitbit_activity)
+        if fitbit_activity.duration > 10:
+            service = FitbitActivityLogService(user = user)
+            try:
+                activity_log = service.get_activity_log(fitbit_activity)
+                service.update_activity_log(activity_log, fitbit_activity)
+            except FitbitActivityLogService.NoActivityLog:
+                service.create_activity_log(fitbit_activity)

@@ -28,7 +28,7 @@ class FitbitActivityLogTests(TestCase):
             account = self.account
         )
 
-    def create_fitbit_activity(self, fitbit_activity_type=None, average_heart_rate=70):
+    def create_fitbit_activity(self, fitbit_activity_type=None, average_heart_rate=70, duration=20):
         now = timezone.now()
         fitbit_day, _ = FitbitDay.objects.get_or_create(
             account = self.account,
@@ -39,7 +39,7 @@ class FitbitActivityLogTests(TestCase):
         return FitbitActivity.objects.create(
             account = self.account,
             type = fitbit_activity_type,
-            start_time = now - timedelta(minutes=20),
+            start_time = now - timedelta(minutes=duration),
             end_time = now,
             average_heart_rate = average_heart_rate
         )
@@ -118,3 +118,9 @@ class FitbitActivityLogTests(TestCase):
 
         activity_log = ActivityLog.objects.get()
         self.assertFalse(activity_log.vigorous)
+
+    def test_no_activity_log_if_duration_less_than_10(self):
+        fitbit_activity = self.create_fitbit_activity(duration=9)
+        
+        self.assertEqual(ActivityLog.objects.count(), 0)
+        
