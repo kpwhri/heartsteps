@@ -93,6 +93,7 @@ class AntiSedentaryService:
             delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
             return AntiSedentaryDecision.objects.get(
                 user = self.__user,
+                test = False,
                 time__range = [
                     time - delta,
                     time
