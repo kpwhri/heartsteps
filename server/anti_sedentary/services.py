@@ -80,10 +80,11 @@ class AntiSedentaryService:
         except AntiSedentaryClient.NoConfiguration:
             self._client = None
 
-    def create_decision(self):
+    def create_decision(self, test=False):
         decision = AntiSedentaryDecision.objects.create(
             user = self.__user,
-            time = timezone.now()
+            time = timezone.now(),
+            test = test
         )
         return decision
     
@@ -283,4 +284,7 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
         return AntiSedentaryDecisionService(decision)
     
     def decide(self):
-        return self.__anti_sedentary_service.decide(self.decision)
+        if self.decision.test:
+            return self.decision.decide()
+        else:
+            return self.__anti_sedentary_service.decide(self.decision)

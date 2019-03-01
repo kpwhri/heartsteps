@@ -60,6 +60,11 @@ class Decision(models.Model):
     pi_it = property(get_treatment_probability, set_treatment_probability)
 
     def decide(self):
+        if self.test:
+            self.treated = True
+            self.treatment_probability = 1
+            self.save()
+            return True
         if not self.available:
             self.a_it = False
             self.save()
