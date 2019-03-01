@@ -11,7 +11,7 @@ services:
     build: ./server
     env_file:
       - .env-production
-    command: honcho start web_dev celery rabbitmq
+    command: honcho start
     volumes:
       - ./server:/server
       - cloudsql:/cloudsql
