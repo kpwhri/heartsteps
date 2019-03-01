@@ -1,4 +1,8 @@
-<form [formGroup]="form" (ngSubmit)="formSubmit()" class="heartsteps-form" >
+<form *ngIf="form" 
+    [formGroup]="form"
+    (ngSubmit)="formSubmit()"
+    class="heartsteps-form"
+    >
     <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
     <div class="form">
         <ng-content></ng-content>

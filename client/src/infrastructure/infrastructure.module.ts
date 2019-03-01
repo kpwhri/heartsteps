@@ -17,6 +17,7 @@ import { HeartstepsRangeComponent } from './range.component';
 import { HeartstepsIncrementComponent } from './increment.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { DocumentStorageService } from './document-storage.service';
+import { DateFactory } from './date.factory';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { DocumentStorageService } from './document-storage.service';
   providers: [
       AuthorizationService,
       HeartstepsServer,
+      DateFactory,
       LoadingService,
       Geolocation,
       BackgroundProcessService,

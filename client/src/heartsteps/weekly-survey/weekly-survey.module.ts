@@ -8,10 +8,12 @@ import { WeeklyReflectionTimePage } from './weekly-reflection-time.page';
 import { WeekService } from './week.service';
 import { WeeklyGoalComponent } from './weekly-goal.component';
 import { WeeklySurveyService } from './weekly-survey.service';
+import { FormModule } from '@infrastructure/form/form.module';
 
 @NgModule({
     imports: [
         InfrastructureModule,
+        FormModule,
         BrowserModule,
         IonicPageModule.forChild(WeeklyGoalComponent),
         IonicPageModule.forChild(WeeklyReflectionTimePage),

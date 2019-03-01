@@ -39,6 +39,7 @@ import { SelectFieldComponent } from "./select-field.component";
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
+        SelectFieldComponent,
         PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,

@@ -17,6 +17,7 @@ import { SelectOption, SelectDialogController } from "@infrastructure/dialogs/se
 export class SelectFieldComponent extends AbstractField {
 
     @Input('options') public options:Array<SelectOption>
+    public displayValue: string;
 
     constructor(
         formGroup: FormGroupDirective,
@@ -40,6 +41,22 @@ export class SelectFieldComponent extends AbstractField {
         .catch(() => {
             console.log('Nothing selected');
         });
+    }
+
+    public writeValue(value:any) {
+        this.value = value;
+        this.updateDisplayValue();
+    }
+
+    public updateDisplayValue() {
+        const option = this.options.find((option) => {
+            return option.value === this.value;
+        });
+        if(option) {
+            this.displayValue = option.name;
+        } else {
+            this.displayValue = undefined;
+        }
     }
 
     public updateValue(value:any) {

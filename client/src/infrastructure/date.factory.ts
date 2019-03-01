@@ -14,6 +14,14 @@ export class DateFactory {
         return moment(date, 'YYYY-MM-DD').toDate();
     }
 
+    formatTime(time:Date):String {
+        return moment(time).format('H:mm');
+    }
+
+    parseTime(time:string):Date {
+        return moment(time, 'H:mm').toDate();
+    }
+
     getCurrentWeek():Array<Date> {
         let week:Array<Date> = []
 

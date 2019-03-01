@@ -1,4 +1,4 @@
-import { Component, forwardRef } from "@angular/core";
+import { Component, forwardRef, Input } from "@angular/core";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { SelectFieldComponent } from "./select-field.component";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
@@ -19,6 +19,14 @@ import * as moment from 'moment';
 export class TimeFieldComponent extends SelectFieldComponent {
 
     private date: Date;
+    private increment: number = 5;
+
+    @Input('increment')
+    set setIncrement(value: number) {
+        if(value) {
+            this.increment = Number(value);
+        }
+    }
 
     public formatTime(date:Date): String {
         return moment(date).format('h:mm A')
@@ -100,7 +108,7 @@ export class TimeFieldComponent extends SelectFieldComponent {
         let i:number = 0;
         while(i < 60) {
             minutes.push(i);
-            i = i + 5;
+            i = i + this.increment;
         }
         const selectedMinute:Number = this.getMinutes();
         if (minutes.indexOf(selectedMinute) < 0) {

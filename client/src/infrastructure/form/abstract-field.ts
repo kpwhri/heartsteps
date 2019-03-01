@@ -89,11 +89,17 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
 
     public isFocused() {
         this.renderer.addClass(this.element.nativeElement, 'is-focused');
-        // this.onTouched();
+        this.touched();
     }
 
     public isBlurred() {
         this.renderer.removeClass(this.element.nativeElement, 'is-focused');
+    }
+
+    public touched() {
+        if(this.onTouched) {
+            this.onTouched();
+        }
     }
 
 }
