@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
+from daily_tasks.models import DailyTask
 from locations.services import LocationService
 from push_messages.services import PushMessageService, Device
 from weeks.models import Week
@@ -31,36 +32,50 @@ class BaseTestCase(TestCase):
         location_timezone = location_timezone_patch.start()
         location_timezone.return_value = pytz.timezone('US/Pacific')
 
-class ReflectionTimeModelUpdatesWeekModel(BaseTestCase):
+class WeeklyReflectionView(BaseTestCase):
 
-    def test_creates_week_if_none_exists(self):
-
-        ReflectionTime.objects.create(
-            user = self.user,
-            day = 'sunday',
-            time = '8:30'
-        )
-
-        week = Week.objects.get(user=self.user)
-        self.assertEqual(week.start_date, date(2018, 12, 24))
-        self.assertEqual(week.end_date, date(2018, 12, 30))
-
-    def test_updates_week_end_date(self):
-        Week.objects.create(
-            user = self.user,
-            start_date = date(2018, 12, 24), #Monday
-            end_date = date(2018, 12, 30) #Sunday
-        )
-
+    def test_create_reflection_creates_task(self):
         ReflectionTime.objects.create(
             user = self.user,
             day = 'saturday',
             time = '20:00'
         )
 
-        week = Week.objects.get(user=self.user)
-        self.assertEqual(week.start_date, date(2018, 12, 24))
-        self.assertEqual(week.end_date, date(2018, 12, 29))
+        task = DailyTask.objects.get()
+        self.assertTrue(task.enabled)
+        self.assertEqual(task.task.task, 'weekly_reflection.tasks.send_reflection')
+        self.assertEqual(task.day, 'saturday')
+        self.assertEqual(task.hour, 20)
+        self.assertEqual(task.minute, 0)
+
+    def test_reflection_time_deactivates_task(self):
+        reflection_time = ReflectionTime.objects.create(
+            user = self.user,
+            day = 'saturday',
+            time = '20:00'
+        )
+
+        self.assertTrue(reflection_time.daily_task.enabled)
+
+        reflection_time.active = False
+        reflection_time.save()
+
+        self.assertFalse(reflection_time.daily_task.enabled)
+    
+    def test_reflection_time_updates_daily_task(self):
+        reflection_time = ReflectionTime.objects.create(
+            user = self.user,
+            day = 'saturday',
+            time = '20:00'
+        )
+
+        reflection_time.day = 'sunday'
+        reflection_time.time = '8:15'
+        reflection_time.save()
+
+        self.assertEqual(reflection_time.daily_task.day, 'sunday')
+        self.assertEqual(reflection_time.daily_task.hour, 8)
+        self.assertEqual(reflection_time.daily_task.minute, 15)
 
 class WeeklyReflectionTask(BaseTestCase):
 
@@ -141,19 +156,19 @@ class ReflectionTimeView(APITestCase):
 
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('weekly-reflection-time'), {
-            'day': 'monday',
+            'day': 'sunday',
             'time': '8:30'
         })
 
         self.assertEqual(response.status_code, 200)
 
         reflection_time = ReflectionTime.objects.get(user=user, active=True)
-        self.assertEqual(reflection_time.day, 'monday')
+        self.assertEqual(reflection_time.day, 'sunday')
         self.assertEqual(reflection_time.time, '8:30')
 
     def test_updates_reflection_time(self):
         user = User.objects.create(username="test")
-        time = ReflectionTime.objects.create(
+        ReflectionTime.objects.create(
             user = user,
             day = 'sunday',
             time = '19:00'
@@ -161,11 +176,34 @@ class ReflectionTimeView(APITestCase):
 
         self.client.force_authenticate(user=user)
         response = self.client.post(reverse('weekly-reflection-time'), {
-            'day': 'monday',
+            'day': 'saturday',
             'time': '8:30'
         })
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(ReflectionTime.objects.filter(user=user).count(), 2)
-        self.assertEqual(ReflectionTime.objects.filter(user=user, active=True).count(), 1)        
+        reflection_time = ReflectionTime.objects.get()
+        self.assertEqual(reflection_time.time, '8:30')
+        self.assertEqual(reflection_time.day, 'saturday')
+
+    def test_only_accepts_sunday_saturday_reflection_days(self):
+        user = User.objects.create(username="test")
+        self.client.force_authenticate(user=user)
+        
+        response = self.client.post(reverse('weekly-reflection-time'), {
+            'day': 'saturday',
+            'time': '8:30'
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(reverse('weekly-reflection-time'), {
+            'day': 'sunday',
+            'time': '8:30'
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(reverse('weekly-reflection-time'), {
+            'day': 'friday',
+            'time': '8:30'
+        })
+        self.assertEqual(response.status_code, 400)

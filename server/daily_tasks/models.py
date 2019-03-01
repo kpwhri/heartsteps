@@ -107,10 +107,11 @@ class DailyTask(models.Model):
         self.task.crontab.hour = utc_time.hour
         self.task.crontab.minute = utc_time.minute
         if self.day:
-            self.task.crontab.day = CRON_DAYS_OF_WEEK.index(self.day)
+            self.task.crontab.day_of_week = CRON_DAYS_OF_WEEK.index(self.day)
         else:
-            self.task.crontab.day = '*'
+            self.task.crontab.day_of_week = '*'
         self.task.crontab.save()
+        self.task.save()
 
     def update_timezone(self):
         self.set_time(

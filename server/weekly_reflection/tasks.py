@@ -8,14 +8,7 @@ from weeks.services import WeekService
 def send_reflection(username):
     week_service = WeekService(username=username)
     current_week = week_service.get_current_week()
-
-    next_week_start = current_week.end_date + timedelta(days=1)
-    try:
-        next_week = week_service.get_week_for_date(next_week_start)
-    except WeekService.WeekDoesNotExist:
-        next_week = week_service.create_week(
-            start_date = next_week_start
-        )
+    next_week = week_service.get_week_after(current_week)
 
     push_service = PushMessageService(username=username)
     push_service.send_data({
