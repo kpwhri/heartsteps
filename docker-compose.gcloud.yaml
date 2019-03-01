@@ -11,6 +11,8 @@ services:
     build: ./server
     env_file:
       - .env-production
+    environment:
+      - ALLOWED_HOSTS=localhost
     command: honcho start
     volumes:
       - ./server:/server
