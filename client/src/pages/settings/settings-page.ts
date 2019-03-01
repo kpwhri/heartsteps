@@ -8,6 +8,7 @@ import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.ser
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
+import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
 
 @Component({
     templateUrl: 'settings-page.html',
@@ -22,7 +23,8 @@ export class SettingsPage {
         private alertDialog: AlertDialogController,
         private weekService: WeekService,
         private weeklySurveyService: WeeklySurveyService,
-        private morningMessageService: MorningMessageService
+        private morningMessageService: MorningMessageService,
+        private antiSedentaryService: AntiSedentaryService
     ){}
 
     public testWalkingSuggestion() {
@@ -33,7 +35,10 @@ export class SettingsPage {
     }
 
     public testAntisedentaryMessage() {
-        this.alertDialog.show('Not implemented');
+        this.antiSedentaryService.sendTestMessage()
+        .then(() => {
+            this.alertDialog.show('Anti sedentary message sending');
+        })
     }
 
     public testMorningMessage() {

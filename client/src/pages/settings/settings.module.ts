@@ -11,6 +11,7 @@ import { SuggestionTimesPage } from './suggestion-times';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 import { GoalPage } from './goal.page';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
+import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
 
 const settingsRoutes: Routes = [
     {
@@ -47,6 +48,7 @@ const settingsRoutes: Routes = [
         RouterModule
     ],
     imports: [
+        AntiSedentaryModule,
         ContactInformationModule,
         HeartstepsComponentsModule,
         PlacesModule,
