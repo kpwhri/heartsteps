@@ -31,6 +31,9 @@ export class SettingsPage {
         this.walkingSuggestionService.createTestDecision()
         .then(() => {
             this.alertDialog.show('Walking suggestion sending');
+        })
+        .catch(() => {
+            this.alertDialog.show('Error sending test message');
         });
     }
 
@@ -39,6 +42,9 @@ export class SettingsPage {
         .then(() => {
             this.alertDialog.show('Anti sedentary message sending');
         })
+        .catch(() => {
+            this.alertDialog.show('Error sending test message');
+        });
     }
 
     public testMorningMessage() {
