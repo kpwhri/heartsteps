@@ -3,7 +3,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { DashboardPage } from './dashboard';
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
-import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
+import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { MorningMessageModule } from '@heartsteps/morning-message/morning-message.module';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
 
@@ -12,7 +12,7 @@ import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.mo
     DashboardPage
   ],
   imports: [
-    ActivityPlansModule,
+    ActivityPlanPageModule,
     DailySummaryModule,
     MorningMessageModule,
     WeeklySurveyModule,

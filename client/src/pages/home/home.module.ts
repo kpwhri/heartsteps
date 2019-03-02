@@ -15,6 +15,7 @@ import { SettingsPage } from '@pages/settings/settings-page';
 import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
+import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 
 const homeRoutes: Routes = [{
         path: 'dashboard',
@@ -55,7 +56,7 @@ const homeRoutes: Routes = [{
     ],
     imports: [
         DashboardModule,
-        ActivityPlansModule,
+        ActivityPlanPageModule,
         ActivityLogPageModule,
         ResourceLibraryModule,
         SettingsModule,

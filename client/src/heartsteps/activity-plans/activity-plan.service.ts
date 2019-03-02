@@ -21,6 +21,23 @@ export class ActivityPlanService {
         this.loadPlans();
     }
 
+    public get(id:string) {
+        return this.storage.get(id)
+        .then((data) => {
+            return this.deserializeActivityPlan(data);
+        })
+        .catch(() => {
+            return this.fetch(id);
+        });
+    }
+
+    public fetch(id:string):Promise<ActivityPlan> {
+        return this.heartstepsServer.get('/activity/plans/'+id)
+        .then((data) => {
+            return this.deserializeActivityPlan(data);
+        });
+    }
+
     save(activityPlan:ActivityPlan):Promise<ActivityPlan> {
         return this.updateOrCreatePlan(activityPlan)
         .then((activityPlan:ActivityPlan) => {

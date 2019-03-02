@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Week } from '@heartsteps/weekly-survey/week.model';
-import { ActivityPlanService } from './activity-plan.service';
+import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.service';
 
 @Component({
     selector: 'heartsteps-weekly-plan',

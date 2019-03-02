@@ -1,0 +1,10 @@
+<app-page
+    title="Complete Activity Plan"
+    (onDismiss)="dismiss()"
+    >
+    <a (click)="editPlan()">Edit Plan</a>
+    <activity-plan-form
+        [plan]="plan"
+        >
+    </activity-plan-form>
+</app-page>

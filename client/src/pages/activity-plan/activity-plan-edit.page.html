@@ -1,0 +1,13 @@
+<app-page
+    title="Activity Plan"
+    (onDismiss)="dismiss()"
+    >
+    <a (click)="complete()">Complete Plan</a>
+    <activity-plan-form
+        [plan]="activityPlan"
+        (saved)="dismiss()"
+        >
+    </activity-plan-form>
+    <button *ngIf="!activityPlan.complete" (click)="delete()" class="danger">Delete</button>
+    <button *ngIf="activityPlan.complete" (click)="uncomplete()">Mark incomplete</button>
+</app-page>
