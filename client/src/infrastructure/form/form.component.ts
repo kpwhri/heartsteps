@@ -13,11 +13,18 @@ export class FormComponent {
     public form: FormGroup;
 
     private errorMessage: string;
-    private submitCTA: string = 'Save';
-
-    @Input('defaultSubmit') showSubmit: boolean = true;
+    public submitCTA: string;
 
     constructor() {}
+
+    @Input('submitLabel')
+    set submitLabel(text: string) {
+        if(text) {
+            this.submitCTA = text;
+        } else {
+            this.submitCTA = 'Save';
+        }
+    }
 
     @Input('formGroup')
     set setForm(form: FormGroup) {

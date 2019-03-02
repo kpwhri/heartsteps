@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { ActivityPlanService } from './activity-plan.service';
-import { ActivityPlan } from './activity-plan.model';
+import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.service';
+import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
@@ -15,8 +15,7 @@ import { ActivityEnjoyedModalComponent } from '@heartsteps/activity-logs/activit
     providers: [
         DateFactory,
         ModalDialogController
-    ],
-    inputs: ['plan']
+    ]
 })
 export class PlanFormComponent implements OnInit {
 

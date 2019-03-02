@@ -1,9 +1,10 @@
-import { Component, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.service';
 import { Subscription } from 'rxjs';
 import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import * as moment from 'moment';
 import { Router } from '@angular/router';
+import { DateFactory } from '@infrastructure/date.factory';
 
 @Component({
     selector: 'activity-plan-day',
@@ -18,7 +19,8 @@ export class DayPlanComponent implements OnDestroy {
 
     constructor(
         private activityPlanService:ActivityPlanService,
-        private router: Router
+        private router: Router,
+        private dateFactory: DateFactory
     ) {}
 
     ngOnDestroy() {
@@ -52,10 +54,10 @@ export class DayPlanComponent implements OnDestroy {
     }
 
     public createPlan() {
-        this.router.navigate(['plans/create', this.date]);
+        this.router.navigate(['plans/create', this.dateFactory.formatDate(this.date)]);
     }
 
     public showPlan(plan:ActivityPlan) {
-        this.router.navigate(['plans/complete', plan.id]);
+        this.router.navigate(['plans', plan.id, 'complete']);
     }
 }

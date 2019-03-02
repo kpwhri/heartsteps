@@ -3,8 +3,10 @@
     (onDismiss)="dismiss()"
     >
     <a (click)="editPlan()">Edit Plan</a>
-    <activity-plan-form
-        [plan]="plan"
+    <app-form
+        [formGroup]="form"
+        submitLabel="Complete"
         >
-    </activity-plan-form>
+        <p>Complete form</p>
+    </app-form>
 </app-page>

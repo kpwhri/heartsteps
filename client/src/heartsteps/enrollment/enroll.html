@@ -4,7 +4,7 @@
   <app-form
     [formGroup]="enrollmentForm"
     (onSubmit)="enroll()"
-    [defaultSubmit]="false"
+    submitLabel="Enroll"
     >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <app-text-field
@@ -17,8 +17,5 @@
       label="Birth year"
       >
     </app-year-field>
-    <div app-form-controls>
-        <input type="submit" value="Enroll" />
-    </div>
   </app-form>
 </app-modal-dialog>

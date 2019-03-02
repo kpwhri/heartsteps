@@ -1,5 +1,5 @@
 import { Component, Input, ElementRef, Renderer2, OnInit } from '@angular/core';
-import { ActivityPlan } from './activity-plan.model';
+import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import { ActivityTypeService } from '@heartsteps/activity-types/activity-type.service';
 
 @Component({
