@@ -2,12 +2,19 @@
     title="Activity Plan"
     (onDismiss)="dismiss()"
     >
-    <a (click)="complete()">Complete Plan</a>
-    <activity-plan-form
-        [plan]="activityPlan"
-        (saved)="dismiss()"
+    <a *ngIf="!activityPlan.complete" (click)="goTocomplete()">Complete Plan</a>
+    <a *ngIf="activityPlan.activityLogId" (click)="goToActivityLog()">Edit activity log</a>
+    <app-form
+        [formGroup]="planForm"
+        [disabled]="disabled"
+        submitLabel="Update"
+        (onSubmit)="update()"
         >
-    </activity-plan-form>
+        <activity-plan-field
+            formControlName="activityPlan"
+            >
+        </activity-plan-field>
+    </app-form>
     <button *ngIf="!activityPlan.complete" (click)="delete()" class="danger">Delete</button>
     <button *ngIf="activityPlan.complete" (click)="uncomplete()">Mark incomplete</button>
 </app-page>

@@ -12,6 +12,7 @@ export class ActivityLog {
     public earnedMinutes: number;
 
     public enjoyed: number;
+    public effort: number;
 
     constructor() {}
 

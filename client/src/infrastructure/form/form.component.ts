@@ -11,14 +11,16 @@ export class FormComponent {
     @Output('onSubmit') public onSubmit: EventEmitter<boolean> = new EventEmitter();
 
     public form: FormGroup;
+    public disabled: boolean = false;
 
     private errorMessage: string;
-    public submitCTA: string;
+    public submitCTA: string = 'Save';
 
     constructor() {}
 
     @Input('submitLabel')
     set submitLabel(text: string) {
+        console.log("set submit label")
         if(text) {
             this.submitCTA = text;
         } else {
@@ -37,6 +39,20 @@ export class FormComponent {
     set setErrorMessage(error: string) {
         if (error || (error === undefined && this.errorMessage)) {
             this.errorMessage = error;
+        }
+    }
+
+    @Input('disabled')
+    set setDisabled(disabled:boolean) {
+        if(disabled !== undefined) {
+            this.disabled = disabled;
+            if(this.form && disabled) {
+                this.form.disable();
+            }
+            if(this.form && !disabled) {
+                this.form.enable();
+            }
+            
         }
     }
     

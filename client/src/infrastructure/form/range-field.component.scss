@@ -1,0 +1,49 @@
+app-range-field.heartsteps-form-field {
+    ul {
+        @extend ul.horizontal;
+        justify-content: space-between;
+    }
+
+    ul li label {
+        display: block;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        text-indent: 3000em;
+    }
+
+    ul li input[type=radio] {
+        appearance: none;
+        margin: 0.5em;
+        width: 2em;
+        height: 2em;
+
+        background-color: $text-color;
+        mask-image: url('../assets/unchecked.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 100% 100%;
+
+        &:checked {
+            background-color: $color-primary;
+            mask-image: url('../assets/checked.svg');
+        }
+
+        &:focus,
+        &:hover {
+            background-color: $color-primary;
+        }
+    }
+
+    .labels {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        
+        > * {
+            @extend label;
+        }
+    }
+}

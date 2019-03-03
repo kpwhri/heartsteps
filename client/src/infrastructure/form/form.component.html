@@ -7,8 +7,10 @@
     <div class="form">
         <ng-content></ng-content>
     </div>
-    <div class="controls">
-        <input *ngIf="showSubmit" type="submit" value="{{submitCTA}}" />
+    <div *ngIf="!disabled"
+        class="controls"
+        >
+        <input type="submit" value="{{submitCTA}}" />
         <ng-content select="[app-form-controls]"></ng-content>
     </div>
 </form>

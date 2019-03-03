@@ -2,9 +2,14 @@
     title="Create Activity Plan"
     (onDismiss)="back()"
     >
-    <activity-plan-form
-        [plan]="plan"
-        (saved)="back()"
+    <app-form
+        [formGroup]="planForm"
+        submitLabel="Create plan"
+        (onSubmit)="create()"
         >
-    </activity-plan-form>
+        <activity-plan-field
+            formControlName="activityPlan"
+            >
+        </activity-plan-field>
+    </app-form>
 </app-page>

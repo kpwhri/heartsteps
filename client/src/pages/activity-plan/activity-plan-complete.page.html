@@ -6,7 +6,21 @@
     <app-form
         [formGroup]="form"
         submitLabel="Complete"
+        (onSubmit)="complete()"
         >
-        <p>Complete form</p>
+        <activity-plan-field
+            formControlName="activityPlan"
+            >
+        </activity-plan-field>
+        <activity-enjoyed-field
+            formControlName="enjoyed"
+            label="Did you enjoy this?"
+            >
+        </activity-enjoyed-field>
+        <app-range-field
+            formControlName="effort"
+            label="How much will power did it take to complete this activity?"
+            >
+        </app-range-field>
     </app-form>
 </app-page>

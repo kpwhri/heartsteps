@@ -15,6 +15,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.module';
 import { FormModule } from '@infrastructure/form/form.module';
 import { CompletePlanResolver } from './complete-plan.resolver';
+import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
+import { CompletePlanForm } from './complete-plan-form.component';
+import { ActivityPlanField } from './activity-plan-field.component';
 
 const routes: Routes = [
     {
@@ -37,17 +40,20 @@ const routes: Routes = [
 
 @NgModule({
     declarations: [
+        ActivityPlanField,
         CreatePlanPage,
         DayPlanComponent,
         WeeklyPlanComponent,
         PlanComponent,
         PlanFormComponent,
+        CompletePlanForm,
         ActivityPlanPage,
         ActivityPlanCompletePage
     ],
     entryComponents: [
         PlanComponent,
         PlanFormComponent,
+        CompletePlanForm,
         DayPlanComponent,
         WeeklyPlanComponent
     ],
@@ -59,6 +65,7 @@ const routes: Routes = [
     ],
     imports: [
         ActivityPlansModule,
+        ActivityLogModule,
         HeartstepsComponentsModule,
         BrowserModule,
         FormModule,

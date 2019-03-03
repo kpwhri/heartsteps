@@ -1,0 +1,22 @@
+<fieldset class="input-group">
+    <legend>{{label}}</legend>
+    <ul>
+        <li *ngFor="let option of options; let index = index">
+            <input id="range-{{index}}"
+                type="radio"
+                [name]="name"
+                [value]="index"
+                [ngModel]="selectedIndex"
+                (ngModelChange)="select($event)"
+                [disabled]="isDisabled"
+                />
+            <label for="range-{{index}}">
+                {{option}}
+            </label>
+        </li>
+    </ul>
+    <div class="labels">
+        <span>{{leastLabel}}</span>
+        <span>{{mostLabel}}</span>
+    </div>
+</fieldset>

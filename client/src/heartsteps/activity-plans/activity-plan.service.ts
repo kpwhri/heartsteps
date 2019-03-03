@@ -1,4 +1,4 @@
-import { Injectable, EventEmitter } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ActivityPlan } from "./activity-plan.model";
 import * as moment from 'moment';

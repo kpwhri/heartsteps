@@ -13,6 +13,7 @@ import { PhoneFieldComponent } from "./phone-field.component";
 import { FormComponent } from "./form.component";
 import { AbstractField } from "./abstract-field";
 import { SelectFieldComponent } from "./select-field.component";
+import { RangeFieldComponent } from "./range-field.component";
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { SelectFieldComponent } from "./select-field.component";
         EmailFieldComponent,
         FormComponent,
         PhoneFieldComponent,
+        RangeFieldComponent,
         SelectFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
@@ -40,6 +42,7 @@ import { SelectFieldComponent } from "./select-field.component";
         EmailFieldComponent,
         FormComponent,
         SelectFieldComponent,
+        RangeFieldComponent,
         PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,

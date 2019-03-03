@@ -6,16 +6,10 @@ import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
-import { ModalDialogController } from '@infrastructure/dialogs/modal-dialog.controller';
-import { ActivityEnjoyedModalComponent } from '@heartsteps/activity-logs/activity-enjoyed-modal.component';
 
 @Component({
     selector: 'activity-plan-form',
     templateUrl: './plan-form.component.html',
-    providers: [
-        DateFactory,
-        ModalDialogController
-    ]
 })
 export class PlanFormComponent implements OnInit {
 
@@ -33,8 +27,7 @@ export class PlanFormComponent implements OnInit {
     constructor(
         private activityPlanService:ActivityPlanService,
         private dateFactory: DateFactory,
-        private loadingService: LoadingService,
-        private modalDialog: ModalDialogController
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit() {
@@ -44,24 +37,28 @@ export class PlanFormComponent implements OnInit {
     @Input('plan')
     set plan(activityPlan:ActivityPlan) {
         if(activityPlan) {
-            this.activityPlan = activityPlan;
-            this.planForm = new FormGroup({
-                activity: new FormControl(this.activityPlan.type, Validators.required),
-                duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
-                date: new FormControl(this.activityPlan.start, Validators.required),
-                time: new FormControl(this.activityPlan.start, Validators.required),
-                vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
-            });
-            
-            if(activityPlan.complete) {
-                this.planForm.disable();
-            }
+            this.setPlanForm(activityPlan);
+        }
+    }
 
-            if(activityPlan.id) {
-                this.updateView = true;
-            } else {
-                this.updateView = false;
-            }
+    public setPlanForm(activityPlan: ActivityPlan):void {
+        this.activityPlan = activityPlan;
+        this.planForm = new FormGroup({
+            activity: new FormControl(this.activityPlan.type, Validators.required),
+            duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
+            date: new FormControl(this.activityPlan.start, Validators.required),
+            time: new FormControl(this.activityPlan.start, Validators.required),
+            vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
+        });
+        
+        if(activityPlan.complete) {
+            this.planForm.disable();
+        }
+
+        if(activityPlan.id) {
+            this.updateView = true;
+        } else {
+            this.updateView = false;
         }
     }
 
@@ -90,63 +87,6 @@ export class PlanFormComponent implements OnInit {
         .then((activityPlan) => {
             return this.activityPlanService.save(activityPlan);
         })
-        .then(() => {
-            this.saved.emit();
-        })
-        .catch((error) => {
-            this.error = error;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
-    }
-
-    public complete() {
-        this.loadingService.show('Completing activity plan');
-        this.validateActivity()
-        .then((activityPlan) => {
-            return this.activityPlanService.complete(activityPlan);
-        })
-        .then((plan) => {
-            this.loadingService.dismiss();
-            return this.rateActivity(plan)
-        })
-        .then(() => {
-            this.saved.emit();
-        })
-        .catch((error) => {
-            this.error = error;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
-    }
-
-    private rateActivity(plan: ActivityPlan): Promise<boolean> {
-        return this.modalDialog.createModal(ActivityEnjoyedModalComponent, {
-            activityLogId: plan.activityLogId
-        })
-        .then(() => {
-            return Promise.resolve(true);
-        });
-    }
-
-    public uncomplete() {
-        this.loadingService.show('Uncompleting activity plan');
-        this.activityPlanService.uncomplete(this.activityPlan)
-        .then(() => {
-            this.saved.emit();
-        })
-        .catch((error) => {
-            this.error = error;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
-    }
-
-    public delete() {
-        this.activityPlanService.delete(this.activityPlan)
         .then(() => {
             this.saved.emit();
         })

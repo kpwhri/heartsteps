@@ -34,6 +34,7 @@ import { ActivityEnjoyedFieldComponent } from './activity-enjoyed-field.componen
     exports: [
         ActivityLogComponent,
         LogFormComponent,
+        ActivityEnjoyedFieldComponent,
         ActivityEnjoyedModalComponent
     ],
     providers: [
