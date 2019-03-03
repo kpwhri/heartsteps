@@ -30,14 +30,16 @@ export class ActivityPlanField extends AbstractField {
         this.planForm = new FormGroup({
             activity: new FormControl(this.activityPlan.type, Validators.required),
             duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
-            date: new FormControl(this.activityPlan.start, Validators.required),
-            time: new FormControl(this.activityPlan.start, Validators.required),
+            date: new FormControl(this.activityPlan.date, Validators.required),
+            timeOfDay: new FormControl(null, Validators.required),
             vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
         });
 
         this.planFormSubscription = this.planForm.valueChanges.subscribe((values:any) => {
             const plan = new ActivityPlan();
             plan.id = this.activityPlan.id;
+            plan.date = values.date;
+            plan.timeOfDay = values.timeOfDay;
             plan.type = values.activity;
             plan.duration = values.duration;
             plan.vigorous = values.vigorous;

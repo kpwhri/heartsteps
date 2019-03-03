@@ -14,8 +14,9 @@ export class PlanComponent implements OnInit {
 
     public activityType:string;
     public activityLevel:string;
-    public start: string;
-    public end: string;
+
+    public timeOfDay:string;
+
     public complete: boolean;
     public duration: string;
 
@@ -37,8 +38,7 @@ export class PlanComponent implements OnInit {
         } else {
             this.activityLevel = "moderate";
         }
-        this.start = this.plan.formatStartTime();
-        this.end = this.plan.formatEndTime();
+        this.timeOfDay = this.plan.timeOfDay;
         this.duration = String(this.plan.duration);
         this.complete = this.plan.complete;
         if(this.complete) {

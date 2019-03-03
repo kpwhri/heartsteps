@@ -195,8 +195,9 @@ export class ActivityPlanService {
     private serializeActivityPlan(activityPlan:ActivityPlan):any {
         return {
             id: activityPlan.id,
+            date: moment(activityPlan.date).format("YYYY-MM-DD"),
+            timeOfDay: activityPlan.timeOfDay,
             type: activityPlan.type,
-            start: activityPlan.start.toISOString(),
             duration: activityPlan.duration,
             vigorous: activityPlan.vigorous,
             complete: activityPlan.complete,
@@ -207,18 +208,13 @@ export class ActivityPlanService {
     private deserializeActivityPlan(data:any):ActivityPlan {
         const activityPlan = new ActivityPlan();
         activityPlan.id = data.id;
+        activityPlan.date = moment(data.timeOfDay, 'YYYY-MM-DD').toDate();
+        activityPlan.timeOfDay = data.timeOfDay;
         activityPlan.type = data.type;
         activityPlan.duration = data.duration;
         activityPlan.vigorous = data.vigorous || false;
         activityPlan.complete = data.complete || false;
         activityPlan.activityLogId = data.activityLogId || undefined;
-
-        if(data.start) {
-            const localMoment = moment.utc(data.start).local();
-            activityPlan.start = new Date(localMoment.toString());
-        } else {
-            activityPlan.start = new Date();
-        }
 
         return activityPlan
     }
