@@ -20,7 +20,6 @@ export class FormComponent {
 
     @Input('submitLabel')
     set submitLabel(text: string) {
-        console.log("set submit label")
         if(text) {
             this.submitCTA = text;
         } else {

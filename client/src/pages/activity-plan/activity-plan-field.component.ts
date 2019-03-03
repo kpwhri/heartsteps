@@ -22,6 +22,8 @@ export class ActivityPlanField extends AbstractField {
 
     private planFormSubscription:Subscription;
 
+    public isFormField: boolean = false;
+
     public writeValue(activityPlan:ActivityPlan) {
         this.activityPlan = activityPlan;
 

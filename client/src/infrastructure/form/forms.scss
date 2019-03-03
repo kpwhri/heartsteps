@@ -34,7 +34,6 @@ app-form {
     width: 100%;
     padding: 0.5em 0em;
     border: 0px;
-    border-bottom: $color-gray 1px solid;
 
     > * {
         flex: 0 1 auto;
@@ -55,6 +54,7 @@ app-form {
 }
 
 .heartsteps-form-field {
+    border-bottom: $color-gray-light 1px solid;
 
     > * {
         flex: 0 0 auto;
@@ -99,12 +99,10 @@ app-form {
 
 .heartsteps-form-field.is-invalid {
 
+    border-bottom-color: $color-danger;
+
     > .errors {
         display: block;
-    }
-
-    > .heartsteps-form-input {
-        border-bottom-color: $color-danger;
     }
 
     > .heartsteps-form-input:after {
@@ -125,23 +123,20 @@ app-form {
     }
 }
 
-.heartsteps-form-field.is-focused.is-invalid,
-.heartsteps-form-field.is-focused {
-
-    > .heartsteps-form-input {
-        border-bottom-color: $color-primary;
-    }
+.heartsteps-form-field.is-focused,
+.heartsteps-form-field.is-focused.is-invalid {
+    border-bottom-color: $color-primary;
 
     label {
         color: $color-primary;
     }
 }
 
+.heartsteps-form-field.is-disabled,
 .heartsteps-form-field.is-focused.is-invalid.is-disabled,
-.heartsteps-form-field.is-focused.is-disabled,
-.heartsteps-form-field.is-disabled {
+.heartsteps-form-field.is-focused.is-disabled {
     > .heartsteps-form-input {
-        border-bottom-color: $color-gray-light;
+        border-bottom-width: 0px;
     }
 }
 

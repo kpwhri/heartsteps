@@ -14,7 +14,6 @@ import { ChoiceDialogController } from './choice-dialog.controler';
 import { AlertDialogController } from './alert-dialog.controller';
 import { IonicPageModule } from 'ionic-angular';
 import { HeartstepsRangeComponent } from './range.component';
-import { HeartstepsIncrementComponent } from './increment.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { DocumentStorageService } from './document-storage.service';
 import { DateFactory } from './date.factory';
@@ -22,8 +21,7 @@ import { DateFactory } from './date.factory';
 
 @NgModule({
   declarations: [
-    HeartstepsRangeComponent,
-    HeartstepsIncrementComponent
+    HeartstepsRangeComponent
   ],
   imports: [
     BrowserModule,
@@ -48,8 +46,7 @@ import { DateFactory } from './date.factory';
       AlertDialogController
   ],
   exports: [
-    HeartstepsRangeComponent,
-    HeartstepsIncrementComponent
+    HeartstepsRangeComponent
   ]
 })
 export class InfrastructureModule {}

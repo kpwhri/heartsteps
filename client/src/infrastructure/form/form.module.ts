@@ -14,6 +14,7 @@ import { FormComponent } from "./form.component";
 import { AbstractField } from "./abstract-field";
 import { SelectFieldComponent } from "./select-field.component";
 import { RangeFieldComponent } from "./range-field.component";
+import { IncrementFieldComponent } from "./increment-field.component";
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { RangeFieldComponent } from "./range-field.component";
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
+        IncrementFieldComponent,
         PhoneFieldComponent,
         RangeFieldComponent,
         SelectFieldComponent,
@@ -41,6 +43,7 @@ import { RangeFieldComponent } from "./range-field.component";
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
+        IncrementFieldComponent,
         SelectFieldComponent,
         RangeFieldComponent,
         PhoneFieldComponent,

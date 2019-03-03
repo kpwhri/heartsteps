@@ -19,6 +19,8 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
 
     public value: any;
 
+    public isFormField: boolean = true;
+
     private statusChangeSubscription: Subscription;
 
     constructor(
@@ -28,7 +30,9 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.renderer.addClass(this.element.nativeElement, 'heartsteps-form-field');
+        if (this.isFormField) {
+            this.renderer.addClass(this.element.nativeElement, 'heartsteps-form-field');
+        }
         this.control = this.formGroup.control.get(this.name);
         this.updateDisabled();
         this.statusChangeSubscription = this.control.statusChanges.subscribe(() => {

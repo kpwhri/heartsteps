@@ -1,11 +1,10 @@
 <form>
     <div>
         <label>Suggested goal</label>
-        <heartsteps-increment
+        <app-increment-field
         [(ngModel)]="minutes"
         name="goal"
-        units="min"
-        ></heartsteps-increment>
+        ></app-increment-field>
     </div>
 
     <div>
@@ -13,7 +12,7 @@
     </div>
     <div>
         <label>How confident are you that you can achieve next week's goal?</label>
-        <heartsteps-range [(ngModel)]="confidence" name="confidence"></heartsteps-range>
+        <app-range-field [(ngModel)]="confidence" name="confidence"></app-range-field>
     </div>
     <div class="controls">
         <button (click)="save()">{{cta}}</button>

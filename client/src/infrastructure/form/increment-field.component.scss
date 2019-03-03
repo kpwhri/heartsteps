@@ -1,4 +1,4 @@
-heartsteps-increment {
+app-increment-field .incrementer {
 
     display:flex;
     flex-direction: row;
@@ -6,7 +6,7 @@ heartsteps-increment {
     justify-content: center;
 
     > * {
-        margin: 0.5em;
+        margin: 0em 1em;
         flex: 0 0 auto;
     }
 
