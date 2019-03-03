@@ -2,7 +2,7 @@
     title="Activity Plan"
     (onDismiss)="dismiss()"
     >
-    <a *ngIf="!activityPlan.complete" (click)="goTocomplete()">Complete Plan</a>
+    <a *ngIf="!activityPlan.complete" (click)="goToComplete()">Complete Plan</a>
     <a *ngIf="activityPlan.activityLogId" (click)="goToActivityLog()">Edit activity log</a>
     <app-form
         [formGroup]="planForm"
