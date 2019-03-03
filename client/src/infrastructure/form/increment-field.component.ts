@@ -25,18 +25,25 @@ export class IncrementFieldComponent extends AbstractField {
         }
     }
 
-    add() {
-        this.value += this.increment;
+    updateValue(value) {
+        if(this.disabled) {
+            return false;
+        }
+
+        if(value <= 0) {
+            this.value = 0;
+        } else {
+            this.value = value;
+        }
         this.onChange(this.value);
     }
 
+    add() {
+        this.updateValue(this.value + this.increment);
+    }
+
     remove() {
-        if(this.value - this.increment <= 0) {
-            this.value = 0;
-        } else {
-            this.value -= this.increment;
-        }
-        this.onChange(this.value);
+        this.updateValue(this.value - this.increment);
     }
 
 }

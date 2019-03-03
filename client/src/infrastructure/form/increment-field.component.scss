@@ -52,3 +52,7 @@ app-increment-field .incrementer {
         order: -1;
     }
 }
+
+app-increment-field.is-disabled .incrementer > button {
+    display: none;
+}
