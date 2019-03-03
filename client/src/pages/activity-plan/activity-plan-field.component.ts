@@ -46,6 +46,15 @@ export class ActivityPlanField extends AbstractField {
 
     }
 
+    setDisabledState(isDisabled: boolean): void {
+        this.disabled = isDisabled;
+        if(this.disabled) {
+            this.planForm.disable();
+        } else {
+            this.planForm.enable();
+        }
+    }
+
     ngOnDestroy() {
         super.ngOnDestroy();
         if(this.planFormSubscription) {
