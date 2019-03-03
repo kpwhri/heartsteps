@@ -135,9 +135,7 @@ app-form {
 .heartsteps-form-field.is-disabled,
 .heartsteps-form-field.is-focused.is-invalid.is-disabled,
 .heartsteps-form-field.is-focused.is-disabled {
-    > .heartsteps-form-input {
-        border-bottom-width: 0px;
-    }
+    border-bottom-width: 0px;
 }
 
 fieldset.heartsteps-form-field {
