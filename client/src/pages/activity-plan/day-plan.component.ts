@@ -56,8 +56,4 @@ export class DayPlanComponent implements OnDestroy {
     public createPlan() {
         this.router.navigate(['plans/create', this.dateFactory.formatDate(this.date)]);
     }
-
-    public showPlan(plan:ActivityPlan) {
-        this.router.navigate(['plans', plan.id, 'complete']);
-    }
 }

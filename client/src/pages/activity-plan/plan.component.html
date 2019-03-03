@@ -4,3 +4,11 @@
     <dd *ngIf="complete">{{duration}} min complete</dd>
     <dd *ngIf="!complete">{{duration}} min planned</dd>
 </dl>
+<button *ngIf="complete"
+    >
+    Mark Incomplete
+</button>
+<button *ngIf="!complete"
+    >
+    Complete plan
+</button>

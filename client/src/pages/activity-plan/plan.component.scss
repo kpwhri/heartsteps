@@ -1,8 +1,9 @@
 heartsteps-activity-plan {
     @extend heartsteps-activity-log;
 
-    &:after {
+    button {
         content: "";
+        flex: 0 0 auto;
         height: 2em;
         width: 2em;
         mask-image: url('../assets/unchecked.svg');
@@ -12,7 +13,7 @@ heartsteps-activity-plan {
         background-color: $color-gray;
     }
 
-    &.is-complete:after {
+    &.is-complete button {
         mask-image: url('../assets/checked.svg');
         background-color: $color-primary;
     }
