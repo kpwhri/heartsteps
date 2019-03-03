@@ -1,4 +1,14 @@
 
+app-form {
+    @extend form;
+    flex-grow: 1;
+
+    > form {
+        @extend .heartsteps-container;
+        flex-grow: 1;
+    }
+}
+
 .heartsteps-form {
 
     > .controls {
@@ -79,6 +89,11 @@
         > * {
             margin: 0.5em 0em 0em;
         }
+    }
+
+    > ul {
+        margin: 0em;
+        padding: 0em;
     }
 }
 

@@ -1,14 +1,26 @@
 form,
 .form,
-form > fieldset {
+fieldset {
     display: flex;
     flex-direction: column;
     font-size: 1.6rem;
 
-    & > *,
-    > .item-block {
+    > * {
+        display: block;
         flex: 0 0 auto;
-        margin: 0.5em 0em;
+        margin: 0em;
+        margin-bottom: 1em;
+    }
+
+    > *:last-child {
+        margin-bottom: 0em;
+    }
+
+    .form,
+    form,
+    fieldset {
+        margin: 0em;
+        padding: 0em;
     }
 
     > .controls {
@@ -18,6 +30,12 @@ form > fieldset {
             margin: 0.25em 0px;
         }
 
+    }
+
+    legend {
+        font-weight: bold;
+        padding-top: $space-size;
+        margin: 0.5em 0em;
     }
 
     label {
@@ -48,16 +66,22 @@ fieldset {
     margin: 0px;
 }
 
-fieldset legend {
-    font-weight: bold;
-    padding-top: $space-size;
-}
-
 fieldset.input-group {
-    legend {
+
+    > * {
+        margin: 0.25em 0em;
+    }
+
+    & > legend {
         color: $color-gray;
         font-weight: normal;
         padding: 0px;
+        margin: 0em;
+    }
+
+    & > ul {
+        padding: 0em;
+        margin: 0em;
     }
 
     li {
@@ -76,35 +100,22 @@ form .ion-item {
     margin: 0px;
 }
 
-form .input-group.intensity {
-    > ul {
-        display: flex;
-        flex-direction: row;
-    }
+input {
+    border-radius: 0em;
+}
 
-    > ul > li {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+input[type=checkbox],
+input[type=radio] {
+    display: block;
+    width: 2em;
+    height: 2em;
+    background: $color-gray;
+    appearance: none;
+    mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
+}
 
-        flex: 1 1 auto;
-    }
-
-    label > span {
-        display: block;
-    }
-
-    input[type=radio] {
-        display: block;
-        width: 2em;
-        height: 2em;
-        background: $color-gray;
-        appearance: none;
-        mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
-    }
-
-    input[type=radio]:checked {
-        background: $color-primary;
-        mask-image: url('../assets/checked.svg');
-    }
+input[type=checkbox]:checked,
+input[type=radio]:checked {
+    background: $color-primary;
+    mask-image: url('../assets/checked.svg');
 }
