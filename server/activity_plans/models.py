@@ -21,19 +21,22 @@ class ActivityPlan(AbstractActivity):
             return False
 
     def update_activity_log(self):
-        if not self.activity_log:
-            self.activity_log = ActivityLog.objects.create(
+        activity_log = self.activity_log
+        if not activity_log:
+            activity_log = ActivityLog(
                 user = self.user,
-                type = self.type,
-                start = self.start,
-                duration = self.duration,
             )
+        activity_log.type = self.type
+        activity_log.date = self.date
+        activity_log.start = self.start
+        activity_log.timeOfDay = self.timeOfDay
+        activity_log.duration = self.duration
+        activity_log.vigorous = self.vigorous
+        activity_log.save()
+
+        if not self.activity_log:
+            self.activity_log = activity_log
             self.save()
-        self.activity_log.type = self.type
-        self.activity_log.start = self.start
-        self.activity_log.duration = self.duration
-        self.activity_log.vigorous = self.vigorous
-        self.activity_log.save()
 
     def remove_activity_log(self):
         if self.activity_log:

@@ -7,7 +7,7 @@ from activity_plans.models import ActivityPlan
 class ActivityPlanSerializer(ActivityLogSerializer):
     class Meta:
         model = ActivityPlan
-        fields = ('type', 'vigorous', 'start', 'duration', 'complete')
+        fields = ('type', 'vigorous', 'date', 'timeOfDay', 'duration', 'complete')
 
     complete = serializers.BooleanField()
 
@@ -28,4 +28,3 @@ class ActivityPlanSerializer(ActivityLogSerializer):
         else:
             activity_plan.remove_activity_log()
         return activity_plan
-
