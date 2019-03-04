@@ -1,5 +1,6 @@
-from datetime import timedelta, date
+from datetime import timedelta, datetime, date
 
+from django.utils import timezone
 from locations.services import LocationService
 
 from .models import Week, User
@@ -16,8 +17,9 @@ class WeekService:
 
     def update_weeks(self):
         location_service = LocationService(self.__user)
-        now = location_service.get_current_datetime()
-        start_date = self.__user.date_joined
+        tz = location_service.get_current_timezone()
+        now = timezone.now().astimezone(tz)
+        start_date = self.__user.date_joined.astimezone(tz)
 
         week = self.get_or_create_week(start_date)
         while week.end < now:
@@ -31,6 +33,8 @@ class WeekService:
             return self.create_week(day)
 
     def create_week(self, day):
+        if type(day) is datetime:
+            day = date(day.year, day.month, day.day)
         weekday = day.weekday()
         start_date = day - timedelta(days=weekday)
         end_date = start_date + timedelta(days=6)

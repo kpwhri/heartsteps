@@ -25,8 +25,8 @@ class WeekView(APIView):
         try:
             return service.get_current_week()
         except WeekService.WeekDoesNotExist:
-            last_week = Week.objects.last()
-            return service.get_week_after(last_week)
+            service.update_weeks()
+            return service.get_current_week()
 
     def get(self, request, week_number=None):
         if week_number is not None:
