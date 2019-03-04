@@ -9,6 +9,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 
 from fitbit_activities.services import FitbitDayService
+from locations.services import LocationService
 
 from .models import Day
 from .serializers import DaySerializer
@@ -23,9 +24,19 @@ def parse_date(day):
     except:
         raise Http404()
 
-def check_valid_date(user, date):
-    dt = datetime(date.year, date.month, date.day).astimezone(pytz.UTC)
-    if dt < user.date_joined:
+def get_day_joined(user):
+    location_service = LocationService(user)
+    tz = location_service.get_current_timezone()
+    date_joined = user.date_joined.astimezone(tz)
+    return date(
+        date_joined.year,
+        date_joined.month,
+        date_joined.day
+    )
+
+def check_valid_date(user, day):
+    day_joined = get_day_joined(user)
+    if day < day_joined:
         raise Http404()
 
 def get_summary(user, date):
@@ -59,9 +70,13 @@ def day_summary(request, day):
 @permission_classes((permissions.IsAuthenticated,))
 def date_range_summary(request, start, end):
     start_date = parse_date(start)
-    check_valid_date(request.user, start_date)
     end_date = parse_date(end)
-    check_valid_date(request.user, end_date)
+    day_joined = get_day_joined(request.user)
+
+    if start_date < day_joined:
+        start_date = day_joined
+    if end_date < day_joined:
+        raise Http404()
 
     if start_date > end_date:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
