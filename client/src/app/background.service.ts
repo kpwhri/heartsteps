@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { BackgroundProcessService } from "@infrastructure/background-process.service";
 import { LocationService } from "@heartsteps/locations/location.service";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
+import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 
 
 @Injectable()
@@ -10,10 +11,14 @@ export class BackgroundService{
     constructor(
         private backgroundProcess: BackgroundProcessService,
         private locationService: LocationService,
-        private messageReceiptService: MessageReceiptService
+        private messageReceiptService: MessageReceiptService,
+        private currentWeekService: CurrentWeekService
     ) {}
 
     init() {
+
+        this.currentWeekService.setUp();
+
         this.backgroundProcess.registerTask(() => {
             return this.locationService.saveLocation();
         });

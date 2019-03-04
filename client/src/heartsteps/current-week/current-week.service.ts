@@ -1,19 +1,27 @@
-import { Injectable, EventEmitter } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
+import { BehaviorSubject } from "rxjs";
 
 const storageKey = 'current-week';
 
 @Injectable()
 export class CurrentWeekService {
 
-    public updated: EventEmitter<Week> = new EventEmitter();
+    public week: BehaviorSubject<Week> = new BehaviorSubject(undefined);
 
     constructor(
         private storage:StorageService,
         private weekService:WeekService
     ) {}
+
+    public setUp() {
+        this.load()
+        .then((week) => {
+            this.week.next(week);
+        });
+    }
 
     public isWithinWeek(date: Date): Promise<boolean> {
         return this.get()
@@ -47,13 +55,10 @@ export class CurrentWeekService {
         return this.get()
         .then((week) => {
             if(week.end < new Date()) {
-                return Promise.reject("Past end of week");
+                return this.update();
             } else {
                 return Promise.resolve(week);
             }
-        })
-        .catch(() => {
-            return this.update();
         });
     }
 
@@ -73,8 +78,8 @@ export class CurrentWeekService {
             this.weekService.serializeWeek(week)
         )
         .then(() => {
+            this.week.next(week);
             return Promise.resolve(week);
         });
     }
-
 }
