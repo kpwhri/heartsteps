@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterEvent, NavigationEnd, ActivatedRoute, RouterState } from '@angular/router';
+import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 class Tab {

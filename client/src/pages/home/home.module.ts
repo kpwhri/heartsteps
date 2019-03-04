@@ -8,26 +8,34 @@ import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from './plan.page';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-gaurd.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
 import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
-import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
+import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
 
 const homeRoutes: Routes = [{
         path: 'dashboard',
         component: DashboardPage,
+        resolve: {
+            currentWeek: CurrentWeekResolver
+        },
         outlet: 'home'
     }, {
         path: 'stats',
         component: StatsPage,
+        resolve: {
+            summaries: CurrentDailySummaryResolver
+        },
         outlet: 'home'
     }, {
         path: 'planning',
         component: PlanPage,
+        resolve: {
+            currentWeek: CurrentWeekResolver
+        },
         outlet: 'home'
     }, {
         path: 'library',
@@ -52,7 +60,8 @@ const homeRoutes: Routes = [{
         ResourceLibraryPage
     ],
     providers: [
-        CurrentWeekResolver
+        CurrentWeekResolver,
+        CurrentDailySummaryResolver
     ],
     imports: [
         DashboardModule,
