@@ -1,4 +1,5 @@
 import pytz
+from datetime import datetime, date
 
 from django.utils import timezone
 
@@ -56,8 +57,12 @@ class LocationService:
             location_type = nearest_place.type
         return location_type
 
-    def get_location_on(self, datetime):
-        location = Location.objects.filter(time__lte=datetime).first()
+    def get_location_on(self, time):
+        if type(time) is date:
+            time = datetime(time.year, time.month, time.day, 23, 59)
+        if not time.tzinfo:
+            time = pytz.UTC.localize(time)
+        location = Location.objects.filter(time__lte=time).first()
         if not location:
             raise self.UnknownLocation()
         return location
