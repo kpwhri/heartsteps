@@ -68,7 +68,7 @@ export class ActivityPlanService {
             if(activityPlan.activityLogId) {
                 const mockActivityLog = new ActivityLog();
                 mockActivityLog.id = activityPlan.activityLogId;
-                mockActivityLog.start = activityPlan.start;
+                mockActivityLog.start = activityPlan.date;
                 this.activityLogService.deleted.emit(mockActivityLog);
             }
             return plan;
