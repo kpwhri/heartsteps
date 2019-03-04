@@ -208,7 +208,7 @@ export class ActivityPlanService {
     private deserializeActivityPlan(data:any):ActivityPlan {
         const activityPlan = new ActivityPlan();
         activityPlan.id = data.id;
-        activityPlan.date = moment(data.timeOfDay, 'YYYY-MM-DD').toDate();
+        activityPlan.date = moment(data.date, 'YYYY-MM-DD').toDate();
         activityPlan.timeOfDay = data.timeOfDay;
         activityPlan.type = data.type;
         activityPlan.duration = data.duration;

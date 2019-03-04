@@ -31,7 +31,7 @@ export class ActivityPlanField extends AbstractField {
             activity: new FormControl(this.activityPlan.type, Validators.required),
             duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
             date: new FormControl(this.activityPlan.date, Validators.required),
-            timeOfDay: new FormControl(null, Validators.required),
+            timeOfDay: new FormControl(this.activityPlan.timeOfDay, Validators.required),
             vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
         });
 
