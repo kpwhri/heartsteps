@@ -30,7 +30,10 @@ class FitbitDayService(FitbitService):
                 date = date
             )
         except FitbitDay.DoesNotExist:
-            timezone = self.__client.get_timezone()
+            try:
+                timezone = self.__client.get_timezone()
+            except FitbitClient.Unauthorized:
+                timezone = pytz.UTC
             return FitbitDay.objects.create(
                 account = self.account,
                 date = date,

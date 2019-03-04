@@ -196,10 +196,13 @@ class FitbitClient():
     def get_timezone(self):
         if hasattr(self, '__timezone'):
             return self.__timezone
-        response = self.client.user_profile_get()
-        timezone = response['user']['timezone']
-        self.__timezone = pytz.timezone(timezone)
-        return self.__timezone
+        try:
+            response = self.client.user_profile_get()
+            timezone = response['user']['timezone']
+            self.__timezone = pytz.timezone(timezone)
+            return self.__timezone
+        except HTTPUnauthorized:
+            raise FitbitClient.Unauthorized()
 
     def get_heart_rate(self, date):
         url = "user/-/activities/heart/date/{date}/1d/1min.json".format(
