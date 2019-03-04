@@ -1,8 +1,9 @@
-import { Component, forwardRef } from "@angular/core";
+import { Component, forwardRef, ElementRef, Renderer2 } from "@angular/core";
 import { AbstractField } from "@infrastructure/form/abstract-field";
-import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators } from "@angular/forms";
+import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirective } from "@angular/forms";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
 import { Subscription } from "rxjs";
+import { DateFactory } from "@infrastructure/date.factory";
 
 @Component({
     selector: 'activity-plan-field',
@@ -17,27 +18,36 @@ import { Subscription } from "rxjs";
 })
 export class ActivityPlanField extends AbstractField {
 
-    public activityPlan:ActivityPlan;
     public planForm: FormGroup;
+    public availableDates: Array<Date>;
 
     private planFormSubscription:Subscription;
 
     public isFormField: boolean = false;
 
-    public writeValue(activityPlan:ActivityPlan) {
-        this.activityPlan = activityPlan;
+    constructor(
+        formGroup: FormGroupDirective,
+        element: ElementRef,
+        renderer: Renderer2,
+        private dateFactory: DateFactory
+    ) {
+        super(formGroup, element, renderer)
+    }
 
+    public writeValue(activityPlan:ActivityPlan) {
         this.planForm = new FormGroup({
-            activity: new FormControl(this.activityPlan.type, Validators.required),
-            duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
-            date: new FormControl(this.activityPlan.date, Validators.required),
-            timeOfDay: new FormControl(this.activityPlan.timeOfDay, Validators.required),
-            vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
+            activity: new FormControl(activityPlan.type, Validators.required),
+            duration: new FormControl(activityPlan.duration || 30, Validators.required),
+            date: new FormControl(activityPlan.date, Validators.required),
+            timeOfDay: new FormControl(activityPlan.timeOfDay, Validators.required),
+            vigorous: new FormControl(activityPlan.vigorous, Validators.required)
         });
+
+        this.availableDates = this.dateFactory.getWeek(activityPlan.date);
 
         this.planFormSubscription = this.planForm.valueChanges.subscribe((values:any) => {
             const plan = new ActivityPlan();
-            plan.id = this.activityPlan.id;
+            plan.id = activityPlan.id;
             plan.date = values.date;
             plan.timeOfDay = values.timeOfDay;
             plan.type = values.activity;

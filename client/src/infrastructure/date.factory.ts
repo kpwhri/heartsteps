@@ -22,15 +22,13 @@ export class DateFactory {
         return moment(time, 'H:mm').toDate();
     }
 
-    getCurrentWeek():Array<Date> {
+    public getWeek(date:Date):Array<Date> {
         let week:Array<Date> = []
 
-        let today:any = new Date()
-
-        const day:number = today.getDay()
+        const day:number = date.getDay()
         for(let i=0; i < 7; i++) {
-            let offset:number = day - i
-            let momentDate = moment(today)
+            let offset:number = day - i - 1
+            let momentDate = moment(date)
             if(offset > 0) {
                 momentDate.subtract(offset, 'days')
             }
@@ -43,7 +41,11 @@ export class DateFactory {
         return week
     }
 
-    getRemainingDaysInWeek():Array<Date> {
+    public getCurrentWeek():Array<Date> {
+        return this.getWeek(new Date());
+    }
+
+    public getRemainingDaysInWeek():Array<Date> {
         const now:Date = new Date();
         const today:Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
