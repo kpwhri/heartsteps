@@ -11,7 +11,7 @@ export class AntiSedentaryService {
     ) {}
 
     public sendTestMessage():Promise<boolean> {
-        return this.heartstepsServer.post('anti-sedentary', {})
+        return this.heartstepsServer.post('anti-sedentary/', {})
         .then(() => {
             return true;
         });

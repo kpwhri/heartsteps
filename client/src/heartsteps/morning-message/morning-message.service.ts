@@ -21,6 +21,16 @@ export class MorningMessageService {
         return this.storage.get(storageKey)
         .then((data) => {
             return this.deserialize(data);
+        })
+        .then((morningMessage) => {
+            if(moment().isSame(morningMessage.date, "day")) {
+                return morningMessage;
+            } else {
+                this.clear()
+                .then(() => {
+                    return Promise.reject('Morning message expired');
+                })
+            }
         });
     }
 
@@ -31,6 +41,13 @@ export class MorningMessageService {
         })
         .then(() => {
             return message;
+        });
+    }
+
+    public clear():Promise<boolean> {
+        return this.storage.remove(storageKey)
+        .then(() => {
+            return true;
         });
     }
 
@@ -54,6 +71,7 @@ export class MorningMessageService {
     public deserialize(data:any):MorningMessage {
         const message = new MorningMessage();
         message.id = data.id;
+        message.date = moment(data.date, 'YYYY-MM-DD').toDate();
         message.notification = data.notification;
         message.text = data.text;
         message.anchor = data.anchor;
@@ -63,6 +81,7 @@ export class MorningMessageService {
     public serialize(message:MorningMessage):any {
         return {
             id: message.id,
+            date: moment(message.date).format('YYYY-MM-DD'),
             notification: message.notification,
             text: message.text,
             anchor: message.anchor
