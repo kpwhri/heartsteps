@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from locations.services import LocationService
+
 from .services import MorningMessageService
 from .serializers import MorningMessageSerializer
 
@@ -21,9 +23,19 @@ def parse_date(day):
     except:
         raise Http404()
 
-def check_valid_date(user, date):
-    dt = datetime(date.year, date.month, date.day).astimezone(pytz.UTC)
-    if dt < user.date_joined:
+def get_day_joined(user):
+    location_service = LocationService(user)
+    tz = location_service.get_current_timezone()
+    date_joined = user.date_joined.astimezone(tz)
+    return date(
+        date_joined.year,
+        date_joined.month,
+        date_joined.day
+    )
+
+def check_valid_date(user, day):
+    day_joined = get_day_joined(user)
+    if day < day_joined:
         raise Http404()
 
 class MorningMessageView(APIView):
