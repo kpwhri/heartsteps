@@ -89,15 +89,19 @@ export class LocalNotificationService {
     }
 
     private requestPermission(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            cordova.plugins.notification.local.requestPermission(function(granted) {
-                if(granted) {
-                    resolve(true);
-                } else {
-                    reject('Permission rejected');
-                }
-            });
-        })
+        if(this.platform.is('ios')) {
+            return new Promise((resolve, reject) => {
+                cordova.plugins.notification.local.requestPermission(function(granted) {
+                    if(granted) {
+                        resolve(true);
+                    } else {
+                        reject('Permission rejected');
+                    }
+                });
+            })
+        } else {
+            return Promise.resolve(true);
+        }
     }
 
     private createNotification(id: string, text: string):Promise<boolean> {
