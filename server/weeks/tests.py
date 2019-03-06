@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from rest_framework.test import APITestCase
 
+from activity_summaries.models import Day
 from locations.services import LocationService
 
 from .models import User, Week
@@ -32,6 +33,55 @@ class WeeksModel(TestCase):
 
         self.assertEqual(first_week.number, 1)
         self.assertEqual(second_week.number, 2)
+    
+    def test_sets_goal(self):
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 3, 4),
+            end_date = date(2019, 3, 10)
+        )
+
+        self.assertEqual(week.goal, 20)
+    
+    def test_activity_in_week_sets_goal(self):
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 3, 2),
+            total_minutes = 15
+        )
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 2, 27),
+            total_minutes = 7
+        )
+
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 3, 4),
+            end_date = date(2019, 3, 10)
+        )
+
+        self.assertEqual(week.goal, 40)
+
+    def test_goal_not_over_150(self):
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 3, 2),
+            total_minutes = 150
+        )
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 2, 27),
+            total_minutes = 70
+        )
+
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 3, 4),
+            end_date = date(2019, 3, 10)
+        )
+
+        self.assertEqual(week.goal, 150)
 
 class WeeksServiceTest(TestCase):
 
