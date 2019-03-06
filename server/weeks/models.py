@@ -19,6 +19,9 @@ class Week(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
+    goal = models.IntegerField(null=True)
+    confidence = models.FloatField(null=True)
+
     class Meta:
         ordering = ['start_date']
 

@@ -152,6 +152,6 @@ class TestFirebaseMessageService(TestCase):
         formatted_request = firebase_message_service.format_notification("Hello World", "Title", {'example': 'data'})
 
         self.assertIn('data', formatted_request)
-        self.assertEqual('Hello World', formatted_request['data']['notification']['body'])
-        self.assertEqual('Title', formatted_request['data']['notification']['title'])
+        self.assertEqual('Hello World', formatted_request['data']['body'])
+        self.assertEqual('Title', formatted_request['data']['title'])
         self.assertEqual('data', formatted_request['data']['example'])

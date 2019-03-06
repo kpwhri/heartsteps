@@ -63,7 +63,7 @@ class WeekViewsTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create(
             username="test",
-            date_joined = datetime(2018, 12, 5)
+            date_joined = datetime(2018, 12, 5).astimezone(pytz.UTC)
         )
         self.client.force_authenticate(user=self.user)
 
@@ -105,3 +105,36 @@ class WeekViewsTest(APITestCase):
         self.assertEqual(response.data['id'], 6)
         self.assertEqual(response.data['start'], '2019-01-07')
         self.assertEqual(response.data['end'], '2019-01-13')
+
+
+    def test_update_week_goal(self):
+        response = self.client.post(reverse('weeks-current'), {
+            'goal': 23,
+            'confidence': 0.21
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 5)
+        self.assertEqual(response.data['goal'], 23)
+        self.assertEqual(response.data['confidence'], 0.21)
+
+        service = WeekService(self.user)
+        current_week = service.get_current_week()
+        self.assertEqual(current_week.goal, 23)
+        self.assertEqual(current_week.confidence, 0.21)
+
+    def test_update_next_week_goal(self):
+        response = self.client.post(reverse('weeks-next'), {
+            'goal': 500,
+            'confidence': 0.001
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 6)
+        self.assertEqual(response.data['goal'], 500)
+        self.assertEqual(response.data['confidence'], 0.001)
+
+    def test_update_week_error(self):
+        response = self.client.post(reverse('weeks-current'), {})
+
+        self.assertEqual(response.status_code, 400)

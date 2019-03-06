@@ -14,7 +14,6 @@ urlpatterns = [
     url(r'^api/fitbit/', include('fitbit_api.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
-    url(r'^api/', include('weekly_goals.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('weeks.urls')),
     url(r'^api/', include('participants.urls')),

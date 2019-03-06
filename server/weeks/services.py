@@ -62,3 +62,9 @@ class WeekService:
         location_service = LocationService(self.__user)
         now = location_service.get_current_datetime()
         return self.get_week(date(now.year, now.month, now.day))
+    
+    def get_next_week(self):
+        location_service = LocationService(self.__user)
+        now = location_service.get_current_datetime()
+        next_week = now + timedelta(days=7)
+        return self.get_or_create_week(date(next_week.year, next_week.month, next_week.day))
