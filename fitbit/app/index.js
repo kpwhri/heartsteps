@@ -3,6 +3,10 @@ import document from "document";
 // Get integrationStatus setting & update text in settings
 import * as messaging from "messaging";
 
+// On-body presence
+// import * as bodyPresence from "body-presence";
+import { BodyPresenceSensor } from "body-presence";
+
 // Clock-specific imports
 import * as simpleActivity from "./simple/activity";
 import * as simpleClock from "./simple/clock";
@@ -108,18 +112,24 @@ function sendStepMessage(recentSteps, time){
   }
 }
 
-// Process step data
+// Start sensor to detect if watch is being worn
+let bodyPresenceSensor = new BodyPresenceSensor();
+bodyPresenceSensor.start();
+
+// Process step data and send if watch being worn
 function stepCountToPhone(){
   let stepCount = new StepCountHandler();
   let oldStepData = stepCount.getData();
-  console.log("original data: " + JSON.stringify(oldStepData));
+  // console.log("original data: " + JSON.stringify(oldStepData));
   let newStepData = stepCount.updateData(oldStepData);
-  console.log("updated data: " + JSON.stringify(newStepData));
+  // console.log("updated data: " + JSON.stringify(newStepData));
   let recentSteps = stepCount.calculateElapsedSteps(newStepData);
-  console.log("step count: " + recentSteps);
+  // console.log("step count: " + recentSteps);
   stepCount.saveFile(newStepData);
-  console.log("time is " + stepCount.currentTime);
-  sendStepMessage(recentSteps, stepCount.currentTime);
+  // console.log("time is " + stepCount.currentTime);
+  if (bodyPresenceSensor.present) {
+    sendStepMessage(recentSteps, stepCount.currentTime);
+  }
 }
 
 setInterval(function() {
