@@ -62,6 +62,21 @@ class ReflectionTime(models.Model):
         )
 
     @property
+    def formatted_time(self):
+        if self.day and self.time:
+            return "%s at %s" % (self.day_name, self.time)
+        else:
+            return "Unset"
+            
+    @property
+    def day_name(self):
+        try:
+            index = DAYS_OF_WEEK.index(self.day)
+            return DAYS_OF_WEEK_NAMES[index]
+        except ValueError:
+            return self.day
+
+    @property
     def hour(self):
         return int(self.time.split(':')[0])
 
