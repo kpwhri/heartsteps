@@ -18,6 +18,7 @@ export class LocalNotificationService {
     ) {}
 
     public setup():Promise<boolean> {
+        console.log('local notification setup')
         if (this.platform.is('ios') || this.platform.is('android')) {
             this.setupNotificationListener();
             if(cordova.plugins.notification.local.fireQueuedEvents) {
@@ -27,6 +28,17 @@ export class LocalNotificationService {
         } else {
             return Promise.resolve(true);
         }
+    }
+
+    private setupNotificationListener() {
+        cordova.plugins.notification.local.on('click', function(notification) {
+            console.log('local notification click');
+            this.zone.run(() => {
+                if(notification.data.messageId) {
+                    this.clicked.next(notification.data.messageId);
+                }
+            });
+        }, this);
     }
 
     public disable() {
@@ -96,7 +108,8 @@ export class LocalNotificationService {
                 text: text,
                 data: {
                     messageId: id
-                }
+                },
+                foreground: true
             })
             return Promise.resolve(true);
         });
@@ -124,15 +137,5 @@ export class LocalNotificationService {
         } else {
             return number;
         }
-    }
-
-    private setupNotificationListener() {
-        cordova.plugins.notification.local.on('click', function(notification) {
-            this.zone.run(() => {
-                if(notification.data.messageId) {
-                    this.clicked.next(notification.data.messageId);
-                }
-            });
-        }, this);
     }
 }
