@@ -238,7 +238,7 @@ class WeekReflectionMessageSendTest(TestCase):
 
         self.send_data.assert_called()
         data = self.send_data.call_args[0][0]
-        self.assertEqual(data['type'], 'weekly_reflection')
+        self.assertEqual(data['type'], 'weekly-reflection')
         self.assertEqual(data['current_week']['id'], 1)
         self.assertEqual(data['next_week']['id'], 2)
         self.assertEqual(data['next_week']['goal'], 40)
