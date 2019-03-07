@@ -10,9 +10,12 @@ from rest_framework.test import APITestCase
 
 from activity_summaries.models import Day
 from locations.services import LocationService
+from push_messages.services import PushMessageService
+from weekly_reflection.signals import weekly_reflection
 
 from .models import User, Week
 from .services import WeekService
+from .tasks import send_reflection
 
 class WeeksModel(TestCase):
 
@@ -188,3 +191,59 @@ class WeekViewsTest(APITestCase):
         response = self.client.post(reverse('weeks-current'), {})
 
         self.assertEqual(response.status_code, 400)
+
+    @patch.object(WeekService, 'send_reflection')
+    def test_sends_weekly_reflection(self, send_reflection):
+        response = self.client.post(reverse('weeks-current-send'), {})
+
+        self.assertEqual(response.status_code, 201)
+        send_reflection.assert_called()
+
+class WeekReflectionMessageSendTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 3, 4),
+            end_date = date(2019, 3, 10)
+        )
+        Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 3, 11),
+            end_date = date(2019, 3, 17)
+        )
+
+        timezone_patch = patch.object(timezone, 'now')
+        self.now = timezone_patch.start()
+        self.now.return_value = datetime(2019, 3, 9, 20).astimezone(pytz.UTC)
+        self.addCleanup(timezone_patch.stop)
+
+        send_data_patch = patch.object(PushMessageService, 'send_data')
+        self.send_data = send_data_patch.start()
+        self.addCleanup(send_data_patch.stop)
+
+        get_device_patch = patch.object(PushMessageService, 'get_device_for_user')
+        get_device_patch.start()
+        self.addCleanup(get_device_patch.stop)
+
+        send_reflection_patch = patch.object(send_reflection, 'apply_async')
+        self.send_reflection = send_reflection_patch.start()
+        self.addCleanup(send_reflection_patch.stop)
+
+    @patch.object(Week, 'get_default_goal', return_value=40)
+    def test_sends_reflection(self, get_default_goal):
+        weekly_reflection.send(User, username="test")
+
+        self.send_data.assert_called()
+        data = self.send_data.call_args[0][0]
+        self.assertEqual(data['type'], 'weekly_reflection')
+        self.assertEqual(data['current_week']['id'], 1)
+        self.assertEqual(data['next_week']['id'], 2)
+        self.assertEqual(data['next_week']['goal'], 40)
+        self.assertEqual(data['next_week']['start'], '2019-03-11')
+        self.assertEqual(data['next_week']['end'], '2019-03-17')
+
+        # Ensure next week's goal is set to default
+        get_default_goal.assert_called()

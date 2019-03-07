@@ -53,3 +53,13 @@ class NextWeekView(WeekView):
     def get_week(self, user, week_number=None):
         service = WeekService(user)
         return service.get_next_week()
+
+class SendReflectionView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        service = WeekService(request.user)
+        week = service.get_current_week()
+        service.send_reflection(week)
+
+        return Response({}, status=status.HTTP_201_CREATED)

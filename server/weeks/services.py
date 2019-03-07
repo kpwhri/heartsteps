@@ -1,9 +1,12 @@
 from datetime import timedelta, datetime, date
 
 from django.utils import timezone
+
 from locations.services import LocationService
+from push_messages.services import PushMessageService
 
 from .models import Week, User
+from .serializers import WeekSerializer
 
 class WeekService:
 
@@ -68,3 +71,20 @@ class WeekService:
         now = location_service.get_current_datetime()
         next_week = now + timedelta(days=7)
         return self.get_or_create_week(date(next_week.year, next_week.month, next_week.day))
+
+    def send_reflection(self, week):
+        next_week = self.get_week_after(week)
+        # Reset week goal, incase it was maniputlated
+        # (which probably happened in testing)
+        next_week.goal = next_week.get_default_goal()
+        next_week.save()
+
+        week_serialized = WeekSerializer(week)
+        next_week_serialized = WeekSerializer(next_week)
+
+        push_message_service = PushMessageService(user=self.__user)
+        message = push_message_service.send_data({
+            'type': 'weekly_reflection',
+            'current_week': week_serialized.data,
+            'next_week': next_week_serialized.data
+        })        

@@ -4,8 +4,6 @@ from datetime import timedelta, datetime
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
 
 from activity_summaries.models import Day
 from locations.services import LocationService
@@ -78,14 +76,3 @@ class Week(models.Model):
 
     def __str__(self):
         return "%s to %s (%s)" % (self.start_date, self.end_date, self.user)
-
-@receiver(pre_save, sender=Week)
-def set_week_number(sender, instance, *args, **kwargs):
-    if instance.number is None:
-        number_of_weeks = Week.objects.filter(user=instance.user).count()
-        instance.number = number_of_weeks + 1
-
-@receiver(pre_save, sender=Week)
-def set_week_goal(sender, instance, *args, **kwargs):
-    if not instance.goal:
-        instance.goal = instance.get_default_goal()
