@@ -11,7 +11,7 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk
 
 before_script:
-- docker-compose build service-template walking-suggestion-service anti-sedentary-service
+- docker-compose build service-template walking-suggestion-service anti-sedentary-service > /dev/null
 - docker-compose build server > /dev/null
 - docker-compose build client > /dev/null
 
