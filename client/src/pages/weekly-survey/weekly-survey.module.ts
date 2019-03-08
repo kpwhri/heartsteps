@@ -5,7 +5,7 @@ import { WeeklySurveyPage } from './weekly-survey.page';
 import { SurveyStartPage } from './survey-start.page';
 import { SurveyComponent } from './survey.component';
 import { WeeklySurveyModule as HeartstepsWeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module'
-import { WeekResolver } from './week.resolver';
+import { WeeklySurveyResolver } from './week.resolver';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
@@ -15,14 +15,14 @@ import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 
 const routes: Routes = [
     {
-        path: 'weekly-survey/:weekId/:page',
+        path: 'weekly-survey/:page',
         component: WeeklySurveyPage,
         resolve: {
-            weeks: WeekResolver
+            weeklySurvey: WeeklySurveyResolver
         }
     }, {
-        path: 'weekly-survey/:weekId',
-        redirectTo: 'weekly-survey/:weekId/start'
+        path: 'weekly-survey',
+        redirectTo: 'weekly-survey/start'
     }
 ];
 
@@ -41,7 +41,7 @@ const routes: Routes = [
     SurveyStartPage
   ],
   providers: [
-      WeekResolver
+      WeeklySurveyResolver
   ],
   imports: [
     InfrastructureModule,

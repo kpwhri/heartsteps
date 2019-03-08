@@ -1,6 +1,7 @@
 <app-form *ngIf="form"
     [formGroup]="form"
     [submitLabel]="cta"
+    [error]="error"
     (onSubmit)="save()"
     >
     <app-increment-field

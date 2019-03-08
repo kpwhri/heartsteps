@@ -6,7 +6,7 @@
 
 ion-content.content {
     padding: 0px;
-
+    height: auto;
     > .scroll-content {
         @extend .heartsteps-content;
     }

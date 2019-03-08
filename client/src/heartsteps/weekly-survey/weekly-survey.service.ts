@@ -1,14 +1,19 @@
 import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
-import { Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
+import { Week } from "./week.model";
+import * as moment from 'moment';
+import { WeekSerializer } from "./week.serializer";
+import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { Message } from "@heartsteps/notifications/message.model";
 import { MessageService } from "@heartsteps/notifications/message.service";
 
 export class WeeklySurvey {
-    public weekId:string
-    public messageId:string
-    public expires:Date
+    public currentWeek:Week;
+    public nextWeek:Week;
+    public messageId:string;
+    public expires:Date;
 }
 
 const storageKey:string = 'weekly-survey';
@@ -16,28 +21,58 @@ const storageKey:string = 'weekly-survey';
 @Injectable()
 export class WeeklySurveyService {
 
-    public survey:BehaviorSubject<WeeklySurvey>
+    public survey:BehaviorSubject<WeeklySurvey> = new BehaviorSubject(undefined);
 
     constructor(
         private storage:StorageService,
+        private weekSerializer: WeekSerializer,
+        private heartstepsServer: HeartstepsServer,
         private messageReceiptService: MessageReceiptService,
-        private router:Router,
         private messageService: MessageService
-    ){
-        this.survey = new BehaviorSubject(null);
-        this.getSurvey()
+    ) {}
+
+    public setup():Promise<boolean> {
+        return this.get()
         .then((survey:WeeklySurvey) => {
             this.survey.next(survey);
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(true);
         });
     }
 
-    public complete() {
-        this.getSurvey()
+    public testReflectionNotification():Promise<boolean> {
+        return this.heartstepsServer.post('weeks/current/send', {})
+        .then(() => {
+            return true;
+        });
+    }
+
+    public processNotification(message:Message):Promise<boolean> {
+        const currentWeek = this.weekSerializer.deserialize(message.context.currentWeek);
+        const nextWeek = this.weekSerializer.deserialize(message.context.nextWeek);
+        const expires = moment().add(1, 'days').toDate();
+        return this.set(currentWeek, nextWeek, expires, message.id)
+        .then(() => {
+            return this.messageService.createNotification(message.id, 'Weekly reflection time')
+        });
+    }
+
+    public complete():Promise<boolean> {
+        return this.get()
         .then((survey:WeeklySurvey) => {
             if(survey.messageId) {
-                this.messageReceiptService.engaged(survey.messageId);
+                return this.messageReceiptService.engaged(survey.messageId);
+            } else {
+                return true;
             }
-            this.clear();
+        })
+        .catch(() => {
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            return this.clear();
         });
     }
 
@@ -50,7 +85,7 @@ export class WeeklySurveyService {
     }
 
     public checkExpiration():Promise<boolean> {
-        return this.getSurvey()
+        return this.get()
         .then((survey) => {
             if (survey.expires <= new Date()) {
                 return this.clear()
@@ -66,45 +101,46 @@ export class WeeklySurveyService {
         });
     }
 
-    public set(weekId:string, messageId?:string):Promise<WeeklySurvey> {
-        const expireDate:Date = new Date();
-        expireDate.setDate(expireDate.getDate() + 1);
-        
-        return this.setSurvey(weekId, messageId, expireDate)
+    public set(currentWeek:Week, nextWeek:Week, expireDate?:Date, messageId?:string):Promise<WeeklySurvey> {
+        const survey = new WeeklySurvey();
+        survey.currentWeek = currentWeek;
+        survey.nextWeek = nextWeek;
+        if (expireDate) {
+            survey.expires = expireDate;
+        }
+        if (messageId) {
+            survey.messageId = messageId;
+        }
+        return this.storage.set(storageKey, this.serialize(survey))
         .then((survey:WeeklySurvey) => {
             this.survey.next(survey);
             return survey;
         });
     }
 
-    public show():Promise<boolean> {
-        return this.getSurvey()
-        .then((survey:WeeklySurvey) => {
-            this.router.navigate(['weekly-survey', survey.weekId]);
-            return true;
-        });
-    }
-
-    private getSurvey():Promise<WeeklySurvey> {
+    public get():Promise<WeeklySurvey> {
         return this.storage.get(storageKey)
         .then((data) => {
-            const survey = new WeeklySurvey();
-            survey.weekId = data.weekId;
-            survey.messageId = data.messageId;
-            survey.expires = data.expires;
-            return survey;
+            return this.deserialize(data);
         });
     }
 
-    private setSurvey(weekId:string, messageId:string, expires:Date):Promise<WeeklySurvey> {
-        return this.storage.set(storageKey, {
-            weekId: weekId,
-            messageId: messageId,
-            expires: expires
-        })
-        .then(() => {
-            return this.getSurvey();
-        });
+    private serialize(survey:WeeklySurvey):any {
+        return {
+            currentWeek: this.weekSerializer.serialize(survey.currentWeek),
+            nextWeek: this.weekSerializer.serialize(survey.nextWeek),
+            messageId: survey.messageId,
+            expires: survey.expires
+        }
     }
 
+    private deserialize(data:any):WeeklySurvey {
+        const survey = new WeeklySurvey();
+        survey.currentWeek = this.weekSerializer.deserialize(data['currentWeek']);
+        survey.nextWeek = this.weekSerializer.deserialize(data['nextWeek']);
+        if(data['expires']) survey.expires = data['expires'];
+        if(data['messageId']) survey.messageId = data['messageId'];
+        return survey;
+    }
+ 
 }

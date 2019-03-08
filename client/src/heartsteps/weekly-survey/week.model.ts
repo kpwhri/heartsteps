@@ -8,16 +8,7 @@ export class Week {
     goal:number;
     confidence: number;
 
-    constructor(
-        private weekService:WeekService
-    ){}
-
-    setGoal(minutes:number, confidence:number):Promise<boolean> {
-        return this.weekService.setWeekGoal(this, minutes, confidence)
-        .then(() => {
-            return true;
-        });
-    }
+    constructor(){}
 
     getDays():Array<Date> {
         const days:Array<Date> = [];

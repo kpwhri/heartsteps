@@ -4,6 +4,7 @@ import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.servi
 import { DateFactory } from '@infrastructure/date.factory';
 import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/weekly-survey.service';
 import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
+import { Router } from '@angular/router';
 
 @IonicPage()
 @Component({
@@ -21,7 +22,8 @@ export class DashboardPage implements OnInit {
 
     constructor(
         private weeklySurveyService: WeeklySurveyService,
-        private dailySummaryService: DailySummaryService
+        private dailySummaryService: DailySummaryService,
+        private router: Router
     ) {
         this.today = new Date();
         this.weeklySurveyService.checkExpiration();
@@ -35,6 +37,6 @@ export class DashboardPage implements OnInit {
     }
 
     public navigateToWeeklySurvey() {
-        this.weeklySurveyService.show();
+        this.router.navigate(['weekly-survey']);
     }
 }

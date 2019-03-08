@@ -21,7 +21,7 @@ export class NotificationService {
         this.messageService.opened.subscribe((message: Message) => {
             switch(message.type) {
                 case 'weekly-reflection':
-                    this.router.navigate(['weekly-survey', message.context.weekId])
+                    this.router.navigate(['weekly-survey'])
                     break;
                 case 'morning-message':
                     this.router.navigate(['morning-survey']);
@@ -33,8 +33,7 @@ export class NotificationService {
         this.messageService.received.subscribe((message:Message) => {
             switch(message.type) {
                 case 'weekly-reflection':
-                    this.weeklySurveyService.set(message.context.weekId);
-                    this.messageService.createNotification(message.id, 'Take weekly survey');
+                    this.weeklySurveyService.processNotification(message);
                     break;
                 case 'morning-message':
                     this.morningMessageService.set({

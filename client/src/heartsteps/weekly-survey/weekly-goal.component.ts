@@ -3,6 +3,7 @@ import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { LoadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { WeekService } from './week.service';
 
 @Component({
   selector: 'heartsteps-weekly-goal',
@@ -18,8 +19,10 @@ export class WeeklyGoalComponent {
     private _week:Week;
 
     public form: FormGroup;
+    public error: string;
 
     constructor(
+        private weekService: WeekService,
         private loadingService:LoadingService
     ) {}
 
@@ -27,7 +30,6 @@ export class WeeklyGoalComponent {
     set week(week:Week) {
         if(week) {
             this._week = week;
-            
             this.form = new FormGroup({
                 minutes: new FormControl(week.goal, Validators.required),
                 confidence: new FormControl(week.confidence)
@@ -36,12 +38,18 @@ export class WeeklyGoalComponent {
     }
 
     save() {
+        this.error = undefined;
         this.loadingService.show("Saving goal");
-        this._week.setGoal(this.form.value.minutes, this.form.value.confidence)
+        this.weekService.setWeekGoal(this._week, this.form.value.minutes, this.form.value.confidence)
         .then(() => {
-            this.loadingService.dismiss();
             this.saved.emit();
         })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
     
 

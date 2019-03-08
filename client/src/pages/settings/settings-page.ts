@@ -59,10 +59,7 @@ export class SettingsPage {
     }
 
     public testWeeklySurveyMessage() {
-        this.weekService.getCurrentWeek()
-        .then((week:Week) => {
-            this.weeklySurveyService.set(week.id);
-        });
+        this.weeklySurveyService.testReflectionNotification();
     }
 
     public unenroll() {
