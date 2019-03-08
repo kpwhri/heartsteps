@@ -4,6 +4,8 @@ import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirecti
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
 import { Subscription } from "rxjs";
 import { DateFactory } from "@infrastructure/date.factory";
+import { DailyTimeService, DailyTime } from "@heartsteps/daily-times/daily-times.service";
+import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 
 @Component({
     selector: 'activity-plan-field',
@@ -20,6 +22,7 @@ export class ActivityPlanField extends AbstractField {
 
     public planForm: FormGroup;
     public availableDates: Array<Date>;
+    public dailyTimes: Array<SelectOption>;
 
     private planFormSubscription:Subscription;
 
@@ -29,9 +32,18 @@ export class ActivityPlanField extends AbstractField {
         formGroup: FormGroupDirective,
         element: ElementRef,
         renderer: Renderer2,
-        private dateFactory: DateFactory
+        private dateFactory: DateFactory,
+        private dailyTimeService: DailyTimeService
     ) {
         super(formGroup, element, renderer)
+
+        this.dailyTimes = [];
+        this.dailyTimeService.times.value.forEach((dailyTime) => {
+            this.dailyTimes.push({
+                name: dailyTime.name,
+                value: dailyTime.key
+            });
+        });
     }
 
     public writeValue(activityPlan:ActivityPlan) {

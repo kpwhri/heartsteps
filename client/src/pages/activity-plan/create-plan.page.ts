@@ -24,9 +24,12 @@ export class CreatePlanPage {
         private loadingService: LoadingService,
         activatedRoute: ActivatedRoute
     ) {
-
+        const dateStr:string = activatedRoute.snapshot.paramMap.get('date');
+        const date = this.dateFactory.parseDate(dateStr);
 
         const plan = new ActivityPlan();
+        plan.date = date;
+
         this.planForm = new FormGroup({
             activityPlan: new FormControl(plan)
         });

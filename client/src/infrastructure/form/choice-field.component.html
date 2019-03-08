@@ -1,9 +1,10 @@
 <fieldset class="input-group">
     <legend *ngIf="label">{{label}}</legend>
+    <p *ngIf="!options">No options available</p>
     <ul *ngIf="!selectedOption">
         <li *ngFor="let option of options; let index = index">
             <button 
-                (click)="selectOption(option)"
+                (click)="updateValue(option.value)"
                 [disabled]="isDisabled"
                 type="button"
                 >
