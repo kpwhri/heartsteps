@@ -85,6 +85,6 @@ class WeekService:
         push_message_service = PushMessageService(user=self.__user)
         message = push_message_service.send_data({
             'type': 'weekly-reflection',
-            'current_week': week_serialized.data,
-            'next_week': next_week_serialized.data
+            'currentWeek': week_serialized.data,
+            'nextWeek': next_week_serialized.data
         })        
