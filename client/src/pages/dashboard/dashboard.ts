@@ -33,7 +33,7 @@ export class DashboardPage implements OnInit {
     }
 
     ngOnInit() {
-        this.dailySummaryService.update(new Date());
+        this.dailySummaryService.get(new Date());
     }
 
     public navigateToWeeklySurvey() {
