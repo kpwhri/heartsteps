@@ -1,5 +1,10 @@
 <fieldset class="input-group">
     <legend *ngIf="label">{{label}}</legend>
+    <p *ngIf="error && isInvalid"
+        class="error"
+        >
+        {{error}}
+    </p>
     <p *ngIf="!options">No options available</p>
     <ul *ngIf="!selectedOption">
         <li *ngFor="let option of options; let index = index">

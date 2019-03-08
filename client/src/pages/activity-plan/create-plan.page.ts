@@ -3,7 +3,7 @@ import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
 import { ActivatedRoute } from "@angular/router";
 import { DateFactory } from "@infrastructure/date.factory";
 import { Location } from "@angular/common";
-import { FormGroup, FormControl } from "@angular/forms";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { LoadingService } from "@infrastructure/loading.service";
 
@@ -31,7 +31,7 @@ export class CreatePlanPage {
         plan.date = date;
 
         this.planForm = new FormGroup({
-            activityPlan: new FormControl(plan)
+            activityPlan: new FormControl(plan, Validators.required)
         });
     }
 

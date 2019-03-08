@@ -81,7 +81,7 @@ fieldset.input-group {
 
     & > ul {
         padding: 0em;
-        margin: 0em;
+        margin: 1em 0em;
     }
 
     li {
@@ -93,6 +93,10 @@ fieldset.input-group {
     li > label {
         color: $text-color;
         padding: 0em 1em;
+    }
+
+    li > button {
+        text-align: left;
     }
 }
 
