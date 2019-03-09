@@ -1,14 +1,33 @@
-<div class="input-checkbox">
-    <input id="activity-intensity-vigorous"
-        type="checkbox"
-        name="vigorous"
-        [ngModel]="isVigorous"
-        (ngModelChange)="update($event)"
-        [value]="true"
-        [disabled]="isDisabled"
-        />
-    <label for="activity-intensity-vigorous">
-        Vigorous
-        <span>2x time credit</span>
-    </label>
-</div>
+<fieldset class="intensity input-group">
+    <legend>{{label}}</legend>
+    <ul>
+        <li>
+            <input id="activity-intensity-moderate"
+                type="radio"
+                name="vigorous"
+                [ngModel]="isVigorous"
+                (ngModelChange)="update($event)"
+                [value]="false"
+                [disabled]="isDisabled"
+                />
+            <label for="activity-intensity-moderate">
+                Moderate
+                <span>1x time credit</span>
+            </label>
+        </li>
+        <li>
+            <input id="activity-intensity-vigorous"
+                type="radio"
+                name="vigorous"
+                [ngModel]="isVigorous"
+                (ngModelChange)="update($event)"
+                [value]="true"
+                [disabled]="isDisabled"
+                />
+            <label for="activity-intensity-vigorous">
+                Vigorous
+                <span>2x time credit</span>
+            </label>
+        </li>
+    </ul>
+</fieldset>

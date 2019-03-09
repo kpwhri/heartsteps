@@ -123,20 +123,3 @@ input[type=radio]:checked {
     background: $color-primary;
     mask-image: url('../assets/checked.svg');
 }
-
-.input-radio,
-.input-checkbox {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    
-    > label {
-        color: $text-color;
-        margin: 0em 0.5em;
-        flex-grow: 1;
-    }
-
-    > label > span {
-        display: block;
-    }
-}
