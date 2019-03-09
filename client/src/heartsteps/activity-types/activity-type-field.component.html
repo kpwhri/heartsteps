@@ -1,5 +1,10 @@
 <fieldset class="heartsteps-form-field">
     <legend>{{label}}</legend>
+    <p *ngIf="error && isInvalid"
+        class="error"
+        >
+        {{error}}
+    </p>
     <button *ngIf="activityType"
         (click)="reset()"
         [disabled]="isDisabled"
@@ -8,25 +13,23 @@
         {{activityType.title}}
     </button>
     <ul *ngIf="!activityType">
-        <li *ngFor="let activityType of activityTypeList">
+        <li *ngFor="let option of options">
             <button 
-                (click)="select(activityType)"
+                (click)="updateValue(option.value)"
                 [disabled]="isDisabled"
-                class="activity-type activity-type-{{activityType.name}}"
+                class="activity-type activity-type-{{option.value}}"
                 type="button"
                 >
-                {{activityType.title}}
-            </button>
-        </li>
-        <li>
-            <button *ngIf="!activityType" 
-                (click)="pickOtherActivityType()"
-                [disabled]="isDisabled"
-                class="bottom"
-                type="button"
-                >
-                Other activity
+                {{option.name}}
             </button>
         </li>
     </ul>
+    <button *ngIf="!activityType" 
+        (click)="pickOtherActivityType()"
+        [disabled]="isDisabled"
+        class="bottom"
+        type="button"
+        >
+        Other activity
+    </button>
 </fieldset>
