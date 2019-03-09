@@ -1,7 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
-import { Location } from "@angular/common";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { LoadingService } from "@infrastructure/loading.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
