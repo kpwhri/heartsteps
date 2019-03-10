@@ -7,6 +7,7 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     readonly_fields = [
         'user',
         'url',
+        'name',
         'duration',
         'request_data',
         'request_time',
@@ -15,8 +16,7 @@ class ServiceRequestAdmin(admin.ModelAdmin):
         'response_time'
     ]
 
-    def name(admin, instance):
-        return '%s (%s)' % (instance.user, instance.url)
+    search_fields = ['url', 'user__username', 'name']
 
     def sucessful(admin, instance):
         return instance.sucessful

@@ -138,6 +138,7 @@ class WalkingSuggestionService():
         request_record = ServiceRequest(
             user = self.__user,
             url = url,
+            name = 'WalkingSuggestionService: %s' % (uri),
             request_data = json.dumps(data),
             request_time = timezone.now()
         )
