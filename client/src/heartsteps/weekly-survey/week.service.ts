@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Week } from "./week.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import * as moment from 'moment';
 import { WeekSerializer } from "./week.serializer";
 
 @Injectable()
@@ -16,15 +15,6 @@ export class WeekService {
         return this.heartstepsServer.get('weeks/'+weekId)
         .then((data:any) => {
             return this.deserializeWeek(data);
-        });
-    }
-
-    getWeekGoal(week:Week):Promise<Week> {
-        return this.heartstepsServer.get('weeks/' + week.id + '/goal')
-        .then((data) => {
-            week.goal = data.minutes;
-            week.confidence = data.confidence;
-            return week;
         });
     }
 
@@ -44,9 +34,6 @@ export class WeekService {
         return this.heartstepsServer.get('weeks/current')
         .then((data:any) => {
             return this.deserializeWeek(data);
-        })
-        .then((week:Week) => {
-            return this.getWeekGoal(week);
         });
     }
 
