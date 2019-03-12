@@ -56,6 +56,8 @@ export class ActivityLogPage {
     }
 
     dismiss() {
-        this.router.navigate(['/'])
+        this.router.navigate([{outlets: {
+            modal: null
+        }}]);
     }
 }

@@ -5,7 +5,8 @@
 @import 'theme/start-screen.scss';
 @import 'theme/ionic.scss';
 
-.app-root > .pages > * {
+.app-root > .pages > *,
+.app-root > .modals > * {
     display: flex;
     position: absolute;
     top: 0px;
@@ -15,7 +16,12 @@
     z-index: 10;
 }
 
-.app-root > .pages > router-outlet {
+.app-root > .modals > * {
+    z-index: 15;
+}
+
+.app-root > .pages > router-outlet,
+.app-root > .modals > router-outlet {
     display:none;
 }
 

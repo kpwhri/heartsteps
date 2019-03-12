@@ -1,8 +1,7 @@
 import { Component } from "@angular/core";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { DateFactory } from "@infrastructure/date.factory";
-import { Location } from "@angular/common";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { LoadingService } from "@infrastructure/loading.service";
@@ -20,7 +19,7 @@ export class CreatePlanPage {
     constructor(
         private activityPlanService: ActivityPlanService,
         private dateFactory: DateFactory,
-        private location: Location,
+        private router: Router,
         private loadingService: LoadingService,
         activatedRoute: ActivatedRoute
     ) {
@@ -51,6 +50,6 @@ export class CreatePlanPage {
     }
 
     public back() {
-        this.location.back();
+        this.router.navigate([{outlets:{modal:null}}]);
     }
 }

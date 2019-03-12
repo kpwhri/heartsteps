@@ -23,19 +23,22 @@ import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 const routes: Routes = [
     {
         path: 'plans/create/:date',
-        component: CreatePlanPage
+        component: CreatePlanPage,
+        outlet: 'modal'
     }, {
         path: 'plans/:id/complete',
         component: ActivityPlanCompletePage,
         resolve: {
             activityPlan: CompletePlanResolver
         },
+        outlet: 'modal'
     }, {
         path: 'plans/:id',
         component: ActivityPlanPage,
         resolve: {
             activityPlan: ActivityPlanResolver
         },
+        outlet: 'modal'
     }
 ];
 

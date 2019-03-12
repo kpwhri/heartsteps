@@ -47,11 +47,15 @@ export class ActivityPlanPage {
     }
 
     public goToComplete() {
-        this.router.navigate(['plans', this.activityPlan.id, 'complete']);
+        this.router.navigate([{outlets: {
+            modal: ['plans', this.activityPlan.id, 'complete'].join('/')
+        }}]);
     }
 
     public goToActivityLog() {
-        this.router.navigate(['activities/logs', this.activityPlan.activityLogId]);
+        this.router.navigate([{outlets: {
+            modal: ['activities/logs', this.activityPlan.activityLogId].join('/')
+        }}]);
     }
 
     public delete() {
@@ -83,7 +87,7 @@ export class ActivityPlanPage {
     }
 
     public dismiss() {
-        this.router.navigate(['/']);
+        this.router.navigate([{outlets:{modal:null}}]);
     }
 
 }

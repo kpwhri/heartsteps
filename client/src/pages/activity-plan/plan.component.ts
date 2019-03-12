@@ -48,9 +48,13 @@ export class PlanComponent implements OnInit {
         this.renderer.listen(this.element.nativeElement, 'click', (event) => {
             event.preventDefault();
             if(event.target.nodeName === "BUTTON") {
-                this.router.navigate(['plans', this.plan.id, 'complete']);
+                this.router.navigate([{outlets: {
+                    modal: ['plans', this.plan.id, 'complete'].join('/')
+                }}]);
             } else {
-                this.router.navigate(['plans', this.plan.id]);
+                this.router.navigate([{outlets: {
+                    modal: ['plans', this.plan.id].join('/')
+                }}]);
             }
         })
     }

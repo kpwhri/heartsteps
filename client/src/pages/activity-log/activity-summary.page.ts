@@ -21,9 +21,7 @@ export class ActivitySummaryPage implements OnInit {
     constructor(
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private dateFactory: DateFactory,
         private location: Location,
-        private activityLogService: ActivityLogService
     ) {}
 
     ngOnInit() {
@@ -32,7 +30,9 @@ export class ActivitySummaryPage implements OnInit {
     }
 
     openActivityLog(log:ActivityLog) {
-        this.router.navigate(['activities', 'logs', log.id]);
+        this.router.navigate([{outlets:{
+            modal: ['activities', 'logs', log.id].join('/')
+        }}]);
     }
 
     back() {

@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
 import { ActivityLogPage } from './activity-log.page';
 import { RouterModule, Routes } from '@angular/router';
 import { ActivitySummaryPage } from './activity-summary.page';
@@ -28,7 +27,8 @@ const routes: Routes = [{
   component: ActivityLogPage,
   resolve: {
     'activityLog': ActivityLogResolver
-  }
+  },
+  outlet: 'modal'
 }]
 
 @NgModule({
