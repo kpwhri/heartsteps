@@ -16,36 +16,41 @@ import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
 
-const homeRoutes: Routes = [{
-        path: 'dashboard',
-        component: DashboardPage,
-        resolve: {
-            currentWeek: CurrentWeekResolver
-        },
-        outlet: 'home'
-    }, {
-        path: 'stats',
-        component: StatsPage,
-        resolve: {
-            summaries: CurrentDailySummaryResolver
-        },
-        outlet: 'home'
-    }, {
-        path: 'planning',
-        component: PlanPage,
-        resolve: {
-            currentWeek: CurrentWeekResolver
-        },
-        outlet: 'home'
-    }, {
-        path: 'library',
-        component: ResourceLibraryPage,
-        outlet: 'home'
-    }, {
-        path: 'settings',
-        component: SettingsPage,
-        outlet: 'home'
-}];
+const routes:Routes = [
+    {
+        path: 'home',
+        component: HomePage,
+        children: [{
+            path: 'dashboard',
+            component: DashboardPage,
+            resolve: {
+                currentWeek: CurrentWeekResolver
+            }
+        }, {
+            path: 'stats',
+            component: StatsPage,
+            resolve: {
+                summaries: CurrentDailySummaryResolver
+            }
+        }, {
+            path: 'planning',
+            component: PlanPage,
+            resolve: {
+                currentWeek: CurrentWeekResolver
+            }
+        }, {
+            path: 'library',
+            component: ResourceLibraryPage
+        }, {
+            path: 'settings',
+            component: SettingsPage
+        }, {
+            path: '',
+            redirectTo: 'dashboard',
+            pathMatch: 'full'
+        }]
+    }
+]
 
 @NgModule({
     declarations: [
@@ -71,7 +76,7 @@ const homeRoutes: Routes = [{
         SettingsModule,
         BrowserModule,
         IonicPageModule.forChild(HomePage),
-        RouterModule.forChild(homeRoutes)
+        RouterModule.forChild(routes)
     ],
     exports: [
         HomePage,

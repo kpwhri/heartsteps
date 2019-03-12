@@ -62,13 +62,12 @@ export class MyApp {
     }
 
     setDashboard(participant:any) {
-        this.showDashboard = false;
         if(!participant) {
             this.router.navigate(['welcome']);
         } else if (!participant.profileComplete) {
             this.router.navigate(['onboard']);
         } else {
-            this.showDashboard = true;
+            this.router.navigate(['home']);
         }
     }
 }
