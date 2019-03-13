@@ -69,7 +69,7 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
     public pickOtherActivityType() {
         this.activityTypeModalController.pick()
         .then((activityType) => {
-            this.activityType = activityType;
+            this.updateValue(activityType.name);
         })
         .catch(() => {
             console.log('Dismissed');
