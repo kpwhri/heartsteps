@@ -2,13 +2,12 @@ import { Component } from "@angular/core";
 import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
 import { EnrollmentService } from "@heartsteps/enrollment/enrollment.service";
 import { Router } from "@angular/router";
-import { WeekService } from "@heartsteps/weekly-survey/week.service";
-import { Week } from "@heartsteps/weekly-survey/week.model";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
+import { Platform } from "ionic-angular";
 
 @Component({
     templateUrl: 'settings-page.html',
@@ -23,7 +22,8 @@ export class SettingsPage {
         private alertDialog: AlertDialogController,
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
-        private antiSedentaryService: AntiSedentaryService
+        private antiSedentaryService: AntiSedentaryService,
+        private platform: Platform
     ){}
 
     public testWalkingSuggestion() {
@@ -48,7 +48,7 @@ export class SettingsPage {
         });
     }
 
-    public testMorningMessage() {
+    private requestMorningMessage() {
         this.loadingService.show("Requesting morning message");
         this.morningMessageService.requestNotification()
         .catch(() => {
@@ -57,6 +57,25 @@ export class SettingsPage {
         .then(() => {
             this.loadingService.dismiss();
         });
+    }
+
+    private loadMorningMessage() {
+        this.loadingService.show('Loading morning message')
+        this.morningMessageService.load()
+        .catch(() => {
+            this.alertDialog.show("Error loading morning message");
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
+    }
+
+    public testMorningMessage() {
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            this.requestMorningMessage();
+        } else {
+            this.loadMorningMessage();
+        }
     }
 
     public testWeeklySurveyMessage() {

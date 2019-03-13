@@ -2,6 +2,7 @@ app-range-field.heartsteps-form-field {
     ul {
         @extend ul.horizontal;
         justify-content: space-between;
+        margin-bottom: 0em;
     }
 
     ul li label {
@@ -15,7 +16,7 @@ app-range-field.heartsteps-form-field {
 
     ul li input[type=radio] {
         appearance: none;
-        margin: 0.5em;
+        margin: 0em;
         width: 2em;
         height: 2em;
 
@@ -41,6 +42,7 @@ app-range-field.heartsteps-form-field {
         flex-direction: row;
         flex-wrap: nowrap;
         justify-content: space-between;
+        margin: 0em 0em 1em;
         
         > * {
             @extend label;

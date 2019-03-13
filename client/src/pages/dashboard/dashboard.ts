@@ -5,6 +5,8 @@ import { DateFactory } from '@infrastructure/date.factory';
 import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/weekly-survey.service';
 import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
 import { Router } from '@angular/router';
+import { MorningMessageService } from '@heartsteps/morning-message/morning-message.service';
+import { MorningMessage } from '@heartsteps/morning-message/morning-message.model';
 
 @IonicPage()
 @Component({
@@ -17,11 +19,13 @@ import { Router } from '@angular/router';
 })
 export class DashboardPage implements OnInit {
 
+    public morningMessage: MorningMessage;
     public weeklySurvey:WeeklySurvey;
     public today:Date;
 
     constructor(
         private weeklySurveyService: WeeklySurveyService,
+        private morningMessageService: MorningMessageService,
         private dailySummaryService: DailySummaryService,
         private router: Router
     ) {
@@ -30,6 +34,11 @@ export class DashboardPage implements OnInit {
         this.weeklySurveyService.survey.subscribe((survey) => {
             this.weeklySurvey = survey;
         });
+
+        this.morningMessageService.get()
+        .then((morningMessage) => {
+            this.morningMessage = morningMessage;
+        })
     }
 
     ngOnInit() {
@@ -38,5 +47,9 @@ export class DashboardPage implements OnInit {
 
     public navigateToWeeklySurvey() {
         this.router.navigate(['weekly-survey']);
+    }
+
+    public navigateToMorningMessage() {
+        this.router.navigate(['morning-survey']);
     }
 }

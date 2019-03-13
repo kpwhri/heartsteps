@@ -105,18 +105,22 @@ export class LocalNotificationService {
     }
 
     private createNotification(id: string, text: string):Promise<boolean> {
-        return this.getNotificationId()
-        .then((notificationId) => {
-            cordova.plugins.notification.local.schedule({
-                id: notificationId,
-                text: text,
-                data: {
-                    messageId: id
-                },
-                foreground: true
-            })
+        if(this.platform.is('android') || this.platform.is('ios')) {
+            return this.getNotificationId()
+            .then((notificationId) => {
+                cordova.plugins.notification.local.schedule({
+                    id: notificationId,
+                    text: text,
+                    data: {
+                        messageId: id
+                    },
+                    foreground: true
+                })
+                return Promise.resolve(true);
+            });
+        } else {
             return Promise.resolve(true);
-        });
+        }
     }
 
     private getNotificationId():Promise<number> {

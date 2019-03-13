@@ -1,8 +1,15 @@
 <nav class="banners">
     <ul>
-        <li *ngIf="weeklySurvey"><a (click)="navigateToWeeklySurvey()">
-            It's time to make your weekly plan and set your goal for the following week.
-        </a></li>
+        <li *ngIf="weeklySurvey">
+            <a (click)="navigateToWeeklySurvey()">
+                It's time to make your weekly plan and set your goal for the following week.
+            </a>
+        </li>
+        <li *ngIf="morningMessage">
+            <a (click)="navigateToMorningMessage()">
+                Good morning.
+            </a>
+        </li>
     </ul>
 </nav>
 <heartsteps-anchor-message></heartsteps-anchor-message>

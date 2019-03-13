@@ -67,7 +67,7 @@ export class MyApp {
         } else if (!participant.profileComplete) {
             this.router.navigate(['onboard']);
         } else {
-            this.router.navigate(['home']);
+            // this.router.navigate(['home']);
         }
     }
 }

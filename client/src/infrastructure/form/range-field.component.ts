@@ -1,5 +1,5 @@
-import { Component, forwardRef, ElementRef, Renderer2, Input } from "@angular/core";
-import { NG_VALUE_ACCESSOR, FormGroupDirective } from "@angular/forms";
+import { Component, forwardRef, Input } from "@angular/core";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { AbstractField } from "./abstract-field";
 
 @Component({

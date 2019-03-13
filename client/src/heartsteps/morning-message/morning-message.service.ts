@@ -5,6 +5,7 @@ import { StorageService } from "@infrastructure/storage.service";
 import { MorningMessage } from "./morning-message.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { MessageService } from '@heartsteps/notifications/message.service';
+import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
 
 const storageKey:string = 'morning-message';
 
@@ -14,7 +15,8 @@ export class MorningMessageService {
     constructor(
         private storage: StorageService,
         private heartstepsServer: HeartstepsServer,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private messageReceiptService: MessageReceiptService
     ){}
 
     public get():Promise<MorningMessage> {
@@ -37,10 +39,31 @@ export class MorningMessageService {
     public set(message: MorningMessage):Promise<MorningMessage> {
         return this.storage.set(storageKey, this.serialize(message))
         .then(() => {
-            return this.messageService.createNotification(message.id, message.notification);
+            if(message.id) {
+                return this.messageService.createNotification(message.id, message.notification);
+            } else {
+                return Promise.resolve(true);
+            }
         })
         .then(() => {
             return message;
+        });
+    }
+
+    public complete():Promise<boolean> {
+        return this.get()
+        .then((morningMessage) => {
+            if(morningMessage.id) {
+                return this.messageReceiptService.engaged(morningMessage.id)
+            } else {
+                return Promise.resolve(true)
+            }
+        })
+        .then(() => {
+            return this.clear();
+        })
+        .catch(() => {
+            return Promise.resolve(true);
         });
     }
 
@@ -79,8 +102,12 @@ export class MorningMessageService {
     }
 
     public serialize(message:MorningMessage):any {
+        let messageId:string = undefined;
+        if(message.id) {
+            messageId = message.id;
+        }
         return {
-            id: message.id,
+            id: messageId,
             date: moment(message.date).format('YYYY-MM-DD'),
             notification: message.notification,
             text: message.text,
