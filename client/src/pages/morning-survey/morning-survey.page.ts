@@ -12,7 +12,7 @@ export class MorningSurveyPage implements OnInit {
 
     private morningMessage:MorningMessage;
 
-    private pages:Array<any> = [{
+    public pages:Array<any> = [{
         key: 'start',
         title: 'Good Morning',
         component: StartPageComponent
