@@ -20,7 +20,11 @@ import { NotificationsModule } from '@heartsteps/notifications/notifications.mod
 import { WeeklySurveyModule } from '@pages/weekly-survey/weekly-survey.module';
 import { MorningSurveyPageModule } from '@pages/morning-survey/morning-survey.module';
 
-const appRoutes:Routes = []
+const appRoutes:Routes = [{
+  path: '',
+  redirectTo: '/home/dashboard',
+  pathMatch: 'full'
+}]
 
 @NgModule({
   declarations: [
