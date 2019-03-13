@@ -21,37 +21,38 @@ export class SettingsPage {
         private router:Router,
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
-        private weekService: WeekService,
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private antiSedentaryService: AntiSedentaryService
     ){}
 
     public testWalkingSuggestion() {
+        this.loadingService.show('Requesting walking suggestion message');
         this.walkingSuggestionService.createTestDecision()
-        .then(() => {
-            this.alertDialog.show('Walking suggestion sending');
-        })
         .catch(() => {
             this.alertDialog.show('Error sending test message');
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
     public testAntisedentaryMessage() {
+        this.loadingService.show("Requesting anti-sedentary message");
         this.antiSedentaryService.sendTestMessage()
-        .then(() => {
-            this.alertDialog.show('Anti sedentary message sending');
-        })
         .catch(() => {
-            this.alertDialog.show('Error sending test message');
+            this.alertDialog.show('Error sending anti-sedentary message');
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
     public testMorningMessage() {
-        this.loadingService.show("Getting morning message");
+        this.loadingService.show("Requesting morning message");
         this.morningMessageService.requestNotification()
-        .catch((error) => {
-            return this.alertDialog.show(error);
+        .catch(() => {
+            this.alertDialog.show("Error sending morning message");
         })
         .then(() => {
             this.loadingService.dismiss();
@@ -59,7 +60,14 @@ export class SettingsPage {
     }
 
     public testWeeklySurveyMessage() {
-        this.weeklySurveyService.testReflectionNotification();
+        this.loadingService.show("Requesting weekly survey");
+        this.weeklySurveyService.testReflectionNotification()
+        .catch(() => {
+            this.alertDialog.show("Error sending weekly survey message");
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 
     public unenroll() {
