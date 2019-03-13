@@ -14,10 +14,12 @@ class ActivityTypeAdminExtended(ActivityTypeAdmin):
         connections = FitbitActivityToActivityType.objects.filter(activity_type=activity_type).all()
         connections = list(connections)
 
-        if len(connections) > 0:
-            list_items = []
+        list_items = []
+        if len(connections) > 0:            
             for connection in connections:
-                list_items.append('<p>%s (ID: %s)</p>' % (connection.fitbit_activity.name, connection.fitbit_activity.fitbit_id))
+                if connection:
+                    list_items.append('%s (ID: %s)' % (connection.fitbit_activity_type.name, connection.fitbit_activity_type.fitbit_id))
+        if len(list_items) > 0:
             return ''.join(list_items)
         else:
             return "No connected fitbit activity types"
