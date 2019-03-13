@@ -5,18 +5,22 @@
     >
     <app-range-field
         formControlName="busy"
-        label="How busy is your day going to be today?"  
+        label="How busy is your day going to be today?"
+        [options]="busyOptions"
     ></app-range-field>
     <app-range-field
         formControlName="rested"
         label="How well rested do you feel this morning?"
+        [options]="restedOptions"
     ></app-range-field>
     <app-range-field
         formControlName="committed"
         label="How committed do you feel this morning to being physically active today?"
+        [options]="committedOptions"
     ></app-range-field>
     <app-choice-field
         formControlName="mood"
+        label="Which of these best describes how you feel this morning?"
         [options]="moodChoices"
         >
     </app-choice-field>
