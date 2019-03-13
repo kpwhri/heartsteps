@@ -1,5 +1,4 @@
 .start-screen,
-.start-screen.ion-page,
 .alternate-background,
 .heartsteps-message-modal {
     @extend .page;
@@ -32,15 +31,12 @@
         border-width: 0px;
     }
 
-    button {
-        border: 1px #fff solid;
-        text-align: center;
-        color: #fff;
+    button,
+    input[type=submit],
+    button[type=button] {
+        border-color: $color-white;
+        color: $color-white;
         background-color: transparent;
-        font-size: 1.2em;
-        padding: 0.75em;
-        display: block;
-        width: 100%;
     }
 
     a {
@@ -57,7 +53,19 @@
 }
 
 .start-screen form {
-    label {
+    label, legend, button {
+        color: $color-white;
+    }
+
+    button {
+        border-width: 0px;
+    }
+
+    app-range-field.heartsteps-form-field ul li input[type=radio] {
+        background-color: $color-white;
+    }
+
+    ul > li >button {
         color: $color-white;
     }
 }
