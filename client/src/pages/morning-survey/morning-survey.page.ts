@@ -37,7 +37,7 @@ export class MorningSurveyPage implements OnInit {
     }
 
     finish() {
-        this.morningMessageService.clear()
+        this.morningMessageService.complete()
         .then(() => {
             this.router.navigate(['/']);
         });
