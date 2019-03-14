@@ -78,15 +78,34 @@ export class SettingsPage {
         }
     }
 
-    public testWeeklySurveyMessage() {
+    private requestWeeklySurvey() {
         this.loadingService.show("Requesting weekly survey");
         this.weeklySurveyService.testReflectionNotification()
         .catch(() => {
-            this.alertDialog.show("Error sending weekly survey message");
+            this.alertDialog.show("Error sending weekly survey");
         })
         .then(() => {
             this.loadingService.dismiss();
         });
+    }
+
+    private loadWeeklySurvey() {
+        this.loadingService.show("Loading weekly survey");
+        this.weeklySurveyService.testReflection()
+        .catch(() => {
+            this.alertDialog.show("Error loading weekly survey");
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        })
+    }
+
+    public testWeeklySurveyMessage() {
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            this.requestWeeklySurvey();
+        } else {
+            this.loadWeeklySurvey();
+        }
     }
 
     public unenroll() {

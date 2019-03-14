@@ -37,6 +37,13 @@ export class WeekService {
         });
     }
 
+    public getNextWeek():Promise<Week> {
+        return this.heartstepsServer.get('weeks/next')
+        .then((data:any) => {
+            return this.deserializeWeek(data);
+        });
+    }
+
     public deserializeWeek(data:any):Week {
         return this.weekSerializer.deserialize(data);
     }

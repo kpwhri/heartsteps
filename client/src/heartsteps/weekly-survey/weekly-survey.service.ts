@@ -8,6 +8,7 @@ import { WeekSerializer } from "./week.serializer";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { MessageService } from "@heartsteps/notifications/message.service";
+import { WeekService } from "./week.service";
 
 export class WeeklySurvey {
     public currentWeek:Week;
@@ -25,6 +26,7 @@ export class WeeklySurveyService {
 
     constructor(
         private storage:StorageService,
+        private weekService: WeekService,
         private weekSerializer: WeekSerializer,
         private heartstepsServer: HeartstepsServer,
         private messageReceiptService: MessageReceiptService,
@@ -47,6 +49,22 @@ export class WeeklySurveyService {
         .then(() => {
             return true;
         });
+    }
+
+    public testReflection():Promise<boolean> {
+        return Promise.all([
+            this.weekService.getCurrentWeek(),
+            this.weekService.getNextWeek()
+        ])
+        .then((results) => {
+            const currentWeek = results[0];
+            const nextWeek = results[1];
+            const expires = moment().add(1, 'hours').toDate();
+            return this.set(currentWeek, nextWeek, expires);
+        })
+        .then(() => {
+            return true;
+        })
     }
 
     public processNotification(message:Message):Promise<boolean> {

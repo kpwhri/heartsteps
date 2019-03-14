@@ -1,13 +1,42 @@
-<form>
-    <div>
-        <label>How much are you enjoying the physical activities you currently do?</label>
-        <heartsteps-range ></heartsteps-range>
-    </div>
-    <div>
-        <label>How well are these activities fitting into your daily life right now?</label>
-        <heartsteps-range></heartsteps-range>
-    </div>
-    <div class="controls">
-        <button (click)="nextPage()">Next</button>
-    </div>
-</form>
+<app-form
+    [formGroup]="form"
+    submitLabel="Next page"
+    (onSubmit)="nextPage()"
+    >
+    <app-range-field
+        formControlName="enjoy"
+        label="How much are you enjoying the physical activities you did this week?"
+        [options]="muchOptions"
+        >
+    </app-range-field>
+    <app-range-field
+        formControlName="fit"
+        label="How well is physical activity currently fitting into your daily routine?"
+        [options]="muchOptions"
+        >
+    </app-range-field>
+    <app-range-field
+        formControlName="supported"
+        label="People in my life supported me in my efforts to be more active this past week."
+        [options]="trueOptions"
+        >
+    </app-range-field>
+    <app-range-field
+        formControlName="important"
+        label="This past week, I walked or exercised because it's important to my life."
+        [options]="muchOptions"
+        >
+    </app-range-field>
+    <app-range-field
+        formControlName="other"
+        label="This past week, I walked or exercised because other people think I should."
+        [options]="trueOptions"
+        >
+    </app-range-field>
+    <app-range-field
+        formControlName="stressed"
+        label="This week, I walked or exercised because I felt restless, stressed, or in a bad mood."
+        [options]="trueOptions"
+        >
+    </app-range-field>
+</app-form>

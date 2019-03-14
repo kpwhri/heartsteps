@@ -12,6 +12,8 @@ import { HeartstepsComponentsModule } from '@infrastructure/components/component
 import { NextWeekGoalComponent } from './next-week-goal.component';
 import { NextWeekPlansComponent } from './next-week-plans.component';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
+import { FormModule } from '@infrastructure/form/form.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
     {
@@ -48,6 +50,8 @@ const routes: Routes = [
     HeartstepsComponentsModule,
     HeartstepsWeeklySurveyModule,
     ActivityPlanPageModule,
+    FormModule,
+    ReactiveFormsModule,
     CurrentWeekModule,
     IonicPageModule.forChild(WeeklySurveyPage),
     RouterModule.forChild(routes)
