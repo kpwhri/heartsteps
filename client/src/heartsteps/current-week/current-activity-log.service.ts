@@ -13,25 +13,29 @@ export class CurrentActivityLogService {
     private storage: DocumentStorage;
 
     constructor(
-        documentStorageService: DocumentStorageService,
+        private documentStorageService: DocumentStorageService,
         private activityLogService: ActivityLogService,
         private currentWeekService: CurrentWeekService
-    ) {
-        this.storage = documentStorageService.create('activity-logs');
-        this.load();
+    ) {}
 
+    public setup():Promise<boolean> {
+        this.storage = this.documentStorageService.create('activity-logs');
         this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
             this.storage.set(activityLog.id, this.activityLogService.serialize(activityLog))
             .then(() => {
                 this.load();
             });
         });
-
         this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
             this.storage.remove(activityLog.id)
             .then(() => {
                 this.load();
             })
+        });
+
+        return this.load()
+        .then(() => {
+            return true;
         });
     }
 

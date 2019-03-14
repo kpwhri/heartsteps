@@ -8,6 +8,7 @@ import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
+import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 
 
 @Injectable()
@@ -22,7 +23,8 @@ export class ProfileService {
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService,
-        private currentWeekService: CurrentWeekService
+        private currentWeekService: CurrentWeekService,
+        private currentActivityLogService: CurrentActivityLogService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -53,7 +55,8 @@ export class ProfileService {
             this.loadReflectionTime(),
             this.loadContactInformation(),
             this.loadFitbit(),
-            this.loadCurrentWeek()
+            this.loadCurrentWeek(),
+            this.loadCurrentActivityLogs()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -236,6 +239,16 @@ export class ProfileService {
 
     loadCurrentWeek():Promise<boolean> {
         return this.currentWeekService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    loadCurrentActivityLogs(): Promise<boolean> {
+        return this.currentActivityLogService.setup()
         .then(() => {
             return true;
         })

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Location } from '@angular/common';
-import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
 import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 

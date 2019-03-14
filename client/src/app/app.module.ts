@@ -19,6 +19,7 @@ import { AuthorizationService } from './authorization.service';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 import { WeeklySurveyModule } from '@pages/weekly-survey/weekly-survey.module';
 import { MorningSurveyPageModule } from '@pages/morning-survey/morning-survey.module';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 
 const appRoutes:Routes = [{
   path: '',
@@ -32,6 +33,7 @@ const appRoutes:Routes = [{
   ],
   imports: [
     WelcomePageModule,
+    CurrentWeekModule.forRoot(),
     OnboardPageModule,
     HomePageModule,
     NotificationsModule,
