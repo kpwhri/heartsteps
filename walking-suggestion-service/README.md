@@ -106,7 +106,8 @@ Below is an example of json input.
   	  If neither of above is true, then the recieved input for the correspond decision time will be a number; including 0, 
 	meaning that the pariticipant is classified as "wear the sensor" and the Fibit collects 0 step during the 30 min window before (after) the decision time.
 
-###CONDITION CHECKING
+
+### CONDITION CHECKING
 
 The current version of *initialize* service requires the input satisfying the following conditions 
 **(otherwise, the service will send Peng and Nick an email and/or write a warning with a dump of the data in a file; need to decide what to do then)**
