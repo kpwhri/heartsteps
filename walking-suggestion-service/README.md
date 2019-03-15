@@ -78,10 +78,10 @@ Below is an example of json input.
 
   - The daily step count for a day will be marked as `null` if any of the followings holds:
   
-  		(1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data 
+  	(1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data 
 	**(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for each day)**
 	
-	    (2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and
+	(2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and
 	thus the Fitbit server does not have the step count data)
 
    	 If neither of above is true, then the recieved input for the correspond day will be a number (including 0, meaning 
