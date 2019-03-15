@@ -130,12 +130,11 @@ To be specific, for the pre 30 min step data, there is at least one
 
   And for the post 30 min step data, there is at least one
 
-
-    1. precommute decision point with post decision point step count.   
-    2. midday decision point with a post decision point step count
-    3. mid-afternoon decision point with a post decision point step count
-    4. evening commute decision point with a post decision point step count.   
-    5. after dinner decision point with a post decision point step count
+	 1. precommute decision point with post decision point step count.   
+	 2. midday decision point with a post decision point step count
+	 3. mid-afternoon decision point with a post decision point step count
+	 4. evening commute decision point with a post decision point step count.   
+	 5. after dinner decision point with a post decision point step count
 
 
 
