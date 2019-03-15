@@ -1,7 +1,23 @@
-<article class="page">
-    <header>
-        <h2>Activity Log</h2>
-        <a class="back" (click)="back()">Back</a>
-    </header>
-    <heartsteps-activity-log-form [activity-log]="activityLog" (saved)="back()"></heartsteps-activity-log-form>
-</article>
+<app-page
+    title="Activity Log"
+    dismiss="Cancel"
+    (onDismiss)="dismiss()"
+    >
+    <app-form
+        [formGroup]="form"
+        submitLabel="Update"
+        (onSubmit)="update()"
+        >
+        <activity-log-field
+            formControlName="activityLog"
+            >
+        </activity-log-field>
+
+    </app-form>
+    <button
+        (click)="delete()"
+        class="danger"
+        >
+        Delete
+    </button>
+</app-page>

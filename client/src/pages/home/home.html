@@ -2,13 +2,13 @@
     <h2>{{pageTitle}}</h2>
 </header>
 <ion-content>
-    <router-outlet name="home"></router-outlet>
+    <router-outlet></router-outlet>
 </ion-content>
 <nav>
     <a *ngFor="let tab of tabs"
         class="{{tab.key}}"
-        [ngClass]="{active: activeTab==tab.key}"
-        (click)="show(tab.key)"
+        [routerLink]="[tab.key]"
+        routerLinkActive="active"     
         >
         {{tab.name}}
     </a>

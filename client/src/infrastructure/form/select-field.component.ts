@@ -17,6 +17,7 @@ import { SelectOption, SelectDialogController } from "@infrastructure/dialogs/se
 export class SelectFieldComponent extends AbstractField {
 
     @Input('options') public options:Array<SelectOption>
+    public selectedOption: SelectOption;
     public displayValue: string;
 
     constructor(
@@ -45,13 +46,26 @@ export class SelectFieldComponent extends AbstractField {
 
     public writeValue(value:any) {
         this.value = value;
+        this.selectedOption = undefined;
+        if(this.options && this.options.length) {
+            const option = this.options.find((option) => {
+                return option.value === value
+            });
+            if(option) {
+                this.selectedOption = option;
+                this.value = option.value;
+            }
+        }
         this.updateDisplayValue();
     }
 
     public updateDisplayValue() {
-        const option = this.options.find((option) => {
-            return option.value === this.value;
-        });
+        let option: SelectOption;
+        if (this.options && this.options.length) {
+            option = this.options.find((option) => {
+                return option.value === this.value;
+            });
+        }
         if(option) {
             this.displayValue = option.name;
         } else {
@@ -62,6 +76,7 @@ export class SelectFieldComponent extends AbstractField {
     public updateValue(value:any) {
         this.writeValue(value);
         this.onChange(value);
+        this.onTouched();
     }
 
 }

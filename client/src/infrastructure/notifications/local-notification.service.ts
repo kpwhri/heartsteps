@@ -18,6 +18,7 @@ export class LocalNotificationService {
     ) {}
 
     public setup():Promise<boolean> {
+        console.log('local notification setup')
         if (this.platform.is('ios') || this.platform.is('android')) {
             this.setupNotificationListener();
             if(cordova.plugins.notification.local.fireQueuedEvents) {
@@ -27,6 +28,17 @@ export class LocalNotificationService {
         } else {
             return Promise.resolve(true);
         }
+    }
+
+    private setupNotificationListener() {
+        cordova.plugins.notification.local.on('click', function(notification) {
+            console.log('local notification click');
+            this.zone.run(() => {
+                if(notification.data.messageId) {
+                    this.clicked.next(notification.data.messageId);
+                }
+            });
+        }, this);
     }
 
     public disable() {
@@ -77,29 +89,38 @@ export class LocalNotificationService {
     }
 
     private requestPermission(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            cordova.plugins.notification.local.requestPermission(function(granted) {
-                if(granted) {
-                    resolve(true);
-                } else {
-                    reject('Permission rejected');
-                }
-            });
-        })
+        if(this.platform.is('ios')) {
+            return new Promise((resolve, reject) => {
+                cordova.plugins.notification.local.requestPermission(function(granted) {
+                    if(granted) {
+                        resolve(true);
+                    } else {
+                        reject('Permission rejected');
+                    }
+                });
+            })
+        } else {
+            return Promise.resolve(true);
+        }
     }
 
     private createNotification(id: string, text: string):Promise<boolean> {
-        return this.getNotificationId()
-        .then((notificationId) => {
-            cordova.plugins.notification.local.schedule({
-                id: notificationId,
-                text: text,
-                data: {
-                    messageId: id
-                }
-            })
+        if(this.platform.is('android') || this.platform.is('ios')) {
+            return this.getNotificationId()
+            .then((notificationId) => {
+                cordova.plugins.notification.local.schedule({
+                    id: notificationId,
+                    text: text,
+                    data: {
+                        messageId: id
+                    },
+                    foreground: true
+                })
+                return Promise.resolve(true);
+            });
+        } else {
             return Promise.resolve(true);
-        });
+        }
     }
 
     private getNotificationId():Promise<number> {
@@ -124,15 +145,5 @@ export class LocalNotificationService {
         } else {
             return number;
         }
-    }
-
-    private setupNotificationListener() {
-        cordova.plugins.notification.local.on('click', function(notification) {
-            this.zone.run(() => {
-                if(notification.data.messageId) {
-                    this.clicked.next(notification.data.messageId);
-                }
-            });
-        }, this);
     }
 }

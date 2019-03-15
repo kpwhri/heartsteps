@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { StartPageComponent } from "./start.page";
 import { SurveyPageComponent } from "./survey.page";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 
 @Component({
@@ -12,7 +13,7 @@ export class MorningSurveyPage implements OnInit {
 
     private morningMessage:MorningMessage;
 
-    private pages:Array<any> = [{
+    public pages:Array<any> = [{
         key: 'start',
         title: 'Good Morning',
         component: StartPageComponent
@@ -23,6 +24,7 @@ export class MorningSurveyPage implements OnInit {
     }]
 
     constructor(
+        private morningMessageService: MorningMessageService,
         private activatedRoute: ActivatedRoute,
         private element:ElementRef,
         private renderer:Renderer2,
@@ -35,7 +37,10 @@ export class MorningSurveyPage implements OnInit {
     }
 
     finish() {
-        this.router.navigate(['/']);
+        this.morningMessageService.complete()
+        .then(() => {
+            this.router.navigate(['/']);
+        });
     }
 
 }

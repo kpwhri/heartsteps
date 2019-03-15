@@ -356,6 +356,11 @@ class DecisionAvailabilityTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
+        self.configuration = Configuration.objects.create(
+            user = self.user,
+            enabled = True,
+            service_initialized_date = timezone.now()
+        )
         self.account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )

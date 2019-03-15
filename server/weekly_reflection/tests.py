@@ -15,6 +15,7 @@ from push_messages.services import PushMessageService, Device
 from weeks.models import Week
 
 from .models import ReflectionTime, User
+from .signals import weekly_reflection
 from .tasks import send_reflection
 
 class BaseTestCase(TestCase):
@@ -77,47 +78,16 @@ class WeeklyReflectionView(BaseTestCase):
         self.assertEqual(reflection_time.daily_task.hour, 8)
         self.assertEqual(reflection_time.daily_task.minute, 15)
 
-class WeeklyReflectionTask(BaseTestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        push_message_mock = patch.object(PushMessageService, 'send_data')
-        self.addCleanup(push_message_mock.stop)
-        self.send_data = push_message_mock.start()
-
-        Device.objects.create(
-            user = self.user,
-            active = True
-        )
-
-        Week.objects.create(
-            user = self.user,
-            start_date = date(2018, 12, 24),
-            end_date = date(2018, 12, 30),
-        )
-
-    def test_send_reflection_sends_push_notification(self):
+class WeeklyReflectionTask(TestCase):
+    
+    @patch.object(weekly_reflection, 'send')
+    def test_send_reflection_sends_push_notification(self, weekly_reflection):
         send_reflection('test')
 
-        self.send_data.assert_called()
-
-    def test_send_reflection_creates_next_week(self):
-        send_reflection('test')
-
-        self.assertEqual(2, Week.objects.count())
-
-    def test_send_reflection_does_not_create_next_week_if_exists(self):
-        Week.objects.create(
-            user = self.user,
-            start_date = date(2018, 12, 31),
-            end_date = date(2019, 1, 3)
+        weekly_reflection.assert_called_with(
+            User,
+            username = 'test'
         )
-
-        send_reflection('test')
-
-        next_week = Week.objects.get(start_date=date(2018, 12, 31))
-        self.assertEqual(next_week.end_date, date(2019, 1, 3))
 
 class ReflectionTimeView(APITestCase):
 

@@ -118,7 +118,7 @@ app-form {
         mask-size: 100% 100%;
     }
 
-    label {
+    label, legend {
         color: $color-danger;
     }
 }
@@ -127,7 +127,7 @@ app-form {
 .heartsteps-form-field.is-focused.is-invalid {
     border-bottom-color: $color-primary;
 
-    label {
+    label, legend {
         color: $color-primary;
     }
 }

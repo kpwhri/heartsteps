@@ -1,0 +1,18 @@
+<article>
+    <h3>{{formattedDate}}</h3>
+    <ul class="horizontal">
+        <li>{{totalMinutes}} minutes</li>
+        <li>{{totalSteps}} steps</li>
+        <li>{{totalMiles}} miles</li>
+    </ul>
+    <ul *ngIf="activities">
+        <li *ngFor="let activityLog of activities">
+            <heartsteps-activity-log
+                [activityLog]="activityLog"
+                (click)="openActivityLog(activityLog)"
+                >
+            </heartsteps-activity-log>
+        </li>
+    </ul>
+    <p *ngIf="!activities">No recorded activities</p>
+</article>

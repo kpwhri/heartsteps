@@ -98,7 +98,7 @@ export class ActivityPlanService {
         const plansSubject:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
         this.plans.subscribe((allPlans:Array<ActivityPlan>) => {
             const plans:Array<ActivityPlan> = allPlans.filter((plan) => {
-                if(moment(date).format("YYYY-MM-DD") === moment(plan.start).format("YYYY-MM-DD")) {
+                if(moment(date).format("YYYY-MM-DD") === moment(plan.date).format("YYYY-MM-DD")) {
                     return true;
                 } else {
                     return false;
@@ -185,8 +185,8 @@ export class ActivityPlanService {
 
     private sortPlans(plans:Array<ActivityPlan>):Array<ActivityPlan> {
         plans.sort((planA:ActivityPlan, planB:ActivityPlan) => {
-            if (planA.start > planB.start) return 1;
-            if (planB.start > planA.start) return -1;
+            if (planA.date > planB.date) return 1;
+            if (planB.date > planA.date) return -1;
             return 0;
         })
         return plans;

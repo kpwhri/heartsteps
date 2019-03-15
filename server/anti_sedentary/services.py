@@ -245,12 +245,15 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
         pass
 
     def update_availability(self):
-        if self.__anti_sedentary_service.can_randomize(self.decision.time):
+        if self.__anti_sedentary_service.is_sedentary_at(self.decision.time):
+            self.decision.sedentary = True
             self.decision.available = True
             self.decision.save()
             super().update_availability()
         else:
+            self.decision.sedentary = False
             self.decision.available = False
+            self.decision.unavailable_reason = 'Not sedentary'
             self.decision.save()
 
     def get_time_of_day_context(self):

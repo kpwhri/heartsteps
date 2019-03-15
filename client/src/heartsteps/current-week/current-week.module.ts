@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
 import { WeeklyProgressComponent } from './weekly-progress.component';
 import { BrowserModule } from '@angular/platform-browser';
@@ -32,4 +32,16 @@ import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.mo
         CurrentWeekService
     ]
 })
-export class CurrentWeekModule {}
+export class CurrentWeekModule {
+
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: CurrentWeekModule,
+            providers: [
+                CurrentActivityLogService,
+                CurrentDailySummariesService,
+                CurrentWeekService
+            ]
+        }
+    }
+}

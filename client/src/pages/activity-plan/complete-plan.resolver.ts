@@ -14,7 +14,11 @@ export class CompletePlanGaurd implements CanActivate {
     canActivate(next:ActivatedRouteSnapshot, state: RouterStateSnapshot):boolean {
         const plan:ActivityPlan = next.data['activityPlan'];
         if(plan.isComplete()) {
-            this.router.navigate(['plans', plan.id]);
+            this.router.navigate([{
+                outlets: {
+                    modal: ['plans', plan.id].join('/')
+                }
+            }]);
             return false;
         } else {
             return true;
@@ -35,7 +39,11 @@ export class CompletePlanResolver implements Resolve<ActivityPlan> {
         return this.activityPlanService.get(route.paramMap.get('id'))
         .then((activityPlan) => {
             if(activityPlan.isComplete()) {
-                this.router.navigate(['plans', activityPlan.id]);
+                this.router.navigate([{
+                    outlets: {
+                        modal: ['plans', activityPlan.id].join('/')
+                    }
+                }]);
                 return Promise.reject('Plan is already complete');
             } else {
                 return Promise.resolve(activityPlan);

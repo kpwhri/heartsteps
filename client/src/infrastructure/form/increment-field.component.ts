@@ -36,6 +36,7 @@ export class IncrementFieldComponent extends AbstractField {
             this.value = value;
         }
         this.onChange(this.value);
+        this.onTouched();
     }
 
     add() {

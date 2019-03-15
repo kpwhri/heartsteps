@@ -7,6 +7,8 @@ import { ContactInformationService } from "@heartsteps/contact-information/conta
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
+import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
+import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 
 
 @Injectable()
@@ -14,13 +16,15 @@ export class ProfileService {
 
     constructor(
         private messageService: MessageService,
+        private dailyTimeService: DailyTimeService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
         private locationService:LocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService,
-        private currentWeekService: CurrentWeekService
+        private currentWeekService: CurrentWeekService,
+        private currentActivityLogService: CurrentActivityLogService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -45,12 +49,14 @@ export class ProfileService {
 
     public load():Promise<boolean> {
         return Promise.all([
+            this.setupDailyTime(),
             this.loadWalkingSuggestions(),
             this.loadPlaces(),
             this.loadReflectionTime(),
             this.loadContactInformation(),
             this.loadFitbit(),
-            this.loadCurrentWeek()
+            this.loadCurrentWeek(),
+            this.loadCurrentActivityLogs()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -102,6 +108,13 @@ export class ProfileService {
         .catch(() => {
             return Promise.reject(false)
         })
+    }
+
+    private setupDailyTime():Promise<boolean> {
+        return this.dailyTimeService.setup()
+        .catch(() => {
+            return Promise.resolve(false);
+        });
     }
 
     private checkReflectionTime():Promise<boolean> {
@@ -226,6 +239,16 @@ export class ProfileService {
 
     loadCurrentWeek():Promise<boolean> {
         return this.currentWeekService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    loadCurrentActivityLogs(): Promise<boolean> {
+        return this.currentActivityLogService.setup()
         .then(() => {
             return true;
         })

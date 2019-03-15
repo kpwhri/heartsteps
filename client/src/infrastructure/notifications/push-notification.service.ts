@@ -37,11 +37,17 @@ export class PushNotificationService {
 
     public setup():Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.push = PushNotification.init({ios:{voip: "true"}});
+            this.push = PushNotification.init({
+                android: {},
+                ios:{voip: "true"}
+            });
 
             this.push.on('notification', (data:any) => {
-                if(data.additionalData) {
+                if(this.platform.is('ios') && data.additionalData) {
                     this.createNotification(data.additionalData);
+                }
+                if(this.platform.is('android')) {
+                    this.createNotification(data);
                 }
             })
     
@@ -68,10 +74,6 @@ export class PushNotificationService {
     }
 
     private createNotification(data:any) {
-        const title: string = data.title;
-        const body: string = data.body;
-        const messageId: string = data.messageId;
-
         const customData: any = Object.assign({}, data);
         delete customData.title;
         delete customData.body;

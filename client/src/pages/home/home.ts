@@ -59,18 +59,14 @@ export class HomePage implements OnInit, OnDestroy {
             this.activeTab = activeTab.key;
         })
         .catch(() => {
-            this.show('dashboard');
+            console.log('No matching tab found');
         });
     }
 
     private getActiveTab(url:string):Promise<Tab> {
         return new Promise((resolve, reject) => {
-            let matchingTab:Tab = null;
-            this.tabs.forEach((tab: Tab) => {
-                const outputPath:string = '(home:' + tab.key + ')'
-                if(url.indexOf(outputPath) >= 0) {
-                    matchingTab = tab;
-                }
+            const matchingTab = this.tabs.find((tab) => {
+                return url.indexOf(tab.key) >= 0
             });
 
             if(matchingTab) {
@@ -80,10 +76,4 @@ export class HomePage implements OnInit, OnDestroy {
             }
         });
     }
-
-    public show(key:any) {
-        this.router.navigate([{outlets: {home: key}}]);
-    }
-
-
 }

@@ -2,6 +2,7 @@ import { Component, Input, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import { ActivityTypeService } from '@heartsteps/activity-types/activity-type.service';
 import { Router } from '@angular/router';
+import { DailyTimeService, DailyTime } from '@heartsteps/daily-times/daily-times.service';
 
 @Component({
     selector: 'heartsteps-activity-plan',
@@ -22,6 +23,7 @@ export class PlanComponent implements OnInit {
 
     constructor(
         private activityTypeService: ActivityTypeService,
+        private dailyTimeService: DailyTimeService,
         private element:ElementRef,
         private renderer:Renderer2,
         private router: Router
@@ -38,8 +40,18 @@ export class PlanComponent implements OnInit {
         } else {
             this.activityLevel = "moderate";
         }
-        this.timeOfDay = this.plan.timeOfDay;
-        this.duration = String(this.plan.duration);
+
+        let timeOfDay: DailyTime = this.dailyTimeService.times.value.find((value) => {
+            return value.key === this.plan.timeOfDay;
+        });
+        this.timeOfDay = timeOfDay.name;
+        
+        if(this.plan.complete) {
+            this.duration = String(this.plan.duration) + ' minutes complete';
+        } else {
+            this.duration = String(this.plan.duration) + ' minutes planned';
+        }
+        
         this.complete = this.plan.complete;
         if(this.complete) {
             this.renderer.addClass(this.element.nativeElement, 'is-complete');
@@ -48,9 +60,13 @@ export class PlanComponent implements OnInit {
         this.renderer.listen(this.element.nativeElement, 'click', (event) => {
             event.preventDefault();
             if(event.target.nodeName === "BUTTON") {
-                this.router.navigate(['plans', this.plan.id, 'complete']);
+                this.router.navigate([{outlets: {
+                    modal: ['plans', this.plan.id, 'complete'].join('/')
+                }}]);
             } else {
-                this.router.navigate(['plans', this.plan.id]);
+                this.router.navigate([{outlets: {
+                    modal: ['plans', this.plan.id].join('/')
+                }}]);
             }
         })
     }

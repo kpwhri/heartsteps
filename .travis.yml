@@ -10,6 +10,11 @@ install:
 - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 - sudo apt-get update && sudo apt-get install google-cloud-sdk
 
+before_script:
+- docker-compose build service-template walking-suggestion-service anti-sedentary-service > /dev/null
+- docker-compose build server > /dev/null
+- docker-compose build client > /dev/null
+
 script:
 - docker-compose run server python manage.py test
 - docker-compose run client npm test
@@ -33,8 +38,6 @@ after_success:
 - cp -r credentials server/credentials
 # upload client web app to gae
 - gcloud app deploy -q -v master server/app.yaml static/app.yaml dispatch.yaml
-# build services
-- docker-compose build service-template walking-suggestion-service anti-sedentary-service
 # upload walking suggestion service
 - docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
 - docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service

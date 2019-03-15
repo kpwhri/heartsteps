@@ -55,11 +55,13 @@ export class ActivityPlanCompletePage {
     }
 
     public editPlan() {
-        this.router.navigate(['plans', this.plan.id]);
+        this.router.navigate([{outlets: {
+            modal: ['plans', this.plan.id].join('/')
+        }}]);
     }
 
     public dismiss() {
-        this.router.navigate(['/']);
+        this.router.navigate([{outlets:{modal:null}}]);
     }
 
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
-import { WeeklySurveyService as HeartstepsWeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
-import { Week } from "@heartsteps/weekly-survey/week.model";
+import { WeeklySurveyService as HeartstepsWeeklySurveyService, WeeklySurvey } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { SurveyStartPage } from "./survey-start.page";
 import { SurveyComponent } from "./survey.component";
 import { NextWeekGoalComponent } from "./next-week-goal.component";
@@ -12,17 +11,17 @@ import { NextWeekPlansComponent } from "./next-week-plans.component";
 })
 export class WeeklySurveyPage implements OnInit {
 
-    pages:Array<any>;
-    week:Week;
+    public pages:Array<any>;
+    private weeklySurvey: WeeklySurvey;
 
     constructor(
-        private weeklySurvey: HeartstepsWeeklySurveyService,
+        private weeklySurveyService: HeartstepsWeeklySurveyService,
         private activatedRoute: ActivatedRoute,
         private router: Router
     ) {}
 
     ngOnInit() {
-        this.week = this.activatedRoute.snapshot.data['weeks'][0];
+        this.weeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
         this.pages = [{
             key: 'start',
             title: 'Weekly Review',
@@ -33,17 +32,17 @@ export class WeeklySurveyPage implements OnInit {
             component: SurveyComponent
         }, {
             key:'next-goal',
-            title: 'New goal for upcoming week',
+            title: 'Next Goal',
             component: NextWeekGoalComponent
         }, {
             key:'next-plans',
-            title: 'Make plans for next week',
+            title: 'Next Week',
             component: NextWeekPlansComponent
         }];
     }
 
     finish() {
-        this.weeklySurvey.complete();
+        this.weeklySurveyService.complete();
         this.router.navigate(['/']);
     }
 }

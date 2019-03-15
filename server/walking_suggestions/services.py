@@ -26,6 +26,16 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
+    def __init__(self, decision):
+        self.decision = decision
+        self.user = decision.user
+        try:
+            self.__configuration = Configuration.objects.get(user=self.user)
+            self.enabled = self.__configuration.enabled
+        except Configuration.DoesNotExist:
+            self.__configuration = None
+            self.enabled = False
+
     def create_decision(user, category, time=None, test=False):
         if not time:
             time = timezone.now()
@@ -45,9 +55,15 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             raise WalkingSuggestionDecisionService.DecisionDoesNotExist('Decision not found')
 
     def update_availability(self):
+        if not self.enabled:
+            self.decision.available = False
+            self.decision.unavailable_reason = 'Walking suggestion configuration disabled'
+            self.decision.save()
+            return False
         super().update_availability()
         if self.get_fitbit_step_count() > 250:
             self.decision.available = False
+            self.decision.unavailable_reason = 'Recent step count above 250'
             self.decision.save()
 
     def determine_availability(self):
@@ -74,26 +90,26 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         return total_steps
 
     def decide(self):
-        self.update_availability()
         if self.decision.test:
-            self.decision.a_it = True
-            self.decision.pi_it = 1
+            self.decision.treated = True
+            self.decision.treatment_probability = 1
             self.decision.save()
-            return self.decision.a_it
-        try:
-            configuration = Configuration.objects.get(user=self.user)
-        except Configuration.DoesNotExist:
-            self.decision.a_it = False
+            return self.decision.treated
+        if not self.enabled:
+            self.decision.treated = False
+            self.decision.treatment_probability = 0
+            self.unavailable_reason = "Walking suggestion configuration disabled"
             self.decision.save()
             return False
+        self.update_availability()
         try:
-            service = WalkingSuggestionService(configuration)
+            service = WalkingSuggestionService(self.__configuration)
             service.decide(self.decision)
         except ImproperlyConfigured:
             self.decision.decide()
-        except service.RequestError:
+        except WalkingSuggestionService.RequestError:
             self.decision.treated = False
-            self.decision.treatment_probability = 1
+            self.decision.treatment_probability = 0
             self.decision.available = False
             self.decision.unavailable_reason = "Walking suggestion service error"
             self.decision.save()
@@ -125,12 +141,13 @@ class WalkingSuggestionService():
 
         self.__configuration = configuration
         self.__user = configuration.user
-        if not self.__configuration.enabled:
-            raise self.Unavailable('Configuration not enabled')
+
         if not hasattr(settings,'WALKING_SUGGESTION_SERVICE_URL'):
             raise self.Unavailable("No WALKING_SUGGESTION_SERVICE_URL")
         else:
             self.__base_url = settings.WALKING_SUGGESTION_SERVICE_URL
+        if not self.__configuration.enabled:
+            raise self.Unavailable('Walking suggestion configuration disabled')
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
@@ -138,6 +155,7 @@ class WalkingSuggestionService():
         request_record = ServiceRequest(
             user = self.__user,
             url = url,
+            name = 'WalkingSuggestionService: %s' % (uri),
             request_data = json.dumps(data),
             request_time = timezone.now()
         )

@@ -81,7 +81,7 @@ fieldset.input-group {
 
     & > ul {
         padding: 0em;
-        margin: 0em;
+        margin: 1em 0em;
     }
 
     li {
@@ -93,6 +93,10 @@ fieldset.input-group {
     li > label {
         color: $text-color;
         padding: 0em 1em;
+    }
+
+    li > button {
+        text-align: left;
     }
 }
 
@@ -118,21 +122,4 @@ input[type=checkbox]:checked,
 input[type=radio]:checked {
     background: $color-primary;
     mask-image: url('../assets/checked.svg');
-}
-
-.input-radio,
-.input-checkbox {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    
-    > label {
-        color: $text-color;
-        margin: 0em 0.5em;
-        flex-grow: 1;
-    }
-
-    > label > span {
-        display: block;
-    }
 }

@@ -79,22 +79,29 @@ footer,
 
 .heartsteps-page-header {
     display: block;
+    position: relative;
 
-    > * {
-        margin: 1em $space-size+$block-size 0.5em;
+    h2 {
+        text-align: center;
     }
 
-    .back {
-        @extend .heartsteps-minor-button;   
+    .back,
+    [app-page-control] {
         position: absolute;
-        top:50%;
-        left: $space-size/2;
-        padding: 0px;
-        margin: 0px;
+        top: 50%;
         transform: translate(0%, -50%);
-        width: $block-size;
-        text-align: left;
+        width: auto;
+        margin: 0px;
     }
+    
+    .back {
+        left: $space-size;
+    }
+
+    [app-page-control] {
+        right: $space-size;
+    }
+
 }
 
 .page > header {

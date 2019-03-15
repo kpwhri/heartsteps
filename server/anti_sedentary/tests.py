@@ -67,19 +67,7 @@ class TestBase(TestCase):
     def localize_time(self, time):
         return self.local_timezone.localize(time)
 
-class AntiSedentaryDecisionServiceTest(TestBase):
-
-    def test_available_during_day(self):
-        decision = AntiSedentaryDecision.objects.create(
-            user = self.user,
-            time = self.local_timezone.localize(datetime(2019, 1, 18, 13, 30))
-        )
-
-        decision_service = AntiSedentaryDecisionService(decision)
-        decision_service.update_availability()
-
-        decision = AntiSedentaryDecision.objects.get(id=decision.id)
-        self.assertTrue(decision.available)
+class AntiSedentaryDecisionServiceSetContextTest(TestBase):
 
     def test_set_morning_context(self):
         decision = AntiSedentaryDecision.objects.create(
@@ -196,6 +184,43 @@ class MakeDecisionTests(TestBase):
             user = self.user,
             time = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
+
+        start_decision_mock = patch.object(start_decision, 'apply_async')
+        start_decision_mock.start()
+        self.addCleanup(start_decision_mock.stop)
+
+    def testUnavailableWhenActive(self):
+        StepCount.objects.create(
+            user = self.user,
+            step_number = 200,
+            step_dtm = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
+        )
+
+        make_decision(self.decision.id)
+
+        self.send_notification.assert_not_called()
+
+        decision = AntiSedentaryDecision.objects.get()
+        self.assertFalse(decision.sedentary)
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Not sedentary')
+        self.assertFalse(decision.treated)
+
+    def testAvailableWhenSedentary(self):
+        StepCount.objects.create(
+            user = self.user,
+            step_number = 20,
+            step_dtm = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
+        )
+
+        make_decision(self.decision.id)
+
+        self.send_notification.assert_called()
+
+        decision = AntiSedentaryDecision.objects.get()
+        self.assertTrue(decision.sedentary)
+        self.assertTrue(decision.available)
+        self.assertTrue(decision.treated)
 
     def testSendNoClient(self):
         decision_decide_patch = patch.object(AntiSedentaryDecision, 'decide')

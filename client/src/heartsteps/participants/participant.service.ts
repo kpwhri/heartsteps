@@ -28,6 +28,9 @@ export class ParticipantService {
     public update():Promise<boolean> {
         return this.isEnrolled()
         .then(() => {
+            return this.profileService.load()
+        })
+        .then(() => {
             return this.getParticipant()
             .then((participant) => {
                 this.participant.next(participant);

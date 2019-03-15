@@ -79,15 +79,14 @@ class FirebaseMessageService(ClientBase):
                 return json['multicast_id']
         raise FirebaseMessageService.MessageSendError()
 
-    def format_notification(self, body, title, data={}):
-        request = {
-            'data': data
-        }
-        request['data']['notification'] = {
+    def format_notification(self, body, title, data):
+        notification = {
             'title': title,
             'body': body
         }
-        return request
+        return {
+            'data': {**data, **notification}
+        }
 
     def format_data(self, data):
         request = {

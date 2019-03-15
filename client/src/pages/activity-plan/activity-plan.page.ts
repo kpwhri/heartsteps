@@ -1,7 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
-import { Location } from "@angular/common";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { LoadingService } from "@infrastructure/loading.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
@@ -48,11 +47,15 @@ export class ActivityPlanPage {
     }
 
     public goToComplete() {
-        this.router.navigate(['plans', this.activityPlan.id, 'complete']);
+        this.router.navigate([{outlets: {
+            modal: ['plans', this.activityPlan.id, 'complete'].join('/')
+        }}]);
     }
 
     public goToActivityLog() {
-        this.router.navigate(['activities/logs', this.activityPlan.activityLogId]);
+        this.router.navigate([{outlets: {
+            modal: ['activities/logs', this.activityPlan.activityLogId].join('/')
+        }}]);
     }
 
     public delete() {
@@ -84,7 +87,7 @@ export class ActivityPlanPage {
     }
 
     public dismiss() {
-        this.router.navigate(['/']);
+        this.router.navigate([{outlets:{modal:null}}]);
     }
 
 }

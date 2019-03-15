@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { Subscription } from "rxjs";
 
 
 @Component({
     selector: 'app-form',
     templateUrl: './form.component.html'
 })
-export class FormComponent {
+export class FormComponent implements OnDestroy {
 
     @Output('onSubmit') public onSubmit: EventEmitter<boolean> = new EventEmitter();
 
@@ -16,7 +17,15 @@ export class FormComponent {
     private errorMessage: string;
     public submitCTA: string = 'Save';
 
+    private formStatusSubscription: Subscription;
+
     constructor() {}
+
+    ngOnDestroy() {
+        if(this.formStatusSubscription) {
+            this.formStatusSubscription.unsubscribe();
+        }
+    }
 
     @Input('submitLabel')
     set submitLabel(text: string) {
@@ -31,6 +40,11 @@ export class FormComponent {
     set setForm(form: FormGroup) {
         if (form) {
             this.form = form;
+            this.formStatusSubscription = this.form.statusChanges.subscribe(() => {
+                if(this.form.valid) {
+                    this.errorMessage = undefined;
+                }
+            });
         }
     }
 
@@ -59,6 +73,9 @@ export class FormComponent {
         this.submit()
         .then(() => {
             this.onSubmit.emit();
+        })
+        .catch((error) => {
+            console.log(error);
         });
     }
 

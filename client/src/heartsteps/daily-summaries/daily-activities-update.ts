@@ -2,7 +2,6 @@ import { Component, Input } from "@angular/core";
 import { DailySummaryService } from "./daily-summary.service";
 
 import * as moment from 'moment';
-import { LoadingService } from "@infrastructure/loading.service";
 import { DailySummary } from "./daily-summary.model";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 

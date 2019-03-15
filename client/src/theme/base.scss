@@ -79,8 +79,7 @@ dl {
         font-size: 1.25em;
         font-weight: bold;
         text-align: center;
-
-        margin: 0.5em 0em;
+        padding: 0.5em 0em;
     }
 
     > header,
@@ -152,6 +151,11 @@ article.page {
     flex-direction: row;
     text-align: left;
     padding: 0em;
+
+    &:hover,
+    &:focus {
+        color: $color-primary;
+    }
 }
 
 .page button.bottom,

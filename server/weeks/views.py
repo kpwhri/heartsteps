@@ -6,12 +6,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Week
+from .serializers import GoalSerializer, WeekSerializer
 from .services import WeekService
 
 class WeekView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_week(self, week_number, user):
+    def get_week(self, user, week_number=None):
+        if not week_number:
+            return self.get_current_week(user)
         try:
             return Week.objects.get(
                 number = week_number,
@@ -29,25 +32,34 @@ class WeekView(APIView):
             return service.get_current_week()
 
     def get(self, request, week_number=None):
-        if week_number is not None:
-            week = self.get_week(week_number, request.user)
-        else:
-            week = self.get_current_week(request.user)
-        return Response({
-            'id': week.number,
-            'start': week.start_date.strftime('%Y-%m-%d'),
-            'end': week.end_date.strftime('%Y-%m-%d')
-        }, status=status.HTTP_200_OK)
+        week = self.get_week(request.user, week_number)
+        serialized = WeekSerializer(week)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, week_number=None):
+        week = self.get_week(request.user, week_number)
+        serialized = GoalSerializer(data=request.data)
+        if serialized.is_valid():
+            week.goal = serialized.validated_data['goal']
+            week.confidence = serialized.validated_data['confidence']
+            week.save()
+
+            serialized_week = WeekSerializer(week)
+            return Response(serialized_week.data, status=status.HTTP_200_OK)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class NextWeekView(WeekView):
 
-    def get(self, request):
-        service = WeekService(request.user)
-        current_week = service.get_current_week()
-        next_week = service.get_week_after(current_week)
+    def get_week(self, user, week_number=None):
+        service = WeekService(user)
+        return service.get_next_week()
 
-        return Response({
-            'id': next_week.number,
-            'start': next_week.start_date.strftime('%Y-%m-%d'),
-            'end': next_week.end_date.strftime('%Y-%m-%d')
-        }, status=status.HTTP_200_OK)
+class SendReflectionView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        service = WeekService(request.user)
+        week = service.get_current_week()
+        service.send_reflection(week)
+
+        return Response({}, status=status.HTTP_201_CREATED)

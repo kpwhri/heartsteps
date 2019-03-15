@@ -32,12 +32,28 @@
         background-color: $color-primary;
     }
 
-    &.activity-type-swim:before {
-        mask-image: url('../assets/activity-swim.svg');
+    &.activity-type-aerobic:before {
+        mask-image: url('../assets/activity-aerobic.svg');
+    }
+
+    &.activity-type-bike:before {
+        mask-image: url('../assets/activity-bike.svg');
+    }
+
+    &.activity-type-elliptical:before {
+        mask-image: url('../assets/activity-elliptical.svg');
     }
 
     &.activity-type-run:before {
         mask-image: url('../assets/activity-run.svg');
+    }
+
+    &.activity-type-swim:before {
+        mask-image: url('../assets/activity-swim.svg');
+    }
+
+    &.activity-type-sport:before {
+        mask-image: url('../assets/activity-sport.svg');
     }
 
     &.activity-type-walk:before {
@@ -46,10 +62,6 @@
 
     &.activity-type-weights:before {
         mask-image: url('../assets/activity-weights.svg');
-    }
-
-    &.activity-type-bike:before {
-        mask-image: url('../assets/activity-bike.svg');
     }
 }
 

@@ -1,7 +1,9 @@
-import { Component, forwardRef, OnInit, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, forwardRef, Input, ElementRef, Renderer2 } from '@angular/core';
+import { NG_VALUE_ACCESSOR, FormGroupDirective } from '@angular/forms';
 import { ActivityTypeService, ActivityType } from './activity-type.service';
 import { ActivityTypeModalController } from './activity-type-modal.controller';
+import { ChoiceFieldComponent } from '@infrastructure/form/choice-field.component';
+import { SelectDialogController, SelectOption } from '@infrastructure/dialogs/select-dialog.controller';
 
 @Component({
     selector: 'heartsteps-activity-type-field',
@@ -15,28 +17,26 @@ import { ActivityTypeModalController } from './activity-type-modal.controller';
         }
     ]
 })
-export class ActivityTypeFieldComponent implements ControlValueAccessor, OnInit {
+export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
     public activityType:ActivityType;
-    public activityTypeList:Array<ActivityType>;
-    
-    private onChange: Function;
-    private onTouched: Function;
-    public isDisabled: boolean;
+    private activityTypes: Array<ActivityType>;
 
     @Input('label') label: string = 'Activity type';
 
     constructor(
+        formGroup: FormGroupDirective,
+        element: ElementRef,
+        renderer: Renderer2,
+        public selectDialog: SelectDialogController,
         private activityTypeService:ActivityTypeService,
         private activityTypeModalController: ActivityTypeModalController
-    ) {}
-
-    ngOnInit() {
-        this.activityTypeService.activityTypes.subscribe((activityTypes) => {
-            if(activityTypes) {
-                this.activityTypeList = activityTypes.slice(0, 4);
-            } else {
-                this.activityTypeList = [];
-            }
+    ) {
+        super(formGroup, element, renderer, selectDialog);
+        this.activityTypeService.activityTypes
+        .filter((activityTypes) => activityTypes !== undefined)
+        .subscribe((activityTypes) => {
+            this.activityTypes = activityTypes;
+            this.updateOptions();
         });
     }
 
@@ -45,6 +45,7 @@ export class ActivityTypeFieldComponent implements ControlValueAccessor, OnInit 
     }
 
     writeValue(activityName:string): void {
+        this.updateOptions();
         this.getActivityType(activityName)
         .then((activityType) => {
             this.activityType = activityType;
@@ -54,37 +55,21 @@ export class ActivityTypeFieldComponent implements ControlValueAccessor, OnInit 
         });
     }
 
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: any): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState?(isDisabled: boolean): void {
-        this.isDisabled = isDisabled;
-    }
-
-    public select(activityType:ActivityType) {
-        if(!this.isDisabled) {
-            this.activityType = activityType;
-            this.onChange(activityType.name);
-            this.onTouched();
-        }
-    }
-
-    public reset() {
-        if (!this.isDisabled) {
-            this.activityType = undefined;
-            this.onChange(undefined);
-        }
+    private updateOptions() {
+        const options:Array<SelectOption> = [];
+        this.activityTypes.slice(0,4).forEach((activityType) => {
+            options.push({
+                name: activityType.title,
+                value: activityType.name
+            });
+        });
+        this.options = options;
     }
 
     public pickOtherActivityType() {
         this.activityTypeModalController.pick()
         .then((activityType) => {
-            this.select(activityType);
+            this.updateValue(activityType.name);
         })
         .catch(() => {
             console.log('Dismissed');

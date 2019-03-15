@@ -18,23 +18,27 @@ import { CompletePlanResolver } from './complete-plan.resolver';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 import { CompletePlanForm } from './complete-plan-form.component';
 import { ActivityPlanField } from './activity-plan-field.component';
+import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 
 const routes: Routes = [
     {
         path: 'plans/create/:date',
-        component: CreatePlanPage
+        component: CreatePlanPage,
+        outlet: 'modal'
     }, {
         path: 'plans/:id/complete',
         component: ActivityPlanCompletePage,
         resolve: {
             activityPlan: CompletePlanResolver
         },
+        outlet: 'modal'
     }, {
         path: 'plans/:id',
         component: ActivityPlanPage,
         resolve: {
             activityPlan: ActivityPlanResolver
         },
+        outlet: 'modal'
     }
 ];
 
@@ -66,6 +70,7 @@ const routes: Routes = [
     imports: [
         ActivityPlansModule,
         ActivityLogModule,
+        DailyTimesModule,
         HeartstepsComponentsModule,
         BrowserModule,
         FormModule,

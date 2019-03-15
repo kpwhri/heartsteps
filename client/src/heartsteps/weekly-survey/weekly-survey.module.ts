@@ -9,6 +9,7 @@ import { WeekService } from './week.service';
 import { WeeklyGoalComponent } from './weekly-goal.component';
 import { WeeklySurveyService } from './weekly-survey.service';
 import { FormModule } from '@infrastructure/form/form.module';
+import { WeekSerializer } from './week.serializer';
 
 @NgModule({
     imports: [
@@ -21,7 +22,8 @@ import { FormModule } from '@infrastructure/form/form.module';
     providers: [
         ReflectionTimeService,
         WeekService,
-        WeeklySurveyService
+        WeeklySurveyService,
+        WeekSerializer
     ],
     declarations: [
         WeeklyReflectionTimePage,
