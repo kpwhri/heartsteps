@@ -40,7 +40,7 @@ class AntiSedentaryConfigurationAdmin(admin.ModelAdmin):
 admin.site.register(Configuration, AntiSedentaryConfigurationAdmin)
 
 class AntiSedentaryDecisionAdmin(DecisionAdmin):
-    list_display = ['user', 'time', 'sedentary', 'available', 'treated']
+    list_display = ['user', 'time', 'sedentary', 'available', 'treated', 'imputed', 'test']
     pass
 admin.site.register(AntiSedentaryDecision, AntiSedentaryDecisionAdmin)
 
