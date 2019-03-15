@@ -122,11 +122,11 @@ with no app. For each time slot, at least one non-missing (e.g. not marked as `n
 over the week with no app.  For example, it does not allow the case where all of the daily total step count is missing.  
 To be specific, for the pre 30 min step data, there is at least one
 
-  1. precommute decision point with pre decision point step count.   
-  2. midday decision point with a pre decision point step count
-  3. mid-afternoon decision point with a pre decision point step count
-  4. evening commute decision point with pre decision point step count.   
-  5. after dinner decision point with pre decision point step count
+ 	1. precommute decision point with pre decision point step count.   
+  	2. midday decision point with a pre decision point step count
+  	3. mid-afternoon decision point with a pre decision point step count
+  	4. evening commute decision point with pre decision point step count.   
+  	5. after dinner decision point with pre decision point step count
 
   And for the post 30 min step data, there is at least one
 
