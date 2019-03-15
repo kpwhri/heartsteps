@@ -112,24 +112,24 @@ class AntiSedentaryService:
             return self._client.decide(
                 decision = decision,
                 step_count = self.get_step_count_change_at(decision.time),
+                time = self.localize_time(decision.time),
                 day_start = self.get_day_start(decision.time),
                 day_end = self.get_day_end(decision.time)
             )
         else:
             return decision.decide()
 
-    def get_day_end(self, time):
+    def localize_time(self, time):
         location_service = LocationService(self.__user)
         local_timezone = location_service.get_timezone_on(time)
-        local_time = time.astimezone(local_timezone)
+        return time.astimezone(local_timezone)
 
+    def get_day_end(self, time):
+        local_time = self.localize_time(time)
         return local_time.replace(hour=20, minute=0)
 
     def get_day_start(self, time):
-        location_service = LocationService(self.__user)
-        local_timezone = location_service.get_timezone_on(time)
-        local_time = time.astimezone(local_timezone)
-
+        local_time = self.localize_time(time)
         return local_time.replace(hour=8, minute=0)
 
     def time_within_day(self, time):

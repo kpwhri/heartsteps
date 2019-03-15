@@ -252,6 +252,19 @@ class MakeDecisionTests(TestBase):
         self.assertEqual(decision.treatment_probability, 0.75)
         self.send_notification.assert_called_with("Example message", title=None)
 
+        make_request.assert_called_with(
+            uri = 'decision',
+            data = {
+                'decisionid': str(self.decision.id),
+                'time': '2019-01-18 14:00',
+                'daystart': '2019-01-18 08:00',
+                'dayend': '2019-01-18 20:00',
+                'state': 0,
+                'available': 0,
+                'steps': 0
+            }
+        )
+
 class DetermineSedentary(TestBase):
 
     def setUp(self):
