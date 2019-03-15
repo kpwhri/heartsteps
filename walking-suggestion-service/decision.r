@@ -152,6 +152,17 @@ if(input$availability){
   
 }else{
   
+  # output type (1: bandit, 0: MRT)
+  type <- 1
+  
+  # MRT period
+  
+  if(input$studyDay < 8){
+    
+    type <- 0
+    
+  }
+  
   prob <- 0
   
 }
