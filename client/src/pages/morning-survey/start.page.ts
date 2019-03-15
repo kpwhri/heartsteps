@@ -8,7 +8,8 @@ import { MorningMessage } from "@heartsteps/morning-message/morning-message.mode
 })
 export class StartPageComponent implements OnInit {
 
-    private message: string;
+    public message: string;
+
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
     constructor(
@@ -17,7 +18,9 @@ export class StartPageComponent implements OnInit {
 
     ngOnInit() {
         const morningMessage: MorningMessage = this.activatedRoute.snapshot.data['morningMessage'];
-        this.message = morningMessage.text;
+        if (morningMessage.text) {
+            this.message = morningMessage.text;            
+        }
     }
 
     done() {

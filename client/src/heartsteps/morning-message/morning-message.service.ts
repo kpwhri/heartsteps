@@ -6,6 +6,7 @@ import { MorningMessage } from "./morning-message.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { MessageService } from '@heartsteps/notifications/message.service';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
+import { Message } from '@heartsteps/notifications/message.model';
 
 const storageKey:string = 'morning-message';
 
@@ -34,6 +35,10 @@ export class MorningMessageService {
                 })
             }
         });
+    }
+
+    public processMessage(message: Message) {
+        
     }
 
     public set(message: MorningMessage):Promise<MorningMessage> {

@@ -11,7 +11,7 @@ import { MorningMessageService } from "@heartsteps/morning-message/morning-messa
 })
 export class MorningSurveyPage implements OnInit {
 
-    private morningMessage:MorningMessage;
+    public morningMessage:MorningMessage;
 
     public pages:Array<any> = [{
         key: 'start',
