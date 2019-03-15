@@ -16,10 +16,11 @@ export class CurrentWeekService {
         private weekService:WeekService
     ) {}
 
-    public setUp() {
-        this.load()
+    public setup():Promise<boolean> {
+        return this.load()
         .then((week) => {
             this.week.next(week);
+            return true;
         });
     }
 

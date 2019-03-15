@@ -36,13 +36,7 @@ export class NotificationService {
                     this.weeklySurveyService.processNotification(message);
                     break;
                 case 'morning-message':
-                    this.morningMessageService.set({
-                        id: message.id,
-                        date: message.context.date,
-                        notification: message.context.notification,
-                        text: message.context.text,
-                        anchor: message.context.anchor
-                    });
+                    this.morningMessageService.processMessage(message);
                     break;
                 case 'request-context':
                     this.walkingSuggestionService.sendDecisionContext(message.context.decisionId);

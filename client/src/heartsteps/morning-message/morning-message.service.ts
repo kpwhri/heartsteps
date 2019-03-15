@@ -18,7 +18,7 @@ export class MorningMessageService {
         private heartstepsServer: HeartstepsServer,
         private messageService: MessageService,
         private messageReceiptService: MessageReceiptService
-    ){}
+    ) {}
 
     public get():Promise<MorningMessage> {
         return this.storage.get(storageKey)
@@ -38,7 +38,13 @@ export class MorningMessageService {
     }
 
     public processMessage(message: Message) {
-        
+        this.set({
+            id: message.id,
+            date: message.context.date,
+            notification: message.context.notification,
+            text: message.context.text,
+            anchor: message.context.anchor
+        }); 
     }
 
     public set(message: MorningMessage):Promise<MorningMessage> {

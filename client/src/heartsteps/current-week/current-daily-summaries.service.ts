@@ -22,10 +22,13 @@ export class CurrentDailySummariesService {
         private dailySummaryService: DailySummaryService,
         private activityLogService: ActivityLogService,
         private dailySummarySerializer: DailySummarySerializer,
-        documentStorageService: DocumentStorageService
+        private documentStorageService: DocumentStorageService
     ) {
-        this.storage = documentStorageService.create('current-daily-summaries')
-        this.reload();
+
+    }
+
+    public setup():Promise<boolean> {
+        this.storage = this.documentStorageService.create('current-daily-summaries')
 
         this.dailySummaryService.updated.subscribe((summary:DailySummary) => {
             this.currentWeekService.isWithinWeek(summary.date)
@@ -46,10 +49,15 @@ export class CurrentDailySummariesService {
                 this.update(log.start);
             });
         });
+
+        return this.reload()
+        .then(() => {
+            return true;
+        });
     }
 
-    private reload() {
-        this.storage.getList()
+    private reload():Promise<boolean> {
+        return this.storage.getList()
         .then((items) => {
             if(items.length < 1) {
                 return this.updateAll();
@@ -64,9 +72,13 @@ export class CurrentDailySummariesService {
             this.week.next(summaries);
             const today:DailySummary = summaries.find((summary) => summary.isToday());
             this.today.next(today);
+            return true;
         })
         .catch(() => {
-            this.updateAll();
+            return this.updateAll();
+        })
+        .then(() => {
+            return true;
         });
     }
 

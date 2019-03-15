@@ -18,8 +18,13 @@ export class ActivityTypeService {
     constructor(
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
-    ) {
-        this.update();
+    ) {}
+
+    public setup(): Promise<boolean> {
+        return this.update()
+        .then(() => {
+            return true;
+        });
     }
 
     public update():Promise<Array<ActivityType>> {
