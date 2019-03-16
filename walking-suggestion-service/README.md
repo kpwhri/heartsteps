@@ -63,7 +63,7 @@ Below is an example of json input.
 }
 ~~~
 
-1. `userID`: the user ID. **(Ask Nick: how is ID created?)**
+1. `userID`: The user Id is the unique id assigned to a participant. This id is the same as the study id assigned to participants when they are enrolled in the HeartSteps study.
 
 2. `totalStepsArray` 
 
@@ -78,8 +78,7 @@ Below is an example of json input.
 
   - The daily step count for a day will be marked as `null` if any of the followings holds:
   
-  	(1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data 
-	**(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for each day)**
+  	(1) The participant is classfied as "not wear the sensor for the day"  based on the heart rate data. The heart rate data is the [minute level intraday heartrate data from the Fitbit Web API.](https://dev.fitbit.com/build/reference/web-api/heart-rate/#get-heart-rate-intraday-time-series) If there is any non-zero minute level heartrate for a participant, they will be counted as having wore their sensor that day. 
 	
 	(2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and
 	thus the Fitbit server does not have the step count data)
