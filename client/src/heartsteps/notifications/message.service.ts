@@ -59,10 +59,7 @@ export class MessageService {
     private openMessage(messageId:string) {
         this.getMessage(messageId)
         .then((message) => {
-            message.opened()
-            .then(() => {
-                this.opened.next(message);
-            });
+            this.opened.next(message);
         });
     }
 
@@ -70,10 +67,7 @@ export class MessageService {
         const message:Message = this.deserializeMessage(payload);
         this.saveMessage(message)
         .then(() => {
-            message.received()
-            .then(() => {
-                this.received.next(message);
-            });
+            this.received.next(message);
         });
     }
 

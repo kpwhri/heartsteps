@@ -37,13 +37,15 @@ export class MorningMessageService {
         });
     }
 
-    public processMessage(message: Message) {
-        this.set({
+    public processMessage(message: Message):Promise<boolean> {
+        return this.set({
             id: message.id,
             date: message.context.date,
             notification: message.context.notification,
             text: message.context.text,
             anchor: message.context.anchor
+        }).then(() => {
+            return true;
         }); 
     }
 
