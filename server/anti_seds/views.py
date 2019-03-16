@@ -26,6 +26,8 @@ class StepCountUpdateView(APIView):
     Save step count from Fitbit watch
     """
 
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         serialized = StepCountSerializer(data=request.data)
         if serialized.is_valid():
