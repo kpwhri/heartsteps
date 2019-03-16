@@ -98,6 +98,9 @@ function settingsCallback(data) {
 }
 simpleSettings.initialize(settingsCallback);
 
+/* -- On initialization, phone should send info on whether to display -- */
+/* -- help text or full stats depending on authentication status -- */
+
 /* ------- Send step data to the phone ---------*/
 function sendStepMessage(recentSteps, time){
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {

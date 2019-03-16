@@ -6,6 +6,18 @@
   fill: #000000;
 }
 
+svg#lower {
+  opacity: 0.2;
+}
+
+.warning {
+  font-family: Seville-Book-Italic;
+  font-size: 22;
+  text-anchor: middle;
+  y: 50%;
+  fill: red;
+}
+
 .clock-text {
   font-family: Seville-Book;
   font-size: 88;

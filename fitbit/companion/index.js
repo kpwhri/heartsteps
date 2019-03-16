@@ -12,6 +12,9 @@ import { enrollParticipant, enrollSettingsValid, sendData }
 
 simpleSettings.initialize();
 
+/* -- On initialization, check if authentication -- */
+/* -- is set up and remove warnings if so        -- */
+
 /************************************************************
   Set integrationStatus in settings based on Entry Code & Birth Year
   Send to HeartSteps server for validation.
