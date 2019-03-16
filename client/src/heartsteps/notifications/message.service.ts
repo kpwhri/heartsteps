@@ -7,7 +7,6 @@ import { PushNotificationService, Device } from '@infrastructure/notifications/p
 import { LocalNotificationService } from '@infrastructure/notifications/local-notification.service';
 import { DocumentStorage, DocumentStorageService } from '@infrastructure/document-storage.service';
 import { Message } from './message.model';
-import { rejects } from 'assert';
 
 const storageKey: string = 'notificationServiceDevice';
 
@@ -27,16 +26,17 @@ export class MessageService {
         private messageReceiptService: MessageReceiptService,
         private heartstepsServer:HeartstepsServer,
         private storage:StorageService,
-        documentStorageService: DocumentStorageService
-    ) {
-        this.messageStorage = documentStorageService.create('heartsteps-messages');
-    }
+        private documentStorageService: DocumentStorageService
+    ) {}
 
     public setup():Promise<boolean> {
         if(this.isSetup) {
             return Promise.resolve(true);
         } else {
             this.isSetup = true;
+
+            this.messageStorage = this.documentStorageService.create('heartsteps-messages');
+            
             this.localNotificationService.clicked.subscribe((messageId: string) => {
                 this.openMessage(messageId)
             });

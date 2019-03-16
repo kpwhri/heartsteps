@@ -15,10 +15,15 @@ export class ActivityPlanService {
     constructor(
         private heartstepsServer:HeartstepsServer,
         private activityLogService: ActivityLogService,
-        documentStorage: DocumentStorageService
-    ) {
-        this.storage = documentStorage.create('heartsteps-activity-plans');
-        this.loadPlans();
+        private documentStorage: DocumentStorageService
+    ) {}
+
+    public setup(): Promise<boolean> {
+        this.storage = this.documentStorage.create('heartsteps-activity-plans');
+        return this.loadPlans()
+        .then(() => {
+            return true;
+        });
     }
 
     public get(id:string) {

@@ -9,6 +9,9 @@ import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
 import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
+import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
+import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
+import { CurrentDailySummariesService } from "@heartsteps/current-week/current-daily-summaries.service";
 
 
 @Injectable()
@@ -24,7 +27,10 @@ export class ProfileService {
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService,
         private currentWeekService: CurrentWeekService,
-        private currentActivityLogService: CurrentActivityLogService
+        private currentActivityLogService: CurrentActivityLogService,
+        private currentDailySummariesSurvice: CurrentDailySummariesService,
+        private activityPlanService: ActivityPlanService,
+        private activityTypeService: ActivityTypeService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -56,7 +62,11 @@ export class ProfileService {
             this.loadContactInformation(),
             this.loadFitbit(),
             this.loadCurrentWeek(),
-            this.loadCurrentActivityLogs()
+            this.loadCurrentActivityLogs(),
+            this.setupActivityPlanService(),
+            this.setupMessageService(),
+            this.setupActivityTypeService(),
+            this.setupCurrentDailySummaries()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -238,7 +248,7 @@ export class ProfileService {
     }
 
     loadCurrentWeek():Promise<boolean> {
-        return this.currentWeekService.load()
+        return this.currentWeekService.setup()
         .then(() => {
             return true;
         })
@@ -249,6 +259,46 @@ export class ProfileService {
 
     loadCurrentActivityLogs(): Promise<boolean> {
         return this.currentActivityLogService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private setupCurrentDailySummaries() :Promise<boolean> {
+        return this.currentDailySummariesSurvice.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    private setupActivityPlanService() {
+        return this.activityPlanService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private setupMessageService():Promise<boolean> {
+        return this.messageService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private setupActivityTypeService() :Promise<boolean> {
+        return this.activityTypeService.setup()
         .then(() => {
             return true;
         })

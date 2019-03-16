@@ -33,7 +33,7 @@ export class CurrentActivityLogService {
             })
         });
 
-        return this.load()
+        return this.update()
         .then(() => {
             return true;
         });

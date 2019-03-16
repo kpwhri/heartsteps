@@ -75,10 +75,10 @@ class AntiSedentaryClient:
         else:
             return 0
 
-    def decide(self, decision, step_count, day_start, day_end):
+    def decide(self, decision, step_count, time, day_start, day_end):
         data = {
             'decisionid': str(decision.id),
-            'time': self.format_decision_datetime(decision.time),
+            'time': self.format_decision_datetime(time),
             'daystart': self.format_datetime(day_start),
             'dayend': self.format_datetime(day_end),
             'state': self.format_boolean(decision.sedentary),
