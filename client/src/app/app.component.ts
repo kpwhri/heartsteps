@@ -29,13 +29,15 @@ export class MyApp {
     ) {
         platform.ready()
         .then(() => {
+            return this.analyticsService.setup();
+        })
+        .then(() => {
             this.participantService.participant.subscribe((participant: any) => {
                 this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
                 this.setupAuthorization(participant);
                 this.setDashboard(participant);
             });
-            this.analyticsService.setup();
             return this.participantService.update();
         })
         .then(() => {

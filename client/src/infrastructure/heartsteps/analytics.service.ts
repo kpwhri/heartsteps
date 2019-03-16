@@ -16,7 +16,7 @@ export class AnalyticsService {
         this.setupRouter();
     }
 
-    private setupRouter() {
+    private setupRouter():Promise<boolean> {
         this.router.events
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event:NavigationEnd) => {
@@ -29,6 +29,7 @@ export class AnalyticsService {
                 this.trackPageView(event.url);
             }
         });
+        return Promise.resolve(true);
     }
 
     public trackPageView(uri:string):Promise<boolean> {
