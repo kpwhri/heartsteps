@@ -13,6 +13,7 @@ import { BackgroundService } from '@app/background.service.ts';
 import { NotificationService } from '@app/notification.service.ts';
 import { RouterModule, Router } from '@angular/router';
 import { HomePageModule } from '@pages/home/home.module';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 class ParticipantServiceMock {
 
@@ -45,7 +46,8 @@ describe('MyApp', () => {
                 { provide: ParticipantService, useClass: ParticipantServiceMock },
                 { provide: AuthorizationService, useClass: AuthorizationServiceMock },
                 { provide: BackgroundService, useClass: BackgroundServiceMock },
-                { provide: NotificationService, useClass: BackgroundServiceMock }
+                { provide: NotificationService, useClass: BackgroundServiceMock },
+                { provide: AnalyticsService, useClass: BackgroundServiceMock }
             ]
         });
         fixture = TestBed.createComponent(MyApp);

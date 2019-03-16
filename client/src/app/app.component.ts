@@ -7,6 +7,7 @@ import { BackgroundService } from '@app/background.service';
 import { NotificationService } from './notification.service';
 import { AuthorizationService } from './authorization.service';
 import { Router } from '@angular/router';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -23,7 +24,8 @@ export class MyApp {
         private participantService:ParticipantService,
         private backgroundService: BackgroundService,
         private notificationService: NotificationService,
-        private authorizationService: AuthorizationService
+        private authorizationService: AuthorizationService,
+        private analyticsService: AnalyticsService
     ) {
         platform.ready()
         .then(() => {
@@ -33,6 +35,7 @@ export class MyApp {
                 this.setupAuthorization(participant);
                 this.setDashboard(participant);
             });
+            this.analyticsService.setup();
             return this.participantService.update();
         })
         .then(() => {
