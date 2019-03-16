@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^api/activity/', include('activity_summaries.urls')),
     url(r'^api/fitbit/', include('fitbit_authorize.urls')),
     url(r'^api/fitbit/', include('fitbit_api.urls')),
+    url(r'^api/', include('page_views.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
