@@ -33,9 +33,9 @@ export class MyApp {
         })
         .then(() => {
             this.participantService.participant.subscribe((participant: any) => {
+                this.setupAuthorization(participant);
                 this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
-                this.setupAuthorization(participant);
                 this.setDashboard(participant);
             });
             return this.participantService.update();

@@ -27,7 +27,7 @@ export class NotificationService {
         this.messageService.received.subscribe((message:Message) => {
             this.processReceivedMessage(message)
             .then(() => {
-                message.received();
+                message.received()
             });
         });
         
