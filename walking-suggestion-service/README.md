@@ -312,8 +312,8 @@ Can either be `true` or `false`
 
 9. `availabilityArray`, `priorAntiArray`, `lastActivityArray `, `locationArray `
 
-	- These are the vectors of `availability`, `priorAnti `, `lastActivity ` and `location` collected at the five decision times in a day. The first one correpsonds to the information at the first decision time. 
-	- In the case where the walking suggestion service is reached by Heartsteps main server at all five decision times during the time, these information is identical to the one received during the day.  We resend this information at the nightly update time o hanlde the case where for some reason the heatstep main server cannot contact walking suggestion service at some decision time. 
+	- These are the vectors of `availability`, `priorAnti `, `lastActivity ` and `location` collected at the five decision times in a day. The first element correpsonds to the first decision time and second element to the second decision time and etc. 
+	- In the case where the walking suggestion service is reached by Heartsteps main server at all five decision times during the day, these information will be identical to the ones received during the day.  We resend this information at the nightly update time to hanlde the case where for some reason the heatstep main server cannot contact walking suggestion service at some decision time. 
 
 ### CONDITION CHECKING
 
