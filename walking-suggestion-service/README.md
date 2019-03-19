@@ -243,7 +243,7 @@ The *nightly* service has no output except for a message indicating successful u
 	"priorAnti":false,
 	"lastActivity":false,
 	"temperatureArray":[30,33.4,8.5,23.9,38.1],
-	"appScreen":503,
+	"appClick":503,
 	"totalSteps":6584,
 	"preStepsArray":[12,50,100,0,null],
 	"postStepsArray":[300,null,100,130,31],
@@ -270,7 +270,7 @@ Can either be `true` or `false`
   - If any of the temperatures is unknown, then the average temperature of all the participant's registered places (home and work) 
   will be substituted for the actual temperature.
 
-6. `appScreen`
+6. `appClick`
 
   - The number of app screens encountered in the current day from 12:00 am to 11:59 pm. 
   - Mark as `null` if the heartstep server does not have the latest information about the app usage at the time of nightly updates 
