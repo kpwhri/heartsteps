@@ -1,5 +1,5 @@
 rm(list = ls())
-server = F
+server = T
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
