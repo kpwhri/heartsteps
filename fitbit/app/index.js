@@ -4,7 +4,6 @@ import document from "document";
 import * as messaging from "messaging";
 
 // On-body presence
-// import * as bodyPresence from "body-presence";
 import { BodyPresenceSensor } from "body-presence";
 
 // Clock-specific imports
@@ -28,6 +27,8 @@ let iconHRM = document.getElementById("iconHRM");
 let imgHRM = iconHRM.getElementById("icon");
 let statsCycle = document.getElementById("stats-cycle");
 let statsCycleItems = statsCycle.getElementsByClassName("cycle-item");
+let txtWarning = document.getElementById("txtWarning");
+let lower = document.getElementById("#lower");
 
 /* --------- CLOCK ---------- */
 function clockCallback(data) {
@@ -66,6 +67,15 @@ simpleHRM.initialize(hrmCallback);
 function settingsCallback(data) {
   if (!data) {
     return;
+  }
+  if (data.integrationStatus) {
+    if (data.integrationStatus == "success") {
+      txtWarning.style.display = "none";
+      lower.style.opacity = 1.0;
+    } else {
+      txtWarning.style.display = "inline";
+      lower.style.opacity = 0.2;
+    }
   }
   if (data.colorBackground) {
     background.style.fill = data.colorBackground;

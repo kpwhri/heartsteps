@@ -108,7 +108,6 @@ function sendSteps(step_count, step_dtm) {
       if (response.status != 201) {
         console.log("ERROR: sendSteps completed with status "+ response.status);
       }
-      console.log("sendSteps completed with status " + response.status);
     }).catch(error => console.error('Error in sendSteps: ', error))
   } else {
     console.log("ERROR in sendSteps: user not authenticated");
@@ -119,11 +118,9 @@ function sendSteps(step_count, step_dtm) {
 /*--- forward Step & Location data to server           ---*/
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == global.RECENT_STEPS) {
-    console.log("stepCount: " + evt.data.value);
-    console.log("time:      " + evt.data.time);
     sendLatLong();
     sendSteps(evt.data.value, evt.data.time);
   } else {
-    console.log(evt.data.key);
+    return {};
   }
 }
