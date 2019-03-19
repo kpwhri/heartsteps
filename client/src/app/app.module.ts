@@ -20,6 +20,8 @@ import { NotificationsModule } from '@heartsteps/notifications/notifications.mod
 import { WeeklySurveyModule } from '@pages/weekly-survey/weekly-survey.module';
 import { MorningSurveyPageModule } from '@pages/morning-survey/morning-survey.module';
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
+import { HeartstepsInfrastructureModule } from '@infrastructure/heartsteps/heartsteps.module';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 const appRoutes:Routes = [{
   path: '',
@@ -36,6 +38,7 @@ const appRoutes:Routes = [{
     CurrentWeekModule.forRoot(),
     OnboardPageModule,
     HomePageModule,
+    HeartstepsInfrastructureModule,
     NotificationsModule,
     NotificationsPageModule,
     WeeklySurveyModule,
@@ -59,7 +62,8 @@ const appRoutes:Routes = [{
     NotificationService,
     BackgroundService,
     LocationService,
-    AuthorizationService
+    AuthorizationService,
+    AnalyticsService
   ]
 })
 export class AppModule {}

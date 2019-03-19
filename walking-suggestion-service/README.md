@@ -63,7 +63,7 @@ Below is an example of json input.
 }
 ~~~
 
-1. `userID`: the user ID. **(Ask Nick: how is ID created?)**
+1. `userID`: The user Id is the unique id assigned to a participant. This id is the same as the study id assigned to participants when they are enrolled in the HeartSteps study.
 
 2. `totalStepsArray` 
 
@@ -78,8 +78,7 @@ Below is an example of json input.
 
   - The daily step count for a day will be marked as `null` if any of the followings holds:
   
-  	(1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data 
-	**(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for each day)**
+  	(1) The participant is classfied as "not wear the sensor for the day"  based on the heart rate data. The heart rate data is the [minute level intraday heartrate data from the Fitbit Web API.](https://dev.fitbit.com/build/reference/web-api/heart-rate/#get-heart-rate-intraday-time-series) If there is any non-zero minute level heartrate for a participant, they will be counted as having wore their sensor that day. 
 	
 	(2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and
 	thus the Fitbit server does not have the step count data)
@@ -98,7 +97,7 @@ Below is an example of json input.
   - The pre (post)- 30 min step count for a decision time will be marked as `null` if any of the followings holds:
 
   	  (1) the participant is classfied as "not wear the sensor during the 30 min window before (after) the decision time "  
-	based on the heart rate data **(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for the 30-min window)**
+	based on the heart rate data (same above)
 
    	 (2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection 
 	and thus the Fitbit server does not have the step count data)
@@ -114,6 +113,7 @@ The current version of *initialize* service requires the input satisfying the fo
 
 
 1. [server] Include all the required information (e.g. user id, total steps array, pre and post steps matrix)
+
 2. [server]The length of `totalStepsArray ` matches with the size of `preStepsMatrix ` and `postStepsMatrix `.
 
 3. [data quality] At least one non-missing (e.g. not marked as `null`) record for the total step data over the week with no app.  
@@ -203,13 +203,22 @@ Shown below is an example of json input for user `1` at decision time `2` on day
 The current version of *decision* service requires the input satisfying the following conditions 
 **(otherwise, the service will send Peng and Nick an email and/or write a warning with a dump of the data in a file; need to decide what to do then)**
 
-1. [server] The *decision* service does not skip any previous decision times (e.g. the decision service is required to call 5 times per 
-day since the beginning of the study with app installed). This is done by examining the input `studyDay` and `decisionTime`. 
+1. [server] The *decision* service does not skip any previous decision times in the current day.
+
+	**If this is not true, we will use default randomization probability.**
+	
 2. [server] All the required information is included in the input
+
+	**If this is not true, we will use default randomization probability.**
+
 3. [server] The type of each variable is consistent with the above description
  (e.g. `location` can only be `0`, `1` or `2`,  `availability` can only be `true` or `false` and so on.)
+ 
+ 	**If this is not true, we will use default randomization probability.**
+ 	
 4. [server] There is no missing data in the input. 
-
+	
+	**If this is not true, we will use default randomization probability.**
 
 
 ## 3. Nightly Update
@@ -222,7 +231,7 @@ The exact time at which the *nightly* service is called needs to satisfy:
 - after the end of the day specified in the anti-sedentary message scheduling. That is, there cannot be any anti-sedentary message sent
  after the *nightly* service is called. 
 
-
+**(Ask Nick: if there is any chance that the walking suggestion service is unable to be reached out at the nightly update time?)**
 
 ### INPUT-OUTPUT
 The *nightly* service has no output except for a message indicating successful update.  Below is an example of json input for user `1` finishing day `2`. 
@@ -234,10 +243,14 @@ The *nightly* service has no output except for a message indicating successful u
 	"priorAnti":false,
 	"lastActivity":false,
 	"temperatureArray":[30,33.4,8.5,23.9,38.1],
-	"appScreen":503,
+	"appClick":503,
 	"totalSteps":6584,
 	"preStepsArray":[12,50,100,0,null],
-	"postStepsArray":[300,null,100,130,31]
+	"postStepsArray":[300,null,100,130,31],
+	"availabilityArray": [true, false, true, false, true],
+ 	"priorAntiArray": [true, false, true, false, true],
+ 	"lastActivityArray": [true, false, true, false, true],
+ 	"locationArray": [0, 1, 2, 0, 2]
 }
 ~~~
 
@@ -257,7 +270,7 @@ Can either be `true` or `false`
   - If any of the temperatures is unknown, then the average temperature of all the participant's registered places (home and work) 
   will be substituted for the actual temperature.
 
-6. `appScreen`
+6. `appClick`
 
   - The number of app screens encountered in the current day from 12:00 am to 11:59 pm. 
   - Mark as `null` if the heartstep server does not have the latest information about the app usage at the time of nightly updates 
@@ -271,9 +284,8 @@ Can either be `true` or `false`
 
   - The input will be marked as `null` if any of the followings holds:
 
-  	  (1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data 
-	**(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for each day)**
-
+  	  (1) the participant is classfied as "not wear the sensor for the day"  based on the heart rate data (same above)
+	
    	 (2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and thus 
 	the Fitbit server does not have the step count data)
 
@@ -290,7 +302,7 @@ Can either be `true` or `false`
   - The pre (post)- 30 min step count for a decision time will be marked as `null` if any of the followings holds:
 
    	 (1) the participant is classfied as "not wear the sensor during the 30 min window before (after) the decision time " 
-	 based on the heart rate data **(Ask Nick: where to find the decision to classify between "wearing" vs. "not wearing" for the 30-min window)**
+	 based on the heart rate data (same above)
 
   	  (2) the step count can not be querired from Fitbit server (e.g. the user revokes the consent for data collection and thus the 
 	Fitbit server does not have the step count data)
@@ -298,6 +310,10 @@ Can either be `true` or `false`
  	   If neither of above is true, then the recieved input for the correspond decision time will be a number; including 0, meaning 
 	that the pariticipant is classified as "wear the sensor" and the Fibit collects 0 step during the 30 min window before (after) the decision time.
 
+9. `availabilityArray`, `priorAntiArray`, `lastActivityArray `, `locationArray `
+
+	- These are the vectors of `availability`, `priorAnti `, `lastActivity ` and `location` collected at the five decision times in a day. The first element correpsonds to the first decision time and second element to the second decision time and etc. 
+	- In the case where the walking suggestion service is reached by Heartsteps main server at all five decision times during the day, these information will be identical to the ones received during the day.  We resend this information at the nightly update time to hanlde the case where for some reason the heatstep main server cannot contact walking suggestion service at some decision time. 
 
 ### CONDITION CHECKING
 
@@ -309,7 +325,7 @@ The current version of *nightly* service requires the input satisfying the follo
 
 2. [server] There are five records in the input `temperatureArray`, `preStepsArray`, `postStepsArray` (including the missing ones, e.g. the ones markded as `null`)
 4. [server] The type of data is consistent with the above description 
-5. [server] The *nighty* service is called after the 5th decision time in the current day (e.g. the *decision* service has been called 5 times)
+5. [server] The *nighty* service is called after the 5th decision time in the current day (e.g. the *decision* service has been called 5 times) **(Will remove this)**
 
 
 

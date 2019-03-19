@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
@@ -23,6 +23,9 @@ export class Device {
 @Injectable()
 export class PushNotificationService {
 
+    private ready: boolean = false;
+    private readyEvent: EventEmitter<boolean> = new EventEmitter();
+
     private push: any;
     public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
     public notifications: Subject<any> = new Subject();
@@ -36,6 +39,48 @@ export class PushNotificationService {
     }
 
     public setup():Promise<boolean> {
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            this.initialize();
+            return this.isSetup()
+            .then(() => {
+                this.ready = true;
+                this.readyEvent.emit(true);
+                return true;
+            });
+        } else {
+            this.ready = true;
+            this.readyEvent.emit(true);
+            this.device.next(new Device('fake-device', 'fake'));
+            return Promise.resolve(true);
+        }
+    }
+
+    private isReady():Promise<boolean> {
+        if (this.ready) {
+            return Promise.resolve(true);
+        } else {
+            return new Promise((resolve) => {
+                const subscription = this.readyEvent.subscribe(() => {
+                    this.ready = true;
+                    subscription.unsubscribe();
+                    resolve(true);
+                });
+            })
+        }
+    }
+
+    private isSetup():Promise<boolean> {
+        return new Promise((resolve) => {
+            const subscription:Subscription = this.device
+            .filter(device => device !== undefined)
+            .subscribe(() => {
+                subscription.unsubscribe();
+                resolve(true);
+            });
+        });
+    }
+
+    private initialize() {
         if(this.platform.is('ios') || this.platform.is('android')) {
             this.push = PushNotification.init({
                 android: {},
@@ -57,37 +102,27 @@ export class PushNotificationService {
                     process.env.PUSH_NOTIFICATION_DEVICE_TYPE
                 ));
             });
-
-            return new Promise((resolve) => {
-                const subscription:Subscription = this.device
-                .filter(device => device !== undefined)
-                .subscribe(() => {
-                    subscription.unsubscribe();
-                    resolve(true);
-                });
-            });
-
-        } else {
-            this.device.next(new Device('fake-device', 'fake'));
-            return Promise.resolve(true);
         }
     }
 
     private createNotification(data:any) {
-        const customData: any = Object.assign({}, data);
-        delete customData.title;
-        delete customData.body;
-        delete customData.messageId;
-        delete customData.coldstart;
-        delete customData.foreground;
-        delete customData['content-available'];
-
-        this.notifications.next({
-            title: data.title,
-            body: data.body,
-            context: customData,
-            id: data.messageId,
-            type: data.type
+        this.isReady()
+        .then(() => {
+            const customData: any = Object.assign({}, data);
+            delete customData.title;
+            delete customData.body;
+            delete customData.messageId;
+            delete customData.coldstart;
+            delete customData.foreground;
+            delete customData['content-available'];
+    
+            this.notifications.next({
+                title: data.title,
+                body: data.body,
+                context: customData,
+                id: data.messageId,
+                type: data.type
+            });
         });
     }
 

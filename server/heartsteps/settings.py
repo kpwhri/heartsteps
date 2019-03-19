@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'contact',
     'corsheaders',
     'service_requests',
+    'page_views',
     'daily_tasks',
     'fitbit_api',
     'fitbit_authorize',

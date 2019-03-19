@@ -230,6 +230,10 @@ data.day$var.names <- var.names
 
 
 
+# ====== log file for saving the error ===== # 
+
+error.log <- NULL
+
 # ===== create the folder for the user and save the datasets ====== ####
 
 if(dir.exists("./data") == FALSE){
@@ -245,4 +249,4 @@ save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
 save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
 save(data.history, file = paste(paths, "/history.Rdata", sep=""))
 save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
-
+save(error.log, file = paste(paths, "/error.Rdata", sep=""))

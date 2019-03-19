@@ -215,12 +215,9 @@ class MakeDecisionTests(TestBase):
 
         make_decision(self.decision.id)
 
-        self.send_notification.assert_called()
-
         decision = AntiSedentaryDecision.objects.get()
         self.assertTrue(decision.sedentary)
         self.assertTrue(decision.available)
-        self.assertTrue(decision.treated)
 
     def testSendNoClient(self):
         decision_decide_patch = patch.object(AntiSedentaryDecision, 'decide')
