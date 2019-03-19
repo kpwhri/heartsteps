@@ -20,11 +20,11 @@ svg#lower {
 
 .clock-text {
   font-family: Seville-Book;
-  font-size: 88;
+  font-size: 90;
   text-anchor: middle;
   text-length: 10;
   x: 50%;
-  y: 40%;
+  y: 39%;
   width: 92%;
   height: 25%;
   fill: #2490DD;
@@ -32,11 +32,11 @@ svg#lower {
 
 .date-text {
   font-family: Seville-Regular;
-  font-size: 24;
+  font-size: 26;
   text-anchor: middle;
   text-length: 32;
   x: 50%;
-  y: 64%;
+  y: 65%;
   width: 92%;
   height: 8%;
   fill: #FFFFFF;
@@ -59,21 +59,21 @@ svg#lower {
 
 .stats {
   x: 50%-111;
-  y: 50%+72;
+  y: 50%+60;
   width: 222;
-  height: 48;
+  height: 50;
 }
 
 .stats text {
   font-family: Seville-Regular;
-  font-size: 24;
+  font-size: 26;
   text-length: 16;
   fill: #2490DD;
 }
 
 #iconHRM {
-  width: 24;
-  height: 24;
+  width: 26;
+  height: 26;
   y: 15;
   x: 1;
   fill: white;
@@ -100,6 +100,6 @@ svg#lower {
   x: 50%;
   y: 15;
   fill: #FFFFFF;
-  width: 24;
-  height: 24;
+  width: 26;
+  height: 26;
 }
