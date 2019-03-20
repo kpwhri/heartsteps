@@ -72,7 +72,7 @@ class WeekService:
         next_week = now + timedelta(days=7)
         return self.get_or_create_week(date(next_week.year, next_week.month, next_week.day))
 
-    def send_reflection(self, week):
+    def send_reflection(self, week, test=False):
         next_week = self.get_week_after(week)
         # Reset week goal, incase it was maniputlated
         # (which probably happened in testing)

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
@@ -84,8 +84,11 @@ class MorningMessageService:
         morning_message.message_decision.set_message_frame(message_framing)
         morning_message.save()
 
-    def send_notification(self, date):
-        morning_message, _ = self.get_or_create(date)
+    def send_notification(self, day=False, test=False):
+        if not day:
+            location_service = LocationService(user=self.__user)
+            day = location_service.get_current_date()
+        morning_message, _ = self.get_or_create(day)
 
         if not self.__configuration.enabled:
             raise MorningMessageService.NotEnabled()

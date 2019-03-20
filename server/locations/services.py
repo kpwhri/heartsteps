@@ -73,6 +73,10 @@ class LocationService:
     def get_current_datetime(self):
         tz = self.get_current_timezone()
         return timezone.now().astimezone(tz)
+    
+    def get_current_date(self):
+        current_datetime = self.get_current_datetime()
+        return date(current_datetime.year, current_datetime.month, current_datetime.day)
 
     def get_timezone_for(self, latitude, longitude):
         timezone_finder = TimezoneFinder()
