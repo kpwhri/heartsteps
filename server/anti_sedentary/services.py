@@ -15,10 +15,8 @@ from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTem
 
 class FitbitStepCountService:
 
-    def __init__(self, user, date):
-        self.user = user
-        self.date = date
-        
+    def __init__(self, user):
+        self.user = user        
         self.fitbit_account = FitbitService.get_account(user)
 
     def get_step_count_between(self, start, end):
@@ -200,8 +198,7 @@ class AntiSedentaryService:
         day_end = self.get_day_end(date)
 
         steps_service = FitbitStepCountService(
-            user = self.__user,
-            date = date
+            user = self.__user
         )
 
         decision_interval = self.decision_minute_interval

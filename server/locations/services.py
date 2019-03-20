@@ -94,7 +94,11 @@ class LocationService:
                 longitude = location.longitude
             )
         except LocationService.UnknownLocation:
-            return pytz.UTC 
+            return pytz.UTC
+
+    def get_datetime_on(self, datetime):
+        timezone = self.get_timezone_on(datetime)
+        return datetime.astimezone(timezone)
 
     def check_timezone_change(self):
         locations = Location.objects.filter(user=self.__user)[:2]

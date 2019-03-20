@@ -5,8 +5,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-
 from django.contrib.auth.models import User
+
+from locations.services import LocationService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
 
@@ -116,6 +117,10 @@ class Decision(models.Model):
             return True
         else:
             return False
+    
+    def get_local_datetime(self):
+        service = LocationService(user=self.user)
+        return service.get_datetime_on(self.time)
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

@@ -1,9 +1,16 @@
+from datetime import timedelta
+
 from django.contrib import admin
+
+from import_export import resources
+from import_export.admin import ExportMixin
+from import_export.fields import Field
+
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
 
 from .models import Configuration, AntiSedentaryMessageTemplate, AntiSedentaryDecision
-from .services import AntiSedentaryDecisionService
+from .services import AntiSedentaryDecisionService, AntiSedentaryService, FitbitStepCountService
 
 def send_anti_sedentary_message(admin, request, queryset):
     for configuration in queryset.all():
@@ -15,7 +22,8 @@ def send_anti_sedentary_message(admin, request, queryset):
         decision_service.update_context()
         decision_service.send_message()
 
-class AntiSedentaryConfigurationAdmin(admin.ModelAdmin):
+
+class AntiSedentaryConfigurationAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ['user', 'enabled']
     actions = [send_anti_sedentary_message]
     readonly_fields = [
@@ -39,10 +47,80 @@ class AntiSedentaryConfigurationAdmin(admin.ModelAdmin):
 
 admin.site.register(Configuration, AntiSedentaryConfigurationAdmin)
 
-class AntiSedentaryDecisionAdmin(DecisionAdmin):
-    list_display = ['user', 'time', 'sedentary', 'available', 'treated', 'imputed', 'test']
-    pass
+
+def get_step_count(decision):
+    service = AntiSedentaryService(user=decision.user)
+    try:
+        return service.get_step_count_at(decision.time)
+    except AntiSedentaryService.NoSteps:
+        return None
+
+def get_fitbit_step_count(decision):
+    service = FitbitStepCountService(user = decision.user)
+    return service.get_step_count_between(
+        start = decision.time - timedelta(minutes=40),
+        end = decision.time
+    )
+
+class AntiSedentaryDecisionResouce(resources.ModelResource):
+
+    local_time = Field()
+    step_count = Field()
+    fitbit_step_count = Field()
+
+    class Meta:
+        model = AntiSedentaryDecision
+
+        fields = [
+            'id',
+            'user__username',
+            'treated',
+            'treatment_probability',
+            'test',
+            'imputed',
+            'available',
+            'unavailable_reason'
+        ]
+
+        export_order = [
+            'id',
+            'user__username',
+            'local_time',
+            'step_count',
+            'fitbit_step_count',
+            'available',
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'test',
+            'imputed'
+        ]
+
+    def dehydrate_local_time(self, decision):
+        return decision.get_local_datetime().strftime('%Y-%m-%d %I:%M %p')
+
+    def dehydrate_step_count(self, decision):
+        return get_step_count(decision)
+
+    def dehydrate_fitbit_step_count(self, decision):
+        return get_fitbit_step_count(decision)
+
+
+class AntiSedentaryDecisionAdmin(ExportMixin, DecisionAdmin):
+    resource_class = AntiSedentaryDecisionResouce
+    list_display = ['user', 'local_time', 'step_count', 'fitbit_step_count', 'sedentary', 'available', 'treated', 'imputed', 'test']
+
+    def local_time(self, decision):
+        return decision.get_local_datetime().strftime('%Y-%m-%d %I:%M %p')
+
+    def step_count(self, decision):
+        return get_step_count(decision)
+
+    def fitbit_step_count(self, decision):
+        return get_fitbit_step_count(decision)
+
 admin.site.register(AntiSedentaryDecision, AntiSedentaryDecisionAdmin)
+
 
 class AntiSedentaryMessageTemplateAdmin(MessageTemplateAdmin):
     pass
