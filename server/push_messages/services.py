@@ -3,7 +3,7 @@ import uuid, json
 from django.conf import settings
 from django.utils import timezone
 
-from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService
+from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
 
 class DeviceMissingError(Exception):
@@ -34,7 +34,8 @@ class PushMessageService():
         client_types = {
             'apns': ApplePushClient,
             'apns-dev': AppleDevelopmentPushClient,
-            'firebase': FirebaseMessageService
+            'firebase': FirebaseMessageService,
+            'onesignal': OneSignalClient
         }
 
         client = client_types.get(self.device.type)
