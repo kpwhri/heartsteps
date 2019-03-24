@@ -2,7 +2,11 @@ import { Injectable, EventEmitter } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
-declare var PushNotification;
+declare var window: {
+    plugins: {
+        OneSignal: any
+    }
+}
 
 declare var process: {
     env: {
@@ -82,59 +86,17 @@ export class PushNotificationService {
 
     private initialize() {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.push = PushNotification.init({
-                android: {},
-                ios:{voip: "true"}
-            });
-
-            this.push.on('notification', (data:any) => {
-                console.log('PushNotificationService: got notification');
-                console.log(data);
-                if(this.platform.is('ios') && data.additionalData) {
-                    this.createNotification(data.additionalData);
-                }
-                if(this.platform.is('android')) {
-                    if (data.message) {
-                        data.additionalData.body = data.message;
-                    }
-                    if (data.title) {
-                        data.additionalData.title = data.title;
-                    }
-                    this.createNotification(data.additionalData);
-                }
+            window.plugins.OneSignal.startInit('596839e2-59bf-4fcb-bc55-a6154b8403d8')
+            .handleNotification((data) => {
+                this.handleNotification(data);
             })
-    
-            this.push.on('registration', (data:any) => {
-                this.device.next(new Device(
-                    data.registrationId,
-                    process.env.PUSH_NOTIFICATION_DEVICE_TYPE
-                ));
-            });
+            .endInit();
         }
     }
 
-    private createNotification(data:any) {
-        console.log('PushNotificationService: start to create notification');
+    private handleNotification(data:any) {
+        console.log('Handle Notification');
         console.log(data);
-        this.isReady()
-        .then(() => {
-            console.log('PushNotificationService: creating notification');
-            const customData: any = Object.assign({}, data);
-            delete customData.title;
-            delete customData.body;
-            delete customData.messageId;
-            delete customData.coldstart;
-            delete customData.foreground;
-            delete customData['content-available'];
-    
-            this.notifications.next({
-                title: data.title,
-                body: data.body,
-                context: customData,
-                id: data.messageId,
-                type: data.type
-            });
-        });
     }
 
 }
