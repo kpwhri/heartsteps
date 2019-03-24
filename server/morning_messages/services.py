@@ -96,6 +96,15 @@ class MorningMessageService:
         serialized = MorningMessageSerializer(morning_message).data
         serialized['type'] = 'morning-message'
 
+        if not serialized['text']:
+            del serialized['text']
+        if not serialized['anchor']:
+            del serialized['anchor']
+        
+        if serialized['notification']:
+            serialized['body'] = serialized['notification']
+            del serialized['notification']
+
         push_service = PushMessageService(user=self.__user)
         push_service.send_data(serialized)    
 

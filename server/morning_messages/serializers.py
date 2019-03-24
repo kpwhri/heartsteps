@@ -6,3 +6,7 @@ class MorningMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MorningMessage
         fields = ('date', 'notification', 'text', 'anchor')
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return representation

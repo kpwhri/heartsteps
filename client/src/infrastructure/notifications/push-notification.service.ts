@@ -88,11 +88,19 @@ export class PushNotificationService {
             });
 
             this.push.on('notification', (data:any) => {
+                console.log('PushNotificationService: got notification');
+                console.log(data);
                 if(this.platform.is('ios') && data.additionalData) {
                     this.createNotification(data.additionalData);
                 }
                 if(this.platform.is('android')) {
-                    this.createNotification(data);
+                    if (data.message) {
+                        data.additionalData.body = data.message;
+                    }
+                    if (data.title) {
+                        data.additionalData.title = data.title;
+                    }
+                    this.createNotification(data.additionalData);
                 }
             })
     
@@ -106,8 +114,11 @@ export class PushNotificationService {
     }
 
     private createNotification(data:any) {
+        console.log('PushNotificationService: start to create notification');
+        console.log(data);
         this.isReady()
         .then(() => {
+            console.log('PushNotificationService: creating notification');
             const customData: any = Object.assign({}, data);
             delete customData.title;
             delete customData.body;

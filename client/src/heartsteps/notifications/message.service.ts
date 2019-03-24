@@ -64,9 +64,16 @@ export class MessageService {
     }
 
     private receiveMessage(payload: any) {
+        console.log('MessageService: received message');
         const message:Message = this.deserializeMessage(payload);
+        console.log('MessageService: deserialize message');
         this.saveMessage(message)
         .then(() => {
+            console.log('MessageService: save message');
+            return message.received();
+        })
+        .then(() => {
+            console.log('MessageService: message marked received');
             this.received.next(message);
         });
     }

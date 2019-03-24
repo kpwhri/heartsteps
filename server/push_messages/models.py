@@ -53,6 +53,10 @@ class Message(models.Model):
     @property
     def received(self):
         return self.__get_receipt_time(MessageReceipt.RECEIVED)
+
+    @property
+    def displayed(self):
+        return self.__get_receipt_time(MessageReceipt.DISPLAYED)
     
     @property
     def opened(self):

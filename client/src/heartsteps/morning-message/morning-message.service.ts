@@ -41,7 +41,7 @@ export class MorningMessageService {
         return this.set({
             id: message.id,
             date: message.context.date,
-            notification: message.context.notification,
+            notification: message.body,
             text: message.context.text,
             anchor: message.context.anchor
         }).then(() => {
