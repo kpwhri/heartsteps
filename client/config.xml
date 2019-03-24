@@ -76,6 +76,9 @@
     <plugin name="cordova-plugin-geolocation" spec="^4.0.1">
         <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Your location will be used to tailor activity suggestions" />
     </plugin>
+    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
+        <string>Your location will be used to tailor activity suggestions</string>
+    </edit-config>
     <platform name="android">
         <resource-file src="google-services.json" target="app/google-services.json" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
@@ -99,6 +102,6 @@
     </platform>
     <plugin name="phonegap-plugin-push" spec="https://github.com/phonegap/phonegap-plugin-push#v2.2.3" />
     <plugin name="cordova-plugin-local-notification" spec="https://github.com/katzer/cordova-plugin-local-notifications#0.9.0-beta.3" />
-    <engine name="ios" spec="5.0.0" />
     <engine name="android" spec="^8.0.0" />
+    <engine name="ios" spec="^5.0.0" />
 </widget>

@@ -40,7 +40,7 @@
     "axios": "^0.18.0",
     "cordova-android": "^8.0.0",
     "cordova-inappbrowser": "^1.0.6",
-    "cordova-ios": "5.0.0",
+    "cordova-ios": "^5.0.0",
     "cordova-plugin-advanced-http": "^1.11.1",
     "cordova-plugin-background-fetch": "^5.4.1",
     "cordova-plugin-badge": "^0.8.8",
@@ -133,8 +133,8 @@
       "cordova-plugin-local-notification": {}
     },
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }
