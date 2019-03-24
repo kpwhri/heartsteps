@@ -8,7 +8,6 @@ import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-import { BackgroundProcessService } from '@infrastructure/background-process.service';
 import { StorageService } from './storage.service';
 import { ChoiceDialogController } from './choice-dialog.controler';
 import { AlertDialogController } from './alert-dialog.controller';
@@ -35,7 +34,6 @@ import { DateFactory } from './date.factory';
       DateFactory,
       LoadingService,
       Geolocation,
-      BackgroundProcessService,
       LocationService,
       StorageService,
       DocumentStorageService,
