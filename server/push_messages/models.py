@@ -65,14 +65,17 @@ class Message(models.Model):
 class MessageReceipt(models.Model):
     SENT = 'sent'
     RECEIVED = 'received'
+    DISPLAYED = 'displayed'
     OPENED = 'opened'
     ENGAGED = 'engaged'
 
-    MESSAGE_RECEIPT_TYPES = [SENT, RECEIVED, OPENED, ENGAGED]
+
+    MESSAGE_RECEIPT_TYPES = [SENT, RECEIVED, DISPLAYED, OPENED, ENGAGED]
 
     MESSAGE_RECEIPT_CHOICES = (
         (SENT, 'Sent'),
         (RECEIVED, 'Received'),
+        (DISPLAYED, 'Displayed'),
         (OPENED, 'Opened'),
         (ENGAGED, 'Engaged')
     )
