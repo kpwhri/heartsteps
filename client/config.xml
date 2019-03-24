@@ -12,7 +12,7 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <preference name="ScrollEnabled" value="false" />
-    <preference name="android-minSdkVersion" value="19" />
+    <preference name="android-minSdkVersion" value="22" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="FadeSplashScreenDuration" value="300" />
@@ -70,9 +70,6 @@
     <allow-navigation href="http://192.168.0.50:8100" />
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
     <plugin name="cordova-plugin-whitelist" spec="1.3.3" />
-    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-        <string>Your location will be used to tailor activity suggestions</string>
-    </edit-config>
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
     <plugin name="cordova-plugin-background-fetch" spec="^5.4.1" />
@@ -101,7 +98,7 @@
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <plugin name="phonegap-plugin-push" spec="https://github.com/phonegap/phonegap-plugin-push#v2.2.3" />
-    <plugin name="cordova-plugin-local-notification" spec="https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.3" />
-    <engine name="android" spec="7.0.0" />
-    <engine name="ios" spec="~5.0.0" />
+    <plugin name="cordova-plugin-local-notification" spec="https://github.com/katzer/cordova-plugin-local-notifications#0.9.0-beta.3" />
+    <engine name="ios" spec="5.0.0" />
+    <engine name="android" spec="^8.0.0" />
 </widget>
