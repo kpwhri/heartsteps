@@ -61,24 +61,6 @@
         <splash height="480" src="resources/ios/splash/Default~iphone.png" width="320" />
         <splash height="2732" src="resources/ios/splash/Default@2x~universal~anyany.png" width="2732" />
     </platform>
-    <plugin name="cordova-plugin-device" spec="~2.0.2" />
-    <plugin name="cordova-plugin-splashscreen" spec="~5.0.2" />
-    <plugin name="cordova-plugin-ionic-webview" spec="~1.1.19" />
-    <plugin name="cordova-plugin-ionic-keyboard" spec="~2.0.5" />
-    <allow-navigation href="http://192.168.0.57:8100" />
-    <plugin name="cordova-plugin-advanced-http" spec="^1.11.1" />
-    <allow-navigation href="http://192.168.0.50:8100" />
-    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
-    <plugin name="cordova-plugin-whitelist" spec="1.3.3" />
-    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-        <string>Your location will be used to tailor activity suggestions</string>
-    </edit-config>
-    <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
-    <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
-    <plugin name="cordova-plugin-background-fetch" spec="^5.4.1" />
-    <plugin name="cordova-plugin-geolocation" spec="^4.0.1">
-        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Your location will be used to tailor activity suggestions" />
-    </plugin>
     <platform name="android">
         <resource-file src="google-services.json" target="app/google-services.json" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
@@ -100,8 +82,16 @@
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
+    <plugin name="cordova-plugin-device" spec="~2.0.2" />
+    <plugin name="cordova-plugin-splashscreen" spec="~5.0.2" />
+    <plugin name="cordova-plugin-ionic-webview" spec="~1.1.19" />
+    <plugin name="cordova-plugin-ionic-keyboard" spec="~2.0.5" />
+    <plugin name="cordova-plugin-advanced-http" spec="^1.11.1" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
+    <plugin name="cordova-plugin-whitelist" spec="1.3.3" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
+    <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
     <plugin name="phonegap-plugin-push" spec="https://github.com/phonegap/phonegap-plugin-push#v2.2.3" />
-    <plugin name="cordova-plugin-local-notification" spec="https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.3" />
-    <engine name="android" spec="7.0.0" />
     <engine name="ios" spec="~5.0.0" />
+    <engine name="android" spec="~7.1.4" />
 </widget>

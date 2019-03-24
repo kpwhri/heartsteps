@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
-import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
@@ -21,7 +20,6 @@ export class ProfileService {
         private messageService: MessageService,
         private dailyTimeService: DailyTimeService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
-        private locationService:LocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
@@ -80,7 +78,6 @@ export class ProfileService {
         return Promise.all([
             this.walkingSuggestionTimeService.removeTimes(),
             this.messageService.disable(),
-            this.locationService.removePermission(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
             this.contactInformationService.remove(),
@@ -98,7 +95,6 @@ export class ProfileService {
         return Promise.all([
             this.checkNotificationsEnabled(),
             this.checkWalkingSuggestions(),
-            this.checkLocationPermission(),
             this.checkPlacesSet(),
             this.checkReflectionTime(),
             this.checkContactInformation(),
@@ -108,11 +104,10 @@ export class ProfileService {
             return {
                 notificationsEnabled: results[0],
                 walkingSuggestionTimes: results[1],
-                locationPermission: results[2],
-                places: results[3],
-                weeklyReflectionTime: results[4],
-                contactInformation: results[5],
-                fitbitAuthorization: results[6]
+                places: results[2],
+                weeklyReflectionTime: results[3],
+                contactInformation: results[4],
+                fitbitAuthorization: results[5]
             }
         })
         .catch(() => {
@@ -194,16 +189,6 @@ export class ProfileService {
         })
         .catch(() => {
             return Promise.resolve(false);
-        })
-    }
-
-    private checkLocationPermission():Promise<boolean> {
-        return this.locationService.hasPermission()
-        .then(() => {
-            return true
-        })
-        .catch(() => {
-            return Promise.resolve(false)
         })
     }
 
