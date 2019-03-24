@@ -32,7 +32,6 @@
     "@ionic-native/geolocation": "^4.9.2",
     "@ionic-native/http": "^4.9.1",
     "@ionic-native/in-app-browser": "^4.15.0",
-    "@ionic-native/push": "^4.20.0",
     "@ionic-native/safari-view-controller": "^4.15.0",
     "@ionic-native/splash-screen": "4.7.0",
     "@ionic-native/status-bar": "4.7.0",
@@ -42,14 +41,12 @@
     "cordova-inappbrowser": "^1.0.6",
     "cordova-ios": "^5.0.0",
     "cordova-plugin-advanced-http": "^1.11.1",
-    "cordova-plugin-badge": "^0.8.8",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file": "^6.0.1",
     "cordova-plugin-geolocation": "^4.0.1",
     "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-ionic-keyboard": "^2.1.3",
     "cordova-plugin-ionic-webview": "^1.2.1",
-    "cordova-plugin-local-notification": "git+https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.3",
     "cordova-plugin-safariviewcontroller": "^1.5.4",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
@@ -60,7 +57,7 @@
     "ionicons": "3.0.0",
     "moment": "^2.24.0",
     "node-sass": "^4.9.0",
-    "phonegap-plugin-push": "git+https://github.com/phonegap/phonegap-plugin-push.git#v2.2.3",
+    "onesignal-cordova-plugin": "^2.4.6",
     "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
     "url-join": "^4.0.0",
@@ -126,8 +123,7 @@
       "cordova-plugin-geolocation": {
         "GEOLOCATION_USAGE_DESCRIPTION": "Your location will be used to tailor activity suggestions"
       },
-      "phonegap-plugin-push": {},
-      "cordova-plugin-local-notification": {}
+      "onesignal-cordova-plugin": {}
     },
     "platforms": [
       "android",

@@ -4,7 +4,6 @@ import { Subject } from 'rxjs';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
 import { StorageService } from '@infrastructure/storage.service';
 import { PushNotificationService, Device } from '@infrastructure/notifications/push-notification.service';
-import { LocalNotificationService } from '@infrastructure/notifications/local-notification.service';
 import { DocumentStorage, DocumentStorageService } from '@infrastructure/document-storage.service';
 import { Message } from './message.model';
 
@@ -22,7 +21,6 @@ export class MessageService {
 
     constructor(
         private pushNotificationService: PushNotificationService,
-        private localNotificationService: LocalNotificationService,
         private messageReceiptService: MessageReceiptService,
         private heartstepsServer:HeartstepsServer,
         private storage:StorageService,
@@ -37,30 +35,18 @@ export class MessageService {
 
             this.messageStorage = this.documentStorageService.create('heartsteps-messages');
 
-            this.localNotificationService.clicked.subscribe((messageId: string) => {
-                this.openMessage(messageId)
-            });
             this.pushNotificationService.device.subscribe((device: Device) => {
                 this.checkDevice(device);
             });
             this.pushNotificationService.notifications.subscribe((data: any) => {
                 this.receiveMessage(data);
             });
-            return Promise.all([
-                this.localNotificationService.setup(),
-                this.pushNotificationService.setup()
-            ])
+
+            this.pushNotificationService.setup()
             .then(() => {
                 return true;
             });
         }
-    }
-
-    private openMessage(messageId:string) {
-        this.getMessage(messageId)
-        .then((message) => {
-            this.opened.next(message);
-        });
     }
 
     private receiveMessage(payload: any) {
@@ -79,14 +65,11 @@ export class MessageService {
     }
 
     public createNotification(id: string, text: string): Promise<boolean> {
-        return this.localNotificationService.create(id, text);
+        return Promise.reject('Do not create notification');
     }
 
     public isEnabled():Promise<boolean> {
         return this.getDevice()
-        .then(() => {
-            return this.localNotificationService.isEnabled()
-        })
         .then(() => {
             return true;
         })
@@ -99,9 +82,6 @@ export class MessageService {
         return this.setup()
         .then(() => {
             return this.pushNotificationService.getPermission();
-        })
-        .then(() => {
-            return this.localNotificationService.enable();
         })
         .then(() => {
             return this.waitForDevice();

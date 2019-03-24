@@ -5,8 +5,7 @@ import { LocalNotificationService } from "./local-notification.service";
 
 @NgModule({
     providers: [
-        PushNotificationService,
-        LocalNotificationService
+        PushNotificationService
     ]
 })
 export class NotificationsModule {}
