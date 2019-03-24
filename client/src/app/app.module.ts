@@ -11,6 +11,8 @@ import { MyApp } from './app.component';
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationService } from '@app/notification.service';
+import { BackgroundService } from '@app/background.service';
+import { LocationService } from '@heartsteps/locations/location.service';
 import { HomePageModule } from '@pages/home/home.module';
 import { NotificationsModule as NotificationsPageModule } from '@pages/notifications/notifications.module';
 import { AuthorizationService } from './authorization.service';
@@ -58,6 +60,8 @@ const appRoutes:Routes = [{
     StatusBar,
     SplashScreen,
     NotificationService,
+    BackgroundService,
+    LocationService,
     AuthorizationService,
     AnalyticsService
   ]

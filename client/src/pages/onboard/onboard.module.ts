@@ -5,6 +5,7 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { PlacesModule } from '@heartsteps/places/places.module';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+import { LocationModule } from '@heartsteps/locations/location.module';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
 import { Routes, RouterModule } from '@angular/router';
@@ -30,6 +31,7 @@ const onboardRoutes:Routes = [
     PlacesModule,
     ParticipantModule,
     NotificationsModule,
+    LocationModule,
     FitbitModule,
     ContactInformationModule,
     WalkingSuggestionsModule,

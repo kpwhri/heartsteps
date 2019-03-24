@@ -22,6 +22,7 @@ export class MyApp {
         splashScreen: SplashScreen,
         private router: Router,
         private participantService:ParticipantService,
+        private backgroundService: BackgroundService,
         private notificationService: NotificationService,
         private authorizationService: AuthorizationService,
         private analyticsService: AnalyticsService
@@ -33,6 +34,7 @@ export class MyApp {
         .then(() => {
             this.participantService.participant.subscribe((participant: any) => {
                 this.setupAuthorization(participant);
+                this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
                 this.setDashboard(participant);
             });
@@ -47,6 +49,12 @@ export class MyApp {
     setupNotifications(participant:any) {
         if(participant && participant.profileComplete) {
             this.notificationService.setup();
+        }
+    }
+
+    setupBackgroundProcess(participant:any) {
+        if(participant && participant.profileComplete) {
+            this.backgroundService.init();
         }
     }
 

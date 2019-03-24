@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
+import { LocationModule } from '@heartsteps/locations/location.module';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
@@ -18,6 +19,7 @@ import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
         DailyTimesModule,
         InfrastructureModule,
         FitbitModule,
+        LocationModule,
         NotificationsModule,
         ContactInformationModule,
         WalkingSuggestionsModule,

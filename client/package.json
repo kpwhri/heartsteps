@@ -29,6 +29,7 @@
     "@angular/platform-browser-dynamic": "5.2.10",
     "@angular/router": "5.2.10",
     "@ionic-native/core": "4.11.0",
+    "@ionic-native/geolocation": "^4.9.2",
     "@ionic-native/http": "^4.9.1",
     "@ionic-native/in-app-browser": "^4.15.0",
     "@ionic-native/push": "^4.20.0",
@@ -37,29 +38,30 @@
     "@ionic-native/status-bar": "4.7.0",
     "@ionic/storage": "2.1.3",
     "axios": "^0.18.0",
-    "cordova-android": "^7.1.4",
+    "cordova-android": "7.0.0",
     "cordova-inappbrowser": "^1.0.6",
-    "cordova-ios": "^5.0.0",
+    "cordova-ios": "5.0.0",
     "cordova-plugin-advanced-http": "^1.11.1",
+    "cordova-plugin-background-fetch": "^5.4.1",
     "cordova-plugin-badge": "^0.8.8",
+    "cordova-plugin-customurlscheme": "^4.3.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file": "^6.0.1",
+    "cordova-plugin-geolocation": "^4.0.1",
     "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-ionic-keyboard": "^2.1.3",
     "cordova-plugin-ionic-webview": "^1.2.1",
-    "cordova-plugin-local-notification": "^0.9.0-beta.2",
+    "cordova-plugin-local-notification": "git+https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.3",
     "cordova-plugin-safariviewcontroller": "^1.5.4",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
-    "cordova-support-google-services": "^1.1.0",
     "d3": "^5.7.0",
     "firebase": "^5.1.0",
     "ionic-angular": "3.9.2",
     "ionicons": "3.0.0",
     "moment": "^2.24.0",
     "node-sass": "^4.9.0",
-    "phonegap-plugin-multidex": "^1.0.0",
     "phonegap-plugin-push": "git+https://github.com/phonegap/phonegap-plugin-push.git#v2.2.3",
     "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
@@ -117,6 +119,13 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-customurlscheme": {
+        "URL_SCHEME": "comnickreidheartsteps",
+        "ANDROID_SCHEME": " ",
+        "ANDROID_HOST": " ",
+        "ANDROID_PATHPREFIX": "/"
+      },
+      "cordova-plugin-background-fetch": {},
       "cordova-plugin-geolocation": {
         "GEOLOCATION_USAGE_DESCRIPTION": "Your location will be used to tailor activity suggestions"
       },
@@ -124,8 +133,8 @@
       "cordova-plugin-local-notification": {}
     },
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }

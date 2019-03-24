@@ -27,6 +27,10 @@ const onboardingPages:Array<Step> = [{
     title: 'Suggestion Times',
     component: WalkingSuggestionTimesComponent
 }, {
+    key: 'locationPermission',
+    title: 'Locations',
+    component: LocationPermission
+}, {
     key: 'places',
     title: 'Places',
     component: PlacesList
@@ -41,6 +45,7 @@ const onboardingPages:Array<Step> = [{
     templateUrl: 'onboard.html',
     entryComponents: [
         NotificationsPermissionComponent,
+        LocationPermission,
         WeeklyReflectionTimePage,
         WalkingSuggestionTimesComponent,
         LocationPermission,
