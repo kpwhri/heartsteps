@@ -14,8 +14,7 @@ export class MessageService {
 
     private messageStorage: DocumentStorage;
 
-    public received: Subject<any> = new Subject();
-    public opened: Subject<any> = new Subject();
+    public opened: Subject<Message> = new Subject();
 
     private isSetup: boolean = false;
 
@@ -39,7 +38,12 @@ export class MessageService {
                 this.checkDevice(device);
             });
             this.pushNotificationService.notifications.subscribe((data: any) => {
-                this.receiveMessage(data);
+                console.log('MessageService: Got notification id=' + data.id );
+                const message = this.deserializeMessage(data);
+                this.saveMessage(message)
+                .then(() => {
+                    this.opened.next(message);
+                });
             });
 
             this.pushNotificationService.setup()
@@ -49,32 +53,17 @@ export class MessageService {
         }
     }
 
-    private receiveMessage(payload: any) {
-        console.log('MessageService: received message');
-        const message:Message = this.deserializeMessage(payload);
-        console.log('MessageService: deserialize message');
-        this.saveMessage(message)
-        .then(() => {
-            console.log('MessageService: save message');
-            return message.received();
-        })
-        .then(() => {
-            console.log('MessageService: message marked received');
-            this.received.next(message);
-        });
-    }
-
     public createNotification(id: string, text: string): Promise<boolean> {
         return Promise.reject('Do not create notification');
     }
 
     public isEnabled():Promise<boolean> {
-        return this.getDevice()
+        return this.pushNotificationService.hasPermission()
         .then(() => {
             return true;
         })
         .catch(() => {
-            return Promise.reject("No device registered");
+            return Promise.reject("No permission");
         })
     }
 
@@ -163,9 +152,15 @@ export class MessageService {
     }
 
     public getMessage(messageId:string):Promise<Message> {
+        console.log('MessageService: Get message id=' + messageId);
         return this.messageStorage.get(messageId)
         .then((data) => {
+            console.log('MessageService: returning message');
             return this.deserializeMessage(data);
+        })
+        .catch(() => {
+            console.log('MessageService: message not found');
+            return Promise.reject('Message not found');
         })
     }
 

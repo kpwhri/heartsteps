@@ -1,6 +1,6 @@
-import { Injectable, EventEmitter } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
-import { BehaviorSubject, Subject, Subscription } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 declare var window: {
     plugins: {
@@ -27,76 +27,87 @@ export class Device {
 @Injectable()
 export class PushNotificationService {
 
-    private ready: boolean = false;
-    private readyEvent: EventEmitter<boolean> = new EventEmitter();
-
-    private push: any;
     public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
     public notifications: Subject<any> = new Subject();
 
     constructor(
         private platform: Platform
-    ) {}
-
-    public getPermission():Promise<boolean> {
-        return Promise.resolve(true);
+    ) {
+        this.platform.ready()
+        .then(() => {
+            this.initialize();
+        })
     }
 
     public setup():Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            this.initialize();
-            return this.isSetup()
-            .then(() => {
-                this.ready = true;
-                this.readyEvent.emit(true);
-                return true;
-            });
+            return Promise.resolve(true);
         } else {
-            this.ready = true;
-            this.readyEvent.emit(true);
             this.device.next(new Device('fake-device', 'fake'));
             return Promise.resolve(true);
         }
     }
 
-    private isReady():Promise<boolean> {
-        if (this.ready) {
-            return Promise.resolve(true);
-        } else {
-            return new Promise((resolve) => {
-                const subscription = this.readyEvent.subscribe(() => {
-                    this.ready = true;
-                    subscription.unsubscribe();
+    public hasPermission(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
+                if(status.permissionStatus.hasPrompted && status.subscriptionStatus.subscribed) {
                     resolve(true);
-                });
-            })
-        }
+                } else {
+                    reject('Not prompted or not subscribed');
+                }
+            });
+        });
     }
 
-    private isSetup():Promise<boolean> {
-        return new Promise((resolve) => {
-            const subscription:Subscription = this.device
-            .filter(device => device !== undefined)
-            .subscribe(() => {
-                subscription.unsubscribe();
-                resolve(true);
+    public getPermission(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
+                if (accepted) {
+                    resolve(true)
+                } else {
+                    reject('Permission not accepted');
+                }
             });
         });
     }
 
     private initialize() {
         if(this.platform.is('ios') || this.platform.is('android')) {
+            window.plugins.OneSignal.addSubscriptionObserver((state) => {
+                this.handleOneSignalSubscription(state.to.userId);
+            });
+
             window.plugins.OneSignal.startInit('596839e2-59bf-4fcb-bc55-a6154b8403d8')
-            .handleNotification((data) => {
+            .iOSSettings({
+                'kOSSettingsKeyAutoPrompt': false,
+                'kOSSettingsKeyInAppLaunchURL': true
+            })
+            .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
+            .handleNotificationOpened((data) => {
                 this.handleNotification(data);
             })
             .endInit();
         }
     }
 
+    private handleOneSignalSubscription(token: string) {
+        this.device.next(new Device(
+            token,
+            'onesignal'
+        ))
+    }
+
     private handleNotification(data:any) {
         console.log('Handle Notification');
         console.log(data);
+        this.notifications.next({
+            id: data.notification.payload.additionalData.messageId,
+            type: data.notification.payload.additionalData.type,
+            title: data.notification.payload.title,
+            body: data.notification.payload.body,
+            context: data.notification.payload.additionalData
+        });
     }
 
 }

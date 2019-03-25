@@ -19,18 +19,13 @@ export class NotificationService {
 
     setup() {
         this.messageService.opened.subscribe((message: Message) => {
+            console.log('AppNotificationService: Processing message id=' + message.id);
             this.processOpenedMessage(message)
             .then(() => {
+                console.log('AppNotificationService: Opened message id='+message.id)
                 message.opened();
             });
         });
-        this.messageService.received.subscribe((message:Message) => {
-            this.processReceivedMessage(message)
-            .then(() => {
-                message.displayed()
-            });
-        });
-
         this.messageService.setup();
     }
 
@@ -41,20 +36,8 @@ export class NotificationService {
             case 'morning-message':
                 return this.router.navigate(['morning-survey']);
             default:
+                console.log('AppNotificationService: Try to open notification page for: ' + message.id);
                 return this.router.navigate(['notification', message.id]);
-        }
-    }
-
-    private processReceivedMessage(message: Message): Promise<boolean> {
-        switch(message.type) {
-            case 'weekly-reflection':
-                return this.weeklySurveyService.processNotification(message);
-            case 'morning-message':
-                return this.morningMessageService.processMessage(message);
-            case 'request-context':
-                return this.walkingSuggestionService.sendDecisionContext(message.context.decisionId);
-            default:
-                return this.messageService.createNotification(message.id, message.body);
         }
     }
 }
