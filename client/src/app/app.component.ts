@@ -20,7 +20,6 @@ export class MyApp {
         platform: Platform,
         statusBar: StatusBar,
         splashScreen: SplashScreen,
-        private router: Router,
         private participantService:ParticipantService,
         private backgroundService: BackgroundService,
         private notificationService: NotificationService,
@@ -36,7 +35,6 @@ export class MyApp {
                 this.setupAuthorization(participant);
                 this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
-                this.setDashboard(participant);
             });
             return this.participantService.update();
         })
@@ -65,15 +63,4 @@ export class MyApp {
             this.authorizationService.reset();
         }
     }
-
-    setDashboard(participant:any) {
-        if(!participant) {
-            this.router.navigate(['welcome']);
-        } else if (!participant.profileComplete) {
-            this.router.navigate(['onboard']);
-        } else {
-            // this.router.navigate(['home']);
-        }
-    }
 }
-

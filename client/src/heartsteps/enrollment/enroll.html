@@ -1,21 +1,17 @@
-<app-modal-dialog
-  title="Enroll"
-  >
-  <app-form
+<app-form
     [formGroup]="enrollmentForm"
     (onSubmit)="enroll()"
     submitLabel="Enroll"
     >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <app-text-field
-      formControlName="entryToken"
-      label="Entry code"
-      >
+        formControlName="entryToken"
+        label="Entry code"
+        >
     </app-text-field>
     <app-year-field
-      formControlName="birthYear"
-      label="Birth year"
-      >
+        formControlName="birthYear"
+        label="Birth year"
+        >
     </app-year-field>
-  </app-form>
-</app-modal-dialog>
+</app-form>

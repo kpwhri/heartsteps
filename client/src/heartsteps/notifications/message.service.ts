@@ -46,7 +46,7 @@ export class MessageService {
                 });
             });
 
-            this.pushNotificationService.setup()
+            return this.pushNotificationService.setup()
             .then(() => {
                 return true;
             });

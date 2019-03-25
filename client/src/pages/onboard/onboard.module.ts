@@ -10,35 +10,42 @@ import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
 import { Routes, RouterModule } from '@angular/router';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
+import { OnboardGaurd } from './onboard.gaurd';
 
 const onboardRoutes:Routes = [
     {
         path: 'onboard/:page',
+        canActivate: [OnboardGaurd],
         component: OnboardPage
     }, {
         path: 'onboard',
+        canActivate: [OnboardGaurd],
+        pathMatch: 'full',
         redirectTo: 'onboard/start'
     }
 ];
 
 @NgModule({
-  declarations: [
-    OnboardPage,
-  ],
-  imports: [
-    HeartstepsComponentsModule,
-    WeeklySurveyModule,
-    PlacesModule,
-    ParticipantModule,
-    NotificationsModule,
-    LocationModule,
-    FitbitModule,
-    ContactInformationModule,
-    WalkingSuggestionsModule,
-    RouterModule.forChild(onboardRoutes)
-  ],
-  exports: [
-    RouterModule
-  ]
+    declarations: [
+        OnboardPage,
+    ],
+    imports: [
+        HeartstepsComponentsModule,
+        WeeklySurveyModule,
+        PlacesModule,
+        ParticipantModule,
+        NotificationsModule,
+        LocationModule,
+        FitbitModule,
+        ContactInformationModule,
+        WalkingSuggestionsModule,
+        RouterModule.forChild(onboardRoutes)
+    ],
+    exports: [
+        RouterModule
+    ],
+    providers: [
+        OnboardGaurd
+    ]
 })
 export class OnboardPageModule {}

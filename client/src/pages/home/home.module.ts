@@ -15,11 +15,15 @@ import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
+import { HomeGuard } from './home.guard';
 
 const routes:Routes = [
     {
         path: 'home',
         component: HomePage,
+        canActivate: [
+            HomeGuard
+        ],
         children: [{
             path: 'dashboard',
             component: DashboardPage,
@@ -66,7 +70,8 @@ const routes:Routes = [
     ],
     providers: [
         CurrentWeekResolver,
-        CurrentDailySummaryResolver
+        CurrentDailySummaryResolver,
+        HomeGuard
     ],
     imports: [
         DashboardModule,

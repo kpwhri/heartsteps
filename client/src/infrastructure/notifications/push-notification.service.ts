@@ -49,27 +49,35 @@ export class PushNotificationService {
     }
 
     public hasPermission(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
-                if(status.permissionStatus.hasPrompted && status.subscriptionStatus.subscribed) {
-                    resolve(true);
-                } else {
-                    reject('Not prompted or not subscribed');
-                }
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            return new Promise((resolve, reject) => {
+                window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
+                    if(status.permissionStatus.hasPrompted && status.subscriptionStatus.subscribed) {
+                        resolve(true);
+                    } else {
+                        reject('Not prompted or not subscribed');
+                    }
+                });
             });
-        });
+        } else {
+            return Promise.resolve(true);
+        }
     }
 
     public getPermission(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
-                if (accepted) {
-                    resolve(true)
-                } else {
-                    reject('Permission not accepted');
-                }
+        if(this.platform.is('ios') || this.platform.is('android')) {
+            return new Promise((resolve, reject) => {
+                window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
+                    if (accepted) {
+                        resolve(true)
+                    } else {
+                        reject('Permission not accepted');
+                    }
+                });
             });
-        });
+        } else {
+            return Promise.resolve(true);
+        }
     }
 
     private initialize() {

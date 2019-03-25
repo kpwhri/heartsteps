@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { EnrollmentService } from './enrollment.service';
 import { LoadingService } from '@infrastructure/loading.service';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
-import { ViewController } from 'ionic-angular';
+
 
 @Component({
     selector: 'heartsteps-enroll',
@@ -13,10 +13,11 @@ export class EnrollmentModal {
     public error:string
     public enrollmentForm:FormGroup
 
+    @Output('enrolled') enrolled:EventEmitter<boolean> = new EventEmitter();
+
     constructor(
         private enrollmentService: EnrollmentService,
-        private loadingService:LoadingService,
-        private viewCtrl: ViewController
+        private loadingService:LoadingService
     ) {
         this.enrollmentForm = new FormGroup({
             entryToken: new FormControl('', Validators.required),
@@ -25,25 +26,21 @@ export class EnrollmentModal {
     }
 
     enroll() {
-        this.error = null;
+        this.error = undefined;
+        this.loadingService.show('Authenticating');
 
-        if(this.enrollmentForm.valid) {
-            this.loadingService.show('Authenticating entry code');
-    
-            const token = this.enrollmentForm.value.entryToken;
-            const birthYear = this.enrollmentForm.value.birthYear;
-            this.enrollmentService.enroll(token, birthYear)
-            .then(() => {
-                this.loadingService.dismiss();
-                this.viewCtrl.dismiss();
-            })
-            .catch((error) => {
-                this.error = error;
-                this.loadingService.dismiss();
-            })
-        } else {
-            this.enrollmentForm.markAsDirty();
-            this.enrollmentForm.markAsTouched();
-        }
+        const token = this.enrollmentForm.value.entryToken;
+        const birthYear = this.enrollmentForm.value.birthYear;
+        
+        this.enrollmentService.enroll(token, birthYear)
+        .then(() => {
+            this.enrolled.emit(true);
+        })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 }
