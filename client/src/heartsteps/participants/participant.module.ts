@@ -11,7 +11,6 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 
 import { ParticipantService } from './participant.service';
 import { ProfileService } from './profile.factory';
-import { AuthorizationGaurd, OnboardGaurd } from './auth-gaurd.service';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 
 @NgModule({
@@ -28,9 +27,7 @@ import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
     ],
     providers: [
         ParticipantService,
-        ProfileService,
-        AuthorizationGaurd,
-        OnboardGaurd
+        ProfileService
     ]
 })
 export class ParticipantModule {}
