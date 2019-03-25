@@ -6,7 +6,6 @@ import { ParticipantService } from '@heartsteps/participants/participant.service
 import { BackgroundService } from '@app/background.service';
 import { NotificationService } from './notification.service';
 import { AuthorizationService } from './authorization.service';
-import { Router } from '@angular/router';
 import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 @Component({
