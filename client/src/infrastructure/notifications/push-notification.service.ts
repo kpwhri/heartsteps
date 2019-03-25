@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -31,7 +31,8 @@ export class PushNotificationService {
     public notifications: Subject<any> = new Subject();
 
     constructor(
-        private platform: Platform
+        private platform: Platform,
+        private zone: NgZone
     ) {
         this.platform.ready()
         .then(() => {
@@ -93,7 +94,9 @@ export class PushNotificationService {
             })
             .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
             .handleNotificationOpened((data) => {
-                this.handleNotification(data);
+                this.zone.run(() => {
+                    this.handleNotification(data);
+                });
             })
             .endInit();
         }
