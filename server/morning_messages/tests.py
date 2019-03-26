@@ -133,9 +133,9 @@ class MorningMessageTaskTest(MorningMessageTestBase):
 
         self.send_data.assert_called()
         sent_data = self.send_data.call_args[0][0]
-        self.assertEqual(sent_data['notification'], 'Good Morning')
-        self.assertEqual(sent_data['text'], None)
-        self.assertEqual(sent_data['anchor'], None)
+        self.assertEqual(sent_data['body'], 'Good Morning')
+        assert 'text' not in sent_data
+        assert 'anchor' not in sent_data
 
     @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=MorningMessageDecision.FRAME_GAIN_ACTIVE)
     def test_message_with_framing(self, _):
@@ -143,6 +143,6 @@ class MorningMessageTaskTest(MorningMessageTestBase):
 
         self.send_data.assert_called()
         sent_data = self.send_data.call_args[0][0]
-        self.assertEqual(sent_data['notification'], 'Example morning message')
+        self.assertEqual(sent_data['body'], 'Example morning message')
         self.assertEqual(sent_data['text'], 'Example morning message')
         self.assertEqual(sent_data['anchor'], 'Anchor message')
