@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationsPermissionComponent } from '@heartsteps/notifications/notification-permission.component';
-import { LocationPermission } from '@heartsteps/locations/location-permission';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
@@ -27,10 +26,6 @@ const onboardingPages:Array<Step> = [{
     title: 'Suggestion Times',
     component: WalkingSuggestionTimesComponent
 }, {
-    key: 'locationPermission',
-    title: 'Locations',
-    component: LocationPermission
-}, {
     key: 'places',
     title: 'Places',
     component: PlacesList
@@ -45,10 +40,8 @@ const onboardingPages:Array<Step> = [{
     templateUrl: 'onboard.html',
     entryComponents: [
         NotificationsPermissionComponent,
-        LocationPermission,
         WeeklyReflectionTimePage,
         WalkingSuggestionTimesComponent,
-        LocationPermission,
         PlacesList
     ]
 })
