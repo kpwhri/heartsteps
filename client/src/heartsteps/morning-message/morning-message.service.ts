@@ -4,7 +4,6 @@ import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 import { MorningMessage } from "./morning-message.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { MessageService } from '@heartsteps/notifications/message.service';
 import { MessageReceiptService } from '@heartsteps/notifications/message-receipt.service';
 import { Message } from '@heartsteps/notifications/message.model';
 
@@ -16,7 +15,6 @@ export class MorningMessageService {
     constructor(
         private storage: StorageService,
         private heartstepsServer: HeartstepsServer,
-        private messageService: MessageService,
         private messageReceiptService: MessageReceiptService
     ) {}
 
@@ -37,27 +35,18 @@ export class MorningMessageService {
         });
     }
 
-    public processMessage(message: Message):Promise<boolean> {
+    public processMessage(message: Message):Promise<MorningMessage> {
         return this.set({
             id: message.id,
             date: message.context.date,
             notification: message.body,
             text: message.context.text,
             anchor: message.context.anchor
-        }).then(() => {
-            return true;
         });
     }
 
     public set(message: MorningMessage):Promise<MorningMessage> {
         return this.storage.set(storageKey, this.serialize(message))
-        .then(() => {
-            if(message.id) {
-                return this.messageService.createNotification(message.id, message.notification);
-            } else {
-                return Promise.resolve(true);
-            }
-        })
         .then(() => {
             return message;
         });
