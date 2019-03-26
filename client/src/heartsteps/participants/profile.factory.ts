@@ -64,7 +64,6 @@ export class ProfileService {
             this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
-            this.setupMessageService(),
             this.setupActivityTypeService(),
             this.setupCurrentDailySummaries()
         ])
@@ -79,7 +78,6 @@ export class ProfileService {
     public remove():Promise<boolean> {
         return Promise.all([
             this.walkingSuggestionTimeService.removeTimes(),
-            this.messageService.disable(),
             this.locationService.removePermission(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
@@ -279,16 +277,6 @@ export class ProfileService {
 
     private setupActivityPlanService() {
         return this.activityPlanService.setup()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        })
-    }
-
-    private setupMessageService():Promise<boolean> {
-        return this.messageService.setup()
         .then(() => {
             return true;
         })
