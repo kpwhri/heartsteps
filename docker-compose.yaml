@@ -58,6 +58,7 @@ services:
       - ./client:/client
       - client-node-modules:/client/node_modules
       - ./credentials:/credentials
+      - client-gradle-cache:/root/.gradle/caches
     ports:
       - "8100:8100"
       - "35729:35729"
@@ -69,3 +70,4 @@ services:
 volumes:
   client-node-modules:
   pgdata:
+  client-gradle-cache:
