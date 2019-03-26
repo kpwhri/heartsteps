@@ -106,7 +106,11 @@ class MorningMessageService:
             del serialized['notification']
 
         push_service = PushMessageService(user=self.__user)
-        push_service.send_data(serialized)    
+        push_service.send_notification(
+            body = morning_message.notification,
+            title = 'Morning message',
+            data = serialized
+        )    
 
 class MorningMessageDecisionService(DecisionMessageService):
 

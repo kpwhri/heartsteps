@@ -19,13 +19,13 @@ class MorningMessageTestBase(TestCase):
             user = self.user,
             active = True
         )
-        patch_send_data = patch.object(PushMessageService, 'send_data')
-        self.send_data = patch_send_data.start()
-        self.send_data.return_value = Message.objects.create(
+        patch_send_notification = patch.object(PushMessageService, 'send_notification')
+        self.send_notification = patch_send_notification.start()
+        self.send_notification.return_value = Message.objects.create(
             recipient = self.user,
             content = "foo"
         )
-        self.addCleanup(patch_send_data.stop)
+        self.addCleanup(patch_send_notification.stop)
 
         MorningMessageTemplate.objects.create(
             body = 'Example morning message',
@@ -109,7 +109,7 @@ class MorningMessageTaskTest(MorningMessageTestBase):
     def test_creates_morning_message(self):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
+        self.send_notification.assert_called()
         
         morning_message = MorningMessage.objects.get()
         self.assertEqual(morning_message.user, self.user)
@@ -121,7 +121,7 @@ class MorningMessageTaskTest(MorningMessageTestBase):
 
         send_morning_message(username="test")
 
-        self.send_data.assert_not_called()
+        self.send_notification.assert_not_called()
 
         morning_message = MorningMessage.objects.get()
         self.assertEqual(morning_message.user, self.user)
@@ -131,8 +131,9 @@ class MorningMessageTaskTest(MorningMessageTestBase):
     def test_message_with_no_framing(self, _):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
-        sent_data = self.send_data.call_args[0][0]
+        self.send_notification.assert_called()
+        self.assertEqual(self.send_notification.call_args[1]['body'], 'Good Morning')
+        sent_data = self.send_notification.call_args[1]['data']
         self.assertEqual(sent_data['body'], 'Good Morning')
         assert 'text' not in sent_data
         assert 'anchor' not in sent_data
@@ -141,8 +142,8 @@ class MorningMessageTaskTest(MorningMessageTestBase):
     def test_message_with_framing(self, _):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
-        sent_data = self.send_data.call_args[0][0]
+        self.send_notification.assert_called()
+        sent_data = self.send_notification.call_args[1]['data']
         self.assertEqual(sent_data['body'], 'Example morning message')
         self.assertEqual(sent_data['text'], 'Example morning message')
         self.assertEqual(sent_data['anchor'], 'Anchor message')
