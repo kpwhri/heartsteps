@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable, NgZone, EventEmitter } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -30,6 +30,8 @@ export class PushNotificationService {
     public device: BehaviorSubject<Device> = new BehaviorSubject(undefined);
     public notifications: Subject<any> = new Subject();
 
+    private ready: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
+
     constructor(
         private platform: Platform,
         private zone: NgZone
@@ -42,11 +44,23 @@ export class PushNotificationService {
 
     public setup():Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
+            this.ready.next(true);
             return Promise.resolve(true);
         } else {
             this.device.next(new Device('fake-device', 'fake'));
             return Promise.resolve(true);
         }
+    }
+
+    private isReady(): Promise<boolean> {
+        return new Promise((resolve) => {
+            this.ready
+            .filter(value => value === true)
+            .first()
+            .subscribe(() => {
+                resolve(true);
+            });
+        });
     }
 
     public hasPermission(): Promise<boolean> {
@@ -103,21 +117,25 @@ export class PushNotificationService {
     }
 
     private handleOneSignalSubscription(token: string) {
-        this.device.next(new Device(
-            token,
-            'onesignal'
-        ))
+        this.isReady()
+        .then(() => {
+            this.device.next(new Device(
+                token,
+                'onesignal'
+            ));
+        });
     }
 
     private handleNotification(data:any) {
-        console.log('Handle Notification');
-        console.log(data);
-        this.notifications.next({
-            id: data.notification.payload.additionalData.messageId,
-            type: data.notification.payload.additionalData.type,
-            title: data.notification.payload.title,
-            body: data.notification.payload.body,
-            context: data.notification.payload.additionalData
+        this.isReady()
+        .then(() => {
+            this.notifications.next({
+                id: data.notification.payload.additionalData.messageId,
+                type: data.notification.payload.additionalData.type,
+                title: data.notification.payload.title,
+                body: data.notification.payload.body,
+                context: data.notification.payload.additionalData
+            });
         });
     }
 
