@@ -47,7 +47,6 @@
         border-color: $color-white;
         color: $color-white;
         background-color: transparent;
-        width: auto;
     }
 
     a {
@@ -97,6 +96,10 @@
     .start-screen > * {
         width: 540px;
         margin: 4em auto;
+    }
+
+    .start-screen > button {
+        width: 540px;
     }
 
 }

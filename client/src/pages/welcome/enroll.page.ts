@@ -11,17 +11,20 @@ export class EnrollPageComponent {
         private router: Router
     ) {}
 
-    public dismiss() {
+    public dismiss(): Promise<boolean> {
         return this.router.navigate([{outlets:{
             modal: null
-        }}]);
+        }}])
+        .then(() => {
+            return true;
+        });
     }
 
     public continue() {
-        this.router.navigate(['onboard'])
+        this.dismiss()
         .then(() => {
-            this.dismiss();
-        });
+            this.router.navigate(['onboard']);
+        })
     }
 
 }

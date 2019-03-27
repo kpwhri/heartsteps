@@ -21,7 +21,7 @@ export class EnrollmentModal {
     ) {
         this.enrollmentForm = new FormGroup({
             entryToken: new FormControl('', Validators.required),
-            birthYear: new FormControl('')
+            birthYear: new FormControl('', Validators.required)
         });
     }
 
@@ -36,8 +36,8 @@ export class EnrollmentModal {
         .then(() => {
             this.enrolled.emit(true);
         })
-        .catch((error) => {
-            this.error = error;
+        .catch(() => {
+            this.error = 'Participant with matching entry code and birth year not found';
         })
         .then(() => {
             this.loadingService.dismiss();

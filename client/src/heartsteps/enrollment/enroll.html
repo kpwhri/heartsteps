@@ -2,6 +2,7 @@
     [formGroup]="enrollmentForm"
     (onSubmit)="enroll()"
     submitLabel="Enroll"
+    [error]="error"
     >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <app-text-field
