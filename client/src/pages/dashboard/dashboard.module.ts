@@ -6,6 +6,7 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { MorningMessageModule } from '@heartsteps/morning-message/morning-message.module';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
+import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
 
 @NgModule({
   declarations: [
@@ -13,6 +14,7 @@ import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.mo
   ],
   imports: [
     ActivityPlanPageModule,
+    AnchorMessageModule,
     DailySummaryModule,
     MorningMessageModule,
     WeeklySurveyModule,

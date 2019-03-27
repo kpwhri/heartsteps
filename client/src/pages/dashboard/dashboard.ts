@@ -39,6 +39,9 @@ export class DashboardPage implements OnInit {
         .then((morningMessage) => {
             this.morningMessage = morningMessage;
         })
+        .catch(() => {
+            console.log('No morning message');
+        });
     }
 
     ngOnInit() {

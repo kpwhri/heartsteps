@@ -38,6 +38,20 @@ def check_valid_date(user, day):
     if day < day_joined:
         raise Http404()
 
+class AnchorMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, day):
+        request_date = parse_date(day)
+        check_valid_date(request.user, request_date)
+        morning_message_service = MorningMessageService(
+            user = request.user
+        )
+        morning_message, _ = morning_message_service.get_or_create(request_date)
+        return Response({
+            'message': morning_message.anchor
+        }, status = status.HTTP_200_OK)
+
 class MorningMessageView(APIView):
     permission_classes = (IsAuthenticated,)
 
