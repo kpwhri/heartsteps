@@ -7,6 +7,7 @@
         [formGroup]="planForm"
         submitLabel="Create plan"
         (onSubmit)="create()"
+        [error]="error"
         >
         <activity-plan-field
             formControlName="activityPlan"

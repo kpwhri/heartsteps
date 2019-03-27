@@ -18,10 +18,16 @@ class SuggestionTimeList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        return Response(
-            SuggestionTimeSerializer(request.user).data,
-            status=status.HTTP_200_OK
-        )
+        suggestion_times = list(SuggestionTime.objects.filter(user=request.user).all())
+
+        if len(suggestion_times) > 0:
+            return_value = {}
+            for suggestion_time in suggestion_times:
+                time = "%s:%s" % (suggestion_time.hour, suggestion_time.minute)
+                return_value[suggestion_time.category] = time
+            return Response(return_value, status=status.HTTP_200_OK)
+        else:
+            return Response('None', status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
         serialized_times = SuggestionTimeSerializer(data=request.data)

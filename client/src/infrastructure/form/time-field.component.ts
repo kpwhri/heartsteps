@@ -56,7 +56,10 @@ export class TimeFieldComponent extends SelectFieldComponent {
         }])
         .then((data) => {
             let hours = data.hour.value;
-            if (data.ampm.value) {
+            if (!data.ampm.value && hours === 12) {
+                hours = 0;
+            }
+            if (data.ampm.value && hours != 12) {
                 hours += 12;
             }
             this.date.setHours(hours);
@@ -73,6 +76,8 @@ export class TimeFieldComponent extends SelectFieldComponent {
         let hours = this.date.getHours();
         if(hours > 12) {
             return hours - 12;
+        } else if (hours === 0) {
+            return 12;
         } else {
             return hours;
         }

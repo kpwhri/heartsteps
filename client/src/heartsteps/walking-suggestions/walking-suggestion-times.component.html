@@ -1,14 +1,13 @@
-<form>
-    <p>Enter times of day when you might recieve an activity suggestion.</p>
-    <div *ngIf="timesForm">
-        <div [formGroup]="timesForm">
-            <ion-item *ngFor="let time of timeFields">
-                <ion-label>{{time.name}}</ion-label>
-                <ion-datetime formControlName="{{time.key}}" displayFormat="h:mm a" minuteValues="0,30"></ion-datetime>
-            </ion-item>
-        </div>
-    </div>
-    <div class="controls">
-        <button (click)="updateTimes()">Save</button>
-    </div>
-</form>
+<app-form
+    [formGroup]="timesForm"
+    (onSubmit)="updateTimes()"
+    >
+    <fieldset>
+        <p>Enter times of day when you might recieve an activity suggestion.</p>
+        <app-time-field *ngFor="let time of timeFields"
+            [label]="time.name"
+            [formControlName]="time.key"
+            >
+       </app-time-field>
+    </fieldset>
+</app-form>
