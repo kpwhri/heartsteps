@@ -2,7 +2,7 @@ heartsteps-stepper {
     @extend .heartsteps-container;
     @extend .heartsteps-page;
 
-    background-color: $color-white;
+    width: 100%;
 
     > header {
         @extend .heartsteps-page-header;
