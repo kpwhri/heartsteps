@@ -17,7 +17,7 @@ import { MorningMessage } from '@heartsteps/morning-message/morning-message.mode
         DateFactory
     ]
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage {
 
     public morningMessage: MorningMessage;
     public weeklySurvey:WeeklySurvey;
@@ -26,7 +26,6 @@ export class DashboardPage implements OnInit {
     constructor(
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
-        private dailySummaryService: DailySummaryService,
         private router: Router
     ) {
         this.today = new Date();
@@ -42,10 +41,6 @@ export class DashboardPage implements OnInit {
         .catch(() => {
             console.log('No morning message');
         });
-    }
-
-    ngOnInit() {
-        this.dailySummaryService.get(new Date());
     }
 
     public navigateToWeeklySurvey() {

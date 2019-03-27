@@ -16,9 +16,11 @@
 <article>
     <h3>My progress</h3>
     <heartsteps-weekly-progress></heartsteps-weekly-progress>
-    <heartsteps-current-day-summary></heartsteps-current-day-summary>
+    <heartsteps-daily-summary [date]="today"></heartsteps-daily-summary>
+    <heartsteps-activity-daily-update [date]="today"></heartsteps-activity-daily-update>
 </article>
-<article>
-    <h3>My plan today</h3>
-    <activity-plan-day [date]="today" ></activity-plan-day>
-</article>
+<activity-plan-day 
+    [date]="today"
+    label="My play today"
+    >
+</activity-plan-day>

@@ -11,8 +11,7 @@ import { ActivityPlanService } from '@heartsteps/activity-plans/activity-plan.se
 })
 export class WeeklyPlanComponent {
 
-    private _week: Week;
-    dates:Array<Date>
+    public dates:Array<Date>
 
     constructor(
         private activityPlanService: ActivityPlanService
@@ -21,7 +20,6 @@ export class WeeklyPlanComponent {
     @Input()
     set week(week:Week) {
         if(week) {
-            this._week = week;
             this.dates = week.getDays();
             this.activityPlanService.getPlans(week.start, week.end);
         }
