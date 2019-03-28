@@ -1,10 +1,13 @@
 <article>
-    <h3>{{formattedDate}}</h3>
-    <ul class="horizontal">
-        <li>{{totalMinutes}} minutes</li>
-        <li>{{totalSteps}} steps</li>
-        <li>{{totalMiles}} miles</li>
-    </ul>
+    <header>
+        <h3>{{formattedDate}}</h3>
+        <button
+            (click)="addActivityLog()"
+            class="add"
+            >
+            Add activity log
+        </button>
+    </header>
     <ul *ngIf="activities">
         <li *ngFor="let activityLog of activities">
             <heartsteps-activity-log

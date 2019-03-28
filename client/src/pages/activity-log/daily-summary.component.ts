@@ -6,6 +6,8 @@ import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 import { Subscription } from "rxjs";
 import { Router } from "@angular/router";
+import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
+import { DateFactory } from "@infrastructure/date.factory";
 
 @Component({
     selector: 'activity-log-daily-summary',
@@ -13,6 +15,7 @@ import { Router } from "@angular/router";
 })
 export class DailySummaryComponent implements OnDestroy {
 
+    private day: Date;
     private dailySummary: DailySummary;
 
     private activityLogSubscription: Subscription;
@@ -24,7 +27,9 @@ export class DailySummaryComponent implements OnDestroy {
     public totalMiles: number;
 
     constructor (
+        private dailySummaryService: DailySummaryService,
         private currentActivityLogService: CurrentActivityLogService,
+        private dateFactory: DateFactory,
         private router: Router
     ) {
         this.activityLogSubscription = this.currentActivityLogService.activityLogs
@@ -39,14 +44,24 @@ export class DailySummaryComponent implements OnDestroy {
         }
     }
 
+    @Input('date')
+    set setDate(date: Date) {
+        if(date) {
+            this.day = date;
+            this.update();
+            this.dailySummaryService.get(this.day)
+            .then((dailySummary) => {
+                this.dailySummary = dailySummary;
+                this.update();
+            });
+        }
+    }
+
     @Input('dailySummary')
-    set setDailySummary(summary) {
+    set setDailySummary(summary: DailySummary) {
+        this.day = summary.date;
         this.dailySummary = summary;
-        this.formatDate();
-        this.totalMinutes = this.dailySummary.minutes;
-        this.totalSteps = this.dailySummary.steps;
-        this.totalMiles = this.dailySummary.miles;
-        this.filterActivities(this.currentActivityLogService.activityLogs.value);
+        this.update();
     }
 
     public openActivityLog(activityLog) {
@@ -55,6 +70,28 @@ export class DailySummaryComponent implements OnDestroy {
                 modal: ['activities', 'logs', activityLog.id]
             }
         }]);
+    }
+
+    public addActivityLog() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['activities','logs','create']
+            }
+        }], {
+            queryParams: {
+                date: this.dateFactory.formatDate(this.day)
+            }
+        });
+    }
+
+    private update() {
+        this.formatDate();
+        if(this.dailySummary) {
+            this.totalMinutes = this.dailySummary.minutes;
+            this.totalSteps = this.dailySummary.steps;
+            this.totalMiles = this.dailySummary.miles;
+            this.filterActivities(this.currentActivityLogService.activityLogs.value);
+        }
     }
 
     private filterActivities(activityLogs:Array<ActivityLog>) {
@@ -72,11 +109,11 @@ export class DailySummaryComponent implements OnDestroy {
     }
 
     private formatDate() {
-        const summaryMoment = moment(this.dailySummary.date);
+        const summaryMoment = moment(this.day);
         if(summaryMoment.isSame(new Date(), 'day')) {
-            this.formattedDate = 'Today ' + summaryMoment.format('MMM D')
+            this.formattedDate = 'Today, ' + summaryMoment.format('M/D');
         } else {
-            this.formattedDate = summaryMoment.format('ddd MMM D')
+            this.formattedDate = summaryMoment.format("dddd, M/D");
         }
     }
 

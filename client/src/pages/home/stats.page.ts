@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
-import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
-import { DailySummary } from "@heartsteps/daily-summaries/daily-summary.model";
+import { DateFactory } from "@infrastructure/date.factory";
+import * as moment from 'moment';
 
 
 @Component({
@@ -9,21 +8,27 @@ import { DailySummary } from "@heartsteps/daily-summaries/daily-summary.model";
 })
 export class StatsPage implements OnInit {
 
-    public dailySummaries: Array<DailySummary>;
+    public days: Array<Date>
 
     constructor(
-        private currentWeekService: CurrentWeekService,
-        private dailySummaryService: DailySummaryService
-    ){}
+        private dateFactory: DateFactory
+    ){
+        this.days = [];
+        const today = new Date();
+        this.days.push(today);
+        this.dateFactory.getCurrentWeek().reverse().forEach((day) => {
+            if(moment(day).isBefore(today, 'day')) {
+                this.days.push(day);
+            }
+        });
+        const dayLastWeek: Date = moment().subtract(7, 'days').toDate();
+        this.dateFactory.getWeek(dayLastWeek).reverse().forEach((day) => {
+            this.days.push(day);
+        });
+    }
 
     ngOnInit() {
-        this.currentWeekService.get()
-        .then((week) => {
-            this.dailySummaryService.getWeek(week.start, week.end)
-            .then((dailySummaries) => {
-                this.dailySummaries = dailySummaries;
-            });
-        })
+
     }
     
 }

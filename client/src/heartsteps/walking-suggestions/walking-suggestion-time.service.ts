@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { StorageService } from "@infrastructure/storage.service";
-import { format } from "util";
 
 const storageKey:string = 'activity-suggestion-times'
 
@@ -129,10 +128,10 @@ export class WalkingSuggestionTimeService{
     loadTimes():Promise<any> {
         return this.getTimes()
         .catch(() => {
-            return this.heartstepsServer.get('walking-suggestions/times/');
-        })
-        .then((times) => {
-            return this.setTimes(times);
+            return this.heartstepsServer.get('walking-suggestions/times/')
+            .then((times) => {
+                return this.setTimes(times);
+            });
         });
     }
 

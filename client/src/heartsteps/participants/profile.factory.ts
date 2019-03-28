@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
-import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
