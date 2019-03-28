@@ -5,4 +5,16 @@ heartsteps-activity-log {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+
+    .earned {
+        flex-grow: 0;
+        color: $color-primary;
+        text-align: center;
+        margin: 0em 0.5em;
+        span {
+            display: block;
+            color: $text-color;
+            font-weight: normal;
+        }
+    }
 }
