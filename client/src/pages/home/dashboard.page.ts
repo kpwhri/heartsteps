@@ -17,12 +17,15 @@ export class DashboardPage {
     public today:Date;
     public summary: DailySummary;
 
+    public anchorMessage: string;
+
     constructor(
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private dailySummaryService: DailySummaryService,
         private currentDailySummaryService: CurrentDailySummariesService,
-        private router: Router
+        private router: Router,
+        private activatedRoute: ActivatedRoute
     ) {
         this.today = new Date();
         this.currentDailySummaryService.today
@@ -34,6 +37,8 @@ export class DashboardPage {
         .catch(() => {
             console.log('DashboardPage: Did not update daily summary');
         });
+
+        this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
 
         this.weeklySurveyService.checkExpiration();
         this.weeklySurveyService.survey.subscribe((survey) => {

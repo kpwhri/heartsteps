@@ -6,6 +6,10 @@ export class DateFactory {
 
     constructor(){}
 
+    isSameDay(a:Date, b:Date) {
+        return moment(a).isSame(b, 'day');
+    }
+
     formatDate(date:Date):String {
         return moment(date).format('YYYY-MM-DD');
     }

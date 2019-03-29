@@ -12,12 +12,12 @@ import { SettingsPage } from '@pages/settings/settings-page';
 import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
-import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
 import { HomeGuard } from './home.guard';
 import { DashboardPage } from './dashboard.page';
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
+import { AnchorMessageResolver } from './anchor-message.resolver';
 
 const routes:Routes = [
     {
@@ -28,7 +28,10 @@ const routes:Routes = [
         ],
         children: [{
             path: 'dashboard',
-            component: DashboardPage
+            component: DashboardPage,
+            resolve: {
+                anchorMessage: AnchorMessageResolver
+            }
         }, {
             path: 'stats',
             component: StatsPage
@@ -60,8 +63,8 @@ const routes:Routes = [
         StatsPage
     ],
     providers: [
+        AnchorMessageResolver,
         CurrentWeekResolver,
-        CurrentDailySummaryResolver,
         HomeGuard
     ],
     imports: [

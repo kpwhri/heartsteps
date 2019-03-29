@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { AnchorMessageService } from "./anchor-message.service";
 
 @Component({
@@ -14,13 +14,22 @@ export class AnchorMessageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.anchorMessageService.get()
-        .then((message) => {
+        if(!this.anchorMessage) {
+            this.anchorMessageService.get()
+            .then((message) => {
+                this.anchorMessage = message;
+            })
+            .catch(() => {
+                this.anchorMessage = undefined;
+            });
+        }
+    }
+
+    @Input('message')
+    set setAnchorMessage(message) {
+        if(message) {
             this.anchorMessage = message;
-        })
-        .catch(() => {
-            this.anchorMessage = undefined;
-        })
+        }
     }
 
 }

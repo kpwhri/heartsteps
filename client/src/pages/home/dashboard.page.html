@@ -12,7 +12,10 @@
         </li>
     </ul>
 </nav>
-<heartsteps-anchor-message></heartsteps-anchor-message>
+<heartsteps-anchor-message *ngIf="anchorMessage"
+    [message]="anchorMessage"
+    >
+</heartsteps-anchor-message>
 <article>
     <h3>My progress</h3>
     <heartsteps-weekly-progress></heartsteps-weekly-progress>
