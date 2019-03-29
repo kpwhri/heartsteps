@@ -23,12 +23,10 @@ export class CurrentDailySummariesService {
         private activityLogService: ActivityLogService,
         private dailySummarySerializer: DailySummarySerializer,
         private documentStorageService: DocumentStorageService
-    ) {
-
-    }
+    ) {}
 
     public setup():Promise<boolean> {
-        this.storage = this.documentStorageService.create('current-daily-summaries')
+        this.storage = this.documentStorageService.create('current-daily-summaries');
 
         this.dailySummaryService.updated.subscribe((summary:DailySummary) => {
             this.currentWeekService.isWithinWeek(summary.date)
@@ -63,7 +61,7 @@ export class CurrentDailySummariesService {
                 return this.updateAll();
             } else {
                 const summaries = items.map((data) => {
-                    return this.dailySummarySerializer.deserialize(data);
+                    return this.deserialize(data);
                 });
                 return summaries;
             }
@@ -83,7 +81,7 @@ export class CurrentDailySummariesService {
     }
 
     private set(summary: DailySummary): Promise<any> {
-        const serialized = this.dailySummarySerializer.serialize(summary);
+        const serialized = this.serialize(summary);
         return this.storage.set(serialized['date'], serialized);
     }
 
@@ -105,7 +103,7 @@ export class CurrentDailySummariesService {
         .then((summaries) => {
             const obj = {};
             summaries.forEach((summary) => {
-                const serialized = this.dailySummarySerializer.serialize(summary);
+                const serialized = this.serialize(summary);
                 obj[serialized['date']] = serialized;
             });
             return this.storage.setAll(obj)
@@ -115,12 +113,12 @@ export class CurrentDailySummariesService {
         })
     }
 
-    private serialize() {
-
+    private serialize(summary: DailySummary): any {
+        return this.dailySummarySerializer.serialize(summary);
     }
 
-    private deserialize() {
-
+    private deserialize(data: any): DailySummary {
+        return this.dailySummarySerializer.deserialize(data);
     }
 
 }

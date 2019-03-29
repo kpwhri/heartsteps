@@ -1,9 +1,8 @@
 <h3>{{formattedDate}}</h3>
-<p class="headline" *ngIf="activitySummary">{{activitySummary.minutes}} minutes</p>
-<ul class="horizontal" *ngIf="activitySummary">
-    <li>{{activitySummary.moderateMinutes}} min <span>Moderate</span></li>
-    <li>{{activitySummary.vigorousMinutes}} min <span>Vigerous</span></li>
-    <li>{{activitySummary.steps}} <span>Steps</span></li>
-    <li>{{activitySummary.miles}} <span>Miles</span></li>
+<p class="headline">{{totalMinutes}} minutes</p>
+<ul class="horizontal">
+    <li>{{moderateMinutes}} min <span>Moderate</span></li>
+    <li>{{vigorousMinutes}} min <span>Vigerous</span></li>
+    <li>{{steps}} <span>Steps</span></li>
+    <li>{{miles}} <span>Miles</span></li>
 </ul>
-<p *ngIf="!activitySummary">No data</p>

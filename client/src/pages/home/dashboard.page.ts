@@ -1,34 +1,40 @@
-import { Component, OnInit } from '@angular/core';
-import { IonicPage } from 'ionic-angular';
-import { ActivityLogService } from '@heartsteps/activity-logs/activity-log.service';
-import { DateFactory } from '@infrastructure/date.factory';
+import { Component } from '@angular/core';
 import { WeeklySurveyService, WeeklySurvey } from '@heartsteps/weekly-survey/weekly-survey.service';
-import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MorningMessageService } from '@heartsteps/morning-message/morning-message.service';
 import { MorningMessage } from '@heartsteps/morning-message/morning-message.model';
+import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
+import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
+import { CurrentDailySummariesService } from '@heartsteps/current-week/current-daily-summaries.service';
 
-@IonicPage()
 @Component({
-    selector: 'page-dashboard',
-    templateUrl: 'dashboard.html',
-    providers: [
-        ActivityLogService,
-        DateFactory
-    ]
+    templateUrl: 'dashboard.page.html'
 })
 export class DashboardPage {
 
     public morningMessage: MorningMessage;
     public weeklySurvey:WeeklySurvey;
     public today:Date;
+    public summary: DailySummary;
 
     constructor(
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
+        private dailySummaryService: DailySummaryService,
+        private currentDailySummaryService: CurrentDailySummariesService,
         private router: Router
     ) {
         this.today = new Date();
+        this.currentDailySummaryService.today
+        .filter(summary => summary !== undefined)
+        .subscribe((summary) => {
+            this.summary = summary;
+        });
+        this.dailySummaryService.get(this.today)
+        .catch(() => {
+            console.log('DashboardPage: Did not update daily summary');
+        });
+
         this.weeklySurveyService.checkExpiration();
         this.weeklySurveyService.survey.subscribe((survey) => {
             this.weeklySurvey = survey;

@@ -29,7 +29,8 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private complete: number = 0;
     private current: number = 0;
 
-    private subscription: Subscription;
+    private currentWeekSubscription: Subscription;
+    private currentSummariesSubscription: Subscription;
 
     constructor(
         private elementRef:ElementRef,
@@ -41,32 +42,35 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         this.initializeChart();
         this.drawChart();
 
-        this.currentWeekService.get()
-        .then((week) => {
+        this.currentWeekSubscription = this.currentWeekService.week
+        .filter(week => week !== undefined)
+        .subscribe((week) => {
             this.total = week.goal;
-        })
-        .then(() => {
-            this.subscription = this.currentDailySummaries.week
-            .filter(summary => summary !== undefined)
-            .subscribe((summaries) => {
-                this.current = 0;
-                this.complete = 0;
-    
-                summaries.forEach((summary) => {
-                    this.complete += summary.minutes;
-                    if (summary.isToday()) {
-                        this.current += summary.minutes;
-                    }
-                })
-    
-                this.updateChart();
+            this.updateChart();
+        });
+
+        this.currentSummariesSubscription = this.currentDailySummaries.week
+        .filter(summary => summary !== undefined)
+        .subscribe((summaries) => {
+            this.current = 0;
+            this.complete = 0;
+            summaries.forEach((summary) => {
+                this.complete += summary.minutes;
+                if (summary.isToday()) {
+                    this.current += summary.minutes;
+                }
             });
-        })
+            this.updateChart();            
+        });
+
     }
 
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
+        if (this.currentWeekSubscription) {
+            this.currentWeekSubscription.unsubscribe();
+        }
+        if (this.currentSummariesSubscription) {
+            this.currentSummariesSubscription.unsubscribe();
         }
     }
 

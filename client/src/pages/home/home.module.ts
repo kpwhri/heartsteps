@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { HomePage } from './home';
-import { DashboardModule } from '@pages/dashboard/dashboard.module';
 import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
-import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from './plan.page';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
@@ -16,6 +14,10 @@ import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
 import { HomeGuard } from './home.guard';
+import { DashboardPage } from './dashboard.page';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
+import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
+import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
 
 const routes:Routes = [
     {
@@ -26,16 +28,10 @@ const routes:Routes = [
         ],
         children: [{
             path: 'dashboard',
-            component: DashboardPage,
-            resolve: {
-                currentWeek: CurrentWeekResolver
-            }
+            component: DashboardPage
         }, {
             path: 'stats',
-            component: StatsPage,
-            resolve: {
-                summaries: CurrentDailySummaryResolver
-            }
+            component: StatsPage
         }, {
             path: 'planning',
             component: PlanPage,
@@ -59,14 +55,9 @@ const routes:Routes = [
 @NgModule({
     declarations: [
         HomePage,
-        PlanPage,
-        StatsPage
-    ],
-    entryComponents: [
         DashboardPage,
         PlanPage,
-        StatsPage,
-        ResourceLibraryPage
+        StatsPage
     ],
     providers: [
         CurrentWeekResolver,
@@ -74,9 +65,11 @@ const routes:Routes = [
         HomeGuard
     ],
     imports: [
-        DashboardModule,
         ActivityPlanPageModule,
         ActivityLogPageModule,
+        AnchorMessageModule,
+        CurrentWeekModule,
+        DailySummaryModule,
         ResourceLibraryModule,
         SettingsModule,
         BrowserModule,
