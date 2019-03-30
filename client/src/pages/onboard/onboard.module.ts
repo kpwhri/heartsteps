@@ -11,6 +11,7 @@ import { ContactInformationModule } from '@heartsteps/contact-information/contac
 import { Routes, RouterModule } from '@angular/router';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { OnboardGaurd } from './onboard.gaurd';
+import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 
 const onboardRoutes:Routes = [
     {
@@ -37,6 +38,7 @@ const onboardRoutes:Routes = [
         NotificationsModule,
         LocationModule,
         FitbitModule,
+        FitbitWatchModule,
         ContactInformationModule,
         WalkingSuggestionsModule,
         RouterModule.forChild(onboardRoutes)

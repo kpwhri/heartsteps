@@ -8,6 +8,7 @@ import { ParticipantInformation } from '@heartsteps/contact-information/particip
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
+import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
 
 const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
@@ -33,6 +34,10 @@ const onboardingPages:Array<Step> = [{
     key: 'fitbitAuthorization',
     title: 'Fitbit',
     component: FitbitAuth
+}, {
+    key: 'fitbitWatch',
+    title: 'Heartsteps clock face',
+    component: WatchSetupComponent
 }];
 
 @Component({

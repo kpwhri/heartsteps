@@ -11,6 +11,7 @@ import { CurrentActivityLogService } from "@heartsteps/current-week/current-acti
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 import { CurrentDailySummariesService } from "@heartsteps/current-week/current-daily-summaries.service";
+import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 
 
 @Injectable()
@@ -24,6 +25,7 @@ export class ProfileService {
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService,
+        private fitbitWatchService: FitbitWatchService,
         private currentWeekService: CurrentWeekService,
         private currentActivityLogService: CurrentActivityLogService,
         private currentDailySummariesSurvice: CurrentDailySummariesService,
@@ -96,7 +98,8 @@ export class ProfileService {
             this.checkPlacesSet(),
             this.checkReflectionTime(),
             this.checkContactInformation(),
-            this.checkFitbit()
+            this.checkFitbit(),
+            this.checkFitbitWatch()
         ])
         .then((results) => {
             return {
@@ -105,7 +108,8 @@ export class ProfileService {
                 places: results[2],
                 weeklyReflectionTime: results[3],
                 contactInformation: results[4],
-                fitbitAuthorization: results[5]
+                fitbitAuthorization: results[5],
+                fitbitWatch: results[6]
             }
         })
         .catch(() => {
@@ -212,6 +216,16 @@ export class ProfileService {
 
     checkFitbit():Promise<boolean> {
         return this.fitbitService.isAuthorized()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    checkFitbitWatch(): Promise<boolean> {
+        return this.fitbitWatchService.isInstalled()
         .then(() => {
             return true;
         })
