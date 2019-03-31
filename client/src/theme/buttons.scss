@@ -7,7 +7,6 @@
     padding: 1em;
     text-align: center;
     display: block;
-    width: 100%;
     font-size: 1em;
 
     > span {
@@ -47,6 +46,7 @@
 
 .heartsteps-minor-button {
     @extend .heartsteps-button;
+    width: 100%;
     border: 0px;
 
     &:focus, &:hover {
