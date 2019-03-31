@@ -31,7 +31,7 @@ export class DateFactory {
 
         const day:number = date.getDay()
         for(let i=0; i < 7; i++) {
-            let offset:number = day - i - 1
+            let offset:number = 6 - day - i;
             let momentDate = moment(date)
             if(offset > 0) {
                 momentDate.subtract(offset, 'days')
