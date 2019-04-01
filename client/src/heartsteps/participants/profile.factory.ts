@@ -7,11 +7,11 @@ import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
-import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 import { CurrentDailySummariesService } from "@heartsteps/current-week/current-daily-summaries.service";
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 
 @Injectable()
@@ -27,7 +27,7 @@ export class ProfileService {
         private fitbitService: FitbitService,
         private fitbitWatchService: FitbitWatchService,
         private currentWeekService: CurrentWeekService,
-        private currentActivityLogService: CurrentActivityLogService,
+        private cachedActivityLogService: CachedActivityLogService,
         private currentDailySummariesSurvice: CurrentDailySummariesService,
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService
@@ -255,7 +255,7 @@ export class ProfileService {
     }
 
     loadCurrentActivityLogs(): Promise<boolean> {
-        return this.currentActivityLogService.setup()
+        return this.cachedActivityLogService.setup()
         .then(() => {
             return true;
         })

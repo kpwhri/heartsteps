@@ -1,7 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { DateFactory } from "@infrastructure/date.factory";
-import * as moment from 'moment';
-
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 @Component({
     templateUrl: './stats.page.html'
@@ -11,20 +9,10 @@ export class StatsPage implements OnInit {
     public days: Array<Date>
 
     constructor(
-        private dateFactory: DateFactory
+        private cachedActivityLogService: CachedActivityLogService
     ){
-        this.days = [];
-        const today = new Date();
-        this.days.push(today);
-        this.dateFactory.getCurrentWeek().reverse().forEach((day) => {
-            if(moment(day).isBefore(today, 'day')) {
-                this.days.push(day);
-            }
-        });
-        const dayLastWeek: Date = moment().subtract(7, 'days').toDate();
-        this.dateFactory.getWeek(dayLastWeek).reverse().forEach((day) => {
-            this.days.push(day);
-        });
+        this.days = this.cachedActivityLogService.getCachedDates().reverse();
+        this.cachedActivityLogService.update();
     }
 
     ngOnInit() {

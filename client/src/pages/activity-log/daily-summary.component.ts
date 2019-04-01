@@ -3,22 +3,21 @@ import { DailySummary } from "@heartsteps/daily-summaries/daily-summary.model";
 
 import * as moment from 'moment';
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
-import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 import { Subscription } from "rxjs";
 import { Router } from "@angular/router";
 import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 import { DateFactory } from "@infrastructure/date.factory";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 @Component({
     selector: 'activity-log-daily-summary',
     templateUrl: './daily-summary.component.html'
 })
-export class DailySummaryComponent implements OnDestroy {
+export class DailySummaryComponent {
 
-    private day: Date;
+    @Input('date') day: Date;
     private dailySummary: DailySummary;
 
-    private activityLogSubscription: Subscription;
     public activities: Array<ActivityLog>;
 
     public formattedDate:string;
@@ -28,20 +27,11 @@ export class DailySummaryComponent implements OnDestroy {
 
     constructor (
         private dailySummaryService: DailySummaryService,
-        private currentActivityLogService: CurrentActivityLogService,
+        private cachedActivityLogService: CachedActivityLogService,
         private dateFactory: DateFactory,
         private router: Router
     ) {
-        this.activityLogSubscription = this.currentActivityLogService.activityLogs
-        .subscribe((activityLogs) => {
-            this.filterActivities(activityLogs);
-        })
-    }
-
-    ngOnDestroy() {
-        if(this.activityLogSubscription) {
-            this.activityLogSubscription.unsubscribe();
-        }
+        
     }
 
     @Input('date')
@@ -49,19 +39,16 @@ export class DailySummaryComponent implements OnDestroy {
         if(date) {
             this.day = date;
             this.update();
-            this.dailySummaryService.get(this.day)
-            .then((dailySummary) => {
-                this.dailySummary = dailySummary;
-                this.update();
-            });
+            this.cachedActivityLogService.get(date)
+            .subscribe((logs) => {
+                this.activities = logs;
+            })
+            // this.dailySummaryService.get(this.day)
+            // .then((dailySummary) => {
+            //     this.dailySummary = dailySummary;
+            //     this.update();
+            // });
         }
-    }
-
-    @Input('dailySummary')
-    set setDailySummary(summary: DailySummary) {
-        this.day = summary.date;
-        this.dailySummary = summary;
-        this.update();
     }
 
     public openActivityLog(activityLog) {
@@ -90,21 +77,6 @@ export class DailySummaryComponent implements OnDestroy {
             this.totalMinutes = this.dailySummary.minutes;
             this.totalSteps = this.dailySummary.steps;
             this.totalMiles = this.dailySummary.miles;
-            this.filterActivities(this.currentActivityLogService.activityLogs.value);
-        }
-    }
-
-    private filterActivities(activityLogs:Array<ActivityLog>) {
-        if (this.dailySummary && activityLogs) {
-            this.activities = activityLogs.filter((activityLog) => {
-                if(moment(this.dailySummary.date).isSame(activityLog.start, 'day')) {
-                    return true;
-                } else {
-                    return false;
-                }
-            })
-        } else {
-            this.activities = undefined;
         }
     }
 

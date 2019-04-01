@@ -3,7 +3,6 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { WeeklyProgressComponent } from './weekly-progress.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
-import { CurrentActivityLogService } from './current-activity-log.service';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 import { CurrentWeekService } from './current-week.service';
 import { CurrentDailySummariesService } from './current-daily-summaries.service';
@@ -24,7 +23,6 @@ import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.mo
         WeeklyProgressComponent
     ],
     providers: [
-        CurrentActivityLogService,
         CurrentDailySummariesService,
         CurrentWeekService
     ]
@@ -35,7 +33,6 @@ export class CurrentWeekModule {
         return {
             ngModule: CurrentWeekModule,
             providers: [
-                CurrentActivityLogService,
                 CurrentDailySummariesService,
                 CurrentWeekService
             ]

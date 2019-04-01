@@ -11,6 +11,7 @@ import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.mo
 import { ActivityEnjoyedModalComponent } from './activity-enjoyed-modal.component';
 import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
 import { ActivityEnjoyedFieldComponent } from './activity-enjoyed-field.component';
+import { CachedActivityLogService } from './cached-activity-log.service';
 
 @NgModule({
     imports: [
@@ -38,7 +39,8 @@ import { ActivityEnjoyedFieldComponent } from './activity-enjoyed-field.componen
         ActivityEnjoyedModalComponent
     ],
     providers: [
-        ActivityLogService
+        ActivityLogService,
+        CachedActivityLogService
     ]
 })
 export class ActivityLogModule {}
