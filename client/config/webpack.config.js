@@ -14,15 +14,11 @@ webpackConfig[env].resolve = {
     }
 }
 
-var push_device_type = 'apns';
-if(env === 'dev') {
-    push_device_type = 'apns-dev';
-}
-
 var envs = new webpack.EnvironmentPlugin({
     HEARTSTEPS_URL: '/api',
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
-    PUSH_NOTIFICATION_DEVICE_TYPE: push_device_type
+    ONESIGNAL_APP_ID: 'onesignal-app-id',
+    PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal'
 });
 
 webpackConfig.dev.plugins.push(envs);

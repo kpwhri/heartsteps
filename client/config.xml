@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.nickreid.heartsteps" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="net.heartsteps.kpwhri" version="0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HeartSteps</name>
-    <description>Application for Kaiser HeartSteps</description>
+    <description>Kaiser HeartSteps</description>
     <author email="nickreid@nickreid.com" href="http://nickreid.com/">Nick Reid</author>
     <content src="index.html" />
     <access origin="*" />

@@ -1,4 +1,4 @@
-import { Injectable, NgZone, EventEmitter } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -10,7 +10,8 @@ declare var window: {
 
 declare var process: {
     env: {
-        PUSH_NOTIFICATION_DEVICE_TYPE: string
+        PUSH_NOTIFICATION_DEVICE_TYPE: string,
+        ONESIGNAL_APP_ID: string
     }
 }
 
@@ -101,7 +102,8 @@ export class PushNotificationService {
                 this.handleOneSignalSubscription(state.to.userId);
             });
 
-            window.plugins.OneSignal.startInit('596839e2-59bf-4fcb-bc55-a6154b8403d8')
+            console.log(process.env.ONESIGNAL_APP_ID);
+            window.plugins.OneSignal.startInit(process.env.ONESIGNAL_APP_ID)
             .iOSSettings({
                 'kOSSettingsKeyAutoPrompt': false,
                 'kOSSettingsKeyInAppLaunchURL': true
@@ -121,7 +123,7 @@ export class PushNotificationService {
         .then(() => {
             this.device.next(new Device(
                 token,
-                'onesignal'
+                process.env.PUSH_NOTIFICATION_DEVICE_TYPE
             ));
         });
     }
