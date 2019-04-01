@@ -4,8 +4,11 @@
         <p>Heartsteps will use these places to customize suggestions for physical activity nearby.</p>
         <ul>
             <li *ngFor="let location of locations">
-                <button (click)="editLocation(location)" (ngClass)="{invalid:location.invalid}">
-                    <em>{{location.type}}</em>
+                <button 
+                    (click)="editLocation(location)"
+                    class="place {{location.type}}"
+                    (ngClass)="{invalid:location.invalid}"
+                    >
                     {{location.address}}
                 </button>    
             </li>

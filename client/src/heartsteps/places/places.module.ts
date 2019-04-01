@@ -1,9 +1,12 @@
 import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
 import { PlacesList } from './places-list';
 import { PlaceEdit } from './place-edit';
 import { PlacesService } from './places.service';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormModule } from '@infrastructure/form/form.module';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -14,14 +17,19 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
     PlacesList,
     PlaceEdit
   ],
+  entryComponents: [
+    PlaceEdit
+  ],
   exports: [
     PlacesList,
     PlaceEdit
   ],
   imports: [
-    InfrastructureModule,
-    IonicPageModule.forChild(PlaceEdit),
-    IonicPageModule.forChild(PlacesList)
+    BrowserModule,
+    FormModule,
+    FormsModule,
+    HeartstepsComponentsModule,
+    InfrastructureModule
   ]
 })
 export class PlacesModule {}
