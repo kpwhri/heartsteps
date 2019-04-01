@@ -20,7 +20,9 @@
                 </div>
                 <ul *ngIf="addressPredictions">
                     <li *ngFor="let address of addressPredictions">
-                        <button (click)="setAddress(address.description)">
+                        <button (click)="setAddress(address.description)"
+                            class="place"
+                            >
                             {{address.description}}
                         </button>
                     </li> 
