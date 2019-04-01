@@ -3,8 +3,6 @@ import { IonicStorageModule } from '@ionic/storage';
 import { HeartstepsServer } from './heartsteps-server.service';
 import { AuthorizationService } from './authorization.service';
 import { LoadingService } from './loading.service';
-import { Geolocation } from '@ionic-native/geolocation';
-import { LocationService } from './location.service';
 import { BrowserService } from '@infrastructure/browser.service';
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
@@ -33,8 +31,6 @@ import { DateFactory } from './date.factory';
       HeartstepsServer,
       DateFactory,
       LoadingService,
-      Geolocation,
-      LocationService,
       StorageService,
       DocumentStorageService,
       BrowserService,
