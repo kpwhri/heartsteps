@@ -35,7 +35,7 @@ const appRoutes:Routes = [{
   ],
   imports: [
     WelcomePageModule,
-    CurrentWeekModule.forRoot(),
+    CurrentWeekModule,
     OnboardPageModule,
     HomePageModule,
     HeartstepsInfrastructureModule,

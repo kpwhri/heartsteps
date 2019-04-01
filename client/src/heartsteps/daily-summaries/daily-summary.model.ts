@@ -12,6 +12,10 @@ export class DailySummary {
     public miles: number = 0;
 
     public isToday():boolean {
-        return moment(new Date()).isSame(this.date, 'day');
+        return this.isDate(new Date());
+    }
+
+    public isDate(date: Date):boolean {
+        return moment(date).isSame(this.date, 'day');
     }
 }

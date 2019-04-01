@@ -29,16 +29,17 @@ export class DateFactory {
     public getWeek(date:Date):Array<Date> {
         let week:Array<Date> = []
 
-        const day:number = date.getDay()
-        for(let i=0; i < 7; i++) {
-            let offset:number = 6 - day - i;
-            let momentDate = moment(date)
-            if(offset > 0) {
-                momentDate.subtract(offset, 'days')
-            }
-            if(offset < 0) {
-                momentDate.add(Math.abs(offset), 'days')
-            }
+        const day:number = date.getDay();
+        let monday: Date;
+        if(day === 0) {
+            monday = moment(date).subtract(6, 'days').toDate();
+        } else {
+            monday = moment(date).subtract(day - 1, 'days').toDate();
+        }
+
+        for(let i=0; i <= 6; i++) {
+            const momentDate = moment(monday);
+            momentDate.add(i, 'days');
             let newDate = new Date(momentDate.year(), momentDate.month(), momentDate.date())
             week.push(newDate)
         }

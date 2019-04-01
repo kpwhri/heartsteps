@@ -9,7 +9,6 @@ import { CurrentWeekService } from "@heartsteps/current-week/current-week.servic
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
-import { CurrentDailySummariesService } from "@heartsteps/current-week/current-daily-summaries.service";
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
@@ -28,7 +27,6 @@ export class ProfileService {
         private fitbitWatchService: FitbitWatchService,
         private currentWeekService: CurrentWeekService,
         private cachedActivityLogService: CachedActivityLogService,
-        private currentDailySummariesSurvice: CurrentDailySummariesService,
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService
     ) {}
@@ -64,8 +62,7 @@ export class ProfileService {
             this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
-            this.setupActivityTypeService(),
-            this.setupCurrentDailySummaries()
+            this.setupActivityTypeService()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -262,16 +259,6 @@ export class ProfileService {
         .catch(() => {
             return Promise.resolve(false);
         })
-    }
-
-    private setupCurrentDailySummaries() :Promise<boolean> {
-        return this.currentDailySummariesSurvice.setup()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        });
     }
 
     private setupActivityPlanService() {

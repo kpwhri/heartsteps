@@ -5,7 +5,6 @@ import { MorningMessageService } from '@heartsteps/morning-message/morning-messa
 import { MorningMessage } from '@heartsteps/morning-message/morning-message.model';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
-import { CurrentDailySummariesService } from '@heartsteps/current-week/current-daily-summaries.service';
 
 @Component({
     templateUrl: 'dashboard.page.html'
@@ -23,20 +22,16 @@ export class DashboardPage {
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private dailySummaryService: DailySummaryService,
-        private currentDailySummaryService: CurrentDailySummariesService,
         private router: Router,
         private activatedRoute: ActivatedRoute
     ) {
         this.today = new Date();
-        this.currentDailySummaryService.today
-        .filter(summary => summary !== undefined)
+
+        this.dailySummaryService.watch(this.today)
         .subscribe((summary) => {
             this.summary = summary;
         });
-        this.dailySummaryService.get(this.today)
-        .catch(() => {
-            console.log('DashboardPage: Did not update daily summary');
-        });
+        this.dailySummaryService.get(this.today);
 
         this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
 

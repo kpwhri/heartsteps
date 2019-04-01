@@ -2,8 +2,8 @@ import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Subscription } from 'rxjs';
-import { CurrentDailySummariesService } from './current-daily-summaries.service';
 import { CurrentWeekService } from './current-week.service';
+import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -34,7 +34,8 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
 
     constructor(
         private elementRef:ElementRef,
-        private currentDailySummaries: CurrentDailySummariesService,
+        private dateFactory: DateFactory,
+        private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService
     ) {}
 
@@ -49,8 +50,11 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
             this.updateChart();
         });
 
-        this.currentSummariesSubscription = this.currentDailySummaries.week
-        .filter(summary => summary !== undefined)
+        const currentWeek = this.dateFactory.getCurrentWeek();
+        const weekStart = currentWeek[0];
+        const weekEnd = currentWeek[currentWeek.length - 1];
+
+        this.dailySummaryService.watchRange(weekStart, weekEnd)
         .subscribe((summaries) => {
             this.current = 0;
             this.complete = 0;
