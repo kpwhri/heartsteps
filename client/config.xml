@@ -88,6 +88,6 @@
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <plugin name="onesignal-cordova-plugin" spec="^2.4.6" />
-    <engine name="android" spec="^8.0.0" />
     <engine name="ios" spec="^5.0.0" />
+    <engine name="android" spec="^8.0.0" />
 </widget>

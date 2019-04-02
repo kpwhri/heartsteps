@@ -56,8 +56,8 @@ services:
     command: ionic serve
     volumes:
       - ./client:/client
-      - client-node-modules:/client/node_modules
       - ./credentials:/credentials
+      - client-node-modules:/client/node_modules
       - client-gradle-cache:/root/.gradle/caches
     ports:
       - "8100:8100"
