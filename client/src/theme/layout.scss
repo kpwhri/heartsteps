@@ -82,8 +82,8 @@ footer,
     position: relative;
 
     h1, h2, h3, h4, h5 {
-        font-weight: bold;
-        font-size: 1em;
+        font-size: 1.5em;
+        font-weight: normal;
         text-align: center;
     }
 
@@ -94,6 +94,7 @@ footer,
         transform: translate(0%, -50%);
         width: auto;
         margin: 0px;
+        padding: 2em;
     }
     
     .back {
