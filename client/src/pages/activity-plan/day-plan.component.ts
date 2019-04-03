@@ -12,6 +12,10 @@ export class DayPlanComponent implements OnDestroy {
 
     public title: string;
     public date: Date;
+
+    public isToday: boolean;
+    public hideIsToday: boolean;
+    
     public canAddActivity:boolean = false;
     public plans: Array<any>;
 
@@ -33,6 +37,7 @@ export class DayPlanComponent implements OnDestroy {
     set setLabel(label: string) {
         if(label) {
             this.title = label;
+            this.hideIsToday = true;
             this.update();
         }
     }
@@ -41,6 +46,7 @@ export class DayPlanComponent implements OnDestroy {
     set updateDate(date:Date) {
         if(date) {
             this.date = date;
+            this.isToday = this.dateFactory.isSameDay(date, new Date());
             this.update();
         }
     }

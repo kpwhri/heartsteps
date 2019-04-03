@@ -1,6 +1,9 @@
 <article>
     <header>
-        <h3>{{formattedDate}}</h3>
+        <h3>
+            <span *ngIf="isToday" class="highlight">Today, </span>
+            {{formattedDate}}
+        </h3>
         <button
             (click)="addActivityLog()"
             class="add"

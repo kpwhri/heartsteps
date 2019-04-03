@@ -20,6 +20,7 @@ export class DailySummaryComponent {
 
     public activities: Array<ActivityLog>;
 
+    public isToday: boolean;
     public formattedDate:string;
     public totalMinutes: number;
     public totalSteps: number;
@@ -38,6 +39,7 @@ export class DailySummaryComponent {
     set setDate(date: Date) {
         if(date) {
             this.day = date;
+            this.isToday = this.dateFactory.isSameDay(date, new Date());
             this.update();
             this.cachedActivityLogService.get(date)
             .subscribe((logs) => {
@@ -82,11 +84,7 @@ export class DailySummaryComponent {
 
     private formatDate() {
         const summaryMoment = moment(this.day);
-        if(summaryMoment.isSame(new Date(), 'day')) {
-            this.formattedDate = 'Today, ' + summaryMoment.format('M/D');
-        } else {
-            this.formattedDate = summaryMoment.format("dddd, M/D");
-        }
+        this.formattedDate = summaryMoment.format("dddd, M/D");
     }
 
 }

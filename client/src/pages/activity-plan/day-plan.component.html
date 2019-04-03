@@ -1,6 +1,9 @@
 <article>
     <header>
-        <h3>{{title}}</h3>
+        <h3>
+            <span *ngIf="isToday && !hideIsToday" class="highlight">Today, </span>
+            {{title}}
+        </h3>
         <button *ngIf="canAddActivity"
             (click)="createPlan()"
             class="add"

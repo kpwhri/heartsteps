@@ -1,0 +1,14 @@
+heartsteps-daily-summary {
+
+    > * {
+        margin: 0.5em 0em;
+        padding: 0em;
+    }
+
+    > p {
+        color: $color-secondary;
+        font-size: 1.25em;
+        font-weight: bold;
+        text-align: center;
+    }
+}
