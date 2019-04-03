@@ -155,19 +155,20 @@ article.page {
         text-align: left;
         padding: 0em;
     }
-}
 
-.page ul > li > button {
-    @extend .heartsteps-minor-button;
-    display: flex;
-    color: $text-color;
-    flex-direction: row;
-    text-align: left;
-    padding: 0em;
-
-    &:hover,
-    &:focus {
-        color: $color-primary;
+    ul > li > button {
+        @extend .heartsteps-minor-button;
+        display: flex;
+        color: $text-color;
+        flex-direction: row;
+        text-align: left;
+        padding: 0em;
+        border: 0px;
+    
+        &:hover,
+        &:focus {
+            color: $color-primary;
+        }
     }
 }
 
