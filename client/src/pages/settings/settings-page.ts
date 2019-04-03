@@ -114,4 +114,44 @@ export class SettingsPage {
             this.router.navigate(['welcome']);
         });
     }
+
+    public editContactInformation() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings','contact'].join('/')
+            }
+        }]);
+    }
+
+    public editPlaces() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings','places'].join('/')
+            }
+        }]);
+    }
+
+    public editWeeklyReflectionTime() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings','reflection-time'].join('/')
+            }
+        }]);
+    }
+
+    public editWeeklyGoal() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings','weekly-goal'].join('/')
+            }
+        }]);
+    }
+
+    public editDailyTimes() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings','suggestion-times'].join('/')
+            }
+        }]);
+    }
 } 
