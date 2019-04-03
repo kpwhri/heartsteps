@@ -8,6 +8,7 @@ heartsteps-stepper {
         @extend .heartsteps-page-header;
         background-color: transparent;
         border-bottom: 0px;
+        padding-top: env(safe-area-inset-top);
     }
 
     .pagination-bullets {

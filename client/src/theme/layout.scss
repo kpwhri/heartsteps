@@ -82,7 +82,7 @@ footer,
     position: relative;
 
     h1, h2, h3, h4, h5 {
-        font-size: 1.5em;
+        font-size: 1.25em;
         font-weight: normal;
         text-align: center;
     }
@@ -90,11 +90,11 @@ footer,
     .back,
     [app-page-control] {
         position: absolute;
-        top: 50%;
-        transform: translate(0%, -50%);
+        top: 0%;
         width: auto;
         margin: 0px;
-        padding: 2em;
+        padding: 1em $space-size;
+        padding-top: 2em;
     }
     
     .back {
