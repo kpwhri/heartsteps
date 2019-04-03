@@ -28,7 +28,6 @@ export class AnchorMessageService {
                 });
             })
             .catch(() => {
-
                 return Promise.reject('AnchorMessageService: Could not get anchor message');
             }); 
         });

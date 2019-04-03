@@ -12,5 +12,8 @@ export class AnchorMessageResolver implements Resolve<string> {
 
     resolve() {
         return this.anchorMessageService.get()
+        .catch(() => {
+            return undefined;
+        });
     }
 }
