@@ -47,6 +47,12 @@
         border-color: $color-white;
         color: $color-white;
         background-color: transparent;
+
+        &:hover,
+        &:focus {
+            color: $color-white;
+            opacity: 0.9;
+        }
     }
 
     a {
@@ -79,7 +85,7 @@
 .start-screen heartsteps-stepper {
     display: flex;
     background-color: transparent;
-    margin: 0em;
+    margin: 0em auto;
 
     .pagination-bullets > * {
         background-color: transparent;
@@ -102,4 +108,10 @@
         width: 540px;
     }
 
+}
+
+.start-screen app-choice-field.heartsteps-form-field button {
+    &:before {
+        background-color: $color-white;
+    }
 }

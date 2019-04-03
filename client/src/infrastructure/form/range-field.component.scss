@@ -2,7 +2,7 @@ app-range-field.heartsteps-form-field {
     ul {
         @extend ul.horizontal;
         justify-content: space-between;
-        margin-bottom: 0em;
+        margin: 0em;
     }
 
     ul li label {
@@ -17,17 +17,16 @@ app-range-field.heartsteps-form-field {
     ul li input[type=radio] {
         appearance: none;
         margin: 0em;
-        width: 2em;
-        height: 2em;
+        width: 1.5em;
+        height: 1.5em;
 
-        background-color: $text-color;
+        background-color: $color-primary;
         mask-image: url('../assets/unchecked.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
         mask-size: 100% 100%;
 
         &:checked {
-            background-color: $color-primary;
             mask-image: url('../assets/checked.svg');
         }
 
@@ -42,10 +41,12 @@ app-range-field.heartsteps-form-field {
         flex-direction: row;
         flex-wrap: nowrap;
         justify-content: space-between;
-        margin: 0em 0em 1em;
+        margin: 0em;
+        margin-bottom: 0.5em;
         
         > * {
             @extend label;
+            opacity: 0.85;
         }
     }
 }

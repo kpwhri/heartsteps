@@ -6,23 +6,16 @@
         {{error}}
     </p>
     <p *ngIf="!options">No options available</p>
-    <ul *ngIf="!selectedOption">
+    <ul>
         <li *ngFor="let option of options; let index = index">
             <button 
                 (click)="updateValue(option.value)"
                 [disabled]="isDisabled"
+                [ngClass]="{selected: selectedOption && option.name === selectedOption.name}"
                 type="button"
                 >
                 {{option.name}}
             </button>
         </li>
     </ul>
-    <button *ngIf="selectedOption"
-        type="button"
-        (click)="reset()"
-        [disabled]="disabled"
-        class="remove"
-        >
-        {{selectedOption.name}}
-    </button>
 </fieldset>
