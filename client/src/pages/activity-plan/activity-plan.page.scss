@@ -1,0 +1,25 @@
+.edit-activity-log-banner {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width:100%;
+    padding: 0.5em 1em;
+    background-color: $color-primary;
+    color: $color-white;
+
+    &:before {
+        content: '';
+        display: block;
+        flex: 0 0 auto;
+        order: 2;
+        height: 1em;
+        width: 1em;
+        mask-image: url('../assets/edit.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 1em;
+        background-color: $color-white;
+    }
+}
