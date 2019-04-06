@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:50745768851:android:f36016df85cb9282",
+        "mobilesdk_app_id": "1:50745768851:android:3f928c81258e38e7",
         "android_client_info": {
-          "package_name": "net.heartsteps.kpwhri"
+          "package_name": "net.heartsteps.kpw"
         }
       },
       "oauth_client": [],
