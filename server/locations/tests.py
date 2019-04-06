@@ -218,6 +218,25 @@ class LocationServiceTests(TestCase):
             throws_unknown_location_error = True
 
         self.assertTrue(throws_unknown_location_error)
+    
+    def test_use_user_locations_only(self):
+        # Add location that simulates other participant's accounts
+        other_user = User.objects.create(username="otherUser")
+        Location.objects.create(
+            user = other_user,
+            latitude = 10,
+            longitude = 10,
+            time = timezone.now() - timedelta(days=4),
+            source = "other user"
+        )
+
+        service = LocationService(self.user)
+
+        three_days_ago = timezone.now() - timedelta(days=3)
+        location = service.get_location_on(three_days_ago)
+
+        self.assertEqual(location.source, '7 days ago')
+
 
     @patch.object(TimezoneFinder, 'timezone_at', return_value='US/Eastern')
     def test_get_past_timezone(self, timezone_at):

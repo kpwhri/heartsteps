@@ -17,7 +17,11 @@ class LocationService:
     class InvalidLocation(Exception):
         pass
 
-    def __init__(self, user):
+    def __init__(self, user=None, username=None):
+        if username:
+            user = User.objects.get(username=username)
+        if not user:
+            raise RuntimeException('No user specified')
         self.__user = user
 
     def update_location(self, location_object):
@@ -62,7 +66,10 @@ class LocationService:
             time = datetime(time.year, time.month, time.day, 23, 59)
         if not time.tzinfo:
             time = pytz.UTC.localize(time)
-        location = Location.objects.filter(time__lte=time).first()
+        location = Location.objects.filter(
+            user=self.__user,
+            time__lte=time
+        ).first()
         if not location:
             raise self.UnknownLocation()
         return location
