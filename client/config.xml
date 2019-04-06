@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="net.heartsteps.kpwhri" version="0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="net.heartsteps.kpw" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HeartSteps</name>
-    <description>Kaiser HeartSteps</description>
+    <description>A research application to promote daily physical activity</description>
     <author email="nickreid@nickreid.com" href="http://nickreid.com/">Nick Reid</author>
     <content src="index.html" />
     <access origin="*" />
@@ -89,5 +89,5 @@
     </platform>
     <plugin name="onesignal-cordova-plugin" spec="^2.4.6" />
     <engine name="ios" spec="^5.0.0" />
-    <engine name="android" spec="^8.0.0" />
+    <engine name="android" spec="8.0.0" />
 </widget>
