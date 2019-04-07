@@ -102,18 +102,12 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'initialize')
         
         request_data = kwargs['data']
-        assert 'appClicksArray' in request_data
         assert 'totalStepsArray' in request_data
-        assert 'availMatrix' in request_data
-        assert 'temperatureMatrix' in request_data
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
 
         expected_calls = [call(date - timedelta(days=offset)) for offset in range(3)]
-        self.assertEqual(clicks.call_args_list, expected_calls)
         self.assertEqual(steps.call_args_list, expected_calls)
-        self.assertEqual(availabilities.call_args_list, expected_calls)
-        self.assertEqual(temperatures.call_args_list, expected_calls)
         self.assertEqual(pre_steps.call_args_list, expected_calls)
         self.assertEqual(post_steps.call_args_list, expected_calls)
 
@@ -159,7 +153,11 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
     @patch.object(WalkingSuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
     @patch.object(WalkingSuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
-    def test_update(self, post_steps, pre_steps, temperatures, steps, clicks, study_day):
+    @patch.object(WalkingSuggestionService, 'get_received_messages', return_value=[True, True, True, True, True])
+    @patch.object(WalkingSuggestionService, 'get_availabilities', return_value=[False, False, False, False, False])
+    @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
+    @patch.object(WalkingSuggestionService, 'get_previous_messages', return_value=[False, False, False, False, False])
+    def test_update(self, get_previous_messages, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
         date = datetime.today()
         self.service.update(date)
 
@@ -175,7 +173,11 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             'lastActivity': False,
             'temperatureArray': [10, 10, 10, 10, 10],
             'preStepsArray': [7, 7, 7, 7, 7],
-            'postStepsArray': [700, 700, 700, 700, 700]
+            'postStepsArray': [700, 700, 700, 700, 700],
+            'availabilityArray': [False, False, False, False, False],
+            'priorAntiArray': [False, False, False, False, False],
+            'lastActivityArray': [True, True, True, True, True],
+            'locationArray': [1, 1, 1, 1, 1]
         })
 
     def test_update_throws_error_not_initialized(self):
