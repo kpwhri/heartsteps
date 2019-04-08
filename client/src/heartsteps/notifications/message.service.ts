@@ -63,8 +63,14 @@ export class MessageService {
             return true;
         })
         .catch(() => {
-            return Promise.reject("No permission");
+            return this.storage.get('notificationsDisabled');
         })
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.reject("No permission");
+        });
     }
 
     public enable():Promise<boolean> {
@@ -97,7 +103,10 @@ export class MessageService {
     }
 
     public disable():Promise<boolean> {
-        return this.deleteDevice();
+        return this.storage.set('notificationsDisabled', true)
+        .then(() => {
+            return this.deleteDevice();
+        });
     }
 
     private checkDevice(device: Device) {

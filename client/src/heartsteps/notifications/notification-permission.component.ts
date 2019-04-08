@@ -14,7 +14,7 @@ export class NotificationsPermissionComponent {
         private loadingService:LoadingService
     ) {}
 
-    getPermission() {
+    public getPermission() {
         this.loadingService.show("Getting permission")
         this.messageService.enable()
         .then(() => {
@@ -25,6 +25,13 @@ export class NotificationsPermissionComponent {
         })
         .then(() => {
             this.loadingService.dismiss();
+        });
+    }
+
+    public skip() {
+        this.messageService.disable()
+        .then(() => {
+            this.saved.emit();
         });
     }
 }

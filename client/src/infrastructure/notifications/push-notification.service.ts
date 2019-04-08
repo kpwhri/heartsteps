@@ -76,7 +76,7 @@ export class PushNotificationService {
                 });
             });
         } else {
-            return Promise.resolve(true);
+            return Promise.reject('Not a phone');
         }
     }
 
