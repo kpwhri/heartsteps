@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-server
+  labels:
+    app: heartsteps-server
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: heartsteps-server
+    spec:
+      containers:
+      - name: heartsteps
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
+        imagePullPolicy: Always
+        command: ['honcho -f Procfile-prod start web cloudsql']
+        env:
+          - name: ALLOWED_HOSTS
+            value: '35.247.62.68'
+          - name: SECRET_KEY
+            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
+          - name: DATABASE_URL
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
+          - name: DEBUG
+            value: 'True'
+          - name: BUILD_TIME
+            value: 'now'
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartsteps-server
+  labels:
+    app: heartsteps-server
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: heartsteps-server

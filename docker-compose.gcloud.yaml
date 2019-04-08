@@ -6,7 +6,7 @@ services:
     command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-dev -credential_file=/config/gce.json
     volumes:
       - cloudsql:/cloudsql
-      - ./credentials:/config
+      - ./credentials:/credentials
   server:
     build: ./server
     env_file:

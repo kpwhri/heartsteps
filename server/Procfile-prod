@@ -1,3 +1,4 @@
 web: gunicorn -b :8080 heartsteps.wsgi:application
+cloudsql: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-dev -credential_file=/credentials/gce.json
 rabbitmq: rabbitmq-server start
 celery: celery -A heartsteps worker -l info -E -B
