@@ -98,23 +98,11 @@ class Configuration(models.Model):
                     'category': suggestion_time.category
                 }
             )
-        task_start_time = self._get_task_start_time(suggestion_time)
+        
         daily_task.set_time(
-            hour = task_start_time['hour'],
-            minute = task_start_time['minute']
+            hour = suggestion_time.hour,
+            minute = suggestion_time.minute
         )
-
-    def _get_task_start_time(self, suggestion_time):
-        if not hasattr(settings, 'WALKING_SUGGESTION_TIME_OFFSET'):
-            raise ImporperyConfigured("No walking suggestion time offset specified")
-        now = datetime.now()
-        time = datetime(now.year, now.month, now.day, suggestion_time.hour, suggestion_time.minute)
-        time = time - timedelta(minutes=settings.WALKING_SUGGESTION_TIME_OFFSET)
-
-        return {
-            'hour': time.hour,
-            'minute': time.minute
-        }
 
 class WalkingSuggestionDecision(Decision):
     

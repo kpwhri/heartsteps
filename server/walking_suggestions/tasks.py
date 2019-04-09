@@ -17,14 +17,10 @@ def start_decision(username, category):
     except User.DoesNotExist:
         return False
 
-    if not hasattr(settings, 'WALKING_SUGGESTION_TIME_OFFSET'):
-        raise ImproperlyConfigured('No walking suggestion time offset')
-
-    decision_time = timezone.now() + timedelta(minutes=settings.WALKING_SUGGESTION_TIME_OFFSET)
     service = WalkingSuggestionDecisionService.create_decision(
         user = user,
         category = category,
-        time = decision_time
+        time = timezone.now()
     )
     make_decision.apply_async(kwargs={
         'decision_id': str(service.decision.id)

@@ -1,7 +1,7 @@
 import pytz
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.contrib.auth.models import User
 
 from locations.services import LocationService
@@ -11,7 +11,6 @@ from walking_suggestion_times.signals import suggestion_times_updated
 
 from walking_suggestions.models import SuggestionTime, Configuration
 
-@override_settings(WALKING_SUGGESTION_TIME_OFFSET=5)
 class ConfigutationTest(TestCase):
 
     def setUp(self):
@@ -36,8 +35,7 @@ class ConfigutationTest(TestCase):
 
         daily_task = DailyTask.objects.get(user=user, category='morning')
         self.assertEqual(daily_task.task.crontab.hour, '15')
-        # suggestion minutes should be offset by 5 minutes (see setting override)
-        self.assertEqual(daily_task.task.crontab.minute, '10')
+        self.assertEqual(daily_task.task.crontab.minute, '15')
 
     def test_creates_configuration_if_does_not_exist(self):
         user = User.objects.create(username="test")
