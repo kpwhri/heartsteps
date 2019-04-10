@@ -13,15 +13,7 @@ export class MorningSurveyPage implements OnInit {
 
     public morningMessage:MorningMessage;
 
-    public pages:Array<any> = [{
-        key: 'start',
-        title: 'Good Morning',
-        component: StartPageComponent
-    }, {
-        key: 'survey',
-        title: 'Daily Survey',
-        component: SurveyPageComponent
-    }]
+    public pages:Array<any> = []
 
     constructor(
         private morningMessageService: MorningMessageService,
@@ -29,10 +21,30 @@ export class MorningSurveyPage implements OnInit {
         private element:ElementRef,
         private renderer:Renderer2,
         private router: Router
-    ) {}
+    ) {
+        this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
+
+        if (this.morningMessage.anchor) {
+            this.pages = [{
+                key: 'start',
+                title: 'Good Morning',
+                component: StartPageComponent
+            }, {
+                key: 'survey',
+                title: 'What\'s your day like today?',
+                component: SurveyPageComponent
+            }]
+        } else {
+            this.pages = [{
+                key: 'survey',
+                title: 'What\'s your day like today?',
+                component: SurveyPageComponent
+            }]
+        }
+
+    }
 
     ngOnInit() {
-        this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
         this.renderer.addClass(this.element.nativeElement, 'start-screen');
     }
 
