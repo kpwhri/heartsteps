@@ -8,3 +8,6 @@ dispatch:
 
   - url: "*/api/*"
     service: heartsteps-server
+
+  - url: "*/privacy-policy/*"
+    service: heartsteps-server
