@@ -1,10 +1,6 @@
 
 @import 'buttons.scss';
 
-.title {
-    text-transform: uppercase;
-}
-
 .label {
     display:block;
     color: $color-gray;  
@@ -123,7 +119,6 @@ article header .title {
     font-size: 1em;
     margin: 0.5em 0px;
     text-align: left;
-    text-transform: uppercase;
 }
 
 article > h2,
