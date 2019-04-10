@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { EnrollmentService } from './enrollment.service';
 import { LoadingService } from '@infrastructure/loading.service';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
+import { BrowserService } from '@infrastructure/browser.service';
 
 
 @Component({
@@ -17,7 +18,8 @@ export class EnrollmentModal {
 
     constructor(
         private enrollmentService: EnrollmentService,
-        private loadingService:LoadingService
+        private loadingService:LoadingService,
+        private browserService: BrowserService
     ) {
         this.enrollmentForm = new FormGroup({
             entryToken: new FormControl('', Validators.required),
@@ -25,7 +27,7 @@ export class EnrollmentModal {
         });
     }
 
-    enroll() {
+    public enroll() {
         this.error = undefined;
         this.loadingService.show('Authenticating');
 
@@ -42,5 +44,9 @@ export class EnrollmentModal {
         .then(() => {
             this.loadingService.dismiss();
         });
+    }
+
+    public openPrivacyPolicy() {
+        this.browserService.open('http://heartsteps-kpwhri.appspot.com/privacy-policy/');
     }
 }
