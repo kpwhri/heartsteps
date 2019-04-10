@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
+    'privacy_policy',
     'contact',
     'corsheaders',
     'service_requests',
