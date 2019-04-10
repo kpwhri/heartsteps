@@ -40,7 +40,7 @@ export class PushNotificationService {
         this.platform.ready()
         .then(() => {
             this.initialize();
-        })
+        });
     }
 
     public setup():Promise<boolean> {
@@ -64,16 +64,35 @@ export class PushNotificationService {
         });
     }
 
+    private hasProvidedPrivacyConsent(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            window.plugins.OneSignal.userProvidedPrivacyConsent((consented) => {
+                if(consented) {
+                    resolve(true);
+                } else {
+                    reject('No consent');
+                }
+            })
+        })
+    }
+
+    private hasDevicePermission(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
+                if(status.permissionStatus.hasPrompted && status.subscriptionStatus.subscribed) {
+                    resolve(true);
+                } else {
+                    reject('Not prompted or not subscribed');
+                }
+            });
+        });
+    }
+
     public hasPermission(): Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
-            return new Promise((resolve, reject) => {
-                window.plugins.OneSignal.getPermissionSubscriptionState(function(status) {
-                    if(status.permissionStatus.hasPrompted && status.subscriptionStatus.subscribed) {
-                        resolve(true);
-                    } else {
-                        reject('Not prompted or not subscribed');
-                    }
-                });
+            return this.hasProvidedPrivacyConsent()
+            .then(() => {
+                return this.hasDevicePermission();
             });
         } else {
             return Promise.reject('Not a phone');
@@ -83,6 +102,7 @@ export class PushNotificationService {
     public getPermission(): Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
             return new Promise((resolve, reject) => {
+                window.plugins.OneSignal.provideUserConsent(true);
                 window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
                     if (accepted) {
                         resolve(true)
@@ -101,8 +121,9 @@ export class PushNotificationService {
             window.plugins.OneSignal.addSubscriptionObserver((state) => {
                 this.handleOneSignalSubscription(state.to.userId);
             });
+            console.log('initialize OneSignal');
+            window.plugins.OneSignal.setRequiresUserPrivacyConsent(true);
 
-            console.log(process.env.ONESIGNAL_APP_ID);
             window.plugins.OneSignal.startInit(process.env.ONESIGNAL_APP_ID)
             .iOSSettings({
                 'kOSSettingsKeyAutoPrompt': false,
@@ -115,6 +136,7 @@ export class PushNotificationService {
                 });
             })
             .endInit();
+            console.log('END initialize OneSignal');
         }
     }
 
