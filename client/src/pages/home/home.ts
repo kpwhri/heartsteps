@@ -28,9 +28,6 @@ export class HomePage implements OnInit, OnDestroy {
         name: 'Stats',
         key: 'stats'
     }, {
-        name: 'Learn',
-        key: 'library'
-    }, {
         name: 'Settings',
         key: 'settings'
     }];
