@@ -79,26 +79,10 @@ export class MessageService {
             return this.pushNotificationService.getPermission();
         })
         .then(() => {
-            return this.waitForDevice();
-        });
-    }
-
-    private waitForDevice():Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            const subscription = this.pushNotificationService.device
-            .filter(device => device !== undefined)
-            .subscribe((device) =>  {
-                this.updateDevice(device)
-                .then(() => {
-                    resolve(true);
-                })
-                .catch((error) => {
-                    reject(error)
-                })
-                .then(() => {
-                    subscription.unsubscribe();
-                });
-            });
+            return this.pushNotificationService.getDevice();
+        })
+        .then((device) => {
+            return this.updateDevice(device);
         });
     }
 
