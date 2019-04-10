@@ -1,12 +1,12 @@
-FROM heartsteps_service-template
+FROM python:3.6
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && \
     apt-get install -y postgresql erlang rabbitmq-server
 
 # Install cloud-sql-proxy
-RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && \
-    chmod +x cloud_sql_proxy
+# RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && \
+#     chmod +x cloud_sql_proxy
 
 # Create and add files to Docker
 WORKDIR /server
