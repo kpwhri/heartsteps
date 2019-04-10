@@ -131,25 +131,14 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     }
 
     private updateChart() {
-        let duration: number = 1000;
-        if (this.firstUpdate) {
-            this.firstUpdate = false;
-            duration = 0;
-        }
-
         const arcs = this.makeArcs();
         const arcFunction = this.arc;
 
         this.pie.selectAll("path")
         .data(arcs)
-        .transition().duration(duration)
-        .attrTween("d", function(d) {
-            const i = d3.interpolate(this._current, d);
-            this._current = i(0);
-            return function(t) {
-                return arcFunction(i(t));
-            }
-        })
+        .attr("d", function(d) {
+            return arcFunction(d);
+        });
     }
 
     private makeArcs() {
