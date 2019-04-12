@@ -74,14 +74,18 @@ export class MessageService {
     }
 
     public enable():Promise<boolean> {
+        console.log('MessageService: Enable');
         return this.setup()
         .then(() => {
+            console.log('MessageService: Get permission');
             return this.pushNotificationService.getPermission();
         })
         .then(() => {
+            console.log('MessageService: Get device');
             return this.pushNotificationService.getDevice();
         })
         .then((device) => {
+            console.log('MessageService: Update device');
             return this.updateDevice(device);
         });
     }

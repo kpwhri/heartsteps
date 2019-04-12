@@ -100,45 +100,85 @@ export class PushNotificationService {
     }
 
     public getPermission(): Promise<boolean> {
-        console.log('PushNotificaions: get permission')
+        console.log('PushNotificaionService: get permission')
         if(this.platform.is('ios') || this.platform.is('android')) {
-            return new Promise((resolve, reject) => {
-                window.plugins.OneSignal.provideUserConsent(true);
-                window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
-                    if (accepted) {
-                        console.log('got permission')
-                        resolve(true)
-                    } else {
-                        reject('Permission not accepted');
-                    }
-                });
-            });
+            console.log('PushNotificationService: Provide consent and prompt for user response')
+            window.plugins.OneSignal.provideUserConsent(true);
+            if(this.platform.is('ios')) {
+                return this.getPermissionIOS();
+            } else {
+                return Promise.resolve(true);
+            }
         } else {
             return Promise.resolve(true);
         }
     }
 
+    private getPermissionIOS(): Promise<boolean> {
+        console.log('PushNotificationService: Get permission for iOS');
+        return new Promise((resolve, reject) => {
+            window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
+                if (accepted) {
+                    console.log('got permission');
+                    resolve(true)
+                } else {
+                    reject('Permission not accepted');
+                }
+            });
+        });
+    }
+
     public getDevice(): Promise<Device> {
-        console.log('PushNotificaions: get device');
+        console.log('PushNotificaionService: get device');
+        return this.getDeviceFromOneSignal()
+        .then((device) => {
+            return Promise.resolve(device);
+        })
+        .catch(() => {
+            return this.waitForDevice();
+        });
+    }
+
+    private waitForDevice(): Promise<Device> {
+        console.log('PushNotificationService: Waiting for device token')
+        return new Promise((resolve) => {
+            const subscription = this.device
+            .subscribe((device) => {
+                if(device && device.token) {
+                    subscription.unsubscribe();
+                    resolve(device);
+                }
+            });
+    
+            const intervalId = setInterval(() => {
+                console.log('Checking for device');
+                this.getDeviceFromOneSignal()
+                .then((device) => {
+                    console.log('Got device');
+                    clearInterval(intervalId);
+                    this.device.next(device);
+                })
+                .catch(() => {
+                    console.log('No device yet');
+                });
+            }, 1000)
+        });
+    }
+
+    private getDeviceFromOneSignal(): Promise<Device> {
         return new Promise((resolve, reject) => {
             window.plugins.OneSignal.getPermissionSubscriptionState((status) => {
                 console.log(status)
                 const token = status.subscriptionStatus.userId;
                 if(token) {
-                    console.log('Got token: ' + token);
+                    console.log('PushNotificationService: Got token ' + token);
                     const device = new Device(
                         token,
                         process.env.PUSH_NOTIFICATION_DEVICE_TYPE
                     );
                     resolve(device);
                 } else {
-                    const subscription = this.device
-                    .subscribe((device) => {
-                        if(device && device.token) {
-                            subscription.unsubscribe();
-                            resolve(device);
-                        }
-                    });
+                    reject('device not available');
                 }
             });
         });
@@ -171,10 +211,11 @@ export class PushNotificationService {
     }
 
     private handleOneSignalSubscription() {
+        console.log('PushNotificationService: handle OneSignal Subscription');
         this.isReady()
         .then(() => {
             window.plugins.OneSignal.getPermissionSubscriptionState((status) => {
-                console.log('handleOneSignalSubscription');
+                console.log('PushNotificationService: check permission state');
                 console.log(status)
                 const token = status.subscriptionStatus.userId;
                 if(token) {
