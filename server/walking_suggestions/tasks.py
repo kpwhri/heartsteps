@@ -19,8 +19,7 @@ def start_decision(username, category):
 
     service = WalkingSuggestionDecisionService.create_decision(
         user = user,
-        category = category,
-        time = timezone.now()
+        category = category
     )
     make_decision.apply_async(kwargs={
         'decision_id': str(service.decision.id)
