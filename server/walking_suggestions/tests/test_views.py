@@ -13,8 +13,10 @@ from walking_suggestions.tasks import make_decision
 
 class WalkingSuggestionCreateTest(APITestCase):
     
-    @patch.object(WalkingSuggestionDecisionService, 'request_context')
-    def test_create(self, request_context):
+    @patch.object(WalkingSuggestionDecisionService, 'update_context')
+    @patch.object(WalkingSuggestionDecisionService, 'decide')
+    @patch.object(WalkingSuggestionDecisionService, 'send_message')
+    def test_create(self, send_message, decide, update_context):
         user = User.objects.create(username="test")
 
         self.client.force_authenticate(user=user)
@@ -23,7 +25,9 @@ class WalkingSuggestionCreateTest(APITestCase):
         }, format='json')
 
         self.assertEqual(response.status_code, 201)
-        request_context.assert_called()
+        update_context.assert_called()
+        decide.assert_called()
+        send_message.assert_called()
         
         decision = WalkingSuggestionDecision.objects.get()
         self.assertEqual(user, decision.user)

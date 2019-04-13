@@ -21,7 +21,9 @@ class WalkingSuggestionCreateView(APIView):
                 category = request.data['category'],
                 test = True
             )
-            service.request_context()
+            service.update_context()
+            service.decide()
+            service.send_message()
             return Response('', status = status.HTTP_201_CREATED)
         return Response('', status=status.HTTP_400_BAD_REQUEST)
 
