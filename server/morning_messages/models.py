@@ -110,4 +110,4 @@ class MorningMessage(models.Model):
     anchor = models.CharField(max_length=255, null=True, editable=False)
 
     def __str__(self):
-        return "%s: %s" % (user, date.strftime("%Y-%m-%d"))
+        return "%s: %s" % (self.user, self.date.strftime("%Y-%m-%d"))

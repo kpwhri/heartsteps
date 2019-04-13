@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'service_requests',
     'page_views',
     'daily_tasks',
+    'surveys',
     'fitbit_api',
     'fitbit_authorize',
     'fitbit_activities',
