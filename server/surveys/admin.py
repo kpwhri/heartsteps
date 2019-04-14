@@ -1,3 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Answer, Question
+
+class AnswerInline(admin.TabularInline):
+    model = Answer
+    extra = 0
+
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = [
+        AnswerInline
+    ]

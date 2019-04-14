@@ -3,8 +3,9 @@ from django.contrib import messages
 
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from surveys.admin import QuestionAdmin
 
-from .models import Configuration, MorningMessageTemplate, MorningMessageDecision
+from .models import Configuration, MorningMessageTemplate, MorningMessageDecision, MorningMessageQuestion
 from .services import MorningMessageService
 
 def send_morning_message(modeladmin, request, queryset):
@@ -41,3 +42,10 @@ admin.site.register(MorningMessageDecision, MorningMessageDecisionAdmin)
 class MorningMessageTemplateAdmin(MessageTemplateAdmin):
     pass
 admin.site.register(MorningMessageTemplate, MorningMessageTemplateAdmin)
+
+
+class MorningMessageQuestionAdmin(QuestionAdmin):
+    pass
+
+admin.site.register(MorningMessageQuestion, MorningMessageQuestionAdmin)
+

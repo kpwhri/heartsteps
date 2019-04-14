@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib import messages
 
-from .models import Week
+from surveys.admin import QuestionAdmin
+
+from .models import Week, WeekQuestion
 from .services import WeekService
 
 def send_reflection(modeladmin, request, queryset):
@@ -31,3 +33,8 @@ class WeekAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Week, WeekAdmin)
+
+class WeekQuestionAdmin(QuestionAdmin):
+    pass
+
+admin.site.register(WeekQuestion, WeekQuestionAdmin)
