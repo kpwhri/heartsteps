@@ -1,6 +1,7 @@
 import { Component, forwardRef, Input } from "@angular/core";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { AbstractField } from "./abstract-field";
+import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
+import { SelectFieldComponent } from "./select-field.component";
 
 @Component({
     selector: 'app-range-field',
@@ -13,49 +14,34 @@ import { AbstractField } from "./abstract-field";
         }
     ]
 })
-export class RangeFieldComponent extends AbstractField {
+export class RangeFieldComponent extends SelectFieldComponent {
 
-    public selectedIndex: number;
-    public options:Array<string> = [
-        'None',
-        'Some',
-        'Moderate',
-        'Lots',
-        'Maximum'
-    ];
+    public options:Array<SelectOption>;
     public leastLabel:string = 'None';
     public mostLabel:string = 'Most';
 
     @Input('options')
-    set setOptions(options:Array<string>) {
+    set setOptions(options:Array<any>) {
         if(options && options.length >= 2) {
-            this.options = options;
-            this.leastLabel = this.options[0];
-            this.mostLabel = this.options[this.options.length-1];
+            if(typeof(options[0]) === 'string') {
+                this.options = options.map((option, index): SelectOption => {
+                    return {
+                        name: option,
+                        value: index
+                    }
+                })
+            } else {
+                this.options = options;
+                this.leastLabel = this.options[0].name;
+                this.mostLabel = this.options[this.options.length-1].name;
+            }
         }
     }
 
-    public select(index:number) {
-        this.selectedIndex = index;
-        if(this.options.length > 1) {
-            const value:number = index/(this.options.length-1);
-            this.onChange(value);
-            this.onTouched();
-        }
-    }
-
-    public writeValue(value:any) {
-        if(value === null) {
-            this.selectedIndex = null;
-        } else {
-            const newValue = Math.round((this.options.length-1) * value);
-            console.log('write value ' + value);
-            this.selectedIndex = newValue;
-        }
-    }
-
-    public updateValue(value:any) {
-        this.onChange(value);
+    public updateValue(option: SelectOption) {
+        this.writeValue(option);
+        this.onChange(option.value);
+        this.onTouched();
     }
 
 }

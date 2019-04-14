@@ -2,15 +2,15 @@
     <legend>{{label}}</legend>
     <ul>
         <li *ngFor="let option of options; let index = index">
-            <input id="range-{{index}}"
+            <input id="{{name}}-{{index}}"
                 type="radio"
                 [name]="name"
-                [value]="index"
-                [ngModel]="selectedIndex"
-                (ngModelChange)="select($event)"
+                [value]="option"
+                [ngModel]="selectedOption"
+                (ngModelChange)="updateValue($event)"
                 [disabled]="isDisabled"
                 />
-            <label for="range-{{index}}">
+            <label for="{{name}}-{{index}}">
                 {{option}}
             </label>
         </li>

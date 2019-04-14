@@ -2,21 +2,12 @@
     [formGroup]="form"
     submitLabel="Complete"
     (onSubmit)="done()"
+    [error]="error"
     >
-    <app-range-field
-        formControlName="busy"
-        label="How busy is your day going to be today?"
-        [options]="busyOptions"
-    ></app-range-field>
-    <app-range-field
-        formControlName="rested"
-        label="How well rested do you feel this morning?"
-        [options]="restedOptions"
-    ></app-range-field>
-    <app-range-field
-        formControlName="committed"
-        label="How committed do you feel this morning to being physically active today?"
-        [options]="committedOptions"
+    <app-range-field *ngFor="let question of questions"
+        [formControlName]="question.name"
+        [label]="question.label"
+        [options]="question.options"
     ></app-range-field>
     <app-choice-field
         formControlName="mood"
