@@ -17,7 +17,7 @@ class Question(models.Model):
 
     @property
     def answers(self):
-        return list(self.answer_set.all())
+        return list(self.answer_set.order_by('order', 'created').all())
 
     def __str__(self):
         return self.name
@@ -43,6 +43,9 @@ class Survey(models.Model):
     class QuestionDoesNotExist(RuntimeError):
         pass
     
+    class OptionDoesNotExist(RuntimeError):
+        pass
+    
     QUESTION_MODEL = Question
 
     @property
@@ -51,7 +54,8 @@ class Survey(models.Model):
 
     @property
     def questions(self):
-        return list(self.surveyquestion_set.all())
+        questions = self.surveyquestion_set.order_by('order').all()
+        return list(questions)
     
     def get_question(self, name):
         try:
@@ -72,16 +76,11 @@ class Survey(models.Model):
             question = question,
             name = question.name,
             label = question.label,
-            description = question.description
+            description = question.description,
+            order = SurveyQuestion.objects.filter(survey=self).count() + 1
         )
         for answer in question.answers:
-            SurveyAnswer.objects.create(
-                question = survey_question,
-                answer = answer,
-                label = answer.label,
-                value = answer.value,
-                order = answer.order
-            )
+            survey_question.add_option(answer)
 
     def randomize_questions(self):
         SurveyQuestion.objects.filter(survey=self).delete()
@@ -96,8 +95,11 @@ class Survey(models.Model):
         if response is None:
             self.create_response(question)
         else:
-            answer = question.get_answer(response)
-            self.create_response(question, answer)
+            try:
+                answer = question.get_option(response)
+                self.create_response(question, answer)
+            except SurveyQuestion.OptionDoesNotExist:
+                raise self.OptionDoesNotExist(response + ' is not a valid option')
 
     def create_response(self, question, answer=None):
         SurveyResponse.objects.create(
@@ -124,11 +126,28 @@ class SurveyQuestion(models.Model):
     label = models.CharField(max_length=250)
     description = models.CharField(max_length=250, null=True, blank=True)
 
-    def get_answer(self, value):
+    class OptionDoesNotExist(RuntimeError):
+        pass
+
+    @property
+    def options(self):
+        options = self.answers.order_by('order').all()
+        return list(options)
+
+    def add_option(self, answer):
+        SurveyAnswer.objects.create(
+            question = self,
+            answer = answer,
+            label = answer.label,
+            value = answer.value,
+            order = SurveyAnswer.objects.filter(question=self).count() + 1
+        )
+
+    def get_option(self, value):
         try:
             return self.answers.get(value=value)
         except SurveyAnswer.DoesNotExist:
-            raise RuntimeError('Answer does not exist')
+            raise self.OptionDoesNotExist('Option does not exist')
 
 class SurveyAnswer(models.Model):
     answer = models.ForeignKey(
