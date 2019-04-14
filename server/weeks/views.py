@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Week
-from .serializers import GoalSerializer, WeekSerializer
+from .serializers import GoalSerializer, WeekSerializer, SurveySerializer
 from .services import WeekService
 
 class WeekView(APIView):
@@ -63,3 +63,26 @@ class SendReflectionView(APIView):
         service.send_reflection(week)
 
         return Response({}, status=status.HTTP_201_CREATED)
+
+class WeekSurveyView(WeekView):
+
+    def get_week_survey(self, request, week_number):
+        week = self.get_week(request.user, week_number)
+        if not week.survey:
+            raise Http404()
+        else:
+            return week.survey
+
+    def get(self, request, week_number):
+        survey = self.get_week_survey(request, week_number)
+        serialized = SurveySerializer(survey)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
+    def post(self, request, week_number):
+        survey = self.get_week_survey(request, week_number)
+
+        for key in request.data:
+            survey.save_response(key, request.data[key])
+
+        serialized = SurveySerializer(survey)
+        return Response(serialized.data, status=status.HTTP_200_OK)

@@ -2,6 +2,8 @@ from datetime import datetime
 
 from rest_framework import serializers
 
+from surveys.serializers import SurveySerializer
+
 from .models import Week
 
 class WeekSerializer(serializers.ModelSerializer):
@@ -17,6 +19,11 @@ class WeekSerializer(serializers.ModelSerializer):
         del representation['number']
         del representation['start_date']
         del representation['end_date']
+
+        if instance.survey:
+            serialized = SurveySerializer(instance.survey)
+            representation['survey'] = serialized.data
+
         return representation
 
 class GoalSerializer(serializers.Serializer):
