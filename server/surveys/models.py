@@ -1,4 +1,5 @@
 import uuid
+import random
 
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -41,6 +42,8 @@ class Survey(models.Model):
 
     class QuestionDoesNotExist(RuntimeError):
         pass
+    
+    QUESTION_MODEL = Question
 
     @property
     def id(self):
@@ -61,8 +64,8 @@ class Survey(models.Model):
 
     def add_question(self, name):
         try:
-            question = Question.objects.get(name=name)
-        except Question.DoesNotExist:
+            question = self.QUESTION_MODEL.objects.get(name=name)
+        except self.QUESTION_MODEL.DoesNotExist:
             raise self.QuestionDoesNotExist('No question with name ' + name)
         survey_question = SurveyQuestion.objects.create(
             survey = self,
@@ -79,6 +82,14 @@ class Survey(models.Model):
                 value = answer.value,
                 order = answer.order
             )
+
+    def randomize_questions(self):
+        SurveyQuestion.objects.filter(survey=self).delete()
+
+        questions = list(self.QUESTION_MODEL.objects.all())
+        random.shuffle(questions)
+        for question in questions:
+            self.add_question(question.name)
     
     def save_response(self, question_name, response = None):
         question = self.get_question(question_name)

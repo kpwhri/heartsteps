@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from push_messages.services import PushMessageService, Device, Message
 
-from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageTemplate, User
+from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageSurvey, MorningMessageQuestion, MorningMessageTemplate, User
 from morning_messages.services import MorningMessageService, MorningMessageDecisionService
 from morning_messages.tasks import send_morning_message
 
@@ -147,3 +147,30 @@ class MorningMessageTaskTest(MorningMessageTestBase):
         self.assertEqual(sent_data['body'], 'Example morning message')
         self.assertEqual(sent_data['text'], 'Example morning message')
         self.assertEqual(sent_data['anchor'], 'Anchor message')
+
+
+class MorningMessageSurveyTests(MorningMessageTestBase):
+
+    def setUp(self):
+        super().setUp()
+        
+        MorningMessageQuestion.objects.create(
+            name = 'first morning message',
+            label = 'This is a morning message'
+        )
+        MorningMessageQuestion.objects.create(
+            name = 'Second morning message',
+            label = 'Foo bar'
+        )
+
+    def test_morning_message_creates_survey(self):
+        MorningMessage.objects.create(
+            user = self.user,
+            date = date.today()
+        )
+
+        morning_message = MorningMessage.objects.get()
+        survey = MorningMessageSurvey.objects.get()
+        self.assertIsNotNone(morning_message.survey)
+        self.assertEqual(morning_message.survey.id, survey.id)
+        self.assertEqual(len(survey.questions), 2)

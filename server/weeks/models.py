@@ -7,8 +7,15 @@ from django.contrib.auth import get_user_model
 
 from activity_summaries.models import Day
 from locations.services import LocationService
+from surveys.models import Survey, Question
 
 User = get_user_model()
+
+class WeekQuestion(Question):
+    pass
+
+class WeekSurvey(Survey):
+    QUESTION_MODEL = WeekQuestion
 
 class Week(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
@@ -21,6 +28,8 @@ class Week(models.Model):
 
     goal = models.IntegerField(null=True)
     confidence = models.FloatField(null=True)
+
+    survey = models.ForeignKey(WeekSurvey, null=True)
 
     class Meta:
         ordering = ['start_date']

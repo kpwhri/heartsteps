@@ -13,7 +13,7 @@ from locations.services import LocationService
 from push_messages.services import PushMessageService
 from weekly_reflection.signals import weekly_reflection
 
-from .models import User, Week
+from .models import User, Week, WeekQuestion
 from .services import WeekService
 from .tasks import send_reflection
 
@@ -247,3 +247,28 @@ class WeekReflectionMessageSendTest(TestCase):
 
         # Ensure next week's goal is set to default
         get_default_goal.assert_called()
+
+
+class WeekSurveyTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+        WeekQuestion.objects.create(
+            name = "sample question",
+            label = "This is a sample question"
+        )
+        WeekQuestion.objects.create(
+            name = "foobar",
+            label = "Foo bar"
+        )
+
+    def test_every_week_gets_survey(self):
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 4, 8),
+            end_date = date(2019, 4, 14)
+        )
+
+        self.assertIsNotNone(week.survey)
+        self.assertEqual(len(week.survey.questions), 2)
