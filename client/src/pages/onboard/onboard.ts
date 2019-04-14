@@ -36,7 +36,7 @@ const onboardingPages:Array<Step> = [{
     component: FitbitAuth
 }, {
     key: 'fitbitWatch',
-    title: 'Heartsteps clock face',
+    title: 'Heartsteps clockface',
     component: WatchSetupComponent
 }];
 
