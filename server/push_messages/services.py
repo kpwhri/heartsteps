@@ -60,7 +60,7 @@ class PushMessageService():
 
     def __send(self, message, request):
         try:
-            self.__client.send(request)
+            external_id = self.__client.send(request)
         except self.__client.MessageSendError as error:
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
@@ -68,6 +68,9 @@ class PushMessageService():
             time = timezone.now(),
             type = MessageReceipt.SENT
         )
+        if external_id:
+            message.external_id = external_id
+            message.save()
         return message
 
     def send_notification(self, body, title=None, data={}):

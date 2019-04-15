@@ -1,11 +1,15 @@
 import requests
 import json
+from datetime import datetime
 
 from apns2.client import APNsClient
 from apns2.payload import Payload
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
+
+from .tasks import onesignal_get_received
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -130,4 +134,8 @@ class OneSignalClient(ClientBase):
 
         if response.status_code == 200:
             response_data = response.json()
-            return response_data['id']
+            message_id = response_data['id']
+            onesignal_get_received.apply_async(countdown=300, kwargs={
+                'message_id': message_id
+            })
+            return message_id

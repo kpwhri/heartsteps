@@ -34,6 +34,8 @@ class Message(models.Model):
 
     content = models.TextField()
 
+    external_id = models.CharField(max_length=150, null=True)
+
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
