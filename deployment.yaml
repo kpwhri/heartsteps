@@ -32,6 +32,54 @@ spec:
 
 ---
 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: walking-suggestion-service
+  labels:
+    app: walking-suggestion-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: walking-suggestion-service
+    spec:
+      containers:
+      - name: walking-suggestion-service
+        image: gcr.io/heartsteps-kpwhri/walking-suggestion-service:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: anti-sedentary-service
+  labels:
+    app: anti-sedentary-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: anti-sedentary-service
+    spec:
+      containers:
+      - name: anti-sedentary-service
+        image: gcr.io/heartsteps-kpwhri/anti-sedentary-service:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 8080
+
+---
+
 apiVersion: v1
 kind: Service
 metadata:
