@@ -91,7 +91,10 @@ class LocationService:
             lng = longitude,
             lat = latitude
         )
-        return pytz.timezone(timezone)
+        if timezone:
+            return pytz.timezone(timezone)
+        else:
+            return pytz.UTC
 
     def get_timezone_on(self, datetime):
         try:
