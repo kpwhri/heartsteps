@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
-from .models import StepCount
+from participants.views import LoginView as ParticipantLoginView
+
+from .models import StepCount, WatchInstall
 
 
 class StepCountSerializer(serializers.ModelSerializer):
@@ -36,3 +38,9 @@ class StepCountUpdateView(APIView):
             step_count.save()
             return Response({}, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LoginView(ParticipantLoginView):
+
+    def authentication_successful(self):
+        install, _ = WatchInstall.objects.update_or_create(user = self.participant.user)
+
