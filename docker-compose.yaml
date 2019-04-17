@@ -41,7 +41,7 @@ services:
     build: ./server
     env_file:
       - .env-development 
-    command: honcho start
+    command: honcho start dev celery rabbitmq
     volumes:
       - ./server:/server
       - ./credentials:/credentials

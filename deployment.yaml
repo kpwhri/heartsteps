@@ -1,21 +1,44 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: heartsteps-server
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
+        imagePullPolicy: Always
+        command: ['rabbitmq-server', 'start']
+        ports:
+        - containerPort: 5672
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
   name: heartsteps-server
   labels:
     app: heartsteps-server
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
         app: heartsteps-server
     spec:
       containers:
-      - name: heartsteps
+      - name: heartsteps-app
         image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
         imagePullPolicy: Always
-        command: ['honcho -f Procfile-prod start web cloudsql']
+        command: ['honcho', 'start', 'web', 'cloudsql']
         env:
           - name: ALLOWED_HOSTS
             value: '35.247.62.68'
@@ -23,10 +46,36 @@ spec:
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
-          - name: DEBUG
-            value: 'True'
-          - name: BUILD_TIME
-            value: 'now'
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-worker
+  labels:
+    app: heartsteps-worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: heartsteps-worker
+    spec:
+      containers:
+      - name: heartsteps-worker
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
+        imagePullPolicy: Always
+        command: ['honcho', 'start', 'celery', 'cloudsql']
+        env:
+          - name: ALLOWED_HOSTS
+            value: '35.247.62.68'
+          - name: SECRET_KEY
+            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
+          - name: DATABASE_URL
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
         ports:
         - containerPort: 8080
 
@@ -93,3 +142,37 @@ spec:
     targetPort: 8080
   selector:
     app: heartsteps-server
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  labels:
+    run: rabbitmq
+spec:
+  ports:
+  - name: default
+    port: 5672
+    protocol: TCP
+    targetPort: 5672
+  selector:
+    run: rabbitmq
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: walking-suggestion
+  labels:
+    run: walking-suggestion
+spec:
+  ports:
+  - name: default
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+  selector:
+    run: walking-suggestion-service
