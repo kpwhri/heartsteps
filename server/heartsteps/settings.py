@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     'activity_summaries',
     'fitbit_activity_logs',
     'anti_sedentary',
-    'anti_seds',
+    'watch_app',
     'participants',
     'data_export'
 ]

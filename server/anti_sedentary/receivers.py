@@ -1,9 +1,9 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from anti_seds.models import StepCount
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestion_times.signals import suggestion_times_updated
+from watch_app.models import StepCount
 
 from .services import AntiSedentaryService
 from .tasks import start_decision

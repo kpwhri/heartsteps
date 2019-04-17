@@ -5,11 +5,11 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from anti_seds.models import StepCount
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
+from watch_app.models import StepCount
 
 from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, User, Configuration
