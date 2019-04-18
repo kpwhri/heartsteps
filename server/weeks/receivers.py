@@ -3,7 +3,7 @@ from django.db.models.signals import pre_save
 
 from weekly_reflection.signals import weekly_reflection
 
-from .models import User, Week
+from .models import User, Week, WeekSurvey
 from .tasks import send_reflection
 
 @receiver(pre_save, sender=Week)
@@ -16,6 +16,18 @@ def set_week_number(sender, instance, *args, **kwargs):
 def set_week_goal(sender, instance, *args, **kwargs):
     if not instance.goal:
         instance.goal = instance.get_default_goal()
+
+@receiver(pre_save, sender=Week)
+def set_week_survey(sender, instance, *args, **kwargs):
+    week = instance
+
+    if not week.survey:
+        survey = WeekSurvey.objects.create(
+            user = week.user
+        )
+        survey.randomize_questions()
+
+        week.survey = survey
 
 
 @receiver(weekly_reflection, sender=User)

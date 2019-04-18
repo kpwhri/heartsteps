@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationsPermissionComponent } from '@heartsteps/notifications/notification-permission.component';
-import { LocationPermission } from '@heartsteps/locations/location-permission';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
@@ -9,6 +8,7 @@ import { ParticipantInformation } from '@heartsteps/contact-information/particip
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
+import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
 
 const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
@@ -27,10 +27,6 @@ const onboardingPages:Array<Step> = [{
     title: 'Suggestion Times',
     component: WalkingSuggestionTimesComponent
 }, {
-    key: 'locationPermission',
-    title: 'Locations',
-    component: LocationPermission
-}, {
     key: 'places',
     title: 'Places',
     component: PlacesList
@@ -38,6 +34,10 @@ const onboardingPages:Array<Step> = [{
     key: 'fitbitAuthorization',
     title: 'Fitbit',
     component: FitbitAuth
+}, {
+    key: 'fitbitWatch',
+    title: 'Heartsteps clockface',
+    component: WatchSetupComponent
 }];
 
 @Component({
@@ -45,10 +45,8 @@ const onboardingPages:Array<Step> = [{
     templateUrl: 'onboard.html',
     entryComponents: [
         NotificationsPermissionComponent,
-        LocationPermission,
         WeeklyReflectionTimePage,
         WalkingSuggestionTimesComponent,
-        LocationPermission,
         PlacesList
     ]
 })

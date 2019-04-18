@@ -17,7 +17,11 @@ class LocationService:
     class InvalidLocation(Exception):
         pass
 
-    def __init__(self, user):
+    def __init__(self, user=None, username=None):
+        if username:
+            user = User.objects.get(username=username)
+        if not user:
+            raise RuntimeException('No user specified')
         self.__user = user
 
     def update_location(self, location_object):
@@ -62,7 +66,10 @@ class LocationService:
             time = datetime(time.year, time.month, time.day, 23, 59)
         if not time.tzinfo:
             time = pytz.UTC.localize(time)
-        location = Location.objects.filter(time__lte=time).first()
+        location = Location.objects.filter(
+            user=self.__user,
+            time__lte=time
+        ).first()
         if not location:
             raise self.UnknownLocation()
         return location
@@ -73,6 +80,10 @@ class LocationService:
     def get_current_datetime(self):
         tz = self.get_current_timezone()
         return timezone.now().astimezone(tz)
+    
+    def get_current_date(self):
+        current_datetime = self.get_current_datetime()
+        return date(current_datetime.year, current_datetime.month, current_datetime.day)
 
     def get_timezone_for(self, latitude, longitude):
         timezone_finder = TimezoneFinder()
@@ -80,7 +91,10 @@ class LocationService:
             lng = longitude,
             lat = latitude
         )
-        return pytz.timezone(timezone)
+        if timezone:
+            return pytz.timezone(timezone)
+        else:
+            return pytz.UTC
 
     def get_timezone_on(self, datetime):
         try:
@@ -90,7 +104,11 @@ class LocationService:
                 longitude = location.longitude
             )
         except LocationService.UnknownLocation:
-            return pytz.UTC 
+            return pytz.UTC
+
+    def get_datetime_on(self, datetime):
+        timezone = self.get_timezone_on(datetime)
+        return datetime.astimezone(timezone)
 
     def check_timezone_change(self):
         locations = Location.objects.filter(user=self.__user)[:2]

@@ -3,5 +3,14 @@
         "buildFlag": [
             "-UseModernBuildSystem=0"
         ]
+    },
+    "android": {
+        "release": {
+            "keystore": "/credentials/android.keystore",
+            "storePassword": "password",
+            "alias": "heartsteps-kpwhri-app",
+            "password": "password",
+            "keystoreType": ""
+        }
     }
 }

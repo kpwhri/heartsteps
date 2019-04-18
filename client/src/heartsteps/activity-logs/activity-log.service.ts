@@ -42,10 +42,11 @@ export class ActivityLogService {
     }
 
     public save(activityLog:ActivityLog):Promise<ActivityLog> {
-        return this.heartstepsServer.post(
-            'activity/logs/' + activityLog.id,
-            this.serialize(activityLog)    
-        )
+        let uri = 'activity/logs'
+        if(activityLog.id) {
+            uri = 'activity/logs/' + activityLog.id;
+        }
+        return this.heartstepsServer.post(uri,this.serialize(activityLog))
         .then((data) => {
             return this.deserialize(data);
         })

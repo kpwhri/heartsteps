@@ -3,7 +3,7 @@ import uuid, json
 from django.conf import settings
 from django.utils import timezone
 
-from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService
+from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
 
 class DeviceMissingError(Exception):
@@ -34,7 +34,8 @@ class PushMessageService():
         client_types = {
             'apns': ApplePushClient,
             'apns-dev': AppleDevelopmentPushClient,
-            'firebase': FirebaseMessageService
+            'firebase': FirebaseMessageService,
+            'onesignal': OneSignalClient
         }
 
         client = client_types.get(self.device.type)
@@ -59,7 +60,7 @@ class PushMessageService():
 
     def __send(self, message, request):
         try:
-            self.__client.send(request)
+            external_id = self.__client.send(request)
         except self.__client.MessageSendError as error:
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
@@ -67,6 +68,9 @@ class PushMessageService():
             time = timezone.now(),
             type = MessageReceipt.SENT
         )
+        if external_id:
+            message.external_id = external_id
+            message.save()
         return message
 
     def send_notification(self, body, title=None, data={}):

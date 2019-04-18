@@ -15,6 +15,7 @@ import { ActivityLogFieldComponent } from './activity-log-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.module';
 import { DailySummaryComponent } from './daily-summary.component';
+import { ActivityLogCreatePage } from './activity-log-create.page';
 
 const routes: Routes = [{
   path: 'activities/:date',
@@ -23,6 +24,10 @@ const routes: Routes = [{
     'dailySummary': DailySummaryResolver,
     'activityLogs': DayActivityLogsResolver
   }
+}, {
+  path: 'activities/logs/create',
+  component: ActivityLogCreatePage,
+  outlet: 'modal'
 }, {
   path: 'activities/logs/:id',
   component: ActivityLogPage,
@@ -35,6 +40,7 @@ const routes: Routes = [{
 @NgModule({
   declarations: [
     ActivityLogPage,
+    ActivityLogCreatePage,
     ActivitySummaryPage,
     DailySummaryComponent,
     DailySummaryListComponent,

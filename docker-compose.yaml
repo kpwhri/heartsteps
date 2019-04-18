@@ -41,7 +41,7 @@ services:
     build: ./server
     env_file:
       - .env-development 
-    command: honcho start
+    command: honcho start dev celery rabbitmq
     volumes:
       - ./server:/server
       - ./credentials:/credentials
@@ -56,8 +56,9 @@ services:
     command: ionic serve
     volumes:
       - ./client:/client
-      - client-node-modules:/client/node_modules
       - ./credentials:/credentials
+      - client-node-modules:/client/node_modules
+      - client-gradle-cache:/root/.gradle/caches
     ports:
       - "8100:8100"
       - "35729:35729"
@@ -69,3 +70,4 @@ services:
 volumes:
   client-node-modules:
   pgdata:
+  client-gradle-cache:

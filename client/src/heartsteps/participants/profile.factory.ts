@@ -1,17 +1,16 @@
 import { Injectable } from "@angular/core";
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
-import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
-import { CurrentActivityLogService } from "@heartsteps/current-week/current-activity-log.service";
 import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
-import { CurrentDailySummariesService } from "@heartsteps/current-week/current-daily-summaries.service";
+import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 
 @Injectable()
@@ -21,14 +20,13 @@ export class ProfileService {
         private messageService: MessageService,
         private dailyTimeService: DailyTimeService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
-        private locationService:LocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
         private fitbitService: FitbitService,
+        private fitbitWatchService: FitbitWatchService,
         private currentWeekService: CurrentWeekService,
-        private currentActivityLogService: CurrentActivityLogService,
-        private currentDailySummariesSurvice: CurrentDailySummariesService,
+        private cachedActivityLogService: CachedActivityLogService,
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService
     ) {}
@@ -64,9 +62,7 @@ export class ProfileService {
             this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
-            this.setupMessageService(),
-            this.setupActivityTypeService(),
-            this.setupCurrentDailySummaries()
+            this.setupActivityTypeService()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -79,8 +75,6 @@ export class ProfileService {
     public remove():Promise<boolean> {
         return Promise.all([
             this.walkingSuggestionTimeService.removeTimes(),
-            this.messageService.disable(),
-            this.locationService.removePermission(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
             this.contactInformationService.remove(),
@@ -98,21 +92,21 @@ export class ProfileService {
         return Promise.all([
             this.checkNotificationsEnabled(),
             this.checkWalkingSuggestions(),
-            this.checkLocationPermission(),
             this.checkPlacesSet(),
             this.checkReflectionTime(),
             this.checkContactInformation(),
-            this.checkFitbit()
+            this.checkFitbit(),
+            this.checkFitbitWatch()
         ])
         .then((results) => {
             return {
                 notificationsEnabled: results[0],
                 walkingSuggestionTimes: results[1],
-                locationPermission: results[2],
-                places: results[3],
-                weeklyReflectionTime: results[4],
-                contactInformation: results[5],
-                fitbitAuthorization: results[6]
+                places: results[2],
+                weeklyReflectionTime: results[3],
+                contactInformation: results[4],
+                fitbitAuthorization: results[5],
+                fitbitWatch: results[6]
             }
         })
         .catch(() => {
@@ -197,16 +191,6 @@ export class ProfileService {
         })
     }
 
-    private checkLocationPermission():Promise<boolean> {
-        return this.locationService.hasPermission()
-        .then(() => {
-            return true
-        })
-        .catch(() => {
-            return Promise.resolve(false)
-        })
-    }
-
     private checkPlacesSet():Promise<boolean> {
         return this.placesService.getLocations()
         .then(() => {
@@ -237,6 +221,16 @@ export class ProfileService {
         });
     }
 
+    checkFitbitWatch(): Promise<boolean> {
+        return this.fitbitWatchService.isInstalled()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
     loadFitbit():Promise<boolean> {
         return this.fitbitService.updateAuthorization()
         .then(() => {
@@ -258,37 +252,17 @@ export class ProfileService {
     }
 
     loadCurrentActivityLogs(): Promise<boolean> {
-        return this.currentActivityLogService.setup()
+        return this.cachedActivityLogService.setup()
         .then(() => {
             return true;
         })
         .catch(() => {
             return Promise.resolve(false);
         })
-    }
-
-    private setupCurrentDailySummaries() :Promise<boolean> {
-        return this.currentDailySummariesSurvice.setup()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        });
     }
 
     private setupActivityPlanService() {
         return this.activityPlanService.setup()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        })
-    }
-
-    private setupMessageService():Promise<boolean> {
-        return this.messageService.setup()
         .then(() => {
             return true;
         })

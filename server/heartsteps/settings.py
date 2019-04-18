@@ -6,8 +6,6 @@ env = environ.Env()
 env_file_path = '/server/.env'
 if os.path.isfile(env_file_path):
     env.read_env(env_file_path)
-else:
-    print("SETTINGS: Env file not loaded")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 root = environ.Path(BASE_DIR)
@@ -31,16 +29,19 @@ ANTI_SEDENTARY_DECISION_MINUTE_INTERVAL = env.int('ANTI_SEDENTARY_DECISION_MINUT
 
 if 'WALKING_SUGGESTION_SERVICE_URL' in os.environ:
     WALKING_SUGGESTION_SERVICE_URL = env('WALKING_SUGGESTION_SERVICE_URL')
-WALKING_SUGGESTION_REQUEST_RETRY_TIME = env.int('WALKING_SUGGESTION_REQUEST_RETRY_TIME', default=5)
-WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS = env.int('WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS', default=3)
-WALKING_SUGGESTION_TIME_OFFSET = env.int('WALKING_SUGGESTION_TIME_OFFSET', default=10)
 WALKING_SUGGESTION_INITIALIZATION_DAYS = env.int('WALKING_SUGGESTION_INITIALIZATION_DAYS', default=7)
 
-# Fitbit settings
+# Fitbit Settings
 FITBIT_CONSUMER_KEY = env.str('FITBIT_CONSUMER_KEY', default='CONSUMER_KEY')
 FITBIT_CONSUMER_SECRET = env.str('FITBIT_CONSUMER_SECRET', default='CONSUMER_SECRET')
 FITBIT_SUBSCRIBER_ID = env.str('FITBIT_SUBSCRIBER_ID', default='SUBSCRIBER_ID')
 FITBIT_SUBSCRIBER_VERIFICATION_CODE = env.str('FITBIT_SUBSCRIBER_VERIFICATION_CODE', default='VERIFICATION_CODE')
+
+#ONESIGNAL Settings
+if 'ONESIGNAL_API_KEY' in os.environ:
+    ONESIGNAL_API_KEY = env.str('ONESIGNAL_API_KEY')
+if 'ONESIGNAL_APP_ID' in os.environ:
+    ONESIGNAL_APP_ID = env.str('ONESIGNAL_APP_ID')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,11 +55,13 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
+    'privacy_policy',
     'contact',
     'corsheaders',
     'service_requests',
     'page_views',
     'daily_tasks',
+    'surveys',
     'fitbit_api',
     'fitbit_authorize',
     'fitbit_activities',
@@ -78,7 +81,7 @@ INSTALLED_APPS = [
     'activity_summaries',
     'fitbit_activity_logs',
     'anti_sedentary',
-    'anti_seds',
+    'watch_app',
     'participants',
     'data_export'
 ]
@@ -109,7 +112,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+RABBITMQ_HOST = env('RABBITMQ_SERVICE_HOST', default='localhost')
+CELERY_BROKER_URL = 'amqp://guest:guest@%s:5672//' % (RABBITMQ_HOST)
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 

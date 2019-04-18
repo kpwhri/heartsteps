@@ -16,7 +16,7 @@ def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs)
     try:
         FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type)
     except FitbitActivityToActivityType.DoesNotExist:
-        activity_type_name = fitbit_activity_type.name.lower()
+        activity_type_name = fitbit_activity_type.name.lower().replace(' ','_')
         activity_type, _ = ActivityType.objects.get_or_create(
             name=activity_type_name,
             defaults= {

@@ -1,0 +1,127 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-server
+  labels:
+    app: heartsteps-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: heartsteps-server
+    spec:
+      containers:
+      - name: heartsteps-app
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
+        imagePullPolicy: Always
+        command: ['honcho', 'start', 'web', 'cloudsql', 'rabbitmq', 'celery']
+        env:
+          - name: ALLOWED_HOSTS
+            value: '35.247.62.68'
+          - name: SECRET_KEY
+            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
+          - name: DATABASE_URL
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
+          - name: ANTI_SEDENTARY_SERVICE_URL
+            value: 'http://anti-sedentary:8080'
+          - name: WALKING_SUGGESTION_SERVICE_URL
+            value: 'http://walking-suggestion:8080'
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartsteps-server
+  labels:
+    app: heartsteps-server
+spec:
+  type: LoadBalancer
+  loadBalancerIP: "35.197.106.169"
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: heartsteps-server
+
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: walking-suggestion-service
+  labels:
+    app: walking-suggestion-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: walking-suggestion-service
+    spec:
+      containers:
+      - name: walking-suggestion-service
+        image: gcr.io/heartsteps-kpwhri/walking-suggestion-service:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: walking-suggestion
+  labels:
+    run: walking-suggestion
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: walking-suggestion-service
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: anti-sedentary-service
+  labels:
+    app: anti-sedentary-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: anti-sedentary-service
+    spec:
+      containers:
+      - name: anti-sedentary-service
+        image: gcr.io/heartsteps-kpwhri/anti-sedentary-service:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: anti-sedentary
+  labels:
+    run: anti-sedentary
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: anti-sedentary-service

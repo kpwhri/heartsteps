@@ -12,16 +12,17 @@ urlpatterns = [
     url(r'^api/activity/', include('activity_summaries.urls')),
     url(r'^api/fitbit/', include('fitbit_authorize.urls')),
     url(r'^api/fitbit/', include('fitbit_api.urls')),
+    url(r'^api/watch-app/', include('watch_app.urls')),
     url(r'^api/', include('page_views.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
     url(r'^api/', include('weekly_reflection.urls')),
     url(r'^api/', include('weeks.urls')),
     url(r'^api/', include('participants.urls')),
-    url(r'^api/', include('anti_seds.urls')),
     url(r'^api/', include('morning_messages.urls')),
     url(r'^api/', include('push_messages.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'api-auth', include('rest_framework.urls')),
     url(r'export/', include('data_export.urls')),
+    url(r'', include('privacy_policy.urls'))
 ]

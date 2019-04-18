@@ -7,6 +7,7 @@ from daily_tasks.models import DailyTask
 
 from behavioral_messages.models import MessageTemplate
 from randomization.models import Decision
+from surveys.models import Question, Survey
 
 User = get_user_model()
 
@@ -98,10 +99,18 @@ class MorningMessageDecision(Decision):
             self.add_context('sedentary')
         return framing
 
+class MorningMessageQuestion(Question):
+    pass
+
+class MorningMessageSurvey(Survey):
+    QUESTION_MODEL = MorningMessageQuestion
+
 class MorningMessage(models.Model):
     user = models.ForeignKey(User)
     date = models.DateField()
     randomized = models.BooleanField(default=True)
+
+    survey = models.ForeignKey(MorningMessageSurvey, null=True, editable=False)
 
     message_decision = models.ForeignKey(MorningMessageDecision, null=True, editable=False)
 
@@ -110,4 +119,4 @@ class MorningMessage(models.Model):
     anchor = models.CharField(max_length=255, null=True, editable=False)
 
     def __str__(self):
-        return "%s: %s" % (user, date.strftime("%Y-%m-%d"))
+        return "%s: %s" % (self.user, self.date.strftime("%Y-%m-%d"))

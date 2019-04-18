@@ -1,7 +1,7 @@
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
 
-from morning_messages.models import Configuration, MorningMessage, MorningMessageDecision
+from morning_messages.models import Configuration, MorningMessage, MorningMessageDecision, MorningMessageSurvey
 from morning_messages.services import MorningMessageDecisionService
 
 @receiver(pre_save, sender=Configuration)
@@ -34,3 +34,15 @@ def morning_message_generate_decision(sender, instance, **kwargs):
         else:
             morning_message.text = None
             morning_message.anchor = None
+
+@receiver(pre_save, sender=MorningMessage)
+def morning_message_create_survey(sender, instance, **kwargs):
+    morning_message = instance
+    
+    if not morning_message.survey:
+        survey = MorningMessageSurvey.objects.create(
+            user = morning_message.user
+        )
+        survey.randomize_questions()
+
+        morning_message.survey = survey

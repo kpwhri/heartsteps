@@ -34,6 +34,8 @@ class Message(models.Model):
 
     content = models.TextField()
 
+    external_id = models.CharField(max_length=150, null=True)
+
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -53,6 +55,10 @@ class Message(models.Model):
     @property
     def received(self):
         return self.__get_receipt_time(MessageReceipt.RECEIVED)
+
+    @property
+    def displayed(self):
+        return self.__get_receipt_time(MessageReceipt.DISPLAYED)
     
     @property
     def opened(self):
@@ -65,14 +71,17 @@ class Message(models.Model):
 class MessageReceipt(models.Model):
     SENT = 'sent'
     RECEIVED = 'received'
+    DISPLAYED = 'displayed'
     OPENED = 'opened'
     ENGAGED = 'engaged'
 
-    MESSAGE_RECEIPT_TYPES = [SENT, RECEIVED, OPENED, ENGAGED]
+
+    MESSAGE_RECEIPT_TYPES = [SENT, RECEIVED, DISPLAYED, OPENED, ENGAGED]
 
     MESSAGE_RECEIPT_CHOICES = (
         (SENT, 'Sent'),
         (RECEIVED, 'Received'),
+        (DISPLAYED, 'Displayed'),
         (OPENED, 'Opened'),
         (ENGAGED, 'Engaged')
     )

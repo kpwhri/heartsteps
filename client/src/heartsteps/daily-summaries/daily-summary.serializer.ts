@@ -7,9 +7,17 @@ const dateFormat = 'YYYY-MM-DD';
 @Injectable()
 export class DailySummarySerializer {
 
+    public formatDate(date: Date): string {
+        return moment(date).format(dateFormat);
+    }
+
+    public parseDate(dateString: string): Date {
+        return moment(dateString, dateFormat).toDate();
+    }
+
     public serialize(summary: DailySummary): any {
         return {
-            date: moment(summary.date).format(dateFormat),
+            date: this.formatDate(summary.date),
             updated: summary.updated,
             moderateMinutes: summary.moderateMinutes,
             vigorousMinutes: summary.vigorousMinutes,
@@ -21,7 +29,7 @@ export class DailySummarySerializer {
 
     public deserialize(data: any): DailySummary {
         const summary:DailySummary = new DailySummary();
-        summary.date = moment(data.date, dateFormat).toDate();
+        summary.date = this.parseDate(data.date);
         summary.updated = new Date(data.updated);
         summary.moderateMinutes = data.moderateMinutes;
         summary.vigorousMinutes = data.vigorousMinutes;

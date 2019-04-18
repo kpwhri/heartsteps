@@ -35,6 +35,7 @@ export class PlanComponent implements OnInit {
             this.activityType = activityType.title;
             this.renderer.addClass(this.element.nativeElement, 'activity-type-'+activityType.name);
         });
+        
         if(this.plan.vigorous) {
             this.activityLevel = "vigorous";
         } else {
@@ -61,11 +62,11 @@ export class PlanComponent implements OnInit {
             event.preventDefault();
             if(event.target.nodeName === "BUTTON") {
                 this.router.navigate([{outlets: {
-                    modal: ['plans', this.plan.id, 'complete'].join('/')
+                    modal: ['plans', this.plan.id].join('/')
                 }}]);
             } else {
                 this.router.navigate([{outlets: {
-                    modal: ['plans', this.plan.id].join('/')
+                    modal: ['plans', this.plan.id, 'complete'].join('/')
                 }}]);
             }
         })

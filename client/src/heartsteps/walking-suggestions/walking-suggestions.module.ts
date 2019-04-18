@@ -6,10 +6,14 @@ import { WalkingSuggestionTimesComponent } from './walking-suggestion-times.comp
 import { IonicPageModule } from 'ionic-angular';
 import { WalkingSuggestionTimeService } from './walking-suggestion-time.service';
 import { WalkingSuggestionService } from './walking-suggestion.service';
+import { FormModule } from '@infrastructure/form/form.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
         InfrastructureModule,
+        FormModule,
+        ReactiveFormsModule,
         BrowserModule,
         IonicPageModule.forChild(WalkingSuggestionTimesComponent),
     ],

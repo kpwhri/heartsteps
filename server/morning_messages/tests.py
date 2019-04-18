@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from push_messages.services import PushMessageService, Device, Message
 
-from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageTemplate, User
+from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageSurvey, MorningMessageQuestion, MorningMessageTemplate, User
 from morning_messages.services import MorningMessageService, MorningMessageDecisionService
 from morning_messages.tasks import send_morning_message
 
@@ -19,13 +19,13 @@ class MorningMessageTestBase(TestCase):
             user = self.user,
             active = True
         )
-        patch_send_data = patch.object(PushMessageService, 'send_data')
-        self.send_data = patch_send_data.start()
-        self.send_data.return_value = Message.objects.create(
+        patch_send_notification = patch.object(PushMessageService, 'send_notification')
+        self.send_notification = patch_send_notification.start()
+        self.send_notification.return_value = Message.objects.create(
             recipient = self.user,
             content = "foo"
         )
-        self.addCleanup(patch_send_data.stop)
+        self.addCleanup(patch_send_notification.stop)
 
         MorningMessageTemplate.objects.create(
             body = 'Example morning message',
@@ -109,7 +109,7 @@ class MorningMessageTaskTest(MorningMessageTestBase):
     def test_creates_morning_message(self):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
+        self.send_notification.assert_called()
         
         morning_message = MorningMessage.objects.get()
         self.assertEqual(morning_message.user, self.user)
@@ -121,7 +121,7 @@ class MorningMessageTaskTest(MorningMessageTestBase):
 
         send_morning_message(username="test")
 
-        self.send_data.assert_not_called()
+        self.send_notification.assert_not_called()
 
         morning_message = MorningMessage.objects.get()
         self.assertEqual(morning_message.user, self.user)
@@ -131,18 +131,46 @@ class MorningMessageTaskTest(MorningMessageTestBase):
     def test_message_with_no_framing(self, _):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
-        sent_data = self.send_data.call_args[0][0]
-        self.assertEqual(sent_data['notification'], 'Good Morning')
-        self.assertEqual(sent_data['text'], None)
-        self.assertEqual(sent_data['anchor'], None)
+        self.send_notification.assert_called()
+        self.assertEqual(self.send_notification.call_args[1]['body'], 'Good Morning')
+        sent_data = self.send_notification.call_args[1]['data']
+        self.assertEqual(sent_data['body'], 'Good Morning')
+        assert 'text' not in sent_data
+        assert 'anchor' not in sent_data
 
     @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=MorningMessageDecision.FRAME_GAIN_ACTIVE)
     def test_message_with_framing(self, _):
         send_morning_message(username="test")
 
-        self.send_data.assert_called()
-        sent_data = self.send_data.call_args[0][0]
-        self.assertEqual(sent_data['notification'], 'Example morning message')
+        self.send_notification.assert_called()
+        sent_data = self.send_notification.call_args[1]['data']
+        self.assertEqual(sent_data['body'], 'Example morning message')
         self.assertEqual(sent_data['text'], 'Example morning message')
         self.assertEqual(sent_data['anchor'], 'Anchor message')
+
+
+class MorningMessageSurveyTests(MorningMessageTestBase):
+
+    def setUp(self):
+        super().setUp()
+        
+        MorningMessageQuestion.objects.create(
+            name = 'first morning message',
+            label = 'This is a morning message'
+        )
+        MorningMessageQuestion.objects.create(
+            name = 'Second morning message',
+            label = 'Foo bar'
+        )
+
+    def test_morning_message_creates_survey(self):
+        MorningMessage.objects.create(
+            user = self.user,
+            date = date.today()
+        )
+
+        morning_message = MorningMessage.objects.get()
+        survey = MorningMessageSurvey.objects.get()
+        self.assertIsNotNone(morning_message.survey)
+        self.assertEqual(morning_message.survey.id, survey.id)
+        self.assertEqual(len(survey.questions), 2)

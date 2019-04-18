@@ -75,7 +75,7 @@ class FitbitActivityLogService(FitbitService):
             return False
         age = timezone.now().year - int(birth_year)
         max_heart_rate = 220 - age
-        if max_heart_rate*0.70 <= fitbit_activity.average_heart_rate:
+        if fitbit_activity.average_heart_rate and max_heart_rate*0.70 <= fitbit_activity.average_heart_rate:
             return True
         else:
             return False

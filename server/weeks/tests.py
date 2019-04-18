@@ -13,7 +13,7 @@ from locations.services import LocationService
 from push_messages.services import PushMessageService
 from weekly_reflection.signals import weekly_reflection
 
-from .models import User, Week
+from .models import User, Week, WeekQuestion
 from .services import WeekService
 from .tasks import send_reflection
 
@@ -220,9 +220,9 @@ class WeekReflectionMessageSendTest(TestCase):
         self.now.return_value = datetime(2019, 3, 9, 20).astimezone(pytz.UTC)
         self.addCleanup(timezone_patch.stop)
 
-        send_data_patch = patch.object(PushMessageService, 'send_data')
-        self.send_data = send_data_patch.start()
-        self.addCleanup(send_data_patch.stop)
+        send_notification_patch = patch.object(PushMessageService, 'send_notification')
+        self.send_notification = send_notification_patch.start()
+        self.addCleanup(send_notification_patch.stop)
 
         get_device_patch = patch.object(PushMessageService, 'get_device_for_user')
         get_device_patch.start()
@@ -236,8 +236,8 @@ class WeekReflectionMessageSendTest(TestCase):
     def test_sends_reflection(self, get_default_goal):
         weekly_reflection.send(User, username="test")
 
-        self.send_data.assert_called()
-        data = self.send_data.call_args[0][0]
+        self.send_notification.assert_called()
+        data = self.send_notification.call_args[1]['data']
         self.assertEqual(data['type'], 'weekly-reflection')
         self.assertEqual(data['currentWeek']['id'], 1)
         self.assertEqual(data['nextWeek']['id'], 2)
@@ -247,3 +247,28 @@ class WeekReflectionMessageSendTest(TestCase):
 
         # Ensure next week's goal is set to default
         get_default_goal.assert_called()
+
+
+class WeekSurveyTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+
+        WeekQuestion.objects.create(
+            name = "sample question",
+            label = "This is a sample question"
+        )
+        WeekQuestion.objects.create(
+            name = "foobar",
+            label = "Foo bar"
+        )
+
+    def test_every_week_gets_survey(self):
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 4, 8),
+            end_date = date(2019, 4, 14)
+        )
+
+        self.assertIsNotNone(week.survey)
+        self.assertEqual(len(week.survey.questions), 2)

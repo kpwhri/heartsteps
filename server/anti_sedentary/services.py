@@ -4,21 +4,19 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from anti_seds.models import StepCount
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_api.services import FitbitService
 from locations.services import LocationService
 from randomization.services import DecisionMessageService, DecisionContextService
+from watch_app.models import StepCount
 
 from anti_sedentary.clients import AntiSedentaryClient
 from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
 
 class FitbitStepCountService:
 
-    def __init__(self, user, date):
-        self.user = user
-        self.date = date
-        
+    def __init__(self, user):
+        self.user = user        
         self.fitbit_account = FitbitService.get_account(user)
 
     def get_step_count_between(self, start, end):
@@ -200,8 +198,7 @@ class AntiSedentaryService:
         day_end = self.get_day_end(date)
 
         steps_service = FitbitStepCountService(
-            user = self.__user,
-            date = date
+            user = self.__user
         )
 
         decision_interval = self.decision_minute_interval

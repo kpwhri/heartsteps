@@ -1,0 +1,13 @@
+<app-page
+    title="Create activity log"
+    >
+    <app-form
+        [formGroup]="form"
+        (onSubmit)="create()"
+        >
+        <activity-log-field
+            formControlName="activityLog"
+            >
+        </activity-log-field>
+    </app-form>
+</app-page>

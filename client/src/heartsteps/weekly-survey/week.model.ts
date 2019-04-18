@@ -1,4 +1,3 @@
-import { WeekService } from "./week.service";
 import * as moment from 'moment';
 
 export class Week {
@@ -7,6 +6,8 @@ export class Week {
     end:Date;
     goal:number;
     confidence: number;
+
+    survey: any;
 
     constructor(){}
 

@@ -16,19 +16,24 @@ import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.m
 const settingsRoutes: Routes = [
     {
         path: 'settings/contact',
-        component: ContactPage
+        component: ContactPage,
+        outlet: 'modal'
     }, {
         path: 'settings/places',
-        component: PlacesPage
+        component: PlacesPage,
+        outlet: 'modal'
     }, {
         path: 'settings/reflection-time',
-        component: ReflectionTimePage
+        component: ReflectionTimePage,
+        outlet: 'modal'
     }, {
         path: 'settings/suggestion-times',
-        component: SuggestionTimesPage
+        component: SuggestionTimesPage,
+        outlet: 'modal'
     }, {
         path: 'settings/weekly-goal',
-        component: GoalPage
+        component: GoalPage,
+        outlet: 'modal'
     }
 ]
 

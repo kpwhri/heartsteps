@@ -46,17 +46,15 @@ export class ActivityTypeService {
     }
 
     public get(type:string):Promise<ActivityType> {
-        return this.getActivityTypes()
-        .then((types) => {
-            const filteredTypes:Array<ActivityType> = types.filter((activityType) => { 
-                return activityType.name === type 
-            });
-            if(filteredTypes.length === 1) {
-                return Promise.resolve(filteredTypes[0]);
-            } else {
-                return Promise.reject("No matching type");
-            }
+        const activityTypes = this.activityTypes.value;
+        const activityType = activityTypes.find((activityType) => {
+            return activityType.name === type;
         });
+        if(activityType) {
+            return Promise.resolve(activityType);
+        } else {
+            return Promise.reject('No matching type');
+        }
     }
 
     public create(type:string): Promise<ActivityType> {

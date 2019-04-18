@@ -29,8 +29,7 @@ export class WeeklySurveyService {
         private weekService: WeekService,
         private weekSerializer: WeekSerializer,
         private heartstepsServer: HeartstepsServer,
-        private messageReceiptService: MessageReceiptService,
-        private messageService: MessageService
+        private messageReceiptService: MessageReceiptService
     ) {}
 
     public setup():Promise<boolean> {
@@ -67,14 +66,11 @@ export class WeeklySurveyService {
         })
     }
 
-    public processNotification(message:Message):Promise<boolean> {
+    public processMessage(message:Message):Promise<WeeklySurvey> {
         const currentWeek = this.weekSerializer.deserialize(message.context.currentWeek);
         const nextWeek = this.weekSerializer.deserialize(message.context.nextWeek);
         const expires = moment().add(1, 'days').toDate();
-        return this.set(currentWeek, nextWeek, expires, message.id)
-        .then(() => {
-            return this.messageService.createNotification(message.id, 'Weekly reflection time')
-        });
+        return this.set(currentWeek, nextWeek, expires, message.id);
     }
 
     public complete():Promise<boolean> {

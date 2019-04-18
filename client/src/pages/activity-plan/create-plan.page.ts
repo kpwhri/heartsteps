@@ -15,6 +15,7 @@ export class CreatePlanPage {
 
     public planForm: FormGroup;
     public date:Date;
+    public error: string;
 
     constructor(
         private activityPlanService: ActivityPlanService,
@@ -35,6 +36,7 @@ export class CreatePlanPage {
     }
 
     public create() {
+        this.error = undefined;
         this.loadingService.show('Saving activity plan');
         const activityPlan = this.planForm.value.activityPlan;
         this.activityPlanService.save(activityPlan)
@@ -42,7 +44,7 @@ export class CreatePlanPage {
             this.back();
         })
         .catch((error) => {
-            console.log(error);
+            this.error = error;
         })
         .then(() => {
             this.loadingService.dismiss();

@@ -1,6 +1,8 @@
 activity-enjoyed-field {
-    ul {
+    ul,
+    .input-group > ul {
         @extend ul.horizontal;
+        margin: 0em;
     }
 
     ul li label {
@@ -14,9 +16,9 @@ activity-enjoyed-field {
 
     ul li input[type=radio] {
         appearance: none;
-        margin: 0.5em;
-        width: 2em;
-        height: 2em;
+        margin: 0em;
+        width: 1.5em;
+        height: 1.5em;
 
         background-color: $text-color;
         mask-image: url('../assets/enjoyed-none.svg');

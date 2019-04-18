@@ -13,6 +13,15 @@ export class NotificationResolver implements Resolve<Message> {
     ){}
 
     resolve(route:ActivatedRouteSnapshot) {
-        return this.messageService.getMessage(route.paramMap.get('notificationId'));
+        console.log('NotificationResolver: Resolving route...');
+        return this.messageService.getMessage(route.paramMap.get('notificationId'))
+        .then((message) => {
+            console.log('NotificationResolver: got message id='+message.id);
+            return message;
+        })
+        .catch(() => {
+            console.log('NotificationResolver: There was an error');
+            return Promise.reject('Error getting message');
+        });
     }
 }

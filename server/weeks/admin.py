@@ -1,12 +1,28 @@
 from django.contrib import admin
+from django.contrib import messages
 
-from .models import Week
+from surveys.admin import QuestionAdmin
+
+from .models import Week, WeekQuestion
+from .services import WeekService
+
+def send_reflection(modeladmin, request, queryset):
+    for week in queryset.all():
+        service = WeekService(user = week.user)
+        service.send_reflection(week, test=True)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Sent weekly reflection to %s' % (week.user.username)
+        )
 
 class WeekAdmin(admin.ModelAdmin):
     ordering = ['-start_date']
     list_display = ['user', 'number', 'start_date', 'end_date']
     fields = ['user', 'number', 'goal']
     readonly_fields = ['uuid', 'user', 'number', 'start_date', 'end_date', 'goal']
+
+    actions = [send_reflection]
 
     def goal(admin, week):
         if week.minutes:
@@ -17,3 +33,8 @@ class WeekAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Week, WeekAdmin)
+
+class WeekQuestionAdmin(QuestionAdmin):
+    pass
+
+admin.site.register(WeekQuestion, WeekQuestionAdmin)

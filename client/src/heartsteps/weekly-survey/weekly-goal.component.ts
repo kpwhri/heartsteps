@@ -4,6 +4,7 @@ import { LoadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { WeekService } from './week.service';
+import { SelectOption } from '@infrastructure/dialogs/select-dialog.controller';
 
 @Component({
   selector: 'heartsteps-weekly-goal',
@@ -17,6 +18,25 @@ export class WeeklyGoalComponent {
     public minutes:number;
     public confidence:number;
     private _week:Week;
+
+    public confidenceOptions: Array<SelectOption> = [
+        {
+            name: 'Not at all',
+            value: 0
+        }, {
+            name: 'Some confidence',
+            value: 0.25
+        }, {
+            name: 'Moderate confidence',
+            value: 0.5
+        }, {
+            name: 'Fairly confident',
+            value: 0.75
+        }, {
+            name: 'Very much',
+            value: 1
+        }
+    ]
 
     public form: FormGroup;
     public error: string;

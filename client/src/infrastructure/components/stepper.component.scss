@@ -2,12 +2,13 @@ heartsteps-stepper {
     @extend .heartsteps-container;
     @extend .heartsteps-page;
 
-    background-color: $color-white;
+    width: 100%;
 
     > header {
         @extend .heartsteps-page-header;
         background-color: transparent;
         border-bottom: 0px;
+        padding-top: env(safe-area-inset-top);
     }
 
     .pagination-bullets {

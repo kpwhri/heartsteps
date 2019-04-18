@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { HomePage } from './home';
-import { DashboardModule } from '@pages/dashboard/dashboard.module';
 import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
-import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from './plan.page';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
@@ -14,24 +12,29 @@ import { SettingsPage } from '@pages/settings/settings-page';
 import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
-import { CurrentDailySummaryResolver } from './current-daily-summary.resolver';
+import { HomeGuard } from './home.guard';
+import { DashboardPage } from './dashboard.page';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
+import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
+import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
+import { AnchorMessageResolver } from './anchor-message.resolver';
 
 const routes:Routes = [
     {
         path: 'home',
         component: HomePage,
+        canActivate: [
+            HomeGuard
+        ],
         children: [{
             path: 'dashboard',
             component: DashboardPage,
             resolve: {
-                currentWeek: CurrentWeekResolver
+                anchorMessage: AnchorMessageResolver
             }
         }, {
             path: 'stats',
-            component: StatsPage,
-            resolve: {
-                summaries: CurrentDailySummaryResolver
-            }
+            component: StatsPage
         }, {
             path: 'planning',
             component: PlanPage,
@@ -55,23 +58,21 @@ const routes:Routes = [
 @NgModule({
     declarations: [
         HomePage,
+        DashboardPage,
         PlanPage,
         StatsPage
     ],
-    entryComponents: [
-        DashboardPage,
-        PlanPage,
-        StatsPage,
-        ResourceLibraryPage
-    ],
     providers: [
+        AnchorMessageResolver,
         CurrentWeekResolver,
-        CurrentDailySummaryResolver
+        HomeGuard
     ],
     imports: [
-        DashboardModule,
         ActivityPlanPageModule,
         ActivityLogPageModule,
+        AnchorMessageModule,
+        CurrentWeekModule,
+        DailySummaryModule,
         ResourceLibraryModule,
         SettingsModule,
         BrowserModule,

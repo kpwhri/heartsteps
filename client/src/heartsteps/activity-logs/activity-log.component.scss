@@ -5,4 +5,28 @@ heartsteps-activity-log {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+
+    .earned {
+        flex-grow: 0;
+        text-align: center;
+        margin: 0em 0.5em;
+        span {
+            @extend .label;
+        }
+    }
+
+    &:after {
+        content: '';
+        display: block;
+        flex: 0 0 auto;
+        order: 10;
+        height: 2em;
+        width: 2em;
+        mask-image: url('../assets/edit.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 1em;
+        background-color: $link-color;
+        margin-left: 1em;
+    }
 }

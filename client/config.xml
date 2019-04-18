@@ -1,10 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.nickreid.heartsteps" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="74" id="net.heartsteps.kpw" osx-CFBundleVersion="74" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HeartSteps</name>
-    <description>Application for Kaiser HeartSteps</description>
+    <description>A research application to promote daily physical activity</description>
     <author email="nickreid@nickreid.com" href="http://nickreid.com/">Nick Reid</author>
     <content src="index.html" />
     <access origin="*" />
+    <allow-navigation href="http://192.168.0.57:8100" />
+    <allow-navigation href="http://192.168.0.50:8100" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -12,22 +14,16 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <preference name="ScrollEnabled" value="false" />
-    <preference name="android-minSdkVersion" value="19" />
+    <preference name="android-minSdkVersion" value="22" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="FadeSplashScreenDuration" value="300" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
-    <preference name="Fullscreen" value="true" />
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-        <config-file parent="UIBackgroundModes" target="*-Info.plist">
-            <array>
-                <string>voip</string>
-            </array>
-        </config-file>
         <icon height="57" src="resources/ios/icon/icon.png" width="57" />
         <icon height="114" src="resources/ios/icon/icon@2x.png" width="114" />
         <icon height="40" src="resources/ios/icon/icon-40.png" width="40" />
@@ -65,20 +61,11 @@
     <plugin name="cordova-plugin-splashscreen" spec="~5.0.2" />
     <plugin name="cordova-plugin-ionic-webview" spec="~1.1.19" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="~2.0.5" />
-    <allow-navigation href="http://192.168.0.57:8100" />
     <plugin name="cordova-plugin-advanced-http" spec="^1.11.1" />
-    <allow-navigation href="http://192.168.0.50:8100" />
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
     <plugin name="cordova-plugin-whitelist" spec="1.3.3" />
-    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-        <string>Your location will be used to tailor activity suggestions</string>
-    </edit-config>
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
-    <plugin name="cordova-plugin-background-fetch" spec="^5.4.1" />
-    <plugin name="cordova-plugin-geolocation" spec="^4.0.1">
-        <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Your location will be used to tailor activity suggestions" />
-    </plugin>
     <platform name="android">
         <resource-file src="google-services.json" target="app/google-services.json" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
@@ -100,8 +87,6 @@
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
-    <plugin name="phonegap-plugin-push" spec="https://github.com/phonegap/phonegap-plugin-push#v2.2.3" />
-    <plugin name="cordova-plugin-local-notification" spec="https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.3" />
-    <engine name="ios" spec="4.5.5" />
-    <engine name="android" spec="7.0.0" />
+    <plugin name="onesignal-cordova-plugin" spec="^2.4.6" />
+    <engine name="ios" spec="^5.0.0" />
 </widget>

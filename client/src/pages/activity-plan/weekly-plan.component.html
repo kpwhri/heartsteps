@@ -1,4 +1,4 @@
-<article *ngFor="let date of dates">
-    <h3>{{date | date:"EEEE, M/d"}}</h3>
-    <activity-plan-day [date]="date"></activity-plan-day>
-</article>
+<activity-plan-day *ngFor="let date of dates"
+    [date]="date"
+    >
+</activity-plan-day>

@@ -1,6 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
-import { Geolocation } from '@ionic-native/geolocation';
 
 declare var google;
 
@@ -8,34 +7,35 @@ declare var google;
     selector: 'place-edit',
     templateUrl: 'place-edit.html'
 })
-export class PlaceEdit {
+export class PlaceEdit implements OnInit {
 
-    private address:String
+    public pageTitle:string;
+    public error: string;
+    public showMap: boolean;
 
-    private latitude:Number
-    private longitude:Number
+    private address:string;
 
-    private mapLat:Number
-    private mapLng:Number
+    private latitude:Number;
+    private longitude:Number;
 
-    @ViewChild('map') mapElement: ElementRef
-    private map:any
-    private mapMarker:any
+    private mapLat:Number;
+    private mapLng:Number;
+
+    @ViewChild('map') mapElement: ElementRef;
+    private map:any;
+    private mapMarker:any;
 
     private geocoder:any
 
     private geocoderTimeout:any
     private autocompletionService:any
-    private addressPredictions:Array<any>
-
-    private currentLocation:any
+    public addressPredictions:Array<any>
 
     private updateView:boolean
 
     constructor(
         params:NavParams,
-        private viewCtrl:ViewController,
-        private geolocation:Geolocation
+        private viewCtrl:ViewController
     ) {
         const location = params.get('location')
         if(location) {
@@ -47,11 +47,17 @@ export class PlaceEdit {
             this.updateView = false
         }
 
+        if(this.updateView) {
+            this.pageTitle = 'Edit location'
+        } else {
+            this.pageTitle = 'Create location'
+        }
+
         this.autocompletionService = new google.maps.places.AutocompleteService()
         this.geocoder = new google.maps.Geocoder()
     }
 
-    ionViewDidLoad() {
+    public ngOnInit() {
         this.loadMap()
         if(this.latitude && this.longitude) {
             this.placeMapPin(this.latitude, this.longitude)
@@ -63,36 +69,45 @@ export class PlaceEdit {
     }
 
     update() {
-        this.viewCtrl.dismiss({
-            address: this.address,
-            latitude: this.latitude,
-            longitude: this.longitude
-        })
+        if(this.latitude && this.longitude) {
+            this.viewCtrl.dismiss({
+                address: this.address,
+                latitude: this.latitude,
+                longitude: this.longitude
+            });
+        } else {
+            this.error = 'No address selected';
+        }
     }
 
     delete() {
         this.viewCtrl.dismiss(false)
     }
 
-    showPredictions() {
+    showPredictions(address) {
+        this.error = undefined;
+        this.latitude = undefined;
+        this.longitude = undefined;
+        this.hideMap();
+
         if(this.geocoderTimeout) {
             clearTimeout(this.geocoderTimeout)
         }
 
         this.geocoderTimeout = setTimeout(() => {
             this.geocoderTimeout = false
-            this.getAddressPredicitions()
-        }, 500)
+            this.getAddressPredicitions(address)
+        }, 250)
     }
 
-    getAddressPredicitions() {
-        if(!this.address || this.address.length < 4) {
+    getAddressPredicitions(address) {
+        if(!address || address.length < 4) {
             this.addressPredictions = []
             return;
         }
 
         this.autocompletionService.getPlacePredictions({
-            input: this.address
+            input: address
         }, (places, status) => {
             if(status != google.maps.places.PlacesServiceStatus.OK) {
                 this.addressPredictions = []
@@ -107,9 +122,10 @@ export class PlaceEdit {
     }
 
     setAddress(address) {
-        this.address = address
-        this.addressPredictions = []
-        this.getLatLng(address)
+        this.address = address;
+        this.addressPredictions = undefined;
+        this.showMap = true;
+        this.getLatLng(address);
     }
 
     getLatLng(address) {
@@ -127,13 +143,13 @@ export class PlaceEdit {
         })
     }
 
-    updateLatLng(lat, lng) {
-        this.latitude = lat
-        this.longitude = lng
-        this.placeMapPin(lat, lng)
+    private updateLatLng(lat, lng) {
+        this.latitude = lat;
+        this.longitude = lng;
+        this.placeMapPin(lat, lng);
     }
 
-    getMap() {
+    private getMap() {
         if(this.map) {
             return Promise.resolve(this.map)
         } else {
@@ -143,7 +159,12 @@ export class PlaceEdit {
         }
     }
 
-    loadMap() {
+    private hideMap() {
+        this.showMap = false;
+    }
+
+    private loadMap() {
+        this.showMap = true;
         return this.getMapLocation()
         .then((latLng) => {
             let mapOptions = {
@@ -152,37 +173,17 @@ export class PlaceEdit {
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             }
             this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions)
-    
-            google.maps.event.addDomListener(this.map, "click", (clickEvent:any) => {
-                this.mapClick(
-                    clickEvent.latLng.lat(),
-                    clickEvent.latLng.lng()
-                )                
-            })
         })
+        .catch(() => {
+            console.log('didnt show map');
+        });
     }
 
-    mapClick(latitude, longitude) {
-        this.updateLatLng(latitude, longitude)
-
-        let location = {
-            lat: latitude,
-            lng: longitude
-        }
-        this.geocoder.geocode({
-            location: location
-        }, (results, status) => {
-            if(status === 'OK') {
-                this.address = results[0].formatted_address
-            }
-        })
-    }
-
-    placeMapPin(latitude, longitude) {
+    private placeMapPin(latitude, longitude) {
         if(!latitude || !longitude) {
             return
         }
-        this.getMap().then((map) => {
+        this.getMap().then(() => {
             if(this.mapMarker) {
                 this.mapMarker.setMap(null)
             }
@@ -196,20 +197,14 @@ export class PlaceEdit {
         })
     }
 
-    getMapLocation():Promise<any> {
+    private getMapLocation():Promise<any> {
         if(this.latitude && this.longitude) {
             return Promise.resolve(new google.maps.LatLng(
                 this.latitude,
                 this.longitude
-            ))
+            ));
         } else {
-            return this.geolocation.getCurrentPosition()
-            .then((response) => {
-                return new google.maps.LatLng(
-                    response.coords.latitude,
-                    response.coords.longitude
-                )
-            })
+            return Promise.reject('No latitude and longitude available');
         }
     }
 }

@@ -68,6 +68,10 @@ export class FormComponent implements OnDestroy {
             
         }
     }
+
+    public setError(message: string) {
+        this.errorMessage = message;
+    }
     
     public formSubmit() {
         this.submit()

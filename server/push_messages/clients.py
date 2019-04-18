@@ -1,10 +1,15 @@
 import requests
 import json
+from datetime import datetime
 
 from apns2.client import APNsClient
 from apns2.payload import Payload
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
+
+from .tasks import onesignal_get_received
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -94,3 +99,43 @@ class FirebaseMessageService(ClientBase):
         }
         return request
 
+class OneSignalClient(ClientBase):
+
+    def __init__(self, device):
+        self.device = device
+
+        if not settings.ONESIGNAL_API_KEY:
+            raise ImproperlyConfigured('No OneSignal API KEY')
+        if not settings.ONESIGNAL_APP_ID:
+            raise ImproperlyConfigured('No OneSignal APP ID')
+        self.api_key = settings.ONESIGNAL_API_KEY
+        self.app_id = settings.ONESIGNAL_APP_ID
+
+    def send(self, request):
+        
+        response = requests.post(
+            'https://onesignal.com/api/v1/notifications',
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic %s' % (self.api_key)
+            },
+            json = {
+                'app_id': self.app_id,
+                'include_player_ids': [self.device.token],
+                'contents': {
+                    'en': request['body']
+                },
+                'headings': {
+                    'en': request['title']
+                },
+                'data': request
+            }
+        )
+
+        if response.status_code == 200:
+            response_data = response.json()
+            message_id = response_data['id']
+            onesignal_get_received.apply_async(countdown=300, kwargs={
+                'message_id': message_id
+            })
+            return message_id

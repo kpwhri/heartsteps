@@ -184,10 +184,7 @@ class WalkingSuggestionService():
             initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
         dates = [date - timedelta(days=offset) for offset in range(initialization_days)]
         data = {
-            'appClicksArray': [self.get_clicks(date) for date in dates],
             'totalStepsArray': [self.get_steps(date) for date in dates],
-            'availMatrix': [{'avail': self.get_availabilities(date)} for date in dates],
-            'temperatureMatrix': [{'temp': self.get_temperatures(date)} for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
             'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]
         }
@@ -228,7 +225,11 @@ class WalkingSuggestionService():
             'lastActivity': last_activity,
             'temperatureArray': self.get_temperatures(date),
             'preStepsArray': self.get_pre_steps(date),
-            'postStepsArray': self.get_post_steps(date)
+            'postStepsArray': self.get_post_steps(date),
+            'availabilityArray': self.get_availabilities(date),
+            'priorAntiArray': self.get_previous_messages(date),
+            'lastActivityArray': self.get_received_messages(date),
+            'locationArray': self.get_locations(date)
         }
         response = self.make_request('nightly',
             data = data
@@ -239,12 +240,6 @@ class WalkingSuggestionService():
             raise self.NotInitialized()
         decision_service = WalkingSuggestionDecisionService(decision)
         available = decision_service.determine_availability()
-        location = decision_service.get_location_context()
-        location_value = 0
-        if location is Place.HOME:
-            location_value = 2
-        if location is Place.WORK:
-            location_value = 1
 
         response = self.make_request('decision',
             data = {
@@ -253,7 +248,7 @@ class WalkingSuggestionService():
                 'availability': available,
                 'priorAnti': self.notified_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
-                'location': location_value
+                'location': self.get_location_type(decision)
             }
         )
         decision.a_it = response['send']
@@ -279,6 +274,23 @@ class WalkingSuggestionService():
             return None
         return day.step_count
 
+    def get_previous_messages(self, date):
+        decisions = self.get_decisions_for(date)
+        previous_messages = []
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
+            has_previous_message = self.notified_since_previous_decision(decision)
+            previous_messages.append(has_previous_message)
+        return previous_messages
+
+    def get_received_messages(self, date):
+        decisions = self.get_decisions_for(date)
+        was_received = []
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
+            was_received.append(self.decision_was_received(decision))
+        return was_received
+
     def get_availabilities(self, date):
         availabilities = []
         decisions = self.get_decisions_for(date) 
@@ -287,6 +299,24 @@ class WalkingSuggestionService():
             decision_service = WalkingSuggestionDecisionService(decision)
             availabilities.append(decision_service.determine_availability())
         return availabilities
+
+    def get_location_type(self, decision):
+        decision_service = WalkingSuggestionDecisionService(decision)
+        location = decision_service.get_location_context()
+        if location is Place.HOME:
+            return 2
+        if location is Place.WORK:
+            return 1
+        return 0
+
+    def get_locations(self, date):
+        locations = []
+        decisions = self.get_decisions_for(date)
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
+            location_type = self.get_location_type(decision)
+            locations.append(location_type)
+        return locations
 
     def get_temperatures(self, date):
         temperatures = []
@@ -433,6 +463,7 @@ class WalkingSuggestionService():
     def get_previous_decision(self, decision):
         return WalkingSuggestionDecision.objects.filter(
             user = decision.user,
+            test = False,
             time__range = [
                 self.__configuration.get_start_of_day(decision.time),
                 decision.time - timedelta(minutes=1)

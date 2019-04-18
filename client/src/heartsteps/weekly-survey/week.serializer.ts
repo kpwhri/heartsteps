@@ -12,6 +12,7 @@ export class WeekSerializer {
             id: week.id,
             start: moment(week.start).format(dateFormat),
             end: moment(week.end).format(dateFormat),
+            survey: week.survey
         };
         if(week.goal !== undefined) {
             serialized['goal'] = week.goal;
@@ -27,6 +28,7 @@ export class WeekSerializer {
         week.id = data.id;
         week.start = moment(data.start, dateFormat).toDate();
         week.end = moment(data.end, dateFormat).endOf('day').toDate();
+        week.survey = data.survey;
         if(data.goal) week.goal = data.goal;
         if(data.confidence) week.confidence = data.confidence;
         return week;

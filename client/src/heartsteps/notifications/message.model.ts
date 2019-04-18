@@ -18,6 +18,10 @@ export class Message {
         return this.messageRecieptService.received(this.id);
     }
 
+    public displayed(): Promise<boolean> {
+        return this.messageRecieptService.displayed(this.id);
+    }
+
     public opened():Promise<boolean> {
         return this.messageRecieptService.opened(this.id);
     }
