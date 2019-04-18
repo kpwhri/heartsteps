@@ -1,7 +1,7 @@
 <svg>
   <rect id="background" />
   <text id="txtTime" class="clock-text">13:37</text>
-  <textarea id="txtWarning" class="warning">Welcome! To set up HeartSteps, please go to the Fitbit app on your phone ... click your Fitbit (top left) ... Clock Faces ... click the clock face ... Settings</textarea>
+  <textarea id="txtWarning" class="warning">Welcome! Please set up HeartSteps on your phone!</textarea>
   <svg id='lower'>
     <rect class="divider divider-top" />
     <text id="txtDate" class="date-text">MON JANUARY 01</text>

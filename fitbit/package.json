@@ -32,10 +32,12 @@
     "build": "fitbit-build"
   },
   "dependencies": {
-    "@fitbit/sdk": "^3.0.0",
     "@fitbit/sdk-cli": "^1.6.0",
     "io-ts": "^1.8.2",
     "keytar": "^4.4.0",
     "node-gyp": "^3.8.0"
+  },
+  "devDependencies": {
+    "@fitbit/sdk": "^3.0.1"
   }
 }
