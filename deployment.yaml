@@ -20,6 +20,9 @@ spec:
           privileged: true
         ports:
         - containerPort: 8080
+        env:
+        - name: BUILD_NUMBER
+          value: DEFAULT_BUILD_NUMBER
 
 ---
 
@@ -59,6 +62,9 @@ spec:
           privileged: true
         ports:
         - containerPort: 8080
+        env:
+        - name: BUILD_NUMBER
+          value: DEFAULT_BUILD_NUMBER
 
 ---
 
@@ -132,6 +138,8 @@ spec:
         imagePullPolicy: Always
         command: ['honcho', 'start', 'cloudsql', 'celery']
         env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
@@ -162,6 +170,8 @@ spec:
         imagePullPolicy: Always
         command: ['honcho', 'start', 'cloudsql', 'web']
         env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
             value: '35.186.201.20,heartsteps.net,heartsteps-service,heartsteps.nickreid.com'
           - name: SECRET_KEY

@@ -14,7 +14,7 @@ services:
     environment:
       - ALLOWED_HOSTS=localhost
       - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev
-    command: honcho start dev rabbitmq celery
+    command: honcho start dev celery
     volumes:
       - ./server:/server
       - cloudsql:/cloudsql

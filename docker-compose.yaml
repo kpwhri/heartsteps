@@ -42,7 +42,11 @@ services:
   server:
     build: ./server
     env_file:
-      - .env-development 
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
     command: honcho start dev celery
     volumes:
       - ./server:/server
