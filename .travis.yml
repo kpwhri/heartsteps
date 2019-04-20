@@ -10,6 +10,9 @@ install:
 - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 - sudo apt-get update && sudo apt-get install google-cloud-sdk
 - sudo apt-get install kubectl
+- gcloud auth activate-service-account --key-file=credentials/gce.json
+- gcloud auth configure-docker -q
+- gcloud config set project ${GAE_PROJECT_ID}
 - gcloud container clusters get-credentials heartsteps
 
 before_script:
@@ -30,10 +33,6 @@ after_success:
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
 - gsutil -m rsync -dr server/static gs://heartsteps-assets/static
-# login with gcloud
-- gcloud auth activate-service-account --key-file=credentials/gce.json
-- gcloud auth configure-docker -q
-- gcloud config set project ${GAE_PROJECT_ID}
 # upload images
 - docker tag heartsteps_server gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker push gcr.io/heartsteps-kpwhri/heartsteps-server
