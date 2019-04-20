@@ -210,23 +210,12 @@ spec:
 
 ---
 
-apiVersion: networking.gke.io/v1beta1
-kind: ManagedCertificate
-metadata:
-  name: nickreid-heartsteps-cert
-spec:
-  domains:
-    - nickreid.com
-
----
-
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: heartsteps
   annotations:
     kubernetes.io/ingress.global-static-ip-name: heartsteps-global
-    networking.gke.io/managed-certificates: nickreid-heartsteps-cert
 spec:
   backend:
     serviceName: heartsteps-service
