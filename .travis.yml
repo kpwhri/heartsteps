@@ -42,6 +42,6 @@ after_success:
 - docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
 # update kubernetes images...
 - sed -ie "s/DEFAULT_BUILD_NUMBER/$TRAVIS_BUILD_NUMBER/g" deployment.yaml
-- kubectrl apply -f deployment.yaml
+- kubectl apply -f deployment.yaml
 # Migrate database
 - docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server python manage.py migrate
