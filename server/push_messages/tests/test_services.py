@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 
 from push_messages.models import Message, Device, MessageReceipt
 from push_messages.services import PushMessageService, ClientBase, FirebaseMessageService, DeviceMissingError
+from push_messages.clients import OneSignalClient
+from push_messages.tasks import onesignal_get_received
 
 class TestPushMessageService(TestCase):
 
@@ -155,3 +157,84 @@ class TestFirebaseMessageService(TestCase):
         self.assertEqual('Hello World', formatted_request['data']['body'])
         self.assertEqual('Title', formatted_request['data']['title'])
         self.assertEqual('data', formatted_request['data']['example'])
+
+
+class OneSignalClientTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.device = Device.objects.create(
+            type="OneSignal",
+            token="faketoken",
+            user=self.user
+        )
+
+        task_patch = patch.object(onesignal_get_received, 'apply_async')
+        self.get_received_task = task_patch.start()
+        self.addCleanup(task_patch.stop)
+
+        requests_patch = patch.object(requests, 'post')
+        self.request_post = requests_patch.start()
+        self.addCleanup(requests_patch.stop)
+
+        def make_mock_request(fails=False, errors=None):
+            def mock_request(url, headers=None, json=None):
+                if fails:
+                    _status_code = 400
+                else:
+                    _status_code = 200
+                if errors:
+                    _return_json = {'id':'', 'errors': errors}
+                else:
+                    _return_json = {'id':'example-message-id'}
+                class MockResponse:
+                    status_code = _status_code
+
+                    def json(self):
+                        return _return_json
+                return MockResponse()
+            return mock_request
+        self.set_mock_request = make_mock_request
+
+    def testSend(self):
+        self.request_post.side_effect = self.set_mock_request()
+        client = OneSignalClient(self.device)
+
+        message_id = client.send({
+            'body': 'test',
+            'title': 'test'
+        })
+
+        self.assertEqual(message_id, 'example-message-id')
+        self.get_received_task.assert_called_with(
+            countdown = 300,
+            kwargs = {'message_id': 'example-message-id'}
+        )
+
+    def testFail(self):
+        self.request_post.side_effect = self.set_mock_request(fails=True)
+        client = OneSignalClient(self.device)
+
+        try:
+            message_id = client.send({
+                'body': 'test',
+                'title': 'test'
+            })
+            self.fail('Test should have failed')
+        except OneSignalClient.MessageSendError as e:
+            pass
+
+    def testErrors(self):
+        self.request_post.side_effect = self.set_mock_request(errors=['Mock error'])
+        client = OneSignalClient(self.device)
+
+        try:
+            message_id = client.send({
+                'body': 'test',
+                'title': 'test'
+            })
+            self.fail('Test should have failed')
+        except OneSignalClient.MessageSendError as e:
+            pass
+
+

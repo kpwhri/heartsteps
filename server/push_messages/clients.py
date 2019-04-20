@@ -134,8 +134,8 @@ class OneSignalClient(ClientBase):
 
         if response.status_code == 200:
             response_data = response.json()
-            if response_data.errors and len(response_data.errors) > 0:
-                raise self.MessageSendError(response_data.errors[0])
+            if 'errors' in response_data and response_data['errors'] and len(response_data['errors']) > 0:
+                raise self.MessageSendError(response_data['errors'][0])
             message_id = response_data['id']
             onesignal_get_received.apply_async(countdown=300, kwargs={
                 'message_id': message_id
