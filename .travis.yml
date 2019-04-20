@@ -13,7 +13,7 @@ install:
 - gcloud auth activate-service-account --key-file=credentials/gce.json
 - gcloud auth configure-docker -q
 - gcloud config set project ${GAE_PROJECT_ID}
-- gcloud container clusters get-credentials heartsteps
+- gcloud container clusters get-credentials heartsteps --region=us-west1
 
 before_script:
 - docker-compose build service-template walking-suggestion-service anti-sedentary-service > /dev/null
