@@ -1,12 +1,13 @@
 {
   "name": "heartsteps",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "version": "2.0.0",
+  "author": "Nick Reid",
+  "homepage": "http://nickreid.com/",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
     "build": "ionic-app-scripts build",
+    "build:android": "ionic cordova build android --release --buildConfig=build.json",
     "lint": "ionic-app-scripts lint",
     "ionic:build": "ionic-app-scripts build",
     "ionic:serve": "ionic-app-scripts serve",
