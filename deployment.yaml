@@ -207,16 +207,56 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: heartsteps-service
+  name: server
   labels:
     app: heartsteps-server
 spec:
-  type: NodePort
   ports:
   - port: 8080
     targetPort: 8080
   selector:
     app: heartsteps-server
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-nginx
+  labels:
+    app: heartsteps-nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: heartsteps-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: gcr.io/heartsteps-kpwhri/heartsteps-nginx
+        imagePullPolicy: Always
+        env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartsteps-nginx
+  labels:
+    app: heartsteps-nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: heartsteps-nginx
 
 ---
 
@@ -228,5 +268,5 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: heartsteps-global
 spec:
   backend:
-    serviceName: heartsteps-service
-    servicePort: 8080
+    serviceName: heartsteps-nginx
+    servicePort: 8000

@@ -74,6 +74,14 @@ services:
       - db
       - server
     privileged: true
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:8000"
+    depends_on:
+      - server
 volumes:
   client-node-modules:
   pgdata:
