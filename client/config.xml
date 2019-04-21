@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="74" id="net.heartsteps.kpw" osx-CFBundleVersion="74" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="75" id="net.heartsteps.kpw" osx-CFBundleVersion="75" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HeartSteps</name>
     <description>A research application to promote daily physical activity</description>
     <author email="nickreid@nickreid.com" href="http://nickreid.com/">Nick Reid</author>

@@ -1,7 +1,7 @@
 FROM heartsteps_service-template:latest
 
 RUN apt-get update && \
-    apt-get install -y postgresql erlang rabbitmq-server
+    apt-get install -y postgresql
 
 # Install cloud-sql-proxy
 RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && \
@@ -16,5 +16,5 @@ RUN easy_install apns2
 #Load python dependencies
 RUN pip install -r requirements.txt
 
-# Run the server
-CMD honcho -f Procfile-prod start
+# Run everything...
+CMD honcho web cloudsql celery

@@ -112,7 +112,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 FCM_SERVER_KEY = env('FCM_SERVER_KEY', default='secret-key')
 
-RABBITMQ_HOST = env('RABBITMQ_SERVICE_HOST', default='localhost')
+RABBITMQ_HOST = env('RABBITMQ_SERVICE_HOST', default='rabbitmq')
 CELERY_BROKER_URL = 'amqp://guest:guest@%s:5672//' % (RABBITMQ_HOST)
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

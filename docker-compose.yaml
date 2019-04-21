@@ -5,6 +5,8 @@ services:
     image: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3.7
   service-template:
     build:
       context: ./
@@ -40,8 +42,12 @@ services:
   server:
     build: ./server
     env_file:
-      - .env-development 
-    command: honcho start dev celery rabbitmq
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
+    command: honcho start dev celery
     volumes:
       - ./server:/server
       - ./credentials:/credentials
@@ -49,6 +55,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
+      - rabbitmq
   client:
     build: ./client
     env_file:
