@@ -16,6 +16,8 @@ install:
 - gcloud container clusters get-credentials heartsteps --region=us-west1
 
 before_script:
+- cp .env-production server/.env
+- cp .env-production client/.env
 - docker-compose build service-template walking-suggestion-service anti-sedentary-service > /dev/null
 - docker-compose build server > /dev/null
 - docker-compose build client > /dev/null
@@ -26,8 +28,6 @@ script:
 - docker-compose run client ionic build --prod
 
 after_success:
-- cp .env-production server/.env
-- cp .env-production client/.env
 # move client files into server
 - gsutil -m rsync -dr client/www gs://heartsteps-assets/app
 # collect static files for server
