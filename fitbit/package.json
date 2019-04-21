@@ -38,6 +38,6 @@
     "node-gyp": "^3.8.0"
   },
   "devDependencies": {
-    "@fitbit/sdk": "^3.0.1"
+    "@fitbit/sdk": "^3.1.0"
   }
 }

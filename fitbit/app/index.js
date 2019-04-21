@@ -15,7 +15,7 @@ import * as simpleSettings from "./simple/device-settings";
 import { StepCountHandler, StepReading } from "./step-count.js";
 
 // Watch notifies phone of step count & location
-const WAKE_INTERVAL = 5;
+const WAKE_INTERVAL = 1;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 
 let background = document.getElementById("background");
@@ -133,15 +133,18 @@ bodyPresenceSensor.start();
 function stepCountToPhone(){
   let stepCount = new StepCountHandler();
   let oldStepData = stepCount.getData();
-  // console.log("original data: " + JSON.stringify(oldStepData));
+  console.log("original data: " + JSON.stringify(oldStepData));
   let newStepData = stepCount.updateData(oldStepData);
-  // console.log("updated data: " + JSON.stringify(newStepData));
-  let recentSteps = stepCount.calculateElapsedSteps(newStepData);
+  console.log("updated data: " + JSON.stringify(newStepData));
+  // let recentSteps = stepCount.calculateElapsedSteps(newStepData);
   // console.log("step count: " + recentSteps);
   stepCount.saveFile(newStepData);
-  // console.log("time is " + stepCount.currentTime);
+  console.log("time is " + stepCount.currentTime);
+  let readNewStepData = stepCount.calculateElapsedSteps2(oldStepData);
+  console.log("new step array: " + JSON.stringify(readNewStepData));
   if (bodyPresenceSensor.present) {
-    sendStepMessage(recentSteps, stepCount.currentTime);
+    // sendStepMessage(recentSteps, stepCount.currentTime);
+    sendStepMessage(readNewStepData, stepCount.currentTime);
   }
 }
 

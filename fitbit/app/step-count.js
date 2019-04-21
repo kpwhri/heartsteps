@@ -48,6 +48,35 @@ export class StepCountHandler {
     return JSON.parse(stepData);
   }
 
+  // Convert json array of elapsed steps for the day
+  // into a json array of elapsed steps between readings
+  calculateElapsedSteps2(stepData) {
+    let newStepData = [];
+    let priorSteps = 0;
+    let currSteps;
+    let n = 0;
+    for (let reading of stepData) {
+      // If new count is lower, reset the count for the new day
+      // Possible miss steps taken since last reading but before midnight
+      if (stepData[n].steps < priorSteps) {
+        currSteps = stepData[n].steps;
+      } else {
+        currSteps = stepData[n].steps - priorSteps;
+      }
+      priorSteps = stepData[n].steps;
+      newStepData.push({"time": stepData[n].time, "steps": currSteps});
+      n += 1;
+    }
+    // console.log("\n\n\n");
+    // console.log("Compare stepData:");
+    // for (let i = 0; i < stepData.length; i++) {
+    //   console.log(JSON.stringify(stepData[i]));
+    //   console.log(JSON.stringify(newStepData[i]));
+    //   console.log("\n");
+    // }
+    return newStepData;
+  }
+
   // Calculate the maximum difference in steps in array
   // Always run this after updating the array with current data
   calculateElapsedSteps(stepData) {
