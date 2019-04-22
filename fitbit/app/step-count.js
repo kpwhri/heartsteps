@@ -50,15 +50,18 @@ export class StepCountHandler {
 
   // Convert json array of elapsed steps for the day
   // into a json array of elapsed steps between readings
-  calculateElapsedSteps2(stepData) {
+  calculateElapsedSteps(stepData) {
     let newStepData = [];
     let priorSteps = 0;
+    if (stepData[0]) {
+      priorSteps = stepData[0].steps;
+    }
     let currSteps;
     let n = 0;
     for (let reading of stepData) {
       // If new count is lower, reset the count for the new day
       // Possible miss steps taken since last reading but before midnight
-      if (stepData[n].steps < priorSteps) {
+      if (n == 0 || stepData[n].steps < priorSteps) {
         currSteps = stepData[n].steps;
       } else {
         currSteps = stepData[n].steps - priorSteps;
@@ -67,39 +70,7 @@ export class StepCountHandler {
       newStepData.push({"time": stepData[n].time, "steps": currSteps});
       n += 1;
     }
-    // console.log("\n\n\n");
-    // console.log("Compare stepData:");
-    // for (let i = 0; i < stepData.length; i++) {
-    //   console.log(JSON.stringify(stepData[i]));
-    //   console.log(JSON.stringify(newStepData[i]));
-    //   console.log("\n");
-    // }
     return newStepData;
-  }
-
-  // Calculate the maximum difference in steps in array
-  // Always run this after updating the array with current data
-  calculateElapsedSteps(stepData) {
-    let minTime = Number.MAX_VALUE;
-    let maxTime = 0;
-    let firstStepCount = 0;
-    let lastStepCount = 0;
-    for (let reading of stepData) {
-      if (reading.time < minTime) {
-        minTime = reading.time;
-        firstStepCount = reading.steps;
-      }
-      if (reading.time > maxTime) {
-        maxTime = reading.time;
-        lastStepCount = reading.steps;
-      }
-    }
-    let elapsedSteps = (lastStepCount - firstStepCount);
-    // elapsedSteps could be < 0 if stepCount rolls over at midnight
-    if (elapsedSteps < 0) {
-      elapsedSteps = 0;
-    }
-    return elapsedSteps;
   }
 
   // Drop array members with datetimes before threshold

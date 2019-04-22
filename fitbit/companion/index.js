@@ -95,7 +95,6 @@ function sendLatLong() {
 function sendSteps(step_count, step_dtm) {
   const url = `${global.BASE_URL}/api/watch-app/steps`;
   let data = {"step_number": step_count, "step_dtm": step_dtm};
-  console.log("Phone side: " + JSON.stringify(data));
   let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
   if (token) {
     fetch(url, {

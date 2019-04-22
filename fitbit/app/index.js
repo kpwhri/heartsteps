@@ -120,7 +120,6 @@ function sendStepMessage(recentSteps, time){
       time: time
     }
     messaging.peerSocket.send(data);
-    console.log("From watch: " + JSON.stringify(data));
   } else {
     console.log("ERROR: peerSocket not open");
   }
@@ -134,17 +133,13 @@ bodyPresenceSensor.start();
 function stepCountToPhone(){
   let stepCount = new StepCountHandler();
   let oldStepData = stepCount.getData();
-  console.log("original data: " + JSON.stringify(oldStepData));
+  // console.log("original data: " + JSON.stringify(oldStepData));
   let newStepData = stepCount.updateData(oldStepData);
-  console.log("updated data: " + JSON.stringify(newStepData));
-  // let recentSteps = stepCount.calculateElapsedSteps(newStepData);
-  // console.log("step count: " + recentSteps);
+  // console.log("updated data: " + JSON.stringify(newStepData));
   stepCount.saveFile(newStepData);
-  console.log("time is " + stepCount.currentTime);
-  let readNewStepData = stepCount.calculateElapsedSteps2(oldStepData);
-  console.log("new step array: " + JSON.stringify(readNewStepData));
+  let readNewStepData = stepCount.calculateElapsedSteps(newStepData);
+  // console.log("new step array: " + JSON.stringify(readNewStepData));
   if (bodyPresenceSensor.present) {
-    // sendStepMessage(recentSteps, stepCount.currentTime);
     sendStepMessage(readNewStepData, stepCount.currentTime);
   }
 }
