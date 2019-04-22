@@ -1,28 +1,27 @@
-<div>
-    <article>
-        <nav>
-            <ul>
-                <li><button (click)="editContactInformation()">Contact information</button></li>
-                <li><button (click)="editPlaces()">Places</button></li>
-                <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
-                <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
-                <li><button (click)="editDailyTimes()">Activity suggestion time</button></li>
-            </ul>
-        </nav>
-    </article>
-    <article>
-        <h3>Testing Area</h3>
-        <p>This area is only visible to testing participants.</p>
+<article>
+    <nav>
         <ul>
-            <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>
-            <li><button (click)="testMorningMessage()">Send Morning Message</button></li>
-            <li><button (click)="testWalkingSuggestion()">Send Walking Suggestion</button></li>
-            <li><button (click)="testWeeklySurveyMessage()">Send Weekly Survey</button></li>
+            <li><button (click)="editContactInformation()">Contact information</button></li>
+            <li><button (click)="editPlaces()">Places</button></li>
+            <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
+            <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
+            <li><button (click)="editDailyTimes()">Activity suggestion time</button></li>
         </ul>
-    </article>
-    <article>
-        <h3>Unenroll</h3>
-        <p>This remove from the HeartSteps study. Your data will continue to be saved in the heartsteps server.</p>
-        <button class="danger" (click)="unenroll()">Unenroll</button>
-    </article>
-</div>
+    </nav>
+    <p>HeartSteps {{buildVersion}}, built on {{buildDate}}</p>
+</article>
+<article *ngIf="staffParticipant">
+    <h3>Testing Area</h3>
+    <p>This area is only visible to testing participants.</p>
+    <ul>
+        <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>
+        <li><button (click)="testMorningMessage()">Send Morning Message</button></li>
+        <li><button (click)="testWalkingSuggestion()">Send Walking Suggestion</button></li>
+        <li><button (click)="testWeeklySurveyMessage()">Send Weekly Survey</button></li>
+    </ul>
+</article>
+<article>
+    <h3>Unenroll</h3>
+    <p>This remove from the HeartSteps study. Your data will continue to be saved in the heartsteps server.</p>
+    <button class="danger" (click)="unenroll()">Unenroll</button>
+</article>

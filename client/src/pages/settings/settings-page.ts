@@ -9,10 +9,21 @@ import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
 import { Platform } from "ionic-angular";
 
+declare var process: {
+    env: {
+        BUILD_VERSION: string,
+        BUILD_DATE: string
+    }
+}
+
 @Component({
     templateUrl: 'settings-page.html',
 })
 export class SettingsPage {
+
+    public staffParticipant: boolean = true;
+    public buildVersion: string = process.env.BUILD_VERSION;
+    public buildDate: string = process.env.BUILD_DATE;
 
     constructor(
         private walkingSuggestionService:WalkingSuggestionService,
