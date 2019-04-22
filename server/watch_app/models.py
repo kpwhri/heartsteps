@@ -10,7 +10,7 @@ class WatchInstall(models.Model):
 
 class StepCount(models.Model):
     user = models.ForeignKey(User)
-    step_number = models.IntegerField(null=True, blank=True)
+    step_number = models.CharField(max_length=1024, null=True)
     step_dtm = models.DateTimeField()
     created = models.DateTimeField(auto_now_add=True)
 
