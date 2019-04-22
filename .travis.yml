@@ -18,7 +18,7 @@ install:
 before_script:
 - cp .env-production server/.env
 - cp .env-production client/.env
-- docker-compose build service-template walking-suggestion-service anti-sedentary-service > /dev/null
+- docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
 - docker-compose build server > /dev/null
 - docker-compose build client > /dev/null
 
@@ -34,6 +34,8 @@ after_success:
 - docker-compose run server python manage.py collectstatic
 - gsutil -m rsync -dr server/static gs://heartsteps-assets/static
 # upload images
+- docker tag heartsteps_nginx gcr.io/heartsteps-kpwhri/heartsteps-nginx
+- docker push gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker tag heartsteps_server gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker push gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service

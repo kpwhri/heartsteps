@@ -143,7 +143,7 @@ spec:
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
@@ -177,7 +177,7 @@ spec:
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-dev'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
@@ -207,11 +207,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: heartsteps-service
+  name: server
   labels:
     app: heartsteps-server
 spec:
-  type: NodePort
   ports:
   - port: 8080
     targetPort: 8080
@@ -221,12 +220,54 @@ spec:
 ---
 
 apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-nginx
+  labels:
+    app: heartsteps-nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: heartsteps-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: gcr.io/heartsteps-kpwhri/heartsteps-nginx
+        imagePullPolicy: Always
+        env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartsteps-nginx
+  labels:
+    app: heartsteps-nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: heartsteps-nginx
+
+---
+
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: heartsteps
   annotations:
     kubernetes.io/ingress.global-static-ip-name: heartsteps-global
+    kubernetes.io/ingress.allow-http: "false"
 spec:
   backend:
-    serviceName: heartsteps-service
-    servicePort: 8080
+    serviceName: heartsteps-nginx
+    servicePort: 8000
