@@ -15,7 +15,7 @@ import * as simpleSettings from "./simple/device-settings";
 import { StepCountHandler, StepReading } from "./step-count.js";
 
 // Watch notifies phone of step count & location
-const WAKE_INTERVAL = 1;
+const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 
 let background = document.getElementById("background");
@@ -120,6 +120,7 @@ function sendStepMessage(recentSteps, time){
       time: time
     }
     messaging.peerSocket.send(data);
+    console.log("From watch: " + JSON.stringify(data));
   } else {
     console.log("ERROR: peerSocket not open");
   }
