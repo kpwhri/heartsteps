@@ -143,7 +143,7 @@ spec:
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
@@ -173,15 +173,17 @@ spec:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
-            value: '35.186.201.20,heartsteps.net,heartsteps-service,heartsteps.nickreid.com'
+            value: '35.186.201.20,heartsteps.net,heartsteps-service'
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
+          - name: DEBUG
+            value: "True"
         ports:
         - containerPort: 8080
         livenessProbe:
@@ -270,4 +272,4 @@ metadata:
 spec:
   backend:
     serviceName: heartsteps-nginx
-    servicePort: 8000
+    servicePort: 8080

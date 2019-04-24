@@ -17,4 +17,4 @@ RUN easy_install apns2
 RUN pip install -r requirements.txt
 
 # Run everything...
-CMD honcho web cloudsql celery
+CMD honcho start web cloudsql celery
