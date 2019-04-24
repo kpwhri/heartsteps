@@ -1,3 +1,0 @@
-web: gunicorn -b :8080 heartsteps.wsgi:application
-rabbitmq: rabbitmq-server start
-celery: celery -A heartsteps worker -l info -E -B
