@@ -126,14 +126,14 @@ metadata:
   labels:
     app: heartsteps-worker
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
         app: heartsteps-worker
     spec:
       containers:
-      - name: heartsteps-app
+      - name: heartsteps-celery-app
         image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
         imagePullPolicy: Always
         command: ['honcho', 'start', 'cloudsql', 'celery']
@@ -143,7 +143,7 @@ spec:
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
@@ -158,7 +158,7 @@ metadata:
   labels:
     app: heartsteps-server
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -177,7 +177,7 @@ spec:
           - name: SECRET_KEY
             value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
-            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw'
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
