@@ -46,7 +46,18 @@ export class PushNotificationService {
     public setup():Promise<boolean> {
         if(this.platform.is('ios') || this.platform.is('android')) {
             this.ready.next(true);
-            return Promise.resolve(true);
+            return this.hasPermission()
+            .then(() => {
+                return this.getDevice()
+                .then((device) => {
+                    this.device.next(device);
+                    return true;
+                });
+            })
+            .catch(() => {
+                return Promise.resolve(true);
+            });
+
         } else {
             this.device.next(new Device('fake-device', 'fake'));
             return Promise.resolve(true);
