@@ -192,8 +192,9 @@ class MakeDecisionTests(TestBase):
     def testUnavailableWhenActive(self):
         StepCount.objects.create(
             user = self.user,
-            step_number = 200,
-            step_dtm = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
+            steps = 200,
+            start = self.local_timezone.localize(datetime(2019, 1, 18, 13, 55)),
+            end = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
         make_decision(self.decision.id)
@@ -209,8 +210,9 @@ class MakeDecisionTests(TestBase):
     def testAvailableWhenSedentary(self):
         StepCount.objects.create(
             user = self.user,
-            step_number = 20,
-            step_dtm = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
+            steps = 20,
+            start = self.local_timezone.localize(datetime(2019, 1, 18, 13, 55)),
+            end = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
         make_decision(self.decision.id)
@@ -278,8 +280,9 @@ class DetermineSedentary(TestBase):
     def create_step_count(self, time, steps):
         StepCount.objects.create(
             user = self.user,
-            step_dtm = time,
-            step_number = steps
+            end = time,
+            start = time - timedelta(minutes=5),
+            steps = steps
         )
 
     def testNotSedentary(self):
@@ -296,12 +299,16 @@ class DetermineSedentary(TestBase):
     def testSedentary(self):
         now = self.localize_time(datetime(2019, 1, 18, 14, 0))
         self.create_step_count(
-            time = now - timedelta(minutes=5),
+            time = now - timedelta(minutes=45),
             steps = 180
         )
         self.create_step_count(
+            time = now - timedelta(minutes=30),
+            steps = 80
+        )
+        self.create_step_count(
             time = now,
-            steps = 100
+            steps = 20
         )
 
         is_sedentary = self.service.is_sedentary_at(now)
@@ -315,46 +322,24 @@ class DetermineSedentary(TestBase):
 
         self.assertFalse(is_sedentary)
 
-    def testStepChangePositive(self):
+    def testStepCountChange(self):
         now = self.localize_time(datetime(2019, 1, 18, 14, 0))
         self.create_step_count(
-            time = now - timedelta(minutes=5),
-            steps = 20
-        )
-        self.create_step_count(
-            time = now,
-            steps = 100
-        )
-
-        step_change = self.service.get_step_count_change_at(now)
-
-        self.assertEqual(step_change, 80)
-
-    def testStepChangeNegative(self):
-        now = self.localize_time(datetime(2019, 1, 18, 14, 0))
-        self.create_step_count(
-            time = now - timedelta(minutes=5),
+            time = now - timedelta(minutes=20),
             steps = 120
         )
         self.create_step_count(
-            time = now,
-            steps = 100
+            time = now - timedelta(minutes=20),
+            steps = 12
         )
-
-        step_change = self.service.get_step_count_change_at(now)
-
-        self.assertEqual(step_change, 0)
-
-    def testStepChangeSingleStepCount(self):
-        now = self.localize_time(datetime(2019, 1, 18, 14, 0))
         self.create_step_count(
             time = now,
-            steps = 90
+            steps = 30
         )
 
         step_change = self.service.get_step_count_change_at(now)
 
-        self.assertEqual(step_change, 90)
+        self.assertEqual(step_change, 30)
 
     def testStepChangeNoSteps(self):
         now = self.localize_time(datetime(2019, 1, 18, 14, 0))

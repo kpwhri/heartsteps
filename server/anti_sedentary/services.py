@@ -157,27 +157,28 @@ class AntiSedentaryService:
             self.__configuration.save()
 
     def get_step_count_at(self, time):
-        step_count = StepCount.objects.filter(
+        end = time
+        start = end - timedelta(minutes=40)
+        step_counts = list(StepCount.objects.filter(
             user = self.__user,
-            step_dtm__lte=time
-        ).first()
-        if not step_count:
-            raise AntiSedentaryService.NoSteps('No steps found')
-        return step_count.step_number
+            start__gte=start,
+            end__lte=end
+        ).all())
+        if not step_counts:
+            raise AntiSedentaryService.NoSteps('No steps')
+        total_steps = 0
+        for step_count in step_counts:
+            total_steps += step_count.steps
+        return total_steps
 
     def get_step_count_change_at(self, time):
-        step_counts = StepCount.objects.filter(
+        step_count = StepCount.objects.filter(
             user = self.__user,
-            step_dtm__lte = time
-        )[:2]
-        if not step_counts:
+            end__lte = time
+        ).last()
+        if not step_count:
             return 0
-        if len(step_counts) is 1:
-            return step_counts[0].step_number
-        step_change = step_counts[0].step_number - step_counts[1].step_number
-        if step_change < 0:
-            return 0
-        return step_change
+        return step_count.steps
     
     def is_sedentary_at(self, time):
         try:

@@ -10,12 +10,16 @@ class WatchInstall(models.Model):
 
 class StepCount(models.Model):
     user = models.ForeignKey(User)
-    step_number = models.CharField(max_length=1024, null=True)
-    step_dtm = models.DateTimeField()
+
+    steps = models.PositiveSmallIntegerField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-step_dtm']
+        ordering = ['start']
 
     def __str__(self):
-        return "%s steps %s @ %s" % (self.user, self.step_number, self.step_dtm)
+        return "%s steps %d @ %s" % (self.user, self.steps, self.end)

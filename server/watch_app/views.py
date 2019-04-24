@@ -9,19 +9,8 @@ from rest_framework import serializers
 
 from participants.views import LoginView as ParticipantLoginView
 
-from .models import StepCount, WatchInstall
-
-
-class StepCountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StepCount
-        fields = ('step_number', 'step_dtm')
-
-    def to_internal_value(self, data):
-        """ Convert Unix timestamp to date """
-        data['step_dtm'] = datetime.utcfromtimestamp(data['step_dtm']/1000).astimezone(pytz.UTC)
-        return data
-
+from .models import StepCount, WatchInstall, User
+from .signals import step_count_updated
 
 class StepCountUpdateView(APIView):
     """
@@ -31,13 +20,32 @@ class StepCountUpdateView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        serialized = StepCountSerializer(data=request.data)
-        if serialized.is_valid():
-            step_count = StepCount(**serialized.validated_data)
-            step_count.user = request.user
-            step_count.save()
-            return Response({}, status=status.HTTP_201_CREATED)
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+        if 'step_number' in request.data and isinstance(request.data['step_number'], list):
+            start_time = None
+            step_counts = []
+            for steps in request.data['step_number']:
+                time = datetime.utcfromtimestamp(steps['time']/1000).astimezone(pytz.UTC)
+                if start_time:
+                    step_counts.append({
+                        'start': start_time,
+                        'end': time,
+                        'steps': steps['steps']
+                    })
+                    start_time = time
+                else:
+                    start_time = time
+            for step_count in step_counts:
+                StepCount.objects.update_or_create(
+                    user = request.user,
+                    start = step_count['start'],
+                    end = step_count['end'],
+                    defaults = {
+                        'steps': step_count['steps']
+                    }
+                )
+            step_count_updated.send(User, username=request.user.username)
+            return Response('', status=status.HTTP_201_CREATED)
+        return Response('step_number not included', status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(ParticipantLoginView):
 

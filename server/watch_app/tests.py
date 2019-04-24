@@ -12,38 +12,80 @@ from anti_sedentary.tasks import start_decision
 from participants.models import Participant, User
 
 from .models import StepCount, WatchInstall
-
-def make_fitbit_stepcount(steps):
-    timestamp = int(time.time())
-    return json.dumps({
-        'step_number': steps,
-        'step_dtm': timestamp
-    })
-
+from .signals import step_count_updated
 
 class StepsViewTests(APITestCase):
 
     def setUp(self):
-        start_decision_mock = patch.object(start_decision, 'apply_async')
-        start_decision_mock.start()
-        self.addCleanup(start_decision_mock.stop)
-
-    def testPost(self):
         user = User.objects.create(username="test")
         self.client.force_authenticate(user=user)
 
-        steps = 10
+        step_count_updated_patch = patch.object(step_count_updated, 'send')
+        self.step_count_updated = step_count_updated_patch.start()
+        self.addCleanup(step_count_updated_patch.stop)
 
+    def makeStepCounts(self):
+        return [
+            {'time': 1556063381849, 'steps': 666}, # ps first entry is ignored
+            {'time': 1556063682047, 'steps': 10},
+            {'time': 1556063982145, 'steps': 20},
+            {'time': 1556064282368, 'steps': 30},
+            {'time': 1556064582466, 'steps': 40},
+            {'time': 1556064882564, 'steps': 50},
+            {'time': 1556065182762, 'steps': 60},
+            {'time': 1556065482860, 'steps': 70}
+        ]
+
+    def testPost(self):
+        request_data = json.dumps({
+            'step_number': self.makeStepCounts()
+        })
         response = self.client.post(reverse('watch-app-steps'),
-            make_fitbit_stepcount(steps),
+            request_data,
             content_type='application/json'
         )
 
-        response_object = StepCount.objects.get(user=user)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(StepCount.objects.count(), 7)
+        step_count = StepCount.objects.last()
+        self.assertEqual(step_count.steps, 70)
+
+        total_steps = 0
+        for step_count in StepCount.objects.all():
+            total_steps += step_count.steps
+        self.assertEqual(total_steps, 280)
+
+        self.step_count_updated.assert_called()
+
+    def testPostUpdatesStepCounts(self):
+        request_data = json.dumps({
+            'step_number': self.makeStepCounts()
+        })
+        response = self.client.post(reverse('watch-app-steps'),
+            request_data,
+            content_type='application/json'
+        )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(StepCount.objects.filter(user=user).count(), 1)
-        self.assertEqual(response_object.step_number, steps)
+        self.assertEqual(StepCount.objects.count(), 7)
+
+        step_counts = [{'time':step_count['time'], 'steps': step_count['steps'] + 10} for step_count in self.makeStepCounts()]
+        request_data = json.dumps({
+            'step_number': step_counts
+        })
+        response = self.client.post(reverse('watch-app-steps'),
+            request_data,
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(StepCount.objects.count(), 7)
+        step_count = StepCount.objects.last()
+        self.assertEqual(step_count.steps, 80)
+        total_steps = 0
+        for step_count in StepCount.objects.all():
+            total_steps += step_count.steps
+        self.assertEqual(total_steps, 350)
 
 class LoginViewTests(APITestCase):
 
