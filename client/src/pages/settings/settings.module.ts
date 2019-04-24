@@ -12,6 +12,7 @@ import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walkin
 import { GoalPage } from './goal.page';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
+import { BrowserModule } from '@angular/platform-browser';
 
 const settingsRoutes: Routes = [
     {
@@ -54,6 +55,7 @@ const settingsRoutes: Routes = [
     ],
     imports: [
         AntiSedentaryModule,
+        BrowserModule,
         ContactInformationModule,
         HeartstepsComponentsModule,
         PlacesModule,
