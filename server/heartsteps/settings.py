@@ -17,7 +17,7 @@ STATIC_URL = '/static/'
 SECRET_KEY = env.str('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1,server').split(',')
+ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 PARTICIPANT_NIGHTLY_UPDATE_TIME = env.str('PARTICIPANT_NIGHTLY_UPDATE', default="1:30")
 RANDOMIZATION_FIXED_PROBABILITY = env.float('RANDOMIZATION_FIXED_PROBABILITY', default=0.5)

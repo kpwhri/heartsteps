@@ -40,8 +40,8 @@ export class EnrollmentModal {
         .then(() => {
             this.enrolled.emit(true);
         })
-        .catch(() => {
-            this.error = 'Participant with matching entry code and birth year not found';
+        .catch((error) => {
+            this.error = error;
         })
         .then(() => {
             this.loadingService.dismiss();

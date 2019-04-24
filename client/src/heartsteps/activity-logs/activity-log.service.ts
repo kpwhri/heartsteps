@@ -35,7 +35,7 @@ export class ActivityLogService {
         .then((logs:Array<ActivityLog>) => {
             this.sort(logs);
             return logs;
-        })
+        });
     }
 
     public getLog(logId:string):Promise<ActivityLog> {

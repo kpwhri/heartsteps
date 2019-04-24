@@ -44,7 +44,7 @@ services:
     env_file:
       - .env-development
     environment:
-      - ALLOWED_HOSTS=localhost
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres@db:5432/postgres
     command: honcho start dev celery
