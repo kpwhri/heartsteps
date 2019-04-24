@@ -31,7 +31,11 @@ export class ActivityLogService {
             return logs.map((log) => {
                 return this.deserialize(log);
             });
-        });
+        })
+        .then((logs:Array<ActivityLog>) => {
+            this.sort(logs);
+            return logs;
+        })
     }
 
     public getLog(logId:string):Promise<ActivityLog> {
@@ -88,6 +92,18 @@ export class ActivityLogService {
         activityLog.enjoyed = data.enjoyed;
         activityLog.effort = data.effort;
         return activityLog;
+    }
+
+    public sort(logs: Array<ActivityLog>): void {
+        logs.sort((a, b) => {
+            if (a.start > b.start) {
+                return 1;
+            }
+            if (b.start > a.start) {
+                return -1;
+            }
+            return 0;
+        });
     }
 
 }

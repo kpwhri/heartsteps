@@ -108,6 +108,7 @@ export class CachedActivityLogService {
             });
         })
         .then((logs) => {
+            this.activityLogService.sort(logs);
             this.activityLogs.next(logs);
             return logs;
         });
