@@ -83,7 +83,8 @@ INSTALLED_APPS = [
     'anti_sedentary',
     'watch_app',
     'participants',
-    'data_export'
+    'data_export',
+    'dashboard'
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load static %}
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}">
+        <title>Dashboard</title>
+    </head>
+
+    <table class='table table-striped table-bordered table-hover'>
+        <thead class="thead-dark">
+            <tr>
+                <th scope='col'>ID</td>
+                <th scope='col'>Token</td>
+                <th scope='col'>Birth Year</td>
+                <th scope='col'>Enrolled</td>
+                <th scope='col'>Contact Model</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for participant in participant_list %}
+            <tr>
+                <td>{{participant.heartsteps_id}}</td>
+                <td>{{participant.enrollment_token}}</td>
+                <td>{{participant.birth_year}}</td>
+                <td>{{participant.enrolled}}</td>
+                <td>{{participant.user.contactinformation.email }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</html>

@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'api-auth', include('rest_framework.urls')),
     url(r'export/', include('data_export.urls')),
+    url(r'dashboard/', include('dashboard.urls')),
     url(r'', include('privacy_policy.urls'))
 ]
