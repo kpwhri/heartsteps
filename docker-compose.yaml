@@ -71,6 +71,14 @@ services:
       - client-node-modules:/heartsteps-website/node_modules
       - client-gradle-cache:/root/.gradle/caches
     working_dir: /heartsteps-website
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:8000"
+    depends_on:
+      - server
   pooling-service:
       build: ./pooling-service
       volumes:
