@@ -25,11 +25,14 @@ before_script:
 script:
 - docker-compose run server python manage.py test
 - docker-compose run client npm test
-- docker-compose run client ionic build --prod
+- docker-compose run client npm run build:app --prod
 
 after_success:
-# move client files into server
+# move app files into server
 - gsutil -m rsync -dr client/www gs://heartsteps-assets/app
+# generate website and upload
+- docker-compose run client npm run build:website --prod
+- gsutil -m rsync -dr client/www gs://heartsteps-assets/website
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
 - gsutil -m rsync -dr server/static gs://heartsteps-assets/static
