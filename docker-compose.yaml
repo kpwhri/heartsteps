@@ -26,8 +26,8 @@ services:
       - "53703:53703"
     depends_on:
       - db
+      - rabbitmq
       - server
-    privileged: true
   cloudsql:
     image: gcr.io/cloudsql-docker/gce-proxy:1.11
     command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-kpw -credential_file=/credentials/gce.json
@@ -50,27 +50,25 @@ services:
       - "35729:35729"
       - "53703:53703"
     volumes:
-      - ./client:/heartsteps-app
+      - ./client:/client
       - ./credentials:/credentials
-      - client-node-modules:/heartsteps-app/node_modules
+      - client-node-modules:/client/node_modules
       - client-gradle-cache:/root/.gradle/caches
-    working_dir: /heartsteps-app
   heartsteps-website:
+    command: npm run serve:website
     depends_on:
       - server
     env_file:
       - .env-development
     image: heartsteps_client
     ports:
-      - "8200:8100"
+      - "8300:8100"
       - "35729:35729"
       - "53703:53703"
     volumes:
-      - ./client:/heartsteps-website
+      - ./client:/client
       - ./credentials:/credentials
-      - client-node-modules:/heartsteps-website/node_modules
-      - client-gradle-cache:/root/.gradle/caches
-    working_dir: /heartsteps-website
+      - client-node-modules:/client/node_modules
   nginx:
     build: ./nginx
     volumes:
@@ -103,7 +101,7 @@ services:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres@db:5432/postgres
-    command: honcho start dev celery
+    command: honcho start dev
     volumes:
       - ./server:/server
       - ./credentials:/credentials
