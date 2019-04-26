@@ -18,7 +18,7 @@ def suggestion_times_update(sender, username, *args, **kwargs):
         pass
 
 @receiver(step_count_updated, sender=User)
-def step_count_update(sender, instance, *args, **kwargs):
+def step_count_update(sender, username, *args, **kwargs):
     start_decision.apply_async(kwargs = {
-        'username': instance.user.username
+        'username': username
     })

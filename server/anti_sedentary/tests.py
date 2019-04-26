@@ -10,6 +10,7 @@ from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
 from watch_app.models import StepCount
+from watch_app.signals import step_count_updated
 
 from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, User, Configuration
@@ -377,3 +378,11 @@ class UpdateAntiSedentaryService(TestBase):
 
         self.assertEqual(self.make_request.call_count, 145)
         self.assertEqual(AntiSedentaryDecision.objects.count(), 145)
+
+class ReceivesStepCountUpdates(TestCase):
+
+    @patch.object(start_decision, 'apply_async')
+    def testTriggerStartDecision(self, start_decision):
+        step_count_updated.send(User, username='test')
+
+        start_decision.assert_called_with(kwargs={'username': 'test'})        
