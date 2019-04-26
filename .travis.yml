@@ -49,4 +49,4 @@ after_success:
 - sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
 - kubectl apply -f deployment.yaml
 # Migrate database
-- docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server python manage.py migrate
+- docker-compose run server-gcloud python manage.py migrate

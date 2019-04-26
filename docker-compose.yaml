@@ -1,35 +1,6 @@
 version: '2'
 
 services:
-  db:
-    image: postgres
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-  rabbitmq:
-    image: rabbitmq:3.7
-  service-template:
-    build:
-      context: ./
-      dockerfile: ./service-template/Dockerfile
-    volumes:
-      - ./service-template/utils:/utils
-  walking-suggestion-service:
-    build: ./walking-suggestion-service
-    command: python app.py
-    volumes:
-      - ./walking-suggestion-service:/walking-suggestion-service
-      - ./credentials:/credentials
-    ports:
-      - "5000:8080"
-    privileged: true
-  pooling-service:
-      build: ./pooling-service
-      volumes:
-        - ./pooling-service:/pooling-service
-        - ./credentials:/credentials
-      ports:
-        - "8888:8893"
-      privileged: true
   anti-sedentary-service:
     build: ./anti-sedentary-service
     command: python app.py
@@ -39,23 +10,6 @@ services:
     privileged: true
     ports:
       - "5001:8000"
-  server:
-    build: ./server
-    env_file:
-      - .env-development
-    environment:
-      - ALLOWED_HOSTS=localhost,server,192.168.99.100
-      - DEBUG=True
-      - DATABASE_URL=psql://postgres@db:5432/postgres
-    command: honcho start dev celery
-    volumes:
-      - ./server:/server
-      - ./credentials:/credentials
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-      - rabbitmq
   client:
     build: ./client
     env_file:
@@ -74,15 +28,110 @@ services:
       - db
       - server
     privileged: true
-  nginx:
-    build: ./nginx
+  cloudsql:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.11
+    command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-kpw -credential_file=/credentials/gce.json
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "8000:8000"
+      - cloudsql:/cloudsql
+      - ./credentials:/credentials
+  db:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  heartsteps-app:
+    command: npm run serve:app
     depends_on:
       - server
+    env_file:
+      - .env-development
+    image: heartsteps_client
+    ports:
+      - "8200:8100"
+      - "35729:35729"
+      - "53703:53703"
+    volumes:
+      - ./client:/heartsteps-app
+      - ./credentials:/credentials
+      - client-node-modules:/heartsteps-app/node_modules
+      - client-gradle-cache:/root/.gradle/caches
+    working_dir: /heartsteps-app
+  heartsteps-website:
+    depends_on:
+      - server
+    env_file:
+      - .env-development
+    image: heartsteps_client
+    ports:
+      - "8200:8100"
+      - "35729:35729"
+      - "53703:53703"
+    volumes:
+      - ./client:/heartsteps-website
+      - ./credentials:/credentials
+      - client-node-modules:/heartsteps-website/node_modules
+      - client-gradle-cache:/root/.gradle/caches
+    working_dir: /heartsteps-website
+  pooling-service:
+      build: ./pooling-service
+      volumes:
+        - ./pooling-service:/pooling-service
+        - ./credentials:/credentials
+      ports:
+        - "8888:8893"
+      privileged: true
+  rabbitmq:
+    image: rabbitmq:3.7
+  service-template:
+    build:
+      context: ./
+      dockerfile: ./service-template/Dockerfile
+    volumes:
+      - ./service-template/utils:/utils
+  server:
+    build: ./server
+    env_file:
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
+    command: honcho start dev celery
+    volumes:
+      - ./server:/server
+      - ./credentials:/credentials
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+  server-gcloud:
+    command: honcho start dev celery
+    env_file:
+      - .env-production
+    environment:
+      - ALLOWED_HOSTS=localhost
+      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw
+    image: heartsteps_server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - cloudsql
+      - rabbitmq
+    volumes:
+      - ./server:/server-gcloud
+      - cloudsql:/cloudsql
+    working_dir: /server-gcloud
+  walking-suggestion-service:
+    build: ./walking-suggestion-service
+    command: python app.py
+    volumes:
+      - ./walking-suggestion-service:/walking-suggestion-service
+      - ./credentials:/credentials
+    ports:
+      - "5000:8080"
+    privileged: true
 volumes:
   client-node-modules:
   pgdata:
   client-gradle-cache:
+  cloudsql:
