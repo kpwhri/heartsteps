@@ -127,6 +127,7 @@ class FitbitDayService(FitbitService):
                 ))
         
         FitbitMinuteStepCount.objects.filter(
+            account = self.account,
             time__range = [self.day.get_start_datetime(), self.day.get_end_datetime()]
         ).delete()
 

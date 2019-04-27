@@ -56,9 +56,15 @@ class FitbitDayUpdates(TestBase):
 
 class FitbitStepUpdates(TestBase):
 
-    @patch.object(Fitbit, 'make_request')
-    def testUpdatesSteps(self, make_request):
-        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
+    def setUp(self):
+        super().setUp()
+
+        fitbit_patch = patch.object(Fitbit, 'make_request')
+        self.make_request = fitbit_patch.start()
+        self.addCleanup(fitbit_patch.stop)
+
+    def testUpdatesSteps(self):
+        self.make_request.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 5
@@ -78,10 +84,10 @@ class FitbitStepUpdates(TestBase):
         step_count = service.update_steps()
 
         self.assertEqual(step_count, 10)
-        make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/steps/date/2018-02-14/1d/1min.json')
+        self.make_request.assert_called_with('https://api.fitbit.com/1/user/-/activities/steps/date/2018-02-14/1d/1min.json')
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
 
-        make_request.return_value = {'activities-steps-intraday': { 'dataset': [
+        self.make_request.return_value = {'activities-steps-intraday': { 'dataset': [
             {
                 'time': '10:10:00',
                 'value': 15
@@ -91,6 +97,32 @@ class FitbitStepUpdates(TestBase):
         step_count = service.update_steps()
         self.assertEqual(step_count, 15)
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 1)
+
+    def testUpdateOnlySingleAccount(self):
+        self.make_request.return_value = {'activities-steps-intraday': { 'dataset': [
+            {
+                'time': '10:10:00',
+                'value': 15
+            }
+        ]}}
+
+        other_account = FitbitAccount.objects.create(fitbit_user="other_user")
+        FitbitMinuteStepCount.objects.create(
+            account = other_account,
+            steps = 150,
+            time = datetime(2018,2,14,12,12).astimezone(pytz.UTC)
+        )
+
+        service = FitbitDayService(
+            account = self.account,
+            date = date(2018,2,14)
+        )
+
+        step_count = service.update_steps()
+
+        self.assertEqual(step_count, 15)
+        self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
+        
 
 class FitbitUpdatesDistance(TestBase):
 
