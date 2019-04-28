@@ -11,8 +11,8 @@ export class WelcomePageComponent {
         private router: Router
     ) {}
 
-    public startEnrollment() {
-        
+    public goToEnrollment() {
+        this.router.navigate(['enrollment']);   
     }
 
 }

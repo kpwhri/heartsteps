@@ -17,8 +17,7 @@ import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
   imports: [
     InfrastructureModule,
     DialogsModule,
-    FormModule,
-    IonicPageModule.forChild(EnrollmentModal)
+    FormModule
   ],
   providers: [
     EnrollmentController,
