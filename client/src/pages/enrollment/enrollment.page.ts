@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { EnrollmentService } from "@heartsteps/enrollment/enrollment.service";
 import { LoadingService } from "@infrastructure/loading.service";
+import { Router } from "@angular/router";
 
 
 @Component({
@@ -14,7 +15,8 @@ export class EnrollmentPage {
 
     constructor(
         private enrollmentService: EnrollmentService,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private router: Router
     ) {
         this.form = new FormGroup({
             entryToken: new FormControl('', Validators.required),
@@ -31,7 +33,7 @@ export class EnrollmentPage {
 
         return this.enrollmentService.enroll(token, birthYear)
         .then(() => {
-            console.log('Enrolled!!');
+            this.router.navigate(['setup'])
         })
         .catch((error) => {
             this.error = error;
