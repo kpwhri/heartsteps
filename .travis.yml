@@ -38,7 +38,7 @@ after_success:
 - gsutil -m rsync -dr server/static gs://heartsteps-assets/static
 # upload images
 - docker tag heartsteps_nginx gcr.io/heartsteps-kpwhri/heartsteps-nginx
-- docker push gcr.io/heartsteps-kpwhri/heartsteps-server
+- docker push gcr.io/heartsteps-kpwhri/heartsteps-nginx
 - docker tag heartsteps_server gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker push gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
