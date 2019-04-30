@@ -6,15 +6,20 @@ from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated
 
 from .services import AntiSedentaryService
-from .models import User
+from .models import User, Configuration
 from .tasks import start_decision
 
-@receiver(suggestion_times_updated, sender=SuggestionTime)
+@receiver(suggestion_times_updated, sender=User)
 def suggestion_times_update(sender, username, *args, **kwargs):
     try:
-        service = AntiSedentaryService(username=username)
-        service.enable()
-    except:
+        user = User.objects.get(username=username)
+        Configuration.objects.update_or_create(
+            user = user,
+            defaults = {
+                'enabled': True
+            }
+        )
+    except User.DoesNotExist:
         pass
 
 @receiver(step_count_updated, sender=User)

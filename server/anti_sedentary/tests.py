@@ -9,6 +9,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
+from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.models import StepCount
 from watch_app.signals import step_count_updated
 
@@ -385,4 +386,16 @@ class ReceivesStepCountUpdates(TestCase):
     def testTriggerStartDecision(self, start_decision):
         step_count_updated.send(User, username='test')
 
-        start_decision.assert_called_with(kwargs={'username': 'test'})        
+        start_decision.assert_called_with(kwargs={'username': 'test'})
+
+class EnableConfiguration(TestCase):
+
+    def testEnablesOnSuggestionTimesUpdate(self):
+        test = User.objects.create(username="test")
+        
+        suggestion_times_updated.send(sender=User, username="test")
+
+        configuration = Configuration.objects.get()
+        self.assertTrue(configuration.enabled)
+
+
