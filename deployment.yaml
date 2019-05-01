@@ -240,7 +240,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: BUILD_NUMBER
-            value: DEFAULT_BUILD_NUMBER_2
+            value: DEFAULT_BUILD_NUMBER
         ports:
         - containerPort: 8000
 
