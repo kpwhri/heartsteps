@@ -18,7 +18,6 @@ def post_save_configuration(sender, username, *args, **kwargs):
             'enabled': True
         }
     )
-    configuration.update_suggestion_times()
 
 @receiver(step_count_updated, sender=User)
 def step_count_update(sender, username, *args, **kwargs):

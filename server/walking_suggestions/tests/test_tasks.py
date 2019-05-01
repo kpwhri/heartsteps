@@ -116,27 +116,6 @@ class CreateDecisionTest(TestCase):
             'decision_id': str(decision.id)
         })
 
-
-class StartTaskTests(TestCase):
-
-    @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('walking_suggestions.tasks.make_decision.apply_async')
-    def test_start_decision(self, make_decision):
-        user = User.objects.create(username="test")
-        SuggestionTime.objects.create(
-            user=user,
-            category = 'evening',
-            hour = 20,
-            minute = 00
-        )
-
-        start_decision(user.username, 'evening')
-
-        decision = WalkingSuggestionDecision.objects.get(user=user)
-        tags = [tag.tag for tag in decision.tags.all()]
-        self.assertIn('evening', tags)
-        make_decision.assert_called()
-
 class MakeDecisionTest(TestCase):
 
     def setUp(self):

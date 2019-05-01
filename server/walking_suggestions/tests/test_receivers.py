@@ -21,24 +21,6 @@ class ConfigutationTest(TestCase):
         self.timezone = timezone_patch.start()
         self.timezone.return_value = pytz.timezone('Etc/GMT+7')
 
-    def test_creates_tasks_for_suggestion_times(self):
-        user = User.objects.create(username="test")
-        SuggestionTime.objects.create(
-            user = user,
-            category = 'morning',
-            hour = 8,
-            minute = 15
-        )
-        configuration = Configuration.objects.create(
-            user = user
-        )
-
-        suggestion_times_updated.send(User, username="test")
-
-        daily_task = DailyTask.objects.get(user=user, category='morning')
-        self.assertEqual(daily_task.task.crontab.hour, '15')
-        self.assertEqual(daily_task.task.crontab.minute, '15')
-
     def test_creates_configuration_if_does_not_exist(self):
         user = User.objects.create(username="test")
 

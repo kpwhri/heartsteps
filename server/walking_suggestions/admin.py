@@ -54,8 +54,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
     exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
     readonly_fields = [
         'service_initialized_date',
-        'walking_suggestion_times',
-        'next_walking_suggestion_time'
+        'walking_suggestion_times'
     ]
     actions = [send_walking_suggestion]
 
@@ -67,12 +66,5 @@ class ConfigurationAdmin(admin.ModelAdmin):
             return ' '.join(times)
         else:
             return 'Not set'
-    
-    def next_walking_suggestion_time(self, configuration):
-        try:
-            next_run = configuration.get_next_suggestion_time()
-            return next_run.strftime('%Y-%m-%d %H:%M')
-        except RuntimeError:
-            return 'None'
 
 admin.site.register(Configuration, ConfigurationAdmin)

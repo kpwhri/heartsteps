@@ -8,7 +8,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
 from behavioral_messages.models import MessageTemplate
-from daily_tasks.models import DailyTask
 from locations.services import LocationService
 from randomization.models import Decision
 from walking_suggestion_times.models import SuggestionTime
@@ -74,44 +73,6 @@ class Configuration(models.Model):
     def suggestion_times(self):
         results = SuggestionTime.objects.filter(user=self.user).all()
         return list(results)
-    
-    def get_suggestion_tasks(self):
-        return list(DailyTask.objects.filter(
-            user = self.user,
-            category__in = SuggestionTime.TIMES
-        ).all())
-
-    def get_next_suggestion_time(self):
-        times = [daily_task.get_next_run_time() for daily_task in self.get_suggestion_tasks()]
-        times.sort()
-        if len(times) > 0:
-            return times.pop(0)
-        else:
-            raise RuntimeError('No suggestion time')
-
-    def update_suggestion_times(self):
-        for suggestion_time in self.suggestion_times:
-            self._update_suggestion_time_task(suggestion_time)
-
-    def _update_suggestion_time_task(self, suggestion_time):
-        daily_task, created = DailyTask.objects.get_or_create(
-            user = suggestion_time.user,
-            category = suggestion_time.category
-        )
-        if created:
-            daily_task.create_task(
-                task = 'walking_suggestions.tasks.start_decision',
-                name = 'Walking suggestion %s for %s' % (suggestion_time.category, suggestion_time.user),
-                arguments = {
-                    'username': suggestion_time.user.username,
-                    'category': suggestion_time.category
-                }
-            )
-        
-        daily_task.set_time(
-            hour = suggestion_time.hour,
-            minute = suggestion_time.minute
-        )
 
 class WalkingSuggestionDecision(Decision):
     

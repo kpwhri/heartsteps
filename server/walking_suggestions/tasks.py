@@ -28,18 +28,7 @@ def create_decision(username):
 
 @shared_task
 def start_decision(username, category):
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return False
-
-    service = WalkingSuggestionDecisionService.create_decision(
-        user = user,
-        category = category
-    )
-    make_decision.apply_async(kwargs={
-        'decision_id': str(service.decision.id)
-    })
+    pass
 
 @shared_task
 def make_decision(decision_id):
