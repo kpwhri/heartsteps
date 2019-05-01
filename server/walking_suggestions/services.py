@@ -16,6 +16,7 @@ from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
 from weather.models import WeatherForecast
+from watch_app.models import StepCount as WatchStepCount
 
 from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
 
@@ -92,6 +93,8 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
+    use_watch_app = False
+
     def __init__(self, decision):
         self.decision = decision
         self.user = decision.user
@@ -127,9 +130,18 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.save()
             return False
         super().update_availability()
-        if self.get_fitbit_step_count() > 250:
+
+        if self.use_watch_app:
+            step_count = self.get_watch_step_count()
+        else:
+            step_count = self.get_fitbit_step_count()
+        
+        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT'):
+            raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
+        max_step_count = int(settings.WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT)
+        if step_count > max_step_count:
             self.decision.available = False
-            self.decision.unavailable_reason = 'Recent step count above 250'
+            self.decision.unavailable_reason = 'Recent step count above %d' % (max_step_count)
             self.decision.save()
 
     def determine_availability(self):
@@ -138,9 +150,26 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     def get_message_template_query(self):
         return WalkingSuggestionMessageTemplate.objects
+
+    def get_start_time(self):
+        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
+            raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
+        return self.decision.time - timedelta(
+            minutes=settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES
+            )
+
+    def get_watch_step_count(self):
+        step_counts = WatchStepCount.objects.filter(
+            user = self.user,
+            start__gte = self.get_start_time(),
+            end__lte = self.decision.time
+        ).all()
+        steps = 0
+        for step_count in step_counts:
+            steps += step_count.steps
+        return steps
     
     def get_fitbit_step_count(self):
-        start_time = self.decision.time - timedelta(minutes=20)
         try:
             account_user = FitbitAccountUser.objects.get(user=self.decision.user)
             account = account_user.account
@@ -148,7 +177,10 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             return 0
         step_counts = FitbitMinuteStepCount.objects.filter(
             account = account,
-            time__range = [start_time, self.decision.time]
+            time__range = [
+                self.get_start_time(),
+                self.decision.time
+            ]
         ).all()
         total_steps = 0
         for step_count in step_counts:

@@ -14,6 +14,7 @@ from randomization.models import DecisionContext
 from weather.models import WeatherForecast
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
@@ -354,6 +355,8 @@ class TemperatureTests(ServiceTestCase):
 
         self.assertEqual(temperatures, [10, 10, 10, 10, 10])
 
+@override_settings(WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT='300')
+@override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES=20)
 class DecisionAvailabilityTest(TestCase):
 
     def setUp(self):
@@ -414,6 +417,28 @@ class DecisionAvailabilityTest(TestCase):
         available = service.determine_availability()
 
         self.assertTrue(available)
+
+    def test_with_watch_app_step_counts(self):
+        WatchStepCount.objects.create(
+            user = self.user,
+            steps = 200,
+            start = timezone.now() - timedelta(minutes=5),
+            end = timezone.now() - timedelta(minutes=10)
+        )
+        WatchStepCount.objects.create(
+            user = self.user,
+            steps = 160,
+            start = timezone.now() - timedelta(minutes=10),
+            end = timezone.now() - timedelta(minutes=15)
+        )
+        service = WalkingSuggestionDecisionService(self.decision)
+        service.use_watch_app = True
+
+        available = service.determine_availability()
+        step_count = service.get_watch_step_count()
+
+        self.assertFalse(available)
+        self.assertEqual(step_count, 360)    
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 
