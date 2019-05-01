@@ -8,8 +8,9 @@ from import_export.fields import Field
 
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from service_requests.admin import ServiceRequestAdmin
 
-from .models import Configuration, AntiSedentaryMessageTemplate, AntiSedentaryDecision
+from .models import Configuration, AntiSedentaryMessageTemplate, AntiSedentaryDecision, AntiSedentaryServiceRequest
 from .services import AntiSedentaryDecisionService, AntiSedentaryService, FitbitStepCountService
 
 def send_anti_sedentary_message(admin, request, queryset):
@@ -125,3 +126,5 @@ admin.site.register(AntiSedentaryDecision, AntiSedentaryDecisionAdmin)
 class AntiSedentaryMessageTemplateAdmin(MessageTemplateAdmin):
     pass
 admin.site.register(AntiSedentaryMessageTemplate, AntiSedentaryMessageTemplateAdmin)
+
+admin.site.register(AntiSedentaryServiceRequest, ServiceRequestAdmin)

@@ -4,10 +4,13 @@ from django.contrib import admin
 
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from service_requests.admin import ServiceRequestAdmin
 
 from walking_suggestion_times.models import SuggestionTime
 
-from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import SuggestionTime, Configuration
+from walking_suggestions.models import WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
@@ -68,3 +71,5 @@ class ConfigurationAdmin(admin.ModelAdmin):
             return 'Not set'
 
 admin.site.register(Configuration, ConfigurationAdmin)
+
+admin.site.register(WalkingSuggestionServiceRequest, ServiceRequestAdmin)

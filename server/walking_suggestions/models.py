@@ -10,6 +10,7 @@ from django.utils import timezone
 from behavioral_messages.models import MessageTemplate
 from locations.services import LocationService
 from randomization.models import Decision
+from service_requests.models import ServiceRequest
 from walking_suggestion_times.models import SuggestionTime
 
 class Configuration(models.Model):
@@ -84,4 +85,7 @@ class WalkingSuggestionDecision(Decision):
         return None
 
 class WalkingSuggestionMessageTemplate(MessageTemplate):
+    pass
+
+class WalkingSuggestionServiceRequest(ServiceRequest):
     pass

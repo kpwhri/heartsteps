@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 from behavioral_messages.models import MessageTemplate
 from randomization.models import Decision
+from service_requests.models import ServiceRequest
 
 User = get_user_model()
 
@@ -23,4 +24,7 @@ class AntiSedentaryDecision(Decision):
         return 0.15
 
 class AntiSedentaryMessageTemplate(MessageTemplate):
+    pass
+
+class AntiSedentaryServiceRequest(ServiceRequest):
     pass
