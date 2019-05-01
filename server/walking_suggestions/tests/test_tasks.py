@@ -1,3 +1,4 @@
+import pytz
 from unittest.mock import patch
 from datetime import datetime
 
@@ -7,7 +8,113 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, make_decision
+from walking_suggestions.tasks import create_decision, start_decision, make_decision
+
+@override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
+class CreateDecisionTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.configuration = Configuration.objects.create(
+            user=self.user,
+            enabled=True
+        )
+
+        now_patch = patch.object(timezone, 'now')
+        self.now = now_patch.start()
+        self.addCleanup(now_patch.stop)
+
+        make_decision_patch = patch.object(make_decision, 'apply_async')
+        self.make_decision = make_decision_patch.start()
+        self.addCleanup(make_decision_patch.stop)
+
+    def testDoesNotMakeDecisionIfNotConfigured(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
+        self.make_decision.assert_not_called()
+
+    @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='5')
+    def testDoesNotCreateDecisionIfNotCorrectTime(self):
+        SuggestionTime.objects.create(
+            user =self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 11,
+            minute = 0
+        )
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 10, 59).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 11, 6).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
+        self.make_decision.assert_not_called()
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+        self.make_decision.assert_called()
+
+    def testDoesNotCreateMultipleDecisionsOfSameType(self):
+        SuggestionTime.objects.create(
+            user =self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 11,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = 15,
+            minute = 30
+        )
+
+        self.now.return_value = datetime(2019, 4, 30, 11).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+
+        #Should not make new decision
+        self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+
+        #New decision for midafternoon
+        self.now.return_value = datetime(2019, 4, 30, 15, 30).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 2)
+
+
+    def testCreateDecision(self):
+        datetime_now = datetime(2019, 4, 30, 20, 0).astimezone(pytz.UTC)
+        self.now.return_value = datetime_now
+
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.EVENING,
+            hour = 20,
+            minute = 0
+        )
+
+        create_decision(username="test")
+
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.time, datetime_now)
+        self.assertIn(SuggestionTime.EVENING, decision.get_context())
+        self.make_decision.assert_called_with(kwargs={
+            'decision_id': str(decision.id)
+        })
 
 
 class StartTaskTests(TestCase):

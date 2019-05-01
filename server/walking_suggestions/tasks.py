@@ -8,11 +8,23 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 
 from .models import SuggestionTime, Configuration, WalkingSuggestionDecision
-from .services import WalkingSuggestionService, WalkingSuggestionDecisionService
+from .services import WalkingSuggestionService, WalkingSuggestionDecisionService, WalkingSuggestionTimeService
 
 @shared_task
 def create_decision(username):
-    pass
+    try:
+        service = WalkingSuggestionTimeService(username=username)
+        category = service.suggestion_time_category_available_at(timezone.now())
+    except WalkingSuggestionTimeService.Unavailable:
+        return False
+    if category:
+        decision = service.create_decision(
+            category = category,
+            time = timezone.now()
+        )
+        make_decision.apply_async(kwargs={
+            'decision_id': str(decision.id)
+        })
 
 @shared_task
 def start_decision(username, category):

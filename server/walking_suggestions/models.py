@@ -5,6 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
 
 from behavioral_messages.models import MessageTemplate
 from daily_tasks.models import DailyTask
@@ -41,21 +42,29 @@ class Configuration(models.Model):
         except LocationService.UnknownLocation:
             return pytz.utc
 
-    def get_start_of_day(self, date):
+    @property
+    def current_datetime(self):
+        return timezone.now().astimezone(self.timezone)
+
+    def get_start_of_day(self, day=None):
+        if not day:
+            day = self.current_datetime
         return datetime(
-            year = date.year,
-            month = date.month,
-            day = date.day,
+            year = day.year,
+            month = day.month,
+            day = day.day,
             hour = self.day_start_hour,
             minute = self.day_start_minute,
             tzinfo = self.timezone
         )
 
-    def get_end_of_day(self, date):
+    def get_end_of_day(self, day=None):
+        if not day:
+            day = self.current_datetime
         return datetime(
-            year = date.year,
-            month = date.month,
-            day = date.day,
+            year = day.year,
+            month = day.month,
+            day = day.day,
             hour = self.day_end_hour,
             minute = self.day_end_minute,
             tzinfo = self.timezone
@@ -65,7 +74,7 @@ class Configuration(models.Model):
     def suggestion_times(self):
         results = SuggestionTime.objects.filter(user=self.user).all()
         return list(results)
-
+    
     def get_suggestion_tasks(self):
         return list(DailyTask.objects.filter(
             user = self.user,

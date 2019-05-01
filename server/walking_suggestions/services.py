@@ -19,6 +19,72 @@ from weather.models import WeatherForecast
 
 from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
 
+class WalkingSuggestionTimeService:
+
+    class Unavailable(ImproperlyConfigured):
+        pass
+
+    def __init__(self, configuration=None, user=None, username=None):
+        try:
+            if username:
+                configuration = Configuration.objects.get(user__username=username)
+            if user:
+                configuration = Configuration.objects.get(user=user)
+        except Configuration.DoesNotExist:
+            raise WalkingSuggestionTimeService.Unavailable('Configuration not found')
+        if not configuration:
+            raise WalkingSuggestionTimeService.Unavailable('Not configured')
+        if not configuration.enabled:
+            raise WalkingSuggestionTimeService.Unavailable('Configuration disabled')
+        self.__configuration = configuration
+        self.__user = configuration.user
+
+    def suggestion_time_category_available_at(self, time):
+        category = self.suggestion_time_category_at(time)
+
+        query = WalkingSuggestionDecision.objects.filter(
+            user = self.__user,
+            test = False,
+            time__range = [
+                self.__configuration.get_start_of_day(time),
+                self.__configuration.get_end_of_day(time)
+            ]
+        )
+        tags = [decision.category for decision in query.all()] 
+        
+        if category in tags:
+            raise self.Unavailable('Time already taken')
+        else:
+            return category
+
+    def suggestion_time_category_at(self, time):
+        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
+            raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
+        decision_window_minutes = int(settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES)
+        
+        for suggestion_time in self.__configuration.suggestion_times:
+            suggestion_time_today = suggestion_time.get_datetime_on(time)
+            if time < suggestion_time_today:
+                continue
+            difference = time - suggestion_time_today
+            if difference.seconds >= 0 and difference.seconds < decision_window_minutes*60:
+                return suggestion_time.category
+        return False
+
+    def create_decision(self, category, time=None):
+        if not time:
+            time = timezone.now()
+        if category not in SuggestionTime.TIMES:
+            raise RuntimeError('Category is not suggestion time')
+
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.__user,
+            time = timezone.now()
+        )
+        decision.add_context(category)
+        return decision
+
+
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
     class DecisionDoesNotExist(ImproperlyConfigured):
