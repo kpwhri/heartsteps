@@ -11,6 +11,10 @@ from .models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from .services import WalkingSuggestionService, WalkingSuggestionDecisionService
 
 @shared_task
+def create_decision(username):
+    pass
+
+@shared_task
 def start_decision(username, category):
     try:
         user = User.objects.get(username=username)

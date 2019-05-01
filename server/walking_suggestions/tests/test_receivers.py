@@ -8,8 +8,10 @@ from locations.services import LocationService
 from locations.signals import timezone_updated
 from daily_tasks.models import DailyTask
 from walking_suggestion_times.signals import suggestion_times_updated
+from watch_app.signals import step_count_updated
 
 from walking_suggestions.models import SuggestionTime, Configuration
+from walking_suggestions.tasks import create_decision
 
 class ConfigutationTest(TestCase):
 
@@ -49,3 +51,16 @@ class ConfigutationTest(TestCase):
     def test_does_nothing_if_no_user(self):
         suggestion_times_updated.send(User, username="test")        
         self.assertEqual(0, Configuration.objects.count())
+
+class UpdateFromStepCount(TestCase):
+
+    @patch.object(create_decision, 'apply_async')
+    def testCreatesDecision(self, create_decision):
+        user = User.objects.create(username="test")
+
+        step_count_updated.send(sender=User, username="test")
+
+        create_decision.assert_called_with(kwargs={
+            'username': 'test'
+        })
+    
