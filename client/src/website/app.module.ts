@@ -22,10 +22,7 @@ const appRoutes:Routes = [{
         EnrollmentModule,
         IonicModule.forRoot(HeartstepsWebsite),
         RouterModule.forRoot(
-            appRoutes,
-            {
-                useHash: true
-            }
+            appRoutes
         )
     ],
     bootstrap: [IonicApp],

@@ -240,7 +240,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: BUILD_NUMBER
-            value: DEFAULT_BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER_2
         ports:
         - containerPort: 8000
 
@@ -268,8 +268,7 @@ metadata:
   name: heartsteps
   annotations:
     kubernetes.io/ingress.global-static-ip-name: heartsteps-global
-    kubernetes.io/ingress.allow-http: "false"
 spec:
   backend:
     serviceName: heartsteps-nginx
-    servicePort: 8080
+    servicePort: 8000
