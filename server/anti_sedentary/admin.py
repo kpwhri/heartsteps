@@ -8,6 +8,7 @@ from import_export.fields import Field
 
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
 
 from .models import Configuration, AntiSedentaryMessageTemplate, AntiSedentaryDecision, AntiSedentaryServiceRequest
@@ -63,9 +64,8 @@ def get_fitbit_step_count(decision):
         end = decision.time
     )
 
-class AntiSedentaryDecisionResouce(resources.ModelResource):
+class AntiSedentaryDecisionResouce(DecisionResource):
 
-    local_time = Field()
     step_count = Field()
     fitbit_step_count = Field()
 
@@ -75,12 +75,21 @@ class AntiSedentaryDecisionResouce(resources.ModelResource):
         fields = [
             'id',
             'user__username',
-            'treated',
-            'treatment_probability',
+            'local_time',
+            'step_count',
+            'fitbit_step_count',
             'test',
             'imputed',
             'available',
-            'unavailable_reason'
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
         ]
 
         export_order = [
@@ -89,16 +98,19 @@ class AntiSedentaryDecisionResouce(resources.ModelResource):
             'local_time',
             'step_count',
             'fitbit_step_count',
+            'test',
+            'imputed',
             'available',
             'unavailable_reason',
             'treated',
             'treatment_probability',
-            'test',
-            'imputed'
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
         ]
-
-    def dehydrate_local_time(self, decision):
-        return decision.get_local_datetime().strftime('%Y-%m-%d %I:%M %p')
 
     def dehydrate_step_count(self, decision):
         return get_step_count(decision)

@@ -2,8 +2,13 @@ import random
 
 from django.contrib import admin
 
+from import_export import resources
+from import_export.fields import Field
+from import_export.admin import ExportMixin
+
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
 
 from walking_suggestion_times.models import SuggestionTime
@@ -12,6 +17,46 @@ from walking_suggestions.models import SuggestionTime, Configuration
 from walking_suggestions.models import WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
+
+class WalkingSuggestionDecisionResource(DecisionResource):
+
+    class Meta:
+        model = WalkingSuggestionDecision
+        fields = [
+            'id',
+            'user__username',
+            'local_time',
+            'test',
+            'imputed',
+            'available',
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
+        ]
+        export_order = [
+            'id',
+            'user__username',
+            'local_time',
+            'test',
+            'imputed',
+            'available',
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
+        ]
+
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -26,7 +71,9 @@ class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
         else:
             return queryset
 
-class WalkingSuggestionDecisionAdmin(DecisionAdmin):
+class WalkingSuggestionDecisionAdmin(ExportMixin, DecisionAdmin):
+    resource_class = WalkingSuggestionDecisionResource
+
     list_filter = [WalkingSuggestionTimeFilters]
     list_display = ['decision', 'time', 'available', 'treated']
 

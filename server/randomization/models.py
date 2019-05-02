@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 
+from behavioral_messages.models import MessageTemplate
 from locations.services import LocationService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
@@ -22,6 +23,9 @@ class ContextTag(models.Model):
         return self.name or self.tag
 
 class Decision(models.Model):
+
+    MESSAGE_TEMPLATE_MODEL = MessageTemplate
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
 
@@ -92,6 +96,18 @@ class Decision(models.Model):
                 self._notification = message
                 return self._notification
         return False
+
+    @property
+    def message_template(self):
+        try:
+            context_object = DecisionContext.objects.get(
+                decision = self,
+                content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
+            )
+            message_template = context_object.content_object
+            return message_template
+        except DecisionContext.DoesNotExist:
+            return None
 
     def add_context_object(self, object):
         DecisionContext.objects.create(

@@ -75,7 +75,15 @@ class Configuration(models.Model):
         results = SuggestionTime.objects.filter(user=self.user).all()
         return list(results)
 
+class WalkingSuggestionMessageTemplate(MessageTemplate):
+    pass
+
+class WalkingSuggestionServiceRequest(ServiceRequest):
+    pass
+
 class WalkingSuggestionDecision(Decision):
+
+    MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
     
     @property
     def category(self):
@@ -83,9 +91,3 @@ class WalkingSuggestionDecision(Decision):
             if tag.tag in SuggestionTime.TIMES:
                 return tag.tag
         return None
-
-class WalkingSuggestionMessageTemplate(MessageTemplate):
-    pass
-
-class WalkingSuggestionServiceRequest(ServiceRequest):
-    pass
