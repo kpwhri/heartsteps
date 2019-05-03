@@ -2,8 +2,8 @@ import requests
 import json
 from datetime import datetime
 
-from apns2.client import APNsClient
-from apns2.payload import Payload
+# from apns2.client import APNsClient
+# from apns2.payload import Payload
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -35,23 +35,23 @@ class ClientBase:
         return data
     
 
-class ApplePushClient(ClientBase):
+# class ApplePushClient(ClientBase):
 
-    def get_client(self):
-        return APNsClient('/credentials/heartsteps-apns.pem')
+#     def get_client(self):
+#         return APNsClient('/credentials/heartsteps-apns.pem')
 
-    def send(self, request):
-        payload = Payload(
-            content_available=True,
-            custom=request
-        )
-        client = self.get_client()
-        client.send_notification(self.device.token, payload, 'com.nickreid.heartsteps.voip')
+#     def send(self, request):
+#         payload = Payload(
+#             content_available=True,
+#             custom=request
+#         )
+#         client = self.get_client()
+#         client.send_notification(self.device.token, payload, 'com.nickreid.heartsteps.voip')
 
-class AppleDevelopmentPushClient(ApplePushClient):
+# class AppleDevelopmentPushClient(ApplePushClient):
 
-    def get_client(self):
-        return APNsClient('/credentials/heartsteps-apns.pem', use_sandbox=True)
+#     def get_client(self):
+#         return APNsClient('/credentials/heartsteps-apns.pem', use_sandbox=True)
 
 class FirebaseMessageService(ClientBase):
     """

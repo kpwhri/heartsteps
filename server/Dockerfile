@@ -11,7 +11,7 @@ RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql
 WORKDIR /server
 ADD . /server
 
-RUN easy_install apns2
+# RUN easy_install apns2
 
 #Load python dependencies
 RUN pip install -r requirements.txt
