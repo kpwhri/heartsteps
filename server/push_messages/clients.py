@@ -35,23 +35,26 @@ class ClientBase:
         return data
     
 
-# class ApplePushClient(ClientBase):
+class ApplePushClient(ClientBase):
 
-#     def get_client(self):
-#         return APNsClient('/credentials/heartsteps-apns.pem')
+    def get_client(self):
+        pass
+        # return APNsClient('/credentials/heartsteps-apns.pem')
 
-#     def send(self, request):
-#         payload = Payload(
-#             content_available=True,
-#             custom=request
-#         )
-#         client = self.get_client()
-#         client.send_notification(self.device.token, payload, 'com.nickreid.heartsteps.voip')
+    def send(self, request):
+        pass
+        # payload = Payload(
+        #     content_available=True,
+        #     custom=request
+        # )
+        # client = self.get_client()
+        # client.send_notification(self.device.token, payload, 'com.nickreid.heartsteps.voip')
 
-# class AppleDevelopmentPushClient(ApplePushClient):
+class AppleDevelopmentPushClient(ApplePushClient):
 
-#     def get_client(self):
-#         return APNsClient('/credentials/heartsteps-apns.pem', use_sandbox=True)
+    def get_client(self):
+        pass
+        # return APNsClient('/credentials/heartsteps-apns.pem', use_sandbox=True)
 
 class FirebaseMessageService(ClientBase):
     """
