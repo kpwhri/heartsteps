@@ -5,6 +5,9 @@ from weather.models import WeatherForecast
 
 class WeatherService:
 
+    class NoForecast(RuntimeError):
+        pass
+
     WEATHER_OUTDOOR = "outdoor"  # weather is good enough to go outside
     WEATHER_OUTDOOR_SNOW = "outdoor_snow"  # it is currently snowing, and not suitable to go outside
     WEATHER_INDOOR = "indoor"  # weather is unfit to go outside and one should stay indoors
@@ -36,6 +39,9 @@ class WeatherService:
         """
         From a list of weather forecasts, make an average and return it's context
         """
+        if not forecasts:
+            raise WeatherService.NoForecast('No forecast')
+
         average_temperature = sum([forecast.apparent_temperature for forecast in forecasts])/len(forecasts)
         average_precipitation_probability = sum([forecast.precip_probability for forecast in forecasts])/len(forecasts)
 

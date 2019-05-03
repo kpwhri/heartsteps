@@ -199,7 +199,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.unavailable_reason = "Walking suggestion configuration disabled"
             self.decision.save()
             return False
-        self.update_availability()
+        # self.update_availability()
         try:
             service = WalkingSuggestionService(self.__configuration)
             service.decide(self.decision)
@@ -394,16 +394,14 @@ class WalkingSuggestionService():
         decisions = self.get_decisions_for(date) 
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            decision_service = WalkingSuggestionDecisionService(decision)
-            availabilities.append(decision_service.determine_availability())
+            availabilities.append(available)
         return availabilities
 
     def get_location_type(self, decision):
-        decision_service = WalkingSuggestionDecisionService(decision)
-        location = decision_service.get_location_context()
-        if location is Place.HOME:
+        location_context = decision.get_context()
+        if Place.HOME in location_context:
             return 2
-        if location is Place.WORK:
+        if Place.WORK in location_context:
             return 1
         return 0
 
@@ -502,6 +500,9 @@ class WalkingSuggestionService():
         )
         decision.add_context('imputed')
         decision.add_context(time_category)
+
+        decision_service = WalkingSuggestionDecisionService(decision)
+        decision_service.update()
         return decision
 
 

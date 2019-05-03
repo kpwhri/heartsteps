@@ -77,10 +77,15 @@ class DecisionService():
     def update_context(self):
         new_context = self.generate_context()
         for tag in self.generate_context():
-            self.add_context(tag)
+            if tag:
+                self.add_context(tag)
 
     def update_availability(self):
         pass
+
+    def update(self):
+        self.update_context()
+        self.update_availability()
 
     def is_complete(self):
         return self.decision.is_complete()
@@ -148,8 +153,11 @@ class DecisionContextService(DecisionService):
         return WeatherService.get_forecast_context(forecast)
 
     def get_imputed_weather_context(self):
-        forecasts = self.impute_forecasts()
-        return WeatherService.get_average_forecast_context(forecasts)
+        try:
+            forecasts = self.impute_forecasts()
+            return WeatherService.get_average_forecast_context(forecasts)
+        except WeatherService.NoForecast:
+            return None
 
     def get_forecasts(self):
         forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
@@ -180,6 +188,7 @@ class DecisionContextService(DecisionService):
                 latitude = place.latitude,
                 longitude = place.longitude)
             forecasts.append(forecast)
+        
         return forecasts
 
     def make_forecast(self, latitude, longitude):

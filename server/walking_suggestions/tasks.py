@@ -37,8 +37,6 @@ def make_decision(decision_id):
         return False
     
     decision_service = WalkingSuggestionDecisionService(decision)
-    decision_service.use_watch_app = True
-    decision_service.update_context()
-
+    decision_service.update()
     if decision_service.decide():
         decision_service.send_message()

@@ -115,13 +115,13 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
 
-    @patch.object(WalkingSuggestionDecisionService, 'get_location_context', return_value=Place.HOME)
-    def test_decision(self, get_location_context):
+    def test_decision(self):
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
         decision.add_context(SuggestionTime.MORNING)
+        decision.add_context(Place.HOME)
         self.make_request.return_value = {
             'send': True,
             'probability': 1
@@ -202,6 +202,44 @@ class StudyDayNumberTests(ServiceTestCase):
 
         self.assertEqual(day_number, 6)
 
+class LocationContextTests(ServiceTestCase):
+    
+    def setUp(self):
+        super().setUp()
+
+    def testHomeLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+        decision.add_context(Place.HOME)
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 2)
+
+    def testWorkLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+        decision.add_context(Place.WORK)
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 1)
+
+    def testOtherLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 0)
+        
+
 class GetStepsTests(ServiceTestCase):
 
     def setUp(self):
@@ -238,12 +276,6 @@ class StepCountTests(ServiceTestCase):
             user = self.user,
             account = account
         )
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
-        )
-        decision.add_context('activity suggestion')
-        decision.add_context(SuggestionTime.MORNING)
 
         SuggestionTime.objects.create(
             user = self.user,
@@ -266,10 +298,18 @@ class StepCountTests(ServiceTestCase):
 
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
+            time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
+        )
+        decision.add_context('activity suggestion')
+        decision.add_context(SuggestionTime.MORNING)
+
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
             time = datetime(2018, 10, 10, 22, 00, tzinfo=pytz.utc)
         )
         decision.add_context('activity suggestion')
         decision.add_context(SuggestionTime.POSTDINNER)
+
         FitbitMinuteStepCount.objects.create(
             account = account,
             time = datetime(2018, 10, 10, 10, 0, tzinfo=pytz.utc),
@@ -306,6 +346,10 @@ class StepCountTests(ServiceTestCase):
             time = datetime(2018, 10, 10, 22, 31, tzinfo=pytz.utc),
             steps = 50
         )
+
+        # decision_update_patch = patch.object(WalkingSuggestionDecisionService, 'update')
+        # decision_update_patch.start()
+        # self.addCleanup(decision_update_patch.stop)
 
     def test_get_pre_steps(self):
         pre_steps = self.service.get_pre_steps(datetime(2018, 10, 10))
