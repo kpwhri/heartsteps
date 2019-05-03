@@ -102,7 +102,9 @@ class AntiSedentaryService:
                 user = self.__user,
                 time = time,
                 imputed = True,
-                available = False
+                available = False,
+                treated = False,
+                sedentary = self.is_sedentary_at(time)
             )
 
     def decide(self, decision):
