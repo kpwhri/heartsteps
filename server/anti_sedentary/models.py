@@ -17,14 +17,16 @@ class Configuration(models.Model):
         else:
             return self.user.username + ' (disabled)'
 
-class AntiSedentaryDecision(Decision):
-    sedentary = models.NullBooleanField(null=True)
-
-    def get_treatment_probability(self):
-        return 0.15
-
 class AntiSedentaryMessageTemplate(MessageTemplate):
     pass
 
 class AntiSedentaryServiceRequest(ServiceRequest):
     pass
+
+class AntiSedentaryDecision(Decision):
+    MESSAGE_TEMPLATE_MODEL = AntiSedentaryMessageTemplate
+
+    sedentary = models.NullBooleanField(null=True)
+
+    def get_treatment_probability(self):
+        return 0.15
