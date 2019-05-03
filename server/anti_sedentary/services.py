@@ -159,11 +159,12 @@ class AntiSedentaryService:
     def get_step_count_at(self, time):
         end = time
         start = end - timedelta(minutes=40)
-        step_counts = list(StepCount.objects.filter(
+        step_counts = StepCount.objects.filter(
             user = self.__user,
             start__gte=start,
             end__lte=end
-        ).all())
+        ).all()
+        step_counts = list(step_counts)
         if not step_counts:
             raise AntiSedentaryService.NoSteps('No steps')
         total_steps = 0
@@ -247,12 +248,13 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
             self.decision.sedentary = True
             self.decision.available = True
             self.decision.save()
-            super().update_availability()
+            return super().update_availability()            
         else:
             self.decision.sedentary = False
             self.decision.available = False
             self.decision.unavailable_reason = 'Not sedentary'
             self.decision.save()
+            return False
 
     def get_time_of_day_context(self):
         location_service = LocationService(self.decision.user)
