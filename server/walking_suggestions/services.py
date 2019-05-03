@@ -93,8 +93,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
 
-    use_watch_app = False
-
     def __init__(self, decision):
         self.decision = decision
         self.user = decision.user
@@ -129,63 +127,42 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.unavailable_reason = 'Walking suggestion configuration disabled'
             self.decision.save()
             return False
-        super().update_availability()
 
-        if self.use_watch_app:
-            step_count = self.get_watch_step_count()
-        else:
-            step_count = self.get_fitbit_step_count()
-        
+        available = super().update_availability()
+        if not available:
+            return False
+
+        step_counts = self.get_step_counts()
+        if not step_counts:
+            self.decision.available = False
+            self.decision.unavailable_reason = 'No step counts recorded'
+            self.decision.save()
+            return False
+        steps = 0
+        for step_count in step_counts:
+            steps += step_count.steps        
         if not hasattr(settings,'WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT'):
-            raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
+            raise ImproperlyConfigured("Walking suggestion decision unavailable step count not set")
         max_step_count = int(settings.WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT)
-        if step_count > max_step_count:
+        if steps > max_step_count:
             self.decision.available = False
             self.decision.unavailable_reason = 'Recent step count above %d' % (max_step_count)
             self.decision.save()
+            return False
+        return True
 
-    def determine_availability(self):
-        self.update_availability()
-        return self.decision.available
+    def get_step_counts(self):
+        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
+            raise ImproperlyConfigured("Walking suggestion decision window minutes not set")
+        step_counts = WatchStepCount.objects.filter(
+            user = self.user,
+            start__gte = self.decision.time - timedelta(minutes=settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES),
+            end__lte = self.decision.time
+        ).all()
+        return list(step_counts)
 
     def get_message_template_query(self):
         return WalkingSuggestionMessageTemplate.objects
-
-    def get_start_time(self):
-        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
-            raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
-        return self.decision.time - timedelta(
-            minutes=settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES
-            )
-
-    def get_watch_step_count(self):
-        step_counts = WatchStepCount.objects.filter(
-            user = self.user,
-            start__gte = self.get_start_time(),
-            end__lte = self.decision.time
-        ).all()
-        steps = 0
-        for step_count in step_counts:
-            steps += step_count.steps
-        return steps
-    
-    def get_fitbit_step_count(self):
-        try:
-            account_user = FitbitAccountUser.objects.get(user=self.decision.user)
-            account = account_user.account
-        except FitbitAccountUser.DoesNotExist:
-            return 0
-        step_counts = FitbitMinuteStepCount.objects.filter(
-            account = account,
-            time__range = [
-                self.get_start_time(),
-                self.decision.time
-            ]
-        ).all()
-        total_steps = 0
-        for step_count in step_counts:
-            total_steps += step_count.steps
-        return total_steps
 
     def decide(self):
         if self.decision.test:
@@ -336,14 +313,12 @@ class WalkingSuggestionService():
     def decide(self, decision):
         if not self.is_initialized():
             raise self.NotInitialized()
-        decision_service = WalkingSuggestionDecisionService(decision)
-        available = decision_service.determine_availability()
 
         response = self.make_request('decision',
             data = {
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
-                'availability': available,
+                'availability': decision.available,
                 'priorAnti': self.notified_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
                 'location': self.get_location_type(decision)

@@ -399,90 +399,101 @@ class TemperatureTests(ServiceTestCase):
 
         self.assertEqual(temperatures, [10, 10, 10, 10, 10])
 
-@override_settings(WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT='300')
+@override_settings(WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT='100')
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES=20)
 class DecisionAvailabilityTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(username="test")  
         self.configuration = Configuration.objects.create(
             user = self.user,
-            enabled = True,
-            service_initialized_date = timezone.now()
-        )
-        self.account = FitbitAccount.objects.create(
-            fitbit_user = "test"
-        )
-        FitbitAccountUser.objects.create(
-            account = self.account,
-            user = self.user 
-        )
-        FitbitMinuteStepCount.objects.create(
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=15),
-            steps = 10
-        )
-        FitbitMinuteStepCount.objects.create(
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=30),
-            steps = 120
+            enabled = True
+        )      
+
+    def create_step_count(self, steps, minutes_ago):
+        WatchStepCount.objects.create(
+            user = self.user,
+            steps = steps,
+            start = timezone.now() - timedelta(minutes=minutes_ago) - timedelta(minutes=5),
+            end = timezone.now() - timedelta(minutes=minutes_ago)
         )
 
-        self.decision = WalkingSuggestionDecision.objects.create(
+    def test_configuration_not_enabled(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+        decision = WalkingSuggestionDecision(
             user = self.user,
             time = timezone.now()
         )
-        self.decision.add_context("activity suggestion")
-        self.decision.add_context(SuggestionTime.MORNING)
+        service = WalkingSuggestionDecisionService(decision)
 
-    def test_fitbit_steps(self):
-        service = WalkingSuggestionDecisionService(self.decision)
-
-        available = service.determine_availability()
-
-        self.assertTrue(available)
-
-    def test_fitbit_steps_unavailable(self):
-        FitbitMinuteStepCount.objects.create(
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=5),
-            steps = 300
-        )
-        service = WalkingSuggestionDecisionService(self.decision)
-
-        available = service.determine_availability()
+        available = service.update_availability()
 
         self.assertFalse(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Walking suggestion configuration disabled')
 
-    def test_no_fitbit_step_counts(self):
-        FitbitMinuteStepCount.objects.all().delete()
-        service = WalkingSuggestionDecisionService(self.decision)
-
-        available = service.determine_availability()
-
-        self.assertTrue(available)
-
-    def test_with_watch_app_step_counts(self):
-        WatchStepCount.objects.create(
+    def test_no_step_counts(self):
+        decision = WalkingSuggestionDecision(
             user = self.user,
-            steps = 200,
-            start = timezone.now() - timedelta(minutes=5),
-            end = timezone.now() - timedelta(minutes=10)
+            time = timezone.now()
         )
-        WatchStepCount.objects.create(
-            user = self.user,
-            steps = 160,
-            start = timezone.now() - timedelta(minutes=10),
-            end = timezone.now() - timedelta(minutes=15)
-        )
-        service = WalkingSuggestionDecisionService(self.decision)
-        service.use_watch_app = True
+        service = WalkingSuggestionDecisionService(decision)
 
-        available = service.determine_availability()
-        step_count = service.get_watch_step_count()
+        available = service.update_availability()
 
         self.assertFalse(available)
-        self.assertEqual(step_count, 360)    
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'No step counts recorded')
+
+    def test_step_count_over_limit(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(100, 10)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
+
+        self.assertFalse(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Recent step count above 100')
+
+    def test_step_count_was_over_limit(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(100, 20)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
+
+        self.assertTrue(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
+
+    def test_step_count(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(10, 10)
+        self.create_step_count(10, 15)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
+
+        self.assertTrue(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 
