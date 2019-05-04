@@ -18,6 +18,13 @@ export class WeekService {
         });
     }
 
+    public getWeekSurvey(week: Week): Promise<any> {
+        return this.heartstepsServer.get('weeks/' + week.id + '/survey')
+        .then((response) => {
+            return response;
+        });
+    }
+
     public submitWeekSurvey(week: Week, values: any): Promise<boolean> {
         return this.heartstepsServer.post('weeks/' + week.id + '/survey', values)
         .then(() => {

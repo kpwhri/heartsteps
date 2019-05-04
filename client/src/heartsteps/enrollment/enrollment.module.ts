@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
 import { EnrollmentModal } from './enroll';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { EnrollmentController } from './enrollment.controller';
 import { EnrollmentService } from './enrollment.service';
 import { FormModule } from '@infrastructure/form/form.module';
 import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -17,7 +17,8 @@ import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
   imports: [
     InfrastructureModule,
     DialogsModule,
-    FormModule
+    FormModule,
+    ReactiveFormsModule
   ],
   providers: [
     EnrollmentController,
