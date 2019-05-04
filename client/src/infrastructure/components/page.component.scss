@@ -1,8 +1,6 @@
 app-page {
     @extend .heartsteps-container;
     @extend .heartsteps-page;
-
-    color: $text-color;
 }
 
 ion-content .scroll-content {

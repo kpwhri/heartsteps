@@ -1,5 +1,6 @@
-<app-page
+<app-modal
     title="Create activity log"
+    (onDismiss)="dismiss()"
     >
     <app-form
         [formGroup]="form"
@@ -10,4 +11,4 @@
             >
         </activity-log-field>
     </app-form>
-</app-page>
+</app-modal>
