@@ -20,10 +20,6 @@ class WeekSerializer(serializers.ModelSerializer):
         del representation['start_date']
         del representation['end_date']
 
-        if instance.survey:
-            serialized = SurveySerializer(instance.survey)
-            representation['survey'] = serialized.data
-
         return representation
 
 class GoalSerializer(serializers.Serializer):
