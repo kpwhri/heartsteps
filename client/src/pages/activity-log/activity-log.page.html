@@ -1,22 +1,17 @@
 <app-modal
     title="Activity Log"
-    dismiss="Cancel"
     (onDismiss)="dismiss()"
     >
-    <app-form
-        [formGroup]="form"
-        submitLabel="Update"
-        (onSubmit)="update()"
-        >
-        <activity-log-field
-            formControlName="activityLog"
-            >
-        </activity-log-field>
-    </app-form>
     <button
+        app-page-control
         (click)="delete()"
         class="danger"
         >
         Delete
     </button>
+    <activity-log-form
+        [activityLog]="activityLog"
+        (onSubmit)="update($event)"
+        >
+    </activity-log-form>
 </app-modal>

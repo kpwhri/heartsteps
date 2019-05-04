@@ -12,7 +12,7 @@ import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.servi
 export class ActivityLogPage {
 
     public activityLog:ActivityLog;
-    public form:FormGroup;
+    public error: string;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -21,14 +21,12 @@ export class ActivityLogPage {
         private router: Router
     ) {
         this.activityLog = this.activatedRoute.snapshot.data['activityLog'];
-        this.form = new FormGroup({
-            activityLog: new FormControl(this.activityLog, Validators.required)
-        });
     }
 
-    public update() {
+    public update(activityLog: ActivityLog) {
+        console.log(activityLog);
         this.loadingService.show('Updaing activity log');
-        const activityLog: ActivityLog = this.form.value.activityLog;
+        activityLog.id = this.activityLog.id;
         this.activityLogService.save(activityLog)
         .then(() => {
             this.dismiss();

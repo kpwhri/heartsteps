@@ -12,7 +12,7 @@ import { DateFactory } from "@infrastructure/date.factory";
 })
 export class ActivityLogCreatePage {
 
-    public form: FormGroup;
+    public activityLog: ActivityLog;
     public error: string;
 
     constructor(
@@ -22,23 +22,18 @@ export class ActivityLogCreatePage {
         private loadingService: LoadingService,
         private dateFactory: DateFactory
     ) {
-        const activityLog = new ActivityLog();
+        this.activityLog = new ActivityLog();
 
         const dateStr = this.activatedRoute.snapshot.queryParamMap.get('date');
         if (dateStr) {
-            activityLog.start = this.dateFactory.parseDate(dateStr);
+            this.activityLog.start = this.dateFactory.parseDate(dateStr);
         } else {
-            activityLog.start = new Date();
+            this.activityLog.start = new Date();
         }
-        
-        this.form = new FormGroup({
-            activityLog: new FormControl(activityLog, Validators.required)
-        });
 
     }
 
-    public create() {
-        const activityLog: ActivityLog = this.form.value.activityLog;
+    public create(activityLog: ActivityLog) {
         this.loadingService.show('Creating activity log');
         this.activityLogService.save(activityLog)
         .then(() => {
