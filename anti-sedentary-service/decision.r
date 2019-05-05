@@ -11,8 +11,8 @@ source("functions.R")
 #require(mgcv); require(chron);
 
 # payload = ' {
-#   "userid": [ 2 ],
-#   "decisionid": [ 1803312 ] ,
+#   "userid": [ "1" ],
+#   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
 #   "time": [ "2018-10-12 10:10:35" ] ,
 #   "daystart": [ "2018-10-12 8:00" ] ,
 #   "dayend": [ "2018-10-12 20:00" ] ,
@@ -196,7 +196,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                            missingindicator = 0, duplicate = FALSE)
     
-    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
 
