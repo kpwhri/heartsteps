@@ -6,6 +6,8 @@ import { Subscribable } from "rxjs/Observable";
 import { DocumentStorage, DocumentStorageService } from "@infrastructure/document-storage.service";
 import { BehaviorSubject } from "rxjs";
 import * as moment from 'moment';
+import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
+import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 
 @Injectable()
 export class DailySummaryService {
@@ -15,11 +17,19 @@ export class DailySummaryService {
     private storage: DocumentStorage;
 
     constructor(
+        private activityLogService: ActivityLogService,
         private heartstepsServer: HeartstepsServer,
         private serializer: DailySummarySerializer,
         storageService: DocumentStorageService
     ) {
         this.storage = storageService.create('daily-summaries');
+
+        this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
+            this.get(activityLog.start);
+        });
+        this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
+            this.get(activityLog.start);
+        });
     }
 
     public get(date: Date): Promise<DailySummary> {
@@ -81,12 +91,20 @@ export class DailySummaryService {
         const weekSummarySubject: BehaviorSubject<Array<DailySummary>> = new BehaviorSubject([]);
 
         this.retrieveRange(start, end)
-        .then((summaries) => {
-            weekSummarySubject.next(summaries);
-            return this.getRange(start, end)
+        .catch(() => {
+            return this.getRange(start, end);
         })
         .then((summaries) => {
             weekSummarySubject.next(summaries);
+        });
+
+        this.updated.subscribe((summary: DailySummary) => {
+            if(moment(summary.date).isBetween(start, end, 'day', '[]')) {
+                this.retrieveRange(start, end)
+                .then((summaries) => {
+                    weekSummarySubject.next(summaries);
+                });
+            }
         });
 
         return weekSummarySubject;
