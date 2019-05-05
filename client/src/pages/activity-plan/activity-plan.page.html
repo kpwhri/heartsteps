@@ -10,10 +10,10 @@
         Complete
     </a>
     <a *ngIf="activityPlan.activityLogId"
+        app-page-control
         (click)="goToActivityLog()"
-        class="edit-activity-log-banner"
         >
-        Edit activity log
+        Edit
     </a>
     <app-form
         [formGroup]="planForm"
