@@ -1,5 +1,10 @@
 <dl>
-    <dd>{{type}}, {{activityLevel}}</dd>
+    <dd>{{type}}</dd>
     <dd>{{start}} - {{end}}</dd>
+    <dd *ngIf="vigorous"
+        class="highlight"
+        >
+        2x minutes earned
+    </dd>
 </dl>
 <p class="earned">{{earnedMinutes}}<span>min</span></p>

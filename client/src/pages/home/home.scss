@@ -2,8 +2,12 @@ page-home {
     @extend .heartsteps-page;
     background-color: $background-alternate;
 
+    > .content {
+        padding: 0em;
+    }
+
     article {
-        margin: 1em 0em;
+        margin: 0.5em 0em;
     }
     
      > nav {

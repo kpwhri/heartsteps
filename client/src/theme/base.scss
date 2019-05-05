@@ -16,8 +16,18 @@ label,
     color: $color-secondary;
 }
 
-h1, h2, h3, h4, h5, h6 {
+.title {
     text-align: center;
+    margin: 0em;
+    padding: 0em;
+}
+
+.title > span {
+    @extend .highlight;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @extend .title;
 }
 
 h1, h2 {
@@ -30,7 +40,7 @@ h3, h4 {
 
 ul {
     margin:0em;
-    padding: 1em 0em;
+    padding: 0.5em 0em;
     list-style-type: none;
 
     > li {
@@ -77,8 +87,7 @@ article {
     background-color: $background-primary;
     padding: 1em;
 
-    .title,
-    h2, h3, h4, h5 {
+    .title {
         font-size: 1em;
         text-align: left;
         text-transform: uppercase;
@@ -91,7 +100,12 @@ article > header {
     flex-direction: row;
     align-items: flex-start;
 
-    h2, h3, h4 {
+    > * {
+        flex-grow: 0;
+        margin: 0.5em 0em;
+    }
+
+    .title {
         flex-grow: 1;
     }
 }

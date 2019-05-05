@@ -1,7 +1,7 @@
 <article>
     <header>
         <h3>
-            <span *ngIf="isToday" class="highlight">Today, </span>
+            <span *ngIf="isToday">Today, </span>
             {{formattedDate}}
         </h3>
         <button
@@ -11,6 +11,7 @@
             Add activity log
         </button>
     </header>
+    <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
     <ul *ngIf="activities">
         <li *ngFor="let activityLog of activities">
             <heartsteps-activity-log

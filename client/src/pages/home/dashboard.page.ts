@@ -5,6 +5,7 @@ import { MorningMessageService } from '@heartsteps/morning-message/morning-messa
 import { MorningMessage } from '@heartsteps/morning-message/morning-message.model';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
+import * as moment from 'moment';
 
 @Component({
     templateUrl: 'dashboard.page.html'
@@ -14,6 +15,7 @@ export class DashboardPage {
     public morningMessage: MorningMessage;
     public weeklySurvey:WeeklySurvey;
     public today:Date;
+    public formattedDate: string;
     public summary: DailySummary;
 
     public anchorMessage: string;
@@ -26,6 +28,7 @@ export class DashboardPage {
         private activatedRoute: ActivatedRoute
     ) {
         this.today = new Date();
+        this.formattedDate = moment().format("dddd, M/D");
 
         this.dailySummaryService.watch(this.today)
         .subscribe((summary) => {

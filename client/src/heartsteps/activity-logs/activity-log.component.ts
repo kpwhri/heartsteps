@@ -12,11 +12,11 @@ export class ActivityLogComponent implements OnInit {
     @Input() activityLog:ActivityLog;
 
     type:string;
-    activityLevel:string;
     start:string;
     end:string;
+    vigorous: boolean;
 
-    earnedMinutes:number;
+    earnedMinutes: number;
 
     constructor(
         private activityTypeService: ActivityTypeService,
@@ -35,7 +35,7 @@ export class ActivityLogComponent implements OnInit {
 
         this.start = this.activityLog.formatStartTime();
         this.end = this.activityLog.formatEndTime();
-        this.activityLevel = this.activityLog.vigorous ? 'vigorous': 'moderate';
+        this.vigorous = this.activityLog.vigorous;
         this.earnedMinutes = this.activityLog.earnedMinutes;
 
     }
