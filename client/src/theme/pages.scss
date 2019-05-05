@@ -33,12 +33,20 @@
 
 .heartsteps-page {
 
-    > *:first-child {
+    &:before,
+    &:after {
+        content: '';
+        display: block;
+        width: 100%;
+        background-color: transparent;
+    }
+
+    &:before {
         padding-top: env(safe-area-inset-top);
     }
 
-    > *:last-child {
-        padding-bottom: env(safe-area-inset-bottom);
+    &:after {
+        height: env(safe-area-inset-bottom);
     }
 }
 
