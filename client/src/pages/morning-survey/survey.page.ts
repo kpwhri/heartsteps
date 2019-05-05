@@ -15,19 +15,7 @@ export class SurveyPageComponent implements OnInit {
     public error: string;
     public questions: Array<any>;
 
-    public moodChoices: Array<SelectOption> = [{
-        name: 'Alert',
-        value: 'alert'
-    }, {
-        name: 'Fatigued',
-        value: 'fatigued'
-    }, {
-        name: 'Tense',
-        value: 'tense'
-    }, {
-        name: 'Calm',
-        value: 'calm'
-    }];
+    public moodChoices: Array<SelectOption> = [];
     
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
@@ -43,6 +31,15 @@ export class SurveyPageComponent implements OnInit {
         this.form = new FormGroup({
             mood: new FormControl()
         });
+
+        if(morningMessage.survey.wordSet) {
+            morningMessage.survey.wordSet.forEach((word:string) => {
+                this.moodChoices.push({
+                    name: word,
+                    value: word
+                });
+            });
+        }
 
         if(morningMessage.survey.questions) {
             const questions = [];
@@ -67,6 +64,7 @@ export class SurveyPageComponent implements OnInit {
     public done() {
         this.loadingService.show('Saving survey');
         const values = Object.assign({}, this.form.value);
+        values['selected_word'] = values['mood'];
         delete values['mood'];
         this.morningMessageService.submitSurvey(values)
         .then(() => {
