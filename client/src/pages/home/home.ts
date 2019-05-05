@@ -25,8 +25,8 @@ export class HomePage implements OnInit, OnDestroy {
         name: 'Planning',
         key: 'planning'
     }, {
-        name: 'Stats',
-        key: 'stats'
+        name: 'Activities',
+        key: 'activities'
     }, {
         name: 'Settings',
         key: 'settings'

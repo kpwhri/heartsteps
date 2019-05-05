@@ -2,9 +2,9 @@ import { Component, OnInit } from "@angular/core";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 @Component({
-    templateUrl: './stats.page.html'
+    templateUrl: './activities.page.html'
 })
-export class StatsPage implements OnInit {
+export class ActivitiesPage implements OnInit {
 
     public days: Array<Date>
 
