@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from locations.services import LocationService
 
 from .services import MorningMessageService
-from .serializers import MorningMessageSerializer, SurveySerializer
+from .serializers import MorningMessageSerializer, MorningMessageSurveySerializer
 
 def format_date(date):
     return datetime.strftime(date, '%Y-%m-%d')
@@ -88,14 +88,20 @@ class MorningMessageSurveyView(APIView):
 
     def get(self, request, day):
         survey = self.get_survey(request, day)
-        serialized = SurveySerializer(survey)
+        serialized = MorningMessageSurveySerializer(survey)
         return Response(serialized.data, status=status.HTTP_200_OK)
     
     def post(self, request, day):
         survey = self.get_survey(request, day)
 
         for key in request.data:
-            survey.save_response(key, request.data[key])
+            if key == 'selected_word':
+                selected_word = request.data['selected_word']
+                if selected_word in survey.word_set:
+                    survey.selected_word = request.data['selected_word']
+                    survey.save()
+            else:
+                survey.save_response(key, request.data[key])
 
-        serialized = SurveySerializer(survey)
+        serialized = MorningMessageSurveySerializer(survey)
         return Response(serialized.data, status=status.HTTP_200_OK)

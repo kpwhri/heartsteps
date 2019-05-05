@@ -2,6 +2,9 @@ from unittest.mock import patch
 from datetime import date
 
 from django.test import TestCase
+from django.urls import reverse
+
+from rest_framework.test import APITestCase
 
 from push_messages.services import PushMessageService, Device, Message
 
@@ -174,3 +177,58 @@ class MorningMessageSurveyTests(MorningMessageTestBase):
         self.assertIsNotNone(morning_message.survey)
         self.assertEqual(morning_message.survey.id, survey.id)
         self.assertEqual(len(survey.questions), 2)
+
+    def test_new_morning_message_survey_has_word_set(self):
+        survey = MorningMessageSurvey.objects.create(
+            user = self.user
+        )
+
+        self.assertEqual(len(survey.word_set), 4)
+
+class MorningMessageSurveyViewTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.client.force_authenticate(user=self.user)
+        self.configuration = Configuration.objects.create(user=self.user)
+        MorningMessageTemplate.objects.create(
+            body = 'Example morning message',
+            anchor_message = 'Anchor message'
+        )
+
+        word_set_patch = patch.object(MorningMessageSurvey, 'get_word_set')
+        self.word_set = word_set_patch.start()
+        self.addCleanup(word_set_patch.stop)
+        self.word_set.return_value = ['one', 'two', 'three', 'four']
+
+    def test_get_survey(self):
+        MorningMessage.objects.create(
+            user = self.user,
+            date = date(2019, 5, 5)
+        )
+
+        response = self.client.get(reverse('morning-messages-survey', kwargs={
+            'day': '2019-5-5'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['wordSet'], ['one', 'two', 'three', 'four'])
+
+    def test_post_survey(self):
+        MorningMessage.objects.create(
+            user = self.user,
+            date = date(2019, 5, 5)
+        )
+
+        response = self.client.post(
+            reverse('morning-messages-survey', kwargs={
+                'day': '2019-5-5'
+            }),
+            {
+                'selected_word': 'one'
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        survey = MorningMessageSurvey.objects.get()
+        self.assertEqual(survey.selected_word, 'one')
