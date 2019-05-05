@@ -1,6 +1,4 @@
-form,
-.form,
-fieldset {
+.heartsteps-form {
     display: flex;
     flex-direction: column;
     font-size: 1.6rem;
@@ -32,6 +30,10 @@ fieldset {
 
     }
 
+    fieldset {
+        border: 0px;
+    }
+
     legend {
         font-weight: bold;
         padding-top: $space-size;
@@ -42,31 +44,16 @@ fieldset {
         @extend .label;
     }
 
+    input {
+        border-radius: 0em;
+    }
+
     input[type=submit] {
         @extend .heartsteps-button;
     }
 }
 
-form.map {
-
-    #map {
-        width: 100%;
-        height: 200px;
-        flex-grow:1;
-    }
-
-    .controls {
-        flex-grow: 0;
-    }
-}
-
-fieldset {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-}
-
-fieldset.input-group {
+.heartsteps-form fieldset.input-group {
 
     > * {
         margin: 0.25em 0em;
@@ -100,26 +87,20 @@ fieldset.input-group {
     }
 }
 
-form .ion-item {
-    margin: 0px;
-}
-
-input {
-    border-radius: 0em;
-}
-
-input[type=checkbox],
-input[type=radio] {
-    display: block;
-    width: 2em;
-    height: 2em;
-    background: $color-gray;
-    appearance: none;
-    mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
-}
-
-input[type=checkbox]:checked,
-input[type=radio]:checked {
-    background: $color-primary;
-    mask-image: url('../assets/checked.svg');
+.heartsteps-form {
+    input[type=checkbox],
+    input[type=radio] {
+        display: block;
+        width: 2em;
+        height: 2em;
+        background: $color-gray;
+        appearance: none;
+        mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
+    }
+    
+    input[type=checkbox]:checked,
+    input[type=radio]:checked {
+        background: $color-primary;
+        mask-image: url('../assets/checked.svg');
+    }
 }

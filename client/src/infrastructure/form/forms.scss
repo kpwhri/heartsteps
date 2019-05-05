@@ -27,9 +27,8 @@ app-form {
 
 .heartsteps-form-input {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: nowrap;
-    align-items: center;
 
     width: 100%;
     padding: 0.5em 0em;
@@ -47,9 +46,12 @@ app-form {
 
     > button,
     > input {
-        padding: 0em;
-        flex-grow: 1;
         border: 0px;
+    }
+
+    > button {
+        @extend .heartsteps-minor-button;
+        text-align: left;
     }
 }
 
@@ -64,12 +66,6 @@ app-form {
     > input,
     > button {
         @extend .heartsteps-form-input;
-    }
-
-    button {
-        @extend .heartsteps-minor-button;
-        color: $text-color;
-        text-align: right;
     }
 
     input {

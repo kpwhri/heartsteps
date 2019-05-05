@@ -129,6 +129,10 @@ article > header {
         padding: 0em;
     }
 
+    button.remove {
+        @extend .heartsteps-remove-button;
+    }
+
     ul > li > button {
         @extend .heartsteps-minor-button;
         display: flex;
