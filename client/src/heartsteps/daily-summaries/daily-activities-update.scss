@@ -1,11 +1,4 @@
 heartsteps-activity-daily-update {
-    button {
-        @extend button.bottom;
-    }
-
-    button.is-loading {
-        opacity: 0.7;
-    }
 
     button:before {
         content: '';
@@ -16,4 +9,5 @@ heartsteps-activity-daily-update {
         mask-repeat: no-repeat;
         background-color: $link-color;
     }
+    
 }

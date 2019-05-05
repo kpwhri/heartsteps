@@ -1,0 +1,118 @@
+.heartsteps-page {
+    font-size: 1.6rem;
+    background-color: $background-primary;
+    padding: 0px;
+    margin: 0px;
+
+    > header,
+    > nav,
+    > footer {
+        background-color: $background-alternate;
+    }
+
+    > header {
+        border-bottom: $color-gray 1px solid;
+    }
+
+    > nav,
+    > footer {
+        border-top: $color-gray 1px solid;
+    }
+
+    > .content {
+        padding: 1em;
+    }
+}
+
+.heartsteps-page {
+    .title,
+    h2, h3, h4, h5, h6 {
+        text-transform: none;
+    }
+}
+
+.heartsteps-page {
+
+    > *:first-child {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    > *:last-child {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+.heartsteps-page {
+    display:flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    > * {
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+}
+
+.heartsteps-controls {
+    flex: 0 0 auto;
+    overflow: hidden;
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+    > * {
+        flex: 0 1 auto;
+        margin: 0.5em;
+    }
+
+    button {
+        @extend .heartsteps-minor-button;
+        width: auto;
+    }
+}
+
+header,
+footer,
+.heartsteps-page > header,
+.heartsteps-page > nav,
+.heartsteps-page > footer {
+    @extend .heartsteps-controls;
+}
+
+.heartsteps-page-header {
+    display: block;
+    position: relative;
+
+    h1, h2, h3, h4, h5 {
+        font-size: 1.25em;
+        font-weight: normal;
+        text-align: center;
+    }
+
+    .back,
+    [app-page-control] {
+        position: absolute;
+        bottom: 0%;
+        width: auto;
+        margin: 0px;
+        padding: 0.5em $space-size;
+        line-height: 1.25em;
+    }
+    
+    .back {
+        left: 0px;
+    }
+
+    [app-page-control] {
+        right: 0px;
+    }
+
+}
+
+.heartsteps-page > header {
+    @extend .heartsteps-page-header;
+}

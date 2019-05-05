@@ -1,6 +1,10 @@
 page-home {
-    @extend .page;
+    @extend .heartsteps-page;
     background-color: $background-alternate;
+
+    article {
+        margin: 1em 0em;
+    }
     
      > nav {
 
@@ -52,7 +56,4 @@ page-home {
         }
     }
 
-    ion-content.content > .scroll-content {
-        padding: 0px;
-    }
 }

@@ -1,7 +1,7 @@
 .start-screen,
 .alternate-background,
 .heartsteps-message-modal {
-    @extend .page;
+    @extend .heartsteps-page;
 
     background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
     color: $color-white;

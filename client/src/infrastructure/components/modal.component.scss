@@ -25,7 +25,7 @@ app-modal {
         z-index:10;
     }
 
-    app-modal > article.page {
+    app-modal > article {
         width: 550px;
         margin: 2em auto;
         z-index: 15;
@@ -33,7 +33,7 @@ app-modal {
         flex-grow: 0;
     }
 
-    app-modal > article.page > .content {
+    app-modal > article > .content {
         flex-grow: 0;
     }
 }

@@ -1,9 +1,6 @@
 app-page {
     @extend .heartsteps-container;
-    @extend .heartsteps-page;
+    > article {
+        @extend .heartsteps-page;
+    }
 }
-
-ion-content .scroll-content {
-    @extend .heartsteps-container;
-}
-

@@ -1,9 +1,9 @@
 <header>
     <h2>{{pageTitle}}</h2>
 </header>
-<ion-content>
+<div class="content">
     <router-outlet></router-outlet>
-</ion-content>
+</div>
 <nav>
     <a *ngFor="let tab of tabs"
         class="{{tab.key}}"
