@@ -5,6 +5,12 @@ app-modal {
         color: $color-danger;
     }
 
+    > article > .content {
+        overflow: auto;
+        flex-grow: 1;
+        height: 1px;    // Really not sure why this works...
+    }
+
 }
 
 
@@ -35,5 +41,6 @@ app-modal {
 
     app-modal > article > .content {
         flex-grow: 0;
+        height: auto;
     }
 }
