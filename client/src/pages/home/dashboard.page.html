@@ -1,0 +1,30 @@
+<nav class="banners">
+    <ul>
+        <li *ngIf="weeklySurvey">
+            <a (click)="navigateToWeeklySurvey()">
+                It's time to make your weekly plan and set your goal for the following week.
+            </a>
+        </li>
+        <li *ngIf="morningMessage">
+            <a (click)="navigateToMorningMessage()">
+                Good morning.
+            </a>
+        </li>
+    </ul>
+</nav>
+<heartsteps-anchor-message *ngIf="anchorMessage"
+    [message]="anchorMessage"
+    >
+</heartsteps-anchor-message>
+<article>
+    <h3>My progress</h3>
+    <heartsteps-weekly-progress></heartsteps-weekly-progress>
+    <h3><span>Today,</span> {{formattedDate}}</h3>
+    <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
+    <heartsteps-activity-daily-update [summary]="summary"></heartsteps-activity-daily-update>
+</article>
+<activity-plan-day 
+    [date]="today"
+    label="My plan today"
+    >
+</activity-plan-day>

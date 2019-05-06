@@ -1,11 +1,15 @@
-<div class="page">
-    <header>
-        <h2>{{pageTitle}}</h2>
-    </header>
-    <ion-content>
-        <router-outlet></router-outlet>
-    </ion-content>
-    <nav>
-        <a *ngFor="let tab of tabs" class="{{tab.key}}" routerLink="/home/{{tab.key}}" routerLinkActive="active" >{{tab.name}}</a>
-    </nav>
+<header>
+    <h2>{{pageTitle}}</h2>
+</header>
+<div class="content">
+    <router-outlet></router-outlet>
 </div>
+<nav>
+    <a *ngFor="let tab of tabs"
+        class="{{tab.key}}"
+        [routerLink]="[tab.key]"
+        routerLinkActive="active"     
+        >
+        {{tab.name}}
+    </a>
+</nav>

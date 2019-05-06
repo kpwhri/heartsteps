@@ -3,7 +3,6 @@ import { ModalDialogController } from "@infrastructure/dialogs/modal-dialog.cont
 import { ActivityType } from "./activity-type.service";
 import { ActivityTypeModalComponent } from "./activity-type-modal.component";
 
-
 @Injectable()
 export class ActivityTypeModalController extends ModalDialogController {
 

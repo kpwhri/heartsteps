@@ -24,18 +24,22 @@ export class WalkingSuggestionTimeService{
 
     getDefaultTimes():Promise<any> {
         return Promise.resolve({
-            morning: "08:00",
-            lunch: "12:00",
-            midafternoon: "14:00",
-            evening: "17:00",
-            postdinner: "20:00"
-        })
+            morning: this.parseTime("08:00"),
+            lunch: this.parseTime("12:00"),
+            midafternoon: this.parseTime("14:00"),
+            evening: this.parseTime("17:00"),
+            postdinner: this.parseTime("20:00")
+        });
     }
 
     getTimes():Promise<any> {
         return this.storage.get(storageKey)
         .then((times) => {
-            return times;
+            const timesAsDates = {}
+            Object.keys(times).forEach((key) => {
+                timesAsDates[key] = this.parseTime(times[key]);
+            })
+            return timesAsDates;
         })
         .catch(() => {
             return Promise.reject("No saved suggestion times");
@@ -70,24 +74,18 @@ export class WalkingSuggestionTimeService{
             tooClose: []
         }
 
-        let timesAsMinutes = {}
-        Object.keys(times).forEach((key) => {
-            let time = parseInt(times[key].split(':')[0]) * 60
-            time += parseInt(times[key].split(':')[1])
-            timesAsMinutes[key] = time
-        })
-
         return this.getTimeFields()
         .then((timeFields) => {
             let previousField
             timeFields.forEach((timeField) => {
                 if(previousField) {
-                    let time = timesAsMinutes[timeField.key],
-                        previousTime = timesAsMinutes[previousField.key]
+                    let time = times[timeField.key],
+                        previousTime = times[previousField.key]
+                    const differenceInMinutes = (time.getTime() - previousTime.getTime())/(1000 * 60);
                     if(previousTime > time) {
                         errors.outOfOrder.push(timeField.key)
                         errors.outOfOrder.push(previousField.key)
-                    } else if(time - previousTime < 90) {
+                    } else if(differenceInMinutes < 90) {
                         errors.tooClose.push(timeField.key)
                         errors.tooClose.push(previousField.key)
                     }
@@ -111,9 +109,13 @@ export class WalkingSuggestionTimeService{
     }
 
     saveTimes(times:any):Promise<boolean> {
+        const formattedTimes = {};
+        Object.keys(times).forEach((key) => {
+            formattedTimes[key] = this.formatTime(times[key]);
+        });
         return this.heartstepsServer.post(
             'walking-suggestions/times/',
-            times
+            formattedTimes
         )
         .then((data) => {
             return this.setTimes(data);
@@ -126,11 +128,24 @@ export class WalkingSuggestionTimeService{
     loadTimes():Promise<any> {
         return this.getTimes()
         .catch(() => {
-            return this.heartstepsServer.get('walking-suggestions/times/');
-        })
-        .then((times) => {
-            return this.setTimes(times);
+            return this.heartstepsServer.get('walking-suggestions/times/')
+            .then((times) => {
+                return this.setTimes(times);
+            });
         });
+    }
+
+    private parseTime(time: string): Date {
+        const parts = time.split(':');
+
+        let date = new Date();
+        date.setHours(Number(parts[0]));
+        date.setMinutes(Number(parts[1]));
+        return date;
+    }
+
+    private formatTime(date: Date): string {
+        return date.getHours() + ':' + date.getMinutes();
     }
 
 }

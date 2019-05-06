@@ -1,7 +1,6 @@
-<article class="page">
-    <header>
-        <h2>Weekly Goal</h2>
-        <a class="back" (click)="goBack()">Back</a>
-    </header>
+<app-modal
+    title="Weekly Goal"
+    (onDismiss)="goBack()"
+    >
     <heartsteps-weekly-goal [week]="week" (saved)="saved()"></heartsteps-weekly-goal>
-</article>
+</app-modal>

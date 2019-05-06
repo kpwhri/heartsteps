@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 from activity_types.models import ActivityType
+from walking_suggestion_times.models import SuggestionTime
 
 class AbstractActivity(models.Model):
     class Meta:
@@ -18,6 +20,8 @@ class AbstractActivity(models.Model):
     vigorous = models.BooleanField(default=False)
     
     start = models.DateTimeField()
+    date = models.DateField(null=True)
+    timeOfDay = models.CharField(max_length=20, null=True, choices=SuggestionTime.CATEGORIES)
     duration = models.PositiveIntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,6 +30,13 @@ class AbstractActivity(models.Model):
     @property
     def id(self):
         return str(self.uuid)
+
+    def impute_start_datetime(self):
+        suggestion_time = SuggestionTime.objects.get(
+            user = self.user,
+            category = self.timeOfDay
+        )
+        return suggestion_time.get_datetime_on(self.date)
 
 class ActivityLog(AbstractActivity):
     enjoyed = models.FloatField(null=True, blank=True)
@@ -42,6 +53,7 @@ class ActivityLog(AbstractActivity):
 
 class ActivityLogSource(models.Model):
     activity_log = models.OneToOneField(ActivityLog)
+    user = models.ForeignKey(User, null=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=50)

@@ -11,10 +11,10 @@ import { WalkingSuggestionTimeService } from './walking-suggestion-time.service'
 export class WalkingSuggestionTimesComponent implements OnInit {
     @Output() saved = new EventEmitter<boolean>();
 
-    public timeFields:Array<any>;
+    public timeFields:Array<any> = [];
     public times:any;
 
-    public timesForm:FormGroup
+    public timesForm:FormGroup = new FormGroup({});
 
     constructor(
         private activitySuggestionTimeService:WalkingSuggestionTimeService,
@@ -22,36 +22,27 @@ export class WalkingSuggestionTimesComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        return this.loadData()
+        return this.activitySuggestionTimeService.getTimes()
+        .catch(() => {
+            return this.activitySuggestionTimeService.getDefaultTimes();
+        })
+        .then((times) => {
+            this.times = times;
+        })
         .then(() => {
+            return this.activitySuggestionTimeService.getTimeFields();
+        })
+        .then((timeFields) => {
+            this.timeFields = timeFields;
             let controls = {}
-            Object.keys(this.times).forEach((key) => {
-                controls[key] = new FormControl(this.times[key], Validators.required)
-            })
+            this.timeFields.forEach((timeField) => {
+                controls[timeField.key] = new FormControl(this.times[timeField.key], Validators.required)
+            });
             this.timesForm = new FormGroup(controls)
         });
     }
 
-    loadData():Promise<boolean> {
-        this.times = {}
-        return this.activitySuggestionTimeService.getTimeFields()
-        .then((timeFields) => {
-            this.timeFields = timeFields
-            return this.activitySuggestionTimeService.getTimes()
-        })
-        .catch(() => {
-            return this.activitySuggestionTimeService.getDefaultTimes()
-        })
-        .then((times) => {
-            this.times = times
-            return Promise.resolve(true)
-        })
-        .catch(() => {
-            return Promise.reject(false)
-        })
-    }
-
-    updateTimes() {
+    public updateTimes() {
         this.loadingService.show('Saving activity suggestion schedule')
         this.activitySuggestionTimeService.updateTimes(this.timesForm.value)
         .then(() => {

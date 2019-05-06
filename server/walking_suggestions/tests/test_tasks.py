@@ -1,3 +1,4 @@
+import pytz
 from unittest.mock import patch
 from datetime import datetime
 
@@ -7,70 +8,123 @@ from django.contrib.auth.models import User
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import start_decision, request_decision_context, make_decision, initialize_walking_suggestion_service, update_walking_suggestion_service
+from walking_suggestions.tasks import create_decision, start_decision, make_decision
 
-
-class StartTaskTests(TestCase):
-
-    @override_settings(CELERY_ALWAYS_EAGER=True)
-    @patch('walking_suggestions.tasks.request_decision_context.apply_async')
-    def test_start_decision(self, request_decision_context):
-        user = User.objects.create(username="test")
-        SuggestionTime.objects.create(
-            user=user,
-            category = 'evening',
-            hour = 20,
-            minute = 00
-        )
-
-        start_decision(user.username, 'evening')
-
-        decision = WalkingSuggestionDecision.objects.get(user=user)
-        tags = [tag.tag for tag in decision.tags.all()]
-        self.assertIn('evening', tags)
-        request_decision_context.assert_called()
-
-@override_settings(WALKING_SUGGESTION_REQUEST_RETRY_ATTEMPTS=1)
-class RequestContextTaskTests(TestCase):
+@override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
+class CreateDecisionTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
-        Configuration.objects.create(
+        self.configuration = Configuration.objects.create(
+            user=self.user,
+            enabled=True
+        )
+
+        now_patch = patch.object(timezone, 'now')
+        self.now = now_patch.start()
+        self.addCleanup(now_patch.stop)
+
+        make_decision_patch = patch.object(make_decision, 'apply_async')
+        self.make_decision = make_decision_patch.start()
+        self.addCleanup(make_decision_patch.stop)
+
+    def testDoesNotMakeDecisionIfNotConfigured(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
+        self.make_decision.assert_not_called()
+
+    @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='5')
+    def testDoesNotCreateDecisionIfNotCorrectTime(self):
+        SuggestionTime.objects.create(
+            user =self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 11,
+            minute = 0
+        )
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 10, 59).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 11, 6).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
+        self.make_decision.assert_not_called()
+
+        # Before decision window minutes
+        self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+        self.make_decision.assert_called()
+
+    def testDoesNotCreateMultipleDecisionsOfSameType(self):
+        SuggestionTime.objects.create(
+            user =self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 11,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
             user = self.user,
-            impute_context = True
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = 15,
+            minute = 30
         )
-        self.decision = WalkingSuggestionDecision.objects.create(
+
+        self.now.return_value = datetime(2019, 4, 30, 11).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+
+        #Should not make new decision
+        self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
+
+        #New decision for midafternoon
+        self.now.return_value = datetime(2019, 4, 30, 15, 30).astimezone(pytz.UTC)
+        create_decision(username="test")
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 2)
+
+
+    def testCreateDecision(self):
+        datetime_now = datetime(2019, 4, 30, 20, 0).astimezone(pytz.UTC)
+        self.now.return_value = datetime_now
+
+        SuggestionTime.objects.create(
             user = self.user,
-            time = timezone.now()
+            category = SuggestionTime.EVENING,
+            hour = 20,
+            minute = 0
         )
 
-        patch_apply_async = patch.object(request_decision_context, 'apply_async')
-        self.apply_async = patch_apply_async.start()
-        self.addCleanup(patch_apply_async.stop)
+        create_decision(username="test")
 
-    @patch.object(WalkingSuggestionDecisionService, 'request_context')
-    def test_requests_context(self, request_context):
-        request_decision_context(
-            decision_id = str(self.decision.id)
-        )
-
-        request_context.assert_called()
-        self.apply_async.assert_called()
-
-    @patch.object(WalkingSuggestionDecisionService, 'get_context_requests', return_value=['foo', 'bar'])
-    @patch.object(make_decision, 'apply_async')
-    def test_request_context_makes_decision(self, make_decision, get_context_requests):
-        request_decision_context(
-            decision_id = str(self.decision.id)
-        )
-
-        make_decision.assert_called()
-
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.time, datetime_now)
+        self.assertIn(SuggestionTime.EVENING, decision.get_context())
+        self.make_decision.assert_called_with(kwargs={
+            'decision_id': str(decision.id)
+        })
 
 class MakeDecisionTest(TestCase):
 
     def setUp(self):
         user = User.objects.create(username="test")
+        Configuration.objects.create(
+            user = user,
+            enabled = True,
+            service_initialized_date = timezone.now()
+        )
         self.decision = WalkingSuggestionDecision.objects.create(
             user = user,
             time = timezone.now()
@@ -100,28 +154,15 @@ class MakeDecisionTest(TestCase):
         decide.assert_called()
         self.send_message.assert_not_called()
 
-class InitializeTaskTests(TestCase):
+    def raise_service_error(self):
+        raise WalkingSuggestionService.RequestError('Walking suggestion service error')
 
     @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'initialize')
-    def test_initialize(self, initialize):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
+    @patch.object(WalkingSuggestionService, 'decide', side_effect=raise_service_error)
+    def test_walking_suggestion_service_error(self, decide):
+        make_decision(str(self.decision.id))
 
-        initialize_walking_suggestion_service('test')
-
-        initialize.assert_called()
-
-class NightlyUpdateTaskTests(TestCase):
-    
-    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
-    @patch.object(WalkingSuggestionService, 'update', return_value="None")
-    def test_update(self, update):
-        Configuration.objects.create(
-            user = User.objects.create(username='test')
-        )
-
-        update_walking_suggestion_service('test')
-
-        update.assert_called()
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.treated)
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Walking suggestion service error')

@@ -7,6 +7,7 @@ import { DialogsModule } from "@infrastructure/dialogs/dialogs.module";
 import { ActivityTypeModalComponent } from "./activity-type-modal.component";
 import { IonicPageModule } from "ionic-angular";
 import { ActivityIntensityFieldComponent } from "./activity-intensity-field.component";
+import { ActivityTypeCreateModalComponent } from "./activity-type-create-modal.component";
 
 @NgModule({
     imports: [
@@ -18,10 +19,12 @@ import { ActivityIntensityFieldComponent } from "./activity-intensity-field.comp
     declarations: [
         ActivityTypeFieldComponent,
         ActivityTypeModalComponent,
-        ActivityIntensityFieldComponent
+        ActivityIntensityFieldComponent,
+        ActivityTypeCreateModalComponent
     ],
     entryComponents: [
-        ActivityTypeModalComponent
+        ActivityTypeModalComponent,
+        ActivityTypeCreateModalComponent
     ],
     exports: [
         ActivityTypeFieldComponent,

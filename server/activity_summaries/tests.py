@@ -11,8 +11,9 @@ from rest_framework.test import APITestCase
 
 from activity_logs.models import ActivityLog, ActivityType
 from locations.services import LocationService
-from fitbit_api.services import FitbitService, FitbitClient, FitbitDayService
-from fitbit_api.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.services import FitbitService, FitbitClient
+from fitbit_activities.services import FitbitDayService
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 
 from .models import Day, User
 
@@ -156,14 +157,6 @@ class FitbitDayUpdatesDay(TestCase):
             account = self.account,
             date = date(2019, 1, 6)
         )
-
-    def make_step_count(self, time):
-        FitbitMinuteStepCount.objects.create(
-            account = self.account,
-            day = self.fitbit_day,
-            time = time,
-            steps = 300
-        )
         
     def test_fitbit_day_creates_summary(self):
         day = Day.objects.get()
@@ -171,14 +164,15 @@ class FitbitDayUpdatesDay(TestCase):
         self.assertEqual(day.date, date(2019, 1, 6))
 
     def test_fitbit_day_updates_summary(self):
-        self.make_step_count(datetime(2019, 1, 6, 8, 30))
-        self.make_step_count(datetime(2019, 1, 6, 9, 30))
+        self.fitbit_day.step_count = 600
+        self.fitbit_day.distance = 1.234
         self.fitbit_day.save()
 
         day = Day.objects.get()
         self.assertEqual(day.steps, 600)
+        self.assertEqual(day.miles, 1.234)
 
-        self.make_step_count(datetime(2019, 1, 6, 9, 30))
+        self.fitbit_day.step_count = 900
         self.fitbit_day.save()
 
         day = Day.objects.get()

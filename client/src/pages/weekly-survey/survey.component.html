@@ -1,13 +1,12 @@
-<form>
-    <div>
-        <label>How much are you enjoying the physical activities you currently do?</label>
-        <heartsteps-range ></heartsteps-range>
-    </div>
-    <div>
-        <label>How well are these activities fitting into your daily life right now?</label>
-        <heartsteps-range></heartsteps-range>
-    </div>
-    <div class="controls">
-        <button (click)="next()">Next</button>
-    </div>
-</form>
+<app-form
+    [formGroup]="form"
+    submitLabel="Next page"
+    (onSubmit)="nextPage()"
+    >
+    <app-range-field *ngFor="let question of questions"
+        [formControlName]="question.name"
+        [label]="question.label"
+        [options]="question.options"
+        >
+    </app-range-field>
+</app-form>

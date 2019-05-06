@@ -1,12 +1,55 @@
 page-home {
-    > .page > nav {
+    @extend .heartsteps-page;
+    background-color: $background-alternate;
+
+    > .content {
+        padding: 0em;
+    }
+
+    article {
+        margin: 0.5em 0em;
+    }
+    
+     > nav {
+
+        > * {
+            display: block;
+            position: relative;
+            width: 70px;
+            padding: $space-size/2 0px;
+            padding-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            text-decoration: none;
+            color: $color-gray-dark;
+        }
+        > *:before {
+            content: ' ';
+            mask-repeat: no-repeat;
+            mask-position: 50% 50%;
+            background-color: $color-gray-dark;
+            display: block;
+            position: absolute;
+            top: $space-size/2;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            height: 35px;
+            width: 35px;
+        }
+        > .active {
+            color: $color-primary;
+            &:before {
+                background-color: $color-primary;
+            }
+        }
+
         .dashboard:before {
             mask-image: url('../assets/dashboard.svg');
         }
         .planning:before {
             mask-image: url('../assets/planning.svg');
         }
-        .stats:before {
+        .activities:before {
             mask-image: url('../assets/stats.svg');
         }
         .library:before {
@@ -16,4 +59,5 @@ page-home {
             mask-image: url('../assets/settings.svg');
         }
     }
+
 }

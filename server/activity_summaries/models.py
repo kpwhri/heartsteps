@@ -6,8 +6,7 @@ from django.contrib.auth import get_user_model
 
 from locations.services import LocationService
 from activity_logs.models import ActivityLog
-from fitbit_api.models import FitbitMinuteStepCount
-from fitbit_api.services import FitbitService
+from fitbit_activities.services import FitbitDayService
 
 User = get_user_model()
 
@@ -23,6 +22,9 @@ class Day(models.Model):
     total_minutes = models.PositiveIntegerField(default=0)
 
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '%s: %s' % (self.user.username, self.date.strftime('%Y-%m-%d'))
 
     @property
     def timezone(self):
@@ -47,19 +49,12 @@ class Day(models.Model):
 
     def update_from_fitbit(self):
         try:
-            account = FitbitService.get_account(self.user)
-        except FitbitService.NoAccount:
+            fitbitday_service = FitbitDayService(self.date, user=self.user)
+            fitbit_day = fitbitday_service.day
+        except FitbitDayService.NoAccount:
             return False
-        step_counts = FitbitMinuteStepCount.objects.filter(
-            account = account,
-            time__range = [
-                self.day_start,
-                self.day_end
-            ]
-        ).all()
-        self.steps = 0
-        for step_count in step_counts:
-            self.steps += step_count.steps
+        self.steps = fitbit_day.step_count
+        self.miles = fitbit_day.distance
         self.save()
     
     def update_from_activities(self):

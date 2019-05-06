@@ -1,11 +1,62 @@
+import random
+
 from django.contrib import admin
+
+from import_export import resources
+from import_export.fields import Field
+from import_export.admin import ExportMixin
 
 from behavioral_messages.admin import MessageTemplateAdmin
 from randomization.admin import DecisionAdmin
+from randomization.resources import DecisionResource
+from service_requests.admin import ServiceRequestAdmin
 
 from walking_suggestion_times.models import SuggestionTime
 
-from .models import SuggestionTime, Configuration, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import SuggestionTime, Configuration
+from walking_suggestions.models import WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import WalkingSuggestionServiceRequest
+from walking_suggestions.services import WalkingSuggestionDecisionService
+
+class WalkingSuggestionDecisionResource(DecisionResource):
+
+    class Meta:
+        model = WalkingSuggestionDecision
+        fields = [
+            'id',
+            'user__username',
+            'local_time',
+            'test',
+            'imputed',
+            'available',
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
+        ]
+        export_order = [
+            'id',
+            'user__username',
+            'local_time',
+            'test',
+            'imputed',
+            'available',
+            'unavailable_reason',
+            'treated',
+            'treatment_probability',
+            'sent_time',
+            'received_time',
+            'opened_time',
+            'engaged_time',
+            'message',
+            'all_tags'
+        ]
+
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -20,14 +71,52 @@ class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
         else:
             return queryset
 
-class WalkingSuggestionDecisionAdmin(DecisionAdmin):
+class WalkingSuggestionDecisionAdmin(ExportMixin, DecisionAdmin):
+    resource_class = WalkingSuggestionDecisionResource
+
     list_filter = [WalkingSuggestionTimeFilters]
+    list_display = ['decision', 'time', 'available', 'treated']
+
+    def decision(self, decision):
+        return '%s (%s)' % (decision.user.username, decision.category)
+
 admin.site.register(WalkingSuggestionDecision, WalkingSuggestionDecisionAdmin)
 
 class WalkingSuggestionMessageTemplateAdmin(MessageTemplateAdmin):
     pass
+
 admin.site.register(WalkingSuggestionMessageTemplate, WalkingSuggestionMessageTemplateAdmin)
 
+def send_walking_suggestion(modeladmin, request, queryset):
+    for configuration in queryset:
+        category = random.choice(SuggestionTime.TIMES)
+        decision_service = WalkingSuggestionDecisionService.create_decision(
+            user = configuration.user,
+            category = category,
+            test = True
+        )
+        decision_service.update_context()
+        decision_service.decide()
+        decision_service.send_message()
+
 class ConfigurationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['__str__', 'enabled', 'service_initialized']
+    exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
+    readonly_fields = [
+        'service_initialized_date',
+        'walking_suggestion_times'
+    ]
+    actions = [send_walking_suggestion]
+
+    def walking_suggestion_times(self, configuration):
+        times = []
+        for suggestion_time in configuration.suggestion_times:
+            times.append('%s %s:%s' % (suggestion_time.category, suggestion_time.hour, suggestion_time.minute))
+        if len(times) > 0:
+            return ' '.join(times)
+        else:
+            return 'Not set'
+
 admin.site.register(Configuration, ConfigurationAdmin)
+
+admin.site.register(WalkingSuggestionServiceRequest, ServiceRequestAdmin)

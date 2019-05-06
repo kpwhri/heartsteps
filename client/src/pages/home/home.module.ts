@@ -1,77 +1,86 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { HomePage } from './home';
-import { DashboardModule } from '@pages/dashboard/dashboard.module';
 import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 import { ResourceLibraryModule } from '@pages/resource-library/resource-library.module';
-import { DashboardPage } from '@pages/dashboard/dashboard';
 import { PlanPage } from './plan.page';
 import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthorizationGaurd, OnboardGaurd } from '@heartsteps/participants/auth-gaurd.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
-import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
-import { ActivityPlansModule } from '@heartsteps/activity-plans/activity-plans.module';
+import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
+import { HomeGuard } from './home.guard';
+import { DashboardPage } from './dashboard.page';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
+import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
+import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
+import { AnchorMessageResolver } from './anchor-message.resolver';
+import { ActivitiesPage } from './activities.page';
 
-const homeRoutes: Routes = [{
-    path: 'home',
-    component: HomePage,
-    canActivate: [AuthorizationGaurd, OnboardGaurd],
-    resolve: {
-        currentWeek: CurrentWeekResolver
-    },
-    children: [{
-        path: 'dashboard',
-        component: DashboardPage
-    }, {
-        path: 'stats',
-        component: StatsPage
-    }, {
-        path: 'planning',
-        component: PlanPage
-    }, {
-        path: 'library',
-        component: ResourceLibraryPage
-    }, 
+const routes:Routes = [
     {
-        path: 'settings',
-        component: SettingsPage
-    },
-    {
-        path: '**',
-        redirectTo: 'dashboard'
-    }]
-}]
+        path: 'home',
+        component: HomePage,
+        canActivate: [
+            HomeGuard
+        ],
+        children: [{
+            path: 'dashboard',
+            component: DashboardPage,
+            resolve: {
+                anchorMessage: AnchorMessageResolver
+            }
+        }, {
+            path: 'activities',
+            component: ActivitiesPage
+        }, {
+            path: 'planning',
+            component: PlanPage,
+            resolve: {
+                currentWeek: CurrentWeekResolver
+            }
+        }, {
+            path: 'library',
+            component: ResourceLibraryPage
+        }, {
+            path: 'settings',
+            component: SettingsPage
+        }, {
+            path: '',
+            redirectTo: 'dashboard',
+            pathMatch: 'full'
+        }]
+    }
+]
 
 @NgModule({
     declarations: [
         HomePage,
-        PlanPage,
-        StatsPage
-    ],
-    entryComponents: [
         DashboardPage,
         PlanPage,
-        StatsPage,
-        ResourceLibraryPage
+        ActivitiesPage
     ],
     providers: [
-        CurrentWeekResolver
+        AnchorMessageResolver,
+        CurrentWeekResolver,
+        HomeGuard
     ],
     imports: [
-        DashboardModule,
-        ActivityPlansModule,
+        ActivityPlanPageModule,
         ActivityLogPageModule,
+        AnchorMessageModule,
+        CurrentWeekModule,
+        DailySummaryModule,
         ResourceLibraryModule,
         SettingsModule,
         BrowserModule,
         IonicPageModule.forChild(HomePage),
-        RouterModule.forChild(homeRoutes)
+        RouterModule.forChild(routes)
     ],
     exports: [
+        HomePage,
         RouterModule
     ]
 })

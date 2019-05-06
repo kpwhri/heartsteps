@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { StartPageComponent } from "./start.page";
 import { SurveyPageComponent } from "./survey.page";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 
 @Component({
@@ -10,33 +11,48 @@ import { SurveyPageComponent } from "./survey.page";
 })
 export class MorningSurveyPage implements OnInit {
 
-    private morningMessage:MorningMessage;
+    public morningMessage:MorningMessage;
 
-    private pages:Array<any> = [{
-        key: 'start',
-        title: 'Good Morning',
-        component: StartPageComponent
-    }, {
-        key: 'survey',
-        title: 'Daily Survey',
-        component: SurveyPageComponent
-    }]
+    public pages:Array<any> = []
 
     constructor(
+        private morningMessageService: MorningMessageService,
         private activatedRoute: ActivatedRoute,
         private element:ElementRef,
         private renderer:Renderer2,
         private router: Router
-    ) {}
+    ) {
+        this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
+
+        if (this.morningMessage.anchor) {
+            this.pages = [{
+                key: 'start',
+                title: 'Good Morning',
+                component: StartPageComponent
+            }, {
+                key: 'survey',
+                title: 'What\'s your day like today?',
+                component: SurveyPageComponent
+            }]
+        } else {
+            this.pages = [{
+                key: 'survey',
+                title: 'What\'s your day like today?',
+                component: SurveyPageComponent
+            }]
+        }
+
+    }
 
     ngOnInit() {
-        this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
         this.renderer.addClass(this.element.nativeElement, 'start-screen');
     }
 
     finish() {
-        console.log("finish");
-        this.router.navigate(['home', 'dashboard']);
+        this.morningMessageService.complete()
+        .then(() => {
+            this.router.navigate(['/']);
+        });
     }
 
 }

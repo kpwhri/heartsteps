@@ -7,11 +7,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
+from locations.models import Place
 from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
 from weather.models import WeatherForecast
-from fitbit_api.models import FitbitDay, FitbitAccount, FitbitAccountUser, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
@@ -27,7 +30,7 @@ class ServiceTestCase(TestCase):
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
-            service_initialized = True
+            service_initialized_date = timezone.now() - timedelta(days=1)
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
@@ -100,18 +103,12 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'initialize')
         
         request_data = kwargs['data']
-        assert 'appClicksArray' in request_data
         assert 'totalStepsArray' in request_data
-        assert 'availMatrix' in request_data
-        assert 'temperatureMatrix' in request_data
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
 
         expected_calls = [call(date - timedelta(days=offset)) for offset in range(3)]
-        self.assertEqual(clicks.call_args_list, expected_calls)
         self.assertEqual(steps.call_args_list, expected_calls)
-        self.assertEqual(availabilities.call_args_list, expected_calls)
-        self.assertEqual(temperatures.call_args_list, expected_calls)
         self.assertEqual(pre_steps.call_args_list, expected_calls)
         self.assertEqual(post_steps.call_args_list, expected_calls)
 
@@ -124,6 +121,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             time = timezone.now()
         )
         decision.add_context(SuggestionTime.MORNING)
+        decision.add_context(Place.HOME)
         self.make_request.return_value = {
             'send': True,
             'probability': 1
@@ -136,7 +134,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'decision')
         request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 1)
-        assert 'location' in request_data
+        self.assertEqual(request_data['location'], 2)
 
     def test_decision_throws_error_not_initialized(self):
         decision = WalkingSuggestionDecision.objects.create(
@@ -144,7 +142,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             time = timezone.now()
         )
         decision.add_context(SuggestionTime.MORNING)
-        self.configuration.service_initialized = False
+        self.configuration.service_initialized_date = None
         self.configuration.save()
         
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
@@ -156,7 +154,11 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
     @patch.object(WalkingSuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
     @patch.object(WalkingSuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
-    def test_update(self, post_steps, pre_steps, temperatures, steps, clicks, study_day):
+    @patch.object(WalkingSuggestionService, 'get_received_messages', return_value=[True, True, True, True, True])
+    @patch.object(WalkingSuggestionService, 'get_availabilities', return_value=[False, False, False, False, False])
+    @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
+    @patch.object(WalkingSuggestionService, 'get_previous_messages', return_value=[False, False, False, False, False])
+    def test_update(self, get_previous_messages, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
         date = datetime.today()
         self.service.update(date)
 
@@ -172,11 +174,15 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             'lastActivity': False,
             'temperatureArray': [10, 10, 10, 10, 10],
             'preStepsArray': [7, 7, 7, 7, 7],
-            'postStepsArray': [700, 700, 700, 700, 700]
+            'postStepsArray': [700, 700, 700, 700, 700],
+            'availabilityArray': [False, False, False, False, False],
+            'priorAntiArray': [False, False, False, False, False],
+            'lastActivityArray': [True, True, True, True, True],
+            'locationArray': [1, 1, 1, 1, 1]
         })
 
     def test_update_throws_error_not_initialized(self):
-        self.configuration.service_initialized = False
+        self.configuration.service_initialized_date = None
         self.configuration.save()
 
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
@@ -191,13 +197,48 @@ class StudyDayNumberTests(ServiceTestCase):
         self.assertEqual(day_number, 1)
 
     def test_get_day_number(self):
-        self.user.date_joined = self.user.date_joined - timedelta(days=5)
-        self.user.save()
-
-        today = timezone.now()
-        day_number = self.service.get_study_day(today)
+        later_date = timezone.now() + timedelta(days=5)
+        day_number = self.service.get_study_day(later_date)
 
         self.assertEqual(day_number, 6)
+
+class LocationContextTests(ServiceTestCase):
+    
+    def setUp(self):
+        super().setUp()
+
+    def testHomeLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+        decision.add_context(Place.HOME)
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 2)
+
+    def testWorkLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+        decision.add_context(Place.WORK)
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 1)
+
+    def testOtherLocation(self):
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+
+        location_context = self.service.get_location_type(decision)
+
+        self.assertEqual(location_context, 0)
+        
 
 class GetStepsTests(ServiceTestCase):
 
@@ -212,13 +253,8 @@ class GetStepsTests(ServiceTestCase):
         )
         day = FitbitDay.objects.create(
             account = account,
-            date = datetime(2018,10,10)
-        )
-        FitbitMinuteStepCount.objects.create(
-            account = account,
-            day = day,
-            time = timezone.now(),
-            steps = 400
+            date = datetime(2018,10,10),
+            step_count = 400
         )
 
     def test_gets_steps(self):
@@ -240,12 +276,6 @@ class StepCountTests(ServiceTestCase):
             user = self.user,
             account = account
         )
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
-        )
-        decision.add_context('activity suggestion')
-        decision.add_context(SuggestionTime.MORNING)
 
         SuggestionTime.objects.create(
             user = self.user,
@@ -268,57 +298,58 @@ class StepCountTests(ServiceTestCase):
 
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
+            time = datetime(2018, 10, 10, 10, 10, tzinfo=pytz.utc)
+        )
+        decision.add_context('activity suggestion')
+        decision.add_context(SuggestionTime.MORNING)
+
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
             time = datetime(2018, 10, 10, 22, 00, tzinfo=pytz.utc)
         )
         decision.add_context('activity suggestion')
         decision.add_context(SuggestionTime.POSTDINNER)
-        day = FitbitDay.objects.create(
-            account = account,
-            date = datetime(2018,10,10)
-        )
+
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 10, 0, tzinfo=pytz.utc),
             steps = 50
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 9, 0, tzinfo=pytz.utc),
             steps = 10
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 10, 20, tzinfo=pytz.utc),
             steps = 120
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 21, 45, tzinfo=pytz.utc),
             steps = 10
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 22, 7, tzinfo=pytz.utc),
             steps = 10
         )
         # Following step counts shouldn't be considered
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 9, 39, tzinfo=pytz.utc),
             steps = 50
         )
         FitbitMinuteStepCount.objects.create(
-            day = day,
             account = account,
             time = datetime(2018, 10, 10, 22, 31, tzinfo=pytz.utc),
             steps = 50
         )
+
+        # decision_update_patch = patch.object(WalkingSuggestionDecisionService, 'update')
+        # decision_update_patch.start()
+        # self.addCleanup(decision_update_patch.stop)
 
     def test_get_pre_steps(self):
         pre_steps = self.service.get_pre_steps(datetime(2018, 10, 10))
@@ -368,68 +399,101 @@ class TemperatureTests(ServiceTestCase):
 
         self.assertEqual(temperatures, [10, 10, 10, 10, 10])
 
+@override_settings(WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT='100')
+@override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES=20)
 class DecisionAvailabilityTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
-        self.account = FitbitAccount.objects.create(
-            fitbit_user = "test"
-        )
-        FitbitAccountUser.objects.create(
-            account = self.account,
-            user = self.user 
-        )
-        self.day = FitbitDay.objects.create(
-            account = self.account,
-            date = timezone.now()
-        )
-        FitbitMinuteStepCount.objects.create(
-            day = self.day,
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=15),
-            steps = 10
-        )
-        FitbitMinuteStepCount.objects.create(
-            day = self.day,
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=30),
-            steps = 120
+        self.user = User.objects.create(username="test")  
+        self.configuration = Configuration.objects.create(
+            user = self.user,
+            enabled = True
+        )      
+
+    def create_step_count(self, steps, minutes_ago):
+        WatchStepCount.objects.create(
+            user = self.user,
+            steps = steps,
+            start = timezone.now() - timedelta(minutes=minutes_ago) - timedelta(minutes=5),
+            end = timezone.now() - timedelta(minutes=minutes_ago)
         )
 
-        self.decision = WalkingSuggestionDecision.objects.create(
+    def test_configuration_not_enabled(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+        decision = WalkingSuggestionDecision(
             user = self.user,
             time = timezone.now()
         )
-        self.decision.add_context("activity suggestion")
-        self.decision.add_context(SuggestionTime.MORNING)
+        service = WalkingSuggestionDecisionService(decision)
 
-    def test_fitbit_steps(self):
-        service = WalkingSuggestionDecisionService(self.decision)
-
-        available = service.determine_availability()
-
-        self.assertTrue(available)
-
-    def test_fitbit_steps_unavailable(self):
-        FitbitMinuteStepCount.objects.create(
-            day = self.day,
-            account = self.account,
-            time = timezone.now() - timedelta(minutes=5),
-            steps = 300
-        )
-        service = WalkingSuggestionDecisionService(self.decision)
-
-        available = service.determine_availability()
+        available = service.update_availability()
 
         self.assertFalse(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Walking suggestion configuration disabled')
 
-    def test_no_fitbit_step_counts(self):
-        FitbitMinuteStepCount.objects.all().delete()
-        service = WalkingSuggestionDecisionService(self.decision)
+    def test_no_step_counts(self):
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
 
-        available = service.determine_availability()
+        available = service.update_availability()
+
+        self.assertFalse(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'No step counts recorded')
+
+    def test_step_count_over_limit(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(100, 10)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
+
+        self.assertFalse(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertFalse(decision.available)
+        self.assertEqual(decision.unavailable_reason, 'Recent step count above 100')
+
+    def test_step_count_was_over_limit(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(100, 20)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
 
         self.assertTrue(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
+
+    def test_step_count(self):
+        self.create_step_count(10, 5)
+        self.create_step_count(10, 10)
+        self.create_step_count(10, 15)
+        decision = WalkingSuggestionDecision(
+            user = self.user,
+            time = timezone.now()
+        )
+        service = WalkingSuggestionDecisionService(decision)
+
+        available = service.update_availability()
+
+        self.assertTrue(available)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertTrue(decision.available)
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 

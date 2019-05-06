@@ -2,11 +2,13 @@ import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 import { LoadingService } from '@infrastructure/loading.service';
 import { Week } from './week.model';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { WeekService } from './week.service';
+import { SelectOption } from '@infrastructure/dialogs/select-dialog.controller';
 
 @Component({
   selector: 'heartsteps-weekly-goal',
-  templateUrl: './weekly-goal.component.html',
-  inputs: ['week', 'call-to-action']
+  templateUrl: './weekly-goal.component.html'
 })
 export class WeeklyGoalComponent {
 
@@ -17,7 +19,30 @@ export class WeeklyGoalComponent {
     public confidence:number;
     private _week:Week;
 
+    public confidenceOptions: Array<SelectOption> = [
+        {
+            name: 'Not at all',
+            value: 0
+        }, {
+            name: 'Some confidence',
+            value: 0.25
+        }, {
+            name: 'Moderate confidence',
+            value: 0.5
+        }, {
+            name: 'Fairly confident',
+            value: 0.75
+        }, {
+            name: 'Very much',
+            value: 1
+        }
+    ]
+
+    public form: FormGroup;
+    public error: string;
+
     constructor(
+        private weekService: WeekService,
         private loadingService:LoadingService
     ) {}
 
@@ -25,18 +50,26 @@ export class WeeklyGoalComponent {
     set week(week:Week) {
         if(week) {
             this._week = week;
-            this.minutes = week.goal;
-            this.confidence = week.confidence;
+            this.form = new FormGroup({
+                minutes: new FormControl(week.goal, Validators.required),
+                confidence: new FormControl(week.confidence)
+            });
         }
     }
 
     save() {
+        this.error = undefined;
         this.loadingService.show("Saving goal");
-        this._week.setGoal(this.minutes, this.confidence)
+        this.weekService.setWeekGoal(this._week, this.form.value.minutes, this.form.value.confidence)
         .then(() => {
-            this.loadingService.dismiss();
             this.saved.emit();
         })
+        .catch((error) => {
+            this.error = error;
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
     
 

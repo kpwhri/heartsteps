@@ -1,0 +1,6 @@
+app-page {
+    @extend .heartsteps-container;
+    > article {
+        @extend .heartsteps-page;
+    }
+}

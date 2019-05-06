@@ -10,23 +10,31 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { SuggestionTimesPage } from './suggestion-times';
 import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
 import { GoalPage } from './goal.page';
+import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
+import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
+import { BrowserModule } from '@angular/platform-browser';
 
 const settingsRoutes: Routes = [
     {
         path: 'settings/contact',
-        component: ContactPage
+        component: ContactPage,
+        outlet: 'modal'
     }, {
         path: 'settings/places',
-        component: PlacesPage
+        component: PlacesPage,
+        outlet: 'modal'
     }, {
         path: 'settings/reflection-time',
-        component: ReflectionTimePage
+        component: ReflectionTimePage,
+        outlet: 'modal'
     }, {
         path: 'settings/suggestion-times',
-        component: SuggestionTimesPage
+        component: SuggestionTimesPage,
+        outlet: 'modal'
     }, {
         path: 'settings/weekly-goal',
-        component: GoalPage
+        component: GoalPage,
+        outlet: 'modal'
     }
 ]
 
@@ -46,7 +54,10 @@ const settingsRoutes: Routes = [
         RouterModule
     ],
     imports: [
+        AntiSedentaryModule,
+        BrowserModule,
         ContactInformationModule,
+        HeartstepsComponentsModule,
         PlacesModule,
         WeeklySurveyModule,
         WalkingSuggestionsModule,

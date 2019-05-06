@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
-import { Location } from "@angular/common";
-
+import { Router } from "@angular/router";
 
 @Component({
     templateUrl: 'contact-page.html'
@@ -8,10 +7,14 @@ import { Location } from "@angular/common";
 export class ContactPage {
 
     constructor(
-        private location:Location
+        private router: Router
     ){}
 
     goBack() {
-        this.location.back();
+        this.router.navigate([{
+            outlets: {
+                modal: null
+            }
+        }]);
     }
 }

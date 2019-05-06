@@ -8,8 +8,6 @@ from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
 
-from .signals import participant_enrolled
-
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
 class Participant(models.Model):
@@ -30,7 +28,6 @@ class Participant(models.Model):
         )
         self.user = user
         self.save()
-        participant_enrolled.send(User, username=user.username)
     
     def _is_enrolled(self):
         if self.user:

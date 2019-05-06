@@ -1,6 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterEvent } from '@angular/router';
+import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
+
+class Tab {
+    name:string;
+    key: string;
+}
 
 @Component({
     selector: 'page-home',
@@ -8,22 +13,20 @@ import { Subscription } from 'rxjs';
 })
 export class HomePage implements OnInit, OnDestroy {
     public pageTitle: string;
+    public activeTab: string;
     public backButton: boolean;
 
     private routerSubscription: Subscription;
      
-    public tabs:Array<any> = [{
+    public tabs:Array<Tab> = [{
         name:'Dashboard',
         key: 'dashboard'
     }, {
         name: 'Planning',
         key: 'planning'
     }, {
-        name: 'Stats',
-        key: 'stats'
-    }, {
-        name: 'Learn',
-        key: 'library'
+        name: 'Activities',
+        key: 'activities'
     }, {
         name: 'Settings',
         key: 'settings'
@@ -34,11 +37,11 @@ export class HomePage implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.updateWithUrl(this.router.url);
-        this.routerSubscription = this.router.events.subscribe((event:RouterEvent) => {
-            if(event.url) {
-                this.updateWithUrl(event.url);
-            }
+        this.updateFromUrl(this.router.url);
+        this.routerSubscription = this.router.events
+        .filter(event => event instanceof NavigationEnd)
+        .subscribe((event:RouterEvent) => {
+            this.updateFromUrl(event.url);
         });
     }
 
@@ -46,17 +49,28 @@ export class HomePage implements OnInit, OnDestroy {
         this.routerSubscription.unsubscribe();
     }
 
-    private updateWithUrl(url:string) {
-        this.setTitle(url);
-    }
-
-    private setTitle(url:string) {
-        this.tabs.forEach((tab:any) => {
-            if(url.indexOf(tab.key) > 0) {
-                this.pageTitle = tab.name;
-            }
+    private updateFromUrl(url:string) {
+        this.getActiveTab(url)
+        .then((activeTab: Tab) => {
+            this.pageTitle = activeTab.name;
+            this.activeTab = activeTab.key;
         })
+        .catch(() => {
+            console.log('No matching tab found');
+        });
     }
 
+    private getActiveTab(url:string):Promise<Tab> {
+        return new Promise((resolve, reject) => {
+            const matchingTab = this.tabs.find((tab) => {
+                return url.indexOf(tab.key) >= 0
+            });
 
+            if(matchingTab) {
+                resolve(matchingTab);
+            } else {
+                reject('No matching tab');
+            }
+        });
+    }
 }

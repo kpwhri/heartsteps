@@ -7,13 +7,6 @@ from .models import SuggestionTime
 
 class SuggestionTimeSerializer(serializers.Serializer):
 
-    def to_representation(self, user):
-        ret = {}
-        for suggestion_time in SuggestionTime.objects.filter(user=user).all():
-            time = "%s:%s" % (suggestion_time.hour, suggestion_time.minute)
-            ret[suggestion_time.category] = time
-        return ret
-
     def to_internal_value(self, data):
         ret = {}
         for time_category in SuggestionTime.TIMES:

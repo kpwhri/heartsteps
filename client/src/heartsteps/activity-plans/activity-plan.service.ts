@@ -1,4 +1,4 @@
-import { Injectable, EventEmitter } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ActivityPlan } from "./activity-plan.model";
 import * as moment from 'moment';
@@ -15,10 +15,32 @@ export class ActivityPlanService {
     constructor(
         private heartstepsServer:HeartstepsServer,
         private activityLogService: ActivityLogService,
-        documentStorage: DocumentStorageService
-    ) {
-        this.storage = documentStorage.create('heartsteps-activity-plans');
-        this.loadPlans();
+        private documentStorage: DocumentStorageService
+    ) {}
+
+    public setup(): Promise<boolean> {
+        this.storage = this.documentStorage.create('heartsteps-activity-plans');
+        return this.loadPlans()
+        .then(() => {
+            return true;
+        });
+    }
+
+    public get(id:string) {
+        return this.storage.get(id)
+        .then((data) => {
+            return this.deserializeActivityPlan(data);
+        })
+        .catch(() => {
+            return this.fetch(id);
+        });
+    }
+
+    public fetch(id:string):Promise<ActivityPlan> {
+        return this.heartstepsServer.get('/activity/plans/'+id)
+        .then((data) => {
+            return this.deserializeActivityPlan(data);
+        });
     }
 
     save(activityPlan:ActivityPlan):Promise<ActivityPlan> {
@@ -51,7 +73,7 @@ export class ActivityPlanService {
             if(activityPlan.activityLogId) {
                 const mockActivityLog = new ActivityLog();
                 mockActivityLog.id = activityPlan.activityLogId;
-                mockActivityLog.start = activityPlan.start;
+                mockActivityLog.start = activityPlan.date;
                 this.activityLogService.deleted.emit(mockActivityLog);
             }
             return plan;
@@ -81,7 +103,7 @@ export class ActivityPlanService {
         const plansSubject:BehaviorSubject<Array<ActivityPlan>> = new BehaviorSubject([]);
         this.plans.subscribe((allPlans:Array<ActivityPlan>) => {
             const plans:Array<ActivityPlan> = allPlans.filter((plan) => {
-                if(moment(date).format("YYYY-MM-DD") === moment(plan.start).format("YYYY-MM-DD")) {
+                if(moment(date).format("YYYY-MM-DD") === moment(plan.date).format("YYYY-MM-DD")) {
                     return true;
                 } else {
                     return false;
@@ -168,8 +190,8 @@ export class ActivityPlanService {
 
     private sortPlans(plans:Array<ActivityPlan>):Array<ActivityPlan> {
         plans.sort((planA:ActivityPlan, planB:ActivityPlan) => {
-            if (planA.start > planB.start) return 1;
-            if (planB.start > planA.start) return -1;
+            if (planA.date > planB.date) return 1;
+            if (planB.date > planA.date) return -1;
             return 0;
         })
         return plans;
@@ -178,8 +200,9 @@ export class ActivityPlanService {
     private serializeActivityPlan(activityPlan:ActivityPlan):any {
         return {
             id: activityPlan.id,
+            date: moment(activityPlan.date).format("YYYY-MM-DD"),
+            timeOfDay: activityPlan.timeOfDay,
             type: activityPlan.type,
-            start: activityPlan.start.toISOString(),
             duration: activityPlan.duration,
             vigorous: activityPlan.vigorous,
             complete: activityPlan.complete,
@@ -190,18 +213,13 @@ export class ActivityPlanService {
     private deserializeActivityPlan(data:any):ActivityPlan {
         const activityPlan = new ActivityPlan();
         activityPlan.id = data.id;
+        activityPlan.date = moment(data.date, 'YYYY-MM-DD').toDate();
+        activityPlan.timeOfDay = data.timeOfDay;
         activityPlan.type = data.type;
         activityPlan.duration = data.duration;
         activityPlan.vigorous = data.vigorous || false;
         activityPlan.complete = data.complete || false;
         activityPlan.activityLogId = data.activityLogId || undefined;
-
-        if(data.start) {
-            const localMoment = moment.utc(data.start).local();
-            activityPlan.start = new Date(localMoment.toString());
-        } else {
-            activityPlan.start = new Date();
-        }
 
         return activityPlan
     }

@@ -1,5 +1,14 @@
-<p class="progress-insert">
-    <span class="title">This week</span>
-    <span class="metric"><em>{{complete}}</em>/{{total}}</span>
-    <span class="label">min</span>
+<p *ngIf="!goalAchieved"
+    class="progress-insert"
+    >
+    <span><span class="metric">{{complete}}</span> min</span>
+    <span>completed of</span>
+    <span>{{total}} min goal</span>
+</p>
+<p *ngIf="goalAchieved"
+    class="progress-insert"
+    >
+    <span><span class="metric">{{complete}}</span> min</span>
+    <span>completed</span>
+    <span>this week</span>
 </p>

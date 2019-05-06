@@ -1,8 +1,7 @@
 .start-screen,
-.start-screen.ion-page,
 .alternate-background,
 .heartsteps-message-modal {
-    @extend .page;
+    @extend .heartsteps-page;
 
     background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
     color: $color-white;
@@ -12,14 +11,24 @@
     flex-direction: column;
 
     > * {
+        display: block;
         margin: 2em 1em;
+        flex-grow: 1;
+    }
+
+    > button {
+        flex-grow: 0;
     }
 
     .headline {
-        margin: 0.5em auto;
         color: $color-white;
         font-size: 1.5em;
         font-weight: normal;
+
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        justify-content: center;
     }
 
     h1 {
@@ -32,19 +41,22 @@
         border-width: 0px;
     }
 
-    button {
-        border: 1px #fff solid;
-        text-align: center;
-        color: #fff;
+    button,
+    input[type=submit],
+    button[type=button] {
+        border-color: $color-white;
+        color: $color-white;
         background-color: transparent;
-        font-size: 1.2em;
-        padding: 0.75em;
-        display: block;
-        width: 100%;
+
+        &:hover,
+        &:focus {
+            color: $color-white;
+            opacity: 0.9;
+        }
     }
 
-    .controls {
-        flex-grow: 1;
+    a {
+        color: $color-white;
     }
 
     article {
@@ -53,8 +65,35 @@
 }
 
 .start-screen form {
-    label {
+    label, legend, button {
         color: $color-white;
+    }
+
+    button {
+        border-width: 0px;
+    }
+
+    app-range-field.heartsteps-form-field ul li input[type=radio] {
+        background-color: $color-white;
+    }
+
+    ul > li >button {
+        color: $color-white;
+    }
+}
+
+.start-screen heartsteps-stepper {
+    display: flex;
+    background-color: transparent;
+    margin: 0em auto;
+
+    .pagination-bullets > * {
+        background-color: transparent;
+        border: $color-white 1px solid;
+
+        &.active {
+            background-color: $color-white;
+        }
     }
 }
 
@@ -65,4 +104,14 @@
         margin: 4em auto;
     }
 
+    .start-screen > button {
+        width: 540px;
+    }
+
+}
+
+.start-screen app-choice-field.heartsteps-form-field button {
+    &:before {
+        background-color: $color-white;
+    }
 }

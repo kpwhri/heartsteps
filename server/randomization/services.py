@@ -17,6 +17,10 @@ from weather.models import WeatherForecast
 from randomization.models import Decision, DecisionContext, ContextTag
 
 class DecisionService():
+
+    class Unreachable(RuntimeError):
+        pass
+
     def __init__(self, decision):
         self.decision = decision
         self.user = decision.user
@@ -34,11 +38,15 @@ class DecisionService():
         try:
             push_message_service = PushMessageService(self.user)
         except PushMessageService.DeviceMissingError:
-            return False
-        message = push_message_service.send_data({
-            'type': 'request-context',
-            'decisionId': str(self.decision.id)
-        })
+            raise DecisionService.Unreachable('No device')
+        try:
+            message = push_message_service.send_data({
+                'type': 'request-context',
+                'decisionId': str(self.decision.id)
+            })
+        except PushMessageService.MessageSendError:
+            raise DecisionService.Unreachable('Unable to send')
+
         if message:
             DecisionContext.objects.create(
                 decision = self.decision,
@@ -69,10 +77,18 @@ class DecisionService():
     def update_context(self):
         new_context = self.generate_context()
         for tag in self.generate_context():
-            self.add_context(tag)
+            if tag:
+                self.add_context(tag)
 
     def update_availability(self):
         pass
+
+    def update(self):
+        self.update_context()
+        self.update_availability()
+
+    def is_complete(self):
+        return self.decision.is_complete()
 
     def decide(self):
         self.update_availability()
@@ -137,8 +153,11 @@ class DecisionContextService(DecisionService):
         return WeatherService.get_forecast_context(forecast)
 
     def get_imputed_weather_context(self):
-        forecasts = self.impute_forecasts()
-        return WeatherService.get_average_forecast_context(forecasts)
+        try:
+            forecasts = self.impute_forecasts()
+            return WeatherService.get_average_forecast_context(forecasts)
+        except WeatherService.NoForecast:
+            return None
 
     def get_forecasts(self):
         forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
@@ -169,6 +188,7 @@ class DecisionContextService(DecisionService):
                 latitude = place.latitude,
                 longitude = place.longitude)
             forecasts.append(forecast)
+        
         return forecasts
 
     def make_forecast(self, latitude, longitude):
@@ -220,10 +240,13 @@ class DecisionMessageService(DecisionService):
         ).count()
         if recent_notification_count > 0:
             self.decision.available = False
+            self.decision.unavailable_reason = 'Message recently sent'
             self.decision.save()
+            return False
         else:
             self.decision.available = True
             self.decision.save()
+            return True
 
     def get_message_template_tags(self):
         tags = self.decision.get_context()

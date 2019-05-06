@@ -1,0 +1,4 @@
+#! /bin/bash
+
+mkdir -p ./data
+gsutil -m rsync -r gs://$googleStorageBucket ./data

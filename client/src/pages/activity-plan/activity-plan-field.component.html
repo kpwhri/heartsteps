@@ -1,0 +1,30 @@
+<fieldset [formGroup]="planForm">
+    <heartsteps-activity-type-field
+        formControlName="activity"
+        label="Activity type"
+        >
+    </heartsteps-activity-type-field>
+    <heartsteps-activity-intensity-field
+        formControlName="vigorous"
+        label="Intensity"
+        >
+    </heartsteps-activity-intensity-field>
+    <app-increment-field 
+        formControlName="duration"
+        label="Duration"
+        unit="min"
+        >
+    </app-increment-field>
+    <app-date-field
+        formControlName="date"
+        label="Date"
+        [available-dates]="availableDates"
+        >
+    </app-date-field>
+    <app-choice-field
+        formControlName="timeOfDay"
+        [options]="dailyTimes"
+        label="Time of day"
+        >
+    </app-choice-field>
+</fieldset>

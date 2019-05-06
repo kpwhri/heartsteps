@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from fitbit_api.models import FitbitDay, FitbitActivity
+from fitbit_activities.models import FitbitDay, FitbitActivity
 
 from activity_logs.models import ActivityLog, ActivityType
 

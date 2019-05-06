@@ -15,26 +15,30 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
     public onChange: Function;
     public onTouched: Function;
     public disabled: boolean;
+    public isInvalid: boolean;
     public errors: Array<string> = [];
+    public error: string;
 
     public value: any;
+
+    public isFormField: boolean = true;
 
     private statusChangeSubscription: Subscription;
 
     constructor(
-        private formGroup: FormGroupDirective,
+        public formGroup: FormGroupDirective,
         private element: ElementRef,
         private renderer: Renderer2
     ) {}
 
     ngOnInit() {
-        this.renderer.addClass(this.element.nativeElement, 'heartsteps-form-field');
+        if (this.isFormField) {
+            this.renderer.addClass(this.element.nativeElement, 'heartsteps-form-field');
+        }
         this.control = this.formGroup.control.get(this.name);
-        this.updateDisabled();
+        this.update();
         this.statusChangeSubscription = this.control.statusChanges.subscribe(() => {
-            this.updateErrors();
-            this.updateValidity();
-            this.updateDisabled();
+            this.update();
         });
     }
 
@@ -60,20 +64,32 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
         this.disabled = isDisabled;
     }
 
+    public update(): void {
+        this.updateErrors();
+        this.updateValidity();
+        this.updateDisabled();
+    }
+ 
     public updateErrors(): void {
         this.errors = [];
+        this.error = undefined;
         if (!this.control.errors) {
             return ;
         }
         if (this.control.errors.required) {
             this.errors.push("This field is required");
         }
+        if(this.errors.length) {
+            this.error = this.errors[0];
+        }
     }
 
     private updateValidity(): void {
-        if(!this.control.valid && this.formGroup.touched) {
+        if(!this.control.valid && this.control.dirty) {
+            this.isInvalid = true;
             this.renderer.addClass(this.element.nativeElement, 'is-invalid');
         } else {
+            this.isInvalid = false;
             this.renderer.removeClass(this.element.nativeElement, 'is-invalid');
         }
     }
@@ -89,11 +105,17 @@ export class AbstractField implements ControlValueAccessor, OnInit, OnDestroy {
 
     public isFocused() {
         this.renderer.addClass(this.element.nativeElement, 'is-focused');
-        // this.onTouched();
+        this.touched();
     }
 
     public isBlurred() {
         this.renderer.removeClass(this.element.nativeElement, 'is-focused');
+    }
+
+    public touched() {
+        if(this.onTouched) {
+            this.onTouched();
+        }
     }
 
 }

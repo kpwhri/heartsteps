@@ -13,6 +13,9 @@ import { PhoneFieldComponent } from "./phone-field.component";
 import { FormComponent } from "./form.component";
 import { AbstractField } from "./abstract-field";
 import { SelectFieldComponent } from "./select-field.component";
+import { RangeFieldComponent } from "./range-field.component";
+import { IncrementFieldComponent } from "./increment-field.component";
+import { ChoiceFieldComponent } from "./choice-field.component";
 
 
 @NgModule({
@@ -24,21 +27,28 @@ import { SelectFieldComponent } from "./select-field.component";
     ],
     declarations: [
         AbstractField,
+        ChoiceFieldComponent,
         DateFieldComponent,
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
+        IncrementFieldComponent,
         PhoneFieldComponent,
+        RangeFieldComponent,
         SelectFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
         YearFieldComponent
     ],
     exports: [
+        ChoiceFieldComponent,
         DateFieldComponent,
         DurationFieldComponent,
         EmailFieldComponent,
         FormComponent,
+        IncrementFieldComponent,
+        SelectFieldComponent,
+        RangeFieldComponent,
         PhoneFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,

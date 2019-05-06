@@ -1,0 +1,21 @@
+<fieldset class="input-group">
+    <legend *ngIf="label">{{label}}</legend>
+    <p *ngIf="error && isInvalid"
+        class="error"
+        >
+        {{error}}
+    </p>
+    <p *ngIf="!options">No options available</p>
+    <ul>
+        <li *ngFor="let option of options; let index = index">
+            <button 
+                (click)="updateValue(option.value)"
+                [disabled]="isDisabled"
+                [ngClass]="{selected: selectedOption && option.name === selectedOption.name}"
+                type="button"
+                >
+                {{option.name}}
+            </button>
+        </li>
+    </ul>
+</fieldset>

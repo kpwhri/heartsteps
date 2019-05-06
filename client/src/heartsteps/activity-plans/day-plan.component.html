@@ -1,7 +1,0 @@
-<ul *ngIf="plans">
-    <li *ngFor="let plan of plans" (click)="showPlan(plan)">
-        <heartsteps-activity-plan [plan]="plan"></heartsteps-activity-plan>
-    </li>
-</ul>
-<p *ngIf="!plans">Nothing planned.</p>
-<button *ngIf="canAddActivity" (click)="addActivity()" class="bottom" >Add an activity</button>

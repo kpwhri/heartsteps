@@ -17,8 +17,8 @@ server/app
 static/app
 static/static
 
-# Specifies intentionally untracked files to ignore when using Git
-# http://git-scm.com/docs/gitignore
+# Ignore jupyter notebook cache files
+.ipynb*
 
 *~
 *.sw[mnpcod]
@@ -57,3 +57,10 @@ data/
 
 *.feather
 *.RData
+
+# this is to cover up a dirty hack...
+server/credentials
+
+# Ignore fitbit build components
+fitbit/build
+fitbit/node_modules

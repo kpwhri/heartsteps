@@ -45,7 +45,8 @@ export class LogFormComponent {
             duration: new FormControl(this.activityLog.duration, Validators.required),
             date: new FormControl(this.activityLog.start, Validators.required),
             time: new FormControl(this.activityLog.start, Validators.required),
-            vigorous: new FormControl(this.activityLog.vigorous, Validators.required)
+            vigorous: new FormControl(this.activityLog.vigorous, Validators.required),
+            enjoyed: new FormControl(this.activityLog.enjoyed)
         })
     }
 
@@ -58,6 +59,7 @@ export class LogFormComponent {
         this.activityLog.start.setDate(this.form.value.date.getDate());
         this.activityLog.start.setHours(this.form.value.time.getHours());
         this.activityLog.start.setMinutes(this.form.value.time.getMinutes());
+        this.activityLog.enjoyed = this.form.value.enjoyed;
         
         this.activityLogService.save(this.activityLog)
         .then(() => {

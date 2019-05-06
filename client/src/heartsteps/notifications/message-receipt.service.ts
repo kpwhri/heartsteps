@@ -18,6 +18,10 @@ export class MessageReceiptService {
         return this.sendMessageState(messageId, 'received');
     }
 
+    displayed(messageId:string): Promise<boolean> {
+        return this.sendMessageState(messageId, 'displayed');
+    }
+
     opened(messageId:string): Promise<boolean> {
         return this.sendMessageState(messageId, 'opened');
     }

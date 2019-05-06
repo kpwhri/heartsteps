@@ -1,54 +1,78 @@
 import pytz
-from datetime import datetime
+from unittest.mock import patch
+from datetime import datetime, date
 
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from locations.services import LocationService
+from walking_suggestion_times.models import SuggestionTime
+
 from activity_plans.models import ActivityLog, ActivityPlan, ActivityType, User
 
-class ActivityPlanCreateTest(APITestCase):
+class TestBase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.client.force_authenticate(user=self.user)
+
+        SuggestionTime.objects.create(
+            user=self.user,
+            category = SuggestionTime.MORNING,
+            hour = 8,
+            minute = 30
+        )
+        SuggestionTime.objects.create(
+            user=self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 12,
+            minute = 15
+        )
+
+class ActivityPlanCreateTest(TestBase):
 
     def test_create_activity_plan(self):
-        user = User.objects.create(username="test")
         ActivityType.objects.create(
             name="swim"
         )
 
-        self.client.force_authenticate(user=user)
         response = self.client.post(reverse('activity-plans'), {
             'type': 'swim',
-            'start': '2018-09-05T14:45',
+            'date': '2019-03-03',
+            'timeOfDay': SuggestionTime.MORNING,
             'duration': '30',
-            'vigorous': True,
-            'complete': False
+            'vigorous': True
         })
 
         self.assertEqual(response.status_code, 201)
         self.assertIsNotNone(response.data['id'])
 
-class ActivityPlanListTest(APITestCase):
+        activity_plan = ActivityPlan.objects.get()
+        self.assertEqual(activity_plan.start, datetime(2019, 3, 3, 8, 30).astimezone(pytz.UTC))
+
+class ActivityPlanListTest(TestBase):
 
     def test_get_user_activity_plans_in_time_range(self):
-        user = User.objects.create(username="test")
         walk = ActivityType.objects.create(
             name="walk"
         )
         plan = ActivityPlan.objects.create(
-            user = user,
+            user = self.user,
             type = walk,
-            start = datetime(2018, 9, 7, tzinfo=pytz.UTC),
+            date = date(2018, 9, 10),
+            timeOfDay = SuggestionTime.MORNING,
             duration = 20
         )
         # Out of range plan that should not show up
         ActivityPlan.objects.create(
-            user = user,
+            user = self.user,
             type = walk,
-            start = datetime(2018, 10, 7, tzinfo=pytz.UTC),
+            date = date(2018, 10, 5),
+            timeOfDay = SuggestionTime.MORNING,
             duration = 20
         )
 
-        self.client.force_authenticate(user=user)
         response = self.client.get(reverse('activity-plans'), {
             'start': '2018-09-05T14:45',
             'end': '2018-09-12T14:45'
@@ -57,24 +81,32 @@ class ActivityPlanListTest(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], str(plan.uuid))
 
-class ActivityPlanViewTest(APITestCase):
+class ActivityPlanViewTest(TestBase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
-        self.client.force_authenticate(user=self.user)
+        super().setUp()
 
         self.plan = ActivityPlan.objects.create(
             user = self.user,
             type = ActivityType.objects.create(name="walk"),
-            start = timezone.now(),
+            date = timezone.now().today(),
+            timeOfDay = SuggestionTime.MORNING,
             duration = 15
         )
 
     def test_can_not_get_other_activity_plan(self):
+        other_user = User.objects.create(username="other")
+        SuggestionTime.objects.create(
+            user = other_user,
+            category = SuggestionTime.LUNCH,
+            hour = 14,
+            minute = 2
+        )
         plan = ActivityPlan.objects.create(
-            user = User.objects.create(username="other"),
+            user = other_user,
             type = ActivityType.objects.create(name="run"),
-            start = timezone.now(),
+            date = timezone.now().today(),
+            timeOfDay = SuggestionTime.LUNCH,
             duration = 7
         )
 
@@ -100,7 +132,8 @@ class ActivityPlanViewTest(APITestCase):
             'plan_id': self.plan.id
         }), {
             'type': 'swim',
-            'start': '2018-09-05T14:45',
+            'date': '2018-09-05',
+            'timeOfDay': SuggestionTime.LUNCH,
             'duration': 30,
             'vigorous': True,
             'complete': False
@@ -109,37 +142,51 @@ class ActivityPlanViewTest(APITestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(self.plan.id, response.data['id'])
         self.assertEqual('swim', response.data['type'])
-        self.assertEqual(response.data['start'], '2018-09-05T14:45:00Z')
+        self.assertEqual(response.data['date'], '2018-09-05')
+        self.assertEqual(response.data['timeOfDay'], SuggestionTime.LUNCH)
         self.assertEqual(response.data['duration'], 30)
         self.assertEqual(response.data['vigorous'], True)
         self.assertEqual(response.data['complete'], False)
 
-    def test_complete_plan_creates_log(self):
+    @patch.object(LocationService, 'get_timezone_on', return_value=pytz.timezone('Etc/GMT+8'))
+    def test_complete_plan_creates_log(self, get_timezone_on):
+
         response = self.client.post(reverse('activity-plan-detail', kwargs={
             'plan_id': self.plan.id
         }), {
             'type': 'walk',
-            'start': timezone.now(),
+            'date': '2019-03-03',
+            'timeOfDay': SuggestionTime.LUNCH,
             'duration': 30,
             'vigorous': True,
             'complete': True
         })
 
-        activity_log = ActivityLog.objects.get()
-        activity_plan = ActivityPlan.objects.get()
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['complete'], True)
 
+        activity_log = ActivityLog.objects.get()
+        activity_plan = ActivityPlan.objects.get()
         self.assertEqual(activity_log.user, self.user)
         self.assertEqual(activity_plan.activity_log.id, activity_log.id)
         self.assertEqual(activity_plan.type, activity_log.type)
         self.assertEqual(activity_plan.vigorous, activity_log.vigorous)
-        self.assertEqual(activity_plan.start, activity_log.start)
+        self.assertEqual(activity_plan.date, activity_log.date)
+        self.assertEqual(activity_plan.timeOfDay, activity_log.timeOfDay)
         self.assertEqual(activity_plan.duration, activity_log.duration)
 
+        tz = pytz.timezone('Etc/GMT+8')
+        dt = tz.localize(datetime(2019,3,3,12,15))
+        self.assertEqual(activity_log.start, dt.astimezone(pytz.UTC))
+
     def test_uncomplete_plan_destroys_log(self):
-        self.plan.update_activity_log()
+        self.plan.activity_log = ActivityLog.objects.create(
+            user = self.user,
+            type = self.plan.type,
+            duration = 30,
+            start = timezone.now()
+        )
+        self.plan.save()
 
         self.assertEqual(ActivityLog.objects.count(), 1)
 
@@ -147,7 +194,8 @@ class ActivityPlanViewTest(APITestCase):
             'plan_id': self.plan.id
         }), {
             'type': 'walk',
-            'start': self.plan.start,
+            'date': '2019-03-03',
+            'timeOfDay': SuggestionTime.LUNCH,
             'duration': 30,
             'vigorous': True,
             'complete': False

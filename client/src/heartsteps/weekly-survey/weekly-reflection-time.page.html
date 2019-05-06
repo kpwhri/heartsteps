@@ -1,16 +1,21 @@
-<form *ngIf="weeklyReflectionForm" [formGroup]="weeklyReflectionForm">
-    <p>Set your weekly reflection time</p>
-    <ion-item>
-        <ion-label>Day</ion-label>
-        <ion-select formControlName="day">
-            <ion-option *ngFor="let day of days" value="{{day}}">{{day | titlecase}}</ion-option>
-        </ion-select>
-    </ion-item>
-    <ion-item>
-        <ion-label>Time</ion-label>
-        <ion-datetime formControlName="time" displayFormat="h:mm a" minuteValues="0,30"></ion-datetime>
-    </ion-item>
-    <div class="controls">
-        <button (click)="save()">Save</button>
-    </div>
-</form>
+<app-form
+    *ngIf="weeklyReflectionForm"
+    [formGroup]="weeklyReflectionForm"
+    (onSubmit)="save()"
+    >
+    <fieldset>
+        <legend>Set your weekly reflection time</legend>
+        <app-select-field
+            formControlName="day"
+            label="Day"
+            [options]="days"
+            >
+        </app-select-field>
+        <app-time-field
+            formControlName="time"
+            label="Time"
+            increment="30"
+            >
+        </app-time-field>
+    </fieldset>
+</app-form>

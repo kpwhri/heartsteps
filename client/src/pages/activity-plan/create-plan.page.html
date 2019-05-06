@@ -1,0 +1,17 @@
+<app-modal
+    title="Create Activity Plan"
+    (onDismiss)="back()"
+    dismiss="Cancel"
+    >
+    <app-form
+        [formGroup]="planForm"
+        submitLabel="Create plan"
+        (onSubmit)="create()"
+        [error]="error"
+        >
+        <activity-plan-field
+            formControlName="activityPlan"
+            >
+        </activity-plan-field>
+    </app-form>
+</app-modal>

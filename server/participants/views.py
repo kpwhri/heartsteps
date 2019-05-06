@@ -3,37 +3,46 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 
 from .models import Participant
+from .services import ParticipantService
 
-class EnrollView(APIView):
-    """
-    Enrolls a participant and creates an enrollment token for their session if a matching token is found.
+class LoginView(APIView):
 
-    Expects requests to send a "enrollmentToken" in post data.
-    """
-    def post(self, request, format=None):
+    def post(self, request):
         enrollment_token = request.data.get('enrollmentToken')
         birth_year = request.data.get('birthYear', None)
         if enrollment_token:
             try:
-                participant = Participant.objects.get(
-                    enrollment_token__iexact=enrollment_token,
+                service = ParticipantService.get_participant(
+                    token = enrollment_token,
                     birth_year = birth_year
                 )
-            except Participant.DoesNotExist:
+                self.service = service
+                self.participant = service.participant
+            except ParticipantService.NoParticipant:
                 return Response({}, status.HTTP_401_UNAUTHORIZED)
-
-            participant.enroll()
-            token, created = Token.objects.get_or_create(user=participant.user)
-
-            response_data = {
-                'heartstepsId': participant.heartsteps_id
-            }
-            response_headers = {
-                'Authorization-Token': token
-            }
-
-            return Response(response_data, headers=response_headers)
+            self.authentication_successful()
+            return Response(
+                self.get_response(),
+                headers=self.get_headers()
+            )
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_response(self):
+        return {
+            'heartstepsId': self.service.get_heartsteps_id()
+        }
+
+    def get_headers(self):
+        return {
+            'Authorization-Token': self.service.get_authorization_token()
+        }
+
+    def authentication_successful(self):
+        pass
+
+class EnrollView(LoginView):
+
+    def authentication_successful(self):
+        self.service.initialize()

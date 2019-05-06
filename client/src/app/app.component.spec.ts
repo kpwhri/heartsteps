@@ -11,7 +11,9 @@ import { ParticipantService } from '@heartsteps/participants/participant.service
 import { AuthorizationService } from '@app/authorization.service';
 import { BackgroundService } from '@app/background.service.ts';
 import { NotificationService } from '@app/notification.service.ts';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { HomePageModule } from '@pages/home/home.module';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 class ParticipantServiceMock {
 
@@ -34,15 +36,18 @@ describe('MyApp', () => {
             declarations: [MyApp],
             imports: [
                 RouterModule.forRoot([]),
+                HomePageModule,
                 IonicModule.forRoot(MyApp)
             ],
             providers: [
                 StatusBar,
                 SplashScreen,
+                { provide: Router, useClass: BackgroundServiceMock },
                 { provide: ParticipantService, useClass: ParticipantServiceMock },
                 { provide: AuthorizationService, useClass: AuthorizationServiceMock },
                 { provide: BackgroundService, useClass: BackgroundServiceMock },
-                { provide: NotificationService, useClass: BackgroundServiceMock }
+                { provide: NotificationService, useClass: BackgroundServiceMock },
+                { provide: AnalyticsService, useClass: BackgroundServiceMock }
             ]
         });
         fixture = TestBed.createComponent(MyApp);

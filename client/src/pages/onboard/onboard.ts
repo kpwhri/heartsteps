@@ -1,25 +1,23 @@
-import { Component, ViewChild, OnInit, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
-
-import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { NotificationsPermission } from '@heartsteps/notifications/notifications';
-import { LocationPermission } from '@heartsteps/locations/location-permission';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { NotificationsPermissionComponent } from '@heartsteps/notifications/notification-permission.component';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
-import { ProfileService } from '@heartsteps/participants/profile.factory';
 import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
+import { Step } from '@infrastructure/components/stepper.component';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
+import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
 
-const onboardingPages:Array<any> = [{
+const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
     title: 'Contact Information',
     component: ParticipantInformation
 }, {
     key: 'notificationsEnabled',
     title: 'Notifications',
-    component: NotificationsPermission
+    component: NotificationsPermissionComponent
 }, {
     key: 'weeklyReflectionTime',
     title: 'Reflection Time',
@@ -29,10 +27,6 @@ const onboardingPages:Array<any> = [{
     title: 'Suggestion Times',
     component: WalkingSuggestionTimesComponent
 }, {
-    key: 'locationPermission',
-    title: 'Locations',
-    component: LocationPermission
-}, {
     key: 'places',
     title: 'Places',
     component: PlacesList
@@ -40,36 +34,32 @@ const onboardingPages:Array<any> = [{
     key: 'fitbitAuthorization',
     title: 'Fitbit',
     component: FitbitAuth
+}, {
+    key: 'fitbitWatch',
+    title: 'Heartsteps clockface',
+    component: WatchSetupComponent
 }];
 
 @Component({
     selector: 'pages-onboarding',
     templateUrl: 'onboard.html',
     entryComponents: [
-        NotificationsPermission,
-        LocationPermission,
+        NotificationsPermissionComponent,
         WeeklyReflectionTimePage,
         WalkingSuggestionTimesComponent,
-        LocationPermission,
         PlacesList
     ]
 })
 export class OnboardPage implements OnInit {
-    @ViewChild("screenDisplay", { read: ViewContainerRef }) container: ViewContainerRef;
-    index:number = 0;
-    pages:Array<any>;
-
-    public pageTitle:string;
-    private pageSubscription:Subscription;
+    pages:Array<Step>;
 
     constructor(
-        private router: Router,
-        private profileService: ProfileService,
-        private componentFactoryResolver: ComponentFactoryResolver
+        private participantService: ParticipantService,
+        private router: Router
     ) {}
 
     ngOnInit() {
-        this.profileService.get()
+        this.participantService.getProfile()
         .then((profile) => {
             this.pages = [];
             onboardingPages.forEach((page) => {
@@ -77,45 +67,13 @@ export class OnboardPage implements OnInit {
                     this.pages.push(page);
                 }
             });
-            this.loadPage(0);
         });
     }
 
-    nextPage() {
-        this.loadPage(this.index + 1);
-    }
-
-    prevPage() {
-        this.loadPage(this.index - 1);
-    }
-
-    loadPage(pageNumber:number) {
-        if(pageNumber >= this.pages.length) {
+    public finish() {
+        this.participantService.update()
+        .then(() => {
             this.router.navigate(['/']);
-            return;
-        }
-        const page:any = this.pages[pageNumber];
-        if(!page) {
-            return;
-        } else {
-            this.index = pageNumber;
-        }
-
-        if(this.pageSubscription) {
-            this.pageSubscription.unsubscribe();
-        }
-        this.container.clear();
-
-        this.pageTitle = page.title;
-        let componentFactory = this.componentFactoryResolver.resolveComponentFactory(page.component);
-        let componentRef = this.container.createComponent(componentFactory);
-
-        let instance:any = componentRef.instance;
-        this.pageSubscription = instance.saved.subscribe(() => {
-            this.pageSubscription.unsubscribe();
-            this.pageSubscription = null;
-
-            this.nextPage();
         });
     }
 

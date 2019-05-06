@@ -1,53 +1,47 @@
 import { Injectable } from "@angular/core";
-import { NotificationService as HeartstepsNotificationService } from '@heartsteps/notifications/notification.service';
-import { NotificationService as InfrastructureNotificationService } from '@infrastructure/notification.service';
-import { Notification } from "@heartsteps/notifications/notification.model";
-import { WalkingSuggestionService } from "@heartsteps/walking-suggestions/walking-suggestion.service";
+import { MessageService } from '@heartsteps/notifications/message.service';
 import { Router } from "@angular/router";
 import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { Message } from "@heartsteps/notifications/message.model";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 @Injectable()
 export class NotificationService {
-    
+
     constructor(
-        private notifications: HeartstepsNotificationService,
-        private notificationService: InfrastructureNotificationService,
-        private walkingSuggestionService: WalkingSuggestionService,
+        private messageService: MessageService,
         private weeklySurveyService: WeeklySurveyService,
+        private morningMessageService: MorningMessageService,
         private router: Router
     ) {}
 
     setup() {
-
-        this.notificationService.notification.subscribe((notification) => {
-            switch(notification.type) {
-                case 'weekly-reflection':
-                    this.weeklySurveyService.show();
-                    break;
-                case 'morning-message':
-                    this.router.navigate(['morning-message']);
-                    break;
-                default:
-                    console.log(notification);
-            }
+        this.messageService.opened.subscribe((message: Message) => {
+            console.log('AppNotificationService: Processing message id=' + message.id);
+            this.processOpenedMessage(message)
+            .then(() => {
+                console.log('AppNotificationService: Opened message id='+message.id)
+                message.opened();
+            });
         });
+        this.messageService.setup();
+    }
 
-        this.notificationService.setupNotificationListener();
-
-        this.notifications.notificationMessage.subscribe((notification: Notification) => {
-            this.router.navigate(['notification', notification.id]);
-        });
-
-        this.notifications.dataMessage.subscribe((payload:any) => {
-            if(payload.type == 'weekly-reflection' && payload.weekId) {
-                this.weeklySurveyService.set(payload.weekId);
-            }
-            if(payload.type == 'morning-message') {
-
-            }
-            if(payload.type == 'request-context' && payload.decisionId) {
-                this.walkingSuggestionService.sendDecisionContext(payload.decisionId);
-            }
-        })
+    private processOpenedMessage(message: Message): Promise<boolean> {
+        switch(message.type) {
+            case 'weekly-reflection':
+                return this.weeklySurveyService.processMessage(message)
+                .then(() => {
+                    return this.router.navigate(['weekly-survey']);
+                });
+            case 'morning-message':
+                return this.morningMessageService.processMessage(message)
+                .then(() => {
+                    return this.router.navigate(['morning-survey']);
+                });
+            default:
+                console.log('AppNotificationService: Try to open notification page for: ' + message.id);
+                return this.router.navigate(['notification', message.id]);
+        }
     }
 }

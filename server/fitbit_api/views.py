@@ -9,19 +9,20 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from fitbit_api.services import FitbitClient
-from fitbit_api.tasks import update_fitbit_data
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitUpdate, FitbitSubscription, FitbitSubscriptionUpdate
+from fitbit_api.services import FitbitClient, FitbitService, parse_fitbit_date
+from fitbit_api.signals import update_date
+from fitbit_api.models import FitbitAccount, FitbitUpdate, FitbitSubscription, FitbitSubscriptionUpdate
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def fitbit_account(request):
     try:
-        account = FitbitAccountUser.objects.get(user=request.user)
-    except FitbitAccountUser.DoesNotExist:
+        service = FitbitService(user=request.user)
+    except FitbitService.NoAccount:
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     return Response({
-        'fitbit': account.account.fitbit_user
+        'fitbit': service.fitbit_user,
+        'isAuthorized': service.is_authorized()
     }, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
@@ -44,9 +45,10 @@ def fitbit_subscription(request):
                 subscription = subscription,
                 update = fitbit_update,
                 payload = update
+            ) 
+            update_date.send(
+                sender = FitbitAccount,
+                fitbit_user = subscription.fitbit_account.fitbit_user,
+                date = update['date']
             )
-            update_fitbit_data.apply_async(kwargs={
-                'username': subscription.fitbit_account.fitbit_user,
-                'date_string': update['date']
-            })        
     return Response('', status=status.HTTP_204_NO_CONTENT)

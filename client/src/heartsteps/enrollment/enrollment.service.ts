@@ -31,6 +31,12 @@ export class EnrollmentService {
             return true;
         })
         .catch((error) => {
+            if(!error) {
+                return Promise.reject('Unknown error');
+            }
+            if(error.search(/401/i) >= 0) {
+                return Promise.reject('Participant with matching entry code and birth year not found')
+            }
             return Promise.reject(error);
         });
     }

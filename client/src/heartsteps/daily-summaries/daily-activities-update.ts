@@ -1,9 +1,9 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { DailySummaryService } from "./daily-summary.service";
 
 import * as moment from 'moment';
-import { LoadingService } from "@infrastructure/loading.service";
 import { DailySummary } from "./daily-summary.model";
+import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 
 @Component({
     selector: 'heartsteps-activity-daily-update',
@@ -11,19 +11,39 @@ import { DailySummary } from "./daily-summary.model";
 })
 export class DailyActivitiesUpdateComponent {
     
+    public loading: boolean = false;
     public updateTimeFormatted:string;
     private summary: DailySummary;
 
+    public date:Date;
+
     constructor(
         private dailySummaryService: DailySummaryService,
-        private loadingService: LoadingService
-    ){}
+        private alertDialog: AlertDialogController
+    ) {}
 
     @Input('summary')
     set setSummary(summary: DailySummary) {
         if(summary) {
-            this.summary = summary
-            this.formatTime();
+            this.update(summary)
+        }
+    }
+
+    @Input('date')
+    set setDate(date: Date) {
+        if (date) {
+            this.date = date;
+            this.loading = true;
+            this.dailySummaryService.get(date)
+            .then((summary) => {
+                this.update(summary);
+            })
+            .catch(() => {
+                console.log('Could not get daily summary');
+            })
+            .then(() => {
+                this.loading = false;
+            });
         }
     }
 
@@ -31,20 +51,22 @@ export class DailyActivitiesUpdateComponent {
         this.updateTimeFormatted = moment(this.summary.updated).fromNow();
     }
 
+    private update(summary: DailySummary) {
+        this.summary = summary;
+        this.formatTime();
+    }
+
     public refresh() {
-        if (this.summary) {
-            this.loadingService.show("Loading data from Fitbit");
-            this.dailySummaryService.update(this.summary.date)
-            .then((summary) => {
-                this.summary = summary;
-                this.formatTime();
-            })
-            .catch(() => {
-                console.log('Could not get summary');
-            })
-            .then(() => {
-                this.loadingService.dismiss();
-            });
-        }
+        this.loading = true;
+        this.dailySummaryService.update(this.summary.date)
+        .then((summary) => {
+            this.update(summary);
+        })
+        .catch(() => {
+            this.alertDialog.show('Update failed');
+        })
+        .then(() => {
+            this.loading = false;
+        });
     }
 }

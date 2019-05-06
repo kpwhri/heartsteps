@@ -12,7 +12,7 @@ const storageKey = 'heartsteps-id'
 @Injectable()
 export class ParticipantService {
 
-    public participant:Subject<any>;
+    public participant:Subject<Participant>;
 
     constructor(
         private storage:StorageService,
@@ -21,29 +21,40 @@ export class ParticipantService {
         this.participant = new Subject();
     }
 
-    update():Promise<boolean> {
+    public getProfile():Promise<any> {
+        return this.profileService.get();
+    }
+
+    public update():Promise<boolean> {
         return this.isEnrolled()
         .then(() => {
-            return this.profileService.isComplete()
-            .then(() => {
-                this.participant.next({
-                    enrolled: true,
-                    profileComplete: true
-                })
+            return this.profileService.load()
+        })
+        .then(() => {
+            return this.getParticipant()
+            .then((participant) => {
+                this.participant.next(participant);
                 return true;
-            })
-            .catch(() => {
-                this.participant.next({
-                    enrolled: true,
-                    profileComplete: false
-                })
-                return true;
-            })
+            });
         })
         .catch(() => {
-            this.participant.next(false)
+            this.participant.next(null)
             return true;
         })
+    }
+
+    private getParticipant():Promise<Participant> {
+        return this.profileService.isComplete()
+        .then(() => {
+            return {
+                profileComplete: true
+            };
+        })
+        .catch(() => {
+            return {
+                profileComplete: false
+            };
+        });
     }
 
     remove():Promise<boolean> {
@@ -52,7 +63,7 @@ export class ParticipantService {
             return this.storage.remove(storageKey);
         })
         .then(() => {
-            this.participant.next(false);
+            this.participant.next(null);
             return true;
         });
     }

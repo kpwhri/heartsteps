@@ -23,7 +23,7 @@ export class ActivityLogService {
     }
 
     get(start:Date, end:Date):Promise<Array<ActivityLog>> {
-        return this.heartstepsServer.get('activity/logs/', {
+        return this.heartstepsServer.get('activity/logs', {
             start: start.toISOString(),
             end: end.toISOString()
         })
@@ -31,6 +31,10 @@ export class ActivityLogService {
             return logs.map((log) => {
                 return this.deserialize(log);
             });
+        })
+        .then((logs:Array<ActivityLog>) => {
+            this.sort(logs);
+            return logs;
         });
     }
 
@@ -42,10 +46,11 @@ export class ActivityLogService {
     }
 
     public save(activityLog:ActivityLog):Promise<ActivityLog> {
-        return this.heartstepsServer.post(
-            'activity/logs/' + activityLog.id,
-            this.serialize(activityLog)    
-        )
+        let uri = 'activity/logs'
+        if(activityLog.id) {
+            uri = 'activity/logs/' + activityLog.id;
+        }
+        return this.heartstepsServer.post(uri,this.serialize(activityLog))
         .then((data) => {
             return this.deserialize(data);
         })
@@ -70,7 +75,9 @@ export class ActivityLogService {
             duration: activityLog.duration,
             type: activityLog.type,
             vigorous: activityLog.vigorous,
-            earnedMinutes: activityLog.earnedMinutes
+            earnedMinutes: activityLog.earnedMinutes,
+            enjoyed: activityLog.enjoyed,
+            effort: activityLog.effort
         }
     }
 
@@ -82,7 +89,21 @@ export class ActivityLogService {
         activityLog.duration = data.duration;
         activityLog.earnedMinutes = data.earnedMinutes;
         activityLog.vigorous = data.vigorous;
+        activityLog.enjoyed = data.enjoyed;
+        activityLog.effort = data.effort;
         return activityLog;
+    }
+
+    public sort(logs: Array<ActivityLog>): void {
+        logs.sort((a, b) => {
+            if (a.start > b.start) {
+                return 1;
+            }
+            if (b.start > a.start) {
+                return -1;
+            }
+            return 0;
+        });
     }
 
 }

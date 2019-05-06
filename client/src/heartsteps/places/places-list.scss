@@ -1,0 +1,41 @@
+
+heartsteps-places-list {
+
+    .place:before {
+        content:'';
+        display: block;
+        width: 1em;
+        height: 1em;
+
+        margin-right: 1em;
+
+        background-color: $link-color;
+
+        mask-image: url('../assets/pin.svg');
+        mask-repeat: no-repeat;
+    }
+
+    .place.home:before {
+        mask-image: url('../assets/home.svg');
+    }
+    .place.work:before {
+        mask-image: url('../assets/work.svg');
+    }
+
+}
+
+place-edit,
+place-edit.ion-page {
+    display: flex;
+}
+
+place-edit form {
+    #map {
+        display: none;
+    }
+
+    &.show-map #map{
+        display: block;
+    }
+}
+

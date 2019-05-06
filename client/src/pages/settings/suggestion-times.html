@@ -1,7 +1,9 @@
-<article class="page">
-    <header>
-        <h2>Suggestion Times</h2>
-        <a class="back" (click)="goBack()">Back</a>
-    </header>
-    <heartsteps-walking-suggestion-times (saved)="goBack()"></heartsteps-walking-suggestion-times>
-</article>
+<app-modal
+    title="Suggestion Times"
+    (onDismiss)="goBack()"
+    >
+    <heartsteps-walking-suggestion-times
+        (saved)="goBack()"
+        >
+    </heartsteps-walking-suggestion-times>
+</app-modal>

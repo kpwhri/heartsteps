@@ -1,0 +1,32 @@
+<app-form 
+    *ngIf="planForm"
+    [formGroup]="planForm"
+    (onSubmit)="save()"
+    >
+    <heartsteps-activity-type-field
+        formControlName="activity"
+        label="Activity type"
+        >
+    </heartsteps-activity-type-field>
+    <heartsteps-activity-intensity-field
+        formControlName="vigorous"
+        label="Intensity"
+        >
+    </heartsteps-activity-intensity-field>
+    <app-duration-field 
+        formControlName="duration"
+        label="Duration"
+        >
+    </app-duration-field>
+    <app-date-field
+        formControlName="date"
+        label="Date"
+        [available-dates]="availableDates"
+        >
+    </app-date-field>
+    <app-time-field
+        formControlName="time"
+        label="Time"
+        >
+    </app-time-field>
+</app-form>

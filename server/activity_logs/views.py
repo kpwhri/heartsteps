@@ -60,9 +60,6 @@ class ActivityLogsList(APIView):
     def post(self, request):
         serialized = ActivityLogSerializer(data=request.data)
         if serialized.is_valid():
-            activity_log = ActivityLog(**serialized.validated_data)
-            activity_log.user = request.user
-            activity_log.save()
-            serialzied_log = ActivityLogSerializer(activity_log)
-            return Response(serialzied_log.data, status=status.HTTP_201_CREATED)
+            serialized.save(user=request.user)
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,21 +1,21 @@
-<form>
-    <div>
-        <label>Suggested goal</label>
-        <heartsteps-increment
-        [(ngModel)]="minutes"
-        name="goal"
-        units="min"
-        ></heartsteps-increment>
-    </div>
-
+<app-form *ngIf="form"
+    [formGroup]="form"
+    [submitLabel]="cta"
+    [error]="error"
+    (onSubmit)="save()"
+    >
+    <app-increment-field
+        formControlName="minutes"
+        label="Suggested goal"
+        >
+    </app-increment-field>
     <div>
         Insert Weekly charts
     </div>
-    <div>
-        <label>How confident are you that you can achieve next week's goal?</label>
-        <heartsteps-range [(ngModel)]="confidence" name="confidence"></heartsteps-range>
-    </div>
-    <div class="controls">
-        <button (click)="save()">{{cta}}</button>
-    </div>
-</form>
+    <app-range-field
+        formControlName="confidence"
+        label="How confident are you that you'll reach your goal"
+        [options]="confidenceOptions"
+        >
+    </app-range-field>
+</app-form>

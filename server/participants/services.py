@@ -1,7 +1,11 @@
 from datetime import datetime, timedelta
 
-from fitbit_api.services import FitbitDayService
+from rest_framework.authtoken.models import Token
+
+from fitbit_activities.services import FitbitDayService
 from locations.services import LocationService
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from anti_sedentary.services import AntiSedentaryService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
@@ -25,13 +29,36 @@ class ParticipantService:
             raise ParticipantService.NoParticipant()
         self.participant = participant
 
+    def get_participant(token, birth_year):
+        try:
+            participant = Participant.objects.get(
+                enrollment_token__iexact=token,
+                birth_year = birth_year
+            )
+            return ParticipantService(
+                participant=participant
+            )
+        except Participant.DoesNotExist:
+            raise ParticipantService.NoParticipant('No participant for token')
+    
+    def get_authorization_token(self):
+        token, _ = Token.objects.get_or_create(user=self.participant.user)
+        return token
+    
+    def get_heartsteps_id(self):
+        return self.participant.heartsteps_id
+
     def get_current_datetime(self):
         location_service = LocationService(self.participant.user)
         timezone = location_service.get_current_timezone()
         return datetime.now(timezone)
 
-    def enroll(self):
+    def initialize(self):
+        self.participant.enroll()
         self.participant.set_daily_task()
+        AntiSedentaryConfiguration.objects.update_or_create(
+            user = self.participant.user
+        )
         MorningMessagesConfiguration.objects.update_or_create(
             user=self.participant.user
         )
@@ -39,7 +66,7 @@ class ParticipantService:
             user=self.participant.user
         )
     
-    def unenroll(self):
+    def deactivate(self):
         pass
     
     def update(self, day=None):
@@ -66,8 +93,19 @@ class ParticipantService:
             walking_suggestion_service = WalkingSuggestionService(
                 user = self.participant.user
             )
-            walking_suggestion_service.update(day)
+            if walking_suggestion_service.is_initialized():
+                walking_suggestion_service.update(day)
+            else:
+                walking_suggestion_service.initialize(day)
         except WalkingSuggestionService.Unavailable:
+            pass
+
+        try:
+            anti_sedentary_service = AntiSedentaryService(
+                user = self.participant.user
+            )
+            anti_sedentary_service.update(day)
+        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
             pass
 
         ## Maybe following is just update task from app

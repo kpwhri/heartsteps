@@ -1,4 +1,3 @@
-import { WeekService } from "./week.service";
 import * as moment from 'moment';
 
 export class Week {
@@ -8,16 +7,9 @@ export class Week {
     goal:number;
     confidence: number;
 
-    constructor(
-        private weekService:WeekService
-    ){}
+    survey: any;
 
-    setGoal(minutes:number, confidence:number):Promise<boolean> {
-        return this.weekService.setWeekGoal(this, minutes, confidence)
-        .then(() => {
-            return true;
-        });
-    }
+    constructor(){}
 
     getDays():Array<Date> {
         const days:Array<Date> = [];

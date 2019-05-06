@@ -1,24 +1,34 @@
 import { Injectable } from "@angular/core";
-import { NotificationService } from "@heartsteps/notifications/notification.service";
+import { MessageService } from "@heartsteps/notifications/message.service";
 import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/walking-suggestion-time.service";
-import { LocationService } from "@infrastructure/location.service";
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
+import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
+import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
+import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
+import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
+import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 
 @Injectable()
 export class ProfileService {
 
     constructor(
-        private notificationService: NotificationService,
+        private messageService: MessageService,
+        private dailyTimeService: DailyTimeService,
         private walkingSuggestionTimeService:WalkingSuggestionTimeService,
-        private locationService:LocationService,
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
-        private fitbitService: FitbitService
+        private fitbitService: FitbitService,
+        private fitbitWatchService: FitbitWatchService,
+        private currentWeekService: CurrentWeekService,
+        private cachedActivityLogService: CachedActivityLogService,
+        private activityPlanService: ActivityPlanService,
+        private activityTypeService: ActivityTypeService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -43,11 +53,16 @@ export class ProfileService {
 
     public load():Promise<boolean> {
         return Promise.all([
+            this.setupDailyTime(),
             this.loadWalkingSuggestions(),
             this.loadPlaces(),
             this.loadReflectionTime(),
             this.loadContactInformation(),
-            this.loadFitbit()
+            this.loadFitbit(),
+            this.loadCurrentWeek(),
+            this.loadCurrentActivityLogs(),
+            this.setupActivityPlanService(),
+            this.setupActivityTypeService()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -60,8 +75,6 @@ export class ProfileService {
     public remove():Promise<boolean> {
         return Promise.all([
             this.walkingSuggestionTimeService.removeTimes(),
-            this.notificationService.disable(),
-            this.locationService.removePermission(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
             this.contactInformationService.remove(),
@@ -79,26 +92,33 @@ export class ProfileService {
         return Promise.all([
             this.checkNotificationsEnabled(),
             this.checkWalkingSuggestions(),
-            this.checkLocationPermission(),
             this.checkPlacesSet(),
             this.checkReflectionTime(),
             this.checkContactInformation(),
-            this.checkFitbit()
+            this.checkFitbit(),
+            this.checkFitbitWatch()
         ])
         .then((results) => {
             return {
                 notificationsEnabled: results[0],
                 walkingSuggestionTimes: results[1],
-                locationPermission: results[2],
-                places: results[3],
-                weeklyReflectionTime: results[4],
-                contactInformation: results[5],
-                fitbitAuthorization: results[6]
+                places: results[2],
+                weeklyReflectionTime: results[3],
+                contactInformation: results[4],
+                fitbitAuthorization: results[5],
+                fitbitWatch: results[6]
             }
         })
         .catch(() => {
             return Promise.reject(false)
         })
+    }
+
+    private setupDailyTime():Promise<boolean> {
+        return this.dailyTimeService.setup()
+        .catch(() => {
+            return Promise.resolve(false);
+        });
     }
 
     private checkReflectionTime():Promise<boolean> {
@@ -142,7 +162,7 @@ export class ProfileService {
     }
 
     private checkNotificationsEnabled():Promise<boolean> {
-        return this.notificationService.isEnabled()
+        return this.messageService.isEnabled()
         .then(() => {
             return true
         })
@@ -168,16 +188,6 @@ export class ProfileService {
         })
         .catch(() => {
             return Promise.resolve(false);
-        })
-    }
-
-    private checkLocationPermission():Promise<boolean> {
-        return this.locationService.hasPermission()
-        .then(() => {
-            return true
-        })
-        .catch(() => {
-            return Promise.resolve(false)
         })
     }
 
@@ -211,6 +221,16 @@ export class ProfileService {
         });
     }
 
+    checkFitbitWatch(): Promise<boolean> {
+        return this.fitbitWatchService.isInstalled()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
     loadFitbit():Promise<boolean> {
         return this.fitbitService.updateAuthorization()
         .then(() => {
@@ -219,5 +239,45 @@ export class ProfileService {
         .catch(() => {
             return Promise.resolve(false);
         });
+    }
+
+    loadCurrentWeek():Promise<boolean> {
+        return this.currentWeekService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    loadCurrentActivityLogs(): Promise<boolean> {
+        return this.cachedActivityLogService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private setupActivityPlanService() {
+        return this.activityPlanService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private setupActivityTypeService() :Promise<boolean> {
+        return this.activityTypeService.setup()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
     }
 }

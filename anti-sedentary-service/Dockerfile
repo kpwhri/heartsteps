@@ -7,5 +7,8 @@ ADD . /anti-sedentary-service
 RUN pip install -r requirements.txt
 RUN Rscript install.r
 
+ENV googleStorageBucket anti-sedentary-data
+
 # Run the server
-CMD gcsfuse anti-sedentary-data ./data && gunicorn -b 0.0.0.0:8080 wsgi
+RUN mkdir -p ./data
+CMD gcsfuse --implicit-dirs ${googleStorageBucket} ./data && gunicorn -b 0.0.0.0:8080 wsgi

@@ -1,0 +1,20 @@
+<article>
+    <header>
+        <h3>
+            <span *ngIf="isToday && !hideIsToday" class="highlight">Today, </span>
+            {{title}}
+        </h3>
+        <button *ngIf="canAddActivity"
+            (click)="createPlan()"
+            class="add"
+            >
+            Add an activity
+        </button>
+    </header>
+    <ul *ngIf="plans.length">
+        <li *ngFor="let plan of plans">
+            <heartsteps-activity-plan [plan]="plan"></heartsteps-activity-plan>
+        </li>
+    </ul>
+    <p *ngIf="!plans.length">Nothing planned.</p>
+</article>

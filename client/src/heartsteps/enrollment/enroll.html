@@ -1,23 +1,19 @@
-<article class="page">
-  <header>
-    <h2>Enroll</h2>
-    <a *ngIf="dismissable" class="close">Close</a>
-  </header>
-  <form [formGroup]="enrollmentForm" (ngSubmit)="enroll()" >
+<app-form
+    [formGroup]="enrollmentForm"
+    (onSubmit)="enroll()"
+    submitLabel="Enroll"
+    [error]="error"
+    >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
     <app-text-field
-      formControlName="entryToken"
-      label="Entry code"
-      >
+        formControlName="entryToken"
+        label="Entry code"
+        >
     </app-text-field>
     <app-year-field
-      formControlName="birthYear"
-      label="Birth year"
-      >
+        formControlName="birthYear"
+        label="Birth year"
+        >
     </app-year-field>
-    <div class="controls">
-        <p *ngIf="error" class="error">{{error}}</p>
-        <button >Enroll</button>
-    </div>
-  </form>
-</article>
+    <p>By enrolling in HeartSteps, you are agreeing to <a (click)="openPrivacyPolicy()">HeartSteps Privacy Policy.</a></p>
+</app-form>

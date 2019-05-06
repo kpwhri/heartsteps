@@ -2,8 +2,8 @@ import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as d3 from 'd3';
 import { DateFactory } from '@infrastructure/date.factory';
 import { Subscription } from 'rxjs';
-import { CurrentDailySummariesService } from './current-daily-summaries.service';
 import { CurrentWeekService } from './current-week.service';
+import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
 
 const COMPLETE:string = 'complete';
 const TODAY: string = 'today';
@@ -23,17 +23,19 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private arc: any;
     private pieGenerator: any;
 
-    private firstUpdate = true;
-
     private total: number = 150;
     private complete: number = 0;
     private current: number = 0;
 
-    private subscription: Subscription;
+    public goalAchieved: boolean;
+
+    private currentWeekSubscription: Subscription;
+    private currentSummariesSubscription: Subscription;
 
     constructor(
         private elementRef:ElementRef,
-        private currentDailySummaries: CurrentDailySummariesService,
+        private dateFactory: DateFactory,
+        private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService
     ) {}
 
@@ -41,32 +43,40 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         this.initializeChart();
         this.drawChart();
 
-        this.currentWeekService.get()
-        .then((week) => {
+        this.currentWeekSubscription = this.currentWeekService.week
+        .filter(week => week !== undefined)
+        .subscribe((week) => {
             this.total = week.goal;
-        })
-        .then(() => {
-            this.subscription = this.currentDailySummaries.week
-            .filter(summary => summary !== undefined)
-            .subscribe((summaries) => {
-                this.current = 0;
-                this.complete = 0;
-    
-                summaries.forEach((summary) => {
-                    this.complete += summary.minutes;
-                    if (summary.isToday()) {
-                        this.current += summary.minutes;
-                    }
-                })
-    
-                this.updateChart();
+            this.updateChart();
+            this.updateGoalAchieved();
+        });
+
+        const currentWeek = this.dateFactory.getCurrentWeek();
+        const weekStart = currentWeek[0];
+        const weekEnd = currentWeek[currentWeek.length - 1];
+
+        this.dailySummaryService.watchRange(weekStart, weekEnd)
+        .subscribe((summaries) => {
+            this.current = 0;
+            this.complete = 0;
+            summaries.forEach((summary) => {
+                this.complete += summary.minutes;
+                if (summary.isToday()) {
+                    this.current += summary.minutes;
+                }
             });
-        })
+            this.updateChart();
+            this.updateGoalAchieved();          
+        });
+
     }
 
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
+        if (this.currentWeekSubscription) {
+            this.currentWeekSubscription.unsubscribe();
+        }
+        if (this.currentSummariesSubscription) {
+            this.currentSummariesSubscription.unsubscribe();
         }
     }
 
@@ -102,6 +112,14 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         });
     }
 
+    private updateGoalAchieved() {
+        if(this.total < this.complete) {
+            this.goalAchieved = true;
+        } else {
+            this.goalAchieved = false;
+        }
+    }
+
     private drawChart() {
         const arcs = this.makeArcs();
 
@@ -123,25 +141,14 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     }
 
     private updateChart() {
-        let duration: number = 1000;
-        if (this.firstUpdate) {
-            this.firstUpdate = false;
-            duration = 0;
-        }
-
         const arcs = this.makeArcs();
         const arcFunction = this.arc;
 
         this.pie.selectAll("path")
         .data(arcs)
-        .transition().duration(duration)
-        .attrTween("d", function(d) {
-            const i = d3.interpolate(this._current, d);
-            this._current = i(0);
-            return function(t) {
-                return arcFunction(i(t));
-            }
-        })
+        .attr("d", function(d) {
+            return arcFunction(d);
+        });
     }
 
     private makeArcs() {

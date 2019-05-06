@@ -1,0 +1,31 @@
+<app-modal
+    title="Activity Plan"
+    dismiss="Cancel"
+    (onDismiss)="dismiss()"
+    >
+    <a *ngIf="!activityPlan.complete"
+        app-page-control
+        (click)="goToComplete()"
+        >
+        Complete
+    </a>
+    <a *ngIf="activityPlan.activityLogId"
+        app-page-control
+        (click)="goToActivityLog()"
+        >
+        Edit
+    </a>
+    <app-form
+        [formGroup]="planForm"
+        [disabled]="disabled"
+        submitLabel="Update"
+        (onSubmit)="update()"
+        >
+        <activity-plan-field
+            formControlName="activityPlan"
+            >
+        </activity-plan-field>
+    </app-form>
+    <button *ngIf="!activityPlan.complete" (click)="delete()" class="danger">Delete</button>
+    <button *ngIf="activityPlan.complete" (click)="uncomplete()">Mark incomplete</button>
+</app-modal>

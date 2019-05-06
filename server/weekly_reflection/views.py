@@ -29,11 +29,12 @@ class ReflectionTimeView(APIView):
     def post(self, request):
         serialized = ReflectionTimeSerializer(data=request.data)
         if serialized.is_valid():
-            ReflectionTime.objects.filter(user=request.user, active=True).update(active=False)
-            ReflectionTime.objects.create(
+            ReflectionTime.objects.update_or_create(
                 user = request.user,
-                day = serialized.validated_data['day'],
-                time = serialized.validated_data['time']
+                defaults = {
+                    'day': serialized.validated_data['day'],
+                    'time': serialized.validated_data['time']
+                }
             )
             return Response(serialized.validated_data, status=status.HTTP_200_OK)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

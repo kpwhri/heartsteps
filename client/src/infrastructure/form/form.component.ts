@@ -1,28 +1,50 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { Subscription } from "rxjs";
 
 
 @Component({
     selector: 'app-form',
     templateUrl: './form.component.html'
 })
-export class FormComponent {
+export class FormComponent implements OnDestroy {
 
     @Output('onSubmit') public onSubmit: EventEmitter<boolean> = new EventEmitter();
 
     public form: FormGroup;
+    public disabled: boolean = false;
 
     private errorMessage: string;
-    private submitCTA: string = 'Save';
+    public submitCTA: string = 'Save';
 
-    @Input('defaultSubmit') showSubmit: boolean = true;
+    private formStatusSubscription: Subscription;
 
     constructor() {}
+
+    ngOnDestroy() {
+        if(this.formStatusSubscription) {
+            this.formStatusSubscription.unsubscribe();
+        }
+    }
+
+    @Input('submitLabel')
+    set submitLabel(text: string) {
+        if(text) {
+            this.submitCTA = text;
+        } else {
+            this.submitCTA = 'Save';
+        }
+    }
 
     @Input('formGroup')
     set setForm(form: FormGroup) {
         if (form) {
             this.form = form;
+            this.formStatusSubscription = this.form.statusChanges.subscribe(() => {
+                if(this.form.valid) {
+                    this.errorMessage = undefined;
+                }
+            });
         }
     }
 
@@ -32,11 +54,32 @@ export class FormComponent {
             this.errorMessage = error;
         }
     }
+
+    @Input('disabled')
+    set setDisabled(disabled:boolean) {
+        if(disabled !== undefined) {
+            this.disabled = disabled;
+            if(this.form && disabled) {
+                this.form.disable();
+            }
+            if(this.form && !disabled) {
+                this.form.enable();
+            }
+            
+        }
+    }
+
+    public setError(message: string) {
+        this.errorMessage = message;
+    }
     
     public formSubmit() {
         this.submit()
         .then(() => {
             this.onSubmit.emit();
+        })
+        .catch((error) => {
+            console.log(error);
         });
     }
 

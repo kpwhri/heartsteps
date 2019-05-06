@@ -12,21 +12,21 @@ import { WelcomePageModule } from '../pages/welcome/welcome.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationService } from '@app/notification.service';
 import { BackgroundService } from '@app/background.service';
-import { LocationService } from '@heartsteps/locations/location.service';
 import { HomePageModule } from '@pages/home/home.module';
 import { NotificationsModule as NotificationsPageModule } from '@pages/notifications/notifications.module';
 import { AuthorizationService } from './authorization.service';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 import { WeeklySurveyModule } from '@pages/weekly-survey/weekly-survey.module';
 import { MorningSurveyPageModule } from '@pages/morning-survey/morning-survey.module';
+import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
+import { HeartstepsInfrastructureModule } from '@infrastructure/heartsteps/heartsteps.module';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
-const appRoutes:Routes = [
-{
-    path: '',
-    redirectTo: '/home/dashboard',
-    pathMatch: 'full'
-  }
-]
+const appRoutes:Routes = [{
+  path: '',
+  redirectTo: '/home/dashboard',
+  pathMatch: 'full'
+}]
 
 @NgModule({
   declarations: [
@@ -34,10 +34,12 @@ const appRoutes:Routes = [
   ],
   imports: [
     WelcomePageModule,
-    NotificationsPageModule,
+    CurrentWeekModule,
     OnboardPageModule,
     HomePageModule,
+    HeartstepsInfrastructureModule,
     NotificationsModule,
+    NotificationsPageModule,
     WeeklySurveyModule,
     MorningSurveyPageModule,
     BrowserAnimationsModule,
@@ -58,8 +60,8 @@ const appRoutes:Routes = [
     SplashScreen,
     NotificationService,
     BackgroundService,
-    LocationService,
-    AuthorizationService
+    AuthorizationService,
+    AnalyticsService
   ]
 })
 export class AppModule {}

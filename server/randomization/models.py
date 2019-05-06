@@ -5,8 +5,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-
 from django.contrib.auth.models import User
+
+from behavioral_messages.models import MessageTemplate
+from locations.services import LocationService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
 
@@ -21,11 +23,17 @@ class ContextTag(models.Model):
         return self.name or self.tag
 
 class Decision(models.Model):
+
+    MESSAGE_TEMPLATE_MODEL = MessageTemplate
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
 
     test = models.BooleanField(default=False)
+    imputed = models.BooleanField(default=False)
+    
     available = models.BooleanField(default=True)
+    unavailable_reason = models.CharField(max_length=150, null=True, blank=True)
 
     time = models.DateTimeField()
 
@@ -57,6 +65,11 @@ class Decision(models.Model):
     pi_it = property(get_treatment_probability, set_treatment_probability)
 
     def decide(self):
+        if self.test:
+            self.treated = True
+            self.treatment_probability = 1
+            self.save()
+            return True
         if not self.available:
             self.a_it = False
             self.save()
@@ -84,6 +97,18 @@ class Decision(models.Model):
                 return self._notification
         return False
 
+    @property
+    def message_template(self):
+        try:
+            context_object = DecisionContext.objects.get(
+                decision = self,
+                content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
+            )
+            message_template = context_object.content_object
+            return message_template
+        except DecisionContext.DoesNotExist:
+            return None
+
     def add_context_object(self, object):
         DecisionContext.objects.create(
             decision = self,
@@ -108,6 +133,10 @@ class Decision(models.Model):
             return True
         else:
             return False
+    
+    def get_local_datetime(self):
+        service = LocationService(user=self.user)
+        return service.get_datetime_on(self.time)
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

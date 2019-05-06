@@ -7,19 +7,25 @@ from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
+from fitbit.exceptions import HTTPUnauthorized
 
-from fitbit_api.models import User, FitbitAccount, FitbitAccountUser, FitbitSubscription, FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+from fitbit_api.models import User, FitbitAccount, FitbitAccountUser, FitbitSubscription
 
 class FitbitService:
 
     class NoAccount(ImproperlyConfigured):
         pass
 
-    def __init__(self, account=None, user=None, username=None):
+    def __init__(self, account=None, user=None, username=None, fitbit_user=None):
         if username:
             user = User.objects.get(username=username)
         if user:
             account = FitbitService.get_account(user)
+        if fitbit_user:
+            try:
+                account = FitbitAccount.objects.get(fitbit_user=fitbit_user)
+            except FitbitAccount.DoesNotExist:
+                raise FitbitService.NoAccount()
         if not account:
             raise FitbitService.NoAccount()
         self.__account = account
@@ -53,6 +59,16 @@ class FitbitService:
         )
         return account
 
+    @property
+    def fitbit_user(self):
+        return self.account.fitbit_user
+
+    def is_authorized(self):
+        if self.account.access_token:
+            return True
+        else:
+            return False
+
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -69,7 +85,19 @@ def create_callback_url(request):
     if 'https://' not in complete_url:
         complete_url = complete_url.replace('http://', 'https://')
 
+def format_fitbit_date(date):
+    return date.strftime('%Y-%m-%d')
+
+def parse_fitbit_date(date_string):
+    return datetime.strptime(date_string, '%Y-%m-%d')
+
 class FitbitClient():
+
+    class ClientError(RuntimeError):
+        pass
+
+    class Unauthorized(ClientError):
+        pass
 
     def __init__(self, user=None, account=None):
         if account:
@@ -95,6 +123,18 @@ class FitbitClient():
         self.account.refresh_token = token['refresh_token']
         self.account.expires_at = token['expires_at']
         self.account.save()
+
+    def make_request(self, url):
+        formatted_url = '{0}/{1}/{url}'.format(
+            *self.client._get_common_args(),
+            url = url
+        )
+        try:
+            return self.client.make_request(formatted_url)
+        except HTTPUnauthorized:
+            raise FitbitClient.Unauthorized('Fitbit unauthorized')
+        except Exception as e:
+            raise FitbitClient.ClientError('Unknown error')
 
     def is_subscribed(self):
         subscriptions = FitbitSubscription.objects.filter(fitbit_account = self.account).all()
@@ -156,139 +196,62 @@ class FitbitClient():
     def get_timezone(self):
         if hasattr(self, '__timezone'):
             return self.__timezone
-        response = self.client.user_profile_get()
-        timezone = response['user']['timezone']
-        self.__timezone = pytz.timezone(timezone)
-        return self.__timezone
-
-    def get_day(self, date_string):
-        date = datetime.strptime(date_string, '%Y-%m-%d')
         try:
-            day = FitbitDay.objects.get(
-                account = self.account,
-                date = date
-            )
-        except FitbitDay.DoesNotExist:
-            timezone = self.get_timezone()
-            day = FitbitDay.objects.create(
-                account = self.account,
-                date = date,
-                timezone = timezone.zone
-            )
-        return day
+            response = self.client.user_profile_get()
+            timezone = response['user']['timezone']
+            self.__timezone = pytz.timezone(timezone)
+            return self.__timezone
+        except HTTPUnauthorized:
+            raise FitbitClient.Unauthorized()
 
-    def update_heart_rate(self, fitbit_day):
-        url = "{0}/{1}/user/{user_id}/activities/heart/date/{date}/1d/1min.json".format(
+    def get_heart_rate(self, date):
+        url = "user/-/activities/heart/date/{date}/1d/1min.json".format(
             *self.client._get_common_args(),
-            user_id = self.account.fitbit_user,
-            date = fitbit_day.format_date()
+            date = format_fitbit_date(date)
         )
-        response = self.client.make_request(url)
-        timezone = fitbit_day.get_timezone()
-        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'category': 'heart rate',
-            'payload': response,
-            'timezone': timezone.zone
-        })
+        response = self.make_request(url)
+        return response['activities-heart-intraday']['dataset']
 
-    def request_activities(self, fitbit_day):
-        url = "{0}/{1}/user/{user_id}/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
-            *self.client._get_common_args(),
-            user_id = self.account.fitbit_user,
-            after_date = fitbit_day.format_date()
+    def __request_activities(self, date):
+        url = "user/-/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
+            after_date = format_fitbit_date(date)
         )
-        response = self.client.make_request(url)
+        response = self.make_request(url)
         return response
 
-    def update_activities(self, fitbit_day, request_url=None):
+    def get_activities(self, date, request_url=None, activities=None):
+        if not activities:
+            activities = []
         if request_url:
             response = self.client.make_request(request_url)
         else:   
-            response = self.request_activities(fitbit_day)
-        activities = response['activities']
-        for activity in activities:
+            response = self.__request_activities(date)
+        
+        more_activities = True
+        for activity in response['activities']:
             startTime = dateutil_parser.parse(activity['startTime'])
-            if startTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
-                self.save_activity(activity, fitbit_day)
-        if len(activities) > 0:
-            lastActivityStartTime = dateutil_parser.parse(activities[-1]['startTime'])
-            if lastActivityStartTime.strftime('%Y-%m-%d') == fitbit_day.format_date():
-                if response['pagination']['next'] is not '':
-                    self.update_activities(fitbit_day, request_url=response['pagination']['next'])
-
-    def save_activity(self, activity, fitbit_day):
-        start_time = dateutil_parser.parse(activity['startTime'])
-        end_time = start_time + timedelta(milliseconds=activity['duration'])
-        average_heart_rate = activity['averageHeartRate']
-
-        activity_type, _ = FitbitActivityType.objects.get_or_create(
-            fitbit_id = activity['activityTypeId'],
-            name = activity['activityName']
-        )
-
-        FitbitActivity.objects.update_or_create(
-            fitbit_id = activity['logId'], defaults={
-                'account': self.account,
-                'type': activity_type,
-                'day': fitbit_day,
-                'average_heart_rate': average_heart_rate,
-                'start_time': start_time,
-                'end_time': end_time,
-                'payload': activity
-            }
-        )
-
-    def update_steps(self, fitbit_day):
-        response = self.client.intraday_time_series('activities/steps', base_date=fitbit_day.format_date())
-        
-        timezone = fitbit_day.get_timezone()
-        FitbitDailyUnprocessedData.objects.update_or_create(account=self.account, day=fitbit_day, defaults={
-            'category': 'steps',
-            'payload': response,
-            'timezone': timezone.zone
-        })
-        FitbitMinuteStepCount.objects.filter(account=self.account, day=fitbit_day).delete()
-        
-        for stepInterval in response['activities-steps-intraday']['dataset']:
-            if stepInterval['value'] > 0:
-                step_datetime = datetime.strptime(
-                        "%s %s" % (fitbit_day.format_date(), stepInterval['time']),
-                        "%Y-%m-%d %H:%M:%S"
-                    )
-                step_datetime = timezone.localize(step_datetime)
-                step_datetime_utc = step_datetime.astimezone(pytz.utc)
-
-                FitbitMinuteStepCount.objects.create(
-                    account = self.account,
-                    day = fitbit_day,
-                    time = step_datetime_utc,
-                    steps = stepInterval['value']
-                )
-
-class FitbitDayService(FitbitService):
-
-    def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None):
-        if fitbit_day:
-            account = fitbit_day.account
-        super().__init__(account, user, username)
-        self.__client = FitbitClient(
-            account = self.account
-        )
-        if fitbit_day:
-            self.__day = fitbit_day
-        else:
-            self.__day = self.__client.get_day(
-                date_string = FitbitDayService.date_to_string(date)
+            if startTime.strftime('%Y-%m-%d') == date.strftime('%Y-%m-%d'):
+                activities.append(activity)
+            else:
+                more_activities = False
+        if more_activities and response['pagination']['next'] is not '':
+            return self.get_activities(
+                date = date,
+                request_url=response['pagination']['next'],
+                activities = activities    
             )
+        else:
+            return activities
 
-    def date_to_string(date):
-        return date.strftime('%Y-%m-%d')
+    def format_date(self, date):
+        return format_fitbit_date(date)
     
-    def string_to_date(string):
-        return datetime.strptime(string, '%Y-%m-%d')
-
-    def update(self):
-        self.__client.update_steps(self.__day)
-        self.__client.update_activities(self.__day)
-        self.__client.update_heart_rate(self.__day)
-        self.__day.update()
+    def parse_date(self, date):
+        return parse_fitbit_date(date)
+        
+    def get_intraday_activity(self, activity_type, date):
+        response = self.make_request('user/-/activities/{activity_type}/date/{date}/1d/1min.json'.format(
+            activity_type = activity_type,
+            date = self.format_date(date)
+        ))
+        return response['activities-%s-intraday' % activity_type]['dataset']

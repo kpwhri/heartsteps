@@ -1,10 +1,13 @@
 import pytz
 from unittest.mock import patch
+from datetime import date
 
 from django.test import TestCase, override_settings
 
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from anti_sedentary.services import AntiSedentaryService
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
-from fitbit_api.services import FitbitDayService, FitbitClient
+from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
@@ -40,20 +43,35 @@ class NightlyUpdateTest(TestCase):
         daily_update(username=self.user.username)
 
         fitbit_day_update.assert_called()
-
+    
     @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
-    @patch.object(WalkingSuggestionService, 'update')
-    def testWalkingSuggestionServiceUpdate(self, walking_suggestion_service):
+    @patch.object(WalkingSuggestionService, 'initialize')
+    def testWalkingSuggestionServiceInitialize(self, initialize):
         WalkingSuggestionConfiguration.objects.create(
-            user = self.user
+            user = self.user,
+            enabled = True
         )
 
         daily_update(username=self.user.username)
 
-        walking_suggestion_service.assert_called()
+        initialize.assert_called()
 
+    @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
     @patch.object(WalkingSuggestionService, 'update')
-    def testWalkingSuggestionServiceUpdateDisabled(self, walking_suggestion_service):
+    def testWalkingSuggestionServiceUpdate(self, update):
+        WalkingSuggestionConfiguration.objects.create(
+            user = self.user,
+            enabled = True,
+            service_initialized_date = date.today()
+        )
+
+        daily_update(username=self.user.username)
+
+        update.assert_called()
+
+    @patch.object(WalkingSuggestionService, 'initialize')
+    @patch.object(WalkingSuggestionService, 'update')
+    def testWalkingSuggestionServiceUpdateDisabled(self, update, initialize):
         WalkingSuggestionConfiguration.objects.create(
             user = self.user,
             enabled = False
@@ -61,4 +79,15 @@ class NightlyUpdateTest(TestCase):
 
         daily_update(username=self.user.username)
 
-        walking_suggestion_service.assert_not_called()
+        update.assert_not_called()
+        initialize.assert_not_called()
+
+    @patch.object(AntiSedentaryService, 'update')
+    def testAntiSedentaryServiceUpdate(self, update):
+        AntiSedentaryConfiguration.objects.create(
+            user = self.user
+        )
+
+        daily_update(username = self.user.username)
+
+        update.assert_called()

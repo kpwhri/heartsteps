@@ -8,32 +8,33 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:50745768851:android:ed7fc7cb37cf2ab1",
+        "mobilesdk_app_id": "1:50745768851:android:3f928c81258e38e7",
         "android_client_info": {
-          "package_name": "com.nickreid.heartsteps"
+          "package_name": "net.heartsteps.kpw"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "50745768851-b1qhl13m0oh93ppeptuvi9v2jgqcvtqo.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCwKE_6xwEVfi6OiIkIqRup_eMQ0wOk8oE"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50745768851-b1qhl13m0oh93ppeptuvi9v2jgqcvtqo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "50745768851-23s2oprqm604e4odn0a0pf2v1lk907j1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nickreid.heartsteps",
+                "app_store_id": "1415578275"
+              }
+            }
+          ]
         }
       }
     }

@@ -23,9 +23,17 @@ heartsteps-weekly-progress {
         width: 100%;
         top: 50%;
         transform: translate(0%, -50%);
+        margin: 0em;
+        padding: 0em;
     
         > * {
             display: block;
+        }
+
+        .metric {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: $color-primary;
         }
     }
 }

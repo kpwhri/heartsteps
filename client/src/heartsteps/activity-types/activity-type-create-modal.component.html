@@ -1,0 +1,14 @@
+<app-modal-dialog
+    title="Create Activity Type"
+    >
+    <app-form
+        [formGroup]="createForm"
+        (onSubmit)="save()"
+        >
+        <app-text-field
+            label="Name"
+            formControlName="name"
+            >
+        </app-text-field>
+    </app-form>
+</app-modal-dialog>

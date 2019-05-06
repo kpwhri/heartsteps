@@ -1,35 +1,16 @@
 import { Injectable } from "@angular/core";
 import { Resolve, ActivatedRouteSnapshot } from "@angular/router";
-import { Week } from "@heartsteps/weekly-survey/week.model";
-import { WeekService } from "@heartsteps/weekly-survey/week.service";
+import { WeeklySurveyService, WeeklySurvey } from "@heartsteps/weekly-survey/weekly-survey.service";
 
 
 @Injectable()
-export class WeekResolver implements Resolve<Week> {
+export class WeeklySurveyResolver implements Resolve<WeeklySurvey> {
 
     constructor(
-        private weekService:WeekService
+        private weeklySurveyService: WeeklySurveyService
     ){}
 
     resolve(route:ActivatedRouteSnapshot) {
-        return this.getWeeks(route.paramMap.get('weekId'));
-    }
-
-    private getWeeks(weekId:string):Promise<any> {
-        return this.weekService.getWeek(weekId)
-        .then((week:Week) => {
-            return this.weekService.getWeekAfter(week)
-            .then((nextWeek:Week) => {
-                return [
-                    week,
-                    nextWeek
-                ];
-            })
-            .catch(() => {
-                return [
-                    week
-                ];
-            });
-        });
+        return this.weeklySurveyService.get() 
     }
 }

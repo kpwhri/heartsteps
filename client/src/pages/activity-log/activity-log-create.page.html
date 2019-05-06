@@ -1,0 +1,10 @@
+<app-modal
+    title="Create activity log"
+    (onDismiss)="dismiss()"
+    >
+    <activity-log-form
+        [activityLog]="activityLog"
+        (onSubmit)="create($event)"
+        >
+    </activity-log-form>
+</app-modal>

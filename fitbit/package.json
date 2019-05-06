@@ -1,34 +1,43 @@
 {
-  "name": "HeartStepsClock",
+  "name": "HeartSteps",
   "version": "0.2.0",
   "private": true,
   "license": "UNLICENSED",
-  "devDependencies": {
-    "@fitbit/sdk": "~3.0.0",
-    "@fitbit/sdk-cli": "^1.5.0",
-    "fitbit-sdk-types": "^2.0.2"
-  },
   "fitbit": {
-    "appUUID": "2f31df92-95de-4824-8b40-555c23ce35a0",
+    "appUUID": "0bd06f9e-2adc-4391-ab05-d177dda1a167",
     "appType": "clockface",
-    "appDisplayName": "HeartSteps 2.0",
+    "appDisplayName": "HeartSteps",
     "iconFile": "resources/icon.png",
-    "wipeColor": "#0000ff",
+    "wipeColor": "#ffffff",
     "requestedPermissions": [
       "access_activity",
       "access_heart_rate",
       "access_internet",
       "access_location",
+      "access_user_profile",
       "run_background"
     ],
     "buildTargets": [
       "higgs",
       "meson"
     ],
-    "i18n": {}
+    "i18n": {
+      "en": {
+        "name": "HeartSteps 2.0"
+      }
+    },
+    "defaultLanguage": "en-US"
   },
   "scripts": {
-    "build": "fitbit-build",
-    "debug": "fitbit"
+    "build": "fitbit-build"
+  },
+  "dependencies": {
+    "@fitbit/sdk-cli": "^1.6.0",
+    "io-ts": "^1.8.2",
+    "keytar": "^4.4.0",
+    "node-gyp": "^3.8.0"
+  },
+  "devDependencies": {
+    "@fitbit/sdk": "^3.1.0"
   }
 }

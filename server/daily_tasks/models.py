@@ -94,28 +94,34 @@ class DailyTask(models.Model):
         self.save()
 
     def set_time(self, hour, minute, day=None):
+        time = datetime.now(self.timezone).replace(
+            hour = hour,
+            minute = minute
+        )
+        if day:
+            day_offset = time.weekday() - DAYS_OF_WEEK.index(day)
+            time = time - timedelta(days=day_offset)
+        utc_time = time.astimezone(pytz.utc)
+        self.task.crontab.hour = utc_time.hour
+        self.task.crontab.minute = utc_time.minute
+        if day:
+            utc_day = DAYS_OF_WEEK[utc_time.weekday()]
+            self.task.crontab.day_of_week = CRON_DAYS_OF_WEEK.index(utc_day)
+        else:
+            self.task.crontab.day_of_week = '*'
+        self.task.crontab.save()
+        self.task.save()
+
         self.day = day
         self.hour = hour
         self.minute = minute
         self.save()
 
-        time = datetime.now(self.timezone).replace(
-            hour = hour,
-            minute = minute
-        )
-        utc_time = time.astimezone(pytz.utc)
-        self.task.crontab.hour = utc_time.hour
-        self.task.crontab.minute = utc_time.minute
-        if self.day:
-            self.task.crontab.day = CRON_DAYS_OF_WEEK.index(self.day)
-        else:
-            self.task.crontab.day = '*'
-        self.task.crontab.save()
-
     def update_timezone(self):
         self.set_time(
             hour = self.hour,
-            minute = self.minute
+            minute = self.minute,
+            day = self.day
         )
 
     def delete_task(self):

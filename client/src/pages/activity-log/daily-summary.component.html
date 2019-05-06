@@ -1,0 +1,25 @@
+<article>
+    <header>
+        <h3>
+            <span *ngIf="isToday">Today, </span>
+            {{formattedDate}}
+        </h3>
+        <button
+            (click)="addActivityLog()"
+            class="add"
+            >
+            Add activity log
+        </button>
+    </header>
+    <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
+    <ul *ngIf="activities">
+        <li *ngFor="let activityLog of activities">
+            <heartsteps-activity-log
+                [activityLog]="activityLog"
+                (click)="openActivityLog(activityLog)"
+                >
+            </heartsteps-activity-log>
+        </li>
+    </ul>
+    <p *ngIf="!activities">No recorded activities</p>
+</article>

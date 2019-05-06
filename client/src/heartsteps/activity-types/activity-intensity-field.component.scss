@@ -1,0 +1,16 @@
+heartsteps-activity-intensity-field {
+
+    ul {
+        display:flex;
+        flex-direction: row;
+        align-items: baseline;
+    }
+
+    li {
+        flex-grow: 1;
+    }
+
+    li span {
+        display: block;
+    }
+}

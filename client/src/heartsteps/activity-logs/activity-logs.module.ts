@@ -8,25 +8,39 @@ import { LogFormComponent } from './log-form.component';
 import { IonicPageModule } from 'ionic-angular';
 import { FormModule } from '@infrastructure/form/form.module';
 import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.module';
+import { ActivityEnjoyedModalComponent } from './activity-enjoyed-modal.component';
+import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
+import { ActivityEnjoyedFieldComponent } from './activity-enjoyed-field.component';
+import { CachedActivityLogService } from './cached-activity-log.service';
 
 @NgModule({
     imports: [
         InfrastructureModule,
         BrowserModule,
         ActivityTypeModule,
+        DialogsModule,
         FormModule,
         IonicPageModule.forChild(LogFormComponent)
     ],
     declarations: [
         ActivityLogComponent,
-        LogFormComponent
+        LogFormComponent,
+        ActivityEnjoyedFieldComponent,
+        ActivityEnjoyedModalComponent
+    ],
+    entryComponents: [
+        ActivityEnjoyedModalComponent,
+        ActivityEnjoyedFieldComponent
     ],
     exports: [
         ActivityLogComponent,
-        LogFormComponent
+        LogFormComponent,
+        ActivityEnjoyedFieldComponent,
+        ActivityEnjoyedModalComponent
     ],
     providers: [
-        ActivityLogService
+        ActivityLogService,
+        CachedActivityLogService
     ]
 })
 export class ActivityLogModule {}

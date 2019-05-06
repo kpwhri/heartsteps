@@ -3,39 +3,50 @@ services:
 sudo: required
 
 install: 
+- docker-compose build service-template
 # install google cloud sdk
-# - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
-# - echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-# - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-# - sudo apt-get update && sudo apt-get install google-cloud-sdk
+- export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+- echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+- curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+- sudo apt-get update && sudo apt-get install google-cloud-sdk
+- sudo apt-get install kubectl
+- gcloud auth activate-service-account --key-file=credentials/gce.json
+- gcloud auth configure-docker -q
+- gcloud config set project ${GAE_PROJECT_ID}
+- gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
+
+before_script:
+- cp .env-production server/.env
+- cp .env-production client/.env
+- docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
+- docker-compose build server
+- docker-compose build client > /dev/null
 
 script:
 - docker-compose run server python manage.py test
 - docker-compose run client npm test
-- docker-compose run client ionic build --prod
+- docker-compose run client npm run build:app --prod
 
 after_success:
-- cp .env-production server/.env
-- cp .env-production client/.env
-# move client files into server
-- cp -r client/www static/app
+# move app files into server
+- gsutil -m rsync -dr client/www gs://heartsteps-assets/app
+# generate website and upload
+- docker-compose run client npm run build:website
+- gsutil -m rsync -dr client/www gs://heartsteps-assets/website
 # collect static files for server
 - docker-compose run server python manage.py collectstatic
-- cp -r server/static static
-# Migrate database
-- docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server python manage.py migrate
-# login with gcloud
-- gcloud auth activate-service-account --key-file=credentials/gce.json
-- gcloud auth configure-docker -q
-- gcloud config set project ${GAE_PROJECT_ID}
-# upload client web app to gae
-- gcloud app deploy -q -v master server/app.yaml static/app.yaml dispatch.yaml
-# build services
-- docker-compose build service-template walking-suggestion-service anti-sedentary-service
-# upload walking suggestion service
+- gsutil -m rsync -dr server/static gs://heartsteps-assets/static
+# upload images
+- docker tag heartsteps_nginx gcr.io/heartsteps-kpwhri/heartsteps-nginx
+- docker push gcr.io/heartsteps-kpwhri/heartsteps-nginx
+- docker tag heartsteps_server gcr.io/heartsteps-kpwhri/heartsteps-server
+- docker push gcr.io/heartsteps-kpwhri/heartsteps-server
 - docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
 - docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
-- gcloud compute instances update-container "walking-suggestion-service" --container-image="gcr.io/heartsteps-kpwhri/walking-suggestion-service"
-# upload anti-sedentary service
-- docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
-- docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
+- docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
+- docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
+# update kubernetes images...
+- sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
+- kubectl apply -f deployment.yaml
+# Migrate database
+- docker-compose run server-gcloud python manage.py migrate

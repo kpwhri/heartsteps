@@ -6,9 +6,11 @@ import { DailySummaryComponent } from './daily-summary.component';
 import { DailySummaryService } from './daily-summary.service';
 import { DailyActivitiesUpdateComponent } from './daily-activities-update';
 import { DailySummarySerializer } from './daily-summary.serializer';
+import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 
 @NgModule({
     imports: [
+        ActivityLogModule,
         InfrastructureModule,
         BrowserModule
     ],

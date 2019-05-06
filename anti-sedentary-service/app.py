@@ -10,14 +10,14 @@ app = Flask(__name__)
 @app.route('/decision', methods=['POST'])
 def decision():
     input = {
-        'userid': request.form['userid'],
-        'decisionid': request.form['decisionid'],
-        'time': request.form['time'],
-        'daystart': request.form['daystart'],
-        'dayend': request.form['dayend'],
-        'state': request.form['state'],
-        'steps': request.form['steps'],
-        'available': request.form['available']
+        'userid': request.json['userid'],
+        'decisionid': request.json['decisionid'],
+        'time': request.json['time'],
+        'daystart': request.json['daystart'],
+        'dayend': request.json['dayend'],
+        'state': request.json['state'],
+        'steps': request.json['steps'],
+        'available': request.json['available']
     }
 
     response = subprocess.run(
@@ -32,13 +32,13 @@ def decision():
 @app.route('/nightly', methods=['POST'])
 def nightly():
     input = {
-        'userid': request.form['userid'],
-        'decisionid': request.form['decisionid'],
-        'time': request.form['time'],
-        'daystart': request.form['daystart'],
-        'dayend': request.form['dayend'],
-        'state': request.form['state'],
-        'steps': request.form['steps']
+        'userid': request.json['userid'],
+        'decisionid': request.json['decisionid'],
+        'time': request.json['time'],
+        'daystart': request.json['daystart'],
+        'dayend': request.json['dayend'],
+        'state': request.json['state'],
+        'steps': request.json['steps']
     }
 
     response = subprocess.run(

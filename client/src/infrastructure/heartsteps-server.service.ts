@@ -111,7 +111,13 @@ export class HeartstepsServer {
     }
 
     handleError(error:any) {
-        if(error.response.status === 401) {
+        let errorStatus:any;
+        if(error.response) {
+            errorStatus = error.response.status;
+        } else if(error.status) {
+            errorStatus = error.status;
+        }
+        if(errorStatus === 401) {
             return this.authorizationService.retryAuthorization()
             .catch(() => {
                 return Promise.reject(error.message);

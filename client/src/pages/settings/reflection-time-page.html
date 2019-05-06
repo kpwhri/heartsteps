@@ -1,7 +1,6 @@
-<article class="page">
-    <header>
-        <h2>Weekly Reflection Time</h2>
-        <a class="back" (click)="goBack()">Back</a>
-    </header>
+<app-modal
+    title="Weekly Reflection Time"
+    (onDismiss)="goBack()"
+    >
     <weekly-reflection-time (saved)="goBack()"></weekly-reflection-time>
-</article>
+</app-modal>

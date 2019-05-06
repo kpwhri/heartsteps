@@ -2,7 +2,8 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 
 import { LoadingService } from '@infrastructure/loading.service';
-import { ReflectionTimeService } from './reflection-time.service';
+import { ReflectionTimeService, ReflectionTime } from './reflection-time.service';
+import { SelectOption } from '@infrastructure/dialogs/select-dialog.controller';
 
 @Component({
   selector: 'weekly-reflection-time',
@@ -10,16 +11,15 @@ import { ReflectionTimeService } from './reflection-time.service';
 })
 export class WeeklyReflectionTimePage {
 
-    days:Array<string> = [
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday'
-    ]
-    weeklyReflectionForm: FormGroup;
+    public weeklyReflectionForm: FormGroup;
+    public days:Array<SelectOption> = [{
+        'name': 'Saturday',
+        'value': 'saturday'
+    }, {
+        'name': 'Sunday',
+        'value': 'sunday'
+    }];
+
     @Output() saved = new EventEmitter<boolean>();
 
     constructor(
@@ -27,15 +27,15 @@ export class WeeklyReflectionTimePage {
         private reflectionTimeService:ReflectionTimeService
     ) {
         this.reflectionTimeService.getTime()
-        .then((data: any)=> {
-            this.createReflectionForm(data.day, data.time);
-        })
         .catch(() => {
-            this.createReflectionForm('sunday', '20:00');
+            return this.reflectionTimeService.getDefaultReflectionTime()
         })
+        .then((reflectionTime: ReflectionTime)=> {
+            this.createReflectionForm(reflectionTime.day, reflectionTime.time);
+        });
     }
 
-    createReflectionForm(day: string, time: string) {
+    createReflectionForm(day: string, time: Date) {
         this.weeklyReflectionForm = new FormGroup({
             day: new FormControl(day, Validators.required),
             time: new FormControl(time, Validators.required)
@@ -48,6 +48,9 @@ export class WeeklyReflectionTimePage {
             this.reflectionTimeService.setTime(this.weeklyReflectionForm.value)
             .then(() => {
                 this.saved.emit(true);                
+            })
+            .catch((error) => {
+
             })
             .then(() => {
                 this.loadingService.dismiss()

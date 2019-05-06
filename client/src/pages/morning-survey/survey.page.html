@@ -1,17 +1,18 @@
-<form>
-    <div>
-        <label>How do you feel about being active today?</label>
-        <heartsteps-range></heartsteps-range>
-    </div>
-    <div>
-        <label>How busy are you today?</label>
-        <heartsteps-range></heartsteps-range>
-    </div>
-    <div>
-        <label>How much wood would a woodchuck chuck, if a woodchuck could chuck wood?</label>
-        <heartsteps-range></heartsteps-range>
-    </div>
-    <div class="controls">
-        <button (click)="done()">Done</button>
-    </div>
-</form>
+<app-form
+    [formGroup]="form"
+    submitLabel="Complete"
+    (onSubmit)="done()"
+    [error]="error"
+    >
+    <app-range-field *ngFor="let question of questions"
+        [formControlName]="question.name"
+        [label]="question.label"
+        [options]="question.options"
+    ></app-range-field>
+    <app-choice-field
+        formControlName="mood"
+        label="Which of these best describes how you feel this morning?"
+        [options]="moodChoices"
+        >
+    </app-choice-field>
+</app-form>

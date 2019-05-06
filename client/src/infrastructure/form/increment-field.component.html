@@ -1,0 +1,8 @@
+<fieldset class="input-group">
+    <legend *ngIf="label">{{label}}</legend>
+    <div class="incrementer">
+        <span>{{value}} min</span>
+        <button class="add" (click)="add()" type="button">Add</button>
+        <button class="subtract" (click)="remove()" type="button">Remove</button>
+    </div>
+</fieldset>
