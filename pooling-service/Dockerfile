@@ -1,3 +1,4 @@
+FROM heartsteps_service-template:latest
 FROM python:3.6.8
 ENV PYTHONUNBUFFERED 1
 
@@ -24,3 +25,6 @@ RUN conda install --name py36 jupyter
 RUN conda install  --name py36 -c conda-forge tensorflow
 
 RUN conda install --name py36  -c conda-forge gpflow 
+RUN conda install pytorch torchvision -c pytorch
+
+RUN pip install git+https://github.com/cornellius-gp/gpytorch.git
