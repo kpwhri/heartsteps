@@ -369,7 +369,7 @@ class WalkingSuggestionService():
         decisions = self.get_decisions_for(date) 
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            availabilities.append(available)
+            availabilities.append(decision.available)
         return availabilities
 
     def get_location_type(self, decision):
