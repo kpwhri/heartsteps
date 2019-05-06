@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from datetime import date
+from datetime import date, datetime
 
 from django.test import TestCase
 from django.urls import reverse
@@ -188,7 +188,10 @@ class MorningMessageSurveyTests(MorningMessageTestBase):
 class MorningMessageSurveyViewTest(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2019, 5, 1)
+        )
         self.client.force_authenticate(user=self.user)
         self.configuration = Configuration.objects.create(user=self.user)
         MorningMessageTemplate.objects.create(
