@@ -1,17 +1,19 @@
 import pytz
+from datetime import date
 from unittest.mock import patch
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from daily_tasks.models import DailyTask
 from locations.services import LocationService
 from locations.signals import timezone_updated
-from daily_tasks.models import DailyTask
+from participants.signals import nightly_update as participant_nightly_update
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated
 
 from walking_suggestions.models import SuggestionTime, Configuration
-from walking_suggestions.tasks import create_decision
+from walking_suggestions.tasks import create_decision, nightly_update
 
 class ConfigutationTest(TestCase):
 
@@ -45,4 +47,22 @@ class UpdateFromStepCount(TestCase):
         create_decision.assert_called_with(kwargs={
             'username': 'test'
         })
+
+class NightlyUpdateTest(TestCase):
+
+    @patch.object(nightly_update, 'apply_async')
+    def testQueuesNightlyUpdate(self, nightly_update):
+        user = User.objects.create(username="test")
+
+        participant_nightly_update.send(
+            sender=User,
+            user=user,
+            day=date(2019, 5, 7)
+        )
+
+        nightly_update.assert_called_with(kwargs={
+            'username': 'test',
+            'day_string': '2019-05-07'
+        })
+
     

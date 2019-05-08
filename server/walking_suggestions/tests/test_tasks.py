@@ -1,14 +1,14 @@
 import pytz
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision
+from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import create_decision, start_decision, make_decision
+from walking_suggestions.tasks import create_decision, start_decision, make_decision, nightly_update
 
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
 class CreateDecisionTest(TestCase):
@@ -166,3 +166,66 @@ class MakeDecisionTest(TestCase):
         self.assertFalse(decision.treated)
         self.assertFalse(decision.available)
         self.assertEqual(decision.unavailable_reason, 'Walking suggestion service error')
+
+@override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
+class NightlyUpdateTask(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username = 'test'
+        )
+        self.configuration = Configuration.objects.create(
+            user = self.user,
+            enabled = True
+        )
+
+    @patch.object(WalkingSuggestionService, 'initialize')
+    def testInitializeWalkingSuggestionService(self, initialize):
+        self.configuration.service_initialized_date = None
+        self.configuration.save()
+
+        nightly_update(
+            username=self.user.username,
+            day_string = date.today().strftime('%Y-%m-%d')
+        )
+
+        initialize.assert_called_with(date=date.today())
+
+    @patch.object(WalkingSuggestionService, 'update')
+    def testUpdateWalkingSuggestionService(self, update):
+        self.configuration.service_initialized_date = date.today() - timedelta(days=1)
+        self.configuration.save()
+
+        nightly_update(
+            username = self.user.username,
+            day_string = date.today().strftime('%Y-%m-%d')
+        )
+
+        update.assert_called_with(
+            date = date.today()
+        )
+        update.assert_called_once()
+        nightly_update_object = NightlyUpdate.objects.get()
+        self.assertEqual(nightly_update_object.day, date.today())
+        self.assertTrue(nightly_update_object.updated)
+
+    @patch.object(WalkingSuggestionService, 'update')
+    def testUpdateUnupdatedDays(self, update):
+        self.configuration.service_initialized_date = date.today() - timedelta(days=4)
+        self.configuration.save()
+        NightlyUpdate.objects.create(
+            user = self.user,
+            day = date.today() - timedelta(days=3),
+            updated = True
+        )
+
+        nightly_update(
+            username = self.user.username,
+            day_string = date.today().strftime('%Y-%m-%d')
+        )
+
+        self.assertEqual(update.call_count, 3)
+        for day in [date.today() - timedelta(days=offset) for offset in range(3)]:
+            update.assert_any_call(date=day)
+
+
