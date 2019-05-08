@@ -117,14 +117,16 @@ services:
     environment:
       - ALLOWED_HOSTS=localhost
       - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw
+      - WALKING_SUGGESTION_SERVICE_URL=http://walking-suggestion-service-gcloud
     image: heartsteps_server
     ports:
       - "8080:8080"
     depends_on:
       - cloudsql
       - rabbitmq
+      - walking-suggestion-service-gcloud
     volumes:
-      - ./server:/server-gcloud
+      - ./server:/server
       - cloudsql:/cloudsql
     working_dir: /server-gcloud
   walking-suggestion-service:
@@ -136,8 +138,18 @@ services:
     ports:
       - "5000:8080"
     privileged: true
+  walking-suggestion-service-gcloud:
+    image: heartsteps_walking-suggestion-service
+    ports:
+      - "5100:8080"
+    privileged: true
+    volumes:
+      - ./walking-suggestion-service:/walking-suggestion-service
+      - walking-suggestion-service-data:/walking-suggestion-service/data
+      - ./credentials:/credentials
 volumes:
   client-node-modules:
   pgdata:
   client-gradle-cache:
   cloudsql:
+  walking-suggestion-service-data:
