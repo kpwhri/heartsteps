@@ -1,5 +1,5 @@
 import requests, json, pytz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from unittest.mock import patch, call
 
 from django.test import TestCase, override_settings
@@ -201,6 +201,12 @@ class StudyDayNumberTests(ServiceTestCase):
         day_number = self.service.get_study_day(later_date)
 
         self.assertEqual(day_number, 6)
+
+    def test_works_with_date(self):
+        later_date = date.today() + timedelta(days=10)
+        day_number = self.service.get_study_day(later_date)
+
+        self.assertEqual(day_number, 11)
 
 class LocationContextTests(ServiceTestCase):
     
