@@ -1,22 +1,15 @@
 import gpflow
 import numpy as np
 import math
-import tensorflow as tf
-import sys
+
 import pickle
 import pandas as pd
-import CustomKernelStatic
-import CustomKernel
+
 from sklearn import preprocessing
-tf.logging.set_verbosity(tf.logging.ERROR)
-import warnings
-warnings.simplefilter('ignore')
+
 import os
 import random
-import sys
-sys.path
-sys.path.append('pooling_rl/simulation')
-import sim_functions_cleaner as sf
+
 
 
 def get_inv_term(cov,X_dim,noise_term):
