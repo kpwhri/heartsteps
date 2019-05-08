@@ -369,7 +369,7 @@ class WalkingSuggestionService():
         decisions = self.get_decisions_for(date) 
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            availabilities.append(available)
+            availabilities.append(decision.available)
         return availabilities
 
     def get_location_type(self, decision):
@@ -501,7 +501,7 @@ class WalkingSuggestionService():
     def get_study_day(self, time):
         location_service = LocationService(self.__user)
         tz = location_service.get_timezone_on(time)
-        local_time = time.astimezone(tz)
+        local_time = datetime(time.year, time.month, time.day).astimezone(tz)
         initialized_time = local_time.replace(
             year = self.__configuration.service_initialized_date.year,
             month = self.__configuration.service_initialized_date.month,

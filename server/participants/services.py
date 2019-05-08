@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from rest_framework.authtoken.models import Token
 
@@ -10,7 +10,8 @@ from morning_messages.models import Configuration as MorningMessagesConfiguratio
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 
-from .models import Participant
+from .models import Participant, User
+from .signals import nightly_update
 
 class ParticipantService:
 
@@ -73,13 +74,6 @@ class ParticipantService:
         if not day:
             day = self.get_current_datetime()
 
-        ## Create "Onboarding app" to contain this logic
-        # If participant doesn't have active push device
-        # AND datetime > number of days for baseline
-        # Send text message prompt
-
-        # Study adherence nightly update run
-        ## Looks at participant data, sends activity alerts
         try:
             fitbit_day = FitbitDayService(
                 user = self.participant.user,
@@ -89,16 +83,11 @@ class ParticipantService:
         except FitbitDayService.NoAccount:
             pass
 
-        try:
-            walking_suggestion_service = WalkingSuggestionService(
-                user = self.participant.user
-            )
-            if walking_suggestion_service.is_initialized():
-                walking_suggestion_service.update(day)
-            else:
-                walking_suggestion_service.initialize(day)
-        except WalkingSuggestionService.Unavailable:
-            pass
+        nightly_update.send(
+            sender = User,
+            user = self.participant.user,
+            day = date(day.year, day.month, day.day)
+        )
 
         try:
             anti_sedentary_service = AntiSedentaryService(
@@ -107,11 +96,3 @@ class ParticipantService:
             anti_sedentary_service.update(day)
         except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
             pass
-
-        ## Maybe following is just update task from app
-        # if walking suggestions configuration has suggestion times
-        # AND
-        # activity suggestion service is available
-        # THEN
-        # if service not initialized, initialize service
-        # else update service
