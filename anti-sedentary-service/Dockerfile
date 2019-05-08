@@ -11,4 +11,4 @@ ENV googleStorageBucket anti-sedentary-data
 
 # Run the server
 RUN mkdir -p ./data
-CMD gcsfuse --implicit-dirs ${googleStorageBucket} ./data && gunicorn -b 0.0.0.0:8080 wsgi
+CMD gcsfuse --implicit-dirs ${googleStorageBucket} ./data && gunicorn -b 0.0.0.0:8080 wsgi --log-level debug
