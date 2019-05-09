@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { ContactInformationService } from '@heartsteps/contact-information/contact-information.service';
 import { LoadingService } from '@infrastructure/loading.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
 
 @Component({
     selector: 'heartsteps-participant-information',
@@ -9,32 +9,33 @@ import { FormBuilder, Validators } from '@angular/forms';
 })
 export class ParticipantInformation {
 
-    public contactInformationForm: any
+    public contactInformationForm: FormGroup;
     @Output() saved = new EventEmitter<boolean>();
 
     constructor(
         private contactInformationService:ContactInformationService,
-        private loadingService:LoadingService,
-        private formBuilder:FormBuilder
+        private loadingService:LoadingService
     ) {
+        this.setupForm();
         this.contactInformationService.get()
         .then((contactInformation:any) => {
-            return contactInformation
+            this.setupForm(
+                contactInformation.name,
+                contactInformation.email,
+                contactInformation.phone
+            )
         })
         .catch(() => {
-            return {
-                name: '',
-                email: '',
-                phone: ''
-            }
-        })
-        .then((contactInformation) => {
-            this.contactInformationForm = this.formBuilder.group({
-                name: [contactInformation.name, Validators.required],
-                email: [contactInformation.email, [Validators.email, Validators.required]],
-                phone: [contactInformation.phone, Validators.required]
-            })
-        })
+            console.log('No previous contact information');
+        });
+    }
+
+    private setupForm(name?:string, email?:string, phone?:string):void {
+        this.contactInformationForm = new FormGroup({
+            name: new FormControl(name, Validators.required),
+            email: new FormControl(email, [Validators.required, Validators.email]),
+            phone: new FormControl(phone, Validators.required)
+        });
     }
 
     save() {
