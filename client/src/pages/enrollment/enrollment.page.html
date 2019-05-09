@@ -1,5 +1,7 @@
 <app-page
     title="Enroll in HeartSteps"
+    dismiss="Home"
+    (onDismiss)="goHome()"
     >
     <app-form
         [formGroup]="form"

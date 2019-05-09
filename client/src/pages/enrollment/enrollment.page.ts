@@ -24,6 +24,10 @@ export class EnrollmentPage {
         });
     }
 
+    public goHome() {
+        this.router.navigate(['welcome'])
+    }
+
     public enroll() {
         this.error = undefined;
         this.loadingService.show('Authenticating');

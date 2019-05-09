@@ -27,7 +27,8 @@
 @media(min-width: 650px) {
     .heartsteps-page {
         width: 635px;
-        margin: 1em auto;
+        margin: 2em auto;
+        box-shadow: $color-gray-dark 0px 0.25em 1em 0em;
     }
 }
 

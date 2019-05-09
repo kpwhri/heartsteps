@@ -19,6 +19,10 @@ body > ion-app.app-root {
     z-index: 10;
     overflow: auto;
     flex-direction: column;
+
+    > * {
+        flex-grow: 0;
+    }
 }
 
 .app-root > .modals > * {

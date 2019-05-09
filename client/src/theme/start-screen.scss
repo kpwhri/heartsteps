@@ -6,12 +6,14 @@
     color: $color-white;
     font-size: 1.6rem;
 
+    box-shadow: none;
+
     display: flex;
     flex-direction: column;
 
     > * {
         display: block;
-        margin: 2em 1em;
+        margin: 2em auto;
         flex-grow: 1;
     }
 
@@ -28,11 +30,6 @@
         flex: 1 1 auto;
         flex-direction: column;
         justify-content: center;
-    }
-
-    h1 {
-        font-weight: normal;
-        text-transform: uppercase;
     }
 
     header {
@@ -94,19 +91,6 @@
             background-color: $color-white;
         }
     }
-}
-
-@media (min-width: 600px) {
-
-    .start-screen > * {
-        width: 540px;
-        margin: 4em auto;
-    }
-
-    .start-screen > button {
-        width: 540px;
-    }
-
 }
 
 .start-screen app-choice-field.heartsteps-form-field button {
