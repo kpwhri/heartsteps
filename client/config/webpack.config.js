@@ -15,6 +15,7 @@ webpackConfig[env].resolve = {
 }
 
 var envs = new webpack.EnvironmentPlugin({
+    PRODUCTION: false,
     HEARTSTEPS_URL: '/api',
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
