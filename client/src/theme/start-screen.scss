@@ -2,8 +2,7 @@
 .alternate-background,
 .heartsteps-message-modal {
     @extend .heartsteps-page;
-
-    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+    background-color: transparent;
     color: $color-white;
     font-size: 1.6rem;
 

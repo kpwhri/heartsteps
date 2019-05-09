@@ -2,6 +2,10 @@
 @import 'buttons.scss';
 @import 'pages.scss';
 
+body {
+    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+}
+
 label,
 .label {
     display:block;

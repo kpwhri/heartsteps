@@ -3,30 +3,12 @@
 @import 'theme/forms.scss';
 @import 'theme/logo.scss';
 @import 'theme/start-screen.scss';
-@import 'theme/ionic.scss';
 
-ion-app {
-    @extend .start-screen;
-    margin: 0px;
-
-    > .app-root {
-        margin: 0px;
-    }
+body > ion-app.app-root {
+    background-color: transparent;
 }
 
-.app-root > .pages {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: auto;
-    height: 100%;
-}
-
-.app-root > .pages > * {
-    width: 660px;
-    margin: 2em auto;
-}
-
+.app-root > .pages > *,
 .app-root > .modals > * {
     display: flex;
     position: absolute;
@@ -35,38 +17,15 @@ ion-app {
     width: 100%;
     height: 100%;
     z-index: 10;
-
-    > * {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        height: 80%;
-        z-index: 20;
-        transform: translate(-50%, -50%);
-        width: 550px;
-    }
+    overflow: auto;
+    flex-direction: column;
 }
 
 .app-root > .modals > * {
     z-index: 15;
-    padding: 2em;
-
-    &:before {
-        content:'';
-        background-color: #000;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        opacity: 0.6;
-        z-index: 10;
-    }
 }
-
 
 .app-root > .pages > router-outlet,
 .app-root > .modals > router-outlet {
     display:none;
 }
-
