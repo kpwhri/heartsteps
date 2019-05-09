@@ -1,8 +1,5 @@
 heartsteps-stepper {
     @extend .heartsteps-container;
-    @extend .heartsteps-page;
-
-    width: 100%;
 
     > header {
         @extend .heartsteps-page-header;
@@ -40,7 +37,6 @@ heartsteps-stepper {
         > * {
             @extend .heartsteps-container;
             flex: 1 0 auto;
-            margin: 2em 1em;
         }
 
         > *:first-child {
