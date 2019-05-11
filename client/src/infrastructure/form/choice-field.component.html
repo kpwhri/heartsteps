@@ -10,6 +10,7 @@
         <li *ngFor="let option of options; let index = index">
             <input id="{{name}}-{{index}}"
                 type="radio"
+                [name]="name"
                 [value]="option"
                 [ngModel]="selectedOption"
                 (ngModelChange)="updateValue(option.value)"
@@ -27,6 +28,7 @@
             <li>
                 <input id="{{name}}-selected"
                     type="radio"
+                    [name]="name"
                     [value]="selectedOption"
                     [ngModel]="selectedOption"
                     [disabled]="isDisabled"

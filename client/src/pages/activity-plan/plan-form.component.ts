@@ -48,7 +48,7 @@ export class PlanFormComponent implements OnInit {
             duration: new FormControl(this.activityPlan.duration || 30, Validators.required),
             date: new FormControl(this.activityPlan.start, Validators.required),
             time: new FormControl(this.activityPlan.start, Validators.required),
-            vigorous: new FormControl(this.activityPlan.vigorous, Validators.required)
+            vigorous: new FormControl(this.activityPlan.vigorous)
         });
         
         if(activityPlan.complete) {
