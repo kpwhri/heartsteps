@@ -7,6 +7,7 @@ import { PageComponent } from "./page.component";
 })
 export class ModalComponent extends PageComponent {
 
-    dismissText: string = "Cancel";
+    public dismissible:boolean = true;
+    public dismissText: string = "Cancel";
 
 }
