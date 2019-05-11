@@ -1,6 +1,7 @@
 page-home {
     @extend .heartsteps-page;
     background-color: $background-alternate;
+    margin: 0px;
 
     > .content {
         padding: 0em;

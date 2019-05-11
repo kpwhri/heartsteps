@@ -6,10 +6,16 @@ body {
     background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
 }
 
-label,
 .label {
     display:block;
-    color: $color-gray;  
+    color: $color-gray;
+    text-transform: uppercase;
+}
+
+.description {
+    display: block;
+    color: $text-color;
+    text-transform: none;
 }
 
 .error {

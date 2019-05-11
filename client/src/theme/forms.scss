@@ -27,7 +27,19 @@
         > * {
             margin: 0.25em 0px;
         }
+    }
 
+    > .controls {
+        margin: 0em 0em;
+        > * {
+            margin: 0.5em 0em;
+        }
+        [app-form-controls] {
+            margin: 0px;
+            > * {
+                margin:0.5em 0em;
+            }
+        }
     }
 
     fieldset {
@@ -36,7 +48,7 @@
 
     legend {
         font-weight: bold;
-        padding-top: $space-size;
+        padding: 0em;
         margin: 0.5em 0em;
     }
 
@@ -53,6 +65,96 @@
     }
 }
 
+.heartsteps-form-field {
+    display: block;
+    margin: 0em;
+    margin-bottom: 1em;
+    border-bottom: $color-gray-light 1px solid;
+
+    > * {
+        flex: 0 0 auto;
+    }
+
+    input {
+        &:disabled {
+            background-color: transparent;
+        }
+
+        &[type=number] {
+            text-align: right;
+        }
+    }
+
+    > input {
+        display: block;
+        width: 100%;
+        border: 0px;
+        padding: 0.5em 0em;
+    }
+
+    > .errors {
+        display: none;
+        color: $color-danger;
+
+        > * {
+            margin: 0.5em 0em 0em;
+        }
+    }
+
+    > ul {
+        margin: 0em;
+        padding: 0em;
+    }
+
+    > button {
+        @extend .heartsteps-minor-button;
+        text-align: left;
+        color: $text-color;
+
+        &:hover,
+        &:focus {
+            color: $link-color;
+        }
+    }
+}
+
+.heartsteps-form-field.is-invalid {
+
+    border-bottom-color: $color-danger;
+
+    > .errors {
+        display: block;
+    }
+
+    label, legend {
+        color: $color-danger;
+    }
+}
+
+.heartsteps-form-field.is-focused,
+.heartsteps-form-field.is-focused.is-invalid {
+    border-bottom-color: $color-primary;
+
+    label, legend {
+        color: $color-primary;
+    }
+}
+
+.heartsteps-form-field.is-disabled,
+.heartsteps-form-field.is-focused.is-invalid.is-disabled,
+.heartsteps-form-field.is-focused.is-disabled {
+    border-bottom-width: 0px;
+}
+
+fieldset.heartsteps-form-field {
+    legend {
+        @extend label;
+        font-weight: normal;
+        padding: 0em;
+    }
+}
+
+
 .heartsteps-form fieldset.input-group {
 
     > * {
@@ -60,10 +162,14 @@
     }
 
     & > legend {
-        color: $color-gray;
+        @extend .label;
         font-weight: normal;
         padding: 0px;
         margin: 0em;
+    }
+
+    & > legend.description {
+        @extend .description;
     }
 
     & > ul {
@@ -84,6 +190,8 @@
 
     li > button {
         text-align: left;
+        margin: 0px;
+        padding: 0em;
     }
 }
 

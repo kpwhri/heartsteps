@@ -17,6 +17,7 @@ app-choice-field.heartsteps-form-field button {
     }
 
     &.selected:before {
+        background-color: $selected-color;
         mask-image: url('../assets/checked.svg');
     }
 
