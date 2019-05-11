@@ -1,24 +1,4 @@
-app-choice-field.heartsteps-form-field button {
-    text-align: left;
+app-choice-field {
 
-    &:before {
-        content: '';
-        display: block;
-        width: 1.5em;
-        height: 1.5em;
-
-        margin-right: 0.5em;
-
-        background-color: $link-color;
-        mask-image: url('../assets/unchecked.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
-        mask-size: 100% 100%;
-    }
-
-    &.selected:before {
-        background-color: $selected-color;
-        mask-image: url('../assets/checked.svg');
-    }
 
 }

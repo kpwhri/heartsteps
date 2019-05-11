@@ -73,6 +73,6 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         })
         .catch(() => {
             console.log('Dismissed');
-        })
+        });
     }
 }

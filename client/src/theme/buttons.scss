@@ -1,5 +1,7 @@
 .heartsteps-button {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     position: relative;
     width: 100%;
     padding: 1em;
@@ -74,10 +76,12 @@
         mask-image: url('../assets/close-icon.svg');
     }
 
-    &:focus {
+    &:focus,
+    &:hover {
         color: $color-primary;
     }
-    &:focus:after {
+    &:focus:after,
+    &:hover:after {
         background-color: $color-danger;
     }
 

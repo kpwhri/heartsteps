@@ -109,6 +109,7 @@
     > button {
         @extend .heartsteps-minor-button;
         text-align: left;
+        justify-content: flex-start;
         color: $text-color;
 
         &:hover,
@@ -186,6 +187,7 @@ fieldset.heartsteps-form-field {
     li > label {
         color: $text-color;
         padding: 0em 1em;
+        text-transform: none;
     }
 
     li > button {
@@ -193,6 +195,31 @@ fieldset.heartsteps-form-field {
         margin: 0px;
         padding: 0em;
     }
+
+
+    .selected-option {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+
+        > *  {
+            flex-grow: 0;
+        }
+    }
+
+    .selected-option > ul {
+        flex-grow: 1;
+    }
+
+    .selected-option > button {
+        @extend .heartsteps-remove-button;
+        border: 0px;
+        width: 1em;
+        overflow: hidden;
+        text-indent: -20000px;
+    }
+
 }
 
 .heartsteps-form {
@@ -210,5 +237,17 @@ fieldset.heartsteps-form-field {
     input[type=radio]:checked {
         background: $color-primary;
         mask-image: url('../assets/checked.svg');
+    }
+}
+
+.heartsteps-form .select-button {
+    &:before {
+        content: "";
+        display: block;
+        width: 2em;
+        height: 1em;
+        background-color: $link-color;
+        mask-image: url('../assets/arrow-down.svg');
+        mask-repeat: no-repeat;
     }
 }

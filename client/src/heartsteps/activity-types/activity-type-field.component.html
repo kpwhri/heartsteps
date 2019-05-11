@@ -1,35 +1,43 @@
 <fieldset class="input-group">
-    <legend>{{label}}</legend>
+    <legend *ngIf="label">{{label}}</legend>
     <p *ngIf="error && isInvalid"
         class="error"
         >
         {{error}}
     </p>
-    <button *ngIf="activityType"
-        (click)="reset()"
-        [disabled]="isDisabled"
-        class="activity-type activity-type-{{activityType.name}} remove"
-        >
-        {{activityType.title}}
-    </button>
+    <p *ngIf="!options">No options available</p>
     <ul *ngIf="!activityType">
-        <li *ngFor="let option of options">
-            <button 
-                (click)="updateValue(option.value)"
+        <li *ngFor="let option of options; let index = index">
+            <input id="{{name}}-{{index}}"
+                type="radio"
+                [value]="option"
+                [ngModel]="activityType"
+                (ngModelChange)="updateValue(option.value)"
                 [disabled]="isDisabled"
-                class="activity-type activity-type-{{option.value}}"
-                type="button"
-                >
+                />
+            <label for="{{name}}-{{index}}">
                 {{option.name}}
-            </button>
+            </label>
         </li>
     </ul>
-    <button *ngIf="!activityType" 
-        (click)="pickOtherActivityType()"
-        [disabled]="isDisabled"
-        class="bottom"
-        type="button"
+    <div *ngIf="activityType"
+        class="selected-option"
         >
-        Other activity
-    </button>
+        <ul>
+            <li>
+                <input id="{{name}}-selected"
+                    type="radio"
+                    [value]="activityType"
+                    [ngModel]="activityType"
+                    [disabled]="isDisabled"
+                    />
+                <label for="{{name}}-selected">
+                    {{activityType.title}}
+                </label>
+            </li>
+        </ul>
+        <button (click)="reset()">Remove</button>
+    </div>
 </fieldset>
+    
+
