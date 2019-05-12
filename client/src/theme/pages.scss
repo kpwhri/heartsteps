@@ -1,6 +1,6 @@
 .heartsteps-page {
     font-size: 1.6rem;
-    background-color: $background-primary;
+    background-color: $background-alternate;
     padding: 0px;
     margin: 0px;
 
@@ -20,6 +20,7 @@
     }
 
     > .content {
+        background-color: $background-primary;
         padding: 1em;
     }
 }
