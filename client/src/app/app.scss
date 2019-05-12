@@ -4,6 +4,10 @@
 @import 'theme/logo.scss';
 @import 'theme/start-screen.scss';
 
+body > ion-app.app-root {
+    background-color: transparent;
+}
+
 .app-root > .pages > *,
 .app-root > .modals > * {
     display: flex;

@@ -28,9 +28,7 @@ export class WelcomePage implements OnInit {
   ) {}
 
   goToEnrollPage() {
-    this.router.navigate([{outlets: {
-      modal: 'enroll'
-    }}]);
+    this.router.navigate(['enroll']);
   }
 
   ngOnInit() {
