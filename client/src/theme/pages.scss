@@ -65,8 +65,14 @@
     flex-grow: 1;
 
     > * {
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         overflow: auto;
+    }
+
+    > .content {
+        flex-grow: 1;
+        overflow-y: scroll; /* has to be scroll, not auto */
+        -webkit-overflow-scrolling: touch;
     }
 }
 

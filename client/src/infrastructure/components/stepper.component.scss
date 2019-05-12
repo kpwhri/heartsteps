@@ -31,9 +31,6 @@ heartsteps-stepper {
         @extend .heartsteps-container;
         flex: 1 1 auto;
 
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-
         > * {
             @extend .heartsteps-container;
             flex: 1 0 auto;
