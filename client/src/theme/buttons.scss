@@ -90,4 +90,42 @@
     }
 }
 
+.heartsteps-checkmark-button {
+    display: block;
+    width: 2em;
+    height: 2em;
+    position: relative;
+    border: $link-color 1px solid;
+    border-radius: 1em;
+    overflow: hidden;
+    text-indent: -3000000px;
+
+    &:before {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        mask-image: url('../assets/checkmark.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 100%;
+        background-color: $link-color;
+    }
+}
+
+.heartsteps-checkmark-button-selected {
+    @extend .heartsteps-checkmark-button;
+    background-color: $selected-color;
+    &:before {
+        background-color: $color-white;
+        width: 120%;
+        height: 120%;
+        top: -10%;
+        left: -10%;
+    }
+}
+
 

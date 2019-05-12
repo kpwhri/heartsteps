@@ -14,19 +14,4 @@ heartsteps-activity-log {
             @extend .label;
         }
     }
-
-    &:after {
-        content: '';
-        display: block;
-        flex: 0 0 auto;
-        order: 10;
-        height: 2em;
-        width: 2em;
-        mask-image: url('../assets/edit.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
-        mask-size: 1em;
-        background-color: $link-color;
-        margin-left: 1em;
-    }
 }

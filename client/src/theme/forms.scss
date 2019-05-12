@@ -225,18 +225,13 @@ fieldset.heartsteps-form-field {
 .heartsteps-form {
     input[type=checkbox],
     input[type=radio] {
-        display: block;
-        width: 2em;
-        height: 2em;
-        background: $color-gray;
+        @extend .heartsteps-checkmark-button;
         appearance: none;
-        mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
     }
     
     input[type=checkbox]:checked,
     input[type=radio]:checked {
-        background: $color-primary;
-        mask-image: url('../assets/checked.svg');
+        @extend .heartsteps-checkmark-button-selected;
     }
 }
 

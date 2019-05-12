@@ -145,10 +145,9 @@ article > header {
 
     ul > li > button {
         @extend .heartsteps-minor-button;
-        display: flex;
         color: $text-color;
         flex-direction: row;
-        align-items: center;
+        justify-content: flex-start;
         text-align: left;
         padding: 0em;
         border: 0px;

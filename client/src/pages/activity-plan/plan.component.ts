@@ -54,9 +54,6 @@ export class PlanComponent implements OnInit {
         }
         
         this.complete = this.plan.complete;
-        if(this.complete) {
-            this.renderer.addClass(this.element.nativeElement, 'is-complete');
-        }
 
         this.renderer.listen(this.element.nativeElement, 'click', (event) => {
             event.preventDefault();
