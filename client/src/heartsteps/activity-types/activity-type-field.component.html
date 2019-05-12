@@ -6,13 +6,14 @@
         {{error}}
     </p>
     <p *ngIf="!options">No options available</p>
-    <ul *ngIf="!activityType">
+    <ul *ngIf="!selectedOption">
         <li *ngFor="let option of options; let index = index">
             <input id="{{name}}-{{index}}"
                 type="radio"
+                class="activity-type activity-type-{{option.value}}"
                 [name]="name"
-                [value]="option"
-                [ngModel]="activityType"
+                [value]="option.value"
+                [ngModel]="selectedOption"
                 (ngModelChange)="updateValue(option.value)"
                 [disabled]="isDisabled"
                 />
@@ -21,20 +22,26 @@
             </label>
         </li>
     </ul>
-    <div *ngIf="activityType"
+    <button *ngIf="!selectedOption"
+        (click)="pickOtherActivityType()"
+        >
+        Other activity
+    </button>
+    <div *ngIf="selectedOption"
         class="selected-option"
         >
         <ul>
             <li>
                 <input id="{{name}}-selected"
                     type="radio"
+                    class="activity-type activity-type-{{selectedOption.value}}"
                     [name]="name"
-                    [value]="activityType"
-                    [ngModel]="activityType"
+                    [value]="selectedOption"
+                    [ngModel]="selectedOption"
                     [disabled]="isDisabled"
                     />
                 <label for="{{name}}-selected">
-                    {{activityType.title}}
+                    {{selectedOption.name}}
                 </label>
             </li>
         </ul>

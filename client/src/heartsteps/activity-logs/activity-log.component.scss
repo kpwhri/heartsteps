@@ -6,6 +6,10 @@ heartsteps-activity-log {
     flex-direction: row;
     flex-wrap: nowrap;
 
+    &:before {
+        margin: 0em 0.5em;
+    }
+
     .earned {
         flex-grow: 0;
         text-align: center;
