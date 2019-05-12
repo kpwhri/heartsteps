@@ -6,7 +6,7 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormModule } from '@infrastructure/form/form.module';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     BrowserModule,
     FormModule,
     FormsModule,
+    ReactiveFormsModule,
     HeartstepsComponentsModule,
     InfrastructureModule
   ]
