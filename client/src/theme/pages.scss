@@ -70,9 +70,7 @@
     }
 
     > .content {
-        flex-grow: 1;
-        overflow-y: scroll; /* has to be scroll, not auto */
-        -webkit-overflow-scrolling: touch;
+        @extend .heartsteps-scrollable;
     }
 }
 

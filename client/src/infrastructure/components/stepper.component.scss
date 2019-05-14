@@ -1,11 +1,21 @@
 heartsteps-stepper {
-    @extend .heartsteps-container;
+    @extend .heartsteps-page;
+    @extend .heartsteps-scrollable;
+
+    > .content {
+        @extend .heartsteps-unscrollable;
+    }
+
+    background-color: $background-primary;
 
     > header {
-        @extend .heartsteps-page-header;
         background-color: transparent;
         border-bottom: 0px;
         padding-top: env(safe-area-inset-top);
+    }
+
+    > header > .back {
+        top: 0px;
     }
 
     .pagination-bullets {
@@ -24,20 +34,6 @@ heartsteps-stepper {
         }
         & > .active {
             background-color: $color-primary;
-        }
-    }
-
-    > .stepper-content {
-        @extend .heartsteps-container;
-        flex: 1 1 auto;
-
-        > * {
-            @extend .heartsteps-container;
-            flex: 1 0 auto;
-        }
-
-        > *:first-child {
-            display:none;
         }
     }
 }
