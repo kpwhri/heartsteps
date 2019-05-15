@@ -6,12 +6,11 @@ heartsteps-stepper {
         @extend .heartsteps-unscrollable;
     }
 
-    background-color: $background-primary;
+    background-color: $background-primary !important;
 
     > header {
-        background-color: transparent;
-        border-bottom: 0px;
-        padding-top: env(safe-area-inset-top);
+        background-color: transparent !important;
+        border-bottom: 0px !important;
     }
 
     > header > .back {
@@ -40,6 +39,7 @@ heartsteps-stepper {
 
 heartsteps-stepper.start-screen {
     display: block;
+    background-color: transparent !important;
 
     .pagination-bullets > * {
         background-color: transparent;

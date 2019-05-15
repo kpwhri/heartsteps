@@ -18,7 +18,7 @@ const enrollmentRoutes: Routes = [{
     path: 'welcome',
     component: WelcomePageComponent
 }, {
-    path: 'enroll',
+    path: 'login',
     component: EnrollmentPage
 }, {
     path: 'setup/:page',
