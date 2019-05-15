@@ -4,3 +4,18 @@ app-page {
         @extend .heartsteps-page;
     }
 }
+
+app-page.start-screen {
+    > article {
+        @extend .start-screen;
+        padding: 0em;
+        margin: 0em;
+    }
+
+    > article > .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: visible;
+    }
+}

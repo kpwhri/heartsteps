@@ -33,10 +33,16 @@
         font-size: 1.5em;
         font-weight: normal;
 
+        text-align: center;
+
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
         justify-content: center;
+
+        > .title {
+            text-align: center;
+        }
     }
 
     > header,

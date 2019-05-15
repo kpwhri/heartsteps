@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
+import { Component } from '@angular/core';
 import { EnrollmentModal } from '@heartsteps/enrollment/enroll';
 import { Router } from '@angular/router';
 
@@ -16,23 +16,17 @@ declare var process: {
     EnrollmentModal
   ]
 })
-export class WelcomePage implements OnInit {
+export class WelcomePage {
 
   public buildVersion: string = process.env.BUILD_VERSION;
   public buildDate: string = process.env.BUILD_DATE;
 
   constructor(
-    private el:ElementRef,
-    private renderer:Renderer2,
     private router: Router
   ) {}
 
   goToEnrollPage() {
     this.router.navigate(['enroll']);
-  }
-
-  ngOnInit() {
-    this.renderer.addClass(this.el.nativeElement, 'start-screen')
   }
 
 }
