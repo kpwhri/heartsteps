@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Renderer2 } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { StartPageComponent } from "./start.page";
@@ -9,7 +9,7 @@ import { MorningMessageService } from "@heartsteps/morning-message/morning-messa
 @Component({
     templateUrl: './morning-survey.page.html'
 })
-export class MorningSurveyPage implements OnInit {
+export class MorningSurveyPage {
 
     public morningMessage:MorningMessage;
 
@@ -18,8 +18,6 @@ export class MorningSurveyPage implements OnInit {
     constructor(
         private morningMessageService: MorningMessageService,
         private activatedRoute: ActivatedRoute,
-        private element:ElementRef,
-        private renderer:Renderer2,
         private router: Router
     ) {
         this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
@@ -42,10 +40,6 @@ export class MorningSurveyPage implements OnInit {
             }]
         }
 
-    }
-
-    ngOnInit() {
-        this.renderer.addClass(this.element.nativeElement, 'start-screen');
     }
 
     finish() {

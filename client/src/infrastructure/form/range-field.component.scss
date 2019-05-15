@@ -23,8 +23,7 @@ app-range-field.heartsteps-form-field {
         margin-bottom: 0.5em;
         
         > * {
-            @extend label;
-            opacity: 0.85;
+            @extend .label;
         }
     }
 }

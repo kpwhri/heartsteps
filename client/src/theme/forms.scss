@@ -185,9 +185,8 @@ fieldset.heartsteps-form-field {
     }
 
     li > label {
-        color: $text-color;
+        @extend .description;
         padding: 0em 1em;
-        text-transform: none;
     }
 
     li > button {

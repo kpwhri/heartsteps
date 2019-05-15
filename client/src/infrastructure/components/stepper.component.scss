@@ -37,3 +37,16 @@ heartsteps-stepper {
         }
     }
 }
+
+heartsteps-stepper.start-screen {
+    display: block;
+
+    .pagination-bullets > * {
+        background-color: transparent;
+        border: $color-white 1px solid;
+
+        &.active {
+            background-color: $color-white;
+        }
+    }
+}
