@@ -8,6 +8,7 @@ import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.s
 import * as moment from 'moment';
 import { Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
+import { CurrentWeekService } from '@heartsteps/current-week/current-week.service';
 
 @Component({
     templateUrl: 'dashboard.page.html'
@@ -20,6 +21,8 @@ export class DashboardPage implements OnDestroy {
     public formattedDate: string;
     public summary: DailySummary;
 
+    public weeklyGoal: number;
+
     public anchorMessage: string;
 
     private resumeSubscription: Subscription;
@@ -28,6 +31,7 @@ export class DashboardPage implements OnDestroy {
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private dailySummaryService: DailySummaryService,
+        private currentWeekService: CurrentWeekService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private platform: Platform
@@ -38,6 +42,12 @@ export class DashboardPage implements OnDestroy {
         this.dailySummaryService.watch(this.today)
         .subscribe((summary) => {
             this.summary = summary;
+        });
+
+        this.currentWeekService.week
+        .filter(week => week !== undefined)
+        .subscribe((week) => {
+            this.weeklyGoal = week.goal;
         });
 
         this.dailySummaryService.get(this.today);
