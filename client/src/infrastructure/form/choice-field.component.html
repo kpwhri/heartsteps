@@ -1,5 +1,9 @@
 <fieldset class="input-group">
-    <legend *ngIf="label">{{label}}</legend>
+    <legend *ngIf="label"
+        class="description"
+        >
+        {{label}}
+    </legend>
     <p *ngIf="error && isInvalid"
         class="error"
         >
