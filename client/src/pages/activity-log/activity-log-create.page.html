@@ -1,13 +1,10 @@
-<app-page
+<app-modal
     title="Create activity log"
+    (onDismiss)="dismiss()"
     >
-    <app-form
-        [formGroup]="form"
-        (onSubmit)="create()"
+    <activity-log-form
+        [activityLog]="activityLog"
+        (onSubmit)="create($event)"
         >
-        <activity-log-field
-            formControlName="activityLog"
-            >
-        </activity-log-field>
-    </app-form>
-</app-page>
+    </activity-log-form>
+</app-modal>

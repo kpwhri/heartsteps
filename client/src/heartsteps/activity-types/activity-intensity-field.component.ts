@@ -1,5 +1,6 @@
 import { Component, forwardRef, Input } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { AbstractField } from "@infrastructure/form/abstract-field";
 
 
 
@@ -14,19 +15,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
         }
     ]
 })
-export class ActivityIntensityFieldComponent implements ControlValueAccessor {
+export class ActivityIntensityFieldComponent extends AbstractField {
 
     public isVigorous: boolean;
 
-    private onChange: Function;
-    private onTouched: Function;
-    public isDisabled: boolean;
-
     @Input('label') label: string = 'Intensity';
 
-    constructor() {}
-
-    public update(vigorous:boolean) {
+    public updateVigorous(vigorous:boolean) {
         this.isVigorous = vigorous;
         this.onTouched();
         this.onChange(vigorous);
@@ -34,17 +29,5 @@ export class ActivityIntensityFieldComponent implements ControlValueAccessor {
 
     writeValue(vigorous:boolean) {
         this.isVigorous = vigorous;
-    }
-
-    registerOnChange(fn: Function) {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: Function) {
-        this.onTouched = fn;
-    }
-
-    setDisabledState(isDisabled: boolean) {
-        this.isDisabled = isDisabled;
     }
 }

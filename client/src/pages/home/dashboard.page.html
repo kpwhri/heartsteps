@@ -17,13 +17,15 @@
     >
 </heartsteps-anchor-message>
 <article>
-    <h3>My progress</h3>
+    <h3>Weekly Progress</h3>
+    <p>Weekly goal: <span *ngIf="weeklyGoal">{{weeklyGoal}} min</span></p>
     <heartsteps-weekly-progress></heartsteps-weekly-progress>
+    <h3><span>Today,</span> {{formattedDate}}</h3>
     <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
     <heartsteps-activity-daily-update [summary]="summary"></heartsteps-activity-daily-update>
 </article>
 <activity-plan-day 
     [date]="today"
-    label="My plan today"
+    label="Today's Plan"
     >
 </activity-plan-day>

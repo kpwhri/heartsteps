@@ -1,21 +1,47 @@
 <fieldset class="input-group">
-    <legend *ngIf="label">{{label}}</legend>
+    <legend *ngIf="label"
+        class="description"
+        >
+        {{label}}
+    </legend>
     <p *ngIf="error && isInvalid"
         class="error"
         >
         {{error}}
     </p>
     <p *ngIf="!options">No options available</p>
-    <ul>
+    <ul *ngIf="!selectedOption">
         <li *ngFor="let option of options; let index = index">
-            <button 
-                (click)="updateValue(option.value)"
+            <input id="{{name}}-{{index}}"
+                type="radio"
+                [name]="name"
+                [value]="option"
+                [ngModel]="selectedOption"
+                (ngModelChange)="updateValue(option.value)"
                 [disabled]="isDisabled"
-                [ngClass]="{selected: selectedOption && option.name === selectedOption.name}"
-                type="button"
-                >
+                />
+            <label for="{{name}}-{{index}}">
                 {{option.name}}
-            </button>
+            </label>
         </li>
     </ul>
+    <div *ngIf="selectedOption"
+        class="selected-option"
+        >
+        <ul>
+            <li>
+                <input id="{{name}}-selected"
+                    type="radio"
+                    [name]="name"
+                    [value]="selectedOption"
+                    [ngModel]="selectedOption"
+                    [disabled]="isDisabled"
+                    />
+                <label for="{{name}}-selected">
+                    {{selectedOption.name}}
+                </label>
+            </li>
+        </ul>
+        <button (click)="reset()">Remove</button>
+    </div>
 </fieldset>

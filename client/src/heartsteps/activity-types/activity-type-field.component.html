@@ -1,35 +1,52 @@
 <fieldset class="input-group">
-    <legend>{{label}}</legend>
+    <legend *ngIf="label">{{label}}</legend>
     <p *ngIf="error && isInvalid"
         class="error"
         >
         {{error}}
     </p>
-    <button *ngIf="activityType"
-        (click)="reset()"
-        [disabled]="isDisabled"
-        class="activity-type activity-type-{{activityType.name}} remove"
-        >
-        {{activityType.title}}
-    </button>
-    <ul *ngIf="!activityType">
-        <li *ngFor="let option of options">
-            <button 
-                (click)="updateValue(option.value)"
-                [disabled]="isDisabled"
+    <p *ngIf="!options">No options available</p>
+    <ul *ngIf="!selectedOption">
+        <li *ngFor="let option of options; let index = index">
+            <input id="{{name}}-{{index}}"
+                type="radio"
                 class="activity-type activity-type-{{option.value}}"
-                type="button"
-                >
+                [name]="name"
+                [value]="option.value"
+                [ngModel]="selectedOption"
+                (ngModelChange)="updateValue(option.value)"
+                [disabled]="isDisabled"
+                />
+            <label for="{{name}}-{{index}}">
                 {{option.name}}
-            </button>
+            </label>
         </li>
     </ul>
-    <button *ngIf="!activityType" 
+    <button *ngIf="!selectedOption"
         (click)="pickOtherActivityType()"
-        [disabled]="isDisabled"
-        class="bottom"
-        type="button"
         >
         Other activity
     </button>
+    <div *ngIf="selectedOption"
+        class="selected-option"
+        >
+        <ul>
+            <li>
+                <input id="{{name}}-selected"
+                    type="radio"
+                    class="activity-type activity-type-{{selectedOption.value}}"
+                    [name]="name"
+                    [value]="selectedOption"
+                    [ngModel]="selectedOption"
+                    [disabled]="isDisabled"
+                    />
+                <label for="{{name}}-selected">
+                    {{selectedOption.name}}
+                </label>
+            </li>
+        </ul>
+        <button (click)="reset()">Remove</button>
+    </div>
 </fieldset>
+    
+

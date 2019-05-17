@@ -91,3 +91,14 @@ class WalkingSuggestionDecision(Decision):
             if tag.tag in SuggestionTime.TIMES:
                 return tag.tag
         return None
+
+class NightlyUpdate(models.Model):
+    user = models.ForeignKey(User)
+    day = models.DateField()
+    updated = models.BooleanField(default=False)
+
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['day']

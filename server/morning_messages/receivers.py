@@ -46,3 +46,9 @@ def morning_message_create_survey(sender, instance, **kwargs):
         survey.randomize_questions()
 
         morning_message.survey = survey
+
+@receiver(pre_save, sender=MorningMessageSurvey)
+def survey_set_word_set(sender, instance, **kwargs):
+
+    if not instance.word_set:
+        instance.randomize_word_set()

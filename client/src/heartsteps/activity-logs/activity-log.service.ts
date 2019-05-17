@@ -69,12 +69,18 @@ export class ActivityLogService {
     }
 
     public serialize(activityLog):any {
+
+        let vigorous: boolean = false;
+        if(activityLog.vigorous) {
+            vigorous = true;
+        }
+
         return {
             id: activityLog.id,
             start: activityLog.start,
             duration: activityLog.duration,
             type: activityLog.type,
-            vigorous: activityLog.vigorous,
+            vigorous: vigorous,
             earnedMinutes: activityLog.earnedMinutes,
             enjoyed: activityLog.enjoyed,
             effort: activityLog.effort

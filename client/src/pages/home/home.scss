@@ -1,6 +1,15 @@
 page-home {
-    @extend .page;
-    background-color: $background-alternate;
+    @extend .heartsteps-page;
+    margin: 0px;
+
+    > .content {
+        padding: 0em;
+        background-color: $background-alternate;
+    }
+
+    article {
+        margin: 0.5em 0em;
+    }
     
      > nav {
 
@@ -41,7 +50,7 @@ page-home {
         .planning:before {
             mask-image: url('../assets/planning.svg');
         }
-        .stats:before {
+        .activities:before {
             mask-image: url('../assets/stats.svg');
         }
         .library:before {
@@ -52,7 +61,4 @@ page-home {
         }
     }
 
-    ion-content.content > .scroll-content {
-        padding: 0px;
-    }
 }

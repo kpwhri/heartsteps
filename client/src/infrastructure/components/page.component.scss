@@ -1,11 +1,21 @@
 app-page {
     @extend .heartsteps-container;
-    @extend .heartsteps-page;
-
-    color: $text-color;
+    > article {
+        @extend .heartsteps-page;
+    }
 }
 
-ion-content .scroll-content {
-    @extend .heartsteps-container;
-}
+app-page.start-screen {
+    > article {
+        @extend .start-screen;
+        padding: 0em;
+        margin: 0em;
+    }
 
+    > article > .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: visible;
+    }
+}

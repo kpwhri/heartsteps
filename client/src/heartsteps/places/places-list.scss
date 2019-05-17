@@ -29,12 +29,12 @@ place-edit.ion-page {
     display: flex;
 }
 
-place-edit form {
-    #map {
-        display: none;
-    }
-
-    &.show-map #map{
+place-edit #map{
+    display: none;
+    height: 200px;
+    width: 100%;
+    
+    &.show-map{
         display: block;
     }
 }

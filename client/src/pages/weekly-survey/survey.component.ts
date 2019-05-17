@@ -30,9 +30,13 @@ export class SurveyComponent implements OnInit {
         const weeklySurvey:WeeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
         this.week = weeklySurvey.currentWeek;
 
-        if(this.week.survey.questions) {
+        this.loadingService.show('Loading survey');
+        this.weekService.getWeekSurvey(this.week)
+        .then((survey) => {
+            this.loadingService.dismiss();
+            console.log(survey);
             const questions = [];
-            this.week.survey.questions.forEach((question: any) => {
+            survey.questions.forEach((question: any) => {
                 this.form.addControl(question.name, new FormControl());
                 questions.push({
                     name: question.name,
@@ -46,7 +50,7 @@ export class SurveyComponent implements OnInit {
                 });
             });
             this.questions = questions;
-        }
+        })
     }
 
     nextPage() {

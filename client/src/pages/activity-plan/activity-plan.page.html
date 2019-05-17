@@ -1,4 +1,4 @@
-<app-page
+<app-modal
     title="Activity Plan"
     dismiss="Cancel"
     (onDismiss)="dismiss()"
@@ -10,10 +10,10 @@
         Complete
     </a>
     <a *ngIf="activityPlan.activityLogId"
+        app-page-control
         (click)="goToActivityLog()"
-        class="edit-activity-log-banner"
         >
-        Edit activity log
+        Edit
     </a>
     <app-form
         [formGroup]="planForm"
@@ -28,4 +28,4 @@
     </app-form>
     <button *ngIf="!activityPlan.complete" (click)="delete()" class="danger">Delete</button>
     <button *ngIf="activityPlan.complete" (click)="uncomplete()">Mark incomplete</button>
-</app-page>
+</app-modal>

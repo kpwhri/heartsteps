@@ -7,11 +7,22 @@ import { HeartstepsWebsite } from './website.component';
 import { EnrollmentModule } from '@pages/enrollment/enrollment.module';
 import { BrowserModule } from '@angular/platform-browser';
 
+declare var process: {
+    env: {
+        PRODUCTION: boolean
+    }
+}
+
 const appRoutes:Routes = [{
   path: '',
   redirectTo: 'welcome',
   pathMatch: 'full'
 }]
+
+const routerOptions: any = {}
+if (!process.env.PRODUCTION) {
+    routerOptions.useHash = true;
+}
 
 @NgModule({
     declarations: [
@@ -22,7 +33,8 @@ const appRoutes:Routes = [{
         EnrollmentModule,
         IonicModule.forRoot(HeartstepsWebsite),
         RouterModule.forRoot(
-            appRoutes
+            appRoutes,
+            routerOptions
         )
     ],
     bootstrap: [IonicApp],

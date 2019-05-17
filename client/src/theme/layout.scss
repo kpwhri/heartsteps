@@ -3,6 +3,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 0 auto;
+    width: 100%;
 
     > * {
         flex: 0 0 auto;
@@ -14,99 +15,14 @@
     }
 }
 
-router-outlet {
-    display: none;
-}
-
-article.page,
-.page {
-    padding-bottom: env(safe-area-inset-bottom);
-    height: 100%
-}
-
-.page > header {
-    padding-top: env(safe-area-inset-top);
-}
-
-.page {
-    display:flex;
-    flex-direction: column;
-    flex-grow: 1;
-
-    > * {
-        flex: 1 1 auto;
-        overflow: auto;
-    }
-}
-
-.heartsteps-content {
-    padding: $space-size
-}
-
-.page .content {
-    @extend .heartsteps-content;
-}
-
-.heartsteps-controls {
-    flex: 0 0 auto;
-    overflow: hidden;
-    position: relative;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-evenly;
-    align-items: center;
-
-    > * {
-        flex: 0 1 auto;
-        margin: 0.5em;
-    }
-
-    button {
-        @extend .heartsteps-minor-button;
-        width: auto;
-    }
-}
-
-header,
-footer,
-.page > header,
-.page > nav,
-.page > footer {
-    @extend .heartsteps-controls;
-}
-
-.heartsteps-page-header {
+.heartsteps-scrollable {
     display: block;
-    position: relative;
-
-    h1, h2, h3, h4, h5 {
-        font-size: 1.25em;
-        font-weight: normal;
-        text-align: center;
-    }
-
-    .back,
-    [app-page-control] {
-        position: absolute;
-        bottom: 0%;
-        width: auto;
-        margin: 0px;
-        padding: 0.5em $space-size;
-        line-height: 1.25em;
-    }
-    
-    .back {
-        left: 0px;
-    }
-
-    [app-page-control] {
-        right: 0px;
-    }
-
+    flex-grow: 1;
+    overflow-y: scroll; /* has to be scroll, not auto */
+    -webkit-overflow-scrolling: touch;
 }
 
-.page > header {
-    @extend .heartsteps-page-header;
+.heartsteps-unscrollable {
+    overflow-y: visible !important;
 }
+

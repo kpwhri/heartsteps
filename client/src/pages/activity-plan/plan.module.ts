@@ -19,6 +19,7 @@ import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.modul
 import { CompletePlanForm } from './complete-plan-form.component';
 import { ActivityPlanField } from './activity-plan-field.component';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
+import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 
 const routes: Routes = [
     {
@@ -70,6 +71,7 @@ const routes: Routes = [
     imports: [
         ActivityPlansModule,
         ActivityLogModule,
+        ActivityLogPageModule,
         DailyTimesModule,
         HeartstepsComponentsModule,
         BrowserModule,

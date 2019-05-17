@@ -1,9 +1,11 @@
-<div>
+<app-page
+    class="start-screen"
+    >
     <div class="heartsteps-logo">Heartsteps</div>
     <div class="headline">
         <h1>Welcome!</h1>
-        <p>Register your account and get started.</p>
+        <p>Login and get started.</p>
     </div>
-</div>
-<button (click)="goToEnrollPage()">Enroll</button>
-<p style="margin:1em;flex-grow:0;text-align: center;">Heartsteps {{buildVersion}}, built on {{buildDate}}.</p>
+    <button (click)="goToEnrollPage()">Login</button>
+    <p style="margin:1em;flex-grow:0;text-align: center;">Heartsteps {{buildVersion}}, built on {{buildDate}}.</p>
+</app-page>

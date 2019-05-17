@@ -1,14 +1,1 @@
-// Remove ionic style
-.content,
-.content-md {
-    background-color: transparent;
-}
-
-ion-content.content {
-    padding: 0px;
-    height: auto;
-    > .scroll-content {
-        @extend .heartsteps-content;
-    }
-}
 

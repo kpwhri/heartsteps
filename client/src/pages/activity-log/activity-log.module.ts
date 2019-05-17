@@ -16,6 +16,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivityTypeModule } from '@heartsteps/activity-types/activity-types.module';
 import { DailySummaryComponent } from './daily-summary.component';
 import { ActivityLogCreatePage } from './activity-log-create.page';
+import { ActivityLogFormComponent } from './activity-log-form.component';
 
 const routes: Routes = [{
   path: 'activities/:date',
@@ -44,7 +45,8 @@ const routes: Routes = [{
     ActivitySummaryPage,
     DailySummaryComponent,
     DailySummaryListComponent,
-    ActivityLogFieldComponent
+    ActivityLogFieldComponent,
+    ActivityLogFormComponent
   ],
   providers: [
     ActivityLogResolver,
@@ -62,6 +64,7 @@ const routes: Routes = [{
     RouterModule.forChild(routes)
   ],
   exports: [
+    ActivityLogFormComponent,
     RouterModule,
     DailySummaryComponent,
     DailySummaryListComponent

@@ -1,4 +1,7 @@
-<form *ngIf="contactInformationForm" [formGroup]="contactInformationForm">
+<app-form
+    [formGroup]="contactInformationForm"
+    (onSubmit)="save()"
+    >
     <fieldset>
         <legend>What do you want to be called?</legend>
         <app-text-field
@@ -21,7 +24,4 @@
             >
         </app-phone-field>
     </fieldset>
-    <div class="controls">
-        <button (click)="save()">Save</button>
-    </div>
-</form>
+</app-form>

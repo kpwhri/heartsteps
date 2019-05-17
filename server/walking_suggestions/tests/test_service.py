@@ -1,5 +1,5 @@
 import requests, json, pytz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from unittest.mock import patch, call
 
 from django.test import TestCase, override_settings
@@ -30,7 +30,7 @@ class ServiceTestCase(TestCase):
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
-            service_initialized_date = timezone.now() - timedelta(days=1)
+            service_initialized_date = date.today() - timedelta(days=1)
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
@@ -191,7 +191,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 class StudyDayNumberTests(ServiceTestCase):
 
     def test_get_day_number_starts_at_one(self):
-        today = timezone.now()
+        today = date.today()
         day_number = self.service.get_study_day(today)
 
         self.assertEqual(day_number, 1)
@@ -201,6 +201,12 @@ class StudyDayNumberTests(ServiceTestCase):
         day_number = self.service.get_study_day(later_date)
 
         self.assertEqual(day_number, 6)
+
+    def test_works_with_date(self):
+        later_date = date.today() + timedelta(days=10)
+        day_number = self.service.get_study_day(later_date)
+
+        self.assertEqual(day_number, 11)
 
 class LocationContextTests(ServiceTestCase):
     

@@ -9,7 +9,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
 import { SettingsPage } from '@pages/settings/settings-page';
-import { StatsPage } from './stats.page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { HomeGuard } from './home.guard';
@@ -18,6 +17,7 @@ import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module'
 import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
 import { AnchorMessageResolver } from './anchor-message.resolver';
+import { ActivitiesPage } from './activities.page';
 
 const routes:Routes = [
     {
@@ -33,8 +33,8 @@ const routes:Routes = [
                 anchorMessage: AnchorMessageResolver
             }
         }, {
-            path: 'stats',
-            component: StatsPage
+            path: 'activities',
+            component: ActivitiesPage
         }, {
             path: 'planning',
             component: PlanPage,
@@ -60,7 +60,7 @@ const routes:Routes = [
         HomePage,
         DashboardPage,
         PlanPage,
-        StatsPage
+        ActivitiesPage
     ],
     providers: [
         AnchorMessageResolver,

@@ -1,28 +1,58 @@
 
 @import 'buttons.scss';
+@import 'pages.scss';
+
+body {
+    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+}
 
 .label {
     display:block;
-    color: $color-gray;  
+    color: $color-gray;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.description {
+    display: block;
+    color: $text-color;
+    text-transform: none;
+    font-size: 1em;
+}
+
+.error {
+    color: $color-danger;
 }
 
 .highlight {
     color: $color-secondary;
 }
 
-h1, h2 {
+.title {
     text-align: center;
+    margin: 0em;
+    padding: 0em;
+}
+
+.title > span {
+    @extend .highlight;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @extend .title;
+}
+
+h1, h2 {
     font-size: 1.5em;
 }
 
 h3, h4 {
-    text-align: center;
     font-size: 1em;
 }
 
 ul {
     margin:0em;
-    padding: 1em 0em;
+    padding: 0.5em 0em;
     list-style-type: none;
 
     > li {
@@ -65,43 +95,16 @@ dl {
     }
 }
 
-.heartsteps-content {
-    padding: 0em 1em;
-}
-
-.heartsteps-page,
-.page {
-    font-size: 1.6rem;
-    background-color: $background-primary;
-
-    .headline {
-        color: $color-secondary;
-        font-size: 1.25em;
-        font-weight: bold;
-        text-align: center;
-        padding: 0.5em 0em;
-    }
-
-    > header,
-    > nav,
-    > footer {
-        background-color: $background-alternate;
-    }
-
-    > header {
-        border-bottom: $color-gray 1px solid;
-    }
-
-    > nav,
-    > footer {
-        border-top: $color-gray 1px solid;
-    }
-}
-
 article {
     background-color: $background-primary;
-    margin: 0.5em 0px;
     padding: 1em;
+
+    .title {
+        font-size: 1em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
 }
 
 article > header {
@@ -109,34 +112,17 @@ article > header {
     flex-direction: row;
     align-items: flex-start;
 
-    h2, h3, h4 {
+    > * {
+        flex-grow: 0;
+        margin: 0.5em 0em;
+    }
+
+    .title {
         flex-grow: 1;
     }
 }
 
-.article-title,
-article header .title {
-    font-size: 1em;
-    margin: 0.5em 0px;
-    text-align: left;
-}
-
-article > h2,
-article > h3,
-article > h4,
-article > header > h2,
-article > header > h3,
-article > header > h4 {
-    @extend .article-title;
-}
-
-article.page {
-    margin: 0px;
-    padding: 0px;
-}
-
-.heartsteps-page,
-.page {
+.heartsteps-page {
     button {
         @extend .heartsteps-button;
     }
@@ -155,12 +141,15 @@ article.page {
         padding: 0em;
     }
 
+    button.remove {
+        @extend .heartsteps-remove-button;
+    }
+
     ul > li > button {
         @extend .heartsteps-minor-button;
-        display: flex;
         color: $text-color;
         flex-direction: row;
-        align-items: center;
+        justify-content: flex-start;
         text-align: left;
         padding: 0em;
         border: 0px;
@@ -169,64 +158,5 @@ article.page {
         &:focus {
             color: $color-primary;
         }
-    }
-}
-
-.page button.bottom,
-button.bottom,
-.page article > button,
-article > button {
-    @extend .heartsteps-minor-button;
-    border-top: $color-gray-light 1px solid;
-}
-
-.error {
-    color: map-get($colors, danger);
-}
-
-.controls {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-.callout-progress {
-    display: block;
-    text-align: center;
-    color: map-get($colors, secondary);
-    font-weight: bold;
-}
-
-ul.nav {
-    list-style: none;
-    padding: 0px;
-    li {
-        border-bottom: $color-gray-light 1px solid;
-        padding: $space-size/2 0px;
-    }
-    a {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        padding-right: 20px + $space-size;
-        color: $color-gray-dark;
-        > * {
-            flex: 0 1 auto;
-        }
-    }
-    a:after {
-        content: '';
-        position: absolute;
-        right: 0px;
-        top: 50%;
-        transform: translate(0%, -50%);
-        display: block;
-        width: 20px;
-        height: 20px;
-        background-color: $color-gray-dark;
-        mask-image: url('../assets/arrow-forward.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
     }
 }

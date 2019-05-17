@@ -1,6 +1,4 @@
-form,
-.form,
-fieldset {
+.heartsteps-form {
     display: flex;
     flex-direction: column;
     font-size: 1.6rem;
@@ -29,12 +27,28 @@ fieldset {
         > * {
             margin: 0.25em 0px;
         }
+    }
 
+    > .controls {
+        margin: 0em 0em;
+        > * {
+            margin: 0.5em 0em;
+        }
+        [app-form-controls] {
+            margin: 0px;
+            > * {
+                margin:0.5em 0em;
+            }
+        }
+    }
+
+    fieldset {
+        border: 0px;
     }
 
     legend {
         font-weight: bold;
-        padding-top: $space-size;
+        padding: 0em;
         margin: 0.5em 0em;
     }
 
@@ -42,41 +56,121 @@ fieldset {
         @extend .label;
     }
 
+    input {
+        border-radius: 0em;
+    }
+
     input[type=submit] {
         @extend .heartsteps-button;
     }
 }
 
-form.map {
+.heartsteps-form-field {
+    display: block;
+    margin: 0em;
+    margin-bottom: 1em;
+    border-bottom: $color-gray-light 1px solid;
 
-    #map {
+    > * {
+        flex: 0 0 auto;
+    }
+
+    input {
+        &:disabled {
+            background-color: transparent;
+        }
+
+        &[type=number] {
+            text-align: right;
+        }
+    }
+
+    > input {
+        display: block;
         width: 100%;
-        height: 200px;
-        flex-grow:1;
+        border: 0px;
+        padding: 0.5em 0em;
     }
 
-    .controls {
-        flex-grow: 0;
+    > .errors {
+        display: none;
+        color: $color-danger;
+
+        > * {
+            margin: 0.5em 0em 0em;
+        }
+    }
+
+    > ul {
+        margin: 0em;
+        padding: 0em;
+    }
+
+    > button {
+        @extend .heartsteps-minor-button;
+        text-align: left;
+        justify-content: flex-start;
+        color: $text-color;
+
+        &:hover,
+        &:focus {
+            color: $link-color;
+        }
     }
 }
 
-fieldset {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
+.heartsteps-form-field.is-invalid {
+
+    border-bottom-color: $color-danger;
+
+    > .errors {
+        display: block;
+    }
+
+    label, legend {
+        color: $color-danger;
+    }
 }
 
-fieldset.input-group {
+.heartsteps-form-field.is-focused,
+.heartsteps-form-field.is-focused.is-invalid {
+    border-bottom-color: $color-primary;
+
+    label, legend {
+        color: $color-primary;
+    }
+}
+
+.heartsteps-form-field.is-disabled,
+.heartsteps-form-field.is-focused.is-invalid.is-disabled,
+.heartsteps-form-field.is-focused.is-disabled {
+    border-bottom-width: 0px;
+}
+
+fieldset.heartsteps-form-field {
+    legend {
+        @extend label;
+        font-weight: normal;
+        padding: 0em;
+    }
+}
+
+
+.heartsteps-form fieldset.input-group {
 
     > * {
         margin: 0.25em 0em;
     }
 
     & > legend {
-        color: $color-gray;
+        @extend .label;
         font-weight: normal;
         padding: 0px;
         margin: 0em;
+    }
+
+    & > legend.description {
+        @extend .description;
     }
 
     & > ul {
@@ -91,35 +185,63 @@ fieldset.input-group {
     }
 
     li > label {
-        color: $text-color;
+        @extend .description;
         padding: 0em 1em;
     }
 
     li > button {
         text-align: left;
+        margin: 0px;
+        padding: 0em;
+    }
+
+
+    .selected-option {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+
+        > *  {
+            flex-grow: 0;
+        }
+    }
+
+    .selected-option > ul {
+        flex-grow: 1;
+    }
+
+    .selected-option > button {
+        @extend .heartsteps-remove-button;
+        border: 0px;
+        width: 1em;
+        overflow: hidden;
+        text-indent: -20000px;
+    }
+
+}
+
+.heartsteps-form {
+    input[type=checkbox],
+    input[type=radio] {
+        @extend .heartsteps-checkmark-button;
+        appearance: none;
+    }
+    
+    input[type=checkbox]:checked,
+    input[type=radio]:checked {
+        @extend .heartsteps-checkmark-button-selected;
     }
 }
 
-form .ion-item {
-    margin: 0px;
-}
-
-input {
-    border-radius: 0em;
-}
-
-input[type=checkbox],
-input[type=radio] {
-    display: block;
-    width: 2em;
-    height: 2em;
-    background: $color-gray;
-    appearance: none;
-    mask: url('../assets/unchecked.svg') no-repeat 50% 50%;
-}
-
-input[type=checkbox]:checked,
-input[type=radio]:checked {
-    background: $color-primary;
-    mask-image: url('../assets/checked.svg');
+.heartsteps-form .select-button {
+    &:before {
+        content: "";
+        display: block;
+        width: 2em;
+        height: 1em;
+        background-color: $link-color;
+        mask-image: url('../assets/arrow-down.svg');
+        mask-repeat: no-repeat;
+    }
 }

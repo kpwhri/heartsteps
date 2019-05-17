@@ -1,19 +1,17 @@
 heartsteps-activity-daily-update {
-    button {
-        @extend button.bottom;
+
+    > button {
+        @extend .heartsteps-bottom-button;
+        padding-bottom: 0.25em;
     }
 
-    button.is-loading {
-        opacity: 0.7;
+    > button.is-loading {
+        padding-bottom: 1.5em;
     }
 
-    button:before {
-        content: '';
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        mask-image: url('../assets/refresh.svg');
-        mask-repeat: no-repeat;
-        background-color: $link-color;
+    > p {
+        margin: 0em;
+        text-align: center;
     }
+    
 }

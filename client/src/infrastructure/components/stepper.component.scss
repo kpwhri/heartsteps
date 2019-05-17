@@ -1,14 +1,20 @@
 heartsteps-stepper {
-    @extend .heartsteps-container;
     @extend .heartsteps-page;
+    @extend .heartsteps-scrollable;
 
-    width: 100%;
+    > .content {
+        @extend .heartsteps-unscrollable;
+    }
+
+    background-color: $background-primary !important;
 
     > header {
-        @extend .heartsteps-page-header;
-        background-color: transparent;
-        border-bottom: 0px;
-        padding-top: env(safe-area-inset-top);
+        background-color: transparent !important;
+        border-bottom: 0px !important;
+    }
+
+    > header > .back {
+        top: 0px;
     }
 
     .pagination-bullets {
@@ -29,22 +35,18 @@ heartsteps-stepper {
             background-color: $color-primary;
         }
     }
+}
 
-    > .stepper-content {
-        @extend .heartsteps-container;
-        flex: 1 1 auto;
+heartsteps-stepper.start-screen {
+    display: block;
+    background-color: transparent !important;
 
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
+    .pagination-bullets > * {
+        background-color: transparent;
+        border: $color-white 1px solid;
 
-        > * {
-            @extend .heartsteps-container;
-            flex: 1 0 auto;
-            margin: 2em 1em;
-        }
-
-        > *:first-child {
-            display:none;
+        &.active {
+            background-color: $color-white;
         }
     }
 }

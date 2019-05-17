@@ -1,27 +1,19 @@
 heartsteps-activity-plan {
     @extend heartsteps-activity-log;
 
-    &:after {
-        content: "";
+    button.complete {
+        @extend .heartsteps-checkmark-button-selected;
         flex: 0 0 auto;
         order: -1;
-        height: 2em;
-        width: 2em;
-        margin-right: 1em;
-        margin-left: 0em;
-        mask-image: url('../assets/unchecked.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
-        mask-size: 100%;
-        display: block;
-        background-color: $link-color;
     }
 
-    &.is-complete:after {
-        mask-image: url('../assets/checked.svg');
+    button.incomplete {
+        @extend .heartsteps-checkmark-button;
+        flex: 0 0 auto;
+        order: -1;
     }
 
-    button {
+    button.edit {
         display: block;
         flex: 0 0 auto;
         height: 2em;

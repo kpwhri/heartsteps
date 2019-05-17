@@ -20,8 +20,6 @@
         float: left;
         width: 2em;
         height: 2em;
-        margin: 0em;
-        margin-right: 0.5em;
         background-color: $text-color;
         mask-image: url('../assets/activity-default.svg');
         mask-repeat: no-repeat;
@@ -71,5 +69,91 @@ button.activity-type {
 
     &:focus {
         color: $color-primary;
+    }
+}
+
+.activity-type {
+    &.heartsteps-checkmark-button {
+        @extend .activity-type;
+        border-width: 0px;
+        border-radius: 0px;
+
+        &:before {
+            background-color: $link-color;
+        }
+
+        &.activity-type-aerobic:before {
+            mask-image: url('../assets/activity-aerobic.svg');
+        }
+    
+        &.activity-type-bike:before {
+            mask-image: url('../assets/activity-bike.svg');
+        }
+    
+        &.activity-type-elliptical:before {
+            mask-image: url('../assets/activity-elliptical.svg');
+        }
+    
+        &.activity-type-run:before {
+            mask-image: url('../assets/activity-run.svg');
+        }
+    
+        &.activity-type-swim:before {
+            mask-image: url('../assets/activity-swim.svg');
+        }
+    
+        &.activity-type-sport:before {
+            mask-image: url('../assets/activity-sport.svg');
+        }
+    
+        &.activity-type-walk:before {
+            mask-image: url('../assets/activity-walk.svg');
+        }
+    
+        &.activity-type-weights:before {
+            mask-image: url('../assets/activity-weights.svg');
+        }
+    
+    }
+
+    &.heartsteps-checkmark-button-selected {
+        @extend .activity-type;
+        background-color: transparent;
+
+        &:before {
+            background-color: $selected-color;
+        }
+
+        &.activity-type-aerobic:before {
+            mask-image: url('../assets/activity-aerobic.svg');
+        }
+    
+        &.activity-type-bike:before {
+            mask-image: url('../assets/activity-bike.svg');
+        }
+    
+        &.activity-type-elliptical:before {
+            mask-image: url('../assets/activity-elliptical.svg');
+        }
+    
+        &.activity-type-run:before {
+            mask-image: url('../assets/activity-run.svg');
+        }
+    
+        &.activity-type-swim:before {
+            mask-image: url('../assets/activity-swim.svg');
+        }
+    
+        &.activity-type-sport:before {
+            mask-image: url('../assets/activity-sport.svg');
+        }
+    
+        &.activity-type-walk:before {
+            mask-image: url('../assets/activity-walk.svg');
+        }
+    
+        &.activity-type-weights:before {
+            mask-image: url('../assets/activity-weights.svg');
+        }
     }
 }

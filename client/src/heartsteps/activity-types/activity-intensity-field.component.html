@@ -2,25 +2,11 @@
     <legend>{{label}}</legend>
     <ul>
         <li>
-            <input id="activity-intensity-moderate"
-                type="radio"
-                name="vigorous"
-                [ngModel]="isVigorous"
-                (ngModelChange)="update($event)"
-                [value]="false"
-                [disabled]="isDisabled"
-                />
-            <label for="activity-intensity-moderate">
-                Moderate
-                <span>1x time credit</span>
-            </label>
-        </li>
-        <li>
             <input id="activity-intensity-vigorous"
-                type="radio"
+                type="checkbox"
                 name="vigorous"
                 [ngModel]="isVigorous"
-                (ngModelChange)="update($event)"
+                (ngModelChange)="updateVigorous($event)"
                 [value]="true"
                 [disabled]="isDisabled"
                 />

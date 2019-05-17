@@ -4,9 +4,25 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update && \
     apt-get install -y r-base
 
+FROM heartsteps_service-template:latest
+RUN chmod 777 utils/copy-files
+
+
 # Create and add files to Docker
 WORKDIR /pooling-service
 ADD . /pooling-service
+
+RUN pip install -r requirements.txt
+RUN Rscript install.r
+
+ENV googleStorageBucket walking-suggestions-data
+
+# Mount GCSFuse Run the server
+RUN mkdir -p ./data
+CMD gcsfuse --implicit-dirs walking-suggestions-data ./data && gunicorn -b 0.0.0.0:8080 wsgi
+
+
+
 
 RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
 RUN bash Anaconda3-5.0.1-Linux-x86_64.sh -b
@@ -19,8 +35,17 @@ ENV PATH /root/anaconda3/bin:$PATH
 
 RUN conda create -n py36 python=3.6
 
+RUN conda install -c conda-forge pyreadr
+
 RUN conda install --name py36 jupyter
 
 RUN conda install  --name py36 -c conda-forge tensorflow
 
 RUN conda install --name py36  -c conda-forge gpflow 
+RUN conda install pytorch torchvision -c pytorch
+
+RUN pip install git+https://github.com/cornellius-gp/gpytorch.git
+
+
+
+

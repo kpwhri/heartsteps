@@ -6,6 +6,7 @@ import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.se
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { LoadingService } from "@infrastructure/loading.service";
+import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 
 
 @Component({
@@ -15,6 +16,29 @@ export class ActivityPlanCompletePage {
 
     public plan:ActivityPlan;
     public form:FormGroup;
+
+    public effortOptions: Array<SelectOption> = [
+        {
+            name: "No effort",
+            value: 0
+        },
+        {
+            name: "Some effort",
+            value: 0.25
+        },
+        {
+            name: "Moderate effort",
+            value: 0.5
+        },
+        {
+            name: "Significant effort",
+            value: 0.75
+        },
+        {
+            name: "Maximum effort",
+            value: 1
+        }
+    ]
 
     constructor(
         private activityPlanService: ActivityPlanService,

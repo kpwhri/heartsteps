@@ -1,33 +1,30 @@
 .heartsteps-button {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     position: relative;
-    color: $color-primary;
-    border: 1px $color-primary solid;
-    background: transparent;
+    width: 100%;
     padding: 1em;
-    text-align: center;
-    display: block;
     font-size: 1em;
+    text-align: center;
+    border: 1px $color-primary solid;
+    background: $color-white;
+    color: $color-primary;
 
     > span {
         color: $text-color;
     }
 
     &:focus, &:hover {
-        box-shadow: inset 0 0 0.1em 0px $color-primary;
+        box-shadow: inset 0 0 0.5em 0px $color-primary;
         outline: none;
     }
 
+    &.is-loading,
     &:active {
-        box-shadow: inset 0 0 1em 0px $color-primary;
+        background-color: $color-primary;
+        color: $color-white;
     }
-}
-
-.heartsteps-primary-button {
-    @extend .heartsteps-button;
-    color: $color-white;
-    background-color: $color-primary;
-    border: 0px;
 }
 
 .heartsteps-danger-button {
@@ -36,38 +33,45 @@
     border-color: $color-danger;
 
     &:focus, &:hover {
-        box-shadow: inset 0 0 0.1em 0px $color-danger;
+        box-shadow: inset 0 0 0.5em 0px $color-danger;
     }
 
     &:active {
-        box-shadow: inset 0 0 1em 0px $color-danger;
+        background-color: $color-danger;
+        color: $color-white;
     }
 }
 
 .heartsteps-minor-button {
     @extend .heartsteps-button;
-    width: 100%;
     border: 0px;
 
     &:focus, &:hover {
         box-shadow: none;
         box-shadow: inset 0 0 0px 0px $color-primary;
+        text-decoration: underline;
     }
 
+    .is-loading,
     &:active {
-        box-shadow: none;
-        opacity: 0.5;
+        background-color: $color-white;
+        color: $color-primary;
     }
 }
 
-button.item-cover {
-    border: 0px;
-    position: absolute;
-    padding: 0px;
-    margin: 0px;
+.heartsteps-bottom-button {
+    @extend .heartsteps-button;
+    border-width: 0px;
+    border-top-width: 1px;
+
+    &:focus, &:hover {
+        box-shadow: none;
+        box-shadow: inset 0 0 0px 0px $color-primary;
+        text-decoration: underline;
+    }
 }
 
-button.remove {
+.heartsteps-remove-button {
     color: $text-color;
     padding-right: 40px;
 
@@ -83,15 +87,55 @@ button.remove {
         mask-image: url('../assets/close-icon.svg');
     }
 
-    &:focus {
+    &:focus,
+    &:hover {
         color: $color-primary;
     }
-    &:focus:after {
+    &:focus:after,
+    &:hover:after {
         background-color: $color-danger;
     }
 
     &:disabled:after {
         content: none;
+    }
+}
+
+.heartsteps-checkmark-button {
+    display: block;
+    width: 2em;
+    height: 2em;
+    position: relative;
+    border: $link-color 1px solid;
+    border-radius: 1em;
+    overflow: hidden;
+    text-indent: -3000000px;
+
+    &:before {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        mask-image: url('../assets/checkmark.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 100%;
+        background-color: $link-color;
+    }
+}
+
+.heartsteps-checkmark-button-selected {
+    @extend .heartsteps-checkmark-button;
+    background-color: $selected-color;
+    &:before {
+        background-color: $color-white;
+        width: 120%;
+        height: 120%;
+        top: -10%;
+        left: -10%;
     }
 }
 

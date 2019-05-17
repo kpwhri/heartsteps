@@ -23,11 +23,11 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
     private arc: any;
     private pieGenerator: any;
 
-    private firstUpdate = true;
-
     private total: number = 150;
     private complete: number = 0;
     private current: number = 0;
+
+    public goalAchieved: boolean;
 
     private currentWeekSubscription: Subscription;
     private currentSummariesSubscription: Subscription;
@@ -48,6 +48,7 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
         .subscribe((week) => {
             this.total = week.goal;
             this.updateChart();
+            this.updateGoalAchieved();
         });
 
         const currentWeek = this.dateFactory.getCurrentWeek();
@@ -64,7 +65,8 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
                     this.current += summary.minutes;
                 }
             });
-            this.updateChart();            
+            this.updateChart();
+            this.updateGoalAchieved();          
         });
 
     }
@@ -108,6 +110,14 @@ export class WeeklyProgressComponent implements OnInit, OnDestroy {
                 return 0;
             }
         });
+    }
+
+    private updateGoalAchieved() {
+        if(this.total < this.complete) {
+            this.goalAchieved = true;
+        } else {
+            this.goalAchieved = false;
+        }
     }
 
     private drawChart() {
