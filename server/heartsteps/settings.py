@@ -15,7 +15,8 @@ STATIC_ROOT = root('static')
 STATIC_URL = '/static/'
 
 SECRET_KEY = env.str('SECRET_KEY', default='secret-key')
-DEBUG = env.bool('DEBUG', default=False)
+# DEBUG = env.bool('DEBUG', default=False)
+DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
@@ -44,6 +45,14 @@ if 'ONESIGNAL_API_KEY' in os.environ:
     ONESIGNAL_API_KEY = env.str('ONESIGNAL_API_KEY')
 if 'ONESIGNAL_APP_ID' in os.environ:
     ONESIGNAL_APP_ID = env.str('ONESIGNAL_APP_ID')
+
+# Twilio Settings
+if 'TWILIO_ACCOUNT_SID' in os.environ:
+    TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
+if 'TWILIO_AUTH_TOKEN' in os.environ:
+    TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
+if 'TWILIO_PHONE_NUMBER' in os.environ:
+    TWILIO_PHONE_NUMBER = env.str('TWILIO_PHONE_NUMBER')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -86,7 +95,8 @@ INSTALLED_APPS = [
     'watch_app',
     'participants',
     'data_export',
-    'dashboard'
+    'dashboard',
+    'sms_service'
 ]
 
 MIDDLEWARE = [

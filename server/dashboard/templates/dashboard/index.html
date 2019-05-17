@@ -2,20 +2,42 @@
 <html>
     <head>
         {% load static %}
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <!-- link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}" -->
         <title>Dashboard</title>
+
+        <script type='text/javascript'>
+            $(function () {
+                $('.sms-btn').on('click', function () {
+                    // Set to_number for call
+                    let to_number_field = $('#id_to_number');
+                    let this_to_number = $(this).text();
+                    to_number_field.val(this_to_number);
+                });
+            });
+        </script>
     </head>
+
+    <body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <table class='table table-striped table-bordered table-hover'>
         <thead class="thead-dark">
             <tr>
-                <th scope='col'>ID</td>
-                <th scope='col'>Token</td>
-                <th scope='col'>Birth Year</td>
-                <th scope='col'>Enrolled</td>
-                <th scope='col'>Contact Model</td>
+                <th scope='col'>ID</th>
+                <th scope='col'>Token</th>
+                <th scope='col'>Birth Year</th>
+                <th scope='col'>Enrolled</th>
+                <th scope='col'>Phone</th>
             </tr>
         </thead>
         <tbody>
@@ -25,10 +47,15 @@
                 <td>{{participant.enrollment_token}}</td>
                 <td>{{participant.birth_year}}</td>
                 <td>{{participant.enrolled}}</td>
-                <td>{{participant.user.contactinformation.email }}</td>
+                <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% include 'sms_service/sendsms_form.html' %}
+
+    </body>
 
 </html>

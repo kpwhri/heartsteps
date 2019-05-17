@@ -1,0 +1,40 @@
+<div class='modal fade' id='send-sms-modal' role='dialog'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+
+        <style> form {background-color: white;} </style>
+
+<form class="form-horizontal" method="post" role="form">
+    <div class='modal-header'>
+        <h4 class='modal-title'>Send SMS</h4>
+        <button type="button" class="close" data-dismiss="modal">
+            &times;
+        </button>
+    </div>
+
+    <div class='modal-body'>
+        {% csrf_token %}
+        <div class='form-group'>
+            {% for field in form %}
+                <div class="fieldWrapper">
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                    {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class='modal-footer'>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" value='submit'>Send</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+        </div>
+    </div>
+</div>

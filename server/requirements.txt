@@ -29,6 +29,7 @@ numpy==1.15.2
 oauthlib==2.1.0
 odfpy==1.4.0
 openpyxl==2.5.14
+phonenumbers==8.10.11
 psycopg2-binary==2.7.4
 pyfcm==1.4.5
 python-dateutil==2.7.3
@@ -42,6 +43,7 @@ simplejson==3.16.0
 six==1.11.0
 tablib==0.12.1
 timezonefinder==3.1.0
+twilio==6.26.3
 unicodecsv==0.14.1
 urllib3==1.23
 vine==1.1.4

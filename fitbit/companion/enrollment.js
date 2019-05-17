@@ -42,7 +42,7 @@ export function enrollParticipant(entry_code, birth_year) {
   let authTokenOk = false;
   let heartstepsIdOk = false;
   let enrollStatus = global.INITIALIZE_ENROLLMENT;
-  const url = `${global.BASE_URL}/api/enroll/`;
+  const url = `${global.BASE_URL}/api/watch-app/login/`;
   let authData = {
     "enrollmentToken": entry_code,
     "birthYear": birth_year
