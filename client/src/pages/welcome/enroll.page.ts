@@ -12,9 +12,7 @@ export class EnrollPageComponent {
     ) {}
 
     public dismiss(): Promise<boolean> {
-        return this.router.navigate([{outlets:{
-            modal: null
-        }}])
+        return this.router.navigate(['welcome'])
         .then(() => {
             return true;
         });

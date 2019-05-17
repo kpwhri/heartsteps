@@ -21,7 +21,7 @@ declare var process: {
 })
 export class SettingsPage {
 
-    public staffParticipant: boolean = true;
+    public staffParticipant: boolean = false;
     public buildVersion: string = process.env.BUILD_VERSION;
     public buildDate: string = process.env.BUILD_DATE;
 

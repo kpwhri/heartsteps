@@ -1,6 +1,6 @@
 .heartsteps-page {
     font-size: 1.6rem;
-    background-color: $background-primary;
+    background-color: $background-alternate;
     padding: 0px;
     margin: 0px;
 
@@ -20,7 +20,16 @@
     }
 
     > .content {
+        background-color: $background-primary;
         padding: 1em;
+    }
+}
+
+@media(min-width: 650px) {
+    .heartsteps-page {
+        width: 635px;
+        margin: 2em auto;
+        box-shadow: $color-gray-dark 0px 0.25em 1em 0em;
     }
 }
 
@@ -56,8 +65,12 @@
     flex-grow: 1;
 
     > * {
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         overflow: auto;
+    }
+
+    > .content {
+        @extend .heartsteps-scrollable;
     }
 }
 

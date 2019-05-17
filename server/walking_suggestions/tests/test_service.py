@@ -30,7 +30,7 @@ class ServiceTestCase(TestCase):
         self.configuration, _ = Configuration.objects.get_or_create(
             user = self.user,
             enabled = True,
-            service_initialized_date = timezone.now() - timedelta(days=1)
+            service_initialized_date = date.today() - timedelta(days=1)
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
@@ -191,7 +191,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 class StudyDayNumberTests(ServiceTestCase):
 
     def test_get_day_number_starts_at_one(self):
-        today = timezone.now()
+        today = date.today()
         day_number = self.service.get_study_day(today)
 
         self.assertEqual(day_number, 1)

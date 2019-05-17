@@ -1,4 +1,8 @@
-<form>
+<app-form
+    [formGroup]="form"
+    (onSubmit)="saveLocations()"
+    [error]="errorMessage"
+    >
     <fieldset>
         <legend>Where do you live and work?</legend>
         <p>Heartsteps will use these places to customize suggestions for physical activity nearby.</p>
@@ -15,8 +19,4 @@
         </ul>
         <button class="bottom" (click)="newLocation()">Add Place</button>
     </fieldset>
-    <div class="controls">
-        <p *ngIf="errorMessage" class="error">{{errorMessage}}</p>
-        <button class="primary" (click)="saveLocations()">Save</button>
-    </div>
-</form>
+</app-form>

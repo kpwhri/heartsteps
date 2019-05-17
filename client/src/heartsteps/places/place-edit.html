@@ -3,8 +3,9 @@
     dismiss="Cancel"
     (onDismiss)="dismiss()"
     >
-    <form class="map"
-        [ngClass]="{'show-map': showMap}"
+    <app-form class="map"
+        [formGroup]="form"
+        (onSubmit)="update()"
         >
         <p *ngIf="error" class="error">{{error}}</p>
         <fieldset>
@@ -14,8 +15,7 @@
                     <input type="text"
                         id="place-address"
                         name="address"
-                        [ngModel]="address"
-                        (ngModelChange)="showPredictions($event)"
+                        formControlName="address"
                         /> 
                 </div>
                 <ul *ngIf="addressPredictions">
@@ -28,11 +28,13 @@
                     </li> 
                 </ul>
         </fieldset>
-        <div #map id="map" width="100%" height="200px"></div>
-        <div class="controls">
-            <button *ngIf="!updateView" class="primary" (click)="update()" >Save</button>
-            <button *ngIf="updateView" (click)="update()" >Update</button>
-            <button *ngIf="updateView" class="danger" (click)="delete()">Delete</button>
+        <div #map
+            id="map"
+            [ngClass]="{'show-map': showMap}"
+            width="100%"
+            height="200px"
+            >
         </div>
-    </form>
+    </app-form>
+    <button *ngIf="updateView" class="danger" (click)="delete()">Delete</button>
 </app-page>

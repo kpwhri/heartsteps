@@ -2,10 +2,22 @@
 @import 'buttons.scss';
 @import 'pages.scss';
 
-label,
+body {
+    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+}
+
 .label {
     display:block;
-    color: $color-gray;  
+    color: $color-gray;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.description {
+    display: block;
+    color: $text-color;
+    text-transform: none;
+    font-size: 1em;
 }
 
 .error {
@@ -135,10 +147,9 @@ article > header {
 
     ul > li > button {
         @extend .heartsteps-minor-button;
-        display: flex;
         color: $text-color;
         flex-direction: row;
-        align-items: center;
+        justify-content: flex-start;
         text-align: left;
         padding: 0em;
         border: 0px;

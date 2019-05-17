@@ -12,7 +12,7 @@ export class WelcomePageComponent {
     ) {}
 
     public goToEnrollment() {
-        this.router.navigate(['enrollment']);   
+        this.router.navigate(['login']);   
     }
 
 }

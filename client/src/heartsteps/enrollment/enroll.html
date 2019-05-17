@@ -1,7 +1,7 @@
 <app-form
     [formGroup]="enrollmentForm"
     (onSubmit)="enroll()"
-    submitLabel="Enroll"
+    submitLabel="Login"
     [error]="error"
     >
     <p>Enter the entry token included in the invitation letter you received in the mail.</p>
@@ -15,5 +15,5 @@
         label="Birth year"
         >
     </app-year-field>
-    <p>By enrolling in HeartSteps, you are agreeing to <a (click)="openPrivacyPolicy()">HeartSteps Privacy Policy.</a></p>
+    <p>By logging into HeartSteps, you are agreeing to <a (click)="openPrivacyPolicy()">HeartSteps Privacy Policy.</a></p>
 </app-form>

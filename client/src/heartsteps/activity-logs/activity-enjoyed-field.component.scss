@@ -1,51 +1,22 @@
 activity-enjoyed-field {
-    ul,
-    .input-group > ul {
-        @extend ul.horizontal;
-        margin: 0em;
-    }
+    @extend app-range-field.heartsteps-form-field;
 
-    ul li label {
-        display: block;
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        text-indent: 3000em;
-    }
-
-    ul li input[type=radio] {
-        appearance: none;
-        margin: 0em;
-        width: 1.5em;
-        height: 1.5em;
-
-        background-color: $text-color;
-        mask-image: url('../assets/enjoyed-none.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
-        mask-size: 100% 100%;
-
-        &:checked {
-            background-color: $color-primary;
-        }
-
-        &:focus,
-        &:hover {
-            opacity: 0.7;
-        }
-
-        &#activity-enjoyed-0 {
+    .heartsteps-checkmark-button {
+        &:before {
             mask-image: url('../assets/enjoyed-none.svg');
         }
 
-        &#activity-enjoyed-1 {
+        &#activity-enjoyed-0:before {
+            mask-image: url('../assets/enjoyed-none.svg');
+        }
+        
+        &#activity-enjoyed-1:before {
             mask-image: url('../assets/enjoyed-little.svg');
         }
-        &#activity-enjoyed-2 {
+        &#activity-enjoyed-2:before {
             mask-image: url('../assets/enjoyed-some.svg');
         }
-        &#activity-enjoyed-3 {
+        &#activity-enjoyed-3:before {
             mask-image: url('../assets/enjoyed-full.svg');
         }
     }

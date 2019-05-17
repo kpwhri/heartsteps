@@ -57,7 +57,7 @@ export class ParticipantService {
         });
     }
 
-    remove():Promise<boolean> {
+    public remove():Promise<boolean> {
         return this.profileService.remove()
         .then(() => {
             return this.storage.remove(storageKey);
@@ -68,7 +68,7 @@ export class ParticipantService {
         });
     }
 
-    setHeartstepsId(heartstepsId:string):Promise<boolean> {
+    public setHeartstepsId(heartstepsId:string):Promise<boolean> {
         return this.storage.set(storageKey, heartstepsId)
         .then(() => {
             return this.profileService.load();
@@ -78,7 +78,7 @@ export class ParticipantService {
         });
     }
 
-    getHeartstepsId():Promise<string> {
+    public getHeartstepsId():Promise<string> {
         return this.storage.get(storageKey)
         .then((heartstepsId) => {
             if(heartstepsId) {
@@ -92,7 +92,7 @@ export class ParticipantService {
         })
     }
 
-    isEnrolled():Promise<boolean> {
+    public isEnrolled():Promise<boolean> {
         return this.getHeartstepsId()
         .then(() => {
             return Promise.resolve(true)
@@ -100,5 +100,15 @@ export class ParticipantService {
         .catch(() => {
             return Promise.reject(false)
         })
+    }
+
+    public logout():Promise<boolean> {
+        return this.remove()
+        .then(() => {
+            return this.storage.clear()
+        })
+        .then(() => {
+            return true;
+        });
     }
 }

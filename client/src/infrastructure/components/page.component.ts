@@ -9,8 +9,8 @@ export class PageComponent {
     @Input('title') title: string;
     @Output('onDismiss') onDismiss: EventEmitter<boolean> = new EventEmitter();
 
-    public dismissible: boolean = true;
-    public dismissText: string = "Back";
+    public dismissible: boolean = false;
+    public dismissText;
 
     constructor() {}
 
@@ -21,6 +21,7 @@ export class PageComponent {
             this.dismissText = value;
         } else {
             this.dismissible = false;
+            this.dismissText = undefined;
         }
     }
 

@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 declare var google;
 
@@ -33,6 +34,8 @@ export class PlaceEdit implements OnInit {
 
     private updateView:boolean
 
+    public form: FormGroup;
+
     constructor(
         params:NavParams,
         private viewCtrl:ViewController
@@ -52,6 +55,13 @@ export class PlaceEdit implements OnInit {
         } else {
             this.pageTitle = 'Create location'
         }
+
+        this.form = new FormGroup({
+            'address': new FormControl(this.address, Validators.required)
+        });
+        this.form.valueChanges.subscribe((values) => {
+            this.showPredictions(values['address']);
+        })
 
         this.autocompletionService = new google.maps.places.AutocompleteService()
         this.geocoder = new google.maps.Geocoder()
@@ -123,6 +133,7 @@ export class PlaceEdit implements OnInit {
 
     setAddress(address) {
         this.address = address;
+        this.form.patchValue({'address':address});
         this.addressPredictions = undefined;
         this.showMap = true;
         this.getLatLng(address);

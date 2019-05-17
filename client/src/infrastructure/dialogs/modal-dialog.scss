@@ -1,0 +1,15 @@
+
+app-modal-dialog {
+    @extend .heartsteps-container;
+    height: 100%;
+
+    > article.heartsteps-page {
+        width: 100%;
+        height: 100%;
+    }
+
+    > article > header .back {
+        color: $color-danger;
+    }
+
+}

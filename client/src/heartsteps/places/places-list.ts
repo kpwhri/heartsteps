@@ -3,6 +3,7 @@ import { ModalController } from 'ionic-angular';
 import { PlacesService } from './places.service';
 import { PlaceEdit } from './place-edit';
 import { ChoiceDialogController } from '@infrastructure/choice-dialog.controler';
+import { FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'heartsteps-places-list',
@@ -11,6 +12,7 @@ import { ChoiceDialogController } from '@infrastructure/choice-dialog.controler'
 })
 export class PlacesList implements OnInit {
     @Output() saved = new EventEmitter<boolean>();
+    public form: FormGroup = new FormGroup({});
 
     locations:Array<any>
     errorMessage:String

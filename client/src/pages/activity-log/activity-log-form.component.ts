@@ -57,7 +57,7 @@ export class ActivityLogFormComponent {
             duration: new FormControl(activityLog.duration || 30, Validators.required),
             date: new FormControl(activityLog.start, Validators.required),
             time: new FormControl(activityLog.start, Validators.required),
-            vigorous: new FormControl(activityLog.vigorous, Validators.required),
+            vigorous: new FormControl(activityLog.vigorous),
             enjoyed: new FormControl(activityLog.enjoyed),
             effort: new FormControl(activityLog.effort)
         })

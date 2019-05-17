@@ -1,5 +1,7 @@
 .heartsteps-button {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     position: relative;
     width: 100%;
     padding: 1em;
@@ -55,7 +57,18 @@
         background-color: $color-white;
         color: $color-primary;
     }
+}
 
+.heartsteps-bottom-button {
+    @extend .heartsteps-button;
+    border-width: 0px;
+    border-top-width: 1px;
+
+    &:focus, &:hover {
+        box-shadow: none;
+        box-shadow: inset 0 0 0px 0px $color-primary;
+        text-decoration: underline;
+    }
 }
 
 .heartsteps-remove-button {
@@ -74,15 +87,55 @@
         mask-image: url('../assets/close-icon.svg');
     }
 
-    &:focus {
+    &:focus,
+    &:hover {
         color: $color-primary;
     }
-    &:focus:after {
+    &:focus:after,
+    &:hover:after {
         background-color: $color-danger;
     }
 
     &:disabled:after {
         content: none;
+    }
+}
+
+.heartsteps-checkmark-button {
+    display: block;
+    width: 2em;
+    height: 2em;
+    position: relative;
+    border: $link-color 1px solid;
+    border-radius: 1em;
+    overflow: hidden;
+    text-indent: -3000000px;
+
+    &:before {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        mask-image: url('../assets/checkmark.svg');
+        mask-repeat: no-repeat;
+        mask-position: 50% 50%;
+        mask-size: 100%;
+        background-color: $link-color;
+    }
+}
+
+.heartsteps-checkmark-button-selected {
+    @extend .heartsteps-checkmark-button;
+    background-color: $selected-color;
+    &:before {
+        background-color: $color-white;
+        width: 120%;
+        height: 120%;
+        top: -10%;
+        left: -10%;
     }
 }
 

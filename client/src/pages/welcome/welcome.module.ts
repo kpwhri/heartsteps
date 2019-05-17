@@ -15,8 +15,7 @@ const welcomeRoutes: Routes = [{
 }, {
     path: 'enroll',
     canActivate: [WelcomeGuard],
-    component: EnrollPageComponent,
-    outlet: 'modal'
+    component: EnrollPageComponent
 }];
 
 @NgModule({

@@ -45,13 +45,19 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
     }
 
     writeValue(activityName:string): void {
+        this.selectedOption = undefined;
         this.updateOptions();
         this.getActivityType(activityName)
         .then((activityType) => {
             this.activityType = activityType;
+            this.selectedOption = {
+                name: activityType.title,
+                value: activityType.name
+            }
         })
         .catch(() => {
             this.activityType = undefined;
+            this.selectedOption = undefined;
         });
     }
 
@@ -73,6 +79,6 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         })
         .catch(() => {
             console.log('Dismissed');
-        })
+        });
     }
 }

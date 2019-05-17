@@ -14,39 +14,16 @@ app-range-field.heartsteps-form-field {
         text-indent: 3000em;
     }
 
-    ul li input[type=radio] {
-        appearance: none;
-        margin: 0em;
-        width: 1.5em;
-        height: 1.5em;
-
-        background-color: $color-primary;
-        mask-image: url('../assets/unchecked.svg');
-        mask-repeat: no-repeat;
-        mask-position: 50% 50%;
-        mask-size: 100% 100%;
-
-        &:checked {
-            mask-image: url('../assets/checked.svg');
-        }
-
-        &:focus,
-        &:hover {
-            background-color: $color-primary;
-        }
-    }
-
     .labels {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         justify-content: space-between;
         margin: 0em;
-        margin-bottom: 0.5em;
+        margin-bottom: 1em;
         
         > * {
-            @extend label;
-            opacity: 0.85;
+            @extend .label;
         }
     }
 }
