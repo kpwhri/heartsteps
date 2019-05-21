@@ -126,7 +126,7 @@ services:
       - rabbitmq
       - walking-suggestion-service-gcloud
     volumes:
-      - ./server:/server
+      - ./server:/server-gcloud
       - cloudsql:/cloudsql
     working_dir: /server-gcloud
   walking-suggestion-service:
