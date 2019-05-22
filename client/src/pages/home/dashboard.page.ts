@@ -64,7 +64,9 @@ export class DashboardPage implements OnDestroy {
 
         this.morningMessageService.get()
         .then((morningMessage) => {
-            this.morningMessage = morningMessage;
+            if(!morningMessage.surveyComplete) {
+                this.morningMessage = morningMessage;
+            }
         })
         .catch(() => {
             console.log('No morning message');
