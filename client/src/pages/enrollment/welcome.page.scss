@@ -1,0 +1,23 @@
+enrollment-welcome-page {
+
+    > .start-screen {
+        background: transparent;
+        padding: 2em;
+    }
+
+    .heartsteps-logo {
+        margin: 3em auto 2em;
+    }
+
+}
+
+@media(min-width: 650px) {
+    enrollment-welcome-page > .start-screen {
+        width: 635px;
+        margin: 0em auto;
+    }
+
+    enrollment-welcome-page > .start-screen > * {
+        width: 100%;
+    }
+}

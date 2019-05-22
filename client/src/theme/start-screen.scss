@@ -1,10 +1,10 @@
 .start-screen {
     @extend .heartsteps-page;
-    background-color: transparent;
-    color: $color-white;
-    box-shadow: none;
+    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
 
-    padding: 1em 2em;
+    color: $color-white;
+
+    padding: 1em;
 
     > * {
         display: block;
@@ -19,7 +19,8 @@
     > header,
     > .content {
         flex-grow: 0;
-        margin: 0px;
+        margin-top: 0em;
+        margin-bottom: 0em;
     }
 
     a,
@@ -97,4 +98,18 @@
         color: $color-white;
     }
 
+}
+
+@media(min-width: 650px) {
+    .start-screen {
+        width: auto;
+        margin: 0em;
+        padding: 1em 0em;
+        box-shadow: none;
+    }
+
+    .start-screen > * {
+        width: 650px;
+        margin: 0em auto;
+    }
 }

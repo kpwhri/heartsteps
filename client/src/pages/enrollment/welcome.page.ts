@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 
 
 @Component({
+    selector: 'enrollment-welcome-page',
     templateUrl: './welcome.page.html'
 })
 export class WelcomePageComponent {
