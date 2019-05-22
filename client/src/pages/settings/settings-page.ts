@@ -8,6 +8,7 @@ import { MorningMessageService } from "@heartsteps/morning-message/morning-messa
 import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
 import { Platform } from "ionic-angular";
+import { ParticipantService } from "@heartsteps/participants/participant.service";
 
 declare var process: {
     env: {
@@ -34,8 +35,16 @@ export class SettingsPage {
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private antiSedentaryService: AntiSedentaryService,
+        private participantService: ParticipantService,
         private platform: Platform
-    ){}
+    ) {
+        this.participantService.participant
+        .filter(participant => participant !== undefined)
+        .first()
+        .subscribe((participant) => {
+            this.staffParticipant = participant.staff;
+        })
+    }
 
     public testWalkingSuggestion() {
         this.loadingService.show('Requesting walking suggestion message');

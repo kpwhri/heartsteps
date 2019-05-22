@@ -1,10 +1,14 @@
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs/Subject";
 import { ProfileService } from "./profile.factory";
 import { StorageService } from "@infrastructure/storage.service";
+import { ParticipantInformationService } from "./participant-information.service";
+import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
+import { BehaviorSubject } from "rxjs";
 
 export class Participant{
+    name: string;
     profileComplete: boolean;
+    staff: boolean;
 }
 
 const storageKey = 'heartsteps-id'
@@ -12,14 +16,14 @@ const storageKey = 'heartsteps-id'
 @Injectable()
 export class ParticipantService {
 
-    public participant:Subject<Participant>;
+    public participant:BehaviorSubject<Participant> = new BehaviorSubject(undefined);
 
     constructor(
         private storage:StorageService,
-        private profileService: ProfileService
-    ) {
-        this.participant = new Subject();
-    }
+        private profileService: ProfileService,
+        private participantInformationService: ParticipantInformationService,
+        private contactInformationService: ContactInformationService
+    ) {}
 
     public getProfile():Promise<any> {
         return this.profileService.get();
@@ -44,17 +48,46 @@ export class ParticipantService {
     }
 
     private getParticipant():Promise<Participant> {
-        return this.profileService.isComplete()
-        .then(() => {
+        return Promise.all([
+            this.getProfileComplete(),
+            this.getStaffStatus(),
+            this.getName()
+        ])
+        .then((results) => {
             return {
-                profileComplete: true
-            };
+                name: results[2],
+                profileComplete: results[0],
+                staff: results[1]
+            }
+        });
+    }
+
+    private getProfileComplete(): Promise<boolean> {
+        return this.profileService.isComplete()
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    private getStaffStatus(): Promise<boolean> {
+        return this.participantInformationService.isStaff()
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private getName(): Promise<string> {
+        return this.contactInformationService.get()
+        .then((contactInformation:any) => {
+            if(contactInformation.name) {
+                return Promise.resolve(contactInformation.name);
+            } else {
+                return Promise.reject('No name set');
+            }
         })
         .catch(() => {
-            return {
-                profileComplete: false
-            };
-        });
+            return Promise.resolve(undefined);
+        })
     }
 
     public remove():Promise<boolean> {
@@ -70,9 +103,6 @@ export class ParticipantService {
 
     public setHeartstepsId(heartstepsId:string):Promise<boolean> {
         return this.storage.set(storageKey, heartstepsId)
-        .then(() => {
-            return this.profileService.load();
-        })
         .then(() => {
             return this.update();
         });
