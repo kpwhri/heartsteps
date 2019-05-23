@@ -11,10 +11,6 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSch
 from .models import Participant
 from .services import ParticipantService
 
-admin.site.unregister(User)
-admin.site.unregister(Group)
-admin.site.unregister(Token)
-
 def initialize_participant(modeladmin, request, queryset):
     for participant in queryset.all():
         service = ParticipantService(participant)
