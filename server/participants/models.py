@@ -28,7 +28,7 @@ class Participant(models.Model):
         )
         self.user = user
         self.save()
-    
+
     def _is_enrolled(self):
         if self.user:
             return True
@@ -49,6 +49,14 @@ class Participant(models.Model):
     @property
     def enrolled(self):
         return self._is_enrolled()
+
+    # def _last_fitbit_data_dtm(self):
+    #     try:
+    #         last_fitbit_data = self.user.fitbitaccountuser \
+    #             .fitbitaccount.fitbitminutestepcount
+    #     except FindErrorHere:
+    #         pass
+    #     return -1
 
     @property
     def daily_task_name(self):
@@ -76,7 +84,7 @@ class Participant(models.Model):
             user = self.user,
             category = TASK_CATEGORY
         )
-    
+
     def __create_daily_task(self):
         task = DailyTask.objects.create(
             user = self.user,
