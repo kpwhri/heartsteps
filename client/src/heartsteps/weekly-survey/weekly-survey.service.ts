@@ -125,8 +125,14 @@ export class WeeklySurveyService {
             return this.load();
         })
         .then((weeklySurvey) => {
-            if(!moment().isBetween(weeklySurvey.starts, weeklySurvey.expires, "minute", "[]")) {
-                return Promise.reject("Not weekly reflection time");
+            if(moment().isAfter(weeklySurvey.expires)) {
+                return this.clear()
+                .then(() => {
+                    return Promise.reject("After weekly reflection time");
+                })
+            }
+            if(moment().isBefore(weeklySurvey.starts)) {
+                return Promise.reject("Before reflection time");
             }
             if(weeklySurvey.completed) {
                 return Promise.reject("Weekly survey completed");
