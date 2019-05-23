@@ -19,7 +19,7 @@ export class ReflectionTimeService{
         private dateFactory: DateFactory
     ){}
 
-    getTime():Promise<ReflectionTime> {
+    public getTime():Promise<ReflectionTime> {
         return this.storage.get(storageKey)
         .then((data) => {
             if(data) {
@@ -40,7 +40,7 @@ export class ReflectionTimeService{
         });
     }
 
-    setTime(reflectionTime:ReflectionTime):Promise<boolean> {
+    public setTime(reflectionTime:ReflectionTime):Promise<boolean> {
         const data:any = this.serialize(reflectionTime);
         return this.heartstepsServer.post('reflection-time', data)
         .then(() => {
@@ -51,7 +51,7 @@ export class ReflectionTimeService{
         })
     }
 
-    load():Promise<boolean> {
+    public load():Promise<boolean> {
         return this.heartstepsServer.get('reflection-time')
         .then((time) => {
             return this.set(time);
@@ -61,15 +61,14 @@ export class ReflectionTimeService{
         });
     }
 
-    set(time:any):Promise<any> {
+    private set(time:any):Promise<any> {
         return this.storage.set(storageKey, time)
         .then(() => {
             return time;
         });
     }
 
-    remove():Promise<boolean> {
-        // TODO: Remove reflection time from server
+    public remove():Promise<boolean> {
         return this.storage.remove(storageKey);
     }
 

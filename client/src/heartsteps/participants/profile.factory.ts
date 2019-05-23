@@ -214,7 +214,7 @@ export class ProfileService {
         })
     }
 
-    checkFitbit():Promise<boolean> {
+    private checkFitbit():Promise<boolean> {
         return this.fitbitService.isAuthorized()
         .then(() => {
             return true;
@@ -224,7 +224,7 @@ export class ProfileService {
         });
     }
 
-    checkFitbitWatch(): Promise<boolean> {
+    private checkFitbitWatch(): Promise<boolean> {
         return this.fitbitWatchService.isInstalled()
         .then(() => {
             return true;
@@ -234,7 +234,7 @@ export class ProfileService {
         });
     }
 
-    loadFitbit():Promise<boolean> {
+    private loadFitbit():Promise<boolean> {
         return this.fitbitService.updateAuthorization()
         .then(() => {
             return true;
@@ -244,7 +244,7 @@ export class ProfileService {
         });
     }
 
-    loadCurrentWeek():Promise<boolean> {
+    private loadCurrentWeek():Promise<boolean> {
         return this.currentWeekService.setup()
         .then(() => {
             return true;
@@ -254,7 +254,7 @@ export class ProfileService {
         })
     }
 
-    loadCurrentActivityLogs(): Promise<boolean> {
+    private loadCurrentActivityLogs(): Promise<boolean> {
         return this.cachedActivityLogService.setup()
         .then(() => {
             return true;

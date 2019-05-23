@@ -19,10 +19,13 @@ export class DashboardNotificationComponent {
         private morningMessageService: MorningMessageService,
         private router: Router
     ) {
-        this.weeklySurveyService.checkExpiration();
-        this.weeklySurveyService.survey.subscribe((survey) => {
-            this.weeklySurvey = survey;
-        });
+        this.weeklySurveyService.getAvailableSurvey()
+        .then((survey) => {
+            this.weeklySurvey = survey
+        })
+        .catch(() => {
+            console.log('Weekly survey unavailable');
+        })
 
         this.morningMessageService.get()
         .then((morningMessage) => {
