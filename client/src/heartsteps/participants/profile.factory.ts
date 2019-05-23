@@ -11,6 +11,7 @@ import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.se
 import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
+import { ParticipantInformationService } from "./participant-information.service";
 
 
 @Injectable()
@@ -28,7 +29,8 @@ export class ProfileService {
         private currentWeekService: CurrentWeekService,
         private cachedActivityLogService: CachedActivityLogService,
         private activityPlanService: ActivityPlanService,
-        private activityTypeService: ActivityTypeService
+        private activityTypeService: ActivityTypeService,
+        private participantInformationService: ParticipantInformationService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -62,7 +64,8 @@ export class ProfileService {
             this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
-            this.setupActivityTypeService()
+            this.setupActivityTypeService(),
+            this.loadParticipantInformation()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -211,7 +214,7 @@ export class ProfileService {
         })
     }
 
-    checkFitbit():Promise<boolean> {
+    private checkFitbit():Promise<boolean> {
         return this.fitbitService.isAuthorized()
         .then(() => {
             return true;
@@ -221,7 +224,7 @@ export class ProfileService {
         });
     }
 
-    checkFitbitWatch(): Promise<boolean> {
+    private checkFitbitWatch(): Promise<boolean> {
         return this.fitbitWatchService.isInstalled()
         .then(() => {
             return true;
@@ -231,7 +234,7 @@ export class ProfileService {
         });
     }
 
-    loadFitbit():Promise<boolean> {
+    private loadFitbit():Promise<boolean> {
         return this.fitbitService.updateAuthorization()
         .then(() => {
             return true;
@@ -241,7 +244,7 @@ export class ProfileService {
         });
     }
 
-    loadCurrentWeek():Promise<boolean> {
+    private loadCurrentWeek():Promise<boolean> {
         return this.currentWeekService.setup()
         .then(() => {
             return true;
@@ -251,7 +254,7 @@ export class ProfileService {
         })
     }
 
-    loadCurrentActivityLogs(): Promise<boolean> {
+    private loadCurrentActivityLogs(): Promise<boolean> {
         return this.cachedActivityLogService.setup()
         .then(() => {
             return true;
@@ -275,6 +278,16 @@ export class ProfileService {
         return this.activityTypeService.setup()
         .then(() => {
             return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private loadParticipantInformation() {
+        return this.participantInformationService.load()
+        .then(() => {
+            return true
         })
         .catch(() => {
             return Promise.resolve(false);

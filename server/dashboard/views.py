@@ -1,6 +1,6 @@
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-# from django.shortcuts import render
 from django.views.generic import ListView
 
 from contact.models import ContactInformation
@@ -11,10 +11,18 @@ from sms_service.forms import SendSMSForm
 from sms_service.views import SendSmsCreateView
 
 
-class DashboardListView(ListView):
+class DashboardListView(UserPassesTestMixin, ListView):
+
     model = Participant
     queryset = Participant.objects.all().prefetch_related('user').order_by('heartsteps_id')
     template_name = 'dashboard/index.html'
+
+    def test_func(self):
+        if not self.request.user:
+            return False
+        if not self.request.user.is_staff:
+            return False
+        return True
 
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):

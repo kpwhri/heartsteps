@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework import permissions
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
@@ -46,3 +47,18 @@ class EnrollView(LoginView):
 
     def authentication_successful(self):
         self.service.initialize()
+
+
+class ParticipantInformationView(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            service = ParticipantService(user = request.user)
+        except ParticipantService.NoParticipant:
+            return Response('No participant for user', status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'heartstepsId': service.get_heartsteps_id(),
+            'staff': request.user.is_staff
+        })

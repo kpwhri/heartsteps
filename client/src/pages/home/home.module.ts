@@ -18,6 +18,7 @@ import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.m
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
 import { AnchorMessageResolver } from './anchor-message.resolver';
 import { ActivitiesPage } from './activities.page';
+import { DashboardNotificationComponent } from './dashboard-notifications.component';
 
 const routes:Routes = [
     {
@@ -59,6 +60,7 @@ const routes:Routes = [
     declarations: [
         HomePage,
         DashboardPage,
+        DashboardNotificationComponent,
         PlanPage,
         ActivitiesPage
     ],

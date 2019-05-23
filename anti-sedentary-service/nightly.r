@@ -16,7 +16,7 @@ source("functions.R")
 #   "dayend": [ "2018-10-12 8:00" ] ,
 #   "state": [ 0 ] ,
 #   "steps": [ 0 ] ,
-#   "available": [ 0 ] 
+#   "available": [ 0 ]
 # }
 # '
 # input = fromJSON(payload)
@@ -47,23 +47,21 @@ if( any(is.na(strptime(user.data$time, "%Y-%m-%d %H:%M"))) ) {
 current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
 if ( any(is.element(user.data$time,current.time)) ) {
-  # IF ROW ALREADY EXISTED THEN ADD INFO TO THE ROW
-  obs.row = which(is.element(user.data$time,current.time))
-  user.data$batch_state[obs.row] = input$state
-  user.data$batch_step[obs.row] = input$steps
-  results <- list(append = TRUE)
-  # write.csv(user.data, file = file_name, row.names = FALSE)
+    ## IF ROW ALREADY EXISTED THEN ADD INFO TO THE ROW
+    obs.row = which(is.element(user.data$time,current.time))
+    user.data$batch_state[obs.row] = input$state
+    user.data$batch_step[obs.row] = input$steps
+    results <- list(append = TRUE)
+    write.csv(user.data, file = file_name, row.names = FALSE)
 } else {
-  # IF ROW DID NOT EXIST THEN APPEND ROW
-  temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
-                         time = input$time, daystart = input$daystart, dayend = input$dayend,
-                         online_state = -1, online_step = -1, available = 0,
-                         batch_state = input$state, batch_step = input$steps, probaction = 0.0, action = 0.0, 
-                         missingindicator = 1, duplicate = FALSE)
-  
-  results <- list(append = FALSE)
-  
-  # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    ## IF ROW DID NOT EXIST THEN APPEND ROW
+    temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+                           time = input$time, daystart = input$daystart, dayend = input$dayend,
+                           online_state = -1, online_step = -1, available = 0,
+                           batch_state = input$state, batch_step = input$steps, probaction = 0.0, action = 0.0,
+                           missingindicator = 1, duplicate = FALSE)
+    results <- list(append = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
 }
 
 # output the results

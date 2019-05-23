@@ -6,4 +6,5 @@ export class MorningMessage {
     text:string;
     anchor:string;
     survey: any;
+    surveyComplete: boolean;
 }

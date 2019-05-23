@@ -19,19 +19,9 @@ export class MorningMessageService {
     ) {}
 
     public get():Promise<MorningMessage> {
-        return this.storage.get(storageKey)
-        .then((data) => {
-            return this.deserialize(data);
-        })
-        .then((morningMessage) => {
-            if(moment().isSame(morningMessage.date, "day")) {
-                return morningMessage;
-            } else {
-                this.clear()
-                .then(() => {
-                    return Promise.reject('Morning message expired');
-                })
-            }
+        return this.getMessage()
+        .catch(() => {
+            return this.load();
         });
     }
 
@@ -56,7 +46,25 @@ export class MorningMessageService {
             notification: message.body,
             text: message.context.text,
             anchor: message.context.anchor,
-            survey: message.context.survey
+            survey: message.context.survey,
+            surveyComplete: false
+        });
+    }
+
+    private getMessage():Promise<MorningMessage> {
+        return this.storage.get(storageKey)
+        .then((data) => {
+            return this.deserialize(data);
+        })
+        .then((morningMessage) => {
+            if(moment().isSame(morningMessage.date, "day")) {
+                return morningMessage;
+            } else {
+                this.clear()
+                .then(() => {
+                    return Promise.reject('Morning message expired');
+                });
+            }
         });
     }
 
@@ -70,14 +78,15 @@ export class MorningMessageService {
     public complete():Promise<boolean> {
         return this.get()
         .then((morningMessage) => {
+            morningMessage.surveyComplete = true;
+            return this.set(morningMessage);
+        })
+        .then((morningMessage) => {
             if(morningMessage.id) {
                 return this.messageReceiptService.engaged(morningMessage.id)
             } else {
                 return Promise.resolve(true)
             }
-        })
-        .then(() => {
-            return this.clear();
         })
         .catch(() => {
             return Promise.resolve(true);
@@ -116,6 +125,7 @@ export class MorningMessageService {
         message.text = data.text;
         message.anchor = data.anchor;
         message.survey = data.survey;
+        message.surveyComplete = data.surveyComplete;
         return message;
     }
 
@@ -130,7 +140,8 @@ export class MorningMessageService {
             notification: message.notification,
             text: message.text,
             anchor: message.anchor,
-            survey: message.survey
+            survey: message.survey,
+            surveyComplete: message.surveyComplete
         }
     }
 

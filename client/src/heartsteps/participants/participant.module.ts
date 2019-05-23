@@ -12,6 +12,7 @@ import { ParticipantService } from './participant.service';
 import { ProfileService } from './profile.factory';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
+import { ParticipantInformationService } from './participant-information.service';
 
 @NgModule({
     imports: [
@@ -27,7 +28,8 @@ import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module'
     ],
     providers: [
         ParticipantService,
-        ProfileService
+        ProfileService,
+        ParticipantInformationService
     ]
 })
 export class ParticipantModule {}
