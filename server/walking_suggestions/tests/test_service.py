@@ -12,8 +12,10 @@ from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
 from weather.models import WeatherForecast
-from fitbit_api.models import FitbitAccount, FitbitAccountUser
-from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteStepCount
 from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
@@ -34,6 +36,38 @@ class ServiceTestCase(TestCase):
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
+
+    def create_default_suggestion_times(self):
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MORNING,
+            hour = 8,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.LUNCH,
+            hour = 12,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = 14,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.EVENING,
+            hour = 18,
+            minute = 0
+        )
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.POSTDINNER,
+            hour = 20,
+            minute = 0
+        )
 
 class MockResponse:
     def __init__(self, status_code, text):
@@ -187,6 +221,78 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.update(timezone.now())
+
+@override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
+class CanInitializeWalkingSuggestionService(ServiceTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.create_default_suggestion_times()
+
+        self.configuration.service_initialized_date = None
+        self.configuration.save()
+
+        self.user.date_joined = timezone.now() - timedelta(days=7)
+        self.user.save()
+
+        self.fitbit_account = FitbitAccount.objects.create(
+            fitbit_user='test'
+        )
+        FitbitAccountUser.objects.create(
+            account = self.fitbit_account,
+            user = self.user
+        )
+
+        make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
+        self.make_request = make_request_patch.start()
+        self.addCleanup(make_request_patch.stop)
+
+    def create_fitbit_day(self, day, step_count=500):
+        FitbitDay.objects.create(
+            account = self.fitbit_account,
+            date = day,
+            step_count = step_count
+        )
+
+    def test_enough_days(self):
+        self.create_fitbit_day(date.today())
+        self.create_fitbit_day(date.today() - timedelta(days=1))
+        self.create_fitbit_day(date.today() - timedelta(days=2))
+
+        self.service.initialize(date.today())
+        
+        self.make_request.assert_called()
+        args, kwargs = self.make_request.call_args
+        data = kwargs['data']
+        self.assertEqual(len(data['totalStepsArray']), 3)
+
+    def test_allows_non_contiguous_days(self):
+        self.create_fitbit_day(date.today())
+        self.create_fitbit_day(date.today() - timedelta(days=1), 70)
+        self.create_fitbit_day(date.today() - timedelta(days=2), 20)
+        self.create_fitbit_day(date.today() - timedelta(days=3))
+        self.create_fitbit_day(date.today() - timedelta(days=4))
+
+        self.service.initialize(date.today())
+
+        self.make_request.assert_called()
+        args, kwargs = self.make_request.call_args
+        data = kwargs['data']
+        self.assertEqual(len(data['totalStepsArray']), 5)
+
+
+    def test_not_enough_days(self):
+        self.create_fitbit_day(date.today())
+        self.create_fitbit_day(date.today() - timedelta(days=1), 90)
+        self.create_fitbit_day(date.today() - timedelta(days=2), 200)
+
+        try:
+            self.service.initialize(date.today())
+            self.fail('Initialization should have failed')
+        except WalkingSuggestionService.UnableToInitialize:
+            pass
+        
+        self.make_request.assert_not_called()
 
 class StudyDayNumberTests(ServiceTestCase):
 

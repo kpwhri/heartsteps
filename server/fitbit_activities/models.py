@@ -63,10 +63,17 @@ class FitbitDay(models.Model):
     @property
     def distance(self):
         return float(self._distance)
-    
+
     @distance.setter
     def distance(self, value):
         self._distance = value
+
+    @property
+    def wore_fitbit(self):
+        if self.step_count >= 100:
+            return True
+        else:
+            return False
 
     def get_timezone(self):
         return pytz.timezone(self._timezone)

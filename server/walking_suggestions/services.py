@@ -9,7 +9,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from anti_sedentary.models import AntiSedentaryDecision
 from fitbit_api.models import FitbitAccountUser
-from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.services import FitbitService
+from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteStepCount
 from locations.models import Place
 from locations.services import LocationService
 from push_messages.models import MessageReceipt, Message
@@ -203,6 +205,9 @@ class WalkingSuggestionService():
     class NotInitialized(ImproperlyConfigured):
         pass
 
+    class UnableToInitialize(ImproperlyConfigured):
+        pass
+
     class RequestError(RuntimeError):
         pass
 
@@ -251,14 +256,38 @@ class WalkingSuggestionService():
         except:
             return response.text
 
+    def get_fitbit_days_before_date(self, date):
+        fitbit_service = FitbitService(user = self.__user)
+        return FitbitDay.objects.filter(
+            account = fitbit_service.account,
+            date__range = [
+                self.__user.date_joined,
+                date
+            ]
+        ).order_by('-date').all()
+
+    def get_initialization_days(self, date):
+        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
+            raise ImproperlyConfigured('No initialization days specified')
+        initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
+
+        fitbit_days_worn = []
+        for fitbit_day in self.get_fitbit_days_before_date(date):
+            if fitbit_day.wore_fitbit and len(fitbit_days_worn) < initialization_days:
+                fitbit_days_worn.append(fitbit_day.date)
+        
+        if len(fitbit_days_worn) < initialization_days:
+            raise WalkingSuggestionService.UnableToInitialize('Unable to initialize participant')
+        first_day_worn = fitbit_days_worn[-1]
+        dates = [first_day_worn + timedelta(days=offset) for offset in range((date-first_day_worn).days)]
+        dates.append(date)
+        return dates
+
     def initialize(self, date=None):
         if not date:
             date = datetime_date.today()
-        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
-            raise ImproperlyConfigured('No initialization days specified')
-        else:
-            initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
-        dates = [date - timedelta(days=offset) for offset in range(initialization_days)]
+        dates = self.get_initialization_days(date)
+        
         data = {
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
