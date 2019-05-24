@@ -275,19 +275,18 @@ class WalkingSuggestionService():
         for fitbit_day in self.get_fitbit_days_before_date(date):
             if fitbit_day.wore_fitbit and len(fitbit_days_worn) < initialization_days:
                 fitbit_days_worn.append(fitbit_day.date)
-        
         if len(fitbit_days_worn) < initialization_days:
             raise WalkingSuggestionService.UnableToInitialize('Unable to initialize participant')
         first_day_worn = fitbit_days_worn[-1]
         dates = [first_day_worn + timedelta(days=offset) for offset in range((date-first_day_worn).days)]
         dates.append(date)
+        dates.reverse()
         return dates
 
     def initialize(self, date=None):
         if not date:
             date = datetime_date.today()
         dates = self.get_initialization_days(date)
-        
         data = {
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],

@@ -1,8 +1,10 @@
 import uuid, pytz, math
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ImproperlyConfigured
 
 from fitbit_api.models import FitbitAccount
 
@@ -70,7 +72,9 @@ class FitbitDay(models.Model):
 
     @property
     def wore_fitbit(self):
-        if self.step_count >= 100:
+        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT'):
+            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT')
+        if self.step_count >= settings.FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT:
             return True
         else:
             return False

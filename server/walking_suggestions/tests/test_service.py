@@ -26,6 +26,7 @@ class ServiceTestCase(TestCase):
 
     def setUp(self):
         self.create_walking_suggestion_service()
+        self.create_fitbit_account()
 
     def create_walking_suggestion_service(self):
         self.user, _ = User.objects.get_or_create(username="test")
@@ -36,6 +37,22 @@ class ServiceTestCase(TestCase):
         )
         self.service = WalkingSuggestionService(self.configuration)
         return self.service
+
+    def create_fitbit_account(self):
+        self.fitbit_account = FitbitAccount.objects.create(
+            fitbit_user='test'
+        )
+        FitbitAccountUser.objects.create(
+            account = self.fitbit_account,
+            user = self.user
+        )
+
+    def create_fitbit_day(self, day, step_count=500):
+        FitbitDay.objects.create(
+            account = self.fitbit_account,
+            date = day,
+            step_count = step_count
+        )
 
     def create_default_suggestion_times(self):
         SuggestionTime.objects.create(
@@ -116,7 +133,7 @@ class MakeRequestTests(ServiceTestCase):
 class WalkingSuggestionServiceTests(ServiceTestCase):
 
     def setUp(self):
-        self.create_walking_suggestion_service()
+        super().setUp()
         make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
         self.make_request = make_request_patch.start()
@@ -129,8 +146,14 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_pre_steps')
     @patch.object(WalkingSuggestionService, 'get_post_steps')
     def test_initalization(self, post_steps, pre_steps, temperatures, availabilities, steps, clicks):
-        date = datetime.today()
-        self.service.initialize(date)
+        self.user.date_joined = timezone.now() - timedelta(days=7)
+        self.user.save()
+        self.create_fitbit_day(date.today())
+        self.create_fitbit_day(date.today() - timedelta(days=1))
+        self.create_fitbit_day(date.today() - timedelta(days=2))
+        
+        today = date.today()
+        self.service.initialize(today)
 
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
@@ -141,7 +164,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
 
-        expected_calls = [call(date - timedelta(days=offset)) for offset in range(3)]
+        expected_calls = [call(today - timedelta(days=offset)) for offset in range(3)]
         self.assertEqual(steps.call_args_list, expected_calls)
         self.assertEqual(pre_steps.call_args_list, expected_calls)
         self.assertEqual(post_steps.call_args_list, expected_calls)
@@ -222,6 +245,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.update(timezone.now())
 
+@override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT=100)
 @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
 class CanInitializeWalkingSuggestionService(ServiceTestCase):
 
@@ -235,24 +259,9 @@ class CanInitializeWalkingSuggestionService(ServiceTestCase):
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
 
-        self.fitbit_account = FitbitAccount.objects.create(
-            fitbit_user='test'
-        )
-        FitbitAccountUser.objects.create(
-            account = self.fitbit_account,
-            user = self.user
-        )
-
         make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
         self.make_request = make_request_patch.start()
         self.addCleanup(make_request_patch.stop)
-
-    def create_fitbit_day(self, day, step_count=500):
-        FitbitDay.objects.create(
-            account = self.fitbit_account,
-            date = day,
-            step_count = step_count
-        )
 
     def test_enough_days(self):
         self.create_fitbit_day(date.today())
