@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
+from anti_sedentary.models import AntiSedentaryDecision
 from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 from locations.models import Place
@@ -17,7 +18,10 @@ from randomization.services import DecisionService, DecisionContextService, Deci
 from weather.models import WeatherForecast
 from watch_app.models import StepCount as WatchStepCount
 
-from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from .models import Configuration
+from .models import SuggestionTime
+from .models import WalkingSuggestionDecision
+from .models import WalkingSuggestionMessageTemplate
 from .models import WalkingSuggestionServiceRequest as ServiceRequest
 
 class WalkingSuggestionTimeService:
@@ -128,8 +132,16 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.save()
             return False
 
-        available = super().update_availability()
-        if not available:
+        if self.has_recent_walking_suggestion_treatment():
+            self.decision.available = False
+            self.decision.unavailable_reason = 'Recently treated walking suggestion decision'
+            self.decision.save()
+            return False
+
+        if self.has_recent_anti_sedentary_treatment():
+            self.decision.available = False
+            self.decision.unavailable_reason = 'Recently treated anti sedentary decision'
+            self.decision.save()
             return False
 
         step_counts = self.get_step_counts()
@@ -150,6 +162,34 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.save()
             return False
         return True
+
+    def has_recent_walking_suggestion_treatment(self):
+        recent_treatments = WalkingSuggestionDecision.objects.filter(
+            user = self.decision.user,
+            treated = True,
+            time__range = [
+                self.decision.time - timedelta(minutes=60),
+                self.decision.time
+            ]
+        ).count()
+        if recent_treatments > 0:
+            return True
+        else:
+            return False
+
+    def has_recent_anti_sedentary_treatment(self):
+        recent_treatments = AntiSedentaryDecision.objects.filter(
+            user = self.decision.user,
+            treated = True,
+            time__range = [
+                self.decision.time - timedelta(minutes=60),
+                self.decision.time
+            ]
+        ).count()
+        if recent_treatments > 0:
+            return True
+        else:
+            return False
 
     def get_step_counts(self):
         if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
@@ -176,7 +216,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.unavailable_reason = "Walking suggestion configuration disabled"
             self.decision.save()
             return False
-        # self.update_availability()
         try:
             service = WalkingSuggestionService(self.__configuration)
             service.decide(self.decision)
