@@ -158,8 +158,8 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_received_messages', return_value=[True, True, True, True, True])
     @patch.object(WalkingSuggestionService, 'get_availabilities', return_value=[False, False, False, False, False])
     @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
-    @patch.object(WalkingSuggestionService, 'get_previous_messages', return_value=[False, False, False, False, False])
-    def test_update(self, get_previous_messages, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
+    @patch.object(WalkingSuggestionService, 'get_previous_anti_sedentary_treatments', return_value=[False, False, False, False, False])
+    def test_update(self, get_previous_anti_sedentary_treatments, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
         date = datetime.today()
         self.service.update(date)
 
@@ -353,10 +353,6 @@ class StepCountTests(ServiceTestCase):
             time = datetime(2018, 10, 10, 22, 31, tzinfo=pytz.utc),
             steps = 50
         )
-
-        # decision_update_patch = patch.object(WalkingSuggestionDecisionService, 'update')
-        # decision_update_patch.start()
-        # self.addCleanup(decision_update_patch.stop)
 
     def test_get_pre_steps(self):
         pre_steps = self.service.get_pre_steps(datetime(2018, 10, 10))

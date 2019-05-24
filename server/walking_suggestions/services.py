@@ -323,8 +323,8 @@ class WalkingSuggestionService():
         ).first()
         if postdinner_decision:
             last_activity = self.decision_was_received(postdinner_decision)
-            prior_anti = self.was_notified_between(
-                postdinner_decision.time + timedelta(minutes=1),
+            prior_anti = self.anti_sedentary_treated_between(
+                postdinner_decision.time,
                 self.__configuration.get_end_of_day(date)
             )
         else:
@@ -341,7 +341,7 @@ class WalkingSuggestionService():
             'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date),
             'availabilityArray': self.get_availabilities(date),
-            'priorAntiArray': self.get_previous_messages(date),
+            'priorAntiArray': self.get_previous_anti_sedentary_treatments(date),
             'lastActivityArray': self.get_received_messages(date),
             'locationArray': self.get_locations(date)
         }
@@ -358,7 +358,7 @@ class WalkingSuggestionService():
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
                 'availability': decision.available,
-                'priorAnti': self.notified_since_previous_decision(decision),
+                'priorAnti': self.anti_sedentary_treated_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
                 'location': self.get_location_type(decision)
             }
@@ -386,14 +386,14 @@ class WalkingSuggestionService():
             return None
         return day.step_count
 
-    def get_previous_messages(self, date):
+    def get_previous_anti_sedentary_treatments(self, date):
         decisions = self.get_decisions_for(date)
-        previous_messages = []
+        previous_treatments = []
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            has_previous_message = self.notified_since_previous_decision(decision)
-            previous_messages.append(has_previous_message)
-        return previous_messages
+            previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
+            previous_treatments.append(previous_treatment)
+        return previous_treatment
 
     def get_received_messages(self, date):
         decisions = self.get_decisions_for(date)
@@ -581,26 +581,24 @@ class WalkingSuggestionService():
             ]
         ).first()
 
-    def notified_since_previous_decision(self, decision):
+    def anti_sedentary_treated_since_previous_decision(self, decision):
         previous_decision = self.get_previous_decision(decision)
         if previous_decision:
-            return self.was_notified_between(
-                previous_decision.time + timedelta(minutes=1),
-                decision.time - timedelta(minutes=1)
-            )
+            start_time = previous_decision.time
         else:
-            return self.was_notified_between(
-                self.__configuration.get_start_of_day(decision.time),
-                decision.time - timedelta(minutes=1)
-            )
+            start_time = self.__configuration.get_start_of_day(decision.time)
+        return self.anti_sedentary_treated_between(
+            start_time,
+            decision.time
+        )
 
-    def was_notified_between(self, start, end):
-        messages_sent = MessageReceipt.objects.filter(
-            type = MessageReceipt.SENT,
-            message__message_type = Message.NOTIFICATION,
+    def anti_sedentary_treated_between(self, start, end):
+        treated_anti_sedentary = AntiSedentaryDecision.objects.filter(
+            user = self.__user,
+            treated = True,
             time__range = [start, end]
         ).count()
-        if messages_sent > 0:
+        if treated_anti_sedentary > 0:
             return True
         else:
             return False
