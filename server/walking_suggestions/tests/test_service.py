@@ -6,7 +6,6 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from anti_sedentary.models import AntiSedentaryDecision
 from behavioral_messages.models import MessageTemplate
 from locations.models import Place
 from service_requests.models import ServiceRequest
@@ -454,7 +453,7 @@ class DecisionAvailabilityTest(TestCase):
     def test_step_count_over_limit(self):
         self.create_step_count(10, 5)
         self.create_step_count(100, 10)
-        decision = WalkingSuggestionDecision.objects.create(
+        decision = WalkingSuggestionDecision(
             user = self.user,
             time = timezone.now()
         )
@@ -470,7 +469,7 @@ class DecisionAvailabilityTest(TestCase):
     def test_step_count_was_over_limit(self):
         self.create_step_count(10, 5)
         self.create_step_count(100, 20)
-        decision = WalkingSuggestionDecision.objects.create(
+        decision = WalkingSuggestionDecision(
             user = self.user,
             time = timezone.now()
         )
@@ -486,7 +485,7 @@ class DecisionAvailabilityTest(TestCase):
         self.create_step_count(10, 5)
         self.create_step_count(10, 10)
         self.create_step_count(10, 15)
-        decision = WalkingSuggestionDecision.objects.create(
+        decision = WalkingSuggestionDecision(
             user = self.user,
             time = timezone.now()
         )
@@ -497,62 +496,6 @@ class DecisionAvailabilityTest(TestCase):
         self.assertTrue(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertTrue(decision.available)
-
-    def test_not_available_when_recent_walking_suggestion_treated(self):
-        recent_decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = timezone.now() - timedelta(minutes=40),
-            treated = True
-        )
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = timezone.now()
-        )
-        service = WalkingSuggestionDecisionService(decision)
-
-        available = service.update_availability()
-
-        self.assertFalse(available)
-        decision = WalkingSuggestionDecision.objects.get(id=decision.id)
-        self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Recently treated walking suggestion decision')
-
-    def test_not_available_when_recent_anti_sedentary_decision_treated(self):
-        recent_decision = AntiSedentaryDecision.objects.create(
-            user = self.user,
-            time = timezone.now() - timedelta(minutes=20),
-            treated = True
-        )
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = timezone.now()
-        )
-        service = WalkingSuggestionDecisionService(decision)
-
-        available = service.update_availability()
-
-        self.assertFalse(available)
-        decision = WalkingSuggestionDecision.objects.get(id=decision.id)
-        self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Recently treated anti sedentary decision')
-
-    def test_available_after_push_message(self):
-        self.create_step_count(10, 5)
-        Message.objects.create(
-            recipient = self.user,
-            content = 'Foo'
-        )
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.user,
-            time = timezone.now()
-        )
-        service = WalkingSuggestionDecisionService(decision)
-
-        available = service.update_availability()
-        decision = WalkingSuggestionDecision.objects.get(id=decision.id)
-
-        self.assertTrue(available)
-
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 
