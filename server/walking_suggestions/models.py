@@ -18,6 +18,7 @@ class Configuration(models.Model):
     enabled = models.BooleanField(default=False)
 
     service_initialized_date = models.DateField(null=True)
+    pooling = models.BooleanField(default=False)
 
     day_start_hour = models.PositiveSmallIntegerField(default=6)
     day_start_minute = models.PositiveSmallIntegerField(default=0)

@@ -145,6 +145,8 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     def test_initalization(self, post_steps, pre_steps, steps):
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
+        self.configuration.pooling = True
+        self.configuration.save()
         self.create_fitbit_day(date.today())
         self.create_fitbit_day(date.today() - timedelta(days=1))
         self.create_fitbit_day(date.today() - timedelta(days=2))
@@ -158,6 +160,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         
         request_data = kwargs['data']
         self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
+        self.assertTrue(request_data['pooling'])
         assert 'totalStepsArray' in request_data
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
