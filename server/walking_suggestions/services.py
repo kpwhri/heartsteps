@@ -583,12 +583,13 @@ class WalkingSuggestionService():
         )
 
     def anti_sedentary_treated_between(self, start, end):
-        treated_anti_sedentary = AntiSedentaryDecision.objects.filter(
+        treated_anti_sedentary_decisions = AntiSedentaryDecision.objects.filter(
             user = self.__user,
             treated = True,
             time__range = [start, end]
-        ).count()
-        if treated_anti_sedentary > 0:
-            return True
-        else:
-            return False
+        ).all()
+        for decision in treated_anti_sedentary_decisions:
+            notification = decision.notification
+            if notification and notification.received:
+                return True
+        return False
