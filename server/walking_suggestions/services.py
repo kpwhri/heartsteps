@@ -288,6 +288,7 @@ class WalkingSuggestionService():
             date = datetime_date.today()
         dates = self.get_initialization_days(date)
         data = {
+            'date': date.strftime('%Y-%m-%d'),
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
             'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]

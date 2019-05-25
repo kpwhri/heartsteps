@@ -139,13 +139,10 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.make_request = make_request_patch.start()
 
     @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
-    @patch.object(WalkingSuggestionService, 'get_clicks')
     @patch.object(WalkingSuggestionService, 'get_steps')
-    @patch.object(WalkingSuggestionService, 'get_availabilities')
-    @patch.object(WalkingSuggestionService, 'get_temperatures')
     @patch.object(WalkingSuggestionService, 'get_pre_steps')
     @patch.object(WalkingSuggestionService, 'get_post_steps')
-    def test_initalization(self, post_steps, pre_steps, temperatures, availabilities, steps, clicks):
+    def test_initalization(self, post_steps, pre_steps, steps):
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
         self.create_fitbit_day(date.today())
@@ -160,6 +157,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(args[0], 'initialize')
         
         request_data = kwargs['data']
+        self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
         assert 'totalStepsArray' in request_data
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
