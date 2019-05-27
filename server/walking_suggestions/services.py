@@ -500,10 +500,10 @@ class WalkingSuggestionService():
         decision = WalkingSuggestionDecision.objects.create(
             user = self.__user,
             time = time,
-            a_it = False,
-            pi_it = 0
+            treated = False,
+            treatment_probability = 0,
+            imputed = True
         )
-        decision.add_context('imputed')
         decision.add_context(time_category)
 
         decision_service = WalkingSuggestionDecisionService(decision)

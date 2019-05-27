@@ -134,14 +134,13 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
     def setUp(self):
         super().setUp()
+        self.create_default_suggestion_times()
         make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
         self.make_request = make_request_patch.start()
 
     @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
-    @patch.object(WalkingSuggestionService, 'get_pre_steps')
-    @patch.object(WalkingSuggestionService, 'get_post_steps')
-    def test_initalization(self, post_steps, pre_steps):
+    def test_initialization(self):
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
         self.configuration.pooling = True
@@ -149,6 +148,12 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.create_fitbit_day(date.today() - timedelta(days=2), step_count=500)
         self.create_fitbit_day(date.today() - timedelta(days=1), step_count=1000)
         self.create_fitbit_day(date.today(), step_count=1500)
+        FitbitMinuteStepCount.objects.create(
+            account = self.fitbit_account,
+            time = datetime.now().replace(hour=20, minute=5).astimezone(pytz.UTC),
+            steps = 50
+        )
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
         
         today = date.today()
         self.service.initialize(today)
@@ -156,21 +161,20 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.make_request.assert_called()
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'initialize')
-        
-        request_data = kwargs['data']
-        self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
-        self.assertTrue(request_data['pooling'])
-        self.assertEqual(request_data['totalStepsArray'], [500, 1000, 1500])
-        assert 'preStepsMatrix' in request_data
-        assert 'postStepsMatrix' in request_data
 
-        expected_calls = [call(today - timedelta(days=offset)) for offset in range(3)]
-        expected_calls.reverse()
-        self.assertEqual(pre_steps.call_args_list, expected_calls)
-        self.assertEqual(post_steps.call_args_list, expected_calls)
+        initialization_data = kwargs['data']
+        self.assertEqual(initialization_data['date'], date.today().strftime('%Y-%m-%d'))
+        self.assertTrue(initialization_data['pooling'])
+        self.assertEqual(initialization_data['totalStepsArray'], [500, 1000, 1500])
+        self.assertEqual(initialization_data['preStepsMatrix'], [{'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}])
+        self.assertEqual(initialization_data['postStepsMatrix'], [{'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,50]}])
 
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
+        self.assertEqual(configuration.service_initialized_date, date.today())
+
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 15)
+        self.assertEqual(WalkingSuggestionDecision.objects.filter(imputed=True).count(), 15)
 
     def test_decision(self):
         decision = WalkingSuggestionDecision.objects.create(
