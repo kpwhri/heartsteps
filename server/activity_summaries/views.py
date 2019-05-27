@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
+from days.views import DayView
 from fitbit_activities.services import FitbitDayService
 from locations.services import LocationService
 
@@ -57,66 +58,67 @@ def get_summary(user, date):
         return day
 
 
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def day_summary(request, day):
-    date = parse_date(day)
-    check_valid_date(request.user, date)
-    summary = get_summary(request.user, date)
-    serialized = DaySerializer(summary)
-    return Response(serialized.data, status=status.HTTP_200_OK)
+class DaySummaryView(DayView):
 
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def date_range_summary(request, start, end):
-    start_date = parse_date(start)
-    end_date = parse_date(end)
-    day_joined = get_day_joined(request.user)
+    def get(self, request, day):
+        day = self.parse_date(day)
+        self.validate_date(request.user, day)
+        summary = get_summary(request.user, day)
+        serialized = DaySerializer(summary)
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
-    if start_date < day_joined:
-        start_date = day_joined
-    if end_date < day_joined:
-        raise Http404()
+class DateRangeSummaryView(DayView):
 
-    if start_date > end_date:
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, start, end):
+        start_date = self.parse_date(start)
+        end_date = self.parse_date(end)
+        day_joined = self.get_day_joined(request.user)
 
-    results = Day.objects.filter(
-        user = request.user,
-        date__range=[start_date, end_date]
-    ).order_by('date').all()
-    results = list(results)
+        if start_date < day_joined:
+            start_date = day_joined
+        if end_date < day_joined:
+            raise Http404()
 
-    summaries = []
-    index_date = start_date
-    while index_date <= end_date:
-        if results and results[0].date == index_date:
-            summaries.append(results.pop(0))
-        else:
-            day = Day.objects.create(
-                user = request.user,
-                date = index_date
-            )
-            day.update_from_fitbit()
-            day.update_from_activities()
-            summaries.append(day)
-        index_date = index_date + timedelta(days=1)
-    serialized = DaySerializer(summaries, many=True)
-    return Response(serialized.data, status=status.HTTP_200_OK)
+        if start_date > end_date:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def day_summary_update(request, day):
-    date = parse_date(day)
-    check_valid_date(request.user, date)
-    try:
-        service = FitbitDayService(
-            date = date,
-            user = request.user
-            )
-        service.update()
-    except:
-        return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
-    summary = get_summary(request.user, date)
-    serialized = DaySerializer(summary)
-    return Response(serialized.data, status=status.HTTP_200_OK)
+        results = Day.objects.filter(
+            user = request.user,
+            date__range=[start_date, end_date]
+        ).order_by('date').all()
+        results = list(results)
+
+        summaries = []
+        index_date = start_date
+        while index_date <= end_date:
+            if results and results[0].date == index_date:
+                summaries.append(results.pop(0))
+            else:
+                day = Day.objects.create(
+                    user = request.user,
+                    date = index_date
+                )
+                day.update_from_fitbit()
+                day.update_from_activities()
+                summaries.append(day)
+            index_date = index_date + timedelta(days=1)
+        serialized = DaySerializer(summaries, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
+class DaySummaryUpdateView(DayView):
+
+    def get(self, request, day):
+        date = self.parse_date(day)
+        self.validate_date(request.user, date)
+        try:
+            service = FitbitDayService(
+                date = date,
+                user = request.user
+                )
+            service.update()
+        except:
+            return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
+        summary = get_summary(request.user, date)
+        serialized = DaySerializer(summary)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+

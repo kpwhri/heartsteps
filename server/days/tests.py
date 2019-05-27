@@ -34,30 +34,30 @@ class DayTimezoneTests(TestCase):
         FitbitDay.objects.create(
             account = self.account,
             date = date.today(),
-            _timezone = "America/New York"
+            _timezone = "America/New_York"
         )
 
         self.assertEqual(Day.objects.count(), 2)
         day = Day.objects.get(date=date.today(), user=self.user)
-        self.assertEqual(day.timezone, "America/New York")
+        self.assertEqual(day.timezone, "America/New_York")
         other_day = Day.objects.get(date=date.today(), user=other_user)
-        self.assertEqual(other_day.timezone, "America/New York")
+        self.assertEqual(other_day.timezone, "America/New_York")
 
     def test_timezone_can_update_multiple_times(self):
         fitbit_day = FitbitDay.objects.create(
             account = self.account,
             date = date.today(),
-            _timezone = "America/New York"
+            _timezone = "America/New_York"
         )
 
         day = Day.objects.get()
-        self.assertEqual(day.timezone, "America/New York")
+        self.assertEqual(day.timezone, "America/New_York")
 
-        fitbit_day._timezone = "America/Los Angeles"
+        fitbit_day._timezone = "America/Los_Angeles"
         fitbit_day.save()
 
         day = Day.objects.get()
-        self.assertEqual(day.timezone, "America/Los Angeles")
+        self.assertEqual(day.timezone, "America/Los_Angeles")
 
 class DayServiceTests(TestCase):
 

@@ -56,7 +56,7 @@ class DayService:
             )
             return day
         else:
-            raise InvalidDateTime('Unknown datetime')
+            return self.create_default_day_for(datetime)
 
     def create_default_day_for(self, datetime):
         self.check_valid_datetime(datetime)
