@@ -12,6 +12,7 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitMinuteHeartRate
 from locations.models import Place
 from locations.services import LocationService
 from push_messages.models import MessageReceipt, Message
@@ -530,6 +531,12 @@ class WalkingSuggestionService():
             total_steps += step_count.steps
         if total_steps > 0:
             return total_steps
+        heart_rate_count = FitbitMinuteHeartRate.objects.filter(
+            account = account_user.account,
+            time__range = [start_time, end_time]
+        ).count()
+        if heart_rate_count > 0:
+            return 0
         return None
 
     def get_study_day(self, time):

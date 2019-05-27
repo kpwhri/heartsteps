@@ -16,6 +16,7 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitMinuteHeartRate
 from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
@@ -487,15 +488,26 @@ class StepCountTests(ServiceTestCase):
             steps = 50
         )
 
+        FitbitMinuteHeartRate.objects.create(
+            account = account,
+            time = datetime(2018, 10, 10, 17, 20, tzinfo=pytz.utc),
+            heart_rate = 20
+        )
+        FitbitMinuteHeartRate.objects.create(
+            account = account,
+            time = datetime(2018, 10, 10, 17, 40, tzinfo=pytz.utc),
+            heart_rate = 20
+        )
+
     def test_get_pre_steps(self):
         pre_steps = self.service.get_pre_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [50, None, None, None, 10])
+        self.assertEqual(pre_steps, [50, None, None, 0, 10])
 
     def test_get_post_steps(self):
         pre_steps = self.service.get_post_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [120, None, None, None, 10])
+        self.assertEqual(pre_steps, [120, None, None, 0, 10])
 
 class TemperatureTests(ServiceTestCase):
 
