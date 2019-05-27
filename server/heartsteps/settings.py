@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'morning_messages',
     'weekly_reflection',
     'weeks',
+    'days',
     'locations',
     'weather',
     'randomization',
