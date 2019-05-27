@@ -1,5 +1,5 @@
 rm(list = ls())
-server = T
+server = F
 #' ---
 #' title:  Action selection in the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -21,107 +21,117 @@ if(server){
   
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service")
   source("functions.R")
-  input <- fromJSON(file = "./test/call_2_5.json")
+  input <- fromJSON(file = "./test/call_1_5.json")
 
   
 }
+
 
 
 # ================ access the user's dataset ================  
-paths <- paste("./data/", "user", input$userID, sep="")
+tryCatch(expr = {
 
-# including daily features and dosage at the begining of the day and the current history
-load(paste(paths, "/daily.Rdata", sep="")) 
+  stopifnot("userID" %in% names(input))  
+  paths <- paste("./data/", "user", input$userID, sep="")
 
-# policy related
-load(paste(paths, "/policy.Rdata", sep="")) 
+  request <- toJSON(input)
+  write(request, file = paste(paths, "/request history/", "decision_", input$studyDay, "_", input$decisionTime, ".json",sep="")) # save the request
 
-# ================ Condition checking ================
-condition.check = function(){
+  # including daily features and dosage at the begining of the day and the current history
+  load(paste(paths, "/daily.Rdata", sep="")) 
+
+  # policy related
+  load(paste(paths, "/policy.Rdata", sep="")) 
   
-  # check the input list
-  cond1 = all(c("userID", "studyDay", "decisionTime", "availability", "priorAnti", "lastActivity", "location") %in% names(input))
-  msg1 <- "Something missing in the input"
+  # dosage 
+  load(paste(paths, "/dosage.Rdata", sep=""))
   
+  # decision 
+  load(paste(paths, "/decision.Rdata", sep="")) 
+  }, error = function(err) {
   
-  # should not be any missing input type 
-  cond2 = all(lapply(input, is.null)==FALSE) & input$location %in% c(0, 1, 2) & is.logical(input$availability) & is.logical(input$priorAnti) & is.logical(input$lastActivity)
-  msg2 <- "Something wrong with the input type"
+  cat(paste("Decision:", err), file =  paste(paths, "/log", sep=""))
   
+    stop("Initiliazation has not done for the user")
   
-  # expect the service will be called every decision time
-  if(is.null(data.day$history)){
+})
+
+
+
+# ================ Condition Checking + action selection ================
+# check current input (if fails, then MRT)
+output <- tryCatch(expr = {
+    stopifnot((c("userID", 
+                 "studyDay", 
+                 "decisionTime", 
+                 "availability", 
+                 "priorAnti", 
+                 "lastActivity", 
+                 "location") %in% names(input)))
     
-    # meanning we have not see the first decision time
-    # check if we are getting the first one 
+    stopifnot(all(lapply(input, is.null)==FALSE) 
+              & input$location %in% c(0, 1, 2) 
+              & is.logical(input$availability) 
+              & is.logical(input$priorAnti)
+              & is.logical(input$lastActivity))
+    },  error = function(err){
     
-    cond3 = (input$decisionTime == 1)
+  cat(paste("\nDecision:", "Day =", input$studyDay, "Slot =", input$decisionTime, 
+            "micro-randomize", "Error:", err$message), file =  paste(paths, "/log", sep=""), append = TRUE)
+    
+  type <- -1
+  if(is.logical(input$availability)){
+    
+    prob <- ifelse(input$availability, 0.25, 0)
     
   }else{
     
-    cond3 = input$decisionTime == nrow(data.day$history) + 1
+    prob <- 0
     
   }
-  msg3 <- "Some decision times being skipped"
+  random.num <- runif(1)
+  action <- (random.num <= prob);
   
-  # expect the service will be called every day
-  cond4 = input$studyDay == data.day$study.day
-  msg4 <- "Previous nightly updates missing"
-  
-  
-  # write to error file if there is false 
-  cond = c(cond1, cond2, cond3, cond4)
-  msg <- c(msg1, msg2, msg3, msg4)
-  
-  if(all(cond)){
-    
-    return(T)
-    
-  }else{
-    
-    
-    # error log 
-    load(paste(paths, "/error.Rdata", sep="")) 
-    err.file <- paste(msg[cond==F], sep="|-|", collapse="; ")
-    error.log <- rbind(error.log, c(input$studyDay, input$decisionTime, err.file))
-    save(error.log, file = paste(paths, "/error.Rdata", sep="")) 
-    
-    return(F)
-  }
-  
-  
-}
+  output <- list(send = action, probability = prob, type = type)
+  return(output)
+    })
 
-if(condition.check()){
+# if current input is fine, then use bandit if dosage is well defined
+if(is.null(output)){
+  
+  output <- tryCatch(expr ={
+  
+      # check if there is any skipped times and update the dosage set
+      
+      if(input$decisionTime == 1){
+
+        x <- (input$studyDay-1) * 5 + input$decisionTime # expected number of rows in dosage data
+        if(x != nrow(data.dosage$dataset)) stop("previous decision time or nightly update is not complete")
+        index <- which(data.dosage$dataset$day == input$studyDay & data.dosage$dataset$timeslot == 1)
+        data.dosage$dataset$anti2[index] <- input$priorAnti;
+        
+      }else{
+
+        x <- (input$studyDay-1) * 5 + input$decisionTime - 1 # expected number of rows in dosage data
+        if(x != nrow(data.dosage$dataset)) stop("previous decision time or nightly update is not complete")
+        
+        data.dosage$dataset <- rbind(data.dosage$dataset, c(input$studyDay, input$decisionTime, input$lastActivity, input$priorAnti, FALSE))
+        
+
+      }
+      
+      # calculate the dosage
+      temp <- data.dosage$dataset
+      temp <- temp[order(temp$day, temp$timeslot), ]
+      event <- (temp$walk + temp$anti1 + temp$anti2 > 1);
+      x <- data.dosage$init;
+      for(j in 1:length(event)) x <- update.dosage(x, increase = event[j])
+      current.dosage <- x
+      
+      
+     
   
   # ================ create the interaction terms ================ 
-  
-  # obtain the last dosage and decide if to increase
-  if(input$decisionTime == 1){
-    
-    # retrive the dosage at the fifth time yesterday
-    last.dosage <- data.day$yesterdayLast.dosage
-    
-    # whether recieve any msg between the fifth decision time to the first decision time 
-    # that is, any activitity sent at the yesterday's fifth and any anti sent between fifth to first. 
-    # we infer the second one by two inputs
-    receive.indc <- any(input$priorAnti, data.day$fifthToEnd.anti, data.day$fifth.act)
-    
-    
-  }else{
-    
-    # retrive the dosage at the last decision time
-    dosage.index <- which(data.day$var.names == "dosage")
-    last.time <- input$decisionTime - 1
-    last.dosage <- data.day$history[last.time, dosage.index]  
-    
-    # whether recieve any msg between last and current decision time
-    receive.indc <- any(input$priorAnti, input$lastActivity)
-    
-  }
-  
-  # update the dosage
-  current.dosage <- update.dosage(last.dosage, receive.indc)
   
   # other interactions 
   work.loc <- input$location == 1;
@@ -129,14 +139,9 @@ if(condition.check()){
   engagement.indc <- data.day$engagement;
   variation.indc <- data.day$variation[input$decisionTime]
   
-  interaction.terms <- c(current.dosage, 
-                         engagement.indc, 
-                         work.loc, 
-                         other.loc, 
-                         variation.indc)
+  interaction.terms <- c(current.dosage, engagement.indc, 
+                         work.loc, other.loc, variation.indc)
   
-  # we should not have any missingness here 
-  stopifnot(all(is.na(interaction.terms))==FALSE)
   
   # ================ action Selection ================  
   if(input$availability){
@@ -172,7 +177,7 @@ if(condition.check()){
     
     if(input$studyDay < 8){
       
-      prob <- 0.5
+      prob <- 0.25
       type <- 0
       
     }
@@ -197,101 +202,88 @@ if(condition.check()){
   # take action
   random.num <- runif(1)
   action <- (random.num <= prob)
+ 
   
-  # ================ Update the daily dataset ================ 
   
-  # add the current decision time
-  # Same Format as in the initialization
-  data.day$history <- rbind(data.day$history, 
-                            c(input$studyDay, 
-                              input$decisionTime, 
-                              input$availability, 
-                              prob, 
-                              action, 
-                              NA, 
-                              interaction.terms, 
-                              NA, 
-                              NA, 
-                              data.day$sqrtsteps,
-                              NA,
-                              NA,
-                              NA,
-                              random.num)) 
-
-
+  # save the decision 
+  data.decision <- rbind(data.decision, c(input$studyDay, input$decisionTime, action, prob, random.num))
+  data.decision <- data.frame(data.decision)
+  colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
   
   # save to the system
-  save(data.day, file = paste(paths, "/daily.Rdata", sep="")) 
+  save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""));
+  save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
   
-}else{
   
-  type <- 0
+  cat(paste("\nDecision:", "Day =", input$studyDay, "Slot =", input$decisionTime, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
+  list(send = action, probability = prob, type = type);
   
-  if(is.logical(input$availability)){
+  }, error = function(err){
     
-    prob <- ifelse(input$availability, 0.5, 0)
+    cat(paste("\nDecision:", "Day =", input$studyDay, "Slot =", input$decisionTime, "micro-randomize", "Error:", err$message), file =  paste(paths, "/log", sep=""), append = TRUE)
     
-  }else{
+    type <- -1
+    if(is.logical(input$availability)){
+    
+    prob <- ifelse(input$availability, 0.25, 0)
+    
+    }else{
     
     prob <- 0
     
-  }
-  random.num <- runif(1)
-  action <- (random.num <= prob)
-  
- 
-  
-  # ================ Update the daily dataset ================ 
-  
-  # other interactions 
-  current.dosage <- NA
-  if(input$location %in% c(0, 1, 2)){
+    }
     
-    work.loc <- input$location == 1;
-    other.loc <- input$location == 0;
+    random.num <- runif(1)
+    action <- (random.num <= prob);
     
-  }else{
+    # save the decision 
     
-    work.loc <- other.loc <- NA
+    data.decision <- rbind(data.decision, c(input$studyDay, input$decisionTime, action, prob, random.num))
+    data.decision <- data.frame(data.decision)
+    colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
     
-  }
+    
+    
+     if(input$decisionTime == 1){
+        
+       if(length(subset(data.dosage$dataset, day == input$studyDay & timeslot == 1)) > 0){
+         
+        index <- (data.dosage$dataset$day == input$studyDay & data.dosage$dataset$timeslot == 1)
+        data.dosage$dataset$anti2[index] <- input$priorAnti;
+         
+       }else{
+         
+         # previous nightly update does not occur
+         
+         #data.dosage$dataset <- rbind(data.dosage$dataset, c(input$studyDay, input$decisionTime, input$lastActivity, ))
+         
+       }
+        
+      }else{
+
+      
+        data.dosage$dataset <- rbind(data.dosage$dataset, c(input$studyDay, input$decisionTime, input$lastActivity, input$priorAnti, FALSE))
+        
+
+      }     
+    
+   # save to the system
+    save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""));
+    save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
   
-  engagement.indc <- data.day$engagement;
-  variation.indc <- data.day$variation[input$decisionTime]
+    
+    
+    output <- list(send = action, probability = prob, type = type)
+    return(output)
   
-  interaction.terms <- c(current.dosage, 
-                         engagement.indc, 
-                         work.loc, 
-                         other.loc, 
-                         variation.indc)
+    
+    
+    
+  })
   
-  # add the current decision time
-  # Same Format as in the initialization
-  data.day$history <- rbind(data.day$history, 
-                            c(input$studyDay, 
-                              input$decisionTime, 
-                              input$availability, 
-                              prob, 
-                              action, 
-                              NA, 
-                              interaction.terms, 
-                              NA, 
-                              NA, 
-                              data.day$sqrtsteps,
-                              NA,
-                              NA,
-                              NA,
-                              random.num)) 
-  
-  # save to the system
-  save(data.day, file = paste(paths, "/daily.Rdata", sep="")) 
 }
 
-
-
-
 # ================Output ================
-output <- list(send = action, probability = prob, type = type)
 cat(toJSON(output))
 
 

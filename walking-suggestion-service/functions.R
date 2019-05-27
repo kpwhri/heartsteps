@@ -15,6 +15,8 @@ proc.matrix <- function(list) {
 }
 
 
+
+
 disc.dosage <- 0.8
 
 
@@ -363,5 +365,26 @@ Cal.Q = function(r.fn, prob, gamma, alpha0, alpha1){
   
   return(Q.til/gamma)
 }
+
+
+
+compute.dosage.day = function(last.dsg, yes.fifthToEnd.anti, yes.last.walk, anti, walk){
+  
+  # last.dsg = the dosage at yesterday's fifth decision time
+  # fifthToEnd.anti
+  # last.walk
+  
+  x <- update.dosage(last.dsg, increase= any(yes.fifthToEnd.anti, yes.last.walk, anti[1]))
+  for(k in 2:5){
+    
+    
+    x <- update.dosage(x, increase= any(walk[k-1], anti[k]))
+    
+  }
+  
+  return(x)
+  
+}
+
 
 
