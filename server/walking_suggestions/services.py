@@ -280,7 +280,6 @@ class WalkingSuggestionService():
         first_day_worn = fitbit_days_worn[-1]
         dates = [first_day_worn + timedelta(days=offset) for offset in range((date-first_day_worn).days)]
         dates.append(date)
-        dates.reverse()
         return dates
 
     def initialize(self, date=None):

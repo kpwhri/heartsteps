@@ -139,17 +139,16 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.make_request = make_request_patch.start()
 
     @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
-    @patch.object(WalkingSuggestionService, 'get_steps')
     @patch.object(WalkingSuggestionService, 'get_pre_steps')
     @patch.object(WalkingSuggestionService, 'get_post_steps')
-    def test_initalization(self, post_steps, pre_steps, steps):
+    def test_initalization(self, post_steps, pre_steps):
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
         self.configuration.pooling = True
         self.configuration.save()
-        self.create_fitbit_day(date.today())
-        self.create_fitbit_day(date.today() - timedelta(days=1))
-        self.create_fitbit_day(date.today() - timedelta(days=2))
+        self.create_fitbit_day(date.today() - timedelta(days=2), step_count=500)
+        self.create_fitbit_day(date.today() - timedelta(days=1), step_count=1000)
+        self.create_fitbit_day(date.today(), step_count=1500)
         
         today = date.today()
         self.service.initialize(today)
@@ -161,12 +160,12 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         request_data = kwargs['data']
         self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
         self.assertTrue(request_data['pooling'])
-        assert 'totalStepsArray' in request_data
+        self.assertEqual(request_data['totalStepsArray'], [500, 1000, 1500])
         assert 'preStepsMatrix' in request_data
         assert 'postStepsMatrix' in request_data
 
         expected_calls = [call(today - timedelta(days=offset)) for offset in range(3)]
-        self.assertEqual(steps.call_args_list, expected_calls)
+        expected_calls.reverse()
         self.assertEqual(pre_steps.call_args_list, expected_calls)
         self.assertEqual(post_steps.call_args_list, expected_calls)
 
