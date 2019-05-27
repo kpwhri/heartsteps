@@ -112,6 +112,11 @@ class FitbitMinuteStepCount(models.Model):
     time = models.DateTimeField()
     steps = models.IntegerField()
 
+class FitbitMinuteHeartRate(models.Model):
+    account = models.ForeignKey(FitbitAccount)
+    time = models.DateTimeField()
+    heart_rate = models.IntegerField()
+
 class FitbitDailyUnprocessedData(models.Model):
     account = models.ForeignKey(FitbitAccount)
     day = models.ForeignKey(FitbitDay)
