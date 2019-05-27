@@ -375,7 +375,9 @@ class WalkingSuggestionService():
             )
         except FitbitDay.DoesNotExist:
             return None
-        return day.step_count
+        if day.wore_fitbit:
+            return day.step_count
+        return None
 
     def get_previous_anti_sedentary_treatments(self, date):
         decisions = self.get_decisions_for(date)
@@ -526,7 +528,9 @@ class WalkingSuggestionService():
         total_steps = 0
         for step_count in step_counts:
             total_steps += step_count.steps
-        return total_steps
+        if total_steps > 0:
+            return total_steps
+        return None
 
     def get_study_day(self, time):
         day = datetime_date(time.year, time.month, time.day)

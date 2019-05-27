@@ -141,11 +141,14 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
     @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
     def test_initialization(self):
+        # Initializes a participant with 4 days of data. The second day the participant did not wear their fitbit.
+
         self.user.date_joined = timezone.now() - timedelta(days=7)
         self.user.save()
         self.configuration.pooling = True
         self.configuration.save()
-        self.create_fitbit_day(date.today() - timedelta(days=2), step_count=500)
+        self.create_fitbit_day(date.today() - timedelta(days=3), step_count=500)
+        self.create_fitbit_day(date.today() - timedelta(days=2), step_count=0)
         self.create_fitbit_day(date.today() - timedelta(days=1), step_count=1000)
         self.create_fitbit_day(date.today(), step_count=1500)
         FitbitMinuteStepCount.objects.create(
@@ -165,16 +168,28 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         initialization_data = kwargs['data']
         self.assertEqual(initialization_data['date'], date.today().strftime('%Y-%m-%d'))
         self.assertTrue(initialization_data['pooling'])
-        self.assertEqual(initialization_data['totalStepsArray'], [500, 1000, 1500])
-        self.assertEqual(initialization_data['preStepsMatrix'], [{'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}])
-        self.assertEqual(initialization_data['postStepsMatrix'], [{'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,0]}, {'steps':[0,0,0,0,50]}])
+        self.assertEqual(initialization_data['totalStepsArray'], [500, None, 1000, 1500])
+        self.assertEqual(initialization_data['preStepsMatrix'], [
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None, None, None, None, None]}
+            ]
+        )
+        self.assertEqual(initialization_data['postStepsMatrix'], [
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None, None, None, None, None]},
+            {'steps':[None,None,None,None,50]}
+            ]
+        )
 
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
         self.assertEqual(configuration.service_initialized_date, date.today())
 
-        self.assertEqual(WalkingSuggestionDecision.objects.count(), 15)
-        self.assertEqual(WalkingSuggestionDecision.objects.filter(imputed=True).count(), 15)
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 20)
+        self.assertEqual(WalkingSuggestionDecision.objects.filter(imputed=True).count(), 20)
 
     def test_decision(self):
         decision = WalkingSuggestionDecision.objects.create(
@@ -475,12 +490,12 @@ class StepCountTests(ServiceTestCase):
     def test_get_pre_steps(self):
         pre_steps = self.service.get_pre_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [50, 0, 0, 0, 10])
+        self.assertEqual(pre_steps, [50, None, None, None, 10])
 
     def test_get_post_steps(self):
         pre_steps = self.service.get_post_steps(datetime(2018, 10, 10))
         
-        self.assertEqual(pre_steps, [120, 0, 0, 0, 10])
+        self.assertEqual(pre_steps, [120, None, None, None, 10])
 
 class TemperatureTests(ServiceTestCase):
 
