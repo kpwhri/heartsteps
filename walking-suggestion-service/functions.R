@@ -17,7 +17,7 @@ proc.matrix <- function(list) {
 
 
 
-disc.dosage <- 0.8
+disc.dosage <- 0.9
 
 
 update.dosage = function(x, increase=TRUE){
