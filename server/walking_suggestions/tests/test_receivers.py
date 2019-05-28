@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
 from locations.services import LocationService
-from locations.signals import timezone_updated
 from participants.signals import nightly_update as participant_nightly_update
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated

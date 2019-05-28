@@ -13,6 +13,7 @@ from fitbit_api.models import FitbitAccountUser
 from .models import Day
 from .models import User
 from .services import DayService
+from .signals import timezone_updated
 
 class DayTimezoneTests(TestCase):
 
@@ -24,6 +25,10 @@ class DayTimezoneTests(TestCase):
             user = self.user
         )
 
+        timezone_updated_patch = patch.object(timezone_updated, 'send')
+        self.timezone_updated = timezone_updated_patch.start()
+        self.addCleanup(timezone_updated_patch.stop)
+
     def test_timezone_updated_from_fitbit_day(self):
         other_user = User.objects.create(username="other-user")
         FitbitAccountUser.objects.create(
@@ -33,20 +38,20 @@ class DayTimezoneTests(TestCase):
 
         FitbitDay.objects.create(
             account = self.account,
-            date = date.today(),
+            date = date(2019, 5, 27),
             _timezone = "America/New_York"
         )
 
         self.assertEqual(Day.objects.count(), 2)
-        day = Day.objects.get(date=date.today(), user=self.user)
+        day = Day.objects.get(date=date(2019,5,27), user=self.user)
         self.assertEqual(day.timezone, "America/New_York")
-        other_day = Day.objects.get(date=date.today(), user=other_user)
+        other_day = Day.objects.get(date=date(2019,5,27), user=other_user)
         self.assertEqual(other_day.timezone, "America/New_York")
 
     def test_timezone_can_update_multiple_times(self):
         fitbit_day = FitbitDay.objects.create(
             account = self.account,
-            date = date.today(),
+            date = date(2019,5,27),
             _timezone = "America/New_York"
         )
 
@@ -58,6 +63,27 @@ class DayTimezoneTests(TestCase):
 
         day = Day.objects.get()
         self.assertEqual(day.timezone, "America/Los_Angeles")
+
+    @patch.object(DayService, 'get_current_date', return_value=date(2019,5,27))
+    def test_timezone_updated_signal_sent_on_same_day(self, current_date):
+        fitbit_day = FitbitDay.objects.create(
+            account = self.account,
+            date = date(2019,5,27),
+            _timezone = "America/New_York"
+        )
+
+        self.timezone_updated.assert_called_with(User, username="test")
+
+    @patch.object(DayService, 'get_current_date', return_value=date(2019,6,1))
+    def test_timezone_updated_signal_not_sent_when_not_current_day(self, current_date):
+        fitbit_day = FitbitDay.objects.create(
+            account = self.account,
+            date = date(2019,5,27),
+            _timezone = "America/New_York"
+        )
+
+        self.timezone_updated.assert_not_called()
+
 
 class DayServiceTests(TestCase):
 

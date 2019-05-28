@@ -6,6 +6,9 @@ from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
 
 from .models import Day
+from .models import User
+from .services import DayService
+from .signals import timezone_updated
 
 @receiver(pre_save, sender=Day)
 def set_day_start_and_end_times(sender, instance, *args, **kwargs):
@@ -18,12 +21,17 @@ def set_day_start_and_end_times(sender, instance, *args, **kwargs):
 
 @receiver(post_save, sender=FitbitDay)
 def update_timezone_from_fitbit(sender, instance, *args, **kwargs):
-    service = FitbitService(account=instance.account)
-    for user in service.get_users():
-        Day.objects.update_or_create(
+    fitbit_service = FitbitService(account=instance.account)
+    for user in fitbit_service.get_users():
+        day, _ = Day.objects.update_or_create(
             user = user,
             date = instance.date,
             defaults = {
                 "timezone": instance._timezone
             }
         )
+
+        day_service = DayService(user=user)
+        current_date = day_service.get_current_date()
+        if current_date == instance.date:
+            timezone_updated.send(User, username=user.username)
