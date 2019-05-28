@@ -42,7 +42,7 @@ class DayTimezoneTests(TestCase):
             _timezone = "America/New_York"
         )
 
-        self.assertEqual(Day.objects.count(), 2)
+        self.assertEqual(Day.objects.filter(date=date(2019,5,27)).count(), 2)
         day = Day.objects.get(date=date(2019,5,27), user=self.user)
         self.assertEqual(day.timezone, "America/New_York")
         other_day = Day.objects.get(date=date(2019,5,27), user=other_user)
@@ -55,13 +55,13 @@ class DayTimezoneTests(TestCase):
             _timezone = "America/New_York"
         )
 
-        day = Day.objects.get()
+        day = Day.objects.get(date=date(2019,5,27))
         self.assertEqual(day.timezone, "America/New_York")
 
         fitbit_day._timezone = "America/Los_Angeles"
         fitbit_day.save()
 
-        day = Day.objects.get()
+        day = Day.objects.get(date=date(2019,5,27))
         self.assertEqual(day.timezone, "America/Los_Angeles")
 
     @patch.object(DayService, 'get_current_date', return_value=date(2019,5,27))
