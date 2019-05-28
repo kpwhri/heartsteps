@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
 from behavioral_messages.models import MessageTemplate
-from locations.services import LocationService
+from days.services import DayService
 from randomization.models import Decision
 from service_requests.models import ServiceRequest
 from walking_suggestion_times.models import SuggestionTime
@@ -37,11 +37,8 @@ class Configuration(models.Model):
 
     @property
     def timezone(self):
-        try:
-            location_service = LocationService(self.user)
-            return location_service.get_current_timezone()
-        except LocationService.UnknownLocation:
-            return pytz.utc
+        service = DayService(user=self.user)
+        return service.get_current_timezone()
 
     @property
     def current_datetime(self):

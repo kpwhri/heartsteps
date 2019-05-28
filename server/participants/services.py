@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, date
 
 from rest_framework.authtoken.models import Token
 
+from days.services import DayService
 from fitbit_activities.services import FitbitDayService
-from locations.services import LocationService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
@@ -50,8 +50,8 @@ class ParticipantService:
         return self.participant.heartsteps_id
 
     def get_current_datetime(self):
-        location_service = LocationService(self.participant.user)
-        timezone = location_service.get_current_timezone()
+        service = DayService(user=self.participant.user)
+        timezone = service.get_current_timezone()
         return datetime.now(timezone)
 
     def initialize(self):

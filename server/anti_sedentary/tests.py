@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from days.services import DayService 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
 from push_messages.models import Device, Message
@@ -59,9 +60,9 @@ class TestBase(TestCase):
         self.week_context = week_context_patch.start()
         self.week_context.return_value = "weekday"
 
-        location_service_patch = patch.object(LocationService, 'get_timezone_on')
-        self.addCleanup(location_service_patch.stop)
-        self.get_timezone_on = location_service_patch.start()
+        day_service_patch = patch.object(DayService, 'get_timezone_at')
+        self.addCleanup(day_service_patch.stop)
+        self.get_timezone_on = day_service_patch.start()
         self.get_timezone_on.return_value = pytz.timezone('Etc/GMT+8')
 
         self.local_timezone = pytz.timezone('Etc/GMT+8')

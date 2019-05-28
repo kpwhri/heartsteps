@@ -10,35 +10,9 @@ from rest_framework.response import Response
 
 from days.views import DayView
 from fitbit_activities.services import FitbitDayService
-from locations.services import LocationService
 
 from .models import Day
 from .serializers import DaySerializer
-
-def format_date(date):
-    return datetime.strftime(date, '%Y-%m-%d')
-
-def parse_date(day):
-    try:
-        dt = datetime.strptime(day, '%Y-%m-%d').astimezone(pytz.UTC)
-        return date(dt.year, dt.month, dt.day)
-    except:
-        raise Http404()
-
-def get_day_joined(user):
-    location_service = LocationService(user)
-    tz = location_service.get_current_timezone()
-    date_joined = user.date_joined.astimezone(tz)
-    return date(
-        date_joined.year,
-        date_joined.month,
-        date_joined.day
-    )
-
-def check_valid_date(user, day):
-    day_joined = get_day_joined(user)
-    if day < day_joined:
-        raise Http404()
 
 def get_summary(user, date):
     try:

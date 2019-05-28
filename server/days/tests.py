@@ -77,15 +77,6 @@ class DayServiceTests(TestCase):
             timezone = "America/New_York"
         )
 
-    def test_get_datetime_before_joined(self):
-        service = DayService(username="test")
-
-        try:
-            service.get_datetime_at(datetime(2019,5,3,13).astimezone(pytz.UTC))
-            self.fail("Test should have failed")
-        except DayService.InvalidDateTime:
-            pass
-
     def test_creates_not_already_created(self):
         service = DayService(username="test")
 

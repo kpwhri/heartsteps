@@ -14,7 +14,6 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
 from locations.models import Place
-from locations.services import LocationService
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService

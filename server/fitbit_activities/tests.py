@@ -21,7 +21,10 @@ from fitbit_activities.tasks import update_fitbit_data
 class TestBase(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2018,2,1).astimezone(pytz.UTC)
+        )
         self.account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )

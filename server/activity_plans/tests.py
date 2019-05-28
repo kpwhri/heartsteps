@@ -14,7 +14,10 @@ from activity_plans.models import ActivityLog, ActivityPlan, ActivityType, User
 class TestBase(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2019,3,1).astimezone(pytz.UTC)
+        )
         self.client.force_authenticate(user=self.user)
 
         SuggestionTime.objects.create(

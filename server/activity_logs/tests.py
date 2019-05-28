@@ -13,7 +13,10 @@ from activity_logs.models import User, ActivityLog, ActivityType
 class ActivityLogsViewTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create()
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2018, 12, 1).astimezone(pytz.UTC)
+        )
         self.client.force_authenticate(self.user)
 
         ActivityType.objects.create(name="run")

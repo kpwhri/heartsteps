@@ -2,7 +2,6 @@ from django.db.models.signals import pre_delete, post_delete, post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
-from locations.services import LocationService
 from locations.signals import timezone_updated
 
 from .models import DailyTask

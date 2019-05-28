@@ -6,7 +6,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from activity_summaries.models import Day
-from locations.services import LocationService
+from days.services import DayService
 from surveys.models import Survey, Question
 
 User = get_user_model()
@@ -59,7 +59,7 @@ class Week(models.Model):
         ))
 
     def __localize_datetime(self, time):
-        service = LocationService(self.user)
+        service = DayService(user=self.user)
         tz = service.get_current_timezone()
         return tz.localize(time)
 

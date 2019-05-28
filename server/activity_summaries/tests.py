@@ -181,7 +181,10 @@ class FitbitDayUpdatesDay(TestCase):
 class ActivitLogUpdateDay(TestCase):
     
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2019, 1, 5).astimezone(pytz.UTC)
+        )
 
     def create_log_for_date(self, date, vigorous=False):
         activity_type, created = ActivityType.objects.get_or_create(name="run")

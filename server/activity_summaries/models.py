@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from locations.services import LocationService
+from days.services import DayService
 from activity_logs.models import ActivityLog
 from fitbit_activities.services import FitbitDayService
 
@@ -30,11 +30,8 @@ class Day(models.Model):
     def timezone(self):
         if hasattr(self, '__timezone'):
             return self.__timezone
-        try:
-            location_service = LocationService(user=self.user)
-            self.__timezone = location_service.get_timezone_on(self.date)
-        except LocationService.UnknownLocation:
-            self.__timezone = pytz.UTC
+        service = DayService(user=self.user)
+        self.__timezone = service.get_timezone_at(self.date)
         return self.__timezone
 
     @property

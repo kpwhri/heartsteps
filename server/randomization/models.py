@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
-from locations.services import LocationService
+from days.services import DayService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
 
@@ -135,8 +135,8 @@ class Decision(models.Model):
             return False
     
     def get_local_datetime(self):
-        service = LocationService(user=self.user)
-        return service.get_datetime_on(self.time)
+        service = DayService(user=self.user)
+        return service.get_datetime_at(self.time)
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

@@ -12,9 +12,6 @@ class DayService:
     class NoUser(ImproperlyConfigured):
         pass
 
-    class InvalidDateTime(RuntimeError):
-        pass
-
     def __init__(self, user=None, username=None):
         if username:
             try:
@@ -25,12 +22,9 @@ class DayService:
             raise self.NoUser("No user")
         self.__user = user
 
-    def check_valid_datetime(self, datetime):
-        if datetime < self.__user.date_joined:
-            raise self.InvalidDateTime('Before user joined')
-
     def get_day(self, datetime):
-        self.check_valid_datetime(datetime)
+        if type(datetime) is date:
+            return self.get_day_for_date(datetime)
         day = Day.objects.filter(
             user = self.__user,
             start__lte = datetime,
@@ -40,15 +34,33 @@ class DayService:
             return day
         return self.create_day_for(datetime)
 
+    def get_day_for_date(self, date):
+        try:
+            return Day.objects.get(
+                user = self.__user,
+                date = date
+            )
+        except Day.DoesNotExist:
+            return self.create_day_for(date)
+
+
     def create_day_for(self, datetime):
-        self.check_valid_datetime(datetime)
-        previous_day = Day.objects.filter(
-            user = self.__user,
-            end__lte = datetime
-        ).last()
+        if type(datetime) is date:
+            previous_day = Day.objects.filter(
+                user = self.__user,
+                date__lt = datetime
+            ).last()
+        else:
+            previous_day = Day.objects.filter(
+                user = self.__user,
+                end__lte = datetime
+            ).last()
         if previous_day:
-            tz = previous_day.get_timezone()
-            dt = datetime.astimezone(tz)
+            if type(datetime) is date:
+                dt = datetime
+            else:
+                tz = previous_day.get_timezone()
+                dt = datetime.astimezone(tz)
             day = Day.objects.create(
                 user = self.__user,
                 date = date(dt.year, dt.month, dt.day),
@@ -59,7 +71,6 @@ class DayService:
             return self.create_default_day_for(datetime)
 
     def create_default_day_for(self, datetime):
-        self.check_valid_datetime(datetime)
         return Day.objects.create(
             user = self.__user,
             date = date(datetime.year, datetime.month, datetime.day),
