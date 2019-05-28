@@ -182,8 +182,6 @@ spec:
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
-          - name: DEBUG
-            value: "True"
         ports:
         - containerPort: 8080
         livenessProbe:

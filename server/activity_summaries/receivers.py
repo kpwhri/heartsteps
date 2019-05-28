@@ -3,7 +3,7 @@ from datetime import date
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 
-from locations.services import LocationService
+from days.services import DayService
 from fitbit_api.services import FitbitService
 from fitbit_activities.models import FitbitDay
 
@@ -12,8 +12,8 @@ from .models import ActivityLog, Day
 def activity_log_updates_day(sender, instance, *args, **kwargs):
     activity_log = instance
     
-    location_service = LocationService(user = activity_log.user)
-    local_timezone = location_service.get_timezone_on(activity_log.start)
+    day_service = DayService(user = activity_log.user)
+    local_timezone = day_service.get_timezone_at(activity_log.start)
     local_time = activity_log.start.astimezone(local_timezone)
 
     try:

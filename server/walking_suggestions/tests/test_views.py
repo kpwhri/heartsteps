@@ -5,8 +5,6 @@ from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
-from locations.services import LocationService
-
 from walking_suggestions.models import WalkingSuggestionDecision, SuggestionTime, User
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.tasks import make_decision

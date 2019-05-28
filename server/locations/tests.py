@@ -13,7 +13,6 @@ from rest_framework.test import APITestCase
 
 from locations.models import Place, Location
 from locations.services import LocationService
-from locations.signals import timezone_updated
 
 def make_space_needle_location():
     return Place(
@@ -250,49 +249,3 @@ class LocationServiceTests(TestCase):
             lat = float(20),
             lng = float(40)
         )
-
-    @patch.object(timezone_updated, 'send')
-    def test_timezone_change_no_locations(self, timezone_updated):
-        Location.objects.all().delete()
-        service = LocationService(self.user)
-
-        service.check_timezone_change()
-
-        timezone_updated.assert_not_called()
-
-    @patch.object(timezone_updated, 'send')
-    def test_timezone_change_first_location(self, timezone_updated):
-        Location.objects.all().delete()
-        service = LocationService(self.user)
-
-        service.update_location({
-            'latitude': 10,
-            'longitude': 10,
-            'source': 'client'
-        })
-
-        timezone_updated.assert_called()
-
-    @patch.object(timezone_updated, 'send')
-    def test_timezone_change(self, timezone_updated):
-        service = LocationService(self.user)
-
-        service.update_location({
-            'latitude': 42,
-            'longitude': 120,
-            'source': 'client'
-        })
-
-        timezone_updated.assert_called()
-
-    @patch.object(timezone_updated, 'send')
-    def test_timezone_not_changed(self, timezone_updated):
-        service = LocationService(self.user)
-
-        service.update_location({
-            'latitude': 20,
-            'longitude': 20,
-            'source': 'client'
-        })
-
-        timezone_updated.assert_not_called()

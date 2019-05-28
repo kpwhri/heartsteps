@@ -3,7 +3,7 @@ from datetime import datetime, date
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
-from locations.services import LocationService
+from days.services import DayService
 from push_messages.services import PushMessageService
 from randomization.services import DecisionMessageService
 
@@ -74,8 +74,8 @@ class MorningMessageService:
         return morning_message_decision 
 
     def get_message_decision_time(self, date):
-        location_service = LocationService(user=self.__user)
-        timezone = location_service.get_timezone_on(date)
+        service = DayService(user=self.__user)
+        timezone = service.get_timezone_at(date)
         return timezone.localize(datetime(date.year, date.month, date.day, 6, 0))
 
     
@@ -86,7 +86,7 @@ class MorningMessageService:
 
     def send_notification(self, day=False, test=False):
         if not day:
-            location_service = LocationService(user=self.__user)
+            service = DayService(user=self.__user)
             day = location_service.get_current_date()
         morning_message, _ = self.get_or_create(day)
 

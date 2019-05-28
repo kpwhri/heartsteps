@@ -5,7 +5,12 @@ from dateutil import parser as dateutil_parser
 
 from fitbit_api.services import FitbitClient, FitbitService, parse_fitbit_date, format_fitbit_date
 
-from fitbit_activities.models import FitbitDay, FitbitActivity, FitbitActivityType, FitbitMinuteStepCount, FitbitDailyUnprocessedData
+from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitActivity
+from fitbit_activities.models import FitbitActivityType
+from fitbit_activities.models import FitbitMinuteHeartRate
+from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitDailyUnprocessedData
 
 class FitbitDayService(FitbitService):
 
@@ -83,7 +88,24 @@ class FitbitDayService(FitbitService):
                 'timezone': timezone.zone
             }
         )
-        return data
+        heart_rate_intervals = []
+        for interval in self._process_minute_data(data):
+            if interval['value'] > 0:
+                heart_rate = FitbitMinuteHeartRate(
+                    account = self.account,
+                    time = interval['datetime'],
+                    heart_rate = interval['value']
+                )
+                heart_rate_intervals.append(heart_rate)
+
+        FitbitMinuteHeartRate.objects.filter(
+            account = self.account,
+            time__range = [self.day.get_start_datetime(), self.day.get_end_datetime()]
+        ).delete()
+
+        FitbitMinuteHeartRate.objects.bulk_create(heart_rate_intervals)
+        
+
 
     def _get_intraday_time_series(self, activity_type):
         timezone = self.day.get_timezone()
@@ -97,7 +119,11 @@ class FitbitDayService(FitbitService):
                 'timezone': timezone.zone
             }
         )
+        return self._process_minute_data(data)
 
+    def _process_minute_data(self, data):
+        timezone = self.day.get_timezone()
+        
         processed_data = []
         for interval in data:
             interval_datetime = datetime.strptime(

@@ -7,10 +7,13 @@ from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
+from anti_sedentary.models import AntiSedentaryDecision
 from fitbit_api.models import FitbitAccountUser
-from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.services import FitbitService
+from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitMinuteHeartRate
 from locations.models import Place
-from locations.services import LocationService
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
@@ -202,6 +205,9 @@ class WalkingSuggestionService():
     class NotInitialized(ImproperlyConfigured):
         pass
 
+    class UnableToInitialize(ImproperlyConfigured):
+        pass
+
     class RequestError(RuntimeError):
         pass
 
@@ -250,15 +256,39 @@ class WalkingSuggestionService():
         except:
             return response.text
 
+    def get_fitbit_days_before_date(self, date):
+        fitbit_service = FitbitService(user = self.__user)
+        return FitbitDay.objects.filter(
+            account = fitbit_service.account,
+            date__range = [
+                self.__user.date_joined,
+                date
+            ]
+        ).order_by('-date').all()
+
+    def get_initialization_days(self, date):
+        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
+            raise ImproperlyConfigured('No initialization days specified')
+        initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
+
+        fitbit_days_worn = []
+        for fitbit_day in self.get_fitbit_days_before_date(date):
+            if fitbit_day.wore_fitbit and len(fitbit_days_worn) < initialization_days:
+                fitbit_days_worn.append(fitbit_day.date)
+        if len(fitbit_days_worn) < initialization_days:
+            raise WalkingSuggestionService.UnableToInitialize('Unable to initialize participant')
+        first_day_worn = fitbit_days_worn[-1]
+        dates = [first_day_worn + timedelta(days=offset) for offset in range((date-first_day_worn).days)]
+        dates.append(date)
+        return dates
+
     def initialize(self, date=None):
         if not date:
             date = datetime_date.today()
-        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
-            raise ImproperlyConfigured('No initialization days specified')
-        else:
-            initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
-        dates = [date - timedelta(days=offset) for offset in range(initialization_days)]
+        dates = self.get_initialization_days(date)
         data = {
+            'date': date.strftime('%Y-%m-%d'),
+            'pooling': self.__configuration.pooling,
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
             'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]
@@ -284,8 +314,8 @@ class WalkingSuggestionService():
         ).first()
         if postdinner_decision:
             last_activity = self.decision_was_received(postdinner_decision)
-            prior_anti = self.was_notified_between(
-                postdinner_decision.time + timedelta(minutes=1),
+            prior_anti = self.anti_sedentary_treated_between(
+                postdinner_decision.time,
                 self.__configuration.get_end_of_day(date)
             )
         else:
@@ -302,7 +332,7 @@ class WalkingSuggestionService():
             'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date),
             'availabilityArray': self.get_availabilities(date),
-            'priorAntiArray': self.get_previous_messages(date),
+            'priorAntiArray': self.get_previous_anti_sedentary_treatments(date),
             'lastActivityArray': self.get_received_messages(date),
             'locationArray': self.get_locations(date)
         }
@@ -319,7 +349,7 @@ class WalkingSuggestionService():
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
                 'availability': decision.available,
-                'priorAnti': self.notified_since_previous_decision(decision),
+                'priorAnti': self.anti_sedentary_treated_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
                 'location': self.get_location_type(decision)
             }
@@ -345,16 +375,18 @@ class WalkingSuggestionService():
             )
         except FitbitDay.DoesNotExist:
             return None
-        return day.step_count
+        if day.wore_fitbit:
+            return day.step_count
+        return None
 
-    def get_previous_messages(self, date):
+    def get_previous_anti_sedentary_treatments(self, date):
         decisions = self.get_decisions_for(date)
-        previous_messages = []
+        previous_treatments = []
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            has_previous_message = self.notified_since_previous_decision(decision)
-            previous_messages.append(has_previous_message)
-        return previous_messages
+            previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
+            previous_treatments.append(previous_treatment)
+        return previous_treatment
 
     def get_received_messages(self, date):
         decisions = self.get_decisions_for(date)
@@ -470,10 +502,10 @@ class WalkingSuggestionService():
         decision = WalkingSuggestionDecision.objects.create(
             user = self.__user,
             time = time,
-            a_it = False,
-            pi_it = 0
+            treated = False,
+            treatment_probability = 0,
+            imputed = True
         )
-        decision.add_context('imputed')
         decision.add_context(time_category)
 
         decision_service = WalkingSuggestionDecisionService(decision)
@@ -496,7 +528,15 @@ class WalkingSuggestionService():
         total_steps = 0
         for step_count in step_counts:
             total_steps += step_count.steps
-        return total_steps
+        if total_steps > 0:
+            return total_steps
+        heart_rate_count = FitbitMinuteHeartRate.objects.filter(
+            account = account_user.account,
+            time__range = [start_time, end_time]
+        ).count()
+        if heart_rate_count > 0:
+            return 0
+        return None
 
     def get_study_day(self, time):
         day = datetime_date(time.year, time.month, time.day)
@@ -542,26 +582,25 @@ class WalkingSuggestionService():
             ]
         ).first()
 
-    def notified_since_previous_decision(self, decision):
+    def anti_sedentary_treated_since_previous_decision(self, decision):
         previous_decision = self.get_previous_decision(decision)
         if previous_decision:
-            return self.was_notified_between(
-                previous_decision.time + timedelta(minutes=1),
-                decision.time - timedelta(minutes=1)
-            )
+            start_time = previous_decision.time
         else:
-            return self.was_notified_between(
-                self.__configuration.get_start_of_day(decision.time),
-                decision.time - timedelta(minutes=1)
-            )
+            start_time = self.__configuration.get_start_of_day(decision.time)
+        return self.anti_sedentary_treated_between(
+            start_time,
+            decision.time
+        )
 
-    def was_notified_between(self, start, end):
-        messages_sent = MessageReceipt.objects.filter(
-            type = MessageReceipt.SENT,
-            message__message_type = Message.NOTIFICATION,
+    def anti_sedentary_treated_between(self, start, end):
+        treated_anti_sedentary_decisions = AntiSedentaryDecision.objects.filter(
+            user = self.__user,
+            treated = True,
             time__range = [start, end]
-        ).count()
-        if messages_sent > 0:
-            return True
-        else:
-            return False
+        ).all()
+        for decision in treated_anti_sedentary_decisions:
+            notification = decision.notification
+            if notification and notification.received:
+                return True
+        return False

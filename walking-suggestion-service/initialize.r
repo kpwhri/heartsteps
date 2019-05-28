@@ -3,7 +3,7 @@ server = T
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   09.11, 2018
+#' date:   2019-05
 #' ---
 #'  
 
@@ -28,35 +28,90 @@ if(server){
   
   input <- fromJSON(file = "./test/start.json")
   
+  
+}
+
+# ===== create the folder for the user and save the datasets ====== ####
+
+if("userID" %in% names(input)){
+  
+  if(dir.exists("./data") == FALSE){
+  
+  dir.create("./data")
+  
+  }
+  
+
+  paths <- paste("./data/", "user", input$userID, sep="")
+  dir.create(paths, showWarnings = FALSE)
+  dir.create(paste0(paths, "/request history"), showWarnings = FALSE)
+
+  request <- toJSON(input)
+  write(request, file= paste(paths, "/request history/init.json",sep="")) # save the request
+
+
+}else{
+  
+  stop("User ID is missing")
+  
 }
 
 
 
 
 
+  
+tryCatch({
+  
+# ========  Format of Input Checking ========= ####
+ 
+# processing input: convert NULL to NA and tranform into vector/matrix
+for(k in 1:length(input)){
+    
+    if(grepl("Array", names(input)[k])){
+      
+      input[[k]] <- proc.array(input[[k]])
+    }
+    
+    if(grepl("Matrix", names(input)[k])){
+      
+      # check if the length matches
+      temp <- input[[k]]
+      stopifnot(all(diff(unlist(lapply(temp, function(l) length(l[[1]])))) == 0))
+      input[[k]] <- proc.matrix(input[[k]])
+      
+    }
+    
+}
+
 # check if we have all the information 
-stopifnot(all(c("userID", "totalStepsArray", "preStepsMatrix", "postStepsMatrix") %in% names(input)))
+stopifnot(all(c("userID", "date", "DelieverMatrix", "PriorAntiMatrix", 
+                "totalStepsArray", "preStepsMatrix", "postStepsMatrix") %in% names(input)))
 
-# convert NULL to NA and tranform into vector/matrix
-names.array <- c("totalStepsArray")
-names.matrix <- c("preStepsMatrix", "postStepsMatrix")
-for(name in names.array) input[[name]] <- proc.array(input[[name]])
-for(name in names.matrix) input[[name]] <- proc.matrix(input[[name]])
+# check if we have identical days' data for step count data
+len.all.step <- c(sapply(c("totalStepsArray"), function(x) length(input[[x]])), 
+             sapply(c("preStepsMatrix", "postStepsMatrix"), function(x) nrow(input[[x]])))
+stopifnot(all(diff(len.all.step) == 0))
 
+# check if we have identical days' data for anti-and walking message
+len.all.msg <- sapply(c("DelieverMatrix", "PriorAntiMatrix"), function(x) nrow(input[[x]]))
+stopifnot(all(diff(len.all.msg) == 0))
 
+# expect 7 days of using and installing the app
+ndays <- as.numeric(len.all.step[1])
+gap.days <- as.numeric(len.all.msg[1])
+stopifnot(ndays - 7 + 1 == gap.days)
 
-# check if we have identical days' data for each variables
-len.all <- c(sapply(names.array, function(x) length(input[[x]])), 
-             sapply(names.matrix, function(x) nrow(input[[x]])))
-stopifnot(all(diff(len.all) == 0))
-
-# number of days before the study (assuing 7 days)
-ndays <- as.numeric(len.all[1])
-stopifnot(ndays == 7)
-
-# check if we have all five decision times for the matrics
-ncol.all <- sapply(names.matrix, function(x) ncol(input[[x]]))
+# check if we have all five decision times for the step matrices and walking
+ncol.all <- sapply(c("preStepsMatrix", "postStepsMatrix", "DelieverMatrix"), function(x) ncol(input[[x]]))
 stopifnot(ncol.all == 5)
+
+# check if we have 6 records for the priorAnti matrix
+ncol.all.anti <- ncol(input$PriorAntiMatrix)
+stopifnot(ncol.all.anti == 6)
+
+
+# ========  Data Quality Checking =========####
 
 # need to ensure we have, for each dt, any pre/post steps data)
 stopifnot(all(apply(input$preStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
@@ -64,6 +119,8 @@ stopifnot(all(apply(input$postStepsMatrix, 2, function(x) sum(is.na(x))) < ndays
 
 # need to ensure we have at least one obvervation for the total steps (so that we can impute)
 stopifnot(all(is.na(input$totalStepsArray)) == FALSE)
+
+
 
 # ===  Initialize a Dataset for imputation and discretization === ####
 
@@ -83,7 +140,7 @@ if(all(is.na(input$totalStepsArray))==FALSE){
 }
 
 # pre steps last 7 days per decision time (update daily)
-data.imputation$presteps <- NULL
+data.imputation$presteps <- list()
 for(i in 1:5){
   
   temp <- input$preStepsMatrix[, i] 
@@ -102,7 +159,7 @@ for(i in 1:5){
 }
 
 # post steps for last 7 days per decision time (update daily)
-data.imputation$poststeps <- NULL
+data.imputation$poststeps <- list()
 for(i in 1:5){
   
   temp <-input$postStepsMatrix[, i]
@@ -171,6 +228,7 @@ for(k in 1:5){
   
   prestep.mat <- cbind(prestep.mat, warmup.imput(input$preStepsMatrix[, k]))
   poststep.mat <- cbind(poststep.mat, warmup.imput(input$postStepsMatrix[, k]))
+  
 }
 data.history$prepoststeps <- c(t(prestep.mat + poststep.mat))
 data.history$logpresteps <- log(0.5 + c(t(prestep.mat)))
@@ -189,9 +247,33 @@ data.day <- list()
 data.day$study.day <- 1
 
 # dosage related
-data.day$yesterdayLast.dosage <-  0 # dosage at the fifth decision yesterday prior to treatment
-data.day$fifthToEnd.anti <- FALSE # indicator of whether there is anti-sed msg sent between 5th to the end of yesterday
-data.day$fifth.act <- FALSE # indicator of whether there is activity msg sent at fifth decision time yesterday
+last.dsg <- 0
+for(k in 1:gap.days){
+  
+  if(k == 1){
+    
+    last.dsg <- compute.dosage.day(last.dsg, 
+                                   yes.fifthToEnd.anti = F, 
+                                   yes.last.walk = F, 
+                                   anti = input$PriorAntiMatrix[k, 1:5], 
+                                   walk = input$DelieverMatrix[k, 1:4])  
+    
+  }else{
+    
+    
+    last.dsg <- compute.dosage.day(last.dsg, 
+                                   yes.fifthToEnd.anti = input$PriorAntiMatrix[k-1, 6], 
+                                   yes.last.walk = input$DelieverMatrix[k-1, 5], 
+                                   anti = input$PriorAntiMatrix[k, 1:5], 
+                                   walk = input$DelieverMatrix[k, 1:4])  
+    
+  }
+  
+  
+}
+data.day$yesterdayLast.dosage <-  last.dsg # dosage at the fifth decision yesterday prior to treatment
+data.day$fifthToEnd.anti <- isTRUE(input$PriorAntiMatrix[gap.days, 6]) # indicator of whether there is anti-sed msg sent between 5th to the end of yesterday
+data.day$fifth.act <- isTRUE(input$DelieverMatrix[gap.days, 5]) # indicator of whether there is activity msg sent at fifth decision time yesterday
 
 # sqrt steps (imputed if last day is missing)
 data.day$sqrtsteps <- sqrt(input$totalStepsArray[ndays]) # not in action selection
@@ -220,7 +302,17 @@ for(k in 1:5){
   
   Y1 = sd(subset(data.history, decision.time == k)$prepoststeps)
   Y0 = sd(subset(data.history, decision.time == k & day < -1)$prepoststeps) # exclude the last day
-  data.day$variation[k] <- (Y1 >= Y0)
+  
+  if(is.na(Y1 >= Y0)){
+    
+    # no step count available for this decision time
+    data.day$variation[k] <- FALSE
+    
+  }else{
+   
+    data.day$variation[k]<- (Y1 >= Y0) 
+  }
+   
   
 }
 
@@ -228,25 +320,33 @@ for(k in 1:5){
 # keep the names to ensure the format is same
 data.day$var.names <- var.names
 
-
-
-# ====== log file for saving the error ===== # 
-
-error.log <- NULL
-
-# ===== create the folder for the user and save the datasets ====== ####
-
-if(dir.exists("./data") == FALSE){
+######## dataset for calculating dosage
+data.dosage <- list()
+data.dosage$init <- data.day$yesterdayLast.dosage
+data.dosage$dataset <- data.frame(day = 1, timeslot = 1, 
+                                  walk = isTRUE(input$DelieverMatrix[gap.days, 5]), 
+                                  anti1 = isTRUE(input$PriorAntiMatrix[gap.days, 6]), anti2 = NA)
   
-  dir.create("./data")
 
-}
+###### dataset to save all decision
 
-paths <- paste("./data/", "user", input$userID, sep="")
-dir.create(paths, showWarnings = FALSE)
+data.decision <- list()
 
+
+# save
+save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
 save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
 save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
 save(data.history, file = paste(paths, "/history.Rdata", sep=""))
 save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
-save(error.log, file = paste(paths, "/error.Rdata", sep=""))
+save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
+
+# log file 
+cat(paste("Initialization:", "Success"), file =  paste(paths, "/log", sep=""))
+    
+}, 
+error = function(e) {
+  cat(paste("Initialization:", e), file =  paste(paths, "/log", sep=""))
+  stop("Error in the initialization occurs. Check the input")
+  })
+

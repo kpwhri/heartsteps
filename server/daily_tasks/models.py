@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
-from locations.services import LocationService
+from days.services import DayService
 
 DAYS_OF_WEEK = [
     'monday',
@@ -61,11 +61,8 @@ class DailyTask(models.Model):
 
     @property
     def timezone(self):
-        try:
-            location_service = LocationService(self.user)
-            return location_service.get_current_timezone()
-        except LocationService.UnknownLocation:
-            return pytz.UTC
+        service = DayService(user=self.user)
+        return service.get_current_timezone()
 
     def create_daily_task(user, category, task, name, arguments, hour, minute, day=None):
         daily_task = DailyTask.objects.create(
@@ -132,7 +129,6 @@ class DailyTask(models.Model):
     def get_next_run_time(self):
         if not self.enabled:
             return None
-        location_service = LocationService(self.user)
         now = timezone.now().astimezone(self.timezone)
         next_run = datetime(now.year, now.month, now.day, self.hour, self.minute, tzinfo=now.tzinfo)
 

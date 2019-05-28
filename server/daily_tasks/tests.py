@@ -5,15 +5,15 @@ from django.test import TestCase, override_settings
 
 from django_celery_beat.models import PeriodicTask, PeriodicTasks
 
-from locations.services import LocationService
-from locations.signals import timezone_updated
+from days.services import DayService
+from days.signals import timezone_updated
 
 from .models import User, DailyTask
 
 class DailyTaskUpdateTest(TestCase):
 
     def setUp(self):
-        timezone_patch = patch.object(LocationService, 'get_current_timezone')
+        timezone_patch = patch.object(DayService, 'get_current_timezone')
         self.addCleanup(timezone_patch.stop)
         self.timezone = timezone_patch.start()
         self.timezone.return_value = pytz.timezone('Etc/GMT+7')

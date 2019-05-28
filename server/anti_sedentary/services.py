@@ -4,9 +4,9 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+from days.services import DayService
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_api.services import FitbitService
-from locations.services import LocationService
 from randomization.services import DecisionMessageService, DecisionContextService
 from watch_app.models import StepCount
 
@@ -120,8 +120,8 @@ class AntiSedentaryService:
             return decision.decide()
 
     def localize_time(self, time):
-        location_service = LocationService(self.__user)
-        local_timezone = location_service.get_timezone_on(time)
+        service = DayService(self.__user)
+        local_timezone = service.get_timezone_at(time)
         return time.astimezone(local_timezone)
 
     def get_day_end(self, time):
@@ -259,8 +259,8 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
             return False
 
     def get_time_of_day_context(self):
-        location_service = LocationService(self.decision.user)
-        local_timezone = location_service.get_timezone_on(self.decision.time)
+        service = DayService(user = self.decision.user)
+        local_timezone = service.get_timezone_at(self.decision.time)
         local_time = self.decision.time.astimezone(local_timezone)
 
         start_of_day = local_time.replace(hour=8, minute=0)

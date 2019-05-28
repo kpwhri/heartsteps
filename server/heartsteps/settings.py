@@ -40,6 +40,8 @@ FITBIT_CONSUMER_SECRET = env.str('FITBIT_CONSUMER_SECRET', default='CONSUMER_SEC
 FITBIT_SUBSCRIBER_ID = env.str('FITBIT_SUBSCRIBER_ID', default='SUBSCRIBER_ID')
 FITBIT_SUBSCRIBER_VERIFICATION_CODE = env.str('FITBIT_SUBSCRIBER_VERIFICATION_CODE', default='VERIFICATION_CODE')
 
+FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT = env.int('FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT', default=150)
+
 #ONESIGNAL Settings
 if 'ONESIGNAL_API_KEY' in os.environ:
     ONESIGNAL_API_KEY = env.str('ONESIGNAL_API_KEY')
@@ -81,6 +83,7 @@ INSTALLED_APPS = [
     'morning_messages',
     'weekly_reflection',
     'weeks',
+    'days',
     'locations',
     'weather',
     'randomization',

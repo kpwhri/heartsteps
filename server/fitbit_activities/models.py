@@ -1,8 +1,10 @@
 import uuid, pytz, math
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ImproperlyConfigured
 
 from fitbit_api.models import FitbitAccount
 
@@ -63,10 +65,19 @@ class FitbitDay(models.Model):
     @property
     def distance(self):
         return float(self._distance)
-    
+
     @distance.setter
     def distance(self, value):
         self._distance = value
+
+    @property
+    def wore_fitbit(self):
+        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT'):
+            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT')
+        if self.step_count >= settings.FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT:
+            return True
+        else:
+            return False
 
     def get_timezone(self):
         return pytz.timezone(self._timezone)
@@ -100,6 +111,11 @@ class FitbitMinuteStepCount(models.Model):
     account = models.ForeignKey(FitbitAccount)
     time = models.DateTimeField()
     steps = models.IntegerField()
+
+class FitbitMinuteHeartRate(models.Model):
+    account = models.ForeignKey(FitbitAccount)
+    time = models.DateTimeField()
+    heart_rate = models.IntegerField()
 
 class FitbitDailyUnprocessedData(models.Model):
     account = models.ForeignKey(FitbitAccount)

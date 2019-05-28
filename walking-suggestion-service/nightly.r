@@ -25,35 +25,58 @@ if(server){
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  input <- fromJSON(file = "./test/update_2.json")
+  input <- fromJSON(file = "./test/update_1.json")
   
 }
 
+# save the input
+
 
 # ================ Asscess the day's data ================ 
-paths <- paste("./data/", "user", input$userID, sep="")
-load(paste(paths, "/imputation.Rdata", sep=""))
-load(paste(paths, "/daily.Rdata", sep="")) 
-load(paste(paths, "/history.Rdata", sep="")) 
-load(paste(paths, "/policy.Rdata", sep="")) 
+
+tryCatch(expr = {
+
+  stopifnot("userID" %in% names(input))  
+  paths <- paste("./data/", "user", input$userID, sep="")
+
+  request <- toJSON(input)
+  write(request, file = paste(paths, "/request history/", "nightly_", input$studyDay, ".json",sep="")) # save the request
+
+  load(paste(paths, "/imputation.Rdata", sep=""))
+  load(paste(paths, "/daily.Rdata", sep="")) 
+  load(paste(paths, "/history.Rdata", sep="")) 
+  load(paste(paths, "/policy.Rdata", sep="")) 
+  load(paste(paths, "/dosage.Rdata", sep="")) 
+  load(paste(paths, "/decision.Rdata", sep="")) 
+
+  }, error = function(err) {
+  
+  cat(paste("Nightly:", err), file =  paste(paths, "/log", sep=""))
+  
+    stop("Initiliazation has not done for the user")
+  
+})
+
+
 
 # ================= Condition checking ===================
 
-condition1 = function(){
+check  = tryCatch(expr = {
   
-  # check if we have all the information 
-  stopifnot(all(c("userID", "studyDay", "priorAnti", "lastActivity",
+
+
+  stopifnot(all(c("userID", "studyDay", "lastActivity",
                   "temperatureArray", "appClick", "totalSteps", 
                   "preStepsArray", "postStepsArray", 
                   "availabilityArray",
                   "priorAntiArray",
                   "lastActivityArray",
-                  "locationArray") %in% names(input)))
+                  "locationArray") %in% names(input)));
   
-  
-  # check if the length is 5 
+  # check the size 
   stopifnot(all(lapply(input[c("temperatureArray", "preStepsArray", "postStepsArray", 
-                               "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray")], length)==5))
+                               "availabilityArray", "lastActivityArray", "locationArray")], length)==5))
+  stopifnot(length(input["priorAntiArray"]$priorAntiArray) == 6);
   
   # temperature should be imputed by HS server
   stopifnot(all(is.na(proc.array(input$temperatureArray)) == FALSE))
@@ -61,11 +84,43 @@ condition1 = function(){
   # priorAnti, lastActivity, availability can only be true or false
   stopifnot(is.logical(input$priorAnti), is.logical(input$lastActivity), is.logical(input$availabilityArray), is.logical(input$lastActivityArray), is.logical(input$priorAntiArray))
   
-  # nightly service needs to be called every day (dosage, bla bla bla)
-  stopifnot(data.day$study.day == input$studyDay)
-}
+  
+}, error = function(err){
+  
+  cat(paste("\nNightly:", "Day =", input$studyDay, 
+            "update rejected", "Error:", err$message), file =  paste(paths, "/log", sep=""), append = TRUE)
+  cat("The inputs to the nightly update has error")
+  
+  return(F)
+})
 
-if(is.null(try(condition1(), silent = T))){
+## impute dosage dataset using today's input
+if(is.null(check)){
+  
+  
+  tmp.data <- data.dosage$dataset
+  
+  # check if 1st decision time skipped
+  if(is.na(tmp.data$anti2[tmp.data$day == input$studyDay & tmp.data$timeslot == 1])){
+    
+    tmp.data$anti2[tmp.data$day == input$studyDay & tmp.data$timeslot == 1] <- input$priorAntiArray[1]
+  }
+  
+  # check if today's 2-5thdecision time being skipped
+  if(all((2:5 %in% tmp.data$timeslot[tmp.data$day == input$studyDay])) == F){
+    
+     temp <- data.frame(day = rep(input$studyDay, 4), 
+                     timeslot = 2:5, 
+                     walk = input$lastActivityArray[2:5],
+                     anti1 = input$priorAntiArray[2:5],
+                     anti2 = rep(0, 4))
+     
+    index <- which(2:5 %in% tmp.data$timeslot[tmp.data$day == input$studyDay] == F)
+    
+     data.dosage$dataset <- rbind(data.dosage$dataset, temp[index,])
+     data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
+  }
+  
   
   # =============== Process input ===============
   
@@ -80,24 +135,54 @@ if(is.null(try(condition1(), silent = T))){
   input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
   
   
-  # =============== Impute missed decision time and dosage ============= 
+  # =============== Create the day history ============= 
   
-  # Expect to have 5 rows, i.e. the decision services are called 5 times
-  skip.indicator <- ifelse(is.null(data.day$history), TRUE, nrow(data.day$history) < 5)
-  if(skip.indicator){
+  # imputed dosage dataset
+  temp <- data.dosage$dataset;
+  for(d in 1:input$studyDay){
     
-    miss.dt <- which((1:5 %in% data.day$history[, 2]) == F)
+    for(k in 1:5){
+      
+      if(k == 1){
+        
+        # previous n.u occurs, 1st decision time skipped and n.p does not occur ever
+        if(is.na(temp$anti2[temp$day == d & temp$timeslot == 1])){
+          
+          temp$anti2[temp$day == d & temp$timeslot == 1] <- 0 # need to change
+          
+        }
+        
+      }
+      if(nrow(subset(temp, day == d & timeslot == k)) == 0) {
+        
+        # if the n.p does not occur and decision time is not reached
+        
+        temp <- rbind(temp, c(d, k, 0,  0,  0)) # need to change
+      }
+    }
+
+  }
+  
+  temp <- temp[order(temp$day, temp$timeslot), ]
+  event <- (temp$walk + temp$anti1 + temp$anti2 > 1);
+  
+  # calculate the dosage
+  tmp.dat <- data.frame(day = -1, timeslot = 5, dosage = data.dosage$init)
+  x <- data.dosage$init; 
+  for(j in 1:length(event)) {
     
-    # write the error file
-    load(paste(paths, "/error.Rdata", sep="")) 
-    err.file <- paste("Decision times skipped during the day: ", paste(miss.dt, collapse = ", " ))
-    error.log <- rbind(error.log, c(input$studyDay, "Nightly Update", err.file))
-    save(error.log, file = paste(paths, "/error.Rdata", sep="")) 
+    x <- update.dosage(x, increase = event[j])
+    tmp.dat <- rbind(tmp.dat, c(temp$day[j], temp$timeslot[j], x))
+  }
+  
+  
     
-    
-    
-    # fill in the missing decision time and re-order 
-    for(kk in miss.dt){
+  
+        
+  
+    # day history (need to change variantion or app later)
+    day.history <- NULL
+    for(kk in 1:5){
       
       # other interactions 
       current.dosage <- NA
@@ -120,13 +205,27 @@ if(is.null(try(condition1(), silent = T))){
                              work.loc, 
                              other.loc, 
                              variation.indc)
-      prob <- 0
-      action <- 0
-      random.num <- NA
+      
+      if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 0){
+        
+        # decision does not occur
+        prob <- 0
+        action <- 0
+        random.num <- NA
+        
+      }else{
+        
+        prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)
+        action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)
+        random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)
+        
+        
+      }
+      
       
       # add the current decision time
       # Same Format as in the initialization
-      data.day$history <- rbind(data.day$history, 
+      day.history <- rbind(day.history,
                                 c(input$studyDay, 
                                   kk, 
                                   input$availabilityArray[kk], 
@@ -143,50 +242,15 @@ if(is.null(try(condition1(), silent = T))){
                                   random.num)) 
       
     }
-    data.day$history <- data.day$history[order(data.day$history[, 2]),]
+    day.history <- data.frame(day.history[order(day.history[, 2]),])
+    colnames(day.history) <- data.day$var.names
     
     # dosage redefined
-    dosage.recal <- c()
-    for(kk in 1:5){
-      
-      
-      # obtain the last dosage and decide if to increase
-      if(kk == 1){
-        
-        # retrive the dosage at the fifth time yesterday
-        last.dosage <- data.day$yesterdayLast.dosage
-        
-        # whether recieve any msg between the fifth decision time to the first decision time 
-        # that is, any activitity sent at the yesterday's fifth and any anti sent between fifth to first. 
-        # we infer the second one by two inputs
-        receive.indc <- any(input$priorAntiArray[1], data.day$fifthToEnd.anti, data.day$fifth.act)
-        
-        
-      }else{
-        
-        # retrive the dosage at the last decision time
-        # dosage.index <- which(data.day$var.names == "dosage")
-        # last.time <- input$decisionTime - 1
-        # last.dosage <- data.day$history[last.time, dosage.index]  
-        
-        last.dosage <- dosage.recal[kk-1]
-        # whether recieve any msg between last and current decision time
-        receive.indc <- any(input$priorAntiArray[kk], input$lastActivityArray[kk])
-        
-      }
-      
-      # update the dosage
-      dosage.recal <- c(dosage.recal, update.dosage(last.dosage, receive.indc))
-      
-      
-    }
-    
     dosage.index <- which(data.day$var.names == "dosage")
-    data.day$history[, dosage.index] <- dosage.recal
+    day.history[, dosage.index] <- subset(tmp.dat, day == input$studyDay)$dosage
     
     
     
-  }
   
   
   
@@ -194,23 +258,20 @@ if(is.null(try(condition1(), silent = T))){
   # ================ update the history by adding the (imputed) daily dataset  ================ 
   
   # deliever indicator
-  data.day$deliever <- c()
+  deliever <- c()
   for(kk in 1:4){
     
-    data.day$deliever <- c(data.day$deliever, input$lastActivityArray[kk+1])
+    deliever <- c(deliever, input$lastActivityArray[kk+1])
+    
   }
-  data.day$deliever <- as.numeric(c(data.day$deliever, input$lastActivity))
+  deliever <- as.numeric(c(deliever, input$lastActivity))
   
   # filling in the states and rewards (require imputation and standardization)
-  day.history <- data.day$history
-  colnames(day.history) <- data.day$var.names
-  day.history <- data.frame(day.history)
   
   # deliever indiactor
-  day.history$deliever <- data.day$deliever
+  day.history$deliever <- deliever
   
   # today's app click (impute if missing)
-  
   if(is.na(input$appClick)){
     
     avg.click <- mean(data.imputation$appclicks)
@@ -316,6 +377,10 @@ if(is.null(try(condition1(), silent = T))){
   # remmove missing reward or NA location
   train.dat <- train.dat[complete.cases(train.dat), ]
   
+  
+  # save training data
+  #train.dat$user <- input$userID
+  #save(train.dat, file = paste(paths, "/train.Rdata", sep=""))
   
   # 2. Posterior for all parameters (Hierarchy, action-centered). 
   
@@ -440,14 +505,7 @@ if(is.null(try(condition1(), silent = T))){
   
   # ================ Initialize the daily dataset used for next day ================
   
-  # dosage related
-  dosage.index <- which(data.day$var.names == "dosage")
-  action.index <- which(data.day$var.names == "action")
-  
-  yesterdayLast.dosage <- data.day$history[5, dosage.index]  
-  fifth.act <- input$lastActivity
-  fifthToEnd.anti <- input$priorAnti 
-  
+
   # engagement
   today.click <- day.history$appclick[1];
   daily.click <- subset(data.history, day > 0 & decision.time == 1)$appclick;
@@ -485,9 +543,7 @@ if(is.null(try(condition1(), silent = T))){
   data.day$engagement <- engagement.indc # engage indic used next day
   data.day$variation <- variation.indc # variation measures for each decision next day
   data.day$sqrtsteps <- sqrt.steps # sqrt of steps used next day
-  data.day$yesterdayLast.dosage <-  yesterdayLast.dosage # dosage at the fifth decision yesterday prior to treatment
-  data.day$fifthToEnd.anti <- fifthToEnd.anti # indicator of whether there is anti-sed msg sent between 5th to the end of yesterday
-  data.day$fifth.act <- fifth.act # indicator of whether there is activity msg sent at fifth decision time yesterday
+  # data.day$yesterdayLast.dosage <-  yesterdayLast.dosage # dosage at the fifth decision yesterday prior to treatment
   data.day$var.names <- colnames(data.history)
   
   
@@ -515,22 +571,17 @@ if(is.null(try(condition1(), silent = T))){
   
   # ================ Save everything ================
   
+  save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
   save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
   save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
   save(data.history, file = paste(paths, "/history.Rdata", sep=""))
   save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
   
   
-  
-}else{
-  
-  # error log 
-  load(paste(paths, "/error.Rdata", sep="")) 
-  err.file <- "Previous nightly updates are skipped or something wrong with the input"
-  error.log <- rbind(error.log, c(input$studyDay, "Nightly Update", err.file))
-  save(error.log, file = paste(paths, "/error.Rdata", sep="")) 
-  
-  stop("Previous nightly updates are skipped or something wrong with the input")
+  cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
+
+
+
 
 

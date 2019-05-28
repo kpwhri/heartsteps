@@ -2,7 +2,7 @@ from datetime import timedelta, datetime, date
 
 from django.utils import timezone
 
-from locations.services import LocationService
+from days.services import DayService
 from push_messages.services import PushMessageService
 
 from .models import Week, User
@@ -19,8 +19,8 @@ class WeekService:
         self.__user = user
 
     def update_weeks(self):
-        location_service = LocationService(self.__user)
-        tz = location_service.get_current_timezone()
+        service = DayService(self.__user)
+        tz = service.get_current_timezone()
         now = timezone.now().astimezone(tz)
         start_date = self.__user.date_joined.astimezone(tz)
 
@@ -62,13 +62,13 @@ class WeekService:
             raise WeekService.WeekDoesNotExist()
 
     def get_current_week(self):
-        location_service = LocationService(self.__user)
-        now = location_service.get_current_datetime()
+        service = DayService(user=self.__user)
+        now = service.get_current_datetime()
         return self.get_week(date(now.year, now.month, now.day))
     
     def get_next_week(self):
-        location_service = LocationService(self.__user)
-        now = location_service.get_current_datetime()
+        service = DayService(user=self.__user)
+        now = service.get_current_datetime()
         next_week = now + timedelta(days=7)
         return self.get_or_create_week(date(next_week.year, next_week.month, next_week.day))
 

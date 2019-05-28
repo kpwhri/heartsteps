@@ -11,14 +11,20 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_api.services import FitbitClient
 from fitbit_api.signals import update_date as fitbit_update_date
 
-from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount, FitbitActivity
+from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteHeartRate
+from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitActivity
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.tasks import update_fitbit_data
 
 class TestBase(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="test")
+        self.user = User.objects.create(
+            username="test",
+            date_joined = datetime(2018,2,1).astimezone(pytz.UTC)
+        )
         self.account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
@@ -122,7 +128,65 @@ class FitbitStepUpdates(TestBase):
 
         self.assertEqual(step_count, 15)
         self.assertEqual(FitbitMinuteStepCount.objects.count(), 2)
-        
+
+
+class FitbitUpdatesHeartRate(TestBase):
+
+    @patch.object(Fitbit, 'make_request')
+    def test_process_heart_rate(self, make_request):
+        make_request.return_value = { 'activities-heart-intraday': { 'dataset': [
+            {
+                'time': '10:00:00',
+                'value': 77
+            },
+            {
+                'time': '10:01:00',
+                'value': 60
+            },
+            {
+                'time': '11:00:00',
+                'value': 100
+            }
+        ]}}
+        service = FitbitDayService(
+            account = self.account,
+            date = date.today()
+        )
+
+        service.update_heart_rate()
+
+        self.assertEqual(FitbitMinuteHeartRate.objects.count(), 3)
+
+    @patch.object(Fitbit, 'make_request')
+    def test_updates_single_account(self, make_request):
+        make_request.return_value = { 'activities-heart-intraday': { 'dataset': [
+            {
+                'time': '10:00:00',
+                'value': 77
+            }
+        ]}}
+        other_account = FitbitAccount.objects.create(fitbit_user="other_user")
+        FitbitMinuteHeartRate.objects.create(
+            account = other_account,
+            time = datetime.now().astimezone(pytz.UTC),
+            heart_rate = 20
+        )
+        FitbitMinuteHeartRate.objects.create(
+            account = self.account,
+            time = datetime.now().astimezone(pytz.UTC),
+            heart_rate = 88
+        )
+        service = FitbitDayService(
+            account = self.account,
+            date = date.today()
+        )
+
+        service.update_heart_rate()
+
+        self.assertEqual(FitbitMinuteHeartRate.objects.count(), 2)
+        # There should only be one of these
+        heart_rate = FitbitMinuteHeartRate.objects.get(account=self.account)
+        self.assertEqual(heart_rate.heart_rate, 77)
 
 class FitbitUpdatesDistance(TestBase):
 
