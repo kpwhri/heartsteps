@@ -302,7 +302,7 @@ class WalkingSuggestionService():
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
             'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates],
-            'PriorAntiMatrix': [{'priorAnti': self.get_previous_anti_sedentary_treatments(date)} for date in gap_dates],
+            'PriorAntiMatrix': [{'priorAnti': self.get_all_anti_sedentary_treatments(date)} for date in gap_dates],
             'DelieverMatrix': [{'walking': self.get_received_messages(date)} for date in gap_dates]
         }
         self.make_request('initialize',
@@ -315,31 +315,12 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
 
-        postdinner_decision = WalkingSuggestionDecision.objects.filter(
-            user = self.__user,
-            time__range = [
-                self.__configuration.get_start_of_day(date),
-                self.__configuration.get_end_of_day(date)
-            ]
-        ).filter(
-            tags__tag = SuggestionTime.POSTDINNER
-        ).first()
-        if postdinner_decision:
-            last_activity = self.decision_was_received(postdinner_decision)
-            prior_anti = self.anti_sedentary_treated_between(
-                postdinner_decision.time,
-                self.__configuration.get_end_of_day(date)
-            )
-        else:
-            prior_anti = False 
-            last_activity = False
-
         data = {
             'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
-            'priorAnti': prior_anti,
-            'lastActivity': last_activity,
+            'priorAnti': self.get_end_of_day_anti_sedentary_treatment(date),
+            'lastActivity': self.decision_category_was_received(date, SuggestionTime.POSTDINNER),
             'temperatureArray': self.get_temperatures(date),
             'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date),
@@ -399,6 +380,29 @@ class WalkingSuggestionService():
             previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
             previous_treatments.append(previous_treatment)
         return previous_treatments
+
+    def get_end_of_day_anti_sedentary_treatment(self, date):
+        postdinner_decision = WalkingSuggestionDecision.objects.filter(
+            user = self.__user,
+            time__range = [
+                self.__configuration.get_start_of_day(date),
+                self.__configuration.get_end_of_day(date)
+            ]
+        ).filter(
+            tags__tag = SuggestionTime.POSTDINNER
+        ).first()
+        if postdinner_decision:
+            return self.anti_sedentary_treated_between(
+                postdinner_decision.time,
+                self.__configuration.get_end_of_day(date)
+            )
+        else:
+            return False
+
+    def get_all_anti_sedentary_treatments(self, date):
+        treatments = self.get_previous_anti_sedentary_treatments(date)
+        treatments.append(self.get_end_of_day_anti_sedentary_treatment(date))
+        return treatments
 
     def get_received_messages(self, date):
         decisions = self.get_decisions_for(date)
@@ -569,6 +573,21 @@ class WalkingSuggestionService():
     def previous_decision_was_received(self, decision):
         previous_decision = self.get_previous_decision(decision)
         return self.decision_was_received(previous_decision)
+
+    def decision_category_was_received(self, date, category):
+        decision = WalkingSuggestionDecision.objects.filter(
+            user = self.__user,
+            time__range = [
+                self.__configuration.get_start_of_day(date),
+                self.__configuration.get_end_of_day(date)
+            ]
+        ).filter(
+            tags__tag = category
+        ).first()
+        if decision:
+            return self.decision_was_received(postdinner_decision)
+        else:
+            return False
 
     def decision_was_received(self, decision):
         if not decision:
