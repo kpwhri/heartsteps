@@ -282,16 +282,28 @@ class WalkingSuggestionService():
         dates.append(date)
         return dates
 
+    def get_gap_days(self, dates):
+        if not hasattr(settings, 'WALKING_SUGGESTION_INITIALIZATION_DAYS'):
+            raise ImproperlyConfigured('No initialization days specified')
+        initialization_days = settings.WALKING_SUGGESTION_INITIALIZATION_DAYS
+        
+        gap_dates_length = len(dates) - initialization_days + 1
+
+        return [dates[len(dates)-offset-1] for offset in range(gap_dates_length)]
+
     def initialize(self, date=None):
         if not date:
             date = datetime_date.today()
         dates = self.get_initialization_days(date)
+        gap_dates = self.get_gap_days(dates)
         data = {
             'date': date.strftime('%Y-%m-%d'),
             'pooling': self.__configuration.pooling,
             'totalStepsArray': [self.get_steps(date) for date in dates],
             'preStepsMatrix': [{'steps': self.get_pre_steps(date)} for date in dates],
-            'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates]
+            'postStepsMatrix': [{'steps': self.get_post_steps(date)} for date in dates],
+            'PriorAntiMatrix': [{'priorAnti': self.get_previous_anti_sedentary_treatments(date)} for date in gap_dates],
+            'DelieverMatrix': [{'walking': self.get_received_messages(date)} for date in gap_dates]
         }
         self.make_request('initialize',
             data = data
@@ -386,7 +398,7 @@ class WalkingSuggestionService():
             decision = decisions[time_category]
             previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
             previous_treatments.append(previous_treatment)
-        return previous_treatment
+        return previous_treatments
 
     def get_received_messages(self, date):
         decisions = self.get_decisions_for(date)

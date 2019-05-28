@@ -184,6 +184,14 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             {'steps':[None,None,None,None,50]}
             ]
         )
+        self.assertEqual(initialization_data['PriorAntiMatrix'], [
+            {'priorAnti': [False, False, False, False, False]},
+            {'priorAnti': [False, False, False, False, False]}
+        ])
+        self.assertEqual(initialization_data['DelieverMatrix'], [
+            {'walking': [False, False, False, False, False]},
+            {'walking': [False, False, False, False, False]}
+        ])
 
         configuration = Configuration.objects.get(user__username='test')
         self.assertTrue(configuration.enabled)
