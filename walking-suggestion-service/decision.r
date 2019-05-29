@@ -51,7 +51,7 @@ tryCatch(expr = {
   
   }, error = function(err) {
   
-  cat(paste("Decision:", err), file =  paste(paths, "/log", sep=""))
+  cat(paste("\nDecision:", err), file =  paste(paths, "/log", sep=""))
   
     stop("Initiliazation has not done for the user")
   

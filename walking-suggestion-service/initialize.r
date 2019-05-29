@@ -26,8 +26,8 @@ if(server){
   source("functions.R")
   load("bandit-spec.Rdata")
   
-  # input <- fromJSON(file = "./test/start.json")
-  input <- fromJSON(file = "./test/nick/init.json")
+  input <- fromJSON(file = "./test/start.json")
+  
   
 }
 
@@ -341,13 +341,21 @@ save(data.history, file = paste(paths, "/history.Rdata", sep=""))
 save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
 save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
 
-# log file 
+# log file  
 cat(paste("Initialization:", "Success"), file =  paste(paths, "/log", sep=""))
     
 }, 
 error = function(e) {
   
-  cat(paste("Initialization:", e), file =  paste(paths, "/log", sep=""))
+  if(file.exists()){
+    
+    cat(paste("\nInitialization:", e), file =  paste(paths, "/log", sep=""), append = TRUE)
+    
+  }else{
+    
+    cat(paste("Initialization:", e), file =  paste(paths, "/log", sep=""))
+    
+  }
   stop("Error in the initialization occurs. Check the input")
   })
 
