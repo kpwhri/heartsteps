@@ -26,8 +26,8 @@ if(server){
   source("functions.R")
   load("bandit-spec.Rdata")
   
-  input <- fromJSON(file = "./test/start.json")
-  
+  # input <- fromJSON(file = "./test/start.json")
+  input <- fromJSON(file = "./test/nick/init.json")
   
 }
 

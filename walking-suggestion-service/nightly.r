@@ -25,7 +25,8 @@ if(server){
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  input <- fromJSON(file = "./test/update_2.json")
+  # input <- fromJSON(file = "./test/update_3.json")
+  input <- fromJSON(file = "./test/nick/nightly_2.json")
   
 }
 
@@ -79,8 +80,20 @@ check  = tryCatch(expr = {
   # temperature should be imputed by HS server
   stopifnot(all(is.na(proc.array(input$temperatureArray)) == FALSE))
   
-  # priorAnti, lastActivity, availability can only be true or false
-  stopifnot(is.logical(input$priorAnti), is.logical(input$lastActivity), is.logical(input$availabilityArray), is.logical(input$lastActivityArray), is.logical(input$priorAntiArray))
+  # priorAntiArray, lastActivity, availability can only be true or false
+  stopifnot(all(c(is.na(input$lastActivity), 
+                  is.na(input$availabilityArray), 
+                  is.na(input$lastActivityArray), 
+                  is.na(input$priorAntiArray)) == F))
+  
+  stopifnot(is.logical(input$lastActivity), 
+            is.logical(input$availabilityArray), 
+            is.logical(input$lastActivityArray), 
+            is.logical(input$priorAntiArray))
+  
+  # location can only be (0, 1, 2)
+  stopifnot(all(input$locationArray %in% c(0, 1, 2)))
+  
   
   
 }, error = function(err){
@@ -582,7 +595,11 @@ if(is.null(check)){
   }
   
   
+  # update the dosage dataset (add the instance for the first decision time next day)
   
+  data.dosage$dataset <- rbind(data.dosage$dataset, 
+                               c(input$studyDay+1, 1, walk = input$lastActivity, anti1 = input$priorAntiArray[6], NA))
+ 
   # ================ Save everything ================
   
   save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
