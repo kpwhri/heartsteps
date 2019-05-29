@@ -347,7 +347,7 @@ cat(paste("Initialization:", "Success"), file =  paste(paths, "/log", sep=""))
 }, 
 error = function(e) {
   
-  if(file.exists()){
+  if(file.exists(paste(paths, "/log", sep=""))){
     
     cat(paste("\nInitialization:", e), file =  paste(paths, "/log", sep=""), append = TRUE)
     
