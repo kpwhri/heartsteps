@@ -255,13 +255,12 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             'studyDay': 10,
             'appClick': 20,
             'totalSteps': 500,
-            'priorAnti': False,
             'lastActivity': False,
             'temperatureArray': [10, 10, 10, 10, 10],
             'preStepsArray': [7, 7, 7, 7, 7],
             'postStepsArray': [700, 700, 700, 700, 700],
             'availabilityArray': [False, False, False, False, False],
-            'priorAntiArray': [False, False, False, False, False],
+            'priorAntiArray': [False, False, False, False, False, False],
             'lastActivityArray': [True, True, True, True, True],
             'locationArray': [1, 1, 1, 1, 1]
         })

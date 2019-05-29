@@ -319,13 +319,12 @@ class WalkingSuggestionService():
             'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
-            'priorAnti': self.get_end_of_day_anti_sedentary_treatment(date),
             'lastActivity': self.decision_category_was_received(date, SuggestionTime.POSTDINNER),
             'temperatureArray': self.get_temperatures(date),
             'preStepsArray': self.get_pre_steps(date),
             'postStepsArray': self.get_post_steps(date),
             'availabilityArray': self.get_availabilities(date),
-            'priorAntiArray': self.get_previous_anti_sedentary_treatments(date),
+            'priorAntiArray': self.get_all_anti_sedentary_treatments(date),
             'lastActivityArray': self.get_received_messages(date),
             'locationArray': self.get_locations(date)
         }
@@ -585,7 +584,7 @@ class WalkingSuggestionService():
             tags__tag = category
         ).first()
         if decision:
-            return self.decision_was_received(postdinner_decision)
+            return self.decision_was_received(decision)
         else:
             return False
 
