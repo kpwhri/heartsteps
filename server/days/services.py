@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 import pytz
 
 from django.core.exceptions import ImproperlyConfigured
@@ -22,17 +22,17 @@ class DayService:
             raise self.NoUser("No user")
         self.__user = user
 
-    def get_day(self, datetime):
-        if type(datetime) is date:
-            return self.get_day_for_date(datetime)
+    def get_day(self, dt):
+        if type(dt) is datetime.date:
+            return self.get_day_for_date(dt)
         day = Day.objects.filter(
             user = self.__user,
-            start__lte = datetime,
-            end__gt = datetime
+            start__lte = dt,
+            end__gt = dt
         ).first()
         if day:
             return day
-        return self.create_day_for(datetime)
+        return self.create_day_for(dt)
 
     def get_day_for_date(self, date):
         try:
@@ -44,56 +44,70 @@ class DayService:
             return self.create_day_for(date)
 
 
-    def create_day_for(self, datetime):
-        if type(datetime) is date:
-            previous_day = Day.objects.filter(
-                user = self.__user,
-                date__lt = datetime
-            ).last()
-        else:
-            previous_day = Day.objects.filter(
-                user = self.__user,
-                end__lte = datetime
-            ).last()
-        if previous_day:
-            if type(datetime) is date:
-                dt = datetime
-            else:
-                tz = previous_day.get_timezone()
-                dt = datetime.astimezone(tz)
-            day = Day.objects.create(
-                user = self.__user,
-                date = date(dt.year, dt.month, dt.day),
-                timezone = previous_day.timezone
-            )
-            return day
-        else:
-            return self.create_default_day_for(datetime)
-
-    def create_default_day_for(self, datetime):
-        return Day.objects.create(
+    def create_day_for(self, dt):
+        tz = self.get_best_timezone(dt)
+        if type(dt) is datetime.datetime:
+            dt = dt.astimezone(tz)
+        day, _ = Day.objects.get_or_create(
             user = self.__user,
-            date = date(datetime.year, datetime.month, datetime.day),
-            timezone = "UTC"
+            date = datetime.date(dt.year, dt.month, dt.day),
+            timezone = tz.zone
         )
+        return day
 
-    def get_timezone_at(self, datetime):
-        day = self.get_day(datetime)
+    def get_best_timezone(self, dt):
+        if type(dt) is datetime.date:
+            return self.get_best_timezone_for_date(dt)
+        else:
+            return self.get_best_timezone_for_datetime(dt)
+
+    def get_best_timezone_for_date(self, dt):
+        previous_day = Day.objects.filter(
+            user = self.__user,
+            date__lt = dt
+        ).last()
+        if previous_day:
+            return previous_day.get_timezone()
+        next_day = Day.objects.filter(
+            user = self.__user,
+            date__gt = dt
+        ).first()
+        if next_day:
+            return next_day.get_timezone()
+        return pytz.UTC
+
+    def get_best_timezone_for_datetime(self, dt):
+        previous_day = Day.objects.filter(
+            user = self.__user,
+            end__lte = dt
+        ).last()
+        if previous_day:
+            return previous_day.get_timezone()
+        next_day = Day.objects.filter(
+            user = self.__user,
+            start__gte = dt
+        ).first()
+        if next_day:
+            return next_day.get_timezone()
+        return pytz.UTC
+
+    def get_timezone_at(self, dt):
+        day = self.get_day(dt)
         return day.get_timezone()
 
     def get_current_timezone(self):
         return self.get_timezone_at(timezone.now())
 
-    def get_datetime_at(self, datetime):
-        tz = self.get_timezone_at(datetime)
-        return datetime.astimezone(tz)
+    def get_datetime_at(self, dt):
+        tz = self.get_timezone_at(dt)
+        return dt.astimezone(tz)
 
     def get_current_datetime(self):
         return self.get_datetime_at(timezone.now())
 
-    def get_date_at(self, datetime):
-        dt = self.get_datetime_at(datetime)
-        return date(
+    def get_date_at(self, dt):
+        dt = self.get_datetime_at(dt)
+        return datetime.date(
             dt.year,
             dt.month,
             dt.day
