@@ -1,5 +1,5 @@
 rm(list = ls())
-server = T
+server = F
 #' ---
 #' title:  Action selection in the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -48,6 +48,7 @@ tryCatch(expr = {
   
   # decision 
   load(paste(paths, "/decision.Rdata", sep="")) 
+  
   }, error = function(err) {
   
   cat(paste("Decision:", err), file =  paste(paths, "/log", sep=""))
