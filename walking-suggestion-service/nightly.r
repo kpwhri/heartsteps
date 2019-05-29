@@ -25,7 +25,7 @@ if(server){
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  input <- fromJSON(file = "./test/update_1.json")
+  input <- fromJSON(file = "./test/update_2.json")
   
 }
 
@@ -51,9 +51,7 @@ tryCatch(expr = {
 
   }, error = function(err) {
   
-  cat(paste("Nightly:", err), file =  paste(paths, "/log", sep=""))
-  
-    stop("Initiliazation has not done for the user")
+    stop("Initiliazation has not done for the user or user ID is missing")
   
 })
 
@@ -89,9 +87,11 @@ check  = tryCatch(expr = {
   
   cat(paste("\nNightly:", "Day =", input$studyDay, 
             "update rejected", "Error:", err$message), file =  paste(paths, "/log", sep=""), append = TRUE)
-  cat("The inputs to the nightly update has error")
   
-  return(F)
+  stop("The inputs to the nightly update has error")
+  
+  
+  
 })
 
 ## impute dosage dataset using today's input
@@ -119,6 +119,7 @@ if(is.null(check)){
     
      data.dosage$dataset <- rbind(data.dosage$dataset, temp[index,])
      data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
+     
   }
   
   
@@ -205,22 +206,35 @@ if(is.null(check)){
                              work.loc, 
                              other.loc, 
                              variation.indc)
-      
-      if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 0){
+      if(is.null(data.decision) == TRUE){
         
-        # decision does not occur
+        # since the initialization, nothing occurs 
+        
         prob <- 0
         action <- 0
         random.num <- NA
+      
         
       }else{
         
-        prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)
-        action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)
-        random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)
-        
+        if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 0){
+          
+          # decision does not occur
+          prob <- 0
+          action <- 0
+          random.num <- NA
+          
+        }else{
+          
+          prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)
+          action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)
+          random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)
+          
+          
+        }
         
       }
+      
       
       
       # add the current decision time
@@ -580,8 +594,3 @@ if(is.null(check)){
   
   cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
-
-
-
-
-

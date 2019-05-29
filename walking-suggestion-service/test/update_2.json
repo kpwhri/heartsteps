@@ -1,5 +1,5 @@
-{	"userID":1,
-	"studyDay":2,
+{	"userID":10000,
+	"studyDay":1,
 	"priorAnti":false,
 	"lastActivity":false,
 	"temperatureArray":[30,33.4,8.5,23.9,38.1],

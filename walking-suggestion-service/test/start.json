@@ -1,5 +1,6 @@
 {
-  "userID": 1,
+  "userID": 10000,
+  "date": "2019-05-10",
   "totalStepsArray": [
     12310,
     10000,
@@ -7,7 +8,8 @@
     10000,
     10000,
     11111,
-    22222
+    22222,
+    12401
   ],
   "preStepsMatrix": [
     {
@@ -71,6 +73,15 @@
         null,
         30,
         100
+      ]
+    },
+    {
+      "steps": [
+        100,
+        22,
+        133,
+        30,
+        1
       ]
     }
   ],
@@ -136,6 +147,57 @@
         null,
         30,
         100
+      ]
+    },
+    {
+      "steps": [
+        100,
+        null,
+        1,
+        30,
+        10
+      ]
+    }
+  ],
+  "PriorAntiMatrix": [
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
+    }
+  ],
+  "DelieverMatrix": [
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        true,
+        false
       ]
     }
   ]

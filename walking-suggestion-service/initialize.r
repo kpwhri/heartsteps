@@ -100,7 +100,7 @@ stopifnot(all(diff(len.all.msg) == 0))
 # expect 7 days of using and installing the app
 ndays <- as.numeric(len.all.step[1])
 gap.days <- as.numeric(len.all.msg[1])
-stopifnot(ndays - 7 + 1 == gap.days)
+# stopifnot(ndays - 7 + 1 == gap.days)
 
 # check if we have all five decision times for the step matrices and walking
 ncol.all <- sapply(c("preStepsMatrix", "postStepsMatrix", "DelieverMatrix"), function(x) ncol(input[[x]]))
@@ -330,7 +330,7 @@ data.dosage$dataset <- data.frame(day = 1, timeslot = 1,
 
 ###### dataset to save all decision
 
-data.decision <- list()
+data.decision <- NULL
 
 
 # save
@@ -346,6 +346,7 @@ cat(paste("Initialization:", "Success"), file =  paste(paths, "/log", sep=""))
     
 }, 
 error = function(e) {
+  
   cat(paste("Initialization:", e), file =  paste(paths, "/log", sep=""))
   stop("Error in the initialization occurs. Check the input")
   })
