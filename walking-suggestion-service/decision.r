@@ -1,9 +1,10 @@
 rm(list = ls())
 server = T
+localtest = T
 #' ---
 #' title:  Action selection in the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   09.11, 2018
+#' date:   2019-05
 #' ---
 #' 
 
@@ -21,7 +22,20 @@ if(server){
   
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service")
   source("functions.R")
-  input <- fromJSON(file = "./test/call_1_5.json")
+  
+  
+  if(localtest){
+    
+    args <- commandArgs(trailingOnly = TRUE)[1]
+    input = fromJSON(file = args)
+  
+  }else{
+    
+    input <- fromJSON(file = "./test/call_1_4.json")
+    
+  }
+  
+  
 
   
 }

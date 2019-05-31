@@ -1,5 +1,6 @@
 rm(list = ls())
 server = T
+localtest = T
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -21,12 +22,27 @@ if(server){
    
 }else{
   
-
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
   
-  input <- fromJSON(file = "./test/start.json")
+  if(localtest){
+    
+    args <- commandArgs(trailingOnly = TRUE)[1]
+    input = fromJSON(file = args)
+   
+    
+  
+    
+    
+  }else{
+    
+   
+  
+    input <- fromJSON(file = "./test/start_mash.json")
+    
+  }
+  
   
   
 }
@@ -111,14 +127,26 @@ ncol.all.anti <- ncol(input$PriorAntiMatrix)
 stopifnot(ncol.all.anti == 6)
 
 
-# ========  Data Quality Checking =========####
+# ========  Step Count Data Quality Checking =========####
 
-# need to ensure we have, for each dt, any pre/post steps data)
-stopifnot(all(apply(input$preStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
-stopifnot(all(apply(input$postStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
+data.quality <- list()
 
-# need to ensure we have at least one obvervation for the total steps (so that we can impute)
-stopifnot(all(is.na(input$totalStepsArray)) == FALSE)
+data.quality$presteps <- data.frame(-(ndays:1), input$preStepsMatrix)
+colnames(data.quality$presteps) <- c("day", "ts1", "ts2", "ts3", "ts4", "ts5")
+
+
+data.quality$poststeps <- data.frame(-(ndays:1), input$postStepsMatrix)
+colnames(data.quality$poststeps) <- c("day", "ts1", "ts2", "ts3", "ts4", "ts5")
+
+data.quality$totalsteps <- data.frame(-(ndays:1), input$totalStepsArray)
+colnames(data.quality$totalsteps) <- c("day", "steps")
+
+
+# # need to ensure we have, for each dt, any pre/post steps data)
+# stopifnot(all(apply(input$preStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
+# stopifnot(all(apply(input$postStepsMatrix, 2, function(x) sum(is.na(x))) < ndays))
+# # need to ensure we have at least one obvervation for the total steps (so that we can impute)
+# stopifnot(all(is.na(input$totalStepsArray)) == FALSE)
 
 
 
@@ -340,10 +368,11 @@ save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
 save(data.history, file = paste(paths, "/history.Rdata", sep=""))
 save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
 save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
+save(data.quality, file = paste(paths, "/quality.Rdata", sep=""))
 
 # log file  
 cat(paste("Initialization:", "Success"), file =  paste(paths, "/log", sep=""))
-    
+
 }, 
 error = function(e) {
   

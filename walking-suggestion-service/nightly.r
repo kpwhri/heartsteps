@@ -1,9 +1,10 @@
 rm(list = ls())
 server = T
+localtest = T
 #' ---
 #' title:  Nightly Udates in the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   09.11, 2018
+#' date:   2019-05
 #' ---
 #' 
 
@@ -25,8 +26,18 @@ if(server){
   setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
   source("functions.R")
   load("bandit-spec.Rdata")
-  # input <- fromJSON(file = "./test/update_3.json")
-  input <- fromJSON(file = "./test/nick/nightly_2.json")
+  
+  if(localtest){
+    
+    args <- commandArgs(trailingOnly = TRUE)[1]
+    input = fromJSON(file = args)
+    
+  }else{
+    
+    input <- fromJSON(file = "./test/update_1.json")
+    
+    
+  }
   
 }
 
@@ -49,6 +60,7 @@ tryCatch(expr = {
   load(paste(paths, "/policy.Rdata", sep="")) 
   load(paste(paths, "/dosage.Rdata", sep="")) 
   load(paste(paths, "/decision.Rdata", sep="")) 
+  load(paste(paths, "/quality.Rdata", sep="")) 
 
   }, error = function(err) {
   
@@ -191,9 +203,6 @@ if(is.null(check)){
   
   
     
-  
-        
-  
     # day history (need to change variantion or app later)
     day.history <- NULL
     for(kk in 1:5){
@@ -328,6 +337,12 @@ if(is.null(check)){
         # assuming length(tmp) <= 7
         day.history$logpresteps[k] <- log(0.5+mean(tmp))
         
+      }else{
+        
+        # no data available for this time slot at all
+        day.history$logpresteps[k] <- log(0.5)
+        
+        
       }
     }
   }
@@ -347,6 +362,11 @@ if(is.null(check)){
         # assuming length(tmp) <= 7
         poststep.temp[k] <- mean(tmp)
         
+      }else{
+        
+        # no data available for this time slot at all
+        poststep.temp[k] <- 0
+        
       }
     }
   }
@@ -364,9 +384,16 @@ if(is.null(check)){
         # assuming length(tmp) <= 7
         prestep.temp[k] <- mean(tmp)
         
+      }else{
+        
+        # no data available for this time slot at all
+        
+        prestep.temp[k] <- 0
+        
       }
     }
   }
+  
   day.history$prepoststeps <- poststep.temp + prestep.temp
   
   # reward (possibly missing, but no imputation)
@@ -600,6 +627,12 @@ if(is.null(check)){
   data.dosage$dataset <- rbind(data.dosage$dataset, 
                                c(input$studyDay+1, 1, walk = input$lastActivity, anti1 = input$priorAntiArray[6], NA))
  
+  
+  # update the data quality dataset
+  data.quality$presteps <- rbind(data.quality$presteps, c(input$studyDay, input$preStepsArray))
+  data.quality$poststeps <- rbind(data.quality$poststeps, c(input$studyDay, input$postStepsArray))
+  data.quality$totalsteps <- rbind(data.quality$totalsteps, c(input$studyDay, input$totalSteps))
+  
   # ================ Save everything ================
   
   save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))

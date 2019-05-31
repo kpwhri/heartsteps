@@ -74,7 +74,9 @@ warmup.imput = function(x){
     
   }
   
-  new[is.na(new)] <- mean(old, na.rm = TRUE)
+  # if entire vector is missing then use 0. 
+  
+  new[is.na(new)] <- ifelse(all(is.na(old)), 0, mean(old, na.rm = TRUE))
   
   return(new)
 }
