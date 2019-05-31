@@ -87,7 +87,7 @@ class MorningMessageService:
     def send_notification(self, day=False, test=False):
         if not day:
             service = DayService(user=self.__user)
-            day = location_service.get_current_date()
+            day = service.get_current_date()
         morning_message, _ = self.get_or_create(day)
 
         if not self.__configuration.enabled:
@@ -106,11 +106,12 @@ class MorningMessageService:
             del serialized['notification']
 
         push_service = PushMessageService(user=self.__user)
-        push_service.send_notification(
+        message = push_service.send_notification(
             body = morning_message.notification,
             title = 'Morning message',
             data = serialized
-        )    
+        )
+        morning_message.add_context(message)
 
 class MorningMessageDecisionService(DecisionMessageService):
 

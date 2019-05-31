@@ -2,11 +2,14 @@ import random
 
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from daily_tasks.models import DailyTask
 
 from behavioral_messages.models import MessageTemplate
 from randomization.models import Decision
+from push_messages.models import Message as PushMessage
 from surveys.models import Question, Survey
 
 User = get_user_model()
@@ -157,5 +160,57 @@ class MorningMessage(models.Model):
     text = models.CharField(max_length=255, null=True, editable=False)
     anchor = models.CharField(max_length=255, null=True, editable=False)
 
+    class ContextDoesNotExist(RuntimeError):
+        pass
+
+    def get_notification(self):
+        context = MorningMessageContextObject.objects.filter(
+            morning_message = self,
+            content_type = ContentType.objects.get_for_model(PushMessage)
+        ).first()
+        if context:
+            return context.content_object
+        return None
+
+    def __get_context(self, obj):
+        try:
+            context = MorningMessageContextObject.objects.get(
+                morning_message = self,
+                content_type = ContentType.objects.get_for_model(obj),
+                object_id = obj.id
+            )
+            return context
+        except MorningMessageContextObject.DoesNotExist:
+            raise MorningMessage.ContextDoesNotExist('Not found')
+
+    def add_context(self, obj):
+        try:
+            context = self.__get_context(obj)
+            return context
+        except MorningMessage.ContextDoesNotExist:
+            return MorningMessageContextObject.objects.create(
+                morning_message = self,
+                content_object = obj
+            )
+
+    def get_context(self, obj):
+        context = self.__get_context(obj)
+        return context.content_object
+
+    def remove_context(self, obj):
+        try:
+            context = self.__get_context(obj)
+            context.delete()
+        except MorningMessage.ContextDoesNotExist:
+            pass
+        return True
+
     def __str__(self):
         return "%s: %s" % (self.user, self.date.strftime("%Y-%m-%d"))
+
+class MorningMessageContextObject(models.Model):
+    morning_message = models.ForeignKey(MorningMessage, related_name="context")
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')

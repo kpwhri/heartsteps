@@ -108,6 +108,18 @@ class MorningMessageServiceTest(MorningMessageTestBase):
         self.assertEqual(morning_message.text, 'Example morning message')
         self.assertEqual(morning_message.anchor, 'Anchor message')
 
+    def test_send_morning_message_default(self):
+
+        self.morning_message_service.send_notification()
+
+        self.send_notification.assert_called()
+
+        morning_message = self.morning_message_service.get(date.today())
+        notification = morning_message.get_notification()
+        self.assertEqual(notification.recipient, self.user)
+
+
+
 class MorningMessageTaskTest(MorningMessageTestBase):
 
     def test_creates_morning_message(self):
