@@ -58,7 +58,7 @@ class MessageResource(resources.ModelResource):
 class MessageAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = MessageResource
     ordering = ['-created']
-    list_display = ['__str__', 'created']
+    list_display = ['__str__', 'body', 'created']
 
     search_fields = [
         'recipient__username'
@@ -68,6 +68,8 @@ class MessageAdmin(ExportMixin, admin.ModelAdmin):
         'message_type',
         'recipient',
         'device',
+        'title',
+        'body',
         'content',
         'sent',
         'received',

@@ -50,6 +50,8 @@ class TestPushMessageService(TestCase):
         message = Message.objects.get(recipient=user)
         self.assertEqual(str(message.uuid), send.call_args[0][0]['messageId'])
         self.assertEqual(message.message_type, Message.NOTIFICATION)
+        self.assertEqual(message.body, "Example message")
+        self.assertEqual(message.title, "HeartSteps")
 
     @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_data(self, send):

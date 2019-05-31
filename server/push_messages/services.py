@@ -74,11 +74,15 @@ class PushMessageService():
         return message
 
     def send_notification(self, body, title=None, data={}):
-        message = self.init_message()
-        message.message_type = Message.NOTIFICATION
-        data['messageId'] = str(message.uuid)
         if title is None:
             title = "HeartSteps"
+        
+        message = self.init_message()
+        message.message_type = Message.NOTIFICATION
+        message.body = body
+        message.title = title
+
+        data['messageId'] = str(message.uuid)
         request = self._service.format_notification(body, title, data)
         message.content = json.dumps(request)
         message.save()
