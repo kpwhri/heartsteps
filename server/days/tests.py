@@ -115,6 +115,25 @@ class DayServiceTests(TestCase):
         )
         self.assertEqual(day.timezone, "America/Los_Angeles")
 
+    def test_create_previous_day(self):
+        service = DayService(username="test")
+
+        d = service.get_date_at(datetime(2019, 5, 3, 4).astimezone(pytz.UTC))
+
+        self.assertEqual(d, date(2019, 5, 2))
+        day = Day.objects.get(user=self.user, date=date(2019,5,2))
+        self.assertEqual(day.timezone, "America/Los_Angeles")
+
+    def test_catch_exception_if_date_already_exists(self):
+        service = DayService(username="test")
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 5, 5),
+            timezone = "America/New_York"
+        )
+
+        service.create_day_for(datetime(2019, 5, 5, 17).astimezone(pytz.UTC))
+
     def test_get_timezone_at(self):
         service = DayService(username="test")
 
@@ -165,12 +184,3 @@ class DayServiceTests(TestCase):
         dt = service.get_current_date()
 
         self.assertEqual(dt.strftime('%Y-%m-%d'), "2019-05-05")
-
-    def test_create_previous_day(self):
-        service = DayService(username="test")
-
-        d = service.get_date_at(datetime(2019, 5, 3, 4).astimezone(pytz.UTC))
-
-        self.assertEqual(d, date(2019, 5, 2))
-        day = Day.objects.get(user=self.user, date=date(2019,5,2))
-        self.assertEqual(day.timezone, "America/Los_Angeles")

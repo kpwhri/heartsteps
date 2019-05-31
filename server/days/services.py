@@ -43,7 +43,6 @@ class DayService:
         except Day.DoesNotExist:
             return self.create_day_for(date)
 
-
     def create_day_for(self, dt):
         tz = self.get_best_timezone(dt)
         if type(dt) is datetime.datetime:
@@ -51,7 +50,9 @@ class DayService:
         day, _ = Day.objects.get_or_create(
             user = self.__user,
             date = datetime.date(dt.year, dt.month, dt.day),
-            timezone = tz.zone
+            defaults = {
+                'timezone': tz.zone
+            }
         )
         return day
 
