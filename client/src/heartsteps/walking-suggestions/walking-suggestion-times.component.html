@@ -3,7 +3,7 @@
     (onSubmit)="updateTimes()"
     >
     <fieldset>
-        <p>Enter times of day when you might recieve an activity suggestion.</p>
+        <p>Enter five times during a typical day when you may have an opportunity to take a short walk. HeartSteps will sometimes send you a notification at these times to remind you to get some activity.</p>
         <app-time-field *ngFor="let time of timeFields"
             [label]="time.name"
             [formControlName]="time.key"
