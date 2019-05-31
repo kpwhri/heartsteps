@@ -1,0 +1,585 @@
+{
+  "date": "2019-05-29",
+  "pooling": false,
+  "totalStepsArray": [
+    12059,
+    6833,
+    4848,
+    4892,
+    708,
+    null,
+    null,
+    null,
+    1975,
+    6303,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "preStepsMatrix": [
+    {
+      "steps": [
+        null,
+        null,
+        1888,
+        null,
+        1725
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        159,
+        29,
+        512
+      ]
+    },
+    {
+      "steps": [
+        null,
+        1267,
+        120,
+        null,
+        199
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        51,
+        939
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        805
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        577,
+        80,
+        934
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "postStepsMatrix": [
+    {
+      "steps": [
+        null,
+        678,
+        803,
+        null,
+        173
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        1003,
+        336,
+        1296
+      ]
+    },
+    {
+      "steps": [
+        null,
+        633,
+        7,
+        null,
+        16
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        999,
+        65,
+        45
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        938
+      ]
+    },
+    {
+      "steps": [
+        null,
+        845,
+        235,
+        239,
+        1292
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "PriorAntiMatrix": [
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "priorAnti": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  ],
+  "DelieverMatrix": [
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "walking": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  ],
+  "userID": "10000"
+}
