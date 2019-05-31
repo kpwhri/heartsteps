@@ -75,10 +75,14 @@ class WalkingSuggestionDecisionAdmin(ExportMixin, DecisionAdmin):
     resource_class = WalkingSuggestionDecisionResource
 
     list_filter = [WalkingSuggestionTimeFilters]
-    list_display = ['decision', 'time', 'available', 'treated']
+    list_display = ['decision', 'local_time', 'test', 'imputed', 'available', 'unavailable_reason', 'treated']
 
     def decision(self, decision):
         return '%s (%s)' % (decision.user.username, decision.category)
+
+    def local_time(self, decision):
+        local_datetime = decision.get_local_datetime()
+        return local_datetime.strftime('%Y-%m-%d %H:%M')
 
 admin.site.register(WalkingSuggestionDecision, WalkingSuggestionDecisionAdmin)
 
