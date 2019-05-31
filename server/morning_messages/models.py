@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from daily_tasks.models import DailyTask
 
 from behavioral_messages.models import MessageTemplate
+from days.services import DayService
 from randomization.models import Decision
 from push_messages.models import Message as PushMessage
 from surveys.models import Question, Survey
@@ -196,6 +197,10 @@ class MorningMessage(models.Model):
     def get_context(self, obj):
         context = self.__get_context(obj)
         return context.content_object
+
+    def get_timezone(self):
+        service = DayService(user=self.user)
+        return service.get_timezone_at(self.date)
 
     def remove_context(self, obj):
         try:
