@@ -148,6 +148,28 @@ class MorningMessageSurvey(Survey):
         random.shuffle(words)
         self.word_set_string = ','.join(words)
 
+    def get_answers(self):
+        answers = super().get_answers()
+        answers['selected_word'] = self.selected_word
+        return answers
+
+    def get_questions(self):
+        questions = super().get_questions()
+        questions.append('selected_word')
+        return questions
+
+    def get_question_label(self, question_name):
+        if question_name == 'selected_word':
+            return 'Pick a word'
+        else:
+            return super().get_question_label(question_name)
+
+    def get_answer_label(self, question_name, answer_value):
+        if question_name == 'selected_word':
+            return answer_value
+        else:
+            return super().get_answer_label(question_name, answer_value)
+
 class MorningMessage(models.Model):
     user = models.ForeignKey(User)
     date = models.DateField()

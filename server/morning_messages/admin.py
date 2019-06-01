@@ -47,6 +47,7 @@ class MorningMessageAdmin(admin.ModelAdmin):
         'timezone',
         'message_frame',
         'anchor_message',
+        'survey_results',
         'notification_sent',
         'notification_received',
         'notification_opened',
@@ -60,7 +61,7 @@ class MorningMessageAdmin(admin.ModelAdmin):
         return morning_message.message_decision.framing
 
     def completed_survey(self, morning_message):
-        return None
+        return morning_message.survey.answered
     completed_survey.boolean = True
 
     def notification_sent(self, morning_message):
@@ -111,6 +112,25 @@ class MorningMessageAdmin(admin.ModelAdmin):
 
     def username(self, morning_message):
         return morning_message.user.username
+
+    def survey_results(self, morning_message):
+        results_list = []
+        answers = morning_message.survey.get_answers()
+        for question in morning_message.survey.get_questions():
+            question_label = morning_message.survey.get_question_label(question)
+            answer_label = morning_message.survey.get_answer_label(question, answers[question])
+            results_list.append({
+                'question': question_label,
+                'answer': answer_label
+            })
+        results = '<dl>%s</dl>' % (
+            ''.join(['<dt>%(question)s</dt><dd>%(answer)s</dd>' % result for result in results_list])
+        )
+        answered_text = 'Was not answered'
+        if morning_message.survey.answered:
+            answered_text = 'Answered'
+        return '<p>%s</p>%s' % (answered_text,results)
+    survey_results.allow_tags = True
 
 admin.site.register(MorningMessage, MorningMessageAdmin)
 

@@ -45,6 +45,9 @@ class Survey(models.Model):
     
     class OptionDoesNotExist(RuntimeError):
         pass
+
+    class AnswerDoesNotExist(RuntimeError):
+        pass
     
     QUESTION_MODEL = Question
 
@@ -109,6 +112,54 @@ class Survey(models.Model):
         )
         self.updated = timezone.now()
         self.save()
+
+    def get_answer(self, question=None, question_name=None):
+        if question_name:
+            question = self.get_question
+        try:
+            response = SurveyResponse.objects.get(
+                survey = self,
+                question = question
+            )
+            return response.answer.value
+        except SurveyResponse.DoesNotExist:
+            raise self.AnswerDoesNotExist('No answer for question')
+
+    def get_answers(self):
+        answers = {}
+        for question in self.questions:
+            answers[question.name] = None
+        for survey_response in SurveyResponse.objects.filter(survey=self).all():
+            answers[survey_response.question.name] = survey_response.answer.value
+        return answers
+
+    def get_questions(self):
+        return [question.name for question in self.questions]
+
+    def get_question_label(self, question_name):
+        for question in self.questions:
+            if question.name == question_name:
+                return question.label
+        return question_name
+
+    def get_answer_label(self, question_name, answer_value):
+        for question in self.questions:
+            if question.name == question_name:
+                for option in question.options:
+                    if option.value == answer_value:
+                        return option.label
+        return answer_value
+
+
+    @property
+    def answered(self):
+        response_count = SurveyResponse.objects.filter(
+            survey = self
+        ).count()
+        if response_count > 0:
+            return True
+        else:
+            return False
     
 
 class SurveyQuestion(models.Model):
