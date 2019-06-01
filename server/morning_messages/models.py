@@ -148,6 +148,13 @@ class MorningMessageSurvey(Survey):
         random.shuffle(words)
         self.word_set_string = ','.join(words)
 
+    @property
+    def answered(self):
+        if self.selected_word:
+            return True
+        else:
+            return super().answered
+
     def get_answers(self):
         answers = super().get_answers()
         answers['selected_word'] = self.selected_word

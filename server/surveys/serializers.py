@@ -20,5 +20,7 @@ class SurveySerializer(serializers.ModelSerializer):
             })
         representation['questions'] = questions
 
+        representation['completed'] = instance.answered
+
         return representation
 

@@ -228,7 +228,23 @@ class MorningMessageSurveyViewTest(APITestCase):
         }))
 
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data['completed'])
         self.assertEqual(response.data['wordSet'], ['one', 'two', 'three', 'four'])
+
+    def test_get_completed_survey(self):
+        morning_message = MorningMessage.objects.create(
+            user = self.user,
+            date = date(2019, 5, 5)
+        )
+        morning_message.survey.selected_word = 'one'
+        morning_message.survey.save()
+
+        response = self.client.get(reverse('morning-messages-survey', kwargs={
+            'day': '2019-5-5'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data['completed'])
 
     def test_post_survey(self):
         MorningMessage.objects.create(
