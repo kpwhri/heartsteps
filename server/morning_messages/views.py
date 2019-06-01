@@ -103,5 +103,10 @@ class MorningMessageSurveyView(APIView):
             else:
                 survey.save_response(key, request.data[key])
 
-        serialized = MorningMessageSurveySerializer(survey)
-        return Response(serialized.data, status=status.HTTP_200_OK)
+        return Response(survey.get_answers(), status=status.HTTP_200_OK)
+
+class MorningMessageSurveyResponseView(MorningMessageSurveyView):
+
+    def get(self, request, day):
+        survey = self.get_survey(request, day)
+        return Response(survey.get_answers(), status=status.HTTP_200_OK)

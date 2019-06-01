@@ -194,6 +194,14 @@ class SurveyQuestion(models.Model):
             order = SurveyAnswer.objects.filter(question=self).count() + 1
         )
 
+    def add_new_options(self, label, value):
+        SurveyAnswer.objects.create(
+            question = self,
+            label = label,
+            value = value,
+            order = SurveyAnswer.objects.filter(question=self).count()+1
+        )
+
     def get_option(self, value):
         try:
             return self.answers.get(value=value)
