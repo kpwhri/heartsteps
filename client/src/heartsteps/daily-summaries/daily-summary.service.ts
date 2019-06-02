@@ -37,8 +37,11 @@ export class DailySummaryService {
         return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
         .then((data:any) => {
             const summary = this.serializer.deserialize(data);
+            return this.store(summary)
+        })
+        .then((summary) => {
             this.updated.emit(summary);
-            return this.store(summary);
+            return summary;
         });
     }
 
