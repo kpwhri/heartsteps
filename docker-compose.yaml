@@ -30,7 +30,7 @@ services:
       - server
   cloudsql:
     image: gcr.io/cloudsql-docker/gce-proxy:1.11
-    command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west2:heartsteps-kpw -credential_file=/credentials/gce.json
+    command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/gce.json
     volumes:
       - cloudsql:/cloudsql
       - ./credentials:/credentials
