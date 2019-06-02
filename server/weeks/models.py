@@ -75,7 +75,10 @@ class Week(models.Model):
         total_minutes = 0
         for day in days_in_previous_week:
             total_minutes += day.total_minutes
-        total_minutes += 20
+        if total_minutes > 0:
+            total_minutes += 20
+        else:
+            total_minutes = 90
 
         rounded_minutes = int(5 * math.floor(float(total_minutes)/5))
 

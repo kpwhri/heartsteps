@@ -37,14 +37,14 @@ class WeeksModel(TestCase):
         self.assertEqual(first_week.number, 1)
         self.assertEqual(second_week.number, 2)
     
-    def test_sets_goal(self):
+    def test_sets_default_goal(self):
         week = Week.objects.create(
             user = self.user,
             start_date = date(2019, 3, 4),
             end_date = date(2019, 3, 10)
         )
 
-        self.assertEqual(week.goal, 20)
+        self.assertEqual(week.goal, 90)
     
     def test_activity_in_week_sets_goal(self):
         Day.objects.create(
