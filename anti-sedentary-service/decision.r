@@ -10,18 +10,18 @@ input = fromJSON(args)
 source("functions.R")
 #require(mgcv); require(chron);
 
-# payload = ' {
-#   "userid": [ "1" ],
-#   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
-#   "time": [ "2018-10-12 10:10:35" ] ,
-#   "daystart": [ "2018-10-12 8:00" ] ,
-#   "dayend": [ "2018-10-12 20:00" ] ,
-#   "state": [ 1 ],
-#   "steps": [ 10 ],
-#   "available": [ 1 ]
-# }
-# '
-# input = fromJSON(payload)
+payload = ' {
+  "userid": [ "test-mash" ],
+  "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
+  "time": [ "2019-06-01 18:31:00" ] ,
+  "daystart": [ "2019-06-01 8:00" ] ,
+  "dayend": [ "2019-06-01 20:00" ] ,
+  "state": [ 1 ],
+  "steps": [ 10 ],
+  "available": [ 1 ]
+}
+'
+input = fromJSON(payload)
 
 ## INSERT SANITY CHECKS
 return_default = FALSE
@@ -108,7 +108,6 @@ if(return_default) {
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
-  
   ## Build history from existing database
   current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
@@ -160,12 +159,17 @@ if(return_default) {
     which.blocks = which(block.steps == current.block)
     start.block = min(which.blocks); stop.block = max(which.blocks)
     
-    decision.time = (hours(current.time) - hours(beginning.time))*12 + minutes(current.time)/5
-    past.sedentary = (H.t$old.states == current.state)
+    hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
+    decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
+    temp = H.t$time.diff-H.t$time.diff%%5
+    grid = seq(5, max(temp), by = 5)
+    state.grid = rep(0, length(grid))
+    state.grid[is.element(grid, temp)] = H.t$old.states
+    past.sedentary = (state.grid == 1.0)
     N = c(0.0,1.8); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
-      current.run.length = decision.time+1 - max(which(past.sedentary))
+      current.run.length = min(which(cumprod(past.sedentary)==0))
     } else {
       current.run.length = 0
     }
