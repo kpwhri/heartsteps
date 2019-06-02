@@ -11,9 +11,9 @@ source("functions.R")
 #require(mgcv); require(chron);
 
 # payload = ' {
-#   "userid": [ "test-mash" ],
+#   "userid": [ "test-pedja" ],
 #   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
-#   "time": [ "2019-06-01 18:31:00" ] ,
+#   "time": [ "2019-06-01 16:30:00" ] ,
 #   "daystart": [ "2019-06-01 8:00" ] ,
 #   "dayend": [ "2019-06-01 20:00" ] ,
 #   "state": [ 1 ],
@@ -114,7 +114,7 @@ if(return_default) {
   beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   
   library('chron')
-  current.day.obs = user.data$time < current.time & days(user.data$time) == days(current.time)
+  current.day.obs = days(user.data$time) == days(current.time) & months(user.data$time) == months(current.time) & years(user.data$time) == years(current.time) & user.data$time < current.time
   
   current.day.user.data = user.data[current.day.obs,]
   
@@ -135,19 +135,7 @@ if(return_default) {
     )
     
   } else {
-    ## Convert to GMT
-    attr(current.day.user.data$time, "tzone") <- "GMT"
-    attr(current.time, "tzone") <- "GMT"
-    attr(final.time, "tzone") <- "GMT"
-    attr(beginning.time, "tzone") <- "GMT"
-    
-    H.t = data.frame(
-      old.states = current.day.user.data$online_state,
-      old.A = current.day.user.data$action,
-      old.rho = current.day.user.data$probaction,
-      time.diff = as.numeric(current.time - current.day.user.data$time)
-    )
-    
+    ## SETUP BLOCKS
     time.steps = seq(1, as.numeric(final.time - beginning.time)*(60/5))
     hour = (floor(time.steps/12)+14)%%24
     block.steps = unlist(lapply(hour, FUN = which.block))
@@ -159,6 +147,23 @@ if(return_default) {
     which.blocks = which(block.steps == current.block)
     start.block = min(which.blocks); stop.block = max(which.blocks)
     
+    ## Bad obs are duplicates and outside current block
+    in.block = unlist(lapply(hours(current.day.user.data$time), which.block)) == current.block
+    good.obs = in.block & !current.day.user.data$duplicate
+    
+    ## Convert to GMT
+    attr(current.day.user.data$time, "tzone") <- "GMT"
+    attr(current.time, "tzone") <- "GMT"
+    attr(final.time, "tzone") <- "GMT"
+    attr(beginning.time, "tzone") <- "GMT"
+    
+    H.t = data.frame(
+      old.states = current.day.user.data$online_state[good.obs],
+      old.A = current.day.user.data$action[good.obs],
+      old.rho = current.day.user.data$probaction[good.obs],
+      time.diff = as.numeric(current.time - current.day.user.data$time[good.obs])
+    )
+    
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
     decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
     temp = H.t$time.diff-H.t$time.diff%%5
@@ -166,7 +171,7 @@ if(return_default) {
     state.grid = rep(0, length(grid))
     state.grid[is.element(grid, temp)] = H.t$old.states
     past.sedentary = (state.grid == 1.0)
-    N = c(0.0,1.8); lambda = 0.0; eta = 0.0
+    N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
       current.run.length = min(which(cumprod(past.sedentary)==0))
@@ -174,7 +179,7 @@ if(return_default) {
       current.run.length = 0
     }
     
-    # remaining.time = length(time.steps) - (t-1)
+    # remaining.time = length(time.steps) - (decision.time-1)
     remaining.time.in.block = stop.block - (decision.time - 1)
     if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
       rho.t = 0
