@@ -41,6 +41,7 @@ class Configuration(models.Model):
             hour = 6,
             minute = 0
         )
+        self.save()
 
     def destroy_daily_task(self):
         self.daily_task.delete()

@@ -116,7 +116,7 @@ services:
       - .env-production
     environment:
       - ALLOWED_HOSTS=localhost
-      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west2:heartsteps-kpw
+      - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw
     image: heartsteps_server
     ports:
       - "8080:8080"

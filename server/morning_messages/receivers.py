@@ -1,10 +1,15 @@
-from django.db.models.signals import pre_save, post_save, pre_delete
+from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from morning_messages.models import Configuration, MorningMessage, MorningMessageDecision, MorningMessageSurvey
+from morning_messages.models import Configuration
+from morning_messages.models import MorningMessage
+from morning_messages.models import MorningMessageDecision
+from morning_messages.models import MorningMessageSurvey
 from morning_messages.services import MorningMessageDecisionService
 
-@receiver(pre_save, sender=Configuration)
+@receiver(post_save, sender=Configuration)
 def manage_daily_task(sender, instance, **kwargs):
     if not instance.daily_task:
         instance.create_daily_task()
