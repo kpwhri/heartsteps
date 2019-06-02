@@ -10,18 +10,18 @@ input = fromJSON(args)
 source("functions.R")
 #require(mgcv); require(chron);
 
-payload = ' {
-  "userid": [ "test-mash" ],
-  "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
-  "time": [ "2019-06-01 18:31:00" ] ,
-  "daystart": [ "2019-06-01 8:00" ] ,
-  "dayend": [ "2019-06-01 20:00" ] ,
-  "state": [ 1 ],
-  "steps": [ 10 ],
-  "available": [ 1 ]
-}
-'
-input = fromJSON(payload)
+# payload = ' {
+#   "userid": [ "test-mash" ],
+#   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
+#   "time": [ "2019-06-01 18:31:00" ] ,
+#   "daystart": [ "2019-06-01 8:00" ] ,
+#   "dayend": [ "2019-06-01 20:00" ] ,
+#   "state": [ 1 ],
+#   "steps": [ 10 ],
+#   "available": [ 1 ]
+# }
+# '
+# input = fromJSON(payload)
 
 ## INSERT SANITY CHECKS
 return_default = FALSE
@@ -166,7 +166,7 @@ if(return_default) {
     state.grid = rep(0, length(grid))
     state.grid[is.element(grid, temp)] = H.t$old.states
     past.sedentary = (state.grid == 1.0)
-    N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
+    N = c(0.0,1.8); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
       current.run.length = min(which(cumprod(past.sedentary)==0))
