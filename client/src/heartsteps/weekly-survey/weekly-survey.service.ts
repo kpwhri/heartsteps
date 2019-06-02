@@ -174,7 +174,8 @@ export class WeeklySurveyService {
             nextWeek: this.weekSerializer.serialize(survey.nextWeek),
             messageId: survey.messageId,
             starts: survey.starts,
-            expires: survey.expires
+            expires: survey.expires,
+            completed: survey.completed
         }
     }
 
@@ -185,6 +186,7 @@ export class WeeklySurveyService {
         if(data['expires']) survey.expires = data['expires'];
         if(data['starts']) survey.starts = data['starts'];
         if(data['messageId']) survey.messageId = data['messageId'];
+        if(data['completed']) survey.completed = data['completed'];
         return survey;
     }
  

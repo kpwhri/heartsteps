@@ -11,7 +11,7 @@ export class WeekService {
         private weekSerializer: WeekSerializer
     ){}
 
-    getWeek(weekId:string):Promise<Week> {
+    public getWeek(weekId:string):Promise<Week> {
         return this.heartstepsServer.get('weeks/'+weekId)
         .then((data:any) => {
             return this.deserializeWeek(data);
@@ -32,11 +32,14 @@ export class WeekService {
         });
     }
 
-    setWeekGoal(week:Week, minutes:number, confidence:number):Promise<Week> {
-        return this.heartstepsServer.post('weeks/' + week.id, {
-            goal: minutes,
-            confidence: confidence
-        })
+    public setWeekGoal(week:Week, minutes:number, confidence:number):Promise<Week> {
+        const postData = {
+            goal: minutes
+        };
+        if(confidence !== null) {
+            postData['confidence'] = confidence;
+        }
+        return this.heartstepsServer.post('weeks/' + week.id, postData)
         .then(() => {
             week.goal = minutes;
             week.confidence = confidence;
