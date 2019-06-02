@@ -24,4 +24,4 @@ class WeekSerializer(serializers.ModelSerializer):
 
 class GoalSerializer(serializers.Serializer):
     goal = serializers.IntegerField()
-    confidence = serializers.FloatField()
+    confidence = serializers.FloatField(required=False, allow_null=True)

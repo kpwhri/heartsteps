@@ -176,6 +176,17 @@ class WeekViewsTest(APITestCase):
         self.assertEqual(current_week.goal, 23)
         self.assertEqual(current_week.confidence, 0.21)
 
+    def test_update_week_goal_no_confidence(self):
+        response = self.client.post(reverse('weeks-current'), {
+            'goal': 33
+        })
+
+        self.assertEqual(response.status_code, 200)
+        service = WeekService(self.user)
+        current_week = service.get_current_week()
+        self.assertEqual(current_week.goal, 33)
+        self.assertEqual(current_week.confidence, None)
+
     def test_update_next_week_goal(self):
         response = self.client.post(reverse('weeks-next'), {
             'goal': 500,

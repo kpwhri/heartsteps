@@ -41,7 +41,10 @@ class WeekView(APIView):
         serialized = GoalSerializer(data=request.data)
         if serialized.is_valid():
             week.goal = serialized.validated_data['goal']
-            week.confidence = serialized.validated_data['confidence']
+            if 'confidence' in serialized.validated_data:
+                week.confidence = serialized.validated_data['confidence']
+            else:
+                week.confidence = None
             week.save()
 
             serialized_week = WeekSerializer(week)
