@@ -166,7 +166,7 @@ if(return_default) {
     state.grid = rep(0, length(grid))
     state.grid[is.element(grid, temp)] = H.t$old.states
     past.sedentary = (state.grid == 1.0)
-    N = c(0.0,1.8); lambda = 0.0; eta = 0.0
+    N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
       current.run.length = min(which(cumprod(past.sedentary)==0))
