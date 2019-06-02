@@ -28,8 +28,13 @@ export class SurveyPageComponent implements OnInit {
     ngOnInit() {
         const morningMessage: MorningMessage = this.activatedRoute.snapshot.data['morningMessage'];
 
+        let response = {}
+        if(morningMessage.response) {
+            response = morningMessage.response;
+        }
+
         this.form = new FormGroup({
-            mood: new FormControl()
+            mood: new FormControl(response['selected_word'])
         });
 
         if(morningMessage.survey.wordSet) {
@@ -54,7 +59,7 @@ export class SurveyPageComponent implements OnInit {
                         };
                     })
                 });
-                this.form.addControl(question.name, new FormControl());
+                this.form.addControl(question.name, new FormControl(response[question.name]));
             });
             this.questions = questions;
         }

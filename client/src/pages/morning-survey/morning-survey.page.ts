@@ -29,13 +29,13 @@ export class MorningSurveyPage {
                 component: StartPageComponent
             }, {
                 key: 'survey',
-                title: 'What\'s your day like today?',
+                title: "What's your day like today?",
                 component: SurveyPageComponent
             }]
         } else {
             this.pages = [{
                 key: 'survey',
-                title: 'What\'s your day like today?',
+                title: "What's your day like today?",
                 component: SurveyPageComponent
             }]
         }

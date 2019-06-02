@@ -33,6 +33,10 @@ export class MorningMessageService {
                 'morning-messages/' + formattedDate + '/survey',
                 values
             )
+            .then((response) => {
+                morningMessage.response = response;
+                return this.set(morningMessage);
+            })
         })
         .then(() => {
             return true;
@@ -47,6 +51,7 @@ export class MorningMessageService {
             text: message.context.text,
             anchor: message.context.anchor,
             survey: message.context.survey,
+            response: undefined,
             surveyComplete: false
         });
     }
@@ -106,6 +111,13 @@ export class MorningMessageService {
         .then((data) => {
             const message = this.deserialize(data);
             return this.set(message);
+        })
+        .then((morningMessage) => {
+            return this.heartstepsServer.get('morning-messages/' + today + '/survey/response')
+            .then((response) => {
+                morningMessage.response = response;
+                return this.set(morningMessage);
+            });
         });
     }
 
@@ -125,6 +137,7 @@ export class MorningMessageService {
         message.text = data.text;
         message.anchor = data.anchor;
         message.survey = data.survey;
+        message.response = data.response;
         message.surveyComplete = data.surveyComplete;
         return message;
     }
@@ -141,6 +154,7 @@ export class MorningMessageService {
             text: message.text,
             anchor: message.anchor,
             survey: message.survey,
+            response: message.response,
             surveyComplete: message.surveyComplete
         }
     }
