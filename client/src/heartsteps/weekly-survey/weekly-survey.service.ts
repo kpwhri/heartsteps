@@ -17,6 +17,8 @@ export class WeeklySurvey {
     public starts: Date;
     public expires:Date;
     public completed: boolean;
+    public questions: any;
+    public response: any;
 }
 
 const storageKey:string = 'weekly-survey';
@@ -35,9 +37,6 @@ export class WeeklySurveyService {
 
     public setup():Promise<boolean> {
         return this.get()
-        .catch(() => {
-            return this.load();
-        })
         .then(() => {
             return true;
         });
@@ -66,6 +65,17 @@ export class WeeklySurveyService {
         const currentWeek = this.weekSerializer.deserialize(message.context.currentWeek);
         const nextWeek = this.weekSerializer.deserialize(message.context.nextWeek);
         return this.set(currentWeek, nextWeek, message.id);
+    }
+
+    public submitSurvey(values:any) {
+        return this.get()
+        .then((weeklySurvey) => {
+            return this.weekService.submitWeekSurvey(weeklySurvey.currentWeek, values)
+            .then(() => {
+                weeklySurvey.response = values;
+                return this.save(weeklySurvey);
+            });
+        });
     }
 
     public complete():Promise<boolean> {
@@ -116,14 +126,14 @@ export class WeeklySurveyService {
         return this.storage.get(storageKey)
         .then((data) => {
             return this.deserialize(data);
+        })
+        .catch(() => {
+            return this.load();
         });
     }
 
     public getAvailableSurvey(): Promise<WeeklySurvey> {
         return this.get()
-        .catch(() => {
-            return this.load();
-        })
         .then((weeklySurvey) => {
             if(moment().isAfter(weeklySurvey.expires)) {
                 return this.clear()
@@ -165,6 +175,14 @@ export class WeeklySurveyService {
             survey.starts = reflectionDate;
             survey.expires = moment(reflectionDate).add(1, 'days').toDate();
             return this.save(survey);
+        })
+        .then((survey) => {
+            return this.weekService.getWeekSurvey(survey.currentWeek)
+            .then((questions) => {
+                console.log(questions);
+                survey.questions = questions.questions;
+                return this.save(survey);
+            });
         });
     }
 
@@ -175,7 +193,9 @@ export class WeeklySurveyService {
             messageId: survey.messageId,
             starts: survey.starts,
             expires: survey.expires,
-            completed: survey.completed
+            completed: survey.completed,
+            questions: survey.questions,
+            response: survey.response
         }
     }
 
@@ -187,6 +207,8 @@ export class WeeklySurveyService {
         if(data['starts']) survey.starts = data['starts'];
         if(data['messageId']) survey.messageId = data['messageId'];
         if(data['completed']) survey.completed = data['completed'];
+        survey.questions = data['questions'];
+        survey.response = data['response'];
         return survey;
     }
  
