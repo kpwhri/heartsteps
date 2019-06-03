@@ -56,7 +56,7 @@ current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+
 final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
 
-## CHECK DAYSTART TO DAYEND IS 12 HOURS
+## CHECK 5: DAYSTART TO DAYEND IS 12 HOURS
 daylength.inhours = as.numeric(difftime(final.time, beginning.time, hours))
 if(daylength.inhours != 12) {
   beginning.time = ISOdate(year(beginning.time),month(beginning.time),day(beginning.time),8,00,tz="Etc/GMT+6")
@@ -64,7 +64,7 @@ if(daylength.inhours != 12) {
   reasons = paste(reasons, 'Day length provided not 12 hours long so went with default; ', sep = "")
 }
 
-## Check that current.time is in beginning and final time
+## Check 6: current.time is in beginning and final time
 isgood.time = current.time < final.time & beginning.time < current.time
 if(!isgood.time) {
   return_default = TRUE
@@ -117,21 +117,17 @@ if(return_default) {
     user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   }
   
-  # setwd("../")
+  ## Define the 3 4-hour buckets in GMT
   bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
   buckets = list(bucket1,bucket2, bucket3)
   
-  # window.time$window.utime = as.POSIXct(window.time$window.utime, tz = "GMT")
-  
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
-  
   seq.hour = c(14:23,0:1)
   fraction.data = readRDS("fractiondata.RDS")
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
-  # library('chron')
   library('lubridate')
   current.day.obs = day(user.data$time) == day(current.time) & month(user.data$time) == month(current.time) & year(user.data$time) == year(current.time) & user.data$time < current.time
   
@@ -164,20 +160,15 @@ if(return_default) {
     current.state = input$state
     ## Current hour adjusted by shift on 
     ## daystart to be equivalent to 14 GMT
+    beginning.hour = hour(with_tz(beginning.time, "GMT"))
     current.hour = hour(with_tz(current.time, "GMT")) + (min.hours - beginning.hour) 
     current.block = which.block(current.hour)
     which.blocks = which(block.steps == current.block)
     start.block = min(which.blocks); stop.block = max(which.blocks)
     
     ## Bad obs are duplicates and outside current block
-    in.block = unlist(lapply(hour(current.day.user.data$time), which.block)) == current.block
+    in.block = unlist(lapply(hour(with_tz(current.day.user.data$time, "GMT"))+ (min.hours - beginning.hour), which.block)) == current.block
     good.obs = in.block & !current.day.user.data$duplicate
-    
-    ## Convert to GMT
-    attr(current.day.user.data$time, "tzone") <- "GMT"
-    attr(current.time, "tzone") <- "GMT"
-    attr(final.time, "tzone") <- "GMT"
-    attr(beginning.time, "tzone") <- "GMT"
     
     H.t = data.frame(
       old.states = current.day.user.data$online_state[good.obs],
@@ -187,7 +178,7 @@ if(return_default) {
     )
     
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
-    decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
+    decision.time = hours.so.far*12 + floor(minute(current.time)/5)
     temp = H.t$time.diff-H.t$time.diff%%5
     grid = seq(5, max(temp), by = 5)
     state.grid = rep(0, length(grid))
