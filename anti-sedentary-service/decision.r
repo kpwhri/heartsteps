@@ -61,7 +61,14 @@ daylength.inhours = as.numeric(difftime(final.time, beginning.time, hours))
 if(daylength.inhours != 12) {
   beginning.time = ISOdate(year(beginning.time),month(beginning.time),day(beginning.time),8,00,tz="Etc/GMT+6")
   final.time = ISOdate(year(final.time),month(final.time),day(final.time),20,00,tz="Etc/GMT+6")
-  reasons = paste(reasons, 'Day length provided not 12 hours long; ', sep = "")
+  reasons = paste(reasons, 'Day length provided not 12 hours long so went with default; ', sep = "")
+}
+
+## Check that current.time is in beginning and final time
+isgood.time = current.time < final.time & beginning.time < current.time
+if(!isgood.time) {
+  return_default = TRUE
+  reasons = paste(reasons, 'Current time outside daystart and dayend times provided; ', sep = "")
 }
 
 
