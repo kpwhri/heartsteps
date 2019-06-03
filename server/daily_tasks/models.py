@@ -82,12 +82,15 @@ class DailyTask(models.Model):
         return daily_task
 
     def create_task(self, task, name, arguments):
-        self.task = PeriodicTask.objects.create(
-            crontab = CrontabSchedule.objects.create(),
+        task, _ = PeriodicTask.objects.get_or_create(
             name = name,
-            task = task,
-            kwargs = json.dumps(arguments)
+            defaults = {
+                'crontab': CrontabSchedule.objects.create(),
+                'task': task,
+                'kwargs': json.dumps(arguments)
+            }
         )
+        self.task = task
         self.save()
 
     def set_time(self, hour, minute, day=None):
