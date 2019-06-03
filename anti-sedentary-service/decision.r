@@ -131,7 +131,7 @@ if(return_default) {
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
-  library('chron')
+  # library('chron')
   library('lubridate')
   current.day.obs = day(user.data$time) == day(current.time) & month(user.data$time) == month(current.time) & year(user.data$time) == year(current.time) & user.data$time < current.time
   
@@ -155,19 +155,22 @@ if(return_default) {
     
   } else {
     ## SETUP BLOCKS
-    time.steps = seq(1, as.numeric(final.time - beginning.time)*(60/5))
+    min.hours = 14; max.hours = 2
+    time.steps = seq(0, as.numeric(final.time - beginning.time)*(60/5)-1)
     hour = (floor(time.steps/12)+14)%%24
     block.steps = unlist(lapply(hour, FUN = which.block))
     
     ## Apply function
     current.state = input$state
-    current.hour = hours(current.time)
+    ## Current hour adjusted by shift on 
+    ## daystart to be equivalent to 14 GMT
+    current.hour = hour(with_tz(current.time, "GMT")) + (min.hours - beginning.hour) 
     current.block = which.block(current.hour)
     which.blocks = which(block.steps == current.block)
     start.block = min(which.blocks); stop.block = max(which.blocks)
     
     ## Bad obs are duplicates and outside current block
-    in.block = unlist(lapply(hours(current.day.user.data$time), which.block)) == current.block
+    in.block = unlist(lapply(hour(current.day.user.data$time), which.block)) == current.block
     good.obs = in.block & !current.day.user.data$duplicate
     
     ## Convert to GMT
