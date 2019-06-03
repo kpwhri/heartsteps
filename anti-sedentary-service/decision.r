@@ -72,9 +72,8 @@ if(!isgood.time) {
 }
 
 
-
-
 if(return_default) {
+  ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
   results <- list(
     a_it = A.t,
     pi_it = rho.t
@@ -83,6 +82,7 @@ if(return_default) {
   write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
   
 } else {
+  ## RETURN_DEFAULT = FALSE, then we move on to calculating rand probs
 
   # Pull in the Necessary CSVs
   setwd("./data/")
