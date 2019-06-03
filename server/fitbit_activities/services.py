@@ -121,6 +121,18 @@ class FitbitDayService(FitbitService):
         )
         return self._process_minute_data(data)
 
+    def _save_unprocessed_data(self, category, data):
+        timezone = self.day.get_timezone()
+        FitbitDailyUnprocessedData.objects.update_or_create(
+            account=self.account,
+            day=self.day,
+            category = category,
+            defaults={
+                'payload': data,
+                'timezone': timezone.zone
+            }
+        )
+
     def _process_minute_data(self, data):
         timezone = self.day.get_timezone()
         
@@ -141,9 +153,12 @@ class FitbitDayService(FitbitService):
         return processed_data
 
     def update_steps(self):
+        data = self.__client.get_steps(self.date)
+        self._save_unprocessed_data('steps', data)
+        
         step_intervals = []
         total_steps = 0
-        for interval in self._get_intraday_time_series('steps'):
+        for interval in self._process_minute_data(data):
             if interval['value'] > 0:
                 total_steps += interval['value']
                 step_intervals.append(FitbitMinuteStepCount(
@@ -161,7 +176,10 @@ class FitbitDayService(FitbitService):
         return total_steps
 
     def update_distance(self):
+        data = self.__client.get_distance(self.date)
+        self._save_unprocessed_data('distance', data)
+
         total_distance = Decimal(0)
-        for interval in self._get_intraday_time_series('distance'):
+        for interval in self._process_minute_data(data):
             total_distance += Decimal(interval['value'])
         return total_distance

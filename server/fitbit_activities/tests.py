@@ -1,8 +1,11 @@
 import pytz
 from unittest.mock import patch
-from datetime import datetime, date
+from datetime import datetime
+from datetime import date
+from datetime import timedelta
 
 from django.test import TestCase
+from django.test import override_settings
 from django.contrib.auth.models import User
 
 from fitbit import Fitbit
@@ -40,12 +43,39 @@ class TestBase(TestCase):
 
 class FitbitDayUpdates(TestBase):
 
-    @patch.object(FitbitDayService, 'update_heart_rate')
-    @patch.object(FitbitDayService, 'update_activities')
-    @patch.object(FitbitDayService, 'update_steps', return_value=20)
-    @patch.object(FitbitDayService, 'update_distance', return_value=0.123)
-    def testUpdateTaskCreatesDay(self, update_distance, update_steps, update_activities, update_heart_rate):
+    def setUp(self):
+        super().setUp()
+
+        activities_patch = patch.object(FitbitClient, 'get_activities')
+        self.addCleanup(activities_patch.stop)
+        self.get_activities = activities_patch.start()
+        self.get_activities.return_value = []
+
+        heart_rate_patch = patch.object(FitbitClient, 'get_heart_rate')
+        self.addCleanup(heart_rate_patch.stop)
+        self.get_heart_rate = heart_rate_patch.start()
+        self.get_heart_rate.return_value = []
+
+        step_count_patch = patch.object(FitbitClient, 'get_steps')
+        self.addCleanup(step_count_patch.stop)
+        self.get_steps = step_count_patch.start()
+        self.get_steps.return_value = []
+
+        distance_patch = patch.object(FitbitClient, 'get_distance')
+        self.addCleanup(distance_patch.stop)
+        self.get_distance = distance_patch.start()
+        self.get_distance.return_value = []
+
+    def testUpdateTaskCreatesDay(self):
         self.timezone.return_value = pytz.timezone('Poland')
+        self.get_steps.return_value = [{
+            'time': '10:10:00',
+            'value': 20
+        }]
+        self.get_distance.return_value = [{
+            'time': '10:10:00',
+            'value': 0.123
+        }]
 
         update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2018-02-14")
 
@@ -55,10 +85,44 @@ class FitbitDayUpdates(TestBase):
         self.assertEqual(fitbit_day.step_count, 20)
         self.assertEqual(fitbit_day.distance, 0.123)
 
-        update_steps.assert_called()
-        update_distance.assert_called()
-        update_activities.assert_called()
-        update_heart_rate.assert_called()
+    @override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES=20)
+    def test_updates_wore_fitbit(self):
+        heart_rates = []
+        for offset in range(20):
+            time = datetime(2018, 2, 14, 11) + timedelta(minutes=offset)
+            heart_rates.append({
+                'time': time.strftime('%H:%M:00'),
+                'value': 70
+            })
+        self.get_heart_rate.return_value = heart_rates
+
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2018-02-14")
+
+        fitbit_day = FitbitDay.objects.get(account=self.account)
+        self.assertTrue(fitbit_day.wore_fitbit)
+
+    @override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES=20)
+    def test_wore_fitbit_out_of_range(self):
+        heart_rates = []
+        for offset in range(20):
+            time = datetime(2018, 2, 14, 23) + timedelta(minutes=offset)
+            heart_rates.append({
+                'time': time.strftime('%H:%M:00'),
+                'value': 70
+            })
+        self.get_heart_rate.return_value = heart_rates
+
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2018-02-14")
+
+        fitbit_day = FitbitDay.objects.get(account=self.account)
+        self.assertFalse(fitbit_day.wore_fitbit)
+
+    def test_did_not_wear_fitbit(self):
+
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2019-02-14")
+
+        fitbit_day = FitbitDay.objects.get(account=self.account)
+        self.assertFalse(fitbit_day.wore_fitbit)
 
 class FitbitStepUpdates(TestBase):
 
