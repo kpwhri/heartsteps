@@ -51,6 +51,22 @@ if(!is.element(input$available, 0:1)){
   reasons = paste(reasons, 'Bad availability indicator provided; ', sep = "")
 }
 
+## Build history from existing database
+current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+
+## CHECK DAYSTART TO DAYEND IS 12 HOURS
+daylength.inhours = as.numeric(difftime(final.time, beginning.time, hours))
+if(daylength.inhours != 12) {
+  beginning.time = ISOdate(year(beginning.time),month(beginning.time),day(beginning.time),8,00,tz="Etc/GMT+6")
+  final.time = ISOdate(year(final.time),month(final.time),day(final.time),20,00,tz="Etc/GMT+6")
+  reasons = paste(reasons, 'Day length provided not 12 hours long; ', sep = "")
+}
+
+
+
+
 if(return_default) {
   results <- list(
     a_it = A.t,
@@ -108,13 +124,9 @@ if(return_default) {
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
-  ## Build history from existing database
-  current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-  
   library('chron')
-  current.day.obs = days(user.data$time) == days(current.time) & months(user.data$time) == months(current.time) & years(user.data$time) == years(current.time) & user.data$time < current.time
+  library('lubridate')
+  current.day.obs = day(user.data$time) == day(current.time) & month(user.data$time) == month(current.time) & year(user.data$time) == year(current.time) & user.data$time < current.time
   
   current.day.user.data = user.data[current.day.obs,]
   
