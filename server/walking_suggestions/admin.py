@@ -1,4 +1,5 @@
 import random
+import datetime
 
 from django.contrib import admin
 from django.contrib import messages
@@ -20,6 +21,7 @@ from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
+from walking_suggestions.tasks import initialize_and_historical_update
 
 class WalkingSuggestionDecisionResource(DecisionResource):
 
@@ -108,16 +110,11 @@ def send_walking_suggestion(modeladmin, request, queryset):
 
 def initialize_walking_suggestion_service(modeladmin, request, queryset):
     for configuration in queryset:
-        try:
-            service = WalkingSuggestionService(configuration=configuration)
-            service.initialize()
-            messages.add_message(request, messages.SUCCESS, 'Initialized %s' % (configuration.user.username))
-        except WalkingSuggestionService.Unavailable:
-            messages.add_message(request, messages.ERROR, 'Walking suggestion service unavailable for %s' % (configuration.user.username))
-            continue
-        except WalkingSuggestionService.UnableToInitialize:
-            messages.add_message(request, messages.ERROR, 'Unable to initialize %s' % (configuration.user.username))
-            continue
+        initialize_and_historical_update.apply_async(
+            kwargs = {
+                'username': configuration.user.username
+            }
+        )
 
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'enabled', 'service_initialized']

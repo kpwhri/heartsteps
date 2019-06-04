@@ -7,8 +7,15 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 
-from .models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
-from .services import WalkingSuggestionService, WalkingSuggestionDecisionService, WalkingSuggestionTimeService
+from days.services import DayService
+
+from .models import SuggestionTime
+from .models import Configuration
+from .models import WalkingSuggestionDecision
+from .models import NightlyUpdate
+from .services import WalkingSuggestionService
+from .services import WalkingSuggestionDecisionService
+from .services import WalkingSuggestionTimeService
 
 @shared_task
 def create_decision(username):
@@ -73,4 +80,27 @@ def nightly_update(username, day_string):
                 }
             )
             last_updated_day = last_updated_day + timedelta(days=1)
+
+@shared_task
+def initialize_and_historical_update(username):
+    day_service = DayService(username=username)
+    walking_suggestion_service = WalkingSuggestionService(username=username)
+    
+    days_to_go_back = 21
+    today = day_service.get_current_date()
+    date_range = [today - timedelta(days=offset+1) for offset in range(days_to_go_back)]
+
+    while len(date_range):
+        initialize_date = date_range.pop()
+        try:
+            walking_suggestion_service.get_initialization_days(initialize_date)
+            break
+        except WalkingSuggestionService.UnableToInitialize:
+            pass
+    
+    walking_suggestion_service.initialize(initialize_date)
+    
+    while len(date_range):
+        update_date = date_range.pop()
+        walking_suggestion_service.update(update_date)
 
