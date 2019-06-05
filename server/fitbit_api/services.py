@@ -204,14 +204,6 @@ class FitbitClient():
         except HTTPUnauthorized:
             raise FitbitClient.Unauthorized()
 
-    def get_heart_rate(self, date):
-        url = "user/-/activities/heart/date/{date}/1d/1min.json".format(
-            *self.client._get_common_args(),
-            date = format_fitbit_date(date)
-        )
-        response = self.make_request(url)
-        return response['activities-heart-intraday']['dataset']
-
     def __request_activities(self, date):
         url = "user/-/activities/list.json?afterDate={after_date}&offset=0&limit=20&sort=asc".format(
             after_date = format_fitbit_date(date)
@@ -255,3 +247,23 @@ class FitbitClient():
             date = self.format_date(date)
         ))
         return response['activities-%s-intraday' % activity_type]['dataset']
+
+    def get_steps(self, date):
+        return self.get_intraday_activity(
+            activity_type='steps',
+            date = date
+        )
+
+    def get_distance(self, date):
+        return self.get_intraday_activity(
+            activity_type='distance',
+            date = date
+        )
+
+    def get_heart_rate(self, date):
+        url = "user/-/activities/heart/date/{date}/1d/1min.json".format(
+            *self.client._get_common_args(),
+            date = format_fitbit_date(date)
+        )
+        response = self.make_request(url)
+        return response['activities-heart-intraday']['dataset']

@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 from anti_sedentary.models import AntiSedentaryDecision
+from days.services import DayService
 from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
 from fitbit_activities.models import FitbitDay
@@ -293,7 +294,8 @@ class WalkingSuggestionService():
 
     def initialize(self, date=None):
         if not date:
-            date = datetime_date.today()
+            day_service = DayService(user=self.__user)
+            date = day_service.get_current_date()
         dates = self.get_initialization_days(date)
         gap_dates = self.get_gap_days(dates)
         data = {

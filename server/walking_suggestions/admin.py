@@ -1,6 +1,8 @@
 import random
+import datetime
 
 from django.contrib import admin
+from django.contrib import messages
 
 from import_export import resources
 from import_export.fields import Field
@@ -14,9 +16,12 @@ from service_requests.admin import ServiceRequestAdmin
 from walking_suggestion_times.models import SuggestionTime
 
 from walking_suggestions.models import SuggestionTime, Configuration
-from walking_suggestions.models import WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from walking_suggestions.models import WalkingSuggestionDecision
+from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
+from walking_suggestions.services import WalkingSuggestionService
+from walking_suggestions.tasks import initialize_and_historical_update
 
 class WalkingSuggestionDecisionResource(DecisionResource):
 
@@ -103,6 +108,14 @@ def send_walking_suggestion(modeladmin, request, queryset):
         decision_service.decide()
         decision_service.send_message()
 
+def initialize_walking_suggestion_service(modeladmin, request, queryset):
+    for configuration in queryset:
+        initialize_and_historical_update.apply_async(
+            kwargs = {
+                'username': configuration.user.username
+            }
+        )
+
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'enabled', 'service_initialized']
     exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
@@ -110,7 +123,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
         'service_initialized_date',
         'walking_suggestion_times'
     ]
-    actions = [send_walking_suggestion]
+    actions = [send_walking_suggestion, initialize_walking_suggestion_service]
 
     def walking_suggestion_times(self, configuration):
         times = []
