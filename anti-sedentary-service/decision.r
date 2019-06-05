@@ -166,11 +166,15 @@ if(return_default) {
     
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
     decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
-    temp = H.t$time.diff-H.t$time.diff%%5
-    grid = seq(5, max(temp), by = 5)
-    state.grid = rep(0, length(grid))
-    state.grid[is.element(grid, temp)] = H.t$old.states
-    past.sedentary = (state.grid == 1.0)
+    if(nrow(H.t) != 0) {
+      temp = H.t$time.diff-H.t$time.diff%%5
+      grid = seq(5, max(temp), by = 5)
+      state.grid = rep(0, length(grid))
+      state.grid[is.element(grid, temp)] = H.t$old.states
+      past.sedentary = (state.grid == 1.0) 
+    } else {
+      past.sedentary = FALSE
+    }
     N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
