@@ -12,7 +12,7 @@ export class BrowserService {
         private safariViewController: SafariViewController
     ) {}
 
-    open(url: string): Promise<boolean> {
+    public open(url: string): Promise<boolean> {
         if (this.platform.is('ios') || this.platform.is('android')) {
             return this.checkSafariAvailable()
             .then(() => {
@@ -26,7 +26,7 @@ export class BrowserService {
         }
     }
 
-    close(): Promise<boolean> {
+    public close(): Promise<boolean> {
         return this.checkSafariAvailable()
         .then(() => {
             this.safariViewController.hide();
@@ -34,6 +34,17 @@ export class BrowserService {
         })
         .catch(() => {
             return Promise.resolve(true);
+        })
+    }
+
+    public open_external(url: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            if (this.platform.is('ios') || this.platform.is('android')) {
+                window.open(url, '_system');
+            } else {
+                window.open(url, '_blank');
+            }
+            resolve(true);
         })
     }
 
