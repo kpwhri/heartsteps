@@ -50,6 +50,7 @@ class FitbitDay(models.Model):
     step_count = models.PositiveIntegerField(default=0)
     _distance = models.DecimalField(default=0, max_digits=9, decimal_places=3)
     average_heart_rate = models.PositiveIntegerField(default=0)
+    wore_fitbit = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -70,14 +71,28 @@ class FitbitDay(models.Model):
     def distance(self, value):
         self._distance = value
 
-    @property
-    def wore_fitbit(self):
-        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT'):
-            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT')
-        if self.step_count >= settings.FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT:
+    def get_wore_fitbit(self):
+        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES'):
+            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES')
+        minimum_wear_minutes = settings.FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES
+
+        day_start = self.get_start_datetime()
+        active_day_start = day_start.replace(hour=8)
+        active_day_end = day_start.replace(hour=20)
+
+        total_heart_rates = FitbitMinuteHeartRate.objects.filter(
+            account = self.account,
+            time__range = [
+                active_day_start,
+                active_day_end
+            ],
+            heart_rate__gt = 0
+        ).count()
+        if total_heart_rates >= minimum_wear_minutes:
             return True
         else:
             return False
+        
 
     def get_timezone(self):
         return pytz.timezone(self._timezone)

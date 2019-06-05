@@ -22,6 +22,7 @@ from watch_app.models import StepCount as WatchStepCount
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
 
+@override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES=20)
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
 class ServiceTestCase(TestCase):
 
@@ -48,7 +49,19 @@ class ServiceTestCase(TestCase):
             user = self.user
         )
 
-    def create_fitbit_day(self, day, step_count=500):
+    def create_heart_rate_range(self, start_datetime, minutes):
+        for offset in range(minutes):
+            FitbitMinuteHeartRate.objects.create(
+                account = self.fitbit_account,
+                time = (start_datetime + timedelta(minutes=offset)).astimezone(pytz.UTC),
+                heart_rate = 70
+            )
+
+    def create_fitbit_day(self, day, step_count=500, wore_minutes=30):
+        self.create_heart_rate_range(
+            start_datetime = datetime(day.year, day.month, day.day, 11),
+            minutes = wore_minutes
+            )
         FitbitDay.objects.create(
             account = self.fitbit_account,
             date = day,
@@ -149,7 +162,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.configuration.pooling = True
         self.configuration.save()
         self.create_fitbit_day(date.today() - timedelta(days=3), step_count=500)
-        self.create_fitbit_day(date.today() - timedelta(days=2), step_count=0)
+        self.create_fitbit_day(date.today() - timedelta(days=2), step_count=0, wore_minutes=0)
         self.create_fitbit_day(date.today() - timedelta(days=1), step_count=1000)
         self.create_fitbit_day(date.today(), step_count=1500)
         FitbitMinuteStepCount.objects.create(
@@ -272,7 +285,6 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.update(timezone.now())
 
-@override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_STEP_COUNT=100)
 @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
 class CanInitializeWalkingSuggestionService(ServiceTestCase):
 
@@ -304,8 +316,8 @@ class CanInitializeWalkingSuggestionService(ServiceTestCase):
 
     def test_allows_non_contiguous_days(self):
         self.create_fitbit_day(date.today())
-        self.create_fitbit_day(date.today() - timedelta(days=1), 70)
-        self.create_fitbit_day(date.today() - timedelta(days=2), 20)
+        self.create_fitbit_day(date.today() - timedelta(days=1), 70, wore_minutes=10)
+        self.create_fitbit_day(date.today() - timedelta(days=2), 20, wore_minutes=10)
         self.create_fitbit_day(date.today() - timedelta(days=3))
         self.create_fitbit_day(date.today() - timedelta(days=4))
 
@@ -319,8 +331,8 @@ class CanInitializeWalkingSuggestionService(ServiceTestCase):
 
     def test_not_enough_days(self):
         self.create_fitbit_day(date.today())
-        self.create_fitbit_day(date.today() - timedelta(days=1), 90)
-        self.create_fitbit_day(date.today() - timedelta(days=2), 200)
+        self.create_fitbit_day(date.today() - timedelta(days=1), 90, wore_minutes=10)
+        self.create_fitbit_day(date.today() - timedelta(days=2), 200, wore_minutes=10)
 
         try:
             self.service.initialize(date.today())
@@ -392,22 +404,22 @@ class GetStepsTests(ServiceTestCase):
 
     def setUp(self):
         self.create_walking_suggestion_service()
-        account = FitbitAccount.objects.create(
+        self.fitbit_account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
         FitbitAccountUser.objects.create(
-            account = account,
+            account = self.fitbit_account,
             user = self.user
         )
-        day = FitbitDay.objects.create(
-            account = account,
-            date = datetime(2018,10,10),
-            step_count = 400
+        self.create_fitbit_day(
+            day = date(2018,10,10),
+            step_count = 400,
+            wore_minutes = 30
         )
 
     def test_gets_steps(self):
         steps = self.service.get_steps(datetime(2018,10,10))
-        assert steps == 400
+        self.assertEqual(steps, 400)
 
     def test_gets_no_steps(self):
         steps = self.service.get_steps(datetime(2018,10,11))

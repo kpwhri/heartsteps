@@ -237,7 +237,7 @@ class MakeDecisionTests(TestBase):
 
         make_decision(self.decision.id)
 
-        self.send_notification.assert_called_with("Example message", title=None)
+        self.send_notification.assert_called_with("Example message", title='Been sitting for too long?')
     
     @override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
     @patch.object(AntiSedentaryClient, 'make_request')
@@ -252,7 +252,7 @@ class MakeDecisionTests(TestBase):
         decision = AntiSedentaryDecision.objects.get()
         self.assertTrue(decision.treated)
         self.assertEqual(decision.treatment_probability, 0.75)
-        self.send_notification.assert_called_with("Example message", title=None)
+        self.send_notification.assert_called_with("Example message", title='Been sitting for too long?')
 
         make_request.assert_called_with(
             uri = 'decision',
