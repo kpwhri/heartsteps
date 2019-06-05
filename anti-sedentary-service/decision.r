@@ -127,7 +127,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                            missingindicator = 0, duplicate = TRUE)
     
-    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
     
     results <- list(
       a_it = 0,
@@ -205,7 +205,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                            missingindicator = 0, duplicate = FALSE)
     
-    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
 
