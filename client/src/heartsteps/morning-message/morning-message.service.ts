@@ -62,11 +62,10 @@ export class MorningMessageService {
             return this.heartstepsServer.post(
                 'morning-messages/' + formattedDate + '/survey',
                 values
-            )
-            .then((response) => {
-                morningMessage.response = response;
-                return this.set(morningMessage);
-            })
+            );
+        })
+        .then(() => {
+            return this.load();
         })
         .then(() => {
             return true;
