@@ -94,6 +94,18 @@ class Participant(models.Model):
     def watch_app_installed(self):
         return self._watch_app_installed
 
+    def _fitbit_authorized(self):
+        u = self.user
+        if u:
+            if u.authenticationsession_set:
+                return True
+        return False
+    _fitbit_authorized.boolean = True
+
+    @property
+    def fitbit_authorized(self):
+        return self._fitbit_authorized
+
     @property
     def date_enrolled(self):
         if self.user:
