@@ -29,7 +29,7 @@ export class DashboardNotificationComponent {
 
         this.morningMessageService.get()
         .then((morningMessage) => {
-            if(!morningMessage.surveyComplete) {
+            if(!morningMessage.isComplete()) {
                 this.morningMessage = morningMessage;
             }
         })

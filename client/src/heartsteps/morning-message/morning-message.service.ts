@@ -25,6 +25,36 @@ export class MorningMessageService {
         });
     }
 
+    public load():Promise<MorningMessage> {
+        const today:string = moment().format("YYYY-MM-DD");
+        return this.heartstepsServer.get('morning-messages/' + today)
+        .then((data) => {
+            const message = this.deserialize(data);
+            return this.set(message);
+        })
+        .then((morningMessage) => {
+            return this.heartstepsServer.get('morning-messages/' + today + '/survey/response')
+            .then((response) => {
+                morningMessage.response = response;
+                return this.set(morningMessage);
+            });
+        });
+    }
+
+    public complete():Promise<boolean> {
+        return this.get()
+        .then((morningMessage) => {
+            if(morningMessage.id) {
+                return this.messageReceiptService.engaged(morningMessage.id)
+            } else {
+                return Promise.resolve(true)
+            }
+        })
+        .catch(() => {
+            return Promise.resolve(true);
+        });
+    }
+
     public submitSurvey(values: any): Promise<boolean> {
         return this.get()
         .then((morningMessage) => {
@@ -44,15 +74,21 @@ export class MorningMessageService {
     }
 
     public processMessage(message: Message):Promise<MorningMessage> {
-        return this.set({
-            id: message.id,
-            date: message.context.date,
-            notification: message.body,
-            text: message.context.text,
-            anchor: message.context.anchor,
-            survey: message.context.survey,
-            response: undefined,
-            surveyComplete: false
+        const morningMessage = new MorningMessage();
+        morningMessage.id = message.id;
+        morningMessage.date = message.context.date;
+        morningMessage.notification = message.body;
+        morningMessage.text = message.context.text;
+        morningMessage.anchor = message.context.anchor;
+        morningMessage.survey = message.context.survey;
+        return this.set(morningMessage);
+    }
+
+    public requestNotification():Promise<boolean> {
+        const today:string = moment().format("YYYY-MM-DD");
+        return this.heartstepsServer.post('morning-messages/' + today, {})
+        .then(() => {
+            return true;
         });
     }
 
@@ -80,50 +116,8 @@ export class MorningMessageService {
         });
     }
 
-    public complete():Promise<boolean> {
-        return this.get()
-        .then((morningMessage) => {
-            morningMessage.surveyComplete = true;
-            return this.set(morningMessage);
-        })
-        .then((morningMessage) => {
-            if(morningMessage.id) {
-                return this.messageReceiptService.engaged(morningMessage.id)
-            } else {
-                return Promise.resolve(true)
-            }
-        })
-        .catch(() => {
-            return Promise.resolve(true);
-        });
-    }
-
     public clear():Promise<boolean> {
         return this.storage.remove(storageKey)
-        .then(() => {
-            return true;
-        });
-    }
-
-    public load():Promise<MorningMessage> {
-        const today:string = moment().format("YYYY-MM-DD");
-        return this.heartstepsServer.get('morning-messages/' + today)
-        .then((data) => {
-            const message = this.deserialize(data);
-            return this.set(message);
-        })
-        .then((morningMessage) => {
-            return this.heartstepsServer.get('morning-messages/' + today + '/survey/response')
-            .then((response) => {
-                morningMessage.response = response;
-                return this.set(morningMessage);
-            });
-        });
-    }
-
-    public requestNotification():Promise<boolean> {
-        const today:string = moment().format("YYYY-MM-DD");
-        return this.heartstepsServer.post('morning-messages/' + today, {})
         .then(() => {
             return true;
         });
@@ -138,7 +132,6 @@ export class MorningMessageService {
         message.anchor = data.anchor;
         message.survey = data.survey;
         message.response = data.response;
-        message.surveyComplete = data.surveyComplete;
         return message;
     }
 
@@ -154,8 +147,7 @@ export class MorningMessageService {
             text: message.text,
             anchor: message.anchor,
             survey: message.survey,
-            response: message.response,
-            surveyComplete: message.surveyComplete
+            response: message.response
         }
     }
 
