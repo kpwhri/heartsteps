@@ -130,7 +130,10 @@ class Survey(models.Model):
         for question in self.questions:
             answers[question.name] = None
         for survey_response in SurveyResponse.objects.filter(survey=self).all():
-            answers[survey_response.question.name] = survey_response.answer.value
+            if survey_response.answer:
+                answers[survey_response.question.name] = survey_response.answer.value
+            else:
+                answers[survey_response.question.name] = None
         return answers
 
     def get_questions(self):

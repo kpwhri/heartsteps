@@ -56,10 +56,11 @@ def nightly_update(username, day_string):
         service = WalkingSuggestionService(username=username)
     except WalkingSuggestionService.Unavailable:
         return None
+    configuration = Configuration.objects.get(user__username = username)
     if not service.is_initialized():
+        NightlyUpdate.objects.filter(user = configuration.user).delete()
         service.initialize(date=day)
     else:
-        configuration = Configuration.objects.get(user__username = username)
         last_update_query = NightlyUpdate.objects.filter(
             user = configuration.user,
             updated = True,
@@ -83,8 +84,9 @@ def nightly_update(username, day_string):
 
 @shared_task
 def initialize_and_historical_update(username):
-    day_service = DayService(username=username)
-    walking_suggestion_service = WalkingSuggestionService(username=username)
+    configuration = Configuration.objects.get(user__username = username)
+    day_service = DayService(user=configuration.user)
+    walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
     
     days_to_go_back = 21
     today = day_service.get_current_date()
@@ -99,8 +101,13 @@ def initialize_and_historical_update(username):
             pass
     
     walking_suggestion_service.initialize(initialize_date)
+    NightlyUpdate.objects.filter(user = configuration.user).delete()
     
     while len(date_range):
         update_date = date_range.pop()
         walking_suggestion_service.update(update_date)
-
+        NightlyUpdate.objects.create(
+            user = configuration.user,
+            day = update_date,
+            updated = True
+        )

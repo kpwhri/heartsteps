@@ -2,6 +2,20 @@
     <dd>{{activityType}}, {{activityLevel}}</dd>
     <dd>{{timeOfDay}}, {{duration}}</dd>
 </dl>
-<button *ngIf="complete" class="complete">Edit plan</button>
-<button *ngIf="!complete" class="incomplete">Complete plan</button>
-<button class="edit">Edit plan</button>
+<button *ngIf="complete"
+    (click)="goToComplete()"
+    class="complete"
+    >
+    Edit plan
+</button>
+<button *ngIf="!complete"
+    class="incomplete"
+    (click)="goToComplete()"
+    >
+    Complete plan
+</button>
+<button class="edit"
+    (click)="goToEdit()"
+    >
+    Edit plan
+</button>

@@ -12,6 +12,7 @@ import { ActivityEnjoyedModalComponent } from './activity-enjoyed-modal.componen
 import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
 import { ActivityEnjoyedFieldComponent } from './activity-enjoyed-field.component';
 import { CachedActivityLogService } from './cached-activity-log.service';
+import { ParticipantModule } from '@heartsteps/participants/participant.module';
 
 @NgModule({
     imports: [
@@ -20,6 +21,7 @@ import { CachedActivityLogService } from './cached-activity-log.service';
         ActivityTypeModule,
         DialogsModule,
         FormModule,
+        ParticipantModule,
         IonicPageModule.forChild(LogFormComponent)
     ],
     declarations: [

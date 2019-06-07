@@ -9,6 +9,7 @@ export class Participant{
     name: string;
     profileComplete: boolean;
     staff: boolean;
+    dateEnrolled: Date;
 }
 
 const storageKey = 'heartsteps-id'
@@ -51,13 +52,15 @@ export class ParticipantService {
         return Promise.all([
             this.getProfileComplete(),
             this.getStaffStatus(),
-            this.getName()
+            this.getName(),
+            this.participantInformationService.getDateEnrolled()
         ])
         .then((results) => {
             return {
                 name: results[2],
                 profileComplete: results[0],
-                staff: results[1]
+                staff: results[1],
+                dateEnrolled: results[3]
             }
         });
     }

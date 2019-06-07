@@ -11,8 +11,11 @@ export class ActivitiesPage implements OnInit {
     constructor(
         private cachedActivityLogService: CachedActivityLogService
     ){
-        this.days = this.cachedActivityLogService.getCachedDates().reverse();
-        this.cachedActivityLogService.update();
+        this.cachedActivityLogService.getCachedDates()
+        .then((cachedDates) => {
+            this.days = cachedDates.reverse();
+            this.cachedActivityLogService.update();
+        });
     }
 
     ngOnInit() {

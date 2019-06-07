@@ -6,6 +6,7 @@ import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.servi
 import { DateFactory } from "@infrastructure/date.factory";
 import * as moment from 'moment';
 import { Subscribable } from "rxjs/Observable";
+import { ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
 
 @Injectable()
 export class CachedActivityLogService {
@@ -17,7 +18,8 @@ export class CachedActivityLogService {
     constructor(
         private documentStorageService: DocumentStorageService,
         private activityLogService: ActivityLogService,
-        private dateFactory: DateFactory
+        private dateFactory: DateFactory,
+        private participantInformationService: ParticipantInformationService
     ) {}
 
     public setup():Promise<boolean> {
@@ -64,30 +66,39 @@ export class CachedActivityLogService {
         return Promise.resolve([]);
     }
 
-    public getCachedDates(): Array<Date> {
-        const days = [];
-        const today = new Date();
-        
-        days.push(today);
-        this.dateFactory.getCurrentWeek().reverse().forEach((day) => {
-            if(moment(day).isBefore(today, 'day')) {
-                days.push(day);
-            }
+    public getCachedDates(): Promise<Array<Date>> {
+        return this.participantInformationService.getDateEnrolled()
+        .then((dateEnrolled) => {
+            const days = [];
+            const today = new Date();
+            
+            days.push(today);
+            this.dateFactory.getCurrentWeek().reverse().forEach((day) => {
+                if(moment(day).isBefore(today, 'day') && moment(day).isSameOrAfter(dateEnrolled, 'day')) {
+                    days.push(day);
+                }
+            });
+            const dayLastWeek: Date = moment().subtract(7, 'days').toDate();
+            this.dateFactory.getWeek(dayLastWeek).reverse().forEach((day) => {
+                if(moment(day).isSameOrAfter(dateEnrolled, 'day')) {
+                    days.push(day);
+                }
+            });
+    
+            return days.reverse();
+        })
+        .catch(() => {
+            return Promise.resolve([]);
         });
-        const dayLastWeek: Date = moment().subtract(7, 'days').toDate();
-        this.dateFactory.getWeek(dayLastWeek).reverse().forEach((day) => {
-            days.push(day);
-        });
-
-        return days.reverse();
     }
 
     public update(): Promise<Array<ActivityLog>> {
-        const cachedDates = this.getCachedDates();
-        const firstDate = cachedDates[0];
-        const lastDate = cachedDates[cachedDates.length-1];
-
-        return this.activityLogService.get(firstDate, lastDate)
+        return this.getCachedDates()
+        .then((cachedDates) => {
+            const firstDate = cachedDates[0];
+            const lastDate = cachedDates[cachedDates.length-1];
+            return this.activityLogService.get(firstDate, lastDate)
+        })
         .then((logs) => {
             const logObj: any = {};
             logs.forEach((log) => {

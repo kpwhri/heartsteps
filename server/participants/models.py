@@ -7,10 +7,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
+from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
+
 
 class Participant(models.Model):
     """
@@ -23,6 +25,9 @@ class Participant(models.Model):
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+
+    class NotEnrolled(RuntimeError):
+        pass
 
     def enroll(self):
         user, created = User.objects.get_or_create(
@@ -75,6 +80,14 @@ class Participant(models.Model):
     @property
     def wore_fitbit_days(self):
         return self._wore_fitbit_days()
+
+    @property
+    def date_enrolled(self):
+        if self.user:
+            day_service = DayService(user=self.user)
+            return day_service.get_date_at(self.user.date_joined)
+        else:
+            raise self.NotEnrolled('Not enrolled')
 
     @property
     def daily_task_name(self):

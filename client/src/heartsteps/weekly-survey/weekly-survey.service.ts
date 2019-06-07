@@ -8,7 +8,6 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { WeekService } from "./week.service";
 import { ReflectionTimeService } from "./reflection-time.service";
-import { dateDataSortValue } from "ionic-angular/umd/util/datetime-util";
 
 export class WeeklySurvey {
     public currentWeek:Week;
@@ -53,7 +52,7 @@ export class WeeklySurveyService {
         return this.load()
         .then((weeklySurvey) => {
             weeklySurvey.starts = new Date();
-            weeklySurvey.expires = moment().add(1, 'hour').toDate();
+            weeklySurvey.expires = moment().add(5, 'minutes').toDate();
             return this.save(weeklySurvey);
         })
         .then(() => {
@@ -176,12 +175,12 @@ export class WeeklySurveyService {
             survey.expires = moment(reflectionDate).add(1, 'days').toDate();
             return this.save(survey);
         })
-        .then((survey) => {
+        .then((weeklySurvey) => {
             return this.weekService.getWeekSurvey(survey.currentWeek)
-            .then((questions) => {
-                console.log(questions);
-                survey.questions = questions.questions;
-                return this.save(survey);
+            .then((survey) => {
+                weeklySurvey.completed = survey.completed;
+                weeklySurvey.questions = survey.questions;
+                return this.save(weeklySurvey);
             });
         });
     }

@@ -18,18 +18,17 @@ print payload
 r = requests.post(url, json=payload)
 print(r.text)
 
+test_payloads = [{
+    "userid": ["test-pedja"],
+    "decisionid": ["1e6e2181-8d3e-432f-8c35-23c6d7e309c0"],
+    "time": ["2019-06-04 16:55"],
+    "daystart": ["2019-06-04 8:00"],
+    "dayend": ["2019-06-04 20:00"],
+    "state": [1],
+    "available": [1],
+    "steps": [43]
+}]
 '''
-test_payloads = [
-    {
-        "userid": ["test-user"],
-        "decisionid": ["0ad3546a-e010-4def-865c-60405a2cf623"],
-        "time": ["2019-05-03 10:00"],
-        "daystart": ["2019-05-03 08:00"],
-        "dayend": ["2019-05-03 20:00"],
-        "state": [1],
-        "available": [1],
-        "steps": [0]
-    },
     {
         "userid": ["test-user"],
         "decisionid": ["17d523c9-8904-4562-8c76-46666403d741"],
@@ -61,16 +60,16 @@ test_payloads = [
         "steps": [0]
     }
 ]
+'''
 
 for payload in test_payloads:
     print payload
     r = requests.post(url, json=payload)
     print r.text
-'''
 
 url = "http://localhost:5001/nightly"
 payload = {
-    "userid": [ 2 ],
+    "userid": [ 1 ],
     "decisionid": [ 1803312 ] ,
     "time": [ "2018-10-12 10:05" ] ,
     "daystart": [ "2018-10-12 8:00" ] ,

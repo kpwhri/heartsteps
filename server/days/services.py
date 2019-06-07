@@ -101,6 +101,12 @@ class DayService:
 
     def get_datetime_at(self, dt):
         tz = self.get_timezone_at(dt)
+        if type(dt) is datetime.date:
+            return tz.localize(datetime.datetime(
+                dt.year,
+                dt.month,
+                dt.day
+            ))
         return dt.astimezone(tz)
 
     def get_current_datetime(self):
