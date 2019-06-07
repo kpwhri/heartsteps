@@ -60,5 +60,6 @@ class ParticipantInformationView(APIView):
             return Response('No participant for user', status=status.HTTP_404_NOT_FOUND)
         return Response({
             'heartstepsId': service.get_heartsteps_id(),
-            'staff': request.user.is_staff
+            'staff': request.user.is_staff,
+            'date_enrolled': service.participant.date_enrolled.strftime('%Y-%m-%d')
         })
