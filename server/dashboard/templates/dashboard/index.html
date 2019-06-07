@@ -39,6 +39,7 @@
                 <th scope='col'>Enrolled</th>
                 <th scope='col'>Active</th>
                 <th scope='col'>Fitbit Days Worn</th>
+                <th scope='col'>Watch App Installed</th>
                 <th scope='col'>Phone</th>
             </tr>
         </thead>
@@ -51,6 +52,7 @@
                 <td>{{participant.enrolled}}</td>
                 <td>{{participant.is_active}}</td>
                 <td>{{participant.wore_fitbit_days}}</td>
+                <td>{{participant.watch_app_installed}}</td>
                 <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
                 <td></td>
             </tr>

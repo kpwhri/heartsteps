@@ -10,6 +10,7 @@ from daily_tasks.models import DailyTask
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
@@ -80,6 +81,18 @@ class Participant(models.Model):
     @property
     def wore_fitbit_days(self):
         return self._wore_fitbit_days()
+
+    def _watch_app_installed(self):
+        u = self.user
+        if u:
+            if u.watchinstall_set:
+                return True
+        return False
+    _watch_app_installed.boolean = True
+
+    @property
+    def watch_app_installed(self):
+        return self._watch_app_installed
 
     @property
     def date_enrolled(self):
