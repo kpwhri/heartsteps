@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
+from fitbit_activities.models import FitbitDay
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
@@ -47,16 +49,32 @@ class Participant(models.Model):
     _is_active.boolean = True
 
     @property
+    def is_active(self):
+        return self._is_active
+
+    @property
     def enrolled(self):
         return self._is_enrolled()
 
-    # def _last_fitbit_data_dtm(self):
-    #     try:
-    #         last_fitbit_data = self.user.fitbitaccountuser \
-    #             .fitbitaccount.fitbitminutestepcount
-    #     except FindErrorHere:
-    #         pass
-    #     return -1
+    def _wore_fitbit_days(self):
+        if not self._is_enrolled:
+            return 0
+
+        u = self.user
+        if u:
+            try:
+                return u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).count()
+            except (FitbitAccountUser.DoesNotExist,
+                     FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
+                print("Error in " + u.username + ": " + str(e))
+                return 0
+        else:
+            return 0
+
+    @property
+    def wore_fitbit_days(self):
+        return self._wore_fitbit_days()
 
     @property
     def daily_task_name(self):
