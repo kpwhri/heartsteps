@@ -127,7 +127,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                            missingindicator = 0, duplicate = TRUE)
     
-    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
     
     results <- list(
       a_it = 0,
@@ -166,6 +166,9 @@ if(return_default) {
     
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
     decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
+    # Only keep rows that have states in 0,1 and no NA values
+    good.Ht.obs= is.element(H.t$old.states, c(0,1)) & rowSums(is.na(H.t)) == 0
+    H.t = H.t[good.Ht.obs,] 
     if(nrow(H.t) != 0) {
       temp = H.t$time.diff-H.t$time.diff%%5
       grid = seq(5, max(temp), by = 5)
@@ -209,7 +212,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                            missingindicator = 0, duplicate = FALSE)
     
-    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
 
