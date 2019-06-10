@@ -19,14 +19,14 @@ r = requests.post(url, json=payload)
 print(r.text)
 
 test_payloads = [{
-    "userid": ["test-pedja"],
-    "decisionid": ["1e6e2181-8d3e-432f-8c35-23c6d7e309c0"],
-    "time": ["2019-06-04 16:55"],
-    "daystart": ["2019-06-04 8:00"],
-    "dayend": ["2019-06-04 20:00"],
+    "userid": ["test-donna"],
+    "decisionid": ["cf6fede2-3554-431d-afcd-39f01bb81cf3"],
+    "time": ["2019-06-07 14:40"],
+    "daystart": ["2019-06-07 8:00"],
+    "dayend": ["2019-06-07 20:00"],
     "state": [1],
-    "available": [1],
-    "steps": [43]
+    "available": [0],
+    "steps": [0]
 }]
 '''
     {
