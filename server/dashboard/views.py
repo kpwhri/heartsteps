@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.generic import ListView
 
 from contact.models import ContactInformation
-from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Participant
 from sms_service.forms import SendSMSForm

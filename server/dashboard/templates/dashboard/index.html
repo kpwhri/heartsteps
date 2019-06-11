@@ -2,7 +2,6 @@
 <html>
     <head>
         {% load static %}
-        {% load dashboard_tags %}
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -42,6 +41,7 @@
                 <th scope='col'>Fitbit Days Worn</th>
                 <th scope='col'>Watch App Installed</th>
                 <th scope='col'>Fitbit Authorized</th>
+                <th scope='col'>Last Fitbit Sync</th>
                 <th scope='col'>Phone</th>
             </tr>
         </thead>
@@ -75,6 +75,12 @@
                     {% else %}
                     <img src="{% static 'admin/img/icon-no.svg' %}" />
                     {% endif %}
+                </td>
+                <td>
+                    {% load tz %}
+                    {% timezone 'US/Pacific' %}
+                    {{ participant.last_fitbit_sync|date }}
+                    {% endtimezone %}
                 </td>
                 <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
                 <td></td>

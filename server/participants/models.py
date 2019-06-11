@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
 from days.services import DayService
-from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteStepCount, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from watch_app.models import StepCount, WatchInstall
 
@@ -105,6 +105,26 @@ class Participant(models.Model):
     @property
     def fitbit_authorized(self):
         return self._fitbit_authorized
+
+    def _last_fitbit_sync(self):
+        if not self._is_enrolled:
+            return 0
+
+        u = self.user
+        if u:
+            try:
+                return u.fitbitaccountuser.account \
+                    .fitbitminutestepcount_set \
+                    .latest('time').time
+            except (FitbitAccountUser.DoesNotExist, FitbitAccount.DoesNotExist, FitbitMinuteStepCount.DoesNotExist) as e:
+                print("Error in " + u.username + ": " + str(e))
+                return 0
+        else:
+            return 0
+
+    @property
+    def last_fitbit_sync(self):
+        return self._last_fitbit_sync
 
     @property
     def date_enrolled(self):
