@@ -9,7 +9,8 @@ localtest = T
 #' 
 
 library(rjson)
-library(zoo, warn.conflicts=FALSE)
+library(zoo, warn.conflicts=FALSE, quietly = T)
+library(fda, warn.conflicts=FALSE, quietly =T)
 
 # ================ Recieve and Process the input ================ 
 
@@ -34,14 +35,13 @@ if(server){
     
   }else{
     
-    input <- fromJSON(file = "./test/update_1.json")
-    
+    input <- fromJSON(file = "./test/update_7.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
   }
   
 }
-
-# save the input
 
 
 # ================ Asscess the day's data ================ 
@@ -123,16 +123,26 @@ check  = tryCatch(expr = {
 if(is.null(check)){
   
   
-  tmp.data <- data.dosage$dataset
+  # =============== Impute dosage for the missing decision times for today ===============
   
   # check if 1st decision time skipped
-  if(is.na(tmp.data$anti2[tmp.data$day == input$studyDay & tmp.data$timeslot == 1])){
+  if(nrow(subset(data.dosage$dataset, day == input$studyDay & timeslot == 1)) == 0){
     
-    tmp.data$anti2[tmp.data$day == input$studyDay & tmp.data$timeslot == 1] <- input$priorAntiArray[1]
+    # skipped and previous nightly update does not occur
+    data.dosage$dataset <- rbind(data.dosage$dataset, c(input$studyDay, 1, NA, NA, input$priorAntiArray[1]))
+    
+  }else{
+    
+    if(is.na(data.dosage$dataset$anti2[data.dosage$dataset$day == input$studyDay & data.dosage$dataset$timeslot == 1])){
+      
+      # if skipped, then fill in the anti2
+      data.dosage$dataset$anti2[data.dosage$dataset$day == input$studyDay & data.dosage$dataset$timeslot == 1] <- input$priorAntiArray[1]
+      
+    }
+    
   }
-  
-  # check if today's 2-5thdecision time being skipped
-  if(all((2:5 %in% tmp.data$timeslot[tmp.data$day == input$studyDay])) == F){
+  # check if there is any 2-5thdecision time being skipped today
+  if(all((2:5 %in% data.dosage$dataset$timeslot[data.dosage$dataset$day == input$studyDay])) == F){
     
      temp <- data.frame(day = rep(input$studyDay, 4), 
                      timeslot = 2:5, 
@@ -140,19 +150,20 @@ if(is.null(check)){
                      anti1 = input$priorAntiArray[2:5],
                      anti2 = rep(0, 4))
      
-    index <- which(2:5 %in% tmp.data$timeslot[tmp.data$day == input$studyDay] == F)
+    index <- which(2:5 %in% data.dosage$dataset$timeslot[data.dosage$dataset$day == input$studyDay] == F)
     
      data.dosage$dataset <- rbind(data.dosage$dataset, temp[index,])
-     data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
+     
      
   }
-  
+  data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
   
   # =============== Process input ===============
   
   # convert NULL to NA
   names.array <- c("temperatureArray", "preStepsArray", "postStepsArray", 
                    "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray")
+  
   for(name in names.array){
     input[[name]] <- proc.array(input[[name]])
   }
@@ -163,42 +174,31 @@ if(is.null(check)){
   
   # =============== Create the day history ============= 
   
-  # imputed dosage dataset
-  temp <- data.dosage$dataset;
+  # imputed dosage dataset for all days
+  temp <- data.dosage$dataset
   for(d in 1:input$studyDay){
     
     for(k in 1:5){
       
-      if(k == 1){
+      if(nrow(subset(temp, day == d & timeslot == k)) == 0){
         
-        # previous n.u occurs, 1st decision time skipped and n.p does not occur ever
-        if(is.na(temp$anti2[temp$day == d & temp$timeslot == 1])){
-          
-          temp$anti2[temp$day == d & temp$timeslot == 1] <- 0 # need to change
-          
-        }
+        temp <- rbind(temp, c(d, k, NA, NA, 0)) # anti2 is always 2 for 2-5 decision time
         
       }
-      if(nrow(subset(temp, day == d & timeslot == k)) == 0) {
-        
-        # if the n.p does not occur and decision time is not reached
-        
-        temp <- rbind(temp, c(d, k, 0,  0,  0)) # need to change
-      }
+      
     }
-
   }
-  
   temp <- temp[order(temp$day, temp$timeslot), ]
-  event <- (temp$walk + temp$anti1 + temp$anti2 > 1);
+  temp[is.na(temp)] <- 0 # NA means nothing we can do
   
   # calculate the dosage
-  tmp.dat <- data.frame(day = -1, timeslot = 5, dosage = data.dosage$init)
-  x <- data.dosage$init; 
+  event <- (temp$walk + temp$anti1 + temp$anti2 > 0);
+  dosage.mat <- data.frame(day = -1, timeslot = 5, dosage = data.dosage$init)
+  x <- data.dosage$init;
   for(j in 1:length(event)) {
-    
+
     x <- update.dosage(x, increase = event[j])
-    tmp.dat <- rbind(tmp.dat, c(temp$day[j], temp$timeslot[j], x))
+    dosage.mat <- rbind(dosage.mat, c(temp$day[j], temp$timeslot[j], x))
   }
   
   
@@ -208,17 +208,9 @@ if(is.null(check)){
     for(kk in 1:5){
       
       # other interactions 
-      current.dosage <- NA
-      if(input$locationArray[kk] %in% c(0, 1, 2)){
-        
-        work.loc <- input$locationArray[kk] == 1;
-        other.loc <- input$locationArray[kk] == 0;
-        
-      }else{
-        
-        work.loc <- other.loc <- NA
-        
-      }
+      current.dosage <- dosage.mat$dosage[which(dosage.mat$day == input$studyDay & dosage.mat$timeslot == kk)]
+      work.loc <- input$locationArray[kk] == 1;
+      other.loc <- input$locationArray[kk] == 0;
       
       engagement.indc <- data.day$engagement;
       variation.indc <- data.day$variation[kk]
@@ -228,6 +220,7 @@ if(is.null(check)){
                              work.loc, 
                              other.loc, 
                              variation.indc)
+      
       if(is.null(data.decision) == TRUE){
         
         # since the initialization, nothing occurs 
@@ -280,10 +273,6 @@ if(is.null(check)){
     }
     day.history <- data.frame(day.history[order(day.history[, 2]),])
     colnames(day.history) <- data.day$var.names
-    
-    # dosage redefined
-    dosage.index <- which(data.day$var.names == "dosage")
-    day.history[, dosage.index] <- subset(tmp.dat, day == input$studyDay)$dosage
     
     
     
@@ -409,13 +398,10 @@ if(is.null(check)){
   
   
   train.dat <- data.history
-  train.dat$dosage <- sapply(data.history$dosage, std.dosage)
   train.dat$temperature <- winsor(data.history$temperature, beta = 3, range = c(-15.6, 36.1))
   train.dat$logpresteps <- winsor.upp(data.history$logpresteps, beta = 3, range = c(log(0.5), 8.60), min.val = log(0.5))
-  daily.steps <- data.history$sqrt.totalsteps[data.history$decision.time==1]
+  daily.steps <- data.history$sqrt.totalsteps[data.history$decision.time==1] # yesterday's step, starting from the first day of using Fibit
   train.dat$sqrt.totalsteps <- rep(winsor(daily.steps, beta = 3, range = c(0, 209)), each = 5)
-  
-  
   
   # remove the prestudy data
   train.dat <- subset(train.dat, day > 0)
@@ -428,133 +414,38 @@ if(is.null(check)){
   # select the needed column for the analysis 
   train.dat <- subset(train.dat, select = -c(random.number, prepoststeps, appclick, deliever))
   
-  # remmove missing reward or NA location
+  # remmove missing reward
   train.dat <- train.dat[complete.cases(train.dat), ]
   
   
-  # save training data
-  #train.dat$user <- input$userID
-  #save(train.dat, file = paste(paths, "/train.Rdata", sep=""))
-  
   # 2. Posterior for all parameters (Hierarchy, action-centered). 
-  
-  # available cases
-  index.set <- (train.dat$availability == 1)
-  
-  # posterior update if there is available, non-missing reward case
-  if(sum(index.set) > 0){
-    
-    # restrict to the available, non-missing reward
-    # batch version of posterior calculation
-    wm <- posterior.cal(train.dat[index.set, ], 
-                        mu0 = bandit.spec$prior.mean, Sigma0 = bandit.spec$prior.var, sigma = bandit.spec$sigma,
-                        int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
-                        nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))
-    
-    # update the policy
-    data.policy$mu <- wm$mu
-    data.policy$Sigma <- wm$Sigma
-    
-  }
+  wm.txt <- txt.eff.update(train.dat, 
+                      mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1,
+                      mu2 = bandit.spec$mu2, Sigma2 = bandit.spec$Sigma2, sigma = bandit.spec$sigma,
+                      int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                      nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))
+  data.policy$mu.beta <- wm.txt$mean
+  data.policy$Sigma.beta <- wm.txt$var
   
   # 3. Margin update
-  if(bandit.spec$weight.vec[input$studyDay] > 0){
+  if(bandit.spec$weight.est > 0){
     
-    # # MDP update: transition, reward function
-    # 
-    # ## txt effect
-    # 
-    # 
-    # # missing can only be in reward; other will be imputed
-    # stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
-    # 
-    # # available, completed cases
-    # index.set <- (train.dat$availability * (is.na(train.dat$reward) == FALSE)) == 1
-    # 
-    # # posterior update if there is available, non-missing reward case
-    # if(sum(index.set) > 0){
-    #   
-    #   # restrict to the available, non-missing reward
-    #   # batch version of posterior calculation
-    #   wm <- posterior.cal(train.dat[index.set, ], 
-    #                       mu0 = bandit.spec$prior.mean.txt, Sigma0 = bandit.spec$prior.var.txt, sigma = bandit.spec$sigma.txt,
-    #                       int.names = c("dosage"),
-    #                       nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps", "engagement", "work.location", "other.location", "variation"))
-    #   
-    #   theta.txt <- wm$mu
-    #   
-    # }else{
-    #   
-    #   theta.txt <- tail(bandit.spec$prior.mean.txt, 2)
-    #   
-    # }
-    # 
-    # 
-    # 
-    # ### available baseline
-    # train.dat <- subset(std.history, day > 0, select = c(availability, action, dosage, reward))
-    # 
-    # # missing can only be in reward; other will be imputed
-    # stopifnot(sum(is.na(subset(train.dat, select = -reward))) == 0)
-    # 
-    # # available, no treatment, completed cases
-    # index.set <- (train.dat$availability * (train.dat$action == 0) * (is.na(train.dat$reward) == FALSE)) == 1
-    # 
-    # if(sum(index.set) > 0){
-    #   
-    #   
-    #   wm = posterior.cal.mar (train.dat[index.set,], 
-    #                           mu0 = bandit.spec$prior.mean.base, 
-    #                           Sigma0 = bandit.spec$prior.var.base, 
-    #                           sigma = bandit.spec$sigma.base.avail)
-    #   
-    #   theta.base = wm$mu
-    #   
-    # }else{
-    #   
-    #   theta.base <- bandit.spec$prior.mean.base
-    # }
-    # 
-    # ### unavailable baseline
-    # 
-    # # UN-available (no treatment) completed cases
-    # stopifnot(all(train.dat$action[train.dat$availability == F] == 0))
-    # index.set <- ((train.dat$availability == F) * (is.na(train.dat$reward) == FALSE)) == 1
-    # 
-    # if(sum(index.set) > 0){
-    #   
-    #   
-    #   wm = posterior.cal.mar (train.dat[index.set,], 
-    #                           mu0 = bandit.spec$prior.mean.unavail, 
-    #                           Sigma0 = bandit.spec$prior.var.unavail, 
-    #                           sigma = bandit.spec$sigma.unavail)
-    #   
-    #   theta.unavail = wm$mu
-    #   
-    # }else{
-    #   
-    #   theta.unavail <- bandit.spec$prior.mean.unavail
-    # }
-    # 
-    # ### estimated reward function
-    # feat.val = function(x) c(1, std.dosage(x))
-    # rwrd.est = function(x, i, a) c(ifelse(i==1, sum(feat.val(x) * theta.base) + a*sum(feat.val(x) * theta.txt), 
-    #                                       sum(feat.val(x) * theta.unavail)))
-    # 
-    # ## trainsition model for availability
-    # prob_avail <- mean(data.history$availability, na.rm = TRUE)
-    # 
-    # # get the estimated value function
-    # Q.est = Cal.Q(rwrd.est, prob_avail, bandit.spec$gamma.mdp, bandit.spec$alpha0, bandit.spec$alpha1)
-    # 
-    # # weighted average between initial
-    # weight <- bandit.spec$weight.vec[input$studyDay]
-    # Q.int <- bandit.spec$init.Q.mat
-    # Q.mat <- (1-weight) * Q.int + weight* Q.est
-    # 
-    # # update the policy data
-    # data.policy$Q.mat <- Q.mat
+    alpha0 <- unavail.update(train.dat, mu0 = bandit.spec$mu0, Sigma0 = bandit.spec$Sigma0, sigma = bandit.spec$sigma, 
+                             int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                             nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))$mean
     
+    alpha1 <- main.eff.update(train.dat, mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1, sigma = bandit.spec$sigma, 
+                    int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                    nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))$mean
+    
+    alpha2 <- wm.txt$mean
+    
+    data.policy$eta.fn <- eta.update (train.dat, alpha0, alpha1, alpha2, 
+                            int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                            nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))
+    
+    
+     
   }
   
   # ================ Initialize the daily dataset used for next day ================
@@ -564,7 +455,7 @@ if(is.null(check)){
   today.click <- day.history$appclick[1];
   daily.click <- subset(data.history, day > 0 & decision.time == 1)$appclick;
   threshold <- as.numeric(quantile(daily.click, probs = 0.4))
-  engagement.indc <- (today.click >= threshold)
+  engagement.indc <- (today.click > threshold)
   
   # variation
   variation.indc <- rep(NA, 5)
@@ -573,11 +464,14 @@ if(is.null(check)){
     
     temp <- data.history$prepoststeps[data.history$decision.time == k]
     temp <- rollapply(temp, width=7, FUN=sd, align='right', fill = NA) # rolling sd over past 7 days (including today)
-    temp <- tail(temp, 1+input$studyDay) # the first one corresponds to the sd calculated in the first week with no app
+    temp <- temp[is.na(temp) == F] # missing days and the first 7 days 
+    
     
     Y1 <- temp[length(temp)] # today's sd
-    Y0 <- median(temp[1:(length(temp)-1)]) # median of the past
-    variation.indc[k] <- (Y1 >= Y0)
+    Y0 <- median(temp)
+    variation.indc[k] <- (Y1 > Y0)
+    
+    
     
   }
   
@@ -644,3 +538,5 @@ if(is.null(check)){
   
   cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
+
+
