@@ -1,7 +1,11 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 from .resources import *
 
-# Create the django-import-export resource & instantialize
+def is_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_staff)
 def export_table(request, export_table):
     export_resource = create_resource(export_table)
     if export_resource in EXCEPTION_FOUND:

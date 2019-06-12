@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Case, IntegerField, Sum, When
@@ -36,7 +37,10 @@ class DashboardListView(UserPassesTestMixin, ListView):
     def post(self, request, *args, **kwargs):
         return SendSmsCreateView.as_view()(request)
 
+def is_staff(user):
+    return user.is_staff
 
+@user_passes_test(is_staff)
 def index(request):
     participant_list = Participant.objects.all(
         ).prefetch_related('user').order_by('heartsteps_id')
