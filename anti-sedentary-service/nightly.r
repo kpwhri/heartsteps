@@ -64,10 +64,9 @@ if ( any(is.element(user.data$time,current.time)) ) {
                          online_state = -1, online_step = -1, available = 0,
                          batch_state = input$state, batch_step = input$steps, probaction = 0.0, action = 0.0,
                          missingindicator = 1, duplicate = FALSE)
-  results <- list(append = FALSE)
+  results <- list(append = TRUE)
   write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
 }
 
 # output the results
 cat(toJSON(results))
-
