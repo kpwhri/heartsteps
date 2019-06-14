@@ -37,16 +37,3 @@ class DashboardListView(UserPassesTestMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         return SendSmsCreateView.as_view()(request)
-
-
-def is_staff(user):
-    return user.is_staff
-
-
-@user_passes_test(is_staff, login_url='/admin/')
-def index(request):
-    participant_list = Participant.objects.all(
-        ).prefetch_related('user').order_by('heartsteps_id')
-    context = {'participant_list': participant_list}
-
-    return render(request, 'dashboard/index.html', context)

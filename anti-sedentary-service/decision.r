@@ -1,14 +1,11 @@
 #! /usr/bin/Rscript
-library('rjson')
+## Required packages and source files
+source("functions.R"); library('chron'); library('rjson')
 
-# script is assuming JSON output always
+## Script is assuming JSON input and output always
 args <- commandArgs(trailingOnly = TRUE)
 input = fromJSON(args)
 
-#
-## Required packages and source files
-source("functions.R")
-#require(mgcv); require(chron);
 
 # payload = ' {
 #   "userid": [ "test-pedja" ],
@@ -94,15 +91,11 @@ if(return_default) {
     user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   }
   
-  # setwd("../")
   bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
   buckets = list(bucket1,bucket2, bucket3)
   
-  # window.time$window.utime = as.POSIXct(window.time$window.utime, tz = "GMT")
-  
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
-  
   seq.hour = c(14:23,0:1)
   fraction.data = readRDS("fractiondata.RDS")
   fraction.df = data.frame(fraction.data)
@@ -113,8 +106,7 @@ if(return_default) {
   final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   
-  library('chron')
-  current.day.obs = days(user.data$time) == days(current.time) & months(user.data$time) == months(current.time) & years(user.data$time) == years(current.time) & user.data$time < current.time
+  current.day.obs = days(user.data$time) == days(current.time) & months(user.data$time) == months(current.time) & years(user.data$time) == years(current.time) & user.data$time <= current.time
   
   current.day.user.data = user.data[current.day.obs,]
   
@@ -127,7 +119,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                            missingindicator = 0, duplicate = TRUE)
     
-    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
     
     results <- list(
       a_it = 0,
@@ -212,7 +204,7 @@ if(return_default) {
                            batch_state = -1, batch_step = -1, probaction = rho.t, action = A.t, 
                            missingindicator = 0, duplicate = FALSE)
     
-    # write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
+    write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
 
