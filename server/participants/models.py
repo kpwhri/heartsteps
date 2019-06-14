@@ -113,6 +113,7 @@ class Participant(models.Model):
         u = self.user
         if u:
             try:
+                # Let's rethink using stepcount - fitbitsubscriptionupdate?
                 return u.fitbitaccountuser.account \
                     .fitbitminutestepcount_set \
                     .latest('time').time

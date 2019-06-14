@@ -9,7 +9,7 @@ from .utils import send_twilio_message
 
 class SendSmsCreateView(SuccessMessageMixin, CreateView):
     form_class = SendSMSForm
-    http_method_names = ('get', 'post')
+    http_method_names = ('post', )
     success_message = 'SMS successfully sent'
     success_url = reverse_lazy('dashboard-index')
     template_name = 'sms_service/sendsms_form.html'
@@ -17,6 +17,7 @@ class SendSmsCreateView(SuccessMessageMixin, CreateView):
     # Rerouting the post from the modal form in dashboard
     # isn't automatically running form_valid.
     def post(self, request, *args, **kwargs):
+        print("Am i really posting?")
         form = self.form_class(request.POST)
         return self.form_valid(form)
 

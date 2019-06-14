@@ -1,18 +1,17 @@
 from datetime import datetime
 
-from django import forms
+from django.forms import ModelForm
 from django.conf import settings
 
 from .models import SendSMS
 from .utils import send_twilio_message
 
 
-class SendSMSForm(forms.ModelForm):
-
+class SendSMSForm(ModelForm):
 
     class Meta:
         model = SendSMS
-        fields = ('to_number', 'body')
+        fields = ['to_number', 'body']
 
     def process_sms_message(self):
         # call twilio with validated form data
