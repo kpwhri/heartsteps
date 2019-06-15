@@ -1,5 +1,7 @@
 app-page {
     @extend .heartsteps-container;
+    @extend .heartsteps-scrollable;
+    height: 100%;
     > article {
         @extend .heartsteps-page;
     }

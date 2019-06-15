@@ -63,6 +63,7 @@
     display:flex;
     flex-direction: column;
     flex-grow: 1;
+    height: 100%;
 
     > * {
         flex: 0 1 auto;
@@ -73,6 +74,17 @@
         @extend .heartsteps-scrollable;
     }
 }
+
+@media(min-width: 650px) {
+    .heartsteps-page {
+        height: auto;
+    }
+
+    .heartsteps-page > .content {
+        overflow-y: visible !important;
+    }
+}
+
 
 .heartsteps-controls {
     flex: 0 0 auto;

@@ -1,3 +1,5 @@
+@import 'theme/layout.scss';
+
 app-modal {
     @extend app-page;
 
@@ -14,21 +16,26 @@ app-modal {
 }
 
 
-@media(min-width: 600px) {
+@media(min-width: 650px) {
 
-    app-modal {
-        background-color: transparent;
-        overflow: auto;
-    }
+    // app-modal {
+    //     background-color: transparent;
+    //     /* .heartsteps-scrollable  */
+    //     flex-grow: 1;
+    //     overflow-y: scroll; /* has to be scroll, not auto */
+    //     -webkit-overflow-scrolling: touch;
+    //     height: 100%;
+    // }
 
     app-modal:before {
         content: '';
-        position: absolute;
+        display: block;
         width: 100%;
         height: 100%;
+        position: fixed;
         background-color: #000;
         opacity: 0.3;
-        z-index:10;
+        z-index:-1;
     }
 
     app-modal > article {
