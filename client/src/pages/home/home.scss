@@ -31,6 +31,7 @@ page-home {
             font-size: 12px;
             text-decoration: none;
             color: $color-gray-dark;
+            white-space: nowrap;
         }
         > *:before {
             content: ' ';
