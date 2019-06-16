@@ -1,24 +1,12 @@
 .start-screen {
     @extend .heartsteps-page;
+    @extend .heartsteps-scroll-full;
     background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
 
     color: $color-white;
 
-    > * {
-        display: block;
-        margin: 2em auto;
-        flex-grow: 1;
-    }
-
     > button {
         flex-grow: 0;
-    }
-
-    > header,
-    > .content {
-        flex-grow: 0;
-        margin-top: 0em;
-        margin-bottom: 0em;
     }
 
     a,

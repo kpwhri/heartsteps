@@ -20,9 +20,12 @@
     }
 
     > form,
-    > .content {
+    > .content,
+    > .heartsteps-container {
+        @extend .heartsteps-container;
         flex-grow: 1;
     }
+
 }
 
 .heartsteps-scroll-container {
