@@ -25,29 +25,45 @@
     }
 }
 
-.heartsteps-scrollable {
-    display: block;
-    flex-grow: 1;
-    overflow-y: scroll; /* has to be scroll, not auto */
-    -webkit-overflow-scrolling: touch;
+.heartsteps-scroll-container {
+    @extend .heartsteps-container;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    overflow-y: hidden;
+
+    > .content {
+        height: 0px; // Needs a height to clip properly with flexbox
+        flex-grow: 1;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
-.heartsteps-unscrollable {
-    overflow-y: visible !important;
+.heartsteps-scroll-full {
+    @extend .heartsteps-scroll-container;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    > .content {
+        height: auto;
+        overflow-y: visible;
+    }
 }
 
 
 @media(min-width: 650px) {
     .heartsteps-scroll-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
+
+        > .content {
+            flex-grow: 0;
+            height: auto;
+            overflow-y: visible;
+        }
     }
 
-    .heartsteps-scroll-container .heartsteps-scrollable {
-        height: auto;
-        overflow-y: visible;
-    }
 }

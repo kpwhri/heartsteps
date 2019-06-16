@@ -1,8 +1,16 @@
 page-home {
     @extend .heartsteps-page;
-    margin: 0px;
+
+    padding: 0px;
+    overflow: hidden;
+
+    > * {
+        width: 100%;
+    }
 
     > .content {
+        flex-grow: 1;
+        height: 0px;
         padding: 0em;
         background-color: $background-alternate;
     }

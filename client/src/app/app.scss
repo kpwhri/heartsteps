@@ -10,8 +10,8 @@ body > ion-app.app-root {
 
 .app-root > .pages > *,
 .app-root > .modals > * {
-    @extend .heartsteps-scroll-container;
-    @extend .heartsteps-fullscreen-container;
+    // @extend .heartsteps-scroll-container;
+    // @extend .heartsteps-fullscreen-container;
     z-index: 10;
 }
 

@@ -1,53 +1,20 @@
-@import 'theme/layout.scss';
 
-app-modal {
-    @extend app-page;
+app-modal > article {
+    @extend .heartsteps-page;
 
-    header .back {
-        color: $color-danger;
-    }
-
-    > article > .content {
-        overflow: auto;
-        flex-grow: 1;
-        height: 1px;    // Really not sure why this works...
-    }
-
-}
+    z-index: 15;
 
 
-@media(min-width: 650px) {
-
-    // app-modal {
-    //     background-color: transparent;
-    //     /* .heartsteps-scrollable  */
-    //     flex-grow: 1;
-    //     overflow-y: scroll; /* has to be scroll, not auto */
-    //     -webkit-overflow-scrolling: touch;
-    //     height: 100%;
-    // }
-
-    app-modal:before {
+    &:before {
         content: '';
         display: block;
         width: 100%;
         height: 100%;
         position: fixed;
+        top: 0px;
+        left: 0px;
         background-color: #000;
         opacity: 0.3;
         z-index:-1;
-    }
-
-    app-modal > article {
-        width: 550px;
-        margin: 2em auto;
-        z-index: 15;
-        height: auto;
-        flex-grow: 0;
-    }
-
-    app-modal > article > .content {
-        flex-grow: 0;
-        height: auto;
     }
 }
