@@ -18,6 +18,7 @@ services:
     volumes:
       - ./client:/client
       - ./credentials:/credentials
+      - client-platforms:/client/platforms
       - client-node-modules:/client/node_modules
       - client-gradle-cache:/root/.gradle/caches
     ports:
@@ -52,6 +53,7 @@ services:
     volumes:
       - ./client:/client
       - ./credentials:/credentials
+      - client-platforms:/client/platforms
       - client-node-modules:/client/node_modules
       - client-gradle-cache:/root/.gradle/caches
   heartsteps-website:
@@ -147,6 +149,7 @@ services:
       - walking-suggestion-service-data:/walking-suggestion-service/data
       - ./credentials:/credentials
 volumes:
+  client-platforms:
   client-node-modules:
   pgdata:
   client-gradle-cache:
