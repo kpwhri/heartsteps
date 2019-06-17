@@ -265,6 +265,8 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
         request_data = self.make_request.call_args[1]['data']
         self.assertEqual(request_data, {
+            'actionArray': [None, None, None, None, None],
+            'probArray': [None, None, None, None, None],
             'studyDay': 10,
             'appClick': 20,
             'totalSteps': 500,

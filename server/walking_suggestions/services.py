@@ -328,7 +328,9 @@ class WalkingSuggestionService():
             'availabilityArray': self.get_availabilities(date),
             'priorAntiArray': self.get_all_anti_sedentary_treatments(date),
             'lastActivityArray': self.get_received_messages(date),
-            'locationArray': self.get_locations(date)
+            'locationArray': self.get_locations(date),
+            'actionArray': self.get_actions(date),
+            'probArray': self.get_probabilities(date)
         }
         response = self.make_request('nightly',
             data = data
@@ -357,6 +359,24 @@ class WalkingSuggestionService():
 
     def get_clicks(self, date):
         return 0
+
+    def get_actions(self, date):
+        actions_list = []
+        for decision in self.get_decision_list_for(date):
+            if decision.imputed:
+                actions_list.append(None)
+            else:
+                actions_list.append(decision.treated)
+        return actions_list
+
+    def get_probabilities(self, date):
+        probability_list = []
+        for decision in self.get_decision_list_for(date):
+            if decision.imputed:
+                probability_list.append(None)
+            else:
+                probability_list.treatment_probability
+        return probability_list
 
     def get_steps(self, date):
         try:
@@ -499,6 +519,13 @@ class WalkingSuggestionService():
                 decision = self.create_decision_for(date, time_category)
             decision_times[time_category] = decision
         return decision_times
+
+    def get_decision_list_for(self, date):
+        decisions = self.get_decisions_for(date)
+        decisions_list = []
+        for category in SuggestionTime.TIMES:
+            decisions_list.append(decisions[category])
+        return decisions_list
 
     def create_decision_for(self, date, time_category):
         try:
