@@ -211,6 +211,7 @@ metadata:
   labels:
     app: heartsteps-server
 spec:
+  type: NodePort
   ports:
   - port: 8080
     targetPort: 8080
