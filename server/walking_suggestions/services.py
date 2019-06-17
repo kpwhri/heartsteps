@@ -375,7 +375,7 @@ class WalkingSuggestionService():
             if decision.imputed:
                 probability_list.append(None)
             else:
-                probability_list.treatment_probability
+                probability_list.append(decision.treatment_probability)
         return probability_list
 
     def get_steps(self, date):
