@@ -10,11 +10,21 @@ from daily_tasks.models import DailyTask
 User = get_user_model()
 
 DAYS_OF_WEEK = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
     'saturday',
     'sunday'
 ]
 
 DAYS_OF_WEEK_NAMES = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
     'Saturday',
     'Sunday'
 ]

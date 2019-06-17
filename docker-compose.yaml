@@ -103,7 +103,7 @@ services:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres@db:5432/postgres
-    command: honcho start dev
+    command: ["honcho", "start", "dev"]
     volumes:
       - ./server:/server
       - ./credentials:/credentials
@@ -148,7 +148,7 @@ services:
       - ./walking-suggestion-service:/walking-suggestion-service
       - walking-suggestion-service-data:/walking-suggestion-service/data
       - ./credentials:/credentials
-  worker_other:
+  worker-other:
     command: honcho start celery
     image: heartsteps_server
     depends_on:
@@ -172,6 +172,18 @@ services:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres@db:5432/postgres
+  worker-beat:
+    command: honcho start beat
+    image: heartsteps_server
+    depends_on:
+      - rabbitmq
+      - server
+    env_file:
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
   flower:  
     image: mher/flower
     command: ["flower", "--broker=amqp://guest:guest@rabbitmq:5672//", "--port=8888"]  
@@ -181,7 +193,8 @@ services:
       - rabbitmq
       - server
       - worker
-      - worker_other
+      - worker-other
+      - worker-beat
 volumes:
   client-platforms:
   client-node-modules:
