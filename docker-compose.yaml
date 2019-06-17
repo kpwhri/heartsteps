@@ -113,7 +113,7 @@ services:
       - db
       - rabbitmq
   server-gcloud:
-    command: honcho start dev celery
+    command: honcho start dev
     env_file:
       - .env-production
     environment:
@@ -148,6 +148,40 @@ services:
       - ./walking-suggestion-service:/walking-suggestion-service
       - walking-suggestion-service-data:/walking-suggestion-service/data
       - ./credentials:/credentials
+  worker_other:
+    command: honcho start celery
+    image: heartsteps_server
+    depends_on:
+      - rabbitmq
+      - server
+    env_file:
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
+  worker:
+    command: honcho start celery
+    image: heartsteps_server
+    depends_on:
+      - rabbitmq
+      - server
+    env_file:
+      - .env-development
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres@db:5432/postgres
+  flower:  
+    image: mher/flower
+    command: ["flower", "--broker=amqp://guest:guest@rabbitmq:5672//", "--port=8888"]  
+    ports:  
+      - 8888:8888
+    depends_on:
+      - rabbitmq
+      - server
+      - worker
+      - worker_other
 volumes:
   client-platforms:
   client-node-modules:
