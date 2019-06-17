@@ -8,17 +8,6 @@ body > ion-app.app-root {
     background-color: transparent;
 }
 
-.app-root > .pages > *,
-.app-root > .modals > * {
-    // @extend .heartsteps-scroll-container;
-    // @extend .heartsteps-fullscreen-container;
-    z-index: 10;
-}
-
-.app-root > .modals > * {
-    z-index: 15;
-}
-
 .app-root > .pages > router-outlet,
 .app-root > .modals > router-outlet {
     display:none;

@@ -136,7 +136,7 @@ spec:
       - name: heartsteps-celery-app
         image: gcr.io/heartsteps-kpwhri/heartsteps-server:latest
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celery', 'beat']
+        command: ['honcho', 'start', 'cloudsql', 'celery']
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER

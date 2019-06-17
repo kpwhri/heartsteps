@@ -45,6 +45,18 @@
     }
 }
 
+.heartsteps-scroll-container > .content > * {
+    position: static;
+    height: auto;
+    width: auto;
+    overflow-y: visible;
+
+    > .content {
+        overflow-y: visible;
+        height: auto;
+    }
+}
+
 .heartsteps-scroll-full {
     @extend .heartsteps-scroll-container;
     overflow-y: scroll;
