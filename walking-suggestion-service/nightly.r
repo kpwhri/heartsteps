@@ -35,7 +35,7 @@ if(server){
     
   }else{
     
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_5.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
@@ -87,6 +87,7 @@ check  = tryCatch(expr = {
   # check the size 
   stopifnot(all(lapply(input[c("temperatureArray", "preStepsArray", "postStepsArray", "actionArray", "probArray",
                                "availabilityArray", "lastActivityArray", "locationArray")], length)==5))
+  
   stopifnot(length(input["priorAntiArray"]$priorAntiArray) == 6);
   
   # temperature should be imputed by HS server
@@ -122,6 +123,21 @@ check  = tryCatch(expr = {
 
 ## impute dosage dataset using today's input
 if(is.null(check)){
+  
+  # =============== Process input ===============
+  
+  # convert NULL to NA
+  names.array <- c("temperatureArray", "preStepsArray", "postStepsArray", 
+                   "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray",
+                   "actionArray", "probArray")
+  
+  for(name in names.array){
+    input[[name]] <- proc.array(input[[name]])
+  }
+  
+  # total steps null to NA
+  input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
+  
   
 
   # =============== Impute dosage for the missing decision times for today ===============
@@ -181,20 +197,7 @@ if(is.null(check)){
   
   
   
-  # =============== Process input ===============
-  
-  # convert NULL to NA
-  names.array <- c("temperatureArray", "preStepsArray", "postStepsArray", 
-                   "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray",
-                   "actionArray", "probArray")
-  
-  for(name in names.array){
-    input[[name]] <- proc.array(input[[name]])
-  }
-  
-  # total steps null to NA
-  input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
-  
+ 
   
   # =============== Create the day history ============= 
   
