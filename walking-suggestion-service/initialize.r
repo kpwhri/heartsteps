@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -355,7 +355,10 @@ data.dosage$dataset <- data.frame(day = 1, timeslot = 1,
 
 ###### dataset to save all decision
 
-data.decision <- NULL
+data.decision <- data.frame(day = 0, timeslot = 0, action = 0, prob = 0, random.number = 0)
+colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
+data.decision <- data.decision[data.decision$day > 0, ]
+
 
 
 # save
