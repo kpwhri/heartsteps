@@ -350,8 +350,8 @@ class WalkingSuggestionService():
                 'location': self.get_location_type(decision)
             }
         )
-        decision.a_it = response['send']
-        decision.pi_id = response['probability']
+        decision.treated = response['send']
+        decision.treatment_probability = response['probability']
         decision.save()
 
     def is_initialized(self):

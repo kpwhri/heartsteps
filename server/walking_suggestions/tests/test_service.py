@@ -244,7 +244,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         decision.add_context(Place.HOME)
         self.make_request.return_value = {
             'send': True,
-            'probability': 1
+            'probability': 0.123
         }
 
         self.service.decide(decision)
@@ -255,6 +255,9 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 1)
         self.assertEqual(request_data['location'], 2)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.treated, True)
+        self.assertEqual(decision.treatment_probability, 0.123)
 
     def test_decision_throws_error_not_initialized(self):
         decision = WalkingSuggestionDecision.objects.create(
