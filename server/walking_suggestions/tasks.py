@@ -111,3 +111,14 @@ def initialize_and_historical_update(username):
             day = update_date,
             updated = True
         )
+
+@shared_task
+def reinitialize(username):
+    configuration = Configuration.objects.get(user__username = username)
+    day_service = DayService(user=configuration.user)
+    walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
+
+    today = day_service.get_current_date()
+    yesterday = today - timedelta(days=1)
+    NightlyUpdate.objects.filter(user = configuration.user).delete()
+    walking_suggestion_service.initialize(yesterday)
