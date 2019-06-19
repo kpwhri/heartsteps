@@ -562,7 +562,7 @@ if(is.null(check)){
   save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
   save(data.history, file = paste(paths, "/history.Rdata", sep=""))
   save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
-  
+  save(data.frame(id = input$userID, train.dat), file = paste(paths, "/train.Rdata", sep="")) # For pooling
   
   cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
