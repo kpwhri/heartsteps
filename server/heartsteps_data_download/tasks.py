@@ -1,14 +1,19 @@
 import datetime
+import json
 import os
 import subprocess
 
 from celery import shared_task
 from django.conf import settings
+from import_export import resources
+from import_export.fields import Field
 
 from anti_sedentary.admin import AntiSedentaryDecisionResouce
 from anti_sedentary.models import AntiSedentaryDecision
 from anti_sedentary.models import AntiSedentaryServiceRequest
 from days.services import DayService
+from fitbit_activities.models import FitbitDay
+from fitbit_api.services import FitbitService
 from participants.models import Participant
 from service_requests.admin import ServiceRequestResource
 from walking_suggestions.admin import WalkingSuggestionDecisionResource
@@ -22,6 +27,63 @@ def write_csv_file(directory, filename, content):
     file = open(os.path.join(directory, filename), 'w')
     file.write(content)
     file.close()
+
+class FitbitMinuteDataResource(resources.Resource):
+    username = Field(attribute='username')
+    fitbit_account = Field(attribute='fitbit_account')
+    timezone = Field(attribute='timezone')
+    date = Field(attribute='date')
+    time = Field(attribute='time')
+    steps = Field(attribute='steps')
+    heart_rate = Field(attribute='heart_rate')
+
+    class Meta:
+        export_order = [
+            'username',
+            'fitbit_account',
+            'timezone',
+            'date',
+            'time',
+            'steps',
+            'heart_rate'
+        ]
+
+def export_fitbit_data(username, directory):
+    fitbit_service = FitbitService(username=username)
+    fitbit_account = fitbit_service.account
+
+    minute_level_data = []
+
+    class MinuteLevelData:
+        username = None
+        fitbit_account = None
+        timezone = None
+        date = 'Date'
+        time = 'Time'
+        steps=0
+        heart_rate=0
+
+    days = FitbitDay.objects.filter(account=fitbit_account).all()
+    for day in days:
+        for minute in day.get_minute_level_data():
+            _m = MinuteLevelData()
+            _m.username = username
+            _m.fitbit_account = fitbit_account.fitbit_user
+            _m.timezone = day._timezone
+            _m.date = minute['date']
+            _m.time = minute['time']
+            if 'steps' in minute:
+                _m.steps = minute['steps']
+            if 'heart_rate' in minute:
+                _m.heart_rate = minute['heart_rate']
+            minute_level_data.append(_m)
+    
+    dataset = FitbitMinuteDataResource().export(minute_level_data)
+    write_csv_file(
+        directory = directory,
+        filename = '%s.fitbit_minutes.csv' % (username),
+        content = dataset.csv
+    )
 
 def export_walking_suggestion_decisions(username, directory):
     print('- walking suggestion decisions')
@@ -101,7 +163,7 @@ def export_user_data(username):
     export_walking_suggestion_service_requests(username=username, directory=user_directory)
     # export_anti_sedentary_decisions(username=username, directory=user_directory)
     export_anti_sedentary_service_requests(username=username, directory=user_directory)
-    
+    export_fitbit_data(username=username, directory=user_directory)
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
         shell=True
