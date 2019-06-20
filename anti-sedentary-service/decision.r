@@ -153,7 +153,7 @@ if(return_default) {
       old.states = current.day.user.data$online_state[good.obs],
       old.A = current.day.user.data$action[good.obs],
       old.rho = current.day.user.data$probaction[good.obs],
-      time.diff = as.numeric(current.time - current.day.user.data$time[good.obs])
+      time.diff = as.numeric(difftime(current.time,current.day.user.data$time[good.obs], units = "mins"))
     )
     
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
@@ -165,7 +165,7 @@ if(return_default) {
       temp = H.t$time.diff-H.t$time.diff%%5
       grid = seq(5, max(temp), by = 5)
       state.grid = rep(0, length(grid))
-      state.grid[is.element(grid, temp)] = H.t$old.states
+      state.grid[is.element(grid, temp[H.t$old.states == 1])] = 1
       past.sedentary = (state.grid == 1.0) 
     } else {
       past.sedentary = FALSE
@@ -179,11 +179,18 @@ if(return_default) {
     }
     
     # remaining.time = length(time.steps) - (decision.time-1)
+    max.remaining.time = nrow(r_min_x.table)
+    max.run.length = ncol(r_min_x.table)
+    dim(r_minus_x_plus.table)
     remaining.time.in.block = stop.block - (decision.time - 1)
     if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
       rho.t = 0
       A.t = 0
     } else {
+      ## Upper bound remaining.time.in.block and current.run.length
+      ## as precaution against randprob not being computable
+      remaining.time.in.block = min(remaining.time.in.block, max.remaining.time)
+      current.run.length = min(current.run.length, max.run.length)
       rho.t = randomization.probability(N, current.state, remaining.time.in.block, current.run.length, current.hour, H.t, lambda, eta)
       A.t = rbinom(n = 1, size = 1, prob = rho.t)
     }
