@@ -86,7 +86,8 @@ def export_fitbit_data(username, directory):
     )
 
 def export_walking_suggestion_decisions(username, directory):
-    print('- walking suggestion decisions')
+    print('- walking suggestion decisions for %s' % (username))
+
     try:
         configuration = Configuration.objects.get(user__username = username)
     except Configuration.DoesNotExist:
@@ -96,18 +97,40 @@ def export_walking_suggestion_decisions(username, directory):
 
     day_service = DayService(user=configuration.user)
     initialized_datetime = day_service.get_datetime_at(configuration.service_initialized_date)
+
+    queryset = WalkingSuggestionDecision.objects.filter(
+        user = configuration.user,
+        time__gt = initialized_datetime
+    )
+    total_rows = queryset.count()
+
+    print('Total rows: %s' % (total_rows))
+
+    filename = '%s.walking_suggestion_decisions.csv' % (username)
+    _file = open(os.path.join(directory, filename), 'w')
     
-    dataset = WalkingSuggestionDecisionResource().export(
-        queryset = WalkingSuggestionDecision.objects.filter(
-            user = configuration.user,
-            time__gt = initialized_datetime
+    start_index = 0
+    slice_size = 100
+    first = True
+    while start_index < total_rows:
+        end_index = start_index + slice_size
+        if end_index >= total_rows:
+            end_index = total_rows - 1
+        print('Get rows %d to %d' % (start_index, end_index))
+        dataset = WalkingSuggestionDecisionResource().export(
+            queryset = queryset[start_index:end_index]
         )
-    )
-    write_csv_file(
-        directory = directory,
-        filename = '%s.walking_suggestion_decisions.csv' % (username),
-        content = dataset.csv
-    )
+        csv = dataset.csv
+        if first:
+            first = False
+        else:
+            csv_list = csv.split('\r\n')
+            csv = '\r\n'.join(csv_list[1:])
+        _file.write(csv)
+        print('--> wrote data %d to %d' % (start_index, end_index))
+        start_index = start_index + slice_size
+    _file.close()
+    print('Done')
 
 def export_walking_suggestion_service_requests(username, directory):
     print('- walkling suggestion service_requests')
@@ -123,17 +146,34 @@ def export_walking_suggestion_service_requests(username, directory):
     )
 
 def export_anti_sedentary_decisions(username, directory):
-    print('- anti-sedentary decisions')
-    dataset = AntiSedentaryDecisionResouce().export(
-        queryset = AntiSedentaryDecision.objects.filter(
-            user__username = username
+    print('- anti-sedentary decisions for %s' % (username))
+
+    queryset = AntiSedentaryDecision.objects.filter(user__username=username)
+    total_rows = queryset.count()
+    print('Total rows: %d' % total_rows)
+    filename = '%s.anti_sedentary_decisions.csv' % (username)
+    _file = open(os.path.join(directory, filename), 'w')
+    start_index = 0
+    slice_size = 100
+    first = True
+    while start_index < total_rows:
+        end_index = start_index + slice_size
+        if end_index >= total_rows:
+            end_index = total_rows - 1
+        dataset = AntiSedentaryDecisionResouce().export(
+            queryset = queryset[start_index:end_index]
         )
-    )
-    write_csv_file(
-        directory = directory,
-        filename = '%s.anti_sedentary_decisions.csv',
-        content = dataset.csv
-    )
+        csv = dataset.csv
+        if first:
+            first = False
+        else:
+            csv_list = csv.split('\r\n')
+            csv = '\r\n'.join(csv_list[1:])
+        _file.write(dataset.csv)
+        print('--> wrote data %d to %d' % (start_index, end_index))
+        start_index = start_index + slice_size
+    _file.close()
+    print('Done')
 
 def export_anti_sedentary_service_requests(username, directory):
     print('- anti-sedentary service requests')
@@ -161,7 +201,7 @@ def export_user_data(username):
     print(username)
     export_walking_suggestion_decisions(username=username, directory=user_directory)
     export_walking_suggestion_service_requests(username=username, directory=user_directory)
-    # export_anti_sedentary_decisions(username=username, directory=user_directory)
+    export_anti_sedentary_decisions(username=username, directory=user_directory)
     export_anti_sedentary_service_requests(username=username, directory=user_directory)
     export_fitbit_data(username=username, directory=user_directory)
     subprocess.call(
