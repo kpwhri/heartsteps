@@ -38,7 +38,8 @@ if(server){
   
     # input <- fromJSON(file = "./test/start_mash.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/init.json")
-    input <- fromJSON(file = "./test/start.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_init.json")
+    # input <- fromJSON(file = "./test/start.json")
     
   }
   

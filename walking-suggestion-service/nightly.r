@@ -35,7 +35,9 @@ if(server){
     
   }else{
     
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
+    
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
@@ -445,6 +447,7 @@ if(is.null(check)){
   train.dat <- train.dat[complete.cases(train.dat), ]
   
   
+  
   # 2. Posterior for all parameters (Hierarchy, action-centered). 
   wm.txt <- txt.eff.update(train.dat, 
                       mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1,
@@ -563,8 +566,13 @@ if(is.null(check)){
   save(data.history, file = paste(paths, "/history.Rdata", sep=""))
   save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
   
-  train <- data.frame(id = input$userID, train.dat);
-  save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+  if(nrow(train.dat) > 0){
+    
+    train <- data.frame(id = input$userID, train.dat);
+    save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+    
+  }
+  
   
   cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
