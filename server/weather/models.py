@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from service_requests.models import ServiceRequest as ServiceRequestBase
+
+class ServiceRequest(ServiceRequestBase):
+    pass
 
 class WeatherForecast(models.Model):
     """

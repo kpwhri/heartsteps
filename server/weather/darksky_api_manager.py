@@ -1,4 +1,7 @@
+from django.utils import timezone
 import requests
+
+from .models import ServiceRequest
 
 class DarkSkyApiManager:
     """
@@ -14,14 +17,30 @@ class DarkSkyApiManager:
         self.WEATHER_URL = "https://api.darksky.net/forecast/{api_key}/{latitude},{longitude},{time}?units=us&exclude=hourly,daily,alerts,minutely,flags"
 
     def get_forecast(self, latitude, longitude, time):
-        response = requests.get(self.WEATHER_URL.format(
+        url = self.WEATHER_URL.format(
             api_key = self.API_KEY,
             latitude = latitude,
             longitude = longitude,
             time = round(time.timestamp())
-        ))
+        )
+        
+        service_request = ServiceRequest.objects.create(
+            name = 'DarkSkyAPI: Get forecast',
+            url = url
+        )
+
+        response = requests.get(url)
         if response.status_code is not 200:
+            service_request.response_code = response.status_code
+            service_request.response_data = response.text
+            service_request.response_time = timezone.now()
+            service_request.save()
             raise self.RequestFailed()
+
+        service_request.response_code = response.status_code
+        service_request.response_data = response.text
+        service_request.response_time = timezone.now()
+        service_request.save()
 
         content = response.json()
         forecast = content['currently']
