@@ -1,11 +1,10 @@
 
-
 .heartsteps-logo {
     display: block;
-    position: relative;
+    position: relative !important;
     text-indent: -3000px;
-    width: 300px;
-    height: 55px;
+    width: 300px !important;
+    height: 55px !important;
     overflow: hidden;
     margin: 2em auto;
     &:after {

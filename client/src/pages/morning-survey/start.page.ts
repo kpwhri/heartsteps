@@ -9,6 +9,7 @@ import { MorningMessage } from "@heartsteps/morning-message/morning-message.mode
 export class StartPageComponent implements OnInit {
 
     public message: string;
+    public today: Date;
 
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
@@ -18,6 +19,7 @@ export class StartPageComponent implements OnInit {
 
     ngOnInit() {
         const morningMessage: MorningMessage = this.activatedRoute.snapshot.data['morningMessage'];
+        this.today = morningMessage.date;
         if (morningMessage.text) {
             this.message = morningMessage.text;            
         }
