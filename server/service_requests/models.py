@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 class ServiceRequest(models.Model):
     user = models.ForeignKey(User, null=True, editable=False)
 
-    url = models.CharField(max_length=150, editable=False)
+    url = models.CharField(max_length=500, editable=False)
     name = models.CharField(max_length=150, editable=False)
 
     request_data = models.TextField(null=True, editable=False)
