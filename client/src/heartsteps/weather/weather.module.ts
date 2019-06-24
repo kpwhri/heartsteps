@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { WeatherComponent } from './weather.component';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { WeatherService } from './weather.service';
 
 @NgModule({
     declarations: [
@@ -11,6 +12,9 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
     ],
     imports: [
         InfrastructureModule
+    ],
+    providers: [
+        WeatherService
     ]
 })
 export class WeatherModule {}
