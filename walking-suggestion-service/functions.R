@@ -354,108 +354,123 @@ eta.update = function(train.dat, alpha0, alpha1, alpha2,
   # alpha1 <- gen.param$mu1
   # alpha2 <- gen.param$mu2
   
-  apply(train.dat, 1, function(z) z[int.names])
+  # apply(train.dat, 1, function(z) z[int.names])
   
   # [1] "steps.yesterday.sqrt" "jbsteps30pre.log"    
   # [3] "loc.is.other"         "temperature"         
   # [5] "loc.is.work"          "window7.steps60.sd"  
   
-  p.avail <- mean(train.dat$avail)
-  X.null <- seq(0, 1/(1-0.950), by = 0.1)
-  Z.trn <- train.dat[c(nonint.names, int.names[-1])]
   
-  
-  feat0 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
-  feat1 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
-  feat2 = function(z, x) c(1, std.dosage(x), tail(z, length(int.names)-1))
-  
-  # F0 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat0(z, x)), 1, mean)))
-  # F1 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat1(z, x)), 1, mean)))
-  # F2 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat2(z, x)), 1, mean)))
-  
-  F.all <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) c(feat0(z, x), feat1(z, x), feat2(z, x))), 1, mean)))
-  index0 <- 1:length(alpha0)
-  index1 <- length(alpha0)+1 : length(alpha1)
-  index2 <- tail(1:ncol(F.all), length(alpha2))
-  F0 <- F.all[, index0]
-  F1 <- F.all[, index1]
-  F2 <- F.all[, index2]
-  
-  
-  r0.vec = c(F0 %*% alpha0)
-  r1.vec = c(F1 %*% alpha1)
-  r2.vec = r1.vec + c(F2 %*% alpha2) 
-  
-  bsb <- create.bspline.basis (range=c(0, 1/(1-0.950)), nbasis=50, norder = 4)
-  psi = function(x) c(eval.basis(x, bsb))
-  
-  psi.mat <- t(sapply(X.null, function(x) psi(x)))
-  inv.cov <- solve(t(psi.mat) %*% psi.mat)
-  
-  psi.mat.irs = t(sapply(X.null, function(x) psi(0.950 * x + 1)))
-  psi.mat.drs = t(sapply(X.null, function(x) psi(0.950 * x)))
-  psi.mat.bar <- bandit.spec$p.sed * psi.mat.irs  + (1-bandit.spec$p.sed) * psi.mat.drs
-  
-  
-  kmax <- 100;
-  kk <- 1
-  
-  theta1 = rep(0, length(psi(0)));
-  theta0 = rep(0, length(psi(0)));
-  theta.bar = theta1 * p.avail + (1-p.avail) * theta0
-  
-  Y1.0 <- r1.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
-  Y1.1 <- r2.vec + bandit.spec$gamma * psi.mat.irs %*% theta.bar
-  index <- (Y1.1 - Y1.0 > 0)
-  Y1 <- Y1.0
-  Y1[index] <- Y1.1[index]
-  Y0 <- r0.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
-  delta <- max(abs(Y1 - psi.mat%*% theta1), abs(Y0 - psi.mat %*% theta0))
-  
-  
-  delta.thres <- 1e-2;
-  while(kk < kmax & delta > delta.thres){
+  if(nrow(train.dat) < 10){
     
-    # new theta
-    theta1 <- inv.cov %*% t(psi.mat) %*% Y1
-    theta0 <- inv.cov %*% t(psi.mat) %*% Y0
+    return(bandit.spec$eta.init)
     
+  }else{
+    
+    
+    p.avail <- mean(train.dat$avail)
+    X.null <- seq(0, 1/(1-0.950), by = 0.1)
+    Z.trn <- train.dat[c(nonint.names, int.names[-1])]
+    
+    
+    feat0 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
+    feat1 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
+    feat2 = function(z, x) c(1, std.dosage(x), tail(z, length(int.names)-1))
+    
+    # F0 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat0(z, x)), 1, mean)))
+    # F1 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat1(z, x)), 1, mean)))
+    # F2 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat2(z, x)), 1, mean)))
+    
+    F.all <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) c(feat0(z, x), feat1(z, x), feat2(z, x))), 1, mean)))
+    index0 <- 1:length(alpha0)
+    index1 <- length(alpha0)+1 : length(alpha1)
+    index2 <- tail(1:ncol(F.all), length(alpha2))
+    F0 <- F.all[, index0]
+    F1 <- F.all[, index1]
+    F2 <- F.all[, index2]
+    
+    
+    r0.vec = c(F0 %*% alpha0)
+    r1.vec = c(F1 %*% alpha1)
+    r2.vec = r1.vec + c(F2 %*% alpha2) 
+    
+    bsb <- create.bspline.basis (range=c(0, 1/(1-0.950)), nbasis=50, norder = 4)
+    psi = function(x) c(eval.basis(x, bsb))
+    
+    psi.mat <- t(sapply(X.null, function(x) psi(x)))
+    inv.cov <- solve(t(psi.mat) %*% psi.mat)
+    
+    psi.mat.irs = t(sapply(X.null, function(x) psi(0.950 * x + 1)))
+    psi.mat.drs = t(sapply(X.null, function(x) psi(0.950 * x)))
+    psi.mat.bar <- bandit.spec$p.sed * psi.mat.irs  + (1-bandit.spec$p.sed) * psi.mat.drs
+    
+    
+    kmax <- 100;
+    kk <- 1
+    
+    theta1 = rep(0, length(psi(0)));
+    theta0 = rep(0, length(psi(0)));
     theta.bar = theta1 * p.avail + (1-p.avail) * theta0
     
-    # Bellman operator
     Y1.0 <- r1.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
     Y1.1 <- r2.vec + bandit.spec$gamma * psi.mat.irs %*% theta.bar
     index <- (Y1.1 - Y1.0 > 0)
     Y1 <- Y1.0
     Y1[index] <- Y1.1[index]
     Y0 <- r0.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
-    
     delta <- max(abs(Y1 - psi.mat%*% theta1), abs(Y0 - psi.mat %*% theta0))
-    kk <- kk + 1
     
-    # cat(kk, delta, "\n")
+    
+    delta.thres <- 1e-2;
+    while(kk < kmax & delta > delta.thres){
+      
+      # new theta
+      theta1 <- inv.cov %*% t(psi.mat) %*% Y1
+      theta0 <- inv.cov %*% t(psi.mat) %*% Y0
+      
+      theta.bar = theta1 * p.avail + (1-p.avail) * theta0
+      
+      # Bellman operator
+      Y1.0 <- r1.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+      Y1.1 <- r2.vec + bandit.spec$gamma * psi.mat.irs %*% theta.bar
+      index <- (Y1.1 - Y1.0 > 0)
+      Y1 <- Y1.0
+      Y1[index] <- Y1.1[index]
+      Y0 <- r0.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+      
+      delta <- max(abs(Y1 - psi.mat%*% theta1), abs(Y0 - psi.mat %*% theta0))
+      kk <- kk + 1
+      
+      # cat(kk, delta, "\n")
+    }
+    
+    if(kk == kmax){
+      
+      warning("Not Converge")
+      
+    }
+    
+    
+    eta.fn = function(x) {
+      
+      eta.hat <- c((1-bandit.spec$p.sed)* t(theta.bar)%*%(psi(disc.dosage*x)-psi(disc.dosage*x+1)) * (1-bandit.spec$gamma))
+      
+      # return(eta.hat)
+      return(bandit.spec$weight.est * eta.hat + (1-bandit.spec$weight.est) * bandit.spec$eta.init(x))
+      
+      
+    }
+    
+    
+    
+    return(eta.fn)
+    
+    
+    
   }
   
-  if(kk == kmax){
-    
-    warning("Not Converge")
-    
-  }
   
   
-  eta.fn = function(x) {
-    
-    eta.hat <- c((1-bandit.spec$p.sed)* t(theta.bar)%*%(psi(disc.dosage*x)-psi(disc.dosage*x+1)) * (1-bandit.spec$gamma))
-    
-    # return(eta.hat)
-    return(bandit.spec$weight.est * eta.hat + (1-bandit.spec$weight.est) * bandit.spec$eta.init(x))
-    
-    
-  }
-  
- 
-  
-  return(eta.fn)
   
   
   

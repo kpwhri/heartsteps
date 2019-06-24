@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import json
 import requests
 
 from django.test import TestCase
@@ -15,6 +16,7 @@ class DarkSkyApiTests(TestCase):
             def __init__(self, status_code, data):
                 self.status_code = status_code
                 self.data = data
+                self.text = json.dumps(data)
             
             def json(self):
                 return self.data

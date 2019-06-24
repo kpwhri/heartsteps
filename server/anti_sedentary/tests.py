@@ -10,6 +10,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
+from walking_suggestion_times.models import SuggestionTime
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.models import StepCount
 from watch_app.signals import step_count_updated
@@ -266,6 +267,36 @@ class MakeDecisionTests(TestBase):
                 'steps': 0
             }
         )
+
+    @override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
+    @patch.object(AntiSedentaryClient, 'make_request')
+    def test_send_to_client_with_offset_start_end_times(self, make_request):
+        SuggestionTime.objects.create(
+            user = self.user,
+            hour = 22,
+            minute = 15,
+            category = SuggestionTime.POSTDINNER
+        )
+        make_request.return_value = {
+            'a_it': 0,
+            'pi_it': 0.123    
+        }
+
+        make_decision(self.decision.id)
+
+        make_request.assert_called_with(
+            uri='decision',
+            data = {
+                'decisionid': str(self.decision.id),
+                'time': '2019-01-18 14:00',
+                'daystart': '2019-01-18 11:15',
+                'dayend': '2019-01-18 23:15',
+                'state': 0,
+                'available': 0,
+                'steps':0
+            }
+        )
+
 
 class DetermineSedentary(TestBase):
 

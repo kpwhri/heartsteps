@@ -8,6 +8,7 @@ from days.services import DayService
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_api.services import FitbitService
 from randomization.services import DecisionMessageService, DecisionContextService
+from walking_suggestion_times.models import SuggestionTime
 from watch_app.models import StepCount
 
 from anti_sedentary.clients import AntiSedentaryClient
@@ -126,11 +127,23 @@ class AntiSedentaryService:
 
     def get_day_end(self, time):
         local_time = self.localize_time(time)
-        return local_time.replace(hour=20, minute=0)
+        try:
+            suggestion_time = SuggestionTime.objects.get(
+                user=self.__user,
+                category = SuggestionTime.POSTDINNER
+            )
+        except SuggestionTime.DoesNotExist:
+            return local_time.replace(hour=20, minute=0)
+        updated_time = local_time.replace(
+            hour = suggestion_time.hour,
+            minute = suggestion_time.minute
+        )
+        return updated_time + timedelta(hours=1)
+
 
     def get_day_start(self, time):
-        local_time = self.localize_time(time)
-        return local_time.replace(hour=8, minute=0)
+        end_time = self.get_day_end(time)
+        return end_time - timedelta(hours=12)
 
     def time_within_day(self, time):
         end_of_day = self.get_day_end(time)

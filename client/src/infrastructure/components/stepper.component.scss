@@ -1,9 +1,13 @@
 heartsteps-stepper {
     @extend .heartsteps-page;
-    @extend .heartsteps-scrollable;
+    @extend .heartsteps-scroll-full;
 
-    > .content {
-        @extend .heartsteps-unscrollable;
+    > * {
+        background-color: $background-primary;
+    }
+
+    > header {
+        border-width: 0px;
     }
 
     > header > .back {
@@ -30,18 +34,11 @@ heartsteps-stepper {
     }
 }
 
-body heartsteps-stepper {
-    background-color: $background-primary;
-}
+heartsteps-stepper.start-screen {
 
-body heartsteps-stepper > header {
+    > * {
         background-color: transparent;
-        border-bottom: 0px;
-}
-
-body heartsteps-stepper.start-screen {
-    display: block;
-    background-color: transparent;
+    }
 
     .pagination-bullets > * {
         background-color: transparent;

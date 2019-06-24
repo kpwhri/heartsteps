@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -38,7 +38,8 @@ if(server){
   
     # input <- fromJSON(file = "./test/start_mash.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/init.json")
-    input <- fromJSON(file = "./test/start.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_init.json")
+    # input <- fromJSON(file = "./test/start.json")
     
   }
   
@@ -355,7 +356,10 @@ data.dosage$dataset <- data.frame(day = 1, timeslot = 1,
 
 ###### dataset to save all decision
 
-data.decision <- NULL
+data.decision <- data.frame(day = 0, timeslot = 0, action = 0, prob = 0, random.number = 0)
+colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
+data.decision <- data.decision[data.decision$day > 0, ]
+
 
 
 # save

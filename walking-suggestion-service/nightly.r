@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 #' ---
 #' title:  Nightly Udates in the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -35,7 +35,9 @@ if(server){
     
   }else{
     
-    input <- fromJSON(file = "./test/update_7.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
+    
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
@@ -81,12 +83,13 @@ check  = tryCatch(expr = {
                   "preStepsArray", "postStepsArray", 
                   "availabilityArray",
                   "priorAntiArray",
-                  "lastActivityArray",
+                  "lastActivityArray", "actionArray", "probArray",
                   "locationArray") %in% names(input)));
   
   # check the size 
-  stopifnot(all(lapply(input[c("temperatureArray", "preStepsArray", "postStepsArray", 
+  stopifnot(all(lapply(input[c("temperatureArray", "preStepsArray", "postStepsArray", "actionArray", "probArray",
                                "availabilityArray", "lastActivityArray", "locationArray")], length)==5))
+  
   stopifnot(length(input["priorAntiArray"]$priorAntiArray) == 6);
   
   # temperature should be imputed by HS server
@@ -108,7 +111,8 @@ check  = tryCatch(expr = {
   
   
   
-}, error = function(err){
+}, 
+                  error = function(err){
   
   cat(paste("\nNightly:", "Day =", input$studyDay, 
             "update rejected", "Error:", err$message), file =  paste(paths, "/log", sep=""), append = TRUE)
@@ -122,7 +126,22 @@ check  = tryCatch(expr = {
 ## impute dosage dataset using today's input
 if(is.null(check)){
   
+  # =============== Process input ===============
   
+  # convert NULL to NA
+  names.array <- c("temperatureArray", "preStepsArray", "postStepsArray", 
+                   "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray",
+                   "actionArray", "probArray")
+  
+  for(name in names.array){
+    input[[name]] <- proc.array(input[[name]])
+  }
+  
+  # total steps null to NA
+  input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
+  
+  
+
   # =============== Impute dosage for the missing decision times for today ===============
   
   # check if 1st decision time skipped
@@ -158,19 +177,29 @@ if(is.null(check)){
   }
   data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
   
-  # =============== Process input ===============
+  # =============== Add the decision time for reinitialization ===============
   
-  # convert NULL to NA
-  names.array <- c("temperatureArray", "preStepsArray", "postStepsArray", 
-                   "availabilityArray", "priorAntiArray", "lastActivityArray", "locationArray")
-  
-  for(name in names.array){
-    input[[name]] <- proc.array(input[[name]])
+  if(nrow(subset(data.decision, day == input$studyDay)) < 5){
+    
+    index <- c(1:5)[!(1:5 %in% subset(data.decision, day == input$studyDay)$timeslot)]
+    
+    for(k in index){
+      
+      if(!is.na(input$probArray[k]) & !is.na(input$actionArray[k])){
+        
+        data.decision <- rbind(data.decision, c(input$studyDay, k, input$probArray[k], input$actionArray[k], NA))
+        
+      }
+    }
+    
+    colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
+    data.decision <- data.decision[order(data.decision$day, data.decision$timeslot), ]
+    
   }
   
-  # total steps null to NA
-  input$totalSteps <- ifelse(is.null(input$totalSteps), NA, input$totalSteps)
   
+  
+ 
   
   # =============== Create the day history ============= 
   
@@ -234,7 +263,7 @@ if(is.null(check)){
         
         if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 0){
           
-          # decision does not occur
+          # decision does not occur 
           prob <- 0
           action <- 0
           random.num <- NA
@@ -418,6 +447,7 @@ if(is.null(check)){
   train.dat <- train.dat[complete.cases(train.dat), ]
   
   
+  
   # 2. Posterior for all parameters (Hierarchy, action-centered). 
   wm.txt <- txt.eff.update(train.dat, 
                       mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1,
@@ -529,14 +559,23 @@ if(is.null(check)){
   
   # ================ Save everything ================
   
+  save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
   save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
   save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
   save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
   save(data.history, file = paste(paths, "/history.Rdata", sep=""))
   save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
   
+  if(nrow(train.dat) > 0){
+    
+    train <- data.frame(id = input$userID, train.dat);
+    save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+    
+  }
+  
   
   cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
 }
+
 
 

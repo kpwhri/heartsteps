@@ -71,6 +71,39 @@ class FitbitDay(models.Model):
     def distance(self, value):
         self._distance = value
 
+    def get_minute_level_data(self):
+        data_dict = {}
+        for unprocessed_data in self.unprocessed_data.all():
+            if unprocessed_data.category not in ['heart rate', 'steps']:
+                continue
+            category = unprocessed_data.category
+            for d in unprocessed_data.payload:
+                _time = d['time']
+                if _time not in data_dict:
+                    data_dict[_time] = {}
+                data_dict[_time][category] = d['value']
+        
+        data = []
+        time = datetime(self.date.year, self.date.month, self.date.day)
+        endtime = time + timedelta(days=1)
+        while time < endtime:
+            _time_str = time.strftime('%H:%M:%S')
+            steps = None
+            heart_rate = None
+            if _time_str in data_dict:
+                if 'steps' in data_dict[_time_str]:
+                    steps = data_dict[_time_str]['steps']
+                if 'heart rate' in data_dict[_time_str]:
+                    heart_rate = data_dict[_time_str]['heart rate']
+            data.append({
+                'date': self.date.strftime('%Y-%m-%d'),
+                'time': _time_str,
+                'heart_rate': heart_rate,
+                'steps': steps
+            })
+            time = time + timedelta(minutes=1)
+        return data
+
     def get_wore_fitbit(self):
         if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES'):
             raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES')
@@ -134,7 +167,7 @@ class FitbitMinuteHeartRate(models.Model):
 
 class FitbitDailyUnprocessedData(models.Model):
     account = models.ForeignKey(FitbitAccount)
-    day = models.ForeignKey(FitbitDay)
+    day = models.ForeignKey(FitbitDay, related_name='unprocessed_data')
     category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 

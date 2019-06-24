@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 #' ---
 #' title:  Action selection in the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -35,7 +35,7 @@ if(server){
   }else{
     
     
-    input <- fromJSON(file = "./test/call_8_1.json")
+    input <- fromJSON(file = "./test/call_1_5.json")
     # input <- fromJSON(file = filename)
     
   }
@@ -117,9 +117,7 @@ output <- tryCatch(
   if(all(c("studyDay", "decisionTime") %in% names(input))){
     
     data.decision <- rbind(data.decision, c(input$studyDay, input$decisionTime, action, prob, random.num))
-    data.decision <- data.frame(data.decision)
-    colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
-    
+
     # save to the system
     save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
     
