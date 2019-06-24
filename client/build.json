@@ -8,7 +8,7 @@
         "release": {
             "keystore": "/credentials/android.keystore",
             "storePassword": "password",
-            "alias": "heartsteps-kpwhri-app",
+            "alias": "heartsteps-kpw-app",
             "password": "password",
             "keystoreType": ""
         }

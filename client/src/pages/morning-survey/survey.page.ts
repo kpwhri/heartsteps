@@ -16,6 +16,9 @@ export class SurveyPageComponent implements OnInit {
     public questions: Array<any>;
 
     public moodChoices: Array<SelectOption> = [];
+
+    public showWeather: boolean;
+    public today: Date;
     
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
@@ -27,6 +30,13 @@ export class SurveyPageComponent implements OnInit {
 
     ngOnInit() {
         const morningMessage: MorningMessage = this.activatedRoute.snapshot.data['morningMessage'];
+        this.today = morningMessage.date;
+        
+        if (morningMessage.anchor) {
+            this.showWeather = false;
+        } else {
+            this.showWeather = true;
+        }
 
         let response = {}
         if(morningMessage.response) {

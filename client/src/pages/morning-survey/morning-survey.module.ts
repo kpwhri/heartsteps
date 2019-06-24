@@ -10,6 +10,7 @@ import { SurveyPageComponent } from './survey.page';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { FormModule } from '@infrastructure/form/form.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { WeatherModule } from '@heartsteps/weather/weather.module';
 
 const morningSurveyRoutes: Routes = [{
     path: 'morning-survey/:page',
@@ -42,7 +43,8 @@ const morningSurveyRoutes: Routes = [{
         InfrastructureModule,
         HeartstepsComponentsModule,
         MorningMessageModule,
-        RouterModule.forChild(morningSurveyRoutes)
+        RouterModule.forChild(morningSurveyRoutes),
+        WeatherModule
     ],
     exports: [
         RouterModule

@@ -7,8 +7,13 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
+from days.services import DayService
+from fitbit_activities.models import FitbitMinuteStepCount, FitbitDay
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
+
 
 class Participant(models.Model):
     """
@@ -21,6 +26,9 @@ class Participant(models.Model):
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+
+    class NotEnrolled(RuntimeError):
+        pass
 
     def enroll(self):
         user, created = User.objects.get_or_create(
@@ -47,16 +55,85 @@ class Participant(models.Model):
     _is_active.boolean = True
 
     @property
+    def is_active(self):
+        return self._is_active
+
+    @property
     def enrolled(self):
         return self._is_enrolled()
 
-    # def _last_fitbit_data_dtm(self):
-    #     try:
-    #         last_fitbit_data = self.user.fitbitaccountuser \
-    #             .fitbitaccount.fitbitminutestepcount
-    #     except FindErrorHere:
-    #         pass
-    #     return -1
+    def _wore_fitbit_days(self):
+        if not self._is_enrolled:
+            return 0
+
+        u = self.user
+        if u:
+            try:
+                return u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).count()
+            except (FitbitAccountUser.DoesNotExist,
+                     FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
+                print("Error in " + u.username + ": " + str(e))
+                return 0
+        else:
+            return 0
+
+    @property
+    def wore_fitbit_days(self):
+        return self._wore_fitbit_days()
+
+    def _watch_app_installed(self):
+        u = self.user
+        if u:
+            if u.watchinstall_set:
+                return True
+        return False
+    _watch_app_installed.boolean = True
+
+    @property
+    def watch_app_installed(self):
+        return self._watch_app_installed
+
+    def _fitbit_authorized(self):
+        u = self.user
+        if u:
+            if u.authenticationsession_set:
+                return True
+        return False
+    _fitbit_authorized.boolean = True
+
+    @property
+    def fitbit_authorized(self):
+        return self._fitbit_authorized
+
+    def _last_fitbit_sync(self):
+        if not self._is_enrolled:
+            return 0
+
+        u = self.user
+        if u:
+            try:
+                # Let's rethink using stepcount - fitbitsubscriptionupdate?
+                return u.fitbitaccountuser.account \
+                    .fitbitminutestepcount_set \
+                    .latest('time').time
+            except (FitbitAccountUser.DoesNotExist, FitbitAccount.DoesNotExist, FitbitMinuteStepCount.DoesNotExist) as e:
+                print("Error in " + u.username + ": " + str(e))
+                return 0
+        else:
+            return 0
+
+    @property
+    def last_fitbit_sync(self):
+        return self._last_fitbit_sync
+
+    @property
+    def date_enrolled(self):
+        if self.user:
+            day_service = DayService(user=self.user)
+            return day_service.get_date_at(self.user.date_joined)
+        else:
+            raise self.NotEnrolled('Not enrolled')
 
     @property
     def daily_task_name(self):

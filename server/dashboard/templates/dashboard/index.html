@@ -37,6 +37,11 @@
                 <th scope='col'>Token</th>
                 <th scope='col'>Birth Year</th>
                 <th scope='col'>Enrolled</th>
+                <th scope='col'>Active</th>
+                <th scope='col'>Fitbit Days Worn</th>
+                <th scope='col'>Watch App Installed</th>
+                <th scope='col'>Fitbit Authorized</th>
+                <th scope='col'>Last Fitbit Sync</th>
                 <th scope='col'>Phone</th>
             </tr>
         </thead>
@@ -46,7 +51,37 @@
                 <td>{{participant.heartsteps_id}}</td>
                 <td>{{participant.enrollment_token}}</td>
                 <td>{{participant.birth_year}}</td>
-                <td>{{participant.enrolled}}</td>
+                <td>{% if participant.enrolled %}
+                    <img src="{% static 'admin/img/icon-yes.svg' %}" />
+                    {% else %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
+                </td>
+                <td>{% if participant.is_active %}
+                    <img src="{% static 'admin/img/icon-yes.svg' %}" />
+                    {% else %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
+                </td>
+                <td>{{participant.wore_fitbit_days}}</td>
+                <td>{% if participant.watch_app_installed %}
+                    <img src="{% static 'admin/img/icon-yes.svg' %}" />
+                    {% else %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
+                </td>
+                <td>{% if participant.fitbit_authorized %}
+                    <img src="{% static 'admin/img/icon-yes.svg' %}" />
+                    {% else %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
+                </td>
+                <td>
+                    {% load tz %}
+                    {% timezone 'US/Pacific' %}
+                    {{ participant.last_fitbit_sync|date }}
+                    {% endtimezone %}
+                </td>
                 <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
                 <td></td>
             </tr>

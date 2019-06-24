@@ -14,11 +14,7 @@ proc.matrix <- function(list) {
   do.call(rbind, lapply(temp, unlist))
 }
 
-
-
-
-disc.dosage <- 0.8
-
+disc.dosage <- 0.95
 
 update.dosage = function(x, increase=TRUE){
   
@@ -98,7 +94,7 @@ winsor.fn = function (x, beta=3, range = c(1, 10)){
   
   # standarize by median and mad (med abs dev)
   med <- median(x)
-  sd <- mad(x)
+  sd <- max(mad(x), 1e-10)
   y <- (x-med)/sd
   
   # threshold
@@ -176,200 +172,6 @@ winsor.upp = function (x, beta=3, range = c(1, 10), min.val){
   
 }
 
-posterior.cal = function(train.dat, mu0, Sigma0, sigma, int.names, nonint.names){
-  
-  # hirachcial action-centering posterior update
-  
-  stopifnot(all(complete.cases(train.dat)))
-  
-  interactions <- as.matrix(train.dat[, int.names])
-  maineffects <- as.matrix(cbind(train.dat[, nonint.names], train.dat[, int.names]))
-  
-  probs <- train.dat$probability
-  actions <- train.dat$action
-  rewards <- train.dat$reward
-  
-  X1 <- cbind(1, maineffects)
-  X2 <- probs * cbind(1, interactions)
-  X3 <- (actions-probs) * cbind(1, interactions) 
-  X <- cbind(X1, X2, X3)
-  Y <- rewards
-  
-  
-  # prior info
-  inv.Sigma0 <- solve(Sigma0)
-  sigma.sq <- sigma^2
-  
-  # posterior
-  mu <- c(solve(t(X) %*% X +  sigma.sq * inv.Sigma0, t(X) %*% Y + sigma.sq * inv.Sigma0 %*% mu0))  
-  Sigma <- sigma.sq * solve(t(X) %*% X +  sigma.sq * inv.Sigma0)
-  
-  # the poster mean and varnace for the interaction terms (intercept included)
-  interaction.index <- tail(1:ncol(X), ncol(X3)) # include the intercept
-  
-  # return the posterio in the policy
-  list(mu = mu[interaction.index], 
-       Sigma = Sigma[interaction.index, interaction.index])
-
-  
-}
-
-posterior.cal.mar = function(train.dat, mu0, Sigma0, sigma){
-  
-  # posterior calculation for marginal reward model
-  
-  X <- cbind(1, train.dat$dosage)
-  Y <- train.dat$reward
-  
-  # prior info
-  inv.Sigma0 <- solve(Sigma0)
-  sigma.sq <- sigma^2
-  
-  # posterior
-  mu <- c(solve(t(X) %*% X +  sigma.sq * inv.Sigma0, t(X) %*% Y + sigma.sq * inv.Sigma0 %*% mu0))  
-  Sigma <- sigma.sq * solve(t(X) %*% X +  sigma.sq * inv.Sigma0)
-  
-  
-  list(mu = mu, Sigma = Sigma)
-  
-}
-
-Cal.Q = function(r.fn, prob, gamma, alpha0, alpha1){
-  
-  # calculate the value function
-  
-  max.dosage <- 100
-  irs <- 2;
-  drs <- 1;
-  prob_as <- 0.25
-
-  
-  tran = function(x.next, x, a){
-    
-    # as <- as.numeric(runif(1) < prob_as)
-    # max(1, min(x + ifelse((as+a)>0, 1, -1), 10))
-    
-    if(a==1){
-      
-      # a = 1
-      
-      if(x+irs <= max.dosage){
-        
-        ifelse(x.next == x+irs, 1, 0)
-        
-      }else{
-        
-        ifelse(x.next == max.dosage, 1, 0)
-      }
-      
-    }else{
-      
-      # a = 0
-      
-      if(x+irs <= max.dosage){
-        
-        if(x-drs >= 1){
-          
-          (x.next == x+irs) * prob_as + (x.next == x-drs) * (1-prob_as)
-          
-        }else{
-          
-          (x.next == x+irs) * prob_as + (x.next == 1) * (1-prob_as)
-          
-        }  
-        
-        
-      }else{
-        
-        (x.next == max.dosage) * prob_as +  (x.next == x-drs) * (1-prob_as)
-      }
-      
-      
-    }
-    
-  }
-  
-  prob.mat0 = t(sapply(1:max.dosage, function(x) sapply(1:max.dosage, function(y) tran(y, x, 0))))
-  prob.mat1 = t(sapply(1:max.dosage, function(x) sapply(1:max.dosage, function(y) tran(y, x, 1))))
-  
-  
-  TQ.op = function(Q.vec, Q.mat){
-    
-    VQ <- apply(Q.mat, 1, max);
-    
-    temp0 <- M0 + gamma * prob.mat0 %*% (prob * VQ + (1-prob) * Q.vec)
-    temp1 <- M1 + gamma * prob.mat1 %*% (prob * VQ + (1-prob) * Q.vec)
-    temp2 <- M_unavai + (temp0 - M0)
-    
-    TQ.mat <- cbind(temp0, temp1)
-    TQ.vec <- temp2
-    
-    list(TQ.mat=TQ.mat, TQ.vec=TQ.vec)
-  }
-  
-  TQ.op.adv = function(Q.vec, Q.mat){
-    
-    
-    VQ <- apply(Q.mat, 1, max);
-    
-    temp0 <- M0 + gamma * prob.mat0 %*% (prob * VQ + (1-prob) * Q.vec)
-    temp1 <- M1 + gamma * prob.mat1 %*% (prob * VQ + (1-prob) * Q.vec)
-    temp2 <- M_unavai + (temp0 - M0)
-    
-    TQ.mat <- cbind(temp0, temp1) - alpha.mat * (VQ - Q.mat)
-    TQ.vec <- temp2
-    
-    list(TQ.mat = TQ.mat , TQ.vec = TQ.vec)
-  }
-  
-  compute.Q = function(op){
-    
-    Q.vec <- rep(0, max.dosage)
-    Q.mat <- matrix(0, max.dosage, 2) 
-    kk <- 0
-    TQ = op(Q.vec, Q.mat)
-    thres <- max(abs(TQ$TQ.mat - Q.mat), abs(TQ$TQ.vec - Q.vec))
-    
-    while(thres > thres.val){
-      
-      Q.vec <- TQ$TQ.vec
-      Q.mat <- TQ$TQ.mat;
-      
-      TQ = op(Q.vec, Q.mat)
-      thres <- max(abs(TQ$TQ.mat - Q.mat), abs(TQ$TQ.vec - Q.vec))
-      
-      kk <- kk + 1
-      #cat(kk, thres, "\n")
-      
-    }
-    
-    return(Q.mat)
-    
-  }
-  
-  
-  
-  thres.val = 1e-4;
-  # iter.max=1e7;
-  
-  # compute Q
-  M_unavai <- sapply(1:max.dosage, function(x) c(r.fn(x, i = 0, a = 0)))
-  M0 <- sapply(1:max.dosage, function(x) c(r.fn(x, i = 1, a = 0)))
-  M1 <- sapply(1:max.dosage, function(x) c(r.fn(x, i = 1, a = 1)))
-  
-  
-  alpha.mat <- matrix(0, nrow=max.dosage, ncol = 2)
-  alpha.mat[, 1] <- alpha0
-  alpha.mat[, 2] <- alpha1
-  
-  Q.opt <- compute.Q(TQ.op.adv)
-  Q.til <- Q.opt - cbind(M0, M1)
-  
-  return(Q.til/gamma)
-}
-
-
-
 compute.dosage.day = function(last.dsg, yes.fifthToEnd.anti, yes.last.walk, anti, walk){
   
   # last.dsg = the dosage at yesterday's fifth decision time
@@ -388,5 +190,290 @@ compute.dosage.day = function(last.dsg, yes.fifthToEnd.anti, yes.last.walk, anti
   
 }
 
+
+txt.eff.update = function(train.dat, mu1, Sigma1, mu2, Sigma2, sigma, int.names, nonint.names){
+  
+  # hirachcial action-centering posterior update
+  
+  stopifnot(all(complete.cases(train.dat)))
+  
+  temp.dat <- train.dat[train.dat$availability == 1, ]
+  
+  if(nrow(temp.dat) == 0){
+    
+    list(mean =  mu2, 
+         var = Sigma2)
+    
+  }else{
+    
+    
+    temp.dat$dosage <- sapply(temp.dat$dosage, std.dosage);
+    
+    interactions <- as.matrix(temp.dat[, int.names])
+    maineffects <- as.matrix(cbind(temp.dat[, nonint.names], temp.dat[, int.names]))
+    
+    probs <- temp.dat$probability
+    actions <- temp.dat$action
+    rewards <- temp.dat$reward
+    
+    X1 <- cbind(1, maineffects)
+    X2 <- probs * cbind(1, interactions)
+    X3 <- (actions-probs) * cbind(1, interactions) 
+    X <- cbind(X1, X2, X3)
+    Y <- rewards
+    
+    
+    # prior info
+    
+    mu.tmp <- c(mu1, mu2, mu2)
+    Sigma.tmp <- as.matrix(bdiag(Sigma1, Sigma2, Sigma2))
+    
+    inv.Sigma.tmp <- solve(Sigma.tmp)
+    sigma.sq <- sigma^2
+    
+    # posterior
+    mu <- c(solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp, t(X) %*% Y + sigma.sq * inv.Sigma.tmp %*% mu.tmp))  
+    Sigma <- sigma.sq * solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp)
+    
+    # index
+    interaction.index <- tail(1:nrow(Sigma), length(mu2))
+    
+    # return the posterio in the policy
+    list(mean = mu[interaction.index], 
+         var = Sigma[interaction.index, interaction.index])
+    
+  }
+  
+  
+  
+  
+}
+
+
+main.eff.update = function(train.dat, mu1, Sigma1, sigma, int.names, nonint.names){
+  
+  # hirachcial action-centering posterior update
+  
+  stopifnot(all(complete.cases(train.dat)))
+  
+  temp.dat <- train.dat[train.dat$availability == 1 & train.dat$action == 0, ]
+  
+  if(nrow(temp.dat) == 0){
+    
+    list(mean =  mu1, 
+         var = Sigma1)
+    
+  }else{
+    
+    
+    temp.dat$dosage <- sapply(temp.dat$dosage, std.dosage);
+    maineffects <- as.matrix(cbind(temp.dat[, nonint.names], temp.dat[, int.names]))
+    rewards <- temp.dat$reward
+    
+    X <- cbind(1, maineffects)
+    Y <- rewards
+    
+    
+    # prior info
+    
+    mu.tmp <- mu1
+    Sigma.tmp <- Sigma1
+    
+    inv.Sigma.tmp <- solve(Sigma.tmp)
+    sigma.sq <- sigma^2
+    
+    # posterior
+    mu <- c(solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp, t(X) %*% Y + sigma.sq * inv.Sigma.tmp %*% mu.tmp))  
+    Sigma <- sigma.sq * solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp)
+    
+    
+    # return the posterio in the policy
+    list(mean = mu, 
+         var = Sigma)
+    
+  }
+  
+  
+  
+  
+}
+
+unavail.update = function(train.dat, mu0, Sigma0, sigma, int.names, nonint.names){
+  
+  # hirachcial action-centering posterior update
+  
+  stopifnot(all(complete.cases(train.dat)))
+  
+  temp.dat <- train.dat[train.dat$availability == 0, ]
+  
+  if(nrow(temp.dat) == 0){
+    
+    list(mean =  mu0, 
+         var = Sigma0)
+    
+  }else{
+    
+    
+    temp.dat$dosage <- sapply(temp.dat$dosage, std.dosage);
+    maineffects <- as.matrix(cbind(temp.dat[, nonint.names], temp.dat[, int.names]))
+    rewards <- temp.dat$reward
+    
+    X <- cbind(1, maineffects)
+    Y <- rewards
+    
+    
+    # prior info
+    
+    mu.tmp <- mu0
+    Sigma.tmp <- Sigma0
+    
+    inv.Sigma.tmp <- solve(Sigma.tmp)
+    sigma.sq <- sigma^2
+    
+    # posterior
+    mu <- c(solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp, t(X) %*% Y + sigma.sq * inv.Sigma.tmp %*% mu.tmp))  
+    Sigma <- sigma.sq * solve(t(X) %*% X +  sigma.sq * inv.Sigma.tmp)
+    
+    
+    # return the posterio in the policy
+    list(mean = mu, 
+         var = Sigma)
+    
+  }
+  
+  
+  
+  
+}
+
+eta.update = function(train.dat, alpha0, alpha1, alpha2, 
+                        int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                        nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps")){
+  
+  # alpha0 <- gen.param$mu0
+  # alpha1 <- gen.param$mu1
+  # alpha2 <- gen.param$mu2
+  
+  # apply(train.dat, 1, function(z) z[int.names])
+  
+  # [1] "steps.yesterday.sqrt" "jbsteps30pre.log"    
+  # [3] "loc.is.other"         "temperature"         
+  # [5] "loc.is.work"          "window7.steps60.sd"  
+  
+  
+  if(nrow(train.dat) < 10){
+    
+    return(bandit.spec$eta.init)
+    
+  }else{
+    
+    
+    p.avail <- mean(train.dat$avail)
+    X.null <- seq(0, 1/(1-0.950), by = 0.1)
+    Z.trn <- train.dat[c(nonint.names, int.names[-1])]
+    
+    
+    feat0 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
+    feat1 = function(z, x) c(1, z[1:length(nonint.names)], std.dosage(x), tail(z, length(int.names)-1))
+    feat2 = function(z, x) c(1, std.dosage(x), tail(z, length(int.names)-1))
+    
+    # F0 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat0(z, x)), 1, mean)))
+    # F1 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat1(z, x)), 1, mean)))
+    # F2 <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) input$feat2(z, x)), 1, mean)))
+    
+    F.all <- t(sapply(X.null, function(x) apply(apply(Z.trn, 1, function(z) c(feat0(z, x), feat1(z, x), feat2(z, x))), 1, mean)))
+    index0 <- 1:length(alpha0)
+    index1 <- length(alpha0)+1 : length(alpha1)
+    index2 <- tail(1:ncol(F.all), length(alpha2))
+    F0 <- F.all[, index0]
+    F1 <- F.all[, index1]
+    F2 <- F.all[, index2]
+    
+    
+    r0.vec = c(F0 %*% alpha0)
+    r1.vec = c(F1 %*% alpha1)
+    r2.vec = r1.vec + c(F2 %*% alpha2) 
+    
+    bsb <- create.bspline.basis (range=c(0, 1/(1-0.950)), nbasis=50, norder = 4)
+    psi = function(x) c(eval.basis(x, bsb))
+    
+    psi.mat <- t(sapply(X.null, function(x) psi(x)))
+    inv.cov <- solve(t(psi.mat) %*% psi.mat)
+    
+    psi.mat.irs = t(sapply(X.null, function(x) psi(0.950 * x + 1)))
+    psi.mat.drs = t(sapply(X.null, function(x) psi(0.950 * x)))
+    psi.mat.bar <- bandit.spec$p.sed * psi.mat.irs  + (1-bandit.spec$p.sed) * psi.mat.drs
+    
+    
+    kmax <- 100;
+    kk <- 1
+    
+    theta1 = rep(0, length(psi(0)));
+    theta0 = rep(0, length(psi(0)));
+    theta.bar = theta1 * p.avail + (1-p.avail) * theta0
+    
+    Y1.0 <- r1.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+    Y1.1 <- r2.vec + bandit.spec$gamma * psi.mat.irs %*% theta.bar
+    index <- (Y1.1 - Y1.0 > 0)
+    Y1 <- Y1.0
+    Y1[index] <- Y1.1[index]
+    Y0 <- r0.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+    delta <- max(abs(Y1 - psi.mat%*% theta1), abs(Y0 - psi.mat %*% theta0))
+    
+    
+    delta.thres <- 1e-2;
+    while(kk < kmax & delta > delta.thres){
+      
+      # new theta
+      theta1 <- inv.cov %*% t(psi.mat) %*% Y1
+      theta0 <- inv.cov %*% t(psi.mat) %*% Y0
+      
+      theta.bar = theta1 * p.avail + (1-p.avail) * theta0
+      
+      # Bellman operator
+      Y1.0 <- r1.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+      Y1.1 <- r2.vec + bandit.spec$gamma * psi.mat.irs %*% theta.bar
+      index <- (Y1.1 - Y1.0 > 0)
+      Y1 <- Y1.0
+      Y1[index] <- Y1.1[index]
+      Y0 <- r0.vec + bandit.spec$gamma * psi.mat.bar %*% theta.bar
+      
+      delta <- max(abs(Y1 - psi.mat%*% theta1), abs(Y0 - psi.mat %*% theta0))
+      kk <- kk + 1
+      
+      # cat(kk, delta, "\n")
+    }
+    
+    if(kk == kmax){
+      
+      warning("Not Converge")
+      
+    }
+    
+    
+    eta.fn = function(x) {
+      
+      eta.hat <- c((1-bandit.spec$p.sed)* t(theta.bar)%*%(psi(disc.dosage*x)-psi(disc.dosage*x+1)) * (1-bandit.spec$gamma))
+      
+      # return(eta.hat)
+      return(bandit.spec$weight.est * eta.hat + (1-bandit.spec$weight.est) * bandit.spec$eta.init(x))
+      
+      
+    }
+    
+    
+    
+    return(eta.fn)
+    
+    
+    
+  }
+  
+  
+  
+  
+  
+  
+}
 
 

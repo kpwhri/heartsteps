@@ -78,13 +78,18 @@ randomization.probability <- function(N, current.state, remaining.time, current.
 }  
 
 which.block <- function(current.hour) {
-  if( (current.hour >= buckets[[1]][1]) & (current.hour <= buckets[[1]][2])) {
-    return(1)
-  } else if ( (current.hour >= buckets[[2]][1]) & (current.hour <= buckets[[2]][2]) ) {
-    return(2)
-  } else if ( (current.hour >= buckets[[3]][1]) | (current.hour <= buckets[[3]][2]) ) {
-    return(3)
-  } else { 
-    return(0) 
+  if( is.numeric(current.hour) & !is.na(current.hour)) {
+    if( (current.hour >= buckets[[1]][1]) & (current.hour <= buckets[[1]][2])) {
+      return(1)
+    } else if ( (current.hour >= buckets[[2]][1]) & (current.hour <= buckets[[2]][2]) ) {
+      return(2)
+    } else if ( (current.hour >= buckets[[3]][1]) | (current.hour <= buckets[[3]][2]) ) {
+      return(3)
+    } else { 
+      return(0) 
+    }
+  } else {
+    # BAD VALUES GET BLOCK OF -1 
+    return(-1)
   }
 }

@@ -1,11 +1,13 @@
 app-page {
-    @extend .heartsteps-container;
     > article {
         @extend .heartsteps-page;
     }
 }
 
 app-page.start-screen {
+    overflow: hidden;
+    width: 100%;
+
     > article {
         @extend .start-screen;
         padding: 0em;

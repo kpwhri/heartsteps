@@ -21,6 +21,9 @@ const enrollmentRoutes: Routes = [{
     path: 'login',
     component: EnrollmentPage
 }, {
+    path: 'enroll',
+    component: EnrollmentPage
+}, {
     path: 'setup/:page',
     component: SetupPage
 }, {

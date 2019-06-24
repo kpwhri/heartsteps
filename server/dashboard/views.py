@@ -1,10 +1,13 @@
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Case, IntegerField, Sum, When
+from django.shortcuts import render
 from django.views.generic import ListView
 
 from contact.models import ContactInformation
-from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Participant
 from sms_service.forms import SendSMSForm
@@ -14,7 +17,8 @@ from sms_service.views import SendSmsCreateView
 class DashboardListView(UserPassesTestMixin, ListView):
 
     model = Participant
-    queryset = Participant.objects.all().prefetch_related('user').order_by('heartsteps_id')
+    queryset = Participant.objects.all().prefetch_related(
+        'user').order_by('heartsteps_id')
     template_name = 'dashboard/index.html'
 
     def test_func(self):
@@ -33,33 +37,3 @@ class DashboardListView(UserPassesTestMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         return SendSmsCreateView.as_view()(request)
-
-# def index(request):
-#     participant_list = Participant.objects.all().prefetch_related('user').order_by('heartsteps_id')
-#     context = {'participant_list': participant_list}
-
-#     print(request.method)
-
-#     # n = 0
-#     # for p in participant_list:
-#     #     n += 1
-#     #     print("Participant #" + str(n))
-#     #     u = p.user
-#     #     if u:
-#     #         print("User ID: " + str(u.id))
-
-#     #         try:
-#     #             au = u.fitbitaccountuser
-#     #             print("FitbitAccountUser type: " + str(type(au)))
-#     #             print("FitbitAccountUser ID: " + str(au.user_id))
-#     #         except FitbitAccountUser.DoesNotExist:
-#     #             print("No FitbitAccountUser for " + str(u.id))
-#     #         # a = au.fitbitaccount
-#     #         # print("FitbitAccount: " + a.uuid)
-#     #         # m = a.fitbitminutestepcount
-#     #         # print("StepCount: " + str(a.steps))
-#     #     else:
-#     #         print("No user record for participant " + p.heartsteps_id)
-
-#     return render(request, 'dashboard/index.html', context)
-

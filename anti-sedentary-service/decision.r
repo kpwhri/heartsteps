@@ -1,14 +1,11 @@
 #! /usr/bin/Rscript
-library('rjson')
+## Required packages and source files
+source("functions.R"); library('chron'); library('rjson')
 
-# script is assuming JSON output always
+## Script is assuming JSON input and output always
 args <- commandArgs(trailingOnly = TRUE)
 input = fromJSON(args)
 
-#
-## Required packages and source files
-source("functions.R")
-#require(mgcv); require(chron);
 
 # payload = ' {
 #   "userid": [ "test-pedja" ],
@@ -117,6 +114,7 @@ if(return_default) {
     user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   }
   
+  
   ## Define the 3 4-hour buckets in GMT
   bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
   buckets = list(bucket1,bucket2, bucket3)
@@ -128,7 +126,10 @@ if(return_default) {
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
+  ## USE LUBRIDATE FOR DATETIME OBJECTS
   library('lubridate')
+  ## PULL IN CURRENT DAYS OBSERVATIONS FOR 
+  ## THE CHOSEN PARTICIPANT
   current.day.obs = day(user.data$time) == day(current.time) & month(user.data$time) == month(current.time) & year(user.data$time) == year(current.time) & user.data$time < current.time
   
   current.day.user.data = user.data[current.day.obs,]
@@ -174,16 +175,23 @@ if(return_default) {
       old.states = current.day.user.data$online_state[good.obs],
       old.A = current.day.user.data$action[good.obs],
       old.rho = current.day.user.data$probaction[good.obs],
-      time.diff = as.numeric(current.time - current.day.user.data$time[good.obs])
+      time.diff = as.numeric(difftime(current.time,current.day.user.data$time[good.obs], units = "mins"))
     )
     
     hours.so.far = as.numeric(floor(difftime(current.time,beginning.time, units = "hours")))
-    decision.time = hours.so.far*12 + floor(minute(current.time)/5)
-    temp = H.t$time.diff-H.t$time.diff%%5
-    grid = seq(5, max(temp), by = 5)
-    state.grid = rep(0, length(grid))
-    state.grid[is.element(grid, temp)] = H.t$old.states
-    past.sedentary = (state.grid == 1.0)
+    decision.time = hours.so.far*12 + floor(minutes(current.time)/5)
+    # Only keep rows that have states in 0,1 and no NA values
+    good.Ht.obs= is.element(H.t$old.states, c(0,1)) & rowSums(is.na(H.t)) == 0
+    H.t = H.t[good.Ht.obs,] 
+    if(nrow(H.t) != 0) {
+      temp = H.t$time.diff-H.t$time.diff%%5
+      grid = seq(5, max(temp), by = 5)
+      state.grid = rep(0, length(grid))
+      state.grid[is.element(grid, temp[H.t$old.states == 1])] = 1
+      past.sedentary = (state.grid == 1.0) 
+    } else {
+      past.sedentary = FALSE
+    }
     N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
@@ -193,11 +201,17 @@ if(return_default) {
     }
     
     # remaining.time = length(time.steps) - (decision.time-1)
+    max.remaining.time = nrow(r_min_x.table)
+    max.run.length = ncol(r_min_x.table)
     remaining.time.in.block = stop.block - (decision.time - 1)
     if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
       rho.t = 0
       A.t = 0
     } else {
+      ## Upper bound remaining.time.in.block and current.run.length
+      ## as precaution against randprob not being computable
+      remaining.time.in.block = min(remaining.time.in.block, max.remaining.time)
+      current.run.length = min(current.run.length, max.run.length)
       rho.t = randomization.probability(N, current.state, remaining.time.in.block, current.run.length, current.hour, H.t, lambda, eta)
       A.t = rbinom(n = 1, size = 1, prob = rho.t)
     }

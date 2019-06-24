@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import datetime
 
 from django.urls import reverse
 
@@ -37,6 +38,7 @@ class ParticipantInformationViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['heartstepsId'], 'sample-id')
         self.assertEqual(response.data['staff'], False)
+        self.assertEqual(response.data['date_enrolled'], datetime.date.today().strftime('%Y-%m-%d'))
 
     def test_returns_staff_status(self):
         user = User.objects.create(

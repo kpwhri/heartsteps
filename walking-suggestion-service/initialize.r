@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
@@ -9,6 +9,7 @@ localtest = T
 #'  
 
 library(rjson)
+library(fda, warn.conflicts=FALSE, quietly =T)
 
 
 # ========  Recieve Input ========= ####
@@ -30,16 +31,15 @@ if(server){
     
     args <- commandArgs(trailingOnly = TRUE)[1]
     input = fromJSON(file = args)
-   
-    
-  
-    
     
   }else{
     
    
   
-    input <- fromJSON(file = "./test/start_mash.json")
+    # input <- fromJSON(file = "./test/start_mash.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/init.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_init.json")
+    # input <- fromJSON(file = "./test/start.json")
     
   }
   
@@ -218,14 +218,12 @@ data.policy <- list()
 # other.loc, 
 # variation.indc
 
-interaction.index <- bandit.spec$policy.index # include the intercept
-data.policy$mu <- bandit.spec$prior.mean[interaction.index]
-data.policy$Sigma <- bandit.spec$prior.var[interaction.index, interaction.index]
+data.policy$mu.beta <- bandit.spec$mu2
+data.policy$Sigma.beta <- bandit.spec$Sigma2
 data.policy$pi_min <- bandit.spec$pi_min;
 data.policy$pi_max <- bandit.spec$pi_max;
-data.policy$gamma.mdp <- bandit.spec$gamma.mdp;
-data.policy$Q.mat <- bandit.spec$init.Q.mat
-
+data.policy$gamma <- bandit.spec$gamma;
+data.policy$eta.fn <- function(x) 0
 
 # ===== Create a holder to save the entire (imputated and unstandarized) history ====== ####
 
@@ -358,7 +356,10 @@ data.dosage$dataset <- data.frame(day = 1, timeslot = 1,
 
 ###### dataset to save all decision
 
-data.decision <- NULL
+data.decision <- data.frame(day = 0, timeslot = 0, action = 0, prob = 0, random.number = 0)
+colnames(data.decision) <- c("day", "timeslot", "action", "prob", "random.number")
+data.decision <- data.decision[data.decision$day > 0, ]
+
 
 
 # save

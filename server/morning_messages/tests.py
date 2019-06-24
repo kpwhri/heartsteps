@@ -211,7 +211,10 @@ class MorningMessageSurveyViewTest(APITestCase):
             body = 'Example morning message',
             anchor_message = 'Anchor message'
         )
-
+        MorningMessageQuestion.objects.create(
+            name='example',
+            label='This is an example question'
+        )
         word_set_patch = patch.object(MorningMessageSurvey, 'get_word_set')
         self.word_set = word_set_patch.start()
         self.addCleanup(word_set_patch.stop)
@@ -236,8 +239,8 @@ class MorningMessageSurveyViewTest(APITestCase):
             user = self.user,
             date = date(2019, 5, 5)
         )
-        morning_message.survey.selected_word = 'one'
-        morning_message.survey.save()
+        question = morning_message.survey.questions[0]
+        morning_message.survey.create_response(question, answer=None)
 
         response = self.client.get(reverse('morning-messages-survey', kwargs={
             'day': '2019-5-5'

@@ -7,5 +7,12 @@ export class MorningMessage {
     anchor:string;
     survey: any;
     response: any;
-    surveyComplete: boolean;
+
+    public isComplete():boolean {
+        if(this.survey && this.survey.completed) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

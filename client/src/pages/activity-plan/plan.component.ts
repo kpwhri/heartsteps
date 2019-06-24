@@ -57,15 +57,21 @@ export class PlanComponent implements OnInit {
 
         this.renderer.listen(this.element.nativeElement, 'click', (event) => {
             event.preventDefault();
-            if(event.target.nodeName === "BUTTON") {
-                this.router.navigate([{outlets: {
-                    modal: ['plans', this.plan.id].join('/')
-                }}]);
-            } else {
-                this.router.navigate([{outlets: {
-                    modal: ['plans', this.plan.id, 'complete'].join('/')
-                }}]);
+            if(event.target.nodeName !== "BUTTON") {
+                this.goToComplete();
             }
         })
+    }
+
+    public goToEdit() {
+        this.router.navigate([{outlets: {
+            modal: ['plans', this.plan.id].join('/')
+        }}]);
+    }
+
+    public goToComplete() {
+        this.router.navigate([{outlets: {
+            modal: ['plans', this.plan.id, 'complete'].join('/')
+        }}]);
     }
 }

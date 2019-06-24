@@ -1,26 +1,16 @@
 .start-screen {
     @extend .heartsteps-page;
-    background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
+    @extend .heartsteps-scroll-full;
+    // background: linear-gradient(to top, #1a508d 7%,#40a2e0 93%);
 
     color: $color-white;
 
-    padding: 1em;
-
     > * {
-        display: block;
-        margin: 2em auto;
-        flex-grow: 1;
+        background-color: transparent;
     }
 
     > button {
         flex-grow: 0;
-    }
-
-    > header,
-    > .content {
-        flex-grow: 0;
-        margin-top: 0em;
-        margin-bottom: 0em;
     }
 
     a,
@@ -102,7 +92,7 @@
 
 @media(min-width: 650px) {
     .start-screen {
-        width: auto;
+        width: 100%;
         margin: 0em;
         padding: 1em 0em;
         box-shadow: none;
@@ -111,5 +101,13 @@
     .start-screen > * {
         width: 650px;
         margin: 0em auto;
+    }
+}
+
+.start-screen .heartsteps-page {
+    color: $text-color;
+
+    a {
+        color: $link-color;
     }
 }

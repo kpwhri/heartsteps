@@ -99,6 +99,28 @@ class ServiceTestCase(TestCase):
             hour = 20,
             minute = 0
         )
+    
+    def create_walking_suggestion_decision(self, category, treated=False, treatment_probability=0.2):
+        day = date.today()
+
+        suggestion_time = SuggestionTime.objects.get(
+            user = self.user,
+            category = category
+        )
+
+        decision = WalkingSuggestionDecision.objects.create(
+            user = self.user,
+            treated = treated,
+            treatment_probability = treatment_probability,
+            time = datetime(
+                day.year,
+                day.month,
+                day.day,
+                suggestion_time.hour,
+                suggestion_time.minute
+            ).astimezone(pytz.UTC)
+        )
+        decision.add_context(category)
 
 class MockResponse:
     def __init__(self, status_code, text):
@@ -222,7 +244,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         decision.add_context(Place.HOME)
         self.make_request.return_value = {
             'send': True,
-            'probability': 1
+            'probability': 0.123
         }
 
         self.service.decide(decision)
@@ -233,6 +255,9 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         request_data = kwargs['data']
         self.assertEqual(request_data['studyDay'], 1)
         self.assertEqual(request_data['location'], 2)
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.treated, True)
+        self.assertEqual(decision.treatment_probability, 0.123)
 
     def test_decision_throws_error_not_initialized(self):
         decision = WalkingSuggestionDecision.objects.create(
@@ -246,6 +271,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.decide(decision)
 
+    @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
     @patch.object(WalkingSuggestionService, 'get_study_day', return_value=10)
     @patch.object(WalkingSuggestionService, 'get_clicks', return_value=20)
     @patch.object(WalkingSuggestionService, 'get_steps', return_value=500)
@@ -257,14 +283,27 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
     @patch.object(WalkingSuggestionService, 'get_previous_anti_sedentary_treatments', return_value=[False, False, False, False, False])
     def test_update(self, get_previous_anti_sedentary_treatments, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
-        date = datetime.today()
-        self.service.update(date)
+        # Create and initialize a participant, and send first nightly update.
+        today = date.today()
+        self.create_fitbit_day(date.today(), step_count=1500)
+        # Create walking suggestion for all but morning suggestion time
+        self.create_walking_suggestion_decision(SuggestionTime.LUNCH)
+        self.create_walking_suggestion_decision(SuggestionTime.MIDAFTERNOON)
+        self.create_walking_suggestion_decision(SuggestionTime.EVENING)
+        self.create_walking_suggestion_decision(
+            category = SuggestionTime.POSTDINNER,
+            treated = True,
+            treatment_probability = 0.987
+        )
+
+        self.service.update(today)
 
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
-
         request_data = self.make_request.call_args[1]['data']
         self.assertEqual(request_data, {
+            'actionArray': [None, False, False, False, True],
+            'probArray': [None, 0.2, 0.2, 0.2, 0.987],
             'studyDay': 10,
             'appClick': 20,
             'totalSteps': 500,
