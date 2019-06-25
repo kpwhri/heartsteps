@@ -205,7 +205,7 @@ spec:
       - name: heartsteps-celery-worker-messages
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celery-messages']
+        command: ['honcho', 'start', 'cloudsql', 'celeryMessages']
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
@@ -237,7 +237,7 @@ spec:
       - name: heartsteps-celery-worker-export
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celery-export']
+        command: ['honcho', 'start', 'cloudsql', 'celeryExport']
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
