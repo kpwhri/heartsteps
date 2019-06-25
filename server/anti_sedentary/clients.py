@@ -36,7 +36,7 @@ class AntiSedentaryClient:
     def make_request(self, uri, data):
         url = urljoin(self.service_url, uri)
         data['userid'] = str(self.__user.username)
-        request_record = ServiceRequest(
+        request_record = ServiceRequest.objects.create(
             user = self.__user,
             url = url,
             name = 'AntiSedentaryService: %s' % (uri),
