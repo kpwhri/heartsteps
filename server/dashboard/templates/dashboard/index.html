@@ -49,6 +49,7 @@
         <tbody>
             {% for participant in participant_list %}
             <tr>
+                {% load tz %}
                 {% timezone 'US/Pacific' %}
                 <td>{{participant.heartsteps_id}}</td>
                 <td>{{participant.enrollment_token}}</td>
@@ -82,7 +83,6 @@
                         <img src="{% static 'admin/img/icon-no.svg' %}" />
                     {% endif %}
                 </td>
-                {% load tz %}
                 <td>
                     {{ participant.last_fitbit_sync|date }}<br />
                 </td>

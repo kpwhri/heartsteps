@@ -50,6 +50,16 @@ class Participant(models.Model):
             return False
     _is_enrolled.boolean = True
 
+    def _enrollment_date(self):
+        if self.user:
+            return self.user.date_joined
+        else:
+            return None
+
+    @property
+    def enrollment_date(self):
+        return self._enrollment_date
+
     def _is_active(self):
         try:
             daily_task = self.__get_daily_task()
@@ -123,12 +133,12 @@ class Participant(models.Model):
         return self._fitbit_authorized_date
 
     def _fitbit_authorized(self):
-        return self.fitbit_authorized_date is not None
+        return self.fitbit_authorized_date() is not None
     _fitbit_authorized.boolean = True
 
     @property
     def fitbit_authorized(self):
-        return self._fitbit_authorized
+        return self._fitbit_authorized()
 
     def _last_fitbit_sync(self):
         if not self._is_enrolled:

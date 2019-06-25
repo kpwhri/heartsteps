@@ -60,10 +60,11 @@ class DashboardParticipantTests(TestCase):
             state='test',
             user=self.user
         )
-        self.assertEqual(self.participant.fitbit_authorized(), True)
+        self.assertEqual(self.participant.fitbit_authorized, True)
 
     def test_fitbit_authorized_false(self):
-        self.assertEqual(self.participant.fitbit_authorized(), False)
+        AuthenticationSession.objects.all().delete()
+        self.assertEqual(self.participant.fitbit_authorized, False)
 
     def test_last_fitbit_sync_has_synched(self):
         subscription = FitbitSubscription.objects.create(
@@ -214,3 +215,18 @@ class DashboardParticipantTests(TestCase):
         last_page_view = datetime.now() - hours_ago
         self.make_page_view(last_page_view)
         self.assertEqual(self.participant.adherence_app_use(), 24*7)
+
+    def test_enrollment_date_no_enrollment(self):
+        participant = Participant.objects.create(
+            enrollment_token='enrolldt1',
+            heartsteps_id='enrolldt1'
+        )
+        self.assertEqual(participant.enrollment_date(), None)
+
+    def test_enrollment_date_enrolled(self):
+        participant = Participant.objects.create(
+            user=self.user,
+            enrollment_token='1234-5678',
+            heartsteps_id='000000'
+        )
+        self.assertEqual(participant.enrollment_date(), self.user.date_joined)
