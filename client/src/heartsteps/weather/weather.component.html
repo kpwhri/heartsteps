@@ -1,1 +1,5 @@
-<p>Today, <em>High/Low</em></p>
+<div >
+    <ng-content></ng-content>
+    <em *ngIf="!loading">{{high}}/{{low}}</em>
+    <em *ngIf="loading">Loading</em>
+</div>

@@ -17,7 +17,6 @@ class SendSmsCreateView(SuccessMessageMixin, CreateView):
     # Rerouting the post from the modal form in dashboard
     # isn't automatically running form_valid.
     def post(self, request, *args, **kwargs):
-        print("Am i really posting?")
         form = self.form_class(request.POST)
         return self.form_valid(form)
 

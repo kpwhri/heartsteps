@@ -31,3 +31,41 @@ class WeatherForecast(models.Model):
 
     def __str__(self):
         return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)
+
+class DailyWeatherForecast(models.Model):
+
+    CLEAR = 'clear'
+    PARTIALLY_CLOUDY = 'partially-cloudy'
+    CLOUDY = 'cloudy'
+    WIND = 'wind'
+    RAIN = 'rain'
+    SNOW = 'snow'
+
+    WEATHER_CHOICES = [
+        (CLEAR, 'Clear'),
+        (PARTIALLY_CLOUDY, 'Partially Cloudy'),
+        (CLOUDY, 'Cloudy'),
+        (WIND, 'Wind'),
+        (RAIN, 'Rain'),
+        (SNOW, 'Snow')
+    ]
+
+    user = models.ForeignKey(User)
+    date = models.DateField()
+
+    category = models.CharField(max_length=70, choices=WEATHER_CHOICES)
+    high = models.IntegerField()
+    low = models.IntegerField()
+
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date']
+        unique_together = ['user', 'date']
+
+    def __str__(self):
+        return "%s: %s" % (self.user.username, self.date.strftime('%Y-%m-%d'))

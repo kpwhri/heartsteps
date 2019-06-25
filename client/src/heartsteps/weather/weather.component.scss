@@ -9,7 +9,7 @@ heartsteps-weather {
         margin: 0.5em;
     }
 
-    p em {
+    * > em {
         display: block;
         font-style: normal;
     }
@@ -20,8 +20,35 @@ heartsteps-weather:before {
     content: "";
     display: block;
     width: 3em;
-    background: url('../assets/weather/sunny.svg');
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-position: center center;
+}
+
+heartsteps-weather.cloudy:before {
+    background-image: url('../assets/weather/cloudy.svg');
+}
+
+heartsteps-weather.partly-cloudy:before {
+    background-image: url('../assets/weather/partly-cloudy.svg');
+}
+
+heartsteps-weather.rain:before {
+    background-image: url('../assets/weather/rain.svg');
+}
+
+heartsteps-weather.snow:before {
+    background-image: url('../assets/weather/snow.svg');
+}
+
+heartsteps-weather.sunny:before {
+    background-image: url('../assets/weather/sunny.svg');
+}
+
+heartsteps-weather.thunderstorm:before {
+    background-image: url('../assets/weather/thunderstorm.svg');
+}
+
+heartsteps-weather.windy:before {
+    background-image: url('../assets/weather/windy.svg');
 }

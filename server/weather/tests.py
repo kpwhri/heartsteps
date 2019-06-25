@@ -1,13 +1,19 @@
+from datetime import date
+from datetime import timedelta
 from unittest.mock import patch
 import json
 import requests
 
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
+from rest_framework.test import APITestCase
 
-from weather.darksky_api_manager import DarkSkyApiManager
-from weather.models import WeatherForecast
-from weather.services import WeatherService
+from .darksky_api_manager import DarkSkyApiManager
+from .models import DailyWeatherForecast
+from .models import WeatherForecast
+from .models import User
+from .services import WeatherService
 
 class DarkSkyApiTests(TestCase):
 
@@ -133,3 +139,60 @@ class WeatherServiceTest(TestCase):
         context = WeatherService.get_average_forecast_context(forecasts)
 
         self.assertEqual(WeatherService.WEATHER_OUTDOOR_SNOW, context)
+
+class ForecastViewTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username="test"
+        )
+        self.client.force_authenticate(self.user)
+
+    def create_weather_forecast(self, date, category=DailyWeatherForecast.CLEAR, high=75, low=57):
+        DailyWeatherForecast.objects.create(
+            user = self.user,
+            date = date,
+            category = category,
+            high = high,
+            low = low
+        )
+
+    def test_weather_forecast_does_not_exist(self):
+        
+        response = self.client.get(reverse('weather-day', kwargs={
+            'day': date.today().strftime('%Y-%m-%d')
+        }))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_weather_forecast(self):
+        self.create_weather_forecast(date=date.today())
+
+        response = self.client.get(reverse('weather-day', kwargs={
+            'day': date.today().strftime('%Y-%m-%d')
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['category'], 'clear')
+        self.assertEqual(response.data['high'], 75)
+        self.assertEqual(response.data['low'], 57)
+
+    def test_get_weather_for_date_range(self):
+        for offset in range(14):
+            self.create_weather_forecast(
+                date = date.today() - timedelta(days=offset),
+                high = 80 - offset
+            )
+        self.user.date_joined = timezone.now() - timedelta(days=15)
+        self.user.save()
+
+        response = self.client.get(reverse('weather-range', kwargs={
+            'start': (date.today() - timedelta(days=6)).strftime('%Y-%m-%d'),
+            'end': date.today().strftime('%Y-%m-%d')
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 7)
+        forecast = response.data[-1]
+        self.assertEqual(forecast['date'], date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(forecast['high'], 80)
