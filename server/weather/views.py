@@ -4,62 +4,42 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from weather.utils import DarkSkyApiManager
-from weather.utils import WeatherUtils
-from weather.models import WeatherForecast
-from weather.serializers import WeatherForecastSerializer
+from days.views import DayView
+from weather.models import DailyWeatherForecast
+from weather.serializers import DailyWeatherForecastSerializer
 
+class DailyWeatherView(DayView):
 
-class WeatherForecastsList(APIView):
-    """
-    List all weather forecasts or create a new weather forecast.
-    """
-
-    def get(self, request, format=None):
-        forecasts = WeatherForecast.objects.all()
-        serializer = WeatherForecastSerializer(forecasts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, format=None):
-        latitude = request.data.get('latitude')
-        longitude = request.data.get('longitude')
-        if latitude and longitude:
-            # Lookup forecast using DarkSky API
-            dark_sky = DarkSkyApiManager()
-            forecast = dark_sky.get_hour_forecast(latitude, longitude)
-            forecast.save()
-            context = WeatherUtils.get_weather_context(forecast)
-            return Response({'id': forecast.id,
-                             'context': context},
-                            status=status.HTTP_201_CREATED)
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class WeatherForecastsDetail(APIView):
-    """
-    Retrieve, update or delete a weather forecast.
-    """
-
-    def _get_object(self, pk):
+    def get(self, request, day):
+        day = self.parse_date(day)
+        self.validate_date(request.user, day)
         try:
-            return WeatherForecast.objects.get(pk=pk)
-        except WeatherForecast.DoesNotExist:
-            raise Http404
+            weather_forcast = DailyWeatherForecast.objects.get(
+                user = request.user,
+                date = day
+            )
+        except DailyWeatherForecast.DoesNotExist:
+            return Response('Not found', status=status.HTTP_404_NOT_FOUND)
+        serialized = DailyWeatherForecastSerializer(weather_forcast)
+        return Response(serialized.data)
 
-    def get(self, request, pk, format=None):
-        forecast = self._get_object(pk)
-        serializer = WeatherForecastSerializer(forecast)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class DailyWeatherRangeView(DayView):
 
-    def put(self, request, pk, format=None):
-        forecast = self._get_object(pk)
-        serializer = WeatherForecastSerializer(forecast, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, start, end):
+        start_date = self.parse_date(start)
+        end_date = self.parse_date(end)
+        day_joined = self.get_day_joined(request.user)
 
-    def delete(self, request, pk, format=None):
-        forecast = self._get_object(pk)
-        forecast.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if start_date < day_joined:
+            start_date = day_joined
+        if end_date < day_joined:
+            raise Http404()
+
+        if start_date > end_date:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        results = DailyWeatherForecast.objects.filter(
+            user = request.user,
+            date__range=[start_date, end_date]
+        ).all()
+        serialized = DailyWeatherForecastSerializer(results, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
