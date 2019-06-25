@@ -114,7 +114,6 @@ if(return_default) {
     user.data$dayend = as.POSIXct(strptime(user.data$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
   }
   
-  
   ## Define the 3 4-hour buckets in GMT
   bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
   buckets = list(bucket1,bucket2, bucket3)
@@ -131,7 +130,6 @@ if(return_default) {
   ## PULL IN CURRENT DAYS OBSERVATIONS FOR 
   ## THE CHOSEN PARTICIPANT
   current.day.obs = day(user.data$time) == day(current.time) & month(user.data$time) == month(current.time) & year(user.data$time) == year(current.time) & user.data$time < current.time
-  
   current.day.user.data = user.data[current.day.obs,]
   
   ## Check if duplication
