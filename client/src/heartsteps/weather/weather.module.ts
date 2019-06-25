@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { WeatherComponent } from './weather.component';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
 import { WeatherService } from './weather.service';
+import { BrowserModule } from '@angular/platform-browser';
 
 @NgModule({
     declarations: [
@@ -11,6 +12,7 @@ import { WeatherService } from './weather.service';
         WeatherComponent
     ],
     imports: [
+        BrowserModule,
         InfrastructureModule
     ],
     providers: [

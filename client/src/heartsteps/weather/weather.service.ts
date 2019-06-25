@@ -3,6 +3,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { DailyWeather } from "./daily-weather.model";
 import { Observable, Subject } from "rxjs";
+import * as moment from 'moment';
 
 
 @Injectable()
@@ -18,11 +19,11 @@ export class WeatherService {
     }
 
     public get(date: Date): Promise<DailyWeather> {
-        const weather = new DailyWeather();
-        weather.category = 'cloudy';
-        weather.high = 75;
-        weather.low = 60;
-        return Promise.resolve(weather);
+        const date_string = moment(date).format('YYYY-MM-DD')
+        return this.heartstepsServer.get('weather/'+date_string)
+        .then((forecast: any) => {
+            return this.deserialize(forecast);
+        });
     }
 
     public update(date: Date): Promise<DailyWeather> {
@@ -37,6 +38,15 @@ export class WeatherService {
         });
 
         return subject.asObservable();
+    }
+
+    private deserialize(data:any): DailyWeather {
+        const weather = new DailyWeather();
+        weather.category = data['category'];
+        weather.date = data['date'];
+        weather.high = data['high'];
+        weather.low = data['low'];
+        return weather;
     }
 
 }
