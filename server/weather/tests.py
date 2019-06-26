@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 from unittest.mock import patch
 import json
@@ -58,11 +59,11 @@ class DarkSkyApiTests(TestCase):
             time = now
         )
         
-        mock_url = darksky_api.WEATHER_URL.format(
-            api_key = darksky_api.API_KEY,
+        mock_url = darksky_api.make_url(
             latitude = 12,
             longitude = 123,
-            time = round(now.timestamp())
+            time = round(now.timestamp()),
+            exclude = ['hourly', 'daily', 'alerts', 'minutely', 'flags']
         )
         self.requests.assert_called_with(mock_url)
         self.assertEqual(forecast['latitude'], 10)
@@ -80,6 +81,46 @@ class DarkSkyApiTests(TestCase):
         )
 
         self.assertEqual(forecast['precip_type'], 'None')
+
+    def test_get_weekly_forecast(self):
+        self.requests.return_value = self.mock_response(
+            status_code = 200,
+            data = {
+                'daily': [
+                    {
+                        'time': datetime(2019,6,26).timestamp(),
+                        'icon': 'rain',
+                        'temperatureHigh': 67.8,
+                        'temperatureLow': 45.6 
+                    },
+                    {
+                        'time': datetime(2019,6,27).timestamp(),
+                        'icon': 'partialy-cloudy-day',
+                        'temperatureHigh': 67.8,
+                        'temperatureLow': 45.6 
+                    }
+                ]
+            }
+        )
+        darksky_api = DarkSkyApiManager()
+
+        weekly_forecast = darksky_api.get_weekly_forecast(
+            latitude = 12,
+            longitude = 34
+        )
+
+        mock_url = darksky_api.make_url(
+            latitude = 12,
+            longitude = 34,
+            exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
+        )
+        self.requests.assert_called_with(mock_url)
+        self.assertEqual(len(weekly_forecast), 2)
+        forecast = weekly_forecast[0]
+        self.assertEqual(forecast['date'], date(2019,6,26))
+        self.assertEqual(forecast['icon'], 'rain')
+        self.assertEqual(forecast['high'], 67.8)
+        self.assertEqual(forecast['low'], 45.6)
 
 class WeatherServiceTest(TestCase):
 
