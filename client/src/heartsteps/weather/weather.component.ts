@@ -4,10 +4,10 @@ import { Subscription } from "rxjs";
 
 const CATEGORY_TO_ICON_MAP:any = {
     cloudy: 'cloudy',
-    partlyCloudy: 'partly-cloudy',
+    'partially-cloudy': 'partly-cloudy',
     rain: 'rain',
     snow: 'snow',
-    sunny: 'sunny',
+    clear: 'sunny',
     thunderstorm: 'thunderstorm',
     windy: 'windy'
 };
@@ -22,6 +22,8 @@ export class WeatherComponent implements OnDestroy {
 
     private date: Date;
     private weatherSubscription: Subscription;
+
+    public loading: boolean = true;
 
     public icon: string;
     public high: number;
@@ -61,6 +63,7 @@ export class WeatherComponent implements OnDestroy {
         if (this.date) {
             this.weatherSubscription = this.weatherService.watch(this.date)
             .subscribe((dailyWeather) => {
+                this.loading = false;
                 this.setIcon(dailyWeather.category);
                 this.high = dailyWeather.high;
                 this.low = dailyWeather.low;

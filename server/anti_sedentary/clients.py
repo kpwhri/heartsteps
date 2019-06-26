@@ -36,7 +36,7 @@ class AntiSedentaryClient:
     def make_request(self, uri, data):
         url = urljoin(self.service_url, uri)
         data['userid'] = str(self.__user.username)
-        request_record = ServiceRequest(
+        request_record = ServiceRequest.objects.create(
             user = self.__user,
             url = url,
             name = 'AntiSedentaryService: %s' % (uri),
@@ -52,6 +52,9 @@ class AntiSedentaryClient:
         request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
+
+        if not response.text:
+            raise RequestError('Did not receive payload')
 
         try:
             return json.loads(response.text)

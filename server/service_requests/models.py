@@ -24,10 +24,13 @@ class ServiceRequest(models.Model):
     @property
     def duration(self):
         if self.response_time:
-            delta = self.response_time - self.request_time
+            if self.response_time > self.request_time:
+                delta = self.response_time - self.request_time
+            else:
+                delta = self.request_time - self.response_time
             return delta.seconds
         else:
-            return 0
+            return None
 
     def __str__(self):
         if self.response_code:

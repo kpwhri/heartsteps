@@ -1,4 +1,5 @@
-<div>
+<div >
     <ng-content></ng-content>
-    <em>{{high}}/{{low}}</em>
+    <em *ngIf="!loading">{{high}}/{{low}}</em>
+    <em *ngIf="loading">Loading</em>
 </div>

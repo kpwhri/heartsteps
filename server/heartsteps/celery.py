@@ -29,6 +29,32 @@ app.conf.beat_schedule = {
 }
 
 
+app.conf.task_default_queue = 'default'
+app.conf.task_routes = {
+    'heartsteps_data_download.tasks.*': {
+        'queue': 'export'
+    },
+    'anti_sedentary.tasks.*': {
+        'queue': 'messages'
+    },
+    'fitbit_activities.tasks.*': {
+        'queue': 'fitbit'
+    },
+    'morning_messages.tasks.*': {
+        'queue': 'messages'
+    },
+    'push_messages.tasks.*': {
+        'queue': 'messages'
+    },
+    'walking_suggestions.tasks.*': {
+        'queue': 'messages'
+    },
+    'weekly_reflection.tasks.*': {
+        'queue': 'messages'
+    }
+}
+
+
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))

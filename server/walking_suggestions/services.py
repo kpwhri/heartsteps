@@ -234,7 +234,7 @@ class WalkingSuggestionService():
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)
         data['userID'] = self.__user.username
-        request_record = ServiceRequest(
+        request_record = ServiceRequest.objects.create(
             user = self.__user,
             url = url,
             name = 'WalkingSuggestionService: %s' % (uri),
