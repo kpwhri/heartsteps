@@ -34,13 +34,13 @@
         <thead class="thead-dark">
             <tr>
                 <th scope='col'>ID</th>
-                <th scope='col'>Token</th>
-                <th scope='col'>Birth Year</th>
-                <th scope='col'>Enrolled</th>
+                <th scope='col'>Token & Birth Year</th>
                 <th scope='col'>Active</th>
+                <th scope='col'>Enrolled</th>
                 <th scope='col'>Fitbit Days Worn</th>
-                <th scope='col'>Watch App Installed</th>
                 <th scope='col'>Fitbit Authorized</th>
+                <th scope='col'>Watch App Installed</th>
+                <th scope='col'>Last WatchApp Data</th>
                 <th scope='col'>Last Fitbit Sync</th>
                 <th scope='col'>Last Page View</th>
                 <th scope='col'>Phone</th>
@@ -52,13 +52,9 @@
                 {% load tz %}
                 {% timezone 'US/Pacific' %}
                 <td>{{participant.heartsteps_id}}</td>
-                <td>{{participant.enrollment_token}}</td>
-                <td>{{participant.birth_year}}</td>
-                <td>{% if participant.enrolled %}
-                    <img src="{% static 'admin/img/icon-yes.svg' %}" />
-                    {% else %}
-                    <img src="{% static 'admin/img/icon-no.svg' %}" />
-                    {% endif %}
+                <td>
+                    {{participant.enrollment_token}}<br />
+                    {{participant.birth_year}}
                 </td>
                 <td>{% if participant.is_active %}
                         <img src="{% static 'admin/img/icon-yes.svg' %}" />
@@ -66,16 +62,16 @@
                         <img src="{% static 'admin/img/icon-no.svg' %}" />
                     {% endif %}
                 </td>
+                <td>{% if participant.enrolled %}
+                        {{ participant.enrollment_date|date }}
+                    {% else %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
+                </td>
                 <td {% if participant.adherence_install_app > 0 %}
                         class='adherence-issue'
                     {% endif %}>
                     {{participant.wore_fitbit_days}}
-                </td>
-                <td>{% if participant.watch_app_installed %}
-                        {{ participant.watch_app_installed_date|date }}
-                    {% else %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}" />
-                    {% endif %}
                 </td>
                 <td>{% if participant.fitbit_authorized %}
                         {{ participant.fitbit_authorized_date|date }}
@@ -83,15 +79,23 @@
                         <img src="{% static 'admin/img/icon-no.svg' %}" />
                     {% endif %}
                 </td>
-                <td>
-                    {{ participant.last_fitbit_sync|date }}<br />
+                <td>{% if participant.watch_app_installed %}
+                        {{ participant.watch_app_installed_date|date }}
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}" />
+                    {% endif %}
                 </td>
                 <td>
-                    {{ participant.last_page_view|date }}<br />
+                    {{ participant.last_watch_app_data|date }}
+                </td>
+                <td>
+                    {{ participant.last_fitbit_sync|date }}
+                </td>
+                <td>
+                    {{ participant.last_page_view|date }}
                 </td>
                 {% endtimezone %}
                 <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
-                <td></td>
             </tr>
             {% endfor %}
         </tbody>

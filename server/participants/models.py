@@ -176,15 +176,24 @@ class Participant(models.Model):
 
         u = self.user
         if u:
-            r = u.pageview_set.all() \
+            return u.pageview_set.all() \
                     .aggregate(models.Max('time'))['time__max']
-            return r
         else:
             return None
 
     @property
     def last_page_view(self):
         return self._last_page_view
+
+    def _last_watch_app_data(self):
+        u = self.user
+        if u:
+            return u.stepcount_set.all() \
+                    .aggregate(models.Max('end'))['end__max']
+
+    @property
+    def last_watch_app_data(self):
+        return self._last_watch_app_data
 
     def _adherence_install_app(self):
         if self._last_page_view() is None:

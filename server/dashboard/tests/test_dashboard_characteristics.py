@@ -77,7 +77,7 @@ class DashboardParticipantTests(TestCase):
             payload="['test':'test']"
         )
         FitbitSubscriptionUpdate.objects.filter(uuid='test').update(
-                                                created=self.basetime)
+                                 created=pytz.utc.localize(self.basetime))
         self.assertEqual(self.participant.last_fitbit_sync(),
                          pytz.utc.localize(self.basetime))
 
@@ -98,6 +98,19 @@ class DashboardParticipantTests(TestCase):
 
     def test_last_page_view_has_not_viewed(self):
         self.assertEqual(self.participant.last_page_view(), None)
+
+    def test_last_watch_app_data_has_not_used(self):
+        self.assertEqual(self.participant.last_watch_app_data(), None)
+
+    def test_last_watch_app_data_used(self):
+        end_dtm = pytz.utc.localize(self.basetime) + timedelta(seconds=60)
+        StepCount.objects.create(
+            user=self.user,
+            steps=100,
+            start=pytz.utc.localize(self.basetime),
+            end=end_dtm
+        )
+        self.assertEqual(self.participant.last_watch_app_data(), end_dtm)
 
     def test_adherence_install_app_not_due(self):
         FitbitDay.objects.bulk_create([
