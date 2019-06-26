@@ -53,6 +53,9 @@ class AntiSedentaryClient:
         request_record.response_time = timezone.now()
         request_record.save()
 
+        if not response.text:
+            raise RequestError('Did not receive payload')
+
         try:
             return json.loads(response.text)
         except:
