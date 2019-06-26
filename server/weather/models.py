@@ -54,8 +54,8 @@ class DailyWeatherForecast(models.Model):
     date = models.DateField()
 
     category = models.CharField(max_length=70, choices=WEATHER_CHOICES)
-    high = models.IntegerField()
-    low = models.IntegerField()
+    high = models.FloatField()
+    low = models.FloatField()
 
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)

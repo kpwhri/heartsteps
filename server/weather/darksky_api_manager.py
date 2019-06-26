@@ -7,6 +7,7 @@ import requests
 from days.services import DayService
 
 from .models import ServiceRequest
+from .models import DailyWeatherForecast
 
 DARK_SKY_API_URL_BASE = 'https://api.darksky.net/forecast/{api_key}/'
 
@@ -86,6 +87,28 @@ class DarkSkyApiManager:
             'cloud_cover': forecast.get('cloudCover')
         }
 
+    def map_icon_to_category(self, icon):
+        category_map = {
+            'clear-day': DailyWeatherForecast.CLEAR,
+            'clear-night': DailyWeatherForecast.CLEAR,
+            'rain': DailyWeatherForecast.RAIN,
+            'snow': DailyWeatherForecast.SNOW,
+            'sleet': DailyWeatherForecast.SNOW,
+            'wind': DailyWeatherForecast.WIND,
+            'fog': DailyWeatherForecast.CLOUDY,
+            'cloudy': DailyWeatherForecast.CLOUDY,
+            'partly-cloudy-day': DailyWeatherForecast.PARTIALLY_CLOUDY,
+            'partly-cloudy-night': DailyWeatherForecast.PARTIALLY_CLOUDY,
+            'hail': DailyWeatherForecast.RAIN,
+            'thunderstorm': DailyWeatherForecast.RAIN,
+            'tornado': DailyWeatherForecast.RAIN
+        }
+
+        if icon in category_map:
+            return category_map[icon]
+        else:
+            return DailyWeatherForecast.PARTIALLY_CLOUDY
+
     def get_weekly_forecast(self, latitude, longitude):
         url = self.make_url(
             latitude = latitude,
@@ -102,9 +125,10 @@ class DarkSkyApiManager:
             if self.__user:
                 day_service = DayService(user = self.__user)
                 day = day_service.get_date_at(dt)
+            category = self.map_icon_to_category(forecast.get('icon'))
             forecasts.append({
                 'date': day,
-                'icon': forecast.get('icon'),
+                'category': category,
                 'high': forecast.get('temperatureHigh'),
                 'low': forecast.get('temperatureLow')
             })

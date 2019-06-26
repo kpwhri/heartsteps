@@ -1,7 +1,10 @@
 from django.utils import timezone
 
-from weather.darksky_api_manager import DarkSkyApiManager
-from weather.models import WeatherForecast
+from locations.services import LocationService
+
+from .darksky_api_manager import DarkSkyApiManager
+from .models import WeatherForecast
+from .models import DailyWeatherForecast
 
 class WeatherService:
 
@@ -11,6 +14,10 @@ class WeatherService:
     WEATHER_OUTDOOR = "outdoor"  # weather is good enough to go outside
     WEATHER_OUTDOOR_SNOW = "outdoor_snow"  # it is currently snowing, and not suitable to go outside
     WEATHER_INDOOR = "indoor"  # weather is unfit to go outside and one should stay indoors
+
+    def __init__(self, user=None):
+        self.__user = user
+        self._client = DarkSkyApiManager(user = user)
 
     def make_forecast(latitude, longitude, time=None):
         if not time:
@@ -55,3 +62,22 @@ class WeatherService:
             precipitation_probability = average_precipitation_probability,
             precipitation_type = worst_precipitation_type
         )
+
+    def update_weekly_forecast(self):
+        location_service = LocationService(user=self.__user)
+        recent_location = location_service.get_last_location()
+
+        forecasts = []
+        for forecast in self._client.get_weekly_forecast(latitude = recent_location.latitude, longitude = recent_location.longitude):
+            daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
+                user = self.__user,
+                date = forecast['date'],
+                defaults = {
+                    'category': forecast['category'],
+                    'high': forecast['high'],
+                    'low': forecast['low']
+                }
+            )
+            forecasts.append(daily_forecast)
+        return forecasts
+
