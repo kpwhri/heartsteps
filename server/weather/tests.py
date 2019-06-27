@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 from unittest.mock import patch
 import json
@@ -8,6 +9,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
+
+from locations.services import LocationService
 
 from .darksky_api_manager import DarkSkyApiManager
 from .models import DailyWeatherForecast
@@ -58,11 +61,11 @@ class DarkSkyApiTests(TestCase):
             time = now
         )
         
-        mock_url = darksky_api.WEATHER_URL.format(
-            api_key = darksky_api.API_KEY,
+        mock_url = darksky_api.make_url(
             latitude = 12,
             longitude = 123,
-            time = round(now.timestamp())
+            time = round(now.timestamp()),
+            exclude = ['hourly', 'daily', 'alerts', 'minutely', 'flags']
         )
         self.requests.assert_called_with(mock_url)
         self.assertEqual(forecast['latitude'], 10)
@@ -80,6 +83,46 @@ class DarkSkyApiTests(TestCase):
         )
 
         self.assertEqual(forecast['precip_type'], 'None')
+
+    def test_get_weekly_forecast(self):
+        self.requests.return_value = self.mock_response(
+            status_code = 200,
+            data = {
+                'daily': [
+                    {
+                        'time': datetime(2019,6,26).timestamp(),
+                        'icon': 'rain',
+                        'temperatureHigh': 67.8,
+                        'temperatureLow': 45.6 
+                    },
+                    {
+                        'time': datetime(2019,6,27).timestamp(),
+                        'icon': 'partialy-cloudy-day',
+                        'temperatureHigh': 67.8,
+                        'temperatureLow': 45.6 
+                    }
+                ]
+            }
+        )
+        darksky_api = DarkSkyApiManager()
+
+        weekly_forecast = darksky_api.get_weekly_forecast(
+            latitude = 12,
+            longitude = 34
+        )
+
+        mock_url = darksky_api.make_url(
+            latitude = 12,
+            longitude = 34,
+            exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
+        )
+        self.requests.assert_called_with(mock_url)
+        self.assertEqual(len(weekly_forecast), 2)
+        forecast = weekly_forecast[0]
+        self.assertEqual(forecast['date'], date(2019,6,26))
+        self.assertEqual(forecast['category'], 'rain')
+        self.assertEqual(forecast['high'], 67.8)
+        self.assertEqual(forecast['low'], 45.6)
 
 class WeatherServiceTest(TestCase):
 
@@ -139,6 +182,38 @@ class WeatherServiceTest(TestCase):
         context = WeatherService.get_average_forecast_context(forecasts)
 
         self.assertEqual(WeatherService.WEATHER_OUTDOOR_SNOW, context)
+
+    @patch.object(LocationService, 'get_last_location')
+    @patch.object(DarkSkyApiManager, 'get_weekly_forecast')
+    def test_get_weekly_forecast(self, get_weekly_forecast, get_last_location):
+        class MockLocation:
+            latitude = 12
+            longitude = 34
+        get_last_location.return_value = MockLocation()
+        get_weekly_forecast.return_value = [
+            {
+                'date': date.today(),
+                'category': 'clear',
+                'high': 98.7,
+                'low': 65.4
+            }
+        ]
+        user = User.objects.create(username="test")
+        weather_service = WeatherService(user=user)
+
+        forecasts = weather_service.update_weekly_forecast()
+
+        get_last_location.assert_called()
+        get_weekly_forecast.assert_called_with(
+            latitude=12,
+            longitude=34
+        )
+        self.assertEqual(len(forecasts), 1)
+        forecast = DailyWeatherForecast.objects.get(user=user)
+        self.assertEqual(forecast.date, date.today())
+        self.assertEqual(forecast.category, DailyWeatherForecast.CLEAR)
+        self.assertEqual(forecast.high, 98.7)
+        self.assertEqual(forecast.low, 65.4)
 
 class ForecastViewTests(APITestCase):
 
