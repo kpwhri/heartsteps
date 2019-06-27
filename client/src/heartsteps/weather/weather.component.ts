@@ -65,8 +65,8 @@ export class WeatherComponent implements OnDestroy {
             .subscribe((dailyWeather) => {
                 this.loading = false;
                 this.setIcon(dailyWeather.category);
-                this.high = dailyWeather.high;
-                this.low = dailyWeather.low;
+                this.high = Math.round(dailyWeather.high);
+                this.low = Math.round(dailyWeather.low);
             })
         }
     }

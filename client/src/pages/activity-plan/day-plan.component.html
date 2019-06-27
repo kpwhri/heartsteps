@@ -11,6 +11,7 @@
             Add an activity
         </button>
     </header>
+    <heartsteps-weather [date]="date"></heartsteps-weather>
     <ul *ngIf="plans.length">
         <li *ngFor="let plan of plans">
             <heartsteps-activity-plan [plan]="plan"></heartsteps-activity-plan>
