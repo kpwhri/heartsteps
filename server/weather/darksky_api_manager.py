@@ -1,10 +1,11 @@
 from datetime import date
 from datetime import datetime
+import pytz
 
 from django.utils import timezone
 import requests
 
-from days.services import DayService
+from locations.services import LocationService
 
 from .models import ServiceRequest
 from .models import DailyWeatherForecast
@@ -109,27 +110,59 @@ class DarkSkyApiManager:
         else:
             return DailyWeatherForecast.PARTIALLY_CLOUDY
 
+    def get_daily_forecast(self, latitude, longitude, date):
+        timezone = LocationService.get_timezone_at(
+            latitude = latitude,
+            longitude = longitude
+        )
+        dt = datetime(
+            date.year,
+            date.month,
+            date.day,
+            tzinfo = timezone
+        )
+        url = self.make_url(
+            latitude = latitude,
+            longitude = longitude,
+            time = dt.timestamp(),
+            exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
+        )
+        response_data = self.make_request(url, 'DarkSky: get weekly forecast')
+        tz = pytz.timezone(response_data['timezone'])
+        return self.parse_daily_forecast(
+            data = response_data['daily'][0],
+            timezone = tz
+        )
+
+
     def get_weekly_forecast(self, latitude, longitude):
         url = self.make_url(
             latitude = latitude,
             longitude = longitude,
             exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
         )
-
         response_data = self.make_request(url, 'DarkSky: get weekly forecast')
-
+        tz = pytz.timezone(response_data['timezone'])
         forecasts = []
         for forecast in response_data['daily']:
-            dt = datetime.fromtimestamp(forecast['time'])
-            day = date(dt.year, dt.month, dt.day)
-            if self.__user:
-                day_service = DayService(user = self.__user)
-                day = day_service.get_date_at(dt)
-            category = self.map_icon_to_category(forecast.get('icon'))
-            forecasts.append({
-                'date': day,
-                'category': category,
-                'high': forecast.get('temperatureHigh'),
-                'low': forecast.get('temperatureLow')
-            })
+            forecasts.append(
+                self.parse_daily_forecast(
+                    data = forecast,
+                    timezone = tz
+                )
+            )
         return forecasts
+
+    def parse_daily_forecast(self, data, timezone):
+        dt = datetime.fromtimestamp(data['time'])
+        day = date(dt.year, dt.month, dt.day)
+        if self.__user:
+            day_service = DayService(user = self.__user)
+            day = day_service.get_date_at(dt)
+        category = self.map_icon_to_category(data.get('icon'))
+        return {
+            'date': day,
+            'category': category,
+            'high': data.get('temperatureHigh'),
+            'low': data.get('temperatureLow')
+        }

@@ -84,10 +84,44 @@ class DarkSkyApiTests(TestCase):
 
         self.assertEqual(forecast['precip_type'], 'None')
 
+    def test_get_daily_forecast(self):
+        self.requests.return_value = self.mock_response(
+            status_code = 200,
+            data = {
+                'timezone': 'UTC',
+                'daily': [
+                    {
+                        'time': datetime(2019,6,26).timestamp(),
+                        'icon': 'rain',
+                        'temperatureHigh': 67.8,
+                        'temperatureLow': 45.6 
+                    }
+                ]
+            }
+        )
+        darksky_api = DarkSkyApiManager()
+
+        daily_forecast = darksky_api.get_daily_forecast(
+            latitude = 12,
+            longitude = 34,
+            date = date(2019,6,26)
+        )
+
+        mock_url = darksky_api.make_url(
+            latitude = 12,
+            longitude = 34,
+            exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
+        )
+        self.assertEqual(daily_forecast['date'], date(2019,6,26))
+        self.assertEqual(daily_forecast['category'], DailyWeatherForecast.RAIN)
+        self.assertEqual(daily_forecast['high'], 67.8)
+        self.assertEqual(daily_forecast['low'], 45.6)
+
     def test_get_weekly_forecast(self):
         self.requests.return_value = self.mock_response(
             status_code = 200,
             data = {
+                'timezone': 'UTC',
                 'daily': [
                     {
                         'time': datetime(2019,6,26).timestamp(),
