@@ -52,13 +52,15 @@ class WeekService:
         return self.get_or_create_week(next_week_start_day)
 
     def get_week(self, day):
-        try:
-            return Week.objects.get(
-                user = self.__user,
-                start_date__lte = day,
-                end_date__gte = day
-            )
-        except Week.DoesNotExist:
+        weeks = Week.objects.filter(
+            user = self.__user,
+            start_date__lte = day,
+            end_date__gte = day
+        )
+        week = weeks.first()
+        if week:
+            return week
+        else:
             raise WeekService.WeekDoesNotExist()
 
     def get_current_week(self):

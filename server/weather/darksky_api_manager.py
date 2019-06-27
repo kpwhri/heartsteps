@@ -25,14 +25,17 @@ class DarkSkyApiManager:
         self.__user = user
         self.__API_KEY = "f076fa5dc90a5a68a86d075d6f7abab6"
 
-    def make_url(self, latitude, longitude, time=None, exclude=[]):
-        if time:
+    def make_url(self, latitude, longitude, datetime=None, exclude=[]):
+        if datetime:
             url = DARK_SKY_API_URL_BASE + '{latitude},{longitude},{time}'
         else:
             url = DARK_SKY_API_URL_BASE + '{latitude},{longitude}'
         params = [
             'units=us'
         ]
+        time = None
+        if datetime:
+            time = round(datetime.timestamp())
         if len(exclude) > 0:
             params.append('exclude=' + ','.join(exclude))
         url += '?' + '&'.join(params)
@@ -69,7 +72,7 @@ class DarkSkyApiManager:
         url = self.make_url(
             latitude = latitude,
             longitude = longitude,
-            time = round(time.timestamp()),
+            datetime = time,
             exclude = ['hourly', 'daily', 'alerts', 'minutely', 'flags']
         )
         
@@ -124,13 +127,13 @@ class DarkSkyApiManager:
         url = self.make_url(
             latitude = latitude,
             longitude = longitude,
-            time = dt.timestamp(),
+            datetime = dt,
             exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
         )
         response_data = self.make_request(url, 'DarkSky: get weekly forecast')
         tz = pytz.timezone(response_data['timezone'])
         return self.parse_daily_forecast(
-            data = response_data['daily'][0],
+            data = response_data['daily']['data'][0],
             timezone = tz
         )
 
@@ -144,7 +147,7 @@ class DarkSkyApiManager:
         response_data = self.make_request(url, 'DarkSky: get weekly forecast')
         tz = pytz.timezone(response_data['timezone'])
         forecasts = []
-        for forecast in response_data['daily']:
+        for forecast in response_data['daily']['data']:
             forecasts.append(
                 self.parse_daily_forecast(
                     data = forecast,
@@ -154,11 +157,8 @@ class DarkSkyApiManager:
         return forecasts
 
     def parse_daily_forecast(self, data, timezone):
-        dt = datetime.fromtimestamp(data['time'])
+        dt = datetime.fromtimestamp(data['time']).astimezone(timezone)
         day = date(dt.year, dt.month, dt.day)
-        if self.__user:
-            day_service = DayService(user = self.__user)
-            day = day_service.get_date_at(dt)
         category = self.map_icon_to_category(data.get('icon'))
         return {
             'date': day,

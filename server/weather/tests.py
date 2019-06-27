@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import timedelta
 from unittest.mock import patch
 import json
+import pytz
 import requests
 
 from django.test import TestCase
@@ -64,7 +65,7 @@ class DarkSkyApiTests(TestCase):
         mock_url = darksky_api.make_url(
             latitude = 12,
             longitude = 123,
-            time = round(now.timestamp()),
+            datetime = now,
             exclude = ['hourly', 'daily', 'alerts', 'minutely', 'flags']
         )
         self.requests.assert_called_with(mock_url)
@@ -89,29 +90,33 @@ class DarkSkyApiTests(TestCase):
             status_code = 200,
             data = {
                 'timezone': 'UTC',
-                'daily': [
-                    {
-                        'time': datetime(2019,6,26).timestamp(),
-                        'icon': 'rain',
-                        'temperatureHigh': 67.8,
-                        'temperatureLow': 45.6 
-                    }
-                ]
+                'daily': {
+                    'data' :[
+                        {
+                            'time': datetime(2019,6,26).timestamp(),
+                            'icon': 'rain',
+                            'temperatureHigh': 67.8,
+                            'temperatureLow': 45.6 
+                        }
+                    ]
+                }
             }
         )
         darksky_api = DarkSkyApiManager()
 
         daily_forecast = darksky_api.get_daily_forecast(
-            latitude = 12,
-            longitude = 34,
+            latitude = 47,
+            longitude = -122,
             date = date(2019,6,26)
         )
 
         mock_url = darksky_api.make_url(
-            latitude = 12,
-            longitude = 34,
+            latitude = 47,
+            longitude = -122,
+            datetime = datetime(2019, 6, 26, tzinfo=pytz.timezone('America/Los_Angeles')),
             exclude = ['hourly', 'currently', 'alerts', 'minutely', 'flags']
         )
+        self.requests.assert_called_with(mock_url)
         self.assertEqual(daily_forecast['date'], date(2019,6,26))
         self.assertEqual(daily_forecast['category'], DailyWeatherForecast.RAIN)
         self.assertEqual(daily_forecast['high'], 67.8)
@@ -122,20 +127,22 @@ class DarkSkyApiTests(TestCase):
             status_code = 200,
             data = {
                 'timezone': 'UTC',
-                'daily': [
-                    {
-                        'time': datetime(2019,6,26).timestamp(),
-                        'icon': 'rain',
-                        'temperatureHigh': 67.8,
-                        'temperatureLow': 45.6 
-                    },
-                    {
-                        'time': datetime(2019,6,27).timestamp(),
-                        'icon': 'partialy-cloudy-day',
-                        'temperatureHigh': 67.8,
-                        'temperatureLow': 45.6 
-                    }
-                ]
+                'daily': {
+                    'data': [
+                        {
+                            'time': datetime(2019,6,26).timestamp(),
+                            'icon': 'rain',
+                            'temperatureHigh': 67.8,
+                            'temperatureLow': 45.6 
+                        },
+                        {
+                            'time': datetime(2019,6,27).timestamp(),
+                            'icon': 'partialy-cloudy-day',
+                            'temperatureHigh': 67.8,
+                            'temperatureLow': 45.6 
+                        }
+                    ]
+                }
             }
         )
         darksky_api = DarkSkyApiManager()
