@@ -24,10 +24,10 @@ app.conf.beat_schedule = {
     },
     'send-adherence-message': {
         'task': 'dashboard.tasks.send_adherence_messages',
-        'schedule': crontab(hour='9', minute='5')
+        'schedule': crontab(hour='18', minute='30')
     }
 }
-
+# 2am UTC = 7pm PDT
 
 app.conf.task_default_queue = 'default'
 app.conf.task_routes = {

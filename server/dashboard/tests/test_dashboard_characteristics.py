@@ -177,7 +177,7 @@ class DashboardParticipantTests(TestCase):
         self.assertEqual(self.participant.adherence_install_app(), False)
 
     def test_adherence_no_fitbit_data_no_data(self):
-        self.assertEqual(self.participant.adherence_no_fitbit_data, 0)
+        self.assertEqual(self.participant.adherence_no_fitbit_data(), 0)
 
     def make_subscription_hours_ago(self, hrs):
         hours_ago = timedelta(hours=hrs)
@@ -196,19 +196,19 @@ class DashboardParticipantTests(TestCase):
 
     def test_adherence_no_fitbit_data_no_data_48hrs(self):
         self.make_subscription_hours_ago(49)
-        self.assertEqual(self.participant.adherence_no_fitbit_data, 48)
+        self.assertEqual(self.participant.adherence_no_fitbit_data(), 48)
 
     def test_adherence_no_fitbit_data_no_data_72hrs(self):
         self.make_subscription_hours_ago(73)
-        self.assertEqual(self.participant.adherence_no_fitbit_data, 72)
+        self.assertEqual(self.participant.adherence_no_fitbit_data(), 72)
 
     def test_adherence_no_fitbit_data_no_data_week(self):
         self.make_subscription_hours_ago((24*7) + 1)
-        self.assertEqual(self.participant.adherence_no_fitbit_data, 24*7)
+        self.assertEqual(self.participant.adherence_no_fitbit_data(), 24*7)
 
     def test_adherence_no_fitbit_data_recent_sync(self):
         self.make_subscription_hours_ago(23)
-        self.assertEqual(self.participant.adherence_no_fitbit_data, 0)
+        self.assertEqual(self.participant.adherence_no_fitbit_data(), 0)
 
     def test_adherence_app_use_not_used(self):
         self.assertEqual(self.participant.adherence_app_use(), 0)

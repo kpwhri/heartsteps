@@ -209,8 +209,7 @@ class Participant(models.Model):
     def adherence_install_app(self):
         return self._adherence_install_app
 
-    @property
-    def adherence_no_fitbit_data(self):
+    def _adherence_no_fitbit_data(self):
         if self._last_fitbit_sync_elapsed_hours() > (24*7):
             return 24*7
         elif self._last_fitbit_sync_elapsed_hours() > (24*3):
@@ -219,6 +218,10 @@ class Participant(models.Model):
             return 48
         else:
             return 0
+
+    @property
+    def adherence_no_fitbit_data(self):
+        return self._adherence_no_fitbit_data
 
     def _adherence_app_use(self):
         if self._last_page_view() is None:

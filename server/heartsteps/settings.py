@@ -57,6 +57,19 @@ if 'TWILIO_AUTH_TOKEN' in os.environ:
 if 'TWILIO_PHONE_NUMBER' in os.environ:
     TWILIO_PHONE_NUMBER = env.str('TWILIO_PHONE_NUMBER')
 
+# SendGrid email settings
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+STUDY_PHONE_NUMBER = env.str('STUDY_PHONE_NUMBER')
+STUDY_EMAIL_ADDRESS = env.str('STUDY_EMAIL_ADDRESS')
+SURVEY_EMAIL_ADDRESS = env.str('SURVEY_EMAIL_ADDRESS')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
