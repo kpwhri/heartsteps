@@ -274,7 +274,7 @@ class WeatherServiceTest(TestCase):
         user = User.objects.create(username="test")
         weather_service = WeatherService(user=user)
 
-        forecasts = weather_service.update_weekly_forecast()
+        forecasts = weather_service.update_forecasts()
 
         get_last_location.assert_called()
         get_weekly_forecast.assert_called_with(
@@ -305,13 +305,34 @@ class ForecastViewTests(APITestCase):
             low = low
         )
 
-    def test_weather_forecast_does_not_exist(self):
+    @patch.object(LocationService, 'get_location_on')
+    @patch.object(DarkSkyApiManager, 'get_daily_forecast')
+    def test_weather_forecast_does_not_exist(self, get_forecast, get_location_on):
+        class MockLocation:
+            latitude = 12
+            longitude = 34
+        get_location_on.return_value = MockLocation()
+        get_forecast.return_value = {
+            'date': date.today(),
+            'category': DailyWeatherForecast.RAIN,
+            'high': 67.8,
+            'low': 56.7
+        }
         
         response = self.client.get(reverse('weather-day', kwargs={
             'day': date.today().strftime('%Y-%m-%d')
         }))
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        get_forecast.assert_called_with(
+            date = date.today(),
+            latitude = 12,
+            longitude = 34
+        )
+        self.assertEqual(response.data['date'], date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['category'], 'rain')
+        self.assertEqual(response.data['high'], 67.8)
+        self.assertEqual(response.data['low'], 56.7)
 
     def test_get_weather_forecast(self):
         self.create_weather_forecast(date=date.today())
@@ -344,3 +365,32 @@ class ForecastViewTests(APITestCase):
         forecast = response.data[-1]
         self.assertEqual(forecast['date'], date.today().strftime('%Y-%m-%d'))
         self.assertEqual(forecast['high'], 80)
+
+    @patch.object(WeatherService, 'update_forecasts')
+    def test_update_forecasts(self, update_forecasts):
+        update_forecasts.return_value = [
+            DailyWeatherForecast.objects.create(
+                user = self.user,
+                date = date(2019,6,27),
+                category = DailyWeatherForecast.CLEAR,
+                high = 78.9,
+                low = 45.6
+            ), 
+            DailyWeatherForecast.objects.create(
+                user = self.user,
+                date = date(2019,6,28),
+                category = DailyWeatherForecast.RAIN,
+                high = 67.8,
+                low = 54.3
+            )
+        ]
+
+        response = self.client.get(reverse('weather-update'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        forecast = response.data[1]
+        self.assertEqual(forecast['date'], '2019-06-28')
+        self.assertEqual(forecast['category'], 'rain')
+        self.assertEqual(forecast['high'], 67.8)
+        self.assertEqual(forecast['low'], 54.3)

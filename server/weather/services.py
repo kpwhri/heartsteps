@@ -84,7 +84,7 @@ class WeatherService:
         )
         return daily_forecast
 
-    def update_weekly_forecast(self):
+    def update_forecasts(self):
         location_service = LocationService(user=self.__user)
         recent_location = location_service.get_last_location()
 
