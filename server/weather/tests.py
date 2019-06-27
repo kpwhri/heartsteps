@@ -217,6 +217,45 @@ class WeatherServiceTest(TestCase):
 
         self.assertEqual(WeatherService.WEATHER_OUTDOOR_SNOW, context)
 
+    @patch.object(LocationService, 'get_location_on')
+    @patch.object(DarkSkyApiManager, 'get_daily_forecast')
+    def test_update_daily_forecast(self, get_daily_forecast, get_location_on):
+        user = User.objects.create(username="test")
+        DailyWeatherForecast.objects.create(
+            user = user,
+            date = date.today(),
+            category = DailyWeatherForecast.CLEAR,
+            high = 22,
+            low = 15
+        )
+        class MockLocation:
+            latitude = 12
+            longitude = 34
+        get_location_on.return_value = MockLocation()
+        get_daily_forecast.return_value = {
+            'date': date.today(),
+            'category': DailyWeatherForecast.RAIN,
+            'high': 76.5,
+            'low': 54.3
+        }
+        weather_service = WeatherService(user=user)
+
+        forecast = weather_service.update_daily_forecast(
+            date = date.today()
+        )
+
+        get_location_on.assert_called_with(date.today())
+        get_daily_forecast.assert_called_with(
+            date = date.today(),
+            latitude = 12,
+            longitude = 34
+        )
+        self.assertEqual(forecast.category, DailyWeatherForecast.RAIN)
+        self.assertEqual(forecast.high, 76.5)
+        self.assertEqual(forecast.low, 54.3)
+        self.assertEqual(DailyWeatherForecast.objects.count(), 1)
+
+
     @patch.object(LocationService, 'get_last_location')
     @patch.object(DarkSkyApiManager, 'get_weekly_forecast')
     def test_get_weekly_forecast(self, get_weekly_forecast, get_last_location):
