@@ -9,6 +9,11 @@ from participants.models import Participant
 from sms_service.models import SendSMS
 from sms_service.utils import send_twilio_message
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def process_sms_message(to_number, body):
     sms = SendSMS()
@@ -23,10 +28,9 @@ def process_sms_message(to_number, body):
     sms.save()
 
 
-sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-
-
 def send_survey_email(body):
+    logger.info("Got to send_survey_email")
+    sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
     to_email = mail.Email(settings.SURVEY_EMAIL_ADDRESS)
     from_email = mail.Email(settings.STUDY_EMAIL_ADDRESS)
     subject = 'HeartSteps study reminder'
@@ -34,6 +38,8 @@ def send_survey_email(body):
     message = mail.Mail(from_email, subject, to_email, content)
 
     response = sg.client.mail.send.post(request_body=message.get())
+    logger.info("Response is")
+    logger.info(response)
 
     return response
     # send_mail('HeartSteps Notification', body,
