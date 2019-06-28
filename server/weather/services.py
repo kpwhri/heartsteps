@@ -63,7 +63,28 @@ class WeatherService:
             precipitation_type = worst_precipitation_type
         )
 
-    def update_weekly_forecast(self):
+    def update_daily_forecast(self, date):
+        location_service = LocationService(user=self.__user)
+        location = location_service.get_location_on(date)
+        
+        forecast = self._client.get_daily_forecast(
+            date = date,
+            latitude = location.latitude,
+            longitude = location.longitude
+        )
+
+        daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
+            user = self.__user,
+            date = date,
+            defaults = {
+                'category': forecast['category'],
+                'high': forecast['high'],
+                'low': forecast['low']
+            }
+        )
+        return daily_forecast
+
+    def update_forecasts(self):
         location_service = LocationService(user=self.__user)
         recent_location = location_service.get_last_location()
 

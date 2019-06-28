@@ -20,6 +20,7 @@ import { CompletePlanForm } from './complete-plan-form.component';
 import { ActivityPlanField } from './activity-plan-field.component';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
+import { WeatherModule } from '@heartsteps/weather/weather.module';
 
 const routes: Routes = [
     {
@@ -78,7 +79,8 @@ const routes: Routes = [
         FormModule,
         ReactiveFormsModule,
         ActivityTypeModule,
-        RouterModule.forChild(routes)
+        RouterModule.forChild(routes),
+        WeatherModule
     ],
     providers: [
         ActivityPlanResolver,

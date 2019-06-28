@@ -85,6 +85,9 @@ class LocationService:
         return date(current_datetime.year, current_datetime.month, current_datetime.day)
 
     def get_timezone_for(self, latitude, longitude):
+        return LocationService.get_timezone_at(latitude, longitude)
+
+    def get_timezone_at(latitude, longitude):
         timezone_finder = TimezoneFinder()
         timezone = timezone_finder.timezone_at(
             lng = longitude,

@@ -40,6 +40,9 @@ class ParticipantService:
                 participant=participant
             )
         except Participant.DoesNotExist:
+            if len(token) == 8 and "-" not in token:
+                new_token = token[:4] + "-" + token[4:]
+                return ParticipantService.get_participant(new_token, birth_year)
             raise ParticipantService.NoParticipant('No participant for token')
     
     def get_authorization_token(self):

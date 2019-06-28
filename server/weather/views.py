@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from days.views import DayView
 from weather.models import DailyWeatherForecast
 from weather.serializers import DailyWeatherForecastSerializer
+from weather.services import WeatherService
 
 class DailyWeatherView(DayView):
 
@@ -19,7 +20,10 @@ class DailyWeatherView(DayView):
                 date = day
             )
         except DailyWeatherForecast.DoesNotExist:
-            return Response('Not found', status=status.HTTP_404_NOT_FOUND)
+            service = WeatherService(user = request.user)
+            weather_forcast = service.update_daily_forecast(
+                date = day
+            )
         serialized = DailyWeatherForecastSerializer(weather_forcast)
         return Response(serialized.data)
 
@@ -42,4 +46,12 @@ class DailyWeatherRangeView(DayView):
             date__range=[start_date, end_date]
         ).all()
         serialized = DailyWeatherForecastSerializer(results, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
+class DailyWeatherUpdateForecastsView(APIView):
+
+    def get(self, request):
+        service = WeatherService(user=request.user)
+        forecasts = service.update_forecasts()
+        serialized = DailyWeatherForecastSerializer(forecasts, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)
