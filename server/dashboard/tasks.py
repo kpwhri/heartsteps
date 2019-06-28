@@ -1,8 +1,9 @@
 from celery import shared_task
 from datetime import datetime
 
+import sendgrid
+from sendgrid.helpers import mail
 from django.conf import settings
-from django.core.mail import send_mail
 
 from participants.models import Participant
 from sms_service.models import SendSMS
@@ -22,10 +23,25 @@ def process_sms_message(to_number, body):
     sms.save()
 
 
+sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
+
+
 def send_survey_email(body):
-    send_mail('HeartSteps Notification', body,
-              settings.STUDY_EMAIL_ADDRESS, settings.SURVEY_EMAIL_ADDRESS,
-              fail_silently=False)
+    to_email = mail.Email(settings.SURVEY_EMAIL_ADDRESS)
+    from_email = mail.Email(settings.STUDY_EMAIL_ADDRESS)
+    subject = 'HeartSteps study reminder'
+    content = mail.Content('text/plain', body)
+    message = mail.Mail(from_email, subject, to_email, content)
+
+    response = sg.client.mail.send.post(request_body=message.get())
+
+    return response
+    # send_mail('HeartSteps Notification', body,
+    #           settings.STUDY_EMAIL_ADDRESS, settings.SURVEY_EMAIL_ADDRESS,
+    #           fail_silently=False)
+    # send_mail('HeartSteps Notification 2', body,
+    #           ['seemack@gmail.com'], ['seemack+from@gmail.com'],
+    #           fail_silently=False)
 
 
 @shared_task
@@ -47,7 +63,11 @@ def send_adherence_messages():
             participant.user.contactinformation.phone_e164,
             body
         )
-        send_survey_email(body)
+        x = send_survey_email(body)
+        process_sms_message(
+            participant.user.contactinformation.phone_e164,
+            x
+        )
 
         if participant.adherence_install_app is True:
             n_sms += 1

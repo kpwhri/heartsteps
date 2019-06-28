@@ -59,6 +59,7 @@ if 'TWILIO_PHONE_NUMBER' in os.environ:
 
 # SendGrid email settings
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+EMAIL_BACKEND = "sgbackend.SendGridBackend"
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'apikey'
@@ -82,7 +83,6 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
-    'sendgrid',
     'privacy_policy',
     'contact',
     'corsheaders',
