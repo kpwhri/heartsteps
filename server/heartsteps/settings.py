@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
+    'sendgrid',
     'privacy_policy',
     'contact',
     'corsheaders',
