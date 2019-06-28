@@ -48,6 +48,7 @@ def send_adherence_messages():
         )
         send_survey_email(body)
 
+        participant.adherence_install_app = True
         if participant.adherence_install_app is True:
             n_sms += 1
             body = ("Thank you for taking part in the HeartSteps study. "
@@ -61,6 +62,7 @@ def send_adherence_messages():
                 body
             )
 
+        participant.adherence_no_fitbit_data = (24*7)
         if participant.adherence_no_fitbit_data > 0:
             if participant.adherence_no_fitbit_data == 48:
                 n_sms += 1
@@ -94,6 +96,7 @@ def send_adherence_messages():
                         f"Phone: {participant.user.contactinformation.phone_e164}")
                 send_survey_email(body)
 
+        participant.adherence_app_use = (24*7)
         if participant.adherence_app_use > 0:
             if participant.adherence_app_use == 96:
                 n_sms += 1
