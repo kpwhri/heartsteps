@@ -184,10 +184,10 @@ services:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres@db:5432/postgres
-  flower:  
+  flower:
     image: mher/flower
-    command: ["flower", "--broker=amqp://guest:guest@rabbitmq:5672//", "--port=8888"]  
-    ports:  
+    command: ["flower", "--broker=amqp://guest:guest@rabbitmq:5672//", "--port=8888"]
+    ports:
       - 8888:8888
     depends_on:
       - rabbitmq

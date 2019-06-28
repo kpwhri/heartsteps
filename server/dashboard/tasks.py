@@ -1,18 +1,12 @@
 from celery import shared_task
 from datetime import datetime
 
-import sendgrid
-from sendgrid.helpers import mail
 from django.conf import settings
+from django.core.mail import send_mail
 
 from participants.models import Participant
 from sms_service.models import SendSMS
 from sms_service.utils import send_twilio_message
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 def process_sms_message(to_number, body):
@@ -29,25 +23,10 @@ def process_sms_message(to_number, body):
 
 
 def send_survey_email(body):
-    logger.info("Got to send_survey_email")
-    sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
-    to_email = mail.Email(settings.SURVEY_EMAIL_ADDRESS)
-    from_email = mail.Email(settings.STUDY_EMAIL_ADDRESS)
-    subject = 'HeartSteps study reminder'
-    content = mail.Content('text/plain', body)
-    message = mail.Mail(from_email, subject, to_email, content)
-
-    response = sg.client.mail.send.post(request_body=message.get())
-    logger.info("Response is")
-    logger.info(response)
-
-    return response
-    # send_mail('HeartSteps Notification', body,
-    #           settings.STUDY_EMAIL_ADDRESS, settings.SURVEY_EMAIL_ADDRESS,
-    #           fail_silently=False)
-    # send_mail('HeartSteps Notification 2', body,
-    #           ['seemack@gmail.com'], ['seemack+from@gmail.com'],
-    #           fail_silently=False)
+    send_mail('HeartSteps Notification 2', body,
+              ['seemack@gmail.com'], ['seemack+from@gmail.com'])
+    return send_mail('HeartSteps Notification', body,
+                     settings.STUDY_EMAIL_ADDRESS, settings.SURVEY_EMAIL_ADDRESS)
 
 
 @shared_task
