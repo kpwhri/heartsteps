@@ -34,7 +34,7 @@ def send_adherence_messages():
     # for participant in Participant.objects.exclude(user=None).all():
     for participant in Participant.objects.filter(heartsteps_id='test-chris').all():
 
-        if participant.adherence_install_app is True:
+        if participant.adherence_install_app() is True:
             n_sms += 1
             body = ("Thank you for taking part in the HeartSteps study. "
                     "You can now download the HeartSteps mobile app from a link below:\n"
@@ -47,8 +47,8 @@ def send_adherence_messages():
                 body
             )
 
-        if participant.adherence_no_fitbit_data > 0:
-            if participant.adherence_no_fitbit_data == 48:
+        if participant.adherence_no_fitbit_data() > 0:
+            if participant.adherence_no_fitbit_data() == 48:
                 n_sms += 1
                 body = ("We've noticed that your Fitbit has not synced with "
                         "HeartSteps in a few days. Try opening the Fitbit app "
@@ -59,7 +59,7 @@ def send_adherence_messages():
                     participant.user.contactinformation.phone_e164,
                     body
                 )
-            elif participant.adherence_no_fitbit_data == 72:
+            elif participant.adherence_no_fitbit_data() == 72:
                 n_sms += 1
                 body = ("We've noticed that your Fitbit has not synced with "
                         "HeartSteps in a few days. Try opening the Fitbit app "
@@ -70,7 +70,7 @@ def send_adherence_messages():
                     participant.user.contactinformation.phone_e164,
                     body
                 )
-            elif participant.adherence_no_fitbit_data == (24*7):
+            elif participant.adherence_no_fitbit_data() == (24*7):
                 n_email += 1
                 body = ("Hi, Survey Team! The HeartSteps server noticed that "
                         f"{participant.heartsteps_id} has not synced their "
@@ -80,8 +80,8 @@ def send_adherence_messages():
                         f"Phone: {participant.user.contactinformation.phone_e164}")
                 send_survey_email(body)
 
-        if participant.adherence_app_use > 0:
-            if participant.adherence_app_use == 96:
+        if participant.adherence_app_use() > 0:
+            if participant.adherence_app_use() == 96:
                 n_sms += 1
                 body = ("We notice you haven't used HeartSteps in a few days. "
                         "If you are having any difficulties using the app, "
@@ -91,7 +91,7 @@ def send_adherence_messages():
                     participant.user.contactinformation.phone_e164,
                     body
                 )
-            elif participant.adherence_app_use == (24*7):
+            elif participant.adherence_app_use() == (24*7):
                 n_email += 1
                 body = ("Hi, Survey Team! The HeartSteps server noticed that "
                         f"{participant.heartsteps_id} has not used the HeartSteps"
