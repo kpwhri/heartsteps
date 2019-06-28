@@ -33,22 +33,7 @@ def send_adherence_messages():
     n_email = 0
     # for participant in Participant.objects.exclude(user=None).all():
     for participant in Participant.objects.filter(heartsteps_id='test-chris').all():
-        n_sms += 1
-        n_email += 1
-        body = ("TEST: We've noticed that your Fitbit has not synced with "
-                "HeartSteps in a few days. Try opening the Fitbit app "
-                "on your phone to get it to sync, or, if you are "
-                "having problems with your Fitbit, please give us a "
-                f"call at {settings.STUDY_PHONE_NUMBER} and we'll help you. Thanks!\n"
-                f"ID: {participant.heartsteps_id}\n"
-                f"Phone: {participant.user.contactinformation.phone_e164}")
-        process_sms_message(
-            participant.user.contactinformation.phone_e164,
-            body
-        )
-        send_survey_email(body)
 
-        participant.adherence_install_app = True
         if participant.adherence_install_app is True:
             n_sms += 1
             body = ("Thank you for taking part in the HeartSteps study. "
@@ -62,7 +47,6 @@ def send_adherence_messages():
                 body
             )
 
-        participant.adherence_no_fitbit_data = (24*7)
         if participant.adherence_no_fitbit_data > 0:
             if participant.adherence_no_fitbit_data == 48:
                 n_sms += 1
@@ -96,7 +80,6 @@ def send_adherence_messages():
                         f"Phone: {participant.user.contactinformation.phone_e164}")
                 send_survey_email(body)
 
-        participant.adherence_app_use = (24*7)
         if participant.adherence_app_use > 0:
             if participant.adherence_app_use == 96:
                 n_sms += 1
