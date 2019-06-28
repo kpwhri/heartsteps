@@ -89,4 +89,18 @@ class EnrollViewTests(APITestCase):
             'enrollmentToken': 'token'
         })
 
-        self.assertEqual(response.status_code, 401)   
+        self.assertEqual(response.status_code, 401)
+
+    def test_add_dash_to_enrollment_token(self):
+        Participant.objects.create(
+            heartsteps_id = "test",
+            enrollment_token = "abcd-efgh",
+            birth_year = "1980"
+        )
+
+        response = self.client.post(reverse('participants-enroll'), {
+            'enrollmentToken': 'abcdefgh',
+            'birthYear': 1980
+        })
+
+        self.assertEqual(response.status_code, 200)
