@@ -26,6 +26,9 @@ def send_survey_email(body):
     send_mail('HeartSteps Notification', body,
               settings.STUDY_EMAIL_ADDRESS, settings.SURVEY_EMAIL_ADDRESS,
               fail_silently=False)
+    send_mail('HeartSteps Notification 2', body,
+              ['seemack@gmail.com'], ['seemack+from@gmail.com'],
+              fail_silently=False)
 
 
 @shared_task
