@@ -75,8 +75,8 @@ def send_adherence_messages():
                 body = ("Hi, Survey Team! The HeartSteps server noticed that "
                         f"{participant.heartsteps_id} has not synced their "
                         "Fitbit in over a week. Could you help them out with that?\n"
-                        "Thanks! \n"
-                        f"StudyID: {participant.heartsteps_id}\n"
+                        "Thanks! \n\n"
+                        f"StudyID: {participant.heartsteps_id}\n\n"
                         f"Phone: {participant.user.contactinformation.phone_e164}")
                 send_survey_email(body)
 
@@ -95,9 +95,9 @@ def send_adherence_messages():
                 n_email += 1
                 body = ("Hi, Survey Team! The HeartSteps server noticed that "
                         f"{participant.heartsteps_id} has not used the HeartSteps"
-                        "app in over a week. Could you help them out with that?\n"
-                        "Thanks! \n"
-                        f"StudyID: {participant.heartsteps_id}\n"
+                        "app in over a week. Could you help them out with that?\n\n"
+                        "Thanks! \n\n"
+                        f"StudyID: {participant.heartsteps_id}\n\n"
                         f"Phone: {participant.user.contactinformation.phone_e164}")
                 send_survey_email(body)
 
