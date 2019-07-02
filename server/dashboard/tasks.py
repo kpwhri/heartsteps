@@ -24,15 +24,16 @@ def process_sms_message(to_number, body):
 
 def send_survey_email(body):
     send_mail('HeartSteps Study Notification', body,
-              ['seemack@gmail.com'], ['seemack+from@gmail.com'])
+              settings.SURVEY_EMAIL_ADDRESS,
+              settings.STUDY_EMAIL_ADDRESS)
 
 
 @shared_task
 def send_adherence_messages():
     n_sms = 0
     n_email = 0
-    # for participant in Participant.objects.exclude(user=None).all():
-    for participant in Participant.objects.filter(heartsteps_id='test-chris').all():
+    # for participant in Participant.objects.filter(heartsteps_id='test-chris').all():
+    for participant in Participant.objects.exclude(user=None).all():
 
         if participant.adherence_install_app() is True:
             n_sms += 1
