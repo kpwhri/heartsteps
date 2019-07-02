@@ -37,7 +37,9 @@ if(server){
     
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
     
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
+    
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
@@ -547,10 +549,19 @@ if(is.null(check)){
   
   
   # update the dosage dataset (add the instance for the first decision time next day)
+  # if that instance has not created
+  if(nrow(subset(data.dosage$dataset, day == input$studyDay + 1 & timeslot == 1)) == 0){
+    
+    data.dosage$dataset <- rbind(data.dosage$dataset, 
+                                 c(input$studyDay+1, 1, walk = input$lastActivity, anti1 = input$priorAntiArray[6], NA))
+    
+  }else{
+    
+    data.dosage$dataset$walk[data.dosage$dataset$day == (input$studyDay+1) & data.dosage$dataset$timeslot == 1] <- input$lastActivity
+    data.dosage$dataset$anti1[data.dosage$dataset$day == (input$studyDay+1) & data.dosage$dataset$timeslot == 1] <- input$priorAntiArray[6]
+    
+  }
   
-  data.dosage$dataset <- rbind(data.dosage$dataset, 
-                               c(input$studyDay+1, 1, walk = input$lastActivity, anti1 = input$priorAntiArray[6], NA))
- 
   
   # update the data quality dataset
   data.quality$presteps <- rbind(data.quality$presteps, c(input$studyDay, input$preStepsArray))

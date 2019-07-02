@@ -1,3 +1,57 @@
+setwd("/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/")
+loc <- "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/"
+
+decision.name = function(d, k){
+  
+  paste0("decision_", d, "_", k)
+  
+}
+
+nightly.name = function(d){
+  
+  paste0("nightly_", d)
+  
+  
+}
+
+
+# Initialization: Success
+filename <- paste0(loc, "init", ".json")
+system(paste("Rscript initialize.r", filename))
+
+# Decision: Day = 1 Slot = 3 Success
+system(paste("Rscript decision.r", paste0(loc, decision.name(d = 1, k = 3), ".json")))
+
+# Nightly: Day = 1 Success
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d = 1), ".json")))
+
+# Decision: Day = 2 Slot = 1 Success
+system(paste("Rscript decision.r", paste0(loc, decision.name(d = 2, k = 1), ".json")))
+# Decision: Day = 2 Slot = 2 Success
+system(paste("Rscript decision.r", paste0(loc, decision.name(d = 2, k = 2), ".json")))
+# Decision: Day = 2 Slot = 3 Success
+system(paste("Rscript decision.r", paste0(loc, decision.name(d = 2, k = 3), ".json")))
+# Decision: Day = 6 Slot = 1 Success
+system(paste("Rscript decision.r", paste0(loc, decision.name(d = 6, k = 1), ".json")))
+# Nightly: Day = 2 Success
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d = 2), ".json")))
+
+# Nightly: Day = 3 Success
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d = 3), ".json")))
+
+# Nightly: Day = 4 Success
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d= 4), ".json")))
+
+# Nightly: Day = 5 Success
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d = 5), ".json")))
+
+# Nightly: Day = 6
+system(paste("Rscript nightly.r", paste0(loc, nightly.name(d = 6), ".json")))
+
+
+
+
+
 # 
 # loc <- "/Users/Peng/Dropbox/GitHubRepo/test/"
 # filename <- paste0(loc, "start", ".json")
