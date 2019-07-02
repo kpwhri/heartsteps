@@ -25,10 +25,18 @@ export class HeartstepsServer {
 
         this.unauthorized = new Subject();
 
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.isNativeDevice()) {
             this.http = new HTTP()
         } else {
             this.http = axios.create()
+        }
+    }
+
+    private isNativeDevice() {
+        if (this.platform.is('cordova')) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -49,7 +57,7 @@ export class HeartstepsServer {
         }
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
-            if(this.platform.is('ios') || this.platform.is('android')) {
+            if(this.isNativeDevice()) {
                 return this.http.get(this.makeUrl(url), {}, headers)
             } else {
                 return this.http.get(this.makeUrl(url), {headers: headers})
@@ -70,7 +78,7 @@ export class HeartstepsServer {
     post(url:string, data:any):Promise<any> {
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
-            if(this.platform.is('ios') || this.platform.is('android')) {
+            if(this.isNativeDevice()) {
                 this.http.setDataSerializer('json')
                 return this.http.post(this.makeUrl(url), data, headers)
             } else {
