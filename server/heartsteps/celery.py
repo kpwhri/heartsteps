@@ -18,10 +18,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'nightly-data-download': {
-        'task': 'heartsteps_data_download.tasks.download_data',
-        'schedule': crontab(hour='11')
-    },
     'send-adherence-message': {
         'task': 'dashboard.tasks.send_adherence_messages',
         'schedule': crontab(hour='1', minute='30')

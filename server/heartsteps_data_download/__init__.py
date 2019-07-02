@@ -1,0 +1,1 @@
+default_app_config = 'heartsteps_data_download.apps.HeartstepsDataDownloadConfig'

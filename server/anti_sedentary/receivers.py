@@ -2,6 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 
+from participants.signals import nightly_update
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated
@@ -11,6 +12,16 @@ from .models import User
 from .models import AntiSedentaryMessageTemplate
 from .models import Configuration
 from .tasks import start_decision
+
+@receiver(nightly_update, sender=User)
+def update_anti_sedentary_service(user, day, *args, **kwargs):
+    try:
+        anti_sedentary_service = AntiSedentaryService(
+            user = user
+        )
+        anti_sedentary_service.update(day)
+    except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
+        pass
 
 @receiver(suggestion_times_updated, sender=User)
 def suggestion_times_update(sender, username, *args, **kwargs):

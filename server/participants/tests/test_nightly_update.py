@@ -4,8 +4,6 @@ from datetime import date, timedelta
 
 from django.test import TestCase, override_settings
 
-from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
-from anti_sedentary.services import AntiSedentaryService
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
@@ -55,13 +53,3 @@ class NightlyUpdateTest(TestCase):
         daily_update(username=self.user.username)
 
         fitbit_day_update.assert_called()
-
-    @patch.object(AntiSedentaryService, 'update')
-    def testAntiSedentaryServiceUpdate(self, update):
-        AntiSedentaryConfiguration.objects.create(
-            user = self.user
-        )
-
-        daily_update(username = self.user.username)
-
-        update.assert_called()

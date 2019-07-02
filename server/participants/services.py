@@ -91,11 +91,3 @@ class ParticipantService:
             user = self.participant.user,
             day = date(day.year, day.month, day.day)
         )
-
-        try:
-            anti_sedentary_service = AntiSedentaryService(
-                user = self.participant.user
-            )
-            anti_sedentary_service.update(day)
-        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
-            pass
