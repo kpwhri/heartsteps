@@ -17,14 +17,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-app.conf.beat_schedule = {
-    'send-adherence-message': {
-        'task': 'dashboard.tasks.send_adherence_messages',
-        'schedule': crontab(hour='1', minute='30')
-    }
-}
-# 2am UTC = 7pm PDT
-
 app.conf.task_default_queue = 'default'
 app.conf.task_routes = {
     'heartsteps_data_download.tasks.*': {
