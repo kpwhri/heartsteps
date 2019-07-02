@@ -10,8 +10,10 @@ from django.contrib.auth.models import User
 from daily_tasks.models import DailyTask
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
-from fitbit_api.models import FitbitAccount, FitbitAccountUser, \
-    FitbitSubscription, FitbitSubscriptionUpdate
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitSubscription
+from fitbit_api.models import FitbitSubscriptionUpdate
 from page_views.models import PageView
 from watch_app.models import StepCount, WatchInstall
 
@@ -59,6 +61,25 @@ class Participant(models.Model):
     @property
     def enrollment_date(self):
         return self._enrollment_date
+
+    @property
+    def fitbit_account(self):
+        if hasattr(self, '_fitbit_account'):
+            return self._fitbit_account
+        if not self.user:
+            return None
+        try:
+            account_user = FitbitAccountUser.objects.get(user=self.user)
+            self._fitbit_account = account_user.account
+            return self._fitbit_account
+        except FitbitAccountUser.DoesNotExist:
+            return None
+
+    @property
+    def fitbit_authorized(self):
+        if self.fitbit_account:
+            return self.fitbit_account.authorized
+        return False
 
     def _is_active(self):
         try:
@@ -135,10 +156,6 @@ class Participant(models.Model):
     def _fitbit_authorized(self):
         return self.fitbit_authorized_date() is not None
     _fitbit_authorized.boolean = True
-
-    @property
-    def fitbit_authorized(self):
-        return self._fitbit_authorized()
 
     def _last_fitbit_sync(self):
         if not self._is_enrolled:

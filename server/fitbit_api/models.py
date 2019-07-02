@@ -15,6 +15,13 @@ class FitbitAccount(models.Model):
     def __str__(self):
         return str(self.fitbit_user)
 
+    @property
+    def authorized(self):
+        if None in [self.access_token, self.refresh_token, self.expires_at]:
+            return False
+        else:
+            return True
+
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)
     account = models.ForeignKey(FitbitAccount)

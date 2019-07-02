@@ -23,8 +23,10 @@ class DashboardParticipantTests(TestCase):
             heartsteps_id='test'
         )
         self.fitbit_account = FitbitAccount.objects.create(
-            uuid='test',
-            fitbit_user='test'
+            fitbit_user='test',
+            access_token = 'test',
+            refresh_token = 'test',
+            expires_at = datetime.now().timestamp()
         )
         self.fitbit_account_user = FitbitAccountUser.objects.create(
             user=self.user,
@@ -55,15 +57,11 @@ class DashboardParticipantTests(TestCase):
         self.assertEqual(self.participant.watch_app_installed(), False)
 
     def test_fitbit_authorized_true(self):
-        AuthenticationSession.objects.create(
-            token='test',
-            state='test',
-            user=self.user
-        )
         self.assertEqual(self.participant.fitbit_authorized, True)
 
     def test_fitbit_authorized_false(self):
-        AuthenticationSession.objects.all().delete()
+        self.fitbit_account.access_token = None
+        self.fitbit_account.save()
         self.assertEqual(self.participant.fitbit_authorized, False)
 
     def test_last_fitbit_sync_has_synched(self):
