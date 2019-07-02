@@ -13,7 +13,6 @@ urlpatterns = [
     url(r'^api/fitbit/', include('fitbit_authorize.urls')),
     url(r'^api/fitbit/', include('fitbit_api.urls')),
     url(r'^api/watch-app/', include('watch_app.urls')),
-    url(r'^api/sms/', include('sms_service.urls')),
     url(r'^api/', include('page_views.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),
