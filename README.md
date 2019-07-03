@@ -82,7 +82,7 @@ This application is automatically tested and deployed to the google cloud by Tra
 
 Managing the heartsteps-server in deployment might require completing tasks like flushing the database, changing administration passwords, or other debugging tasks. **To run the *heartsteps-server* as if it was deployed to gcloud** and connected to the gcloud database, use the following command:
 ```
-$ docker-compose -f docker-compose.yaml -f docker-compose.gcloud.yaml run server bash
+$ docker-compose run server-gcloud bash
 
 // You will then be able to run tasks like:
 /server# ./manage.py createsuperuser
@@ -95,3 +95,44 @@ Here is a list of the environment variables that are used by HeartSteps. All doc
 * *HEARTSTEPS_URL* is used by the heartsteps_client to access the heartsteps_server's api endpoint.
 * *HOST_NAME* is the host_name used by django on the heartsteps_server.
 * *DEBUG* makes Django run in debug mode.
+
+## Data Storage and Export Instructions
+
+### HeartSteps Server Database
+The heartsteps-server uses a postgres database in Google Cloud's SQL Database. This database can be accessed directly by running:
+```
+$ docker-compose run --service-ports cloudsql
+// The postgres server is now available at psql://heartsteps:heartsteps@localhost:5432
+```
+
+**Nightly Data Exports**
+The heartsteps-server exports CSV files for each participant after their nightly update once a day. These files are meant to be used to analyze the efficacy of message randomization. This data is then sync'd to a Google Storage Bucket called "heartsteps_nightly_data"
+
+To download all the files at once (recommended), you will need to:
+```
+// (1) Download gcloud-utils
+$ curl https://sdk.cloud.google.com | bash
+// (2) Login with google
+$ gcloud init
+// (3) Make a directory to download the files to (since there a many files)
+$ mkdir nightly-data
+// (4) Download the files
+$ gcloud -m rsync gs://heartsteps-nightly-data ./nightly-data
+```
+
+### Anti-Sedentary and Walking-Suggestion Service Data
+Both the anti-sedentary and walking-suggestion services store data to a remote file system, which is a Google Storage Bucket. These buckets are read and written to by the services in the production environment.
+
+The best way to access the data from these systems is to use the "copy-files" command, which will copy files from the Google Storage Bucket to your local machine.
+
+For the anti-sedentary service, run:
+```
+$ docker-compose run anti-sedentary-service copy-files
+// Data will be downloaded to anti-sedentary-service/data
+```
+
+For the walking-suggestion service, run:
+```
+$ docker-compose run walking-suggestion-service copy-files
+// Data will be downloaded to walking-suggestion-service/data
+```
