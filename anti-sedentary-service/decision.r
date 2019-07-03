@@ -190,7 +190,7 @@ if(return_default) {
     } else {
       past.sedentary = FALSE
     }
-    N = c(0.0,1.8/3); lambda = 0.0; eta = 0.0
+    N = c(0.0,1.8); lambda = 0.0; eta = 0.0
     
     if( any(past.sedentary)) {
       current.run.length = min(which(cumprod(past.sedentary)==0))
