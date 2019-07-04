@@ -14,8 +14,8 @@ from watch_app.models import StepCount, WatchInstall
 
 
 class DashboardParticipantTests(TestCase):
-    @classmethod
-    def setUpTestData(self):
+
+    def setUp(self):
         self.user = User.objects.create(username='test')
         self.participant = Participant.objects.create(
             user=self.user,
