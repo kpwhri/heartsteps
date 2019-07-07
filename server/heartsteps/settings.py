@@ -19,6 +19,8 @@ DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
+ADHERENCE_UPDATE_TIME = env.str('ADHERENCE_UPDATE_TIME', '15:00')
+
 PARTICIPANT_NIGHTLY_UPDATE_TIME = env.str('PARTICIPANT_NIGHTLY_UPDATE', default="1:30")
 RANDOMIZATION_FIXED_PROBABILITY = env.float('RANDOMIZATION_FIXED_PROBABILITY', default=0.5)
 HEARTSTEPS_LOCATIONS_NEAR_DISTANCE = env.float('HEARTSTEPS_LOCATIONS_NEAR_DISTANCE', default=0.25)
@@ -115,7 +117,8 @@ INSTALLED_APPS = [
     'data_export',
     'dashboard',
     'sms_service',
-    'heartsteps_data_download'
+    'heartsteps_data_download',
+    'adherence_messages',
 ]
 
 MIDDLEWARE = [

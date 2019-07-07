@@ -93,6 +93,12 @@ class DailyTask(models.Model):
         self.task = task
         self.save()
 
+    def update_task(self, task, name, arguments):
+        self.task.task = task
+        self.task.name = name
+        self.task.kwargs = json.dumps(arguments)
+        self.task.save()
+
     def set_time(self, hour, minute, day=None):
         time = datetime.now(self.timezone).replace(
             hour = hour,

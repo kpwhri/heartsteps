@@ -1,0 +1,1 @@
+default_app_config = 'adherence_messages.apps.AdherenceMessagesConfig'
