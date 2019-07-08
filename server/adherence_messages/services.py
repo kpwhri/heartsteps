@@ -1,7 +1,10 @@
+from django.template.loader import render_to_string
+
 from days.services import DayService
 from page_views.models import PageView
 
 from .models import AdherenceDay
+from .models import AdherenceMessage
 from .models import DailyAdherenceMetric
 from .models import Configuration
 from .models import User
@@ -61,5 +64,36 @@ class DailyAdherenceService:
         else:
             return False
 
-    def get_adherence(self, date = None):
-        pass
+    def send_message(self):
+        wore_fitbit_count = DailyAdherenceMetric.objects.filter(
+            adherence_day__user = self.__user,
+            category = DailyAdherenceMetric.WORE_FITBIT,
+            value = True
+        ).count()
+        app_installed_count = DailyAdherenceMetric.objects.filter(
+            adherence_day__user = self.__user,
+            category = DailyAdherenceMetric.APP_INSTALLED,
+            value = True
+        ).count()
+
+        if wore_fitbit_count >= 7 and not app_installed_count:
+            adherence_messages_sent = AdherenceMessage.objects.filter(
+                user = self.__user,
+                category = DailyAdherenceMetric.APP_INSTALLED,
+                created__gt = self.__user.date_joined
+            ).count()
+            if adherence_messages_sent < 3:
+                message = self.create_message(DailyAdherenceMetric.APP_INSTALLED)
+                message.send()
+
+    def create_message(self, category):
+        body = self.get_message_text_for(category)
+        return AdherenceMessage.objects.create(
+            user = self.__user,
+            category = category,
+            body = body
+        )
+
+    def get_message_text_for(self, category):
+        template = 'adherence_messages/%s.txt' % (category)
+        return render_to_string(template)

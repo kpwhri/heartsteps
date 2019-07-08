@@ -151,3 +151,29 @@ class DailyAdherenceMetric(models.Model):
     value = models.BooleanField(
         default = False
     )
+
+class AdherenceMessage(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
+    adherence_day = models.ForeignKey(
+        AdherenceDay,
+        related_name = '+',
+        null = True,
+        on_delete = models.SET_NULL
+    )
+    category = models.CharField(
+        max_length = 70,
+        null = True
+    )
+    body = models.TextField(
+        null = True
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def send(self):
+        pass

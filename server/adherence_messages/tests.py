@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -10,6 +11,7 @@ from page_views.models import PageView
 
 from .models import Configuration
 from .models import AdherenceDay
+from .models import AdherenceMessage
 from .models import User
 from .services import DailyAdherenceService
 from .tasks import update_adherence as update_adherence_task
@@ -107,5 +109,70 @@ class AppInstallationAdherenceTests(AdherenceTaskTestBase):
         self.assertEqual(adherence.date, date.today())
         self.assertTrue(adherence.app_installed)
 
+    @patch.object(DailyAdherenceService, 'get_message_text_for', return_value='Example text')
+    def test_send_adherence_message_if_7_days_fitbit_and_no_install(self, get_message_text_for):
+        for offset in range(7):
+            adherence = AdherenceDay.objects.create(
+                user = self.user,
+                date = date.today() - timedelta(days=offset)
+            )
+            adherence.set_metric('app-installed', False)
+            adherence.set_metric('wore-fitbit', True)
 
+        service = DailyAdherenceService(configuration = self.configuration)
+        service.send_message()
+
+        message = AdherenceMessage.objects.get()
+        self.assertEqual(message.user, self.user)
+        self.assertEqual(message.category, 'app-installed')
+        self.assertEqual(message.body, 'Example text')
+        get_message_text_for.assert_called_with('app-installed')
+
+    def test_does_not_send_adherence_message_if_installed(self):
+        for offset in range(7):
+            adherence = AdherenceDay.objects.create(
+                user = self.user,
+                date = date.today() - timedelta(days=offset)
+            )
+            adherence.set_metric('app-installed', False)
+            adherence.set_metric('wore-fitbit', True)
+        adherence = AdherenceDay.objects.get(
+            user = self.user,
+            date = date.today()
+        )
+        adherence.set_metric('app-installed', True)
+        adherence.set_metric('wore-fitbit', True)
+
+        service = DailyAdherenceService(configuration = self.configuration)
+        service.send_message()
+
+        self.assertEqual(AdherenceMessage.objects.count(), 0)       
+
+    def test_send_adherence_message_sends_only_3_messages(self):
+        for offset in range(9):
+            adherence = AdherenceDay.objects.create(
+                user = self.user,
+                date = date.today() - timedelta(days=offset)
+            )
+            adherence.set_metric('app-installed', False)
+            adherence.set_metric('wore-fitbit', True)
+        AdherenceMessage.objects.create(
+            user = self.user,
+            category = 'app-installed',
+            body = 'first message'
+        )
+        AdherenceMessage.objects.create(
+            user = self.user,
+            category = 'app-installed',
+            body = 'second message'
+        )
+
+        service = DailyAdherenceService(configuration = self.configuration)
+        service.send_message()
+
+        self.assertEqual(AdherenceMessage.objects.count(), 3)
+
+        service.send_message()
+
+        self.assertEqual(AdherenceMessage.objects.count(), 3)
 
