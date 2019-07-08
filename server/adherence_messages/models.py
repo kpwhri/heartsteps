@@ -124,19 +124,29 @@ class AdherenceDay(models.Model):
         return self.get_metric(DailyAdherenceMetric.APP_INSTALLED)
 
     def set_app_installed(self, value):
-        self.set_metric(DailyAdherenceMetric.APP_INSTALLED)
+        self.set_metric(DailyAdherenceMetric.APP_INSTALLED, value)
 
     app_installed = property(get_app_installed, set_app_installed)
+
+    def get_app_used(self):
+        return self.get_metric(DailyAdherenceMetric.APP_USED)
+    
+    def set_app_used(self, value):
+        return self.set_metric(DailyAdherenceMetric.APP_USED, value)
+
+    app_used = property(get_app_used, set_app_used)
+
 
 class DailyAdherenceMetric(models.Model):
 
     WORE_FITBIT = 'wore-fitbit'
-    USED_APP = 'used-app'
+    APP_USED = 'app-used'
     APP_INSTALLED = 'app-installed'
 
     ADHERENCE_METRIC_CHOICES = [
         (WORE_FITBIT, 'Wore fitbit'),
-        (USED_APP, 'Used app')
+        (APP_USED, 'Used app'),
+        (APP_INSTALLED, 'Installed app')
     ]
 
     adherence_day = models.ForeignKey(

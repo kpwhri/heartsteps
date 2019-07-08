@@ -176,3 +176,84 @@ class AppInstallationAdherenceTests(AdherenceTaskTestBase):
 
         self.assertEqual(AdherenceMessage.objects.count(), 3)
 
+class AppUsedAdherenceTests(AdherenceTaskTestBase):
+
+    def test_app_used_checked_nightly(self):
+        PageView.objects.create(
+            user = self.user,
+            uri = 'foo',
+            time = timezone.now()
+        )
+
+        update_adherence_task(
+            username = self.user.username
+        )
+
+        adherence = AdherenceDay.objects.get(user = self.user)
+        self.assertEqual(adherence.date, date.today())
+        self.assertTrue(adherence.app_used)
+
+    @patch.object(DailyAdherenceService, 'get_message_text_for', return_value='Example text')
+    def test_adherence_message_sent_no_use_4_days(self, get_message_text_for):
+        adherence = AdherenceDay.objects.create(
+            user = self.user,
+            date = date.today() - timedelta(days=4)
+        )
+        adherence.app_installed = True
+        adherence.app_used = True
+        for offset in range(4):
+            adherence = AdherenceDay.objects.create(
+                user = self.user,
+                date = date.today() - timedelta(days=offset)
+            )
+            adherence.set_metric('app-installed', True)
+            adherence.set_metric('app-used', False)
+
+
+        service = DailyAdherenceService(configuration = self.configuration)
+        service.send_message()
+
+        message = AdherenceMessage.objects.get(
+            user = self.user,
+            category = 'app-used'
+        )
+        self.assertEqual(message.body, 'Example text')
+        get_message_text_for.assert_called_with('app-used')
+
+    def test_adherence_message_sent_once(self):
+        # Set last used day
+        adherence = AdherenceDay.objects.create(
+            user = self.user,
+            date = date.today() - timedelta(days=10)
+        )
+        adherence.app_installed = True
+        adherence.app_used = True
+        # Add previous adherence message before last time used
+        # to ensure this message is ignored
+        message = AdherenceMessage.objects.create(
+            user = self.user,
+            category = 'app-used'
+        )
+        message.created = timezone.now() - timedelta(days=11)
+        message.save()
+        # Add many fake days
+        for offset in range(10):
+            adherence = AdherenceDay.objects.create(
+                user = self.user,
+                date = date.today() - timedelta(days=offset)
+            )
+            adherence.set_metric('app-installed', True)
+            adherence.set_metric('app-used', False)
+        AdherenceMessage.objects.create(
+            user = self.user,
+            category = 'app-used',
+            created = timezone.now() - timedelta(days=6)
+        )
+
+        service = DailyAdherenceService(configuration = self.configuration)
+        service.send_message()
+
+        # Messages from -11 days and -6 days
+        self.assertEqual(AdherenceMessage.objects.count(), 2)
+
+
