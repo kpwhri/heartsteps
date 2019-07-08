@@ -24,9 +24,6 @@ class Configuration(models.Model):
     enabled = models.BooleanField(
         default = True
     )
-    date_initialized = models.DateField(
-        null = True
-    )
     hour = models.PositiveSmallIntegerField(
         null = True
     )
@@ -40,13 +37,6 @@ class Configuration(models.Model):
     updated = models.DateTimeField(
         auto_now = True
     )
-
-    def set_initialized_date(self, date=None):
-        day_service = DayService(user = self.user)
-        if date:
-            return day_service.get_date_at(date)
-        else:
-            return day_service.get_current_date()
 
     def set_default_time(self):
         if hasattr(settings, 'ADHERENCE_UPDATE_TIME'):

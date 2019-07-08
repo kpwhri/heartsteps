@@ -24,4 +24,3 @@ def pre_save(sender, instance, *args, **kwargs):
     if instance.hour is None or instance.minute is None:
         instance.set_default_time()
     instance.update_daily_task()
-    instance.set_initialized_date()
