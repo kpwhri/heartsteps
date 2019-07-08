@@ -189,7 +189,7 @@ if(is.null(check)){
       
       if(!is.na(input$probArray[k]) & !is.na(input$actionArray[k])){
         
-        data.decision <- rbind(data.decision, c(input$studyDay, k, input$probArray[k], input$actionArray[k], NA))
+        data.decision <- rbind(data.decision, c(input$studyDay, k, input$actionArray[k], input$probArray[k], NA))
         
       }
     }
