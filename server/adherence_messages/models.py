@@ -4,6 +4,7 @@ from django.db import models
 
 from daily_tasks.models import DailyTask
 from days.models import Day
+from days.services import DayService
 
 User = get_user_model()
 
@@ -13,10 +14,6 @@ class Configuration(models.Model):
         related_name = '+',
         on_delete = models.CASCADE
     )
-    enabled = models.BooleanField(
-        default = True
-    )
-
     daily_task = models.ForeignKey(
         DailyTask,
         null = True,
@@ -24,12 +21,32 @@ class Configuration(models.Model):
         on_delete = models.SET_NULL
     )
 
+    enabled = models.BooleanField(
+        default = True
+    )
+    date_initialized = models.DateField(
+        null = True
+    )
     hour = models.PositiveSmallIntegerField(
         null = True
     )
     minute = models.PositiveSmallIntegerField(
         null = True
     )
+
+    created = models.DateTimeField(
+        auto_now_add = True
+    )
+    updated = models.DateTimeField(
+        auto_now = True
+    )
+
+    def set_initialized_date(self, date=None):
+        day_service = DayService(user = self.user)
+        if date:
+            return day_service.get_date_at(date)
+        else:
+            return day_service.get_current_date()
 
     def set_default_time(self):
         if hasattr(settings, 'ADHERENCE_UPDATE_TIME'):
@@ -71,26 +88,70 @@ class Configuration(models.Model):
                 hour = task_hour,
                 minute = task_minute
             )
+        if self.enabled:
+            self.daily_task.enable()
+        else:
+            self.daily_task.disable()
 
+class AdherenceDay(models.Model):
 
-class DailyAdherenceMetric(models.Model):
-
-    WORE_FITBIT = 'wore-fitbit'
-    USED_APP = 'used-app'
-
-    ADHERENCE_METRIC_CHOICES = [
-        (WORE_FITBIT, 'Wore fitbit'),
-        (USED_APP, 'Used app')
-    ]
+    class MetricNotFound(RuntimeError):
+        pass
 
     user = models.ForeignKey(
         User,
         related_name = '+',
         on_delete = models.CASCADE
     )
-    day = models.ForeignKey(
-        Day,
-        related_name = '+',
+    date = models.DateField()
+
+    created = models.DateTimeField(auto_now_add = True)
+    updated = models.DateTimeField(auto_now = True)
+
+    def get_metric(self, category):
+        metric = self.dailyadherencemetric_set.filter(
+            category = category
+        ).first()
+        if metric:
+            return metric.value
+        else:
+            raise self.MetricNotFound('%s not found for %s on %s' % (
+                category,
+                self.user.username,
+                self.date
+            ))
+
+    def set_metric(self, category, value):
+        DailyAdherenceMetric.objects.update_or_create(
+            adherence_day = self,
+            category = category,
+            defaults = {
+                'value': value
+            }
+        )
+
+    def get_app_installed(self):
+        return self.get_metric(DailyAdherenceMetric.APP_INSTALLED)
+
+    def set_app_installed(self, value):
+        self.set_metric(DailyAdherenceMetric.APP_INSTALLED)
+
+    app_installed = property(get_app_installed, set_app_installed)
+
+class DailyAdherenceMetric(models.Model):
+
+    WORE_FITBIT = 'wore-fitbit'
+    USED_APP = 'used-app'
+    APP_INSTALLED = 'app-installed'
+
+    ADHERENCE_METRIC_CHOICES = [
+        (WORE_FITBIT, 'Wore fitbit'),
+        (USED_APP, 'Used app')
+    ]
+
+    adherence_day = models.ForeignKey(
+        AdherenceDay,
+        null = True,
         on_delete = models.CASCADE
     )
     category = models.CharField(

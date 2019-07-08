@@ -3,12 +3,15 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.test import override_settings
+from django.utils import timezone
 
 from participants.signals import initialize_participant
+from page_views.models import PageView
 
 from .models import Configuration
+from .models import AdherenceDay
 from .models import User
-from .signals import update_adherence as update_adherence_signal
+from .services import DailyAdherenceService
 from .tasks import update_adherence as update_adherence_task
 
 @override_settings(ADHERENCE_UPDATE_TIME='13:22')
@@ -63,8 +66,11 @@ class AdherenceConfigurationTests(TestCase):
         configuration.enabled = False
         configuration.save()
 
-class AdherenceTaskTests(TestCase):
+        self.assertFalse(configuration.enabled)
+        self.assertFalse(configuration.daily_task.enabled)
 
+class AdherenceTaskTestBase(TestCase):
+    
     def setUp(self):
         self.user = User.objects.create(username='test')
         self.configuration = Configuration.objects.create(
@@ -72,26 +78,34 @@ class AdherenceTaskTests(TestCase):
             enabled = True
         )
 
-    @patch.object(update_adherence_signal, 'send')
-    def test_update_adherence_signal_sent(self, update_adherence_signal):
+class AdherenceTaskTests(AdherenceTaskTestBase):
+
+    def test_update_adherence(self):
 
         update_adherence_task(
-            username = 'test'
+            username = self.user.username
         )
 
-        update_adherence_signal.assert_called_with(
-            sender = User,
+        adherence_day = AdherenceDay.objects.get()
+        self.assertEqual(adherence_day.date, date.today())
+        self.assertEqual(adherence_day.user, self.user)
+
+class AppInstallationAdherenceTests(AdherenceTaskTestBase):
+
+    def test_app_installation_checked_nightly(self):
+        PageView.objects.create(
             user = self.user,
-            date = date.today()
+            uri = 'foo',
+            time = timezone.now()
         )
-
-    @patch.object(update_adherence_signal, 'send')
-    def test_update_adherence_signal_sent(self, update_adherence_signal):
-        self.configuration.enabled = False
-        self.configuration.save()
 
         update_adherence_task(
-            username = 'test'
+            username = self.user.username
         )
 
-        update_adherence_signal.assert_not_called()
+        adherence = AdherenceDay.objects.get(user = self.user)
+        self.assertEqual(adherence.date, date.today())
+        self.assertTrue(adherence.app_installed)
+
+
+

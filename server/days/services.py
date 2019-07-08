@@ -122,3 +122,15 @@ class DayService:
 
     def get_current_date(self):
         return self.get_date_at(timezone.now())
+    
+    def get_start_of_day(self, dt):
+        tz = self.get_timezone_at(dt)
+        start_of_day = datetime.datetime(
+            dt.year,
+            dt.month,
+            dt.day
+        )
+        return tz.localize(start_of_day)
+
+    def get_end_of_day(self, dt):
+        return self.get_start_of_day(dt) + datetime.timedelta(days=1)
