@@ -80,6 +80,11 @@ class AdherenceTaskTestBase(TestCase):
             enabled = True
         )
 
+        message_send_patch = patch.object(AdherenceMessage, 'send')
+        send_patch = message_send_patch.start()
+        send_patch.return_value = 'test-1234'
+        self.addCleanup(message_send_patch.stop)
+
 class AdherenceTaskTests(AdherenceTaskTestBase):
 
     def test_update_adherence(self):
@@ -255,5 +260,3 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
 
         # Messages from -11 days and -6 days
         self.assertEqual(AdherenceMessage.objects.count(), 2)
-
-

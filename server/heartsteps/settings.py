@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     'data_export',
     'dashboard',
     'sms_service',
+    'sms_messages',
     'heartsteps_data_download',
     'adherence_messages',
 ]

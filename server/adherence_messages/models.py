@@ -5,6 +5,7 @@ from django.db import models
 from daily_tasks.models import DailyTask
 from days.models import Day
 from days.services import DayService
+from sms_messages.services import SMSService
 
 User = get_user_model()
 
@@ -186,4 +187,5 @@ class AdherenceMessage(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def send(self):
-        pass
+        service = SMSService(user = self.user)
+        service.send(self.body)
