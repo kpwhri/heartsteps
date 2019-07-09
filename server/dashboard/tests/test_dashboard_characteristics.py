@@ -76,11 +76,11 @@ class DashboardParticipantTests(TestCase):
         )
         FitbitSubscriptionUpdate.objects.filter(uuid='test').update(
                                  created=pytz.utc.localize(self.basetime))
-        self.assertEqual(self.participant.last_fitbit_sync(),
+        self.assertEqual(self.participant.fitbit_last_updated,
                          pytz.utc.localize(self.basetime))
 
     def test_last_fitbit_sync_has_not_synched(self):
-        self.assertEqual(self.participant.last_fitbit_sync(), 0)
+        self.assertEqual(self.participant.fitbit_last_updated, None)
 
     def make_page_view(self, dtm):
         PageView.objects.create(
@@ -174,65 +174,12 @@ class DashboardParticipantTests(TestCase):
         ])
         self.assertEqual(self.participant.adherence_install_app(), False)
 
-    def test_adherence_no_fitbit_data_no_data(self):
-        self.assertEqual(self.participant.adherence_no_fitbit_data(), 0)
-
-    def make_subscription_hours_ago(self, hrs):
-        hours_ago = timedelta(hours=hrs)
-        last_sync = pytz.utc.localize(datetime.now() - hours_ago)
-        subscription = FitbitSubscription.objects.create(
-            fitbit_account=self.fitbit_account,
-            uuid='test'
-        )
-        FitbitSubscriptionUpdate.objects.create(
-            subscription=subscription,
-            uuid='test',
-            payload="['test':'test']"
-        )
-        FitbitSubscriptionUpdate.objects.filter(uuid='test').update(
-                                                created=last_sync)
-
-    def test_adherence_no_fitbit_data_no_data_48hrs(self):
-        self.make_subscription_hours_ago(49)
-        self.assertEqual(self.participant.adherence_no_fitbit_data(), 48)
-
-    def test_adherence_no_fitbit_data_no_data_72hrs(self):
-        self.make_subscription_hours_ago(73)
-        self.assertEqual(self.participant.adherence_no_fitbit_data(), 72)
-
-    def test_adherence_no_fitbit_data_no_data_week(self):
-        self.make_subscription_hours_ago((24*7) + 1)
-        self.assertEqual(self.participant.adherence_no_fitbit_data(), 24*7)
-
-    def test_adherence_no_fitbit_data_recent_sync(self):
-        self.make_subscription_hours_ago(23)
-        self.assertEqual(self.participant.adherence_no_fitbit_data(), 0)
-
-    def test_adherence_app_use_not_used(self):
-        self.assertEqual(self.participant.adherence_app_use(), 0)
-
-    def test_adherence_app_use_used_recent(self):
-        self.make_page_view(datetime.now())
-        self.assertEqual(self.participant.adherence_app_use(), 0)
-
-    def test_adherence_app_use_used_96_hours(self):
-        hours_ago = timedelta(hours=97)
-        last_page_view = datetime.now() - hours_ago
-        self.make_page_view(last_page_view)
-        self.assertEqual(self.participant.adherence_app_use(), 96)
-
-    def test_adherence_app_use_used_week(self):
-        hours_ago = timedelta(hours=(24*7)+1)
-        last_page_view = datetime.now() - hours_ago
-        self.make_page_view(last_page_view)
-        self.assertEqual(self.participant.adherence_app_use(), 24*7)
-
     def test_enrollment_date_no_enrollment(self):
         participant = Participant.objects.create(
             enrollment_token='enrolldt1',
             heartsteps_id='enrolldt1'
         )
-        self.assertEqual(participant.enrollment_date(), None)
+        self.assertEqual(participant.date_joined, None)
 
     def test_enrollment_date_enrolled(self):
         participant = Participant.objects.create(
@@ -240,4 +187,4 @@ class DashboardParticipantTests(TestCase):
             enrollment_token='1234-5678',
             heartsteps_id='000000'
         )
-        self.assertEqual(participant.enrollment_date(), self.user.date_joined)
+        self.assertEqual(participant.date_joined, self.user.date_joined)
