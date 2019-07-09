@@ -84,61 +84,8 @@ class Configuration(models.Model):
         else:
             self.daily_task.disable()
 
-class AdherenceDay(models.Model):
 
-    class MetricNotFound(RuntimeError):
-        pass
-
-    user = models.ForeignKey(
-        User,
-        related_name = '+',
-        on_delete = models.CASCADE
-    )
-    date = models.DateField()
-
-    created = models.DateTimeField(auto_now_add = True)
-    updated = models.DateTimeField(auto_now = True)
-
-    def get_metric(self, category):
-        metric = self.dailyadherencemetric_set.filter(
-            category = category
-        ).first()
-        if metric:
-            return metric.value
-        else:
-            raise self.MetricNotFound('%s not found for %s on %s' % (
-                category,
-                self.user.username,
-                self.date
-            ))
-
-    def set_metric(self, category, value):
-        DailyAdherenceMetric.objects.update_or_create(
-            adherence_day = self,
-            category = category,
-            defaults = {
-                'value': value
-            }
-        )
-
-    def get_app_installed(self):
-        return self.get_metric(DailyAdherenceMetric.APP_INSTALLED)
-
-    def set_app_installed(self, value):
-        self.set_metric(DailyAdherenceMetric.APP_INSTALLED, value)
-
-    app_installed = property(get_app_installed, set_app_installed)
-
-    def get_app_used(self):
-        return self.get_metric(DailyAdherenceMetric.APP_USED)
-    
-    def set_app_used(self, value):
-        return self.set_metric(DailyAdherenceMetric.APP_USED, value)
-
-    app_used = property(get_app_used, set_app_used)
-
-
-class DailyAdherenceMetric(models.Model):
+class AdherenceMetric(models.Model):
 
     WORE_FITBIT = 'wore-fitbit'
     APP_USED = 'app-used'
@@ -150,11 +97,12 @@ class DailyAdherenceMetric(models.Model):
         (APP_INSTALLED, 'Installed app')
     ]
 
-    adherence_day = models.ForeignKey(
-        AdherenceDay,
-        null = True,
-        on_delete = models.CASCADE
+    user = models.ForeignKey(
+        User,
+        related_name = '+',
+        on_delete=models.CASCADE
     )
+    date = models.DateField()
     category = models.CharField(
         max_length = 70,
         choices = ADHERENCE_METRIC_CHOICES
@@ -169,12 +117,7 @@ class AdherenceMessage(models.Model):
         related_name = '+',
         on_delete = models.CASCADE
     )
-    adherence_day = models.ForeignKey(
-        AdherenceDay,
-        related_name = '+',
-        null = True,
-        on_delete = models.SET_NULL
-    )
+    date = models.DateField()
     category = models.CharField(
         max_length = 70,
         null = True

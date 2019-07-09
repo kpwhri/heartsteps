@@ -5,13 +5,13 @@ from django.template.loader import render_to_string
 from days.services import DayService
 from page_views.models import PageView
 
-from .models import AdherenceDay
 from .models import AdherenceMessage
-from .models import DailyAdherenceMetric
+from .models import AdherenceMetric
 from .models import Configuration
 from .models import User
+from .signals import update_adherence as update_adherence_signal
 
-class DailyAdherenceService:
+class AdherenceService:
 
     def __init__(self, configuration=None, user=None, username=None):
         if username:
@@ -34,12 +34,11 @@ class DailyAdherenceService:
         if not date:
             service = DayService(user = self.__user)
             date = service.get_current_date()
-        adherence_day, _ = AdherenceDay.objects.get_or_create(
+        update_adherence_signal.send(
+            sender = User,
             user = self.__user,
             date = date
         )
-        self.update_app_installed(adherence_day)
-        self.update_app_used(adherence_day)
         
     def update_app_installed(self, adherence_day):
         DailyAdherenceMetric.objects.update_or_create(
@@ -91,6 +90,9 @@ class DailyAdherenceService:
             return True
         else:
             return False
+
+    def send_adherence_message(self, date=None):
+        self.send_message()
 
     def send_message(self):
         wore_fitbit_count = DailyAdherenceMetric.objects.filter(

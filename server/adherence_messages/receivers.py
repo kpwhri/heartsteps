@@ -6,8 +6,6 @@ from django.db.models.signals import pre_save, post_save
 from participants.signals import initialize_participant
 
 from .models import Configuration
-from .models import AdherenceDay
-from .models import DailyAdherenceMetric
 from .models import User
 
 @receiver(initialize_participant, sender=User)
