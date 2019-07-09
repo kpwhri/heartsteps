@@ -21,6 +21,32 @@ class FitbitAccount(models.Model):
             return False
         else:
             return True
+    
+    @property
+    def first_updated(self):
+        if hasattr(self, '_first_updated'):
+            return self._first_updated
+        first_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
+            subscription__fitbit_account = self
+        ).first()
+        if first_update:
+            self._first_updated = first_update.created
+            return self._first_updated
+        else:
+            return None
+
+    @property
+    def last_updated(self):
+        if hasattr(self, '_last_updated'):
+            return self._last_updated
+        last_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
+            subscription__fitbit_account = self
+        ).last()
+        if last_update:
+            self._last_updated = last_update.created
+            return self._last_updated
+        else:
+            return None
 
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)

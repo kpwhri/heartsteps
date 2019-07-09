@@ -52,15 +52,16 @@ class Participant(models.Model):
             return False
     _is_enrolled.boolean = True
 
-    def _enrollment_date(self):
+    @property
+    def enrollment_date(self):
+        return self.date_joined
+
+    @property
+    def date_joined(self):
         if self.user:
             return self.user.date_joined
         else:
             return None
-
-    @property
-    def enrollment_date(self):
-        return self._enrollment_date
 
     @property
     def fitbit_account(self):
@@ -80,6 +81,20 @@ class Participant(models.Model):
         if self.fitbit_account:
             return self.fitbit_account.authorized
         return False
+
+    @property
+    def fitbit_first_updated(self):
+        if self.fitbit_account:
+            return self.fitbit_account.first_updated
+        else:
+            return None
+
+    @property
+    def fitbit_last_updated(self):
+        if self.fitbit_account:
+            return self.fitbit_account.last_updated
+        else:
+            return None
 
     def _is_active(self):
         try:
@@ -140,45 +155,11 @@ class Participant(models.Model):
     def watch_app_installed(self):
         return self._watch_app_installed
 
-    def _fitbit_authorized_date(self):
-        u = self.user
-        if u:
-            dt = u.authenticationsession_set.all() \
-                  .aggregate(models.Max('created'))['created__max']
-            return dt
-        else:
-            return False
 
-    @property
-    def fitbit_authorized_date(self):
-        return self._fitbit_authorized_date
 
     def _fitbit_authorized(self):
         return self.fitbit_authorized_date() is not None
     _fitbit_authorized.boolean = True
-
-    def _last_fitbit_sync(self):
-        if not self._is_enrolled:
-            return 0
-
-        u = self.user
-        if u:
-            try:
-                return u.fitbitaccountuser.account \
-                    .fitbitsubscription_set.get() \
-                    .fitbitsubscriptionupdate_set.all() \
-                    .aggregate(models.Max('created'))['created__max']
-            except (FitbitAccountUser.DoesNotExist, FitbitAccount.DoesNotExist,
-                    FitbitSubscription.DoesNotExist,
-                    FitbitSubscriptionUpdate.DoesNotExist) as e:
-                logger.info("_last_fitbit_sync Error in " + u.username + ": " + str(e))
-                return 0
-        else:
-            return 0
-
-    @property
-    def last_fitbit_sync(self):
-        return self._last_fitbit_sync
 
     def _last_fitbit_sync_elapsed_hours(self):
         if self._last_fitbit_sync() == 0 or self.last_fitbit_sync() is None:
