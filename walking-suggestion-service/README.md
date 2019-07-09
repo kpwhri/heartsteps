@@ -105,6 +105,13 @@ Below is an example of json input.
   	  If neither of above is true, then the recieved input for the correspond decision time will be a number; including 0, 
 	meaning that the pariticipant is classified as "wear the sensor" and the Fibit collects 0 step during the 30 min window before (after) the decision time.
 
+4.pooling
+
+5. date
+
+6. delieverMatrix
+
+7. prioAntiMatrix
 
 ### CONDITION CHECKING
 
