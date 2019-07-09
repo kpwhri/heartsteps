@@ -180,7 +180,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.unavailable_reason = "Walking suggestion configuration disabled"
             self.decision.save()
             return False
-        # self.update_availability()
         try:
             service = WalkingSuggestionService(self.__configuration)
             service.decide(self.decision)
