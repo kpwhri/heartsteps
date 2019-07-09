@@ -327,7 +327,7 @@ class WalkingSuggestionService():
             'postStepsArray': self.get_post_steps(date),
             'availabilityArray': self.get_availabilities(date),
             'priorAntiArray': self.get_all_anti_sedentary_treatments(date),
-            'lastActivityArray': self.get_received_messages(date),
+            'lastActivityArray': self.offset_received_messages(date),
             'locationArray': self.get_locations(date),
             'actionArray': self.get_actions(date),
             'probArray': self.get_probabilities(date)
@@ -432,6 +432,10 @@ class WalkingSuggestionService():
             decision = decisions[time_category]
             was_received.append(self.decision_was_received(decision))
         return was_received
+
+    def offset_received_messages(self, date):
+        received_messages = self.get_received_messages(date)
+        return [False] + received_messages[:4]
 
     def get_availabilities(self, date):
         availabilities = []

@@ -313,7 +313,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             'postStepsArray': [700, 700, 700, 700, 700],
             'availabilityArray': [False, False, False, False, False],
             'priorAntiArray': [False, False, False, False, False, False],
-            'lastActivityArray': [True, True, True, True, True],
+            'lastActivityArray': [False, True, True, True, True],
             'locationArray': [1, 1, 1, 1, 1]
         })
 
