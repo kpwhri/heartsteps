@@ -50,7 +50,7 @@ tryCatch(
   paths <- paste("./data/", "user", input$userID, sep="")
 
   request <- toJSON(input)
-  write(request, file = paste(paths, "/request history/", "decision_", input$studyDay, "_", input$decisionTime, ".json",sep="")) # save the request
+  write(request, file = paste(paths, "/request_history/", "decision_", input$studyDay, "_", input$decisionTime, ".json",sep="")) # save the request
 
   # including daily features and dosage at the begining of the day and the current history
   load(paste(paths, "/daily.Rdata", sep="")) 
