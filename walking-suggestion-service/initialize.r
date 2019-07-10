@@ -60,10 +60,10 @@ if("userID" %in% names(input)){
 
   paths <- paste("./data/", "user", input$userID, sep="")
   dir.create(paths, showWarnings = FALSE)
-  dir.create(paste0(paths, "/request history"), showWarnings = FALSE)
+  dir.create(paste0(paths, "/request_history"), showWarnings = FALSE)
 
   request <- toJSON(input)
-  write(request, file= paste(paths, "/request history/init.json",sep="")) # save the request
+  write(request, file= paste(paths, "/request_history/init.json",sep="")) # save the request
 
 
 }else{
