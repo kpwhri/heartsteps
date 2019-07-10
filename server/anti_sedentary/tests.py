@@ -211,7 +211,7 @@ class MakeDecisionTests(TestBase):
         decision = AntiSedentaryDecision.objects.get()
         self.assertFalse(decision.sedentary)
         self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Not sedentary')
+        self.assertTrue(decision.unavailable_not_sedentary)
         self.assertFalse(decision.treated)
 
     def testAvailableWhenSedentary(self):

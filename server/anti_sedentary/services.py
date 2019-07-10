@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from days.services import DayService
-from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.services import FitbitStepCountService
 from fitbit_api.services import FitbitService
 from randomization.services import DecisionMessageService, DecisionContextService
 from walking_suggestion_times.models import SuggestionTime
@@ -13,35 +13,6 @@ from watch_app.models import StepCount
 
 from anti_sedentary.clients import AntiSedentaryClient
 from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
-
-class FitbitStepCountService:
-
-    def __init__(self, user):
-        self.user = user        
-        self.fitbit_account = FitbitService.get_account(user)
-
-    def get_step_count_between(self, start, end):
-        step_counts = FitbitMinuteStepCount.objects.filter(
-            account = self.fitbit_account,
-            time__range = [start, end]
-        ).all()
-        total_steps = 0
-        for step_count in step_counts:
-            total_steps += step_count.steps
-        return total_steps
-
-    def is_sedentary_at(self, time):
-        step_count = self.get_step_count_between(
-            start = time - timedelta(minutes=40),
-            end = time
-        )
-        return False
-
-    def steps_at(self, time):
-        return self.get_step_count_between(
-            start = time - timedelta(minutes=5),
-            end = time
-        )
 
 class AntiSedentaryService:
 
@@ -103,7 +74,6 @@ class AntiSedentaryService:
                 user = self.__user,
                 time = time,
                 imputed = True,
-                available = False,
                 treated = False,
                 sedentary = self.is_sedentary_at(time)
             )
@@ -259,17 +229,14 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
         pass
 
     def update_availability(self):
+        super().update_availability()
         if self.__anti_sedentary_service.is_sedentary_at(self.decision.time):
             self.decision.sedentary = True
-            self.decision.available = True
-            self.decision.save()
-            return super().update_availability()            
+            self.decision.save()            
         else:
             self.decision.sedentary = False
-            self.decision.available = False
-            self.decision.unavailable_reason = 'Not sedentary'
+            self.decision.unavailable_not_sedentary = True
             self.decision.save()
-            return False
 
     def get_time_of_day_context(self):
         service = DayService(user = self.decision.user)

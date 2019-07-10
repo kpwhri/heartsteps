@@ -165,7 +165,7 @@ class MakeDecisionTest(TestCase):
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.treated)
         self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Walking suggestion service error')
+        self.assertTrue(decision.unavailable_service_error)
 
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
 class NightlyUpdateTask(TestCase):

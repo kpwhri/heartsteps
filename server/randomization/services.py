@@ -239,14 +239,8 @@ class DecisionMessageService(DecisionService):
             message_type = Message.NOTIFICATION
         ).count()
         if recent_notification_count > 0:
-            self.decision.available = False
-            self.decision.unavailable_reason = 'Message recently sent'
+            self.decision.unavailable_notification_recently_sent = True
             self.decision.save()
-            return False
-        else:
-            self.decision.available = True
-            self.decision.save()
-            return True
 
     def get_message_template_tags(self):
         tags = self.decision.get_context()

@@ -81,7 +81,7 @@ class WalkingSuggestionDecisionAdmin(ExportMixin, DecisionAdmin):
     resource_class = WalkingSuggestionDecisionResource
 
     list_filter = [WalkingSuggestionTimeFilters]
-    list_display = ['decision', 'local_time', 'test', 'imputed', 'available', 'unavailable_reason', 'treated']
+    list_display = ['decision', 'local_time', 'test', 'imputed', 'treated']
 
     def decision(self, decision):
         return '%s (%s)' % (decision.user.username, decision.category)

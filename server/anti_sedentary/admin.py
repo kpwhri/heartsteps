@@ -121,7 +121,7 @@ class AntiSedentaryDecisionResouce(DecisionResource):
 
 class AntiSedentaryDecisionAdmin(ExportMixin, DecisionAdmin):
     resource_class = AntiSedentaryDecisionResouce
-    list_display = ['user', 'local_time', 'step_count', 'fitbit_step_count', 'sedentary', 'available', 'treated', 'imputed', 'test']
+    list_display = ['user', 'local_time', 'step_count', 'fitbit_step_count', 'treated', 'imputed', 'test']
 
     def local_time(self, decision):
         return decision.get_local_datetime().strftime('%Y-%m-%d %I:%M %p')

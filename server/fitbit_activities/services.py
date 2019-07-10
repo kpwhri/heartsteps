@@ -183,3 +183,33 @@ class FitbitDayService(FitbitService):
         for interval in self._process_minute_data(data):
             total_distance += Decimal(interval['value'])
         return total_distance
+
+class FitbitStepCountService:
+
+    def __init__(self, user):
+        self.user = user        
+        self.fitbit_account = FitbitService.get_account(user)
+
+    def get_step_count_between(self, start, end):
+        step_counts = FitbitMinuteStepCount.objects.filter(
+            account = self.fitbit_account,
+            time__range = [start, end]
+        ).all()
+        total_steps = 0
+        for step_count in step_counts:
+            total_steps += step_count.steps
+        return total_steps
+
+    def is_sedentary_at(self, time):
+        step_count = self.get_step_count_between(
+            start = time - timedelta(minutes=40),
+            end = time
+        )
+        return False
+
+    def steps_at(self, time):
+        return self.get_step_count_between(
+            start = time - timedelta(minutes=5),
+            end = time
+        )
+

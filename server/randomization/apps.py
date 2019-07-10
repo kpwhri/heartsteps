@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 
 
-class HeartstepsDecisionsConfig(AppConfig):
-    name = 'heartsteps_decisions'
+class RandomizationAppConfig(AppConfig):
+    name = 'randomization'
+
+    def ready(self):
+        import randomization.receivers

@@ -126,20 +126,15 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             raise WalkingSuggestionDecisionService.DecisionDoesNotExist('Decision not found')
 
     def update_availability(self):
-        if not self.enabled:
-            self.decision.available = False
-            self.decision.unavailable_reason = 'Walking suggestion configuration disabled'
-            self.decision.save()
-            return False
+        super().update_availability()
 
-        available = super().update_availability()
-        if not available:
-            return False
+        if not self.enabled:
+            self.decision.unavailable_disabled = True
+            self.decision.save()
 
         step_counts = self.get_step_counts()
         if not step_counts:
-            self.decision.available = False
-            self.decision.unavailable_reason = 'No step counts recorded'
+            self.decision.unavailable_no_step_count_data = True
             self.decision.save()
             return False
         steps = 0
@@ -149,8 +144,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             raise ImproperlyConfigured("Walking suggestion decision unavailable step count not set")
         max_step_count = int(settings.WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT)
         if steps > max_step_count:
-            self.decision.available = False
-            self.decision.unavailable_reason = 'Recent step count above %d' % (max_step_count)
+            self.decision.unavailable_not_sedentary = True
             self.decision.save()
             return False
         return True
@@ -177,7 +171,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         if not self.enabled:
             self.decision.treated = False
             self.decision.treatment_probability = 0
-            self.unavailable_reason = "Walking suggestion configuration disabled"
+            self.unavailable_disabled = True
             self.decision.save()
             return False
         try:
@@ -188,10 +182,9 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         except WalkingSuggestionService.RequestError:
             self.decision.treated = False
             self.decision.treatment_probability = 0
-            self.decision.available = False
-            self.decision.unavailable_reason = "Walking suggestion service error"
+            self.decision.unavailable_service_error = True
             self.decision.save()
-        return self.decision.a_it
+        return self.decision.treated
 
 class WalkingSuggestionService():
     """

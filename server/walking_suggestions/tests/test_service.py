@@ -627,7 +627,7 @@ class DecisionAvailabilityTest(TestCase):
     def test_configuration_not_enabled(self):
         self.configuration.enabled = False
         self.configuration.save()
-        decision = WalkingSuggestionDecision(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -638,10 +638,10 @@ class DecisionAvailabilityTest(TestCase):
         self.assertFalse(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Walking suggestion configuration disabled')
+        self.assertTrue(decision.unavailable_disabled)
 
     def test_no_step_counts(self):
-        decision = WalkingSuggestionDecision(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -652,12 +652,12 @@ class DecisionAvailabilityTest(TestCase):
         self.assertFalse(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'No step counts recorded')
+        self.assertTrue(decision.unavailable_no_step_count_data)
 
     def test_step_count_over_limit(self):
         self.create_step_count(10, 5)
         self.create_step_count(100, 10)
-        decision = WalkingSuggestionDecision(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -668,12 +668,12 @@ class DecisionAvailabilityTest(TestCase):
         self.assertFalse(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.available)
-        self.assertEqual(decision.unavailable_reason, 'Recent step count above 100')
+        self.assertTrue(decision.unavailable_not_sedentary)
 
     def test_step_count_was_over_limit(self):
         self.create_step_count(10, 5)
         self.create_step_count(100, 20)
-        decision = WalkingSuggestionDecision(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )
@@ -689,7 +689,7 @@ class DecisionAvailabilityTest(TestCase):
         self.create_step_count(10, 5)
         self.create_step_count(10, 10)
         self.create_step_count(10, 15)
-        decision = WalkingSuggestionDecision(
+        decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
         )

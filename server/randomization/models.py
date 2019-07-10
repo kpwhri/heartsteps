@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
 from days.services import DayService
+from fitbit_activities.services import FitbitStepCountService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
 
@@ -22,6 +23,32 @@ class ContextTag(models.Model):
     def __str__(self):
         return self.name or self.tag
 
+class UnavailableReason(models.Model):
+
+    UNREACHABLE = 'unreachable'
+    NOTIFICATION_RECENTLY_SENT = 'notification-recently-sent'
+    NOT_SEDENTARY = 'not-sedentary'
+    ON_VACATION = 'on-vacation'
+    NO_STEP_COUNT_DATA = 'no-step-count-data'
+    DISABLED = 'disabled'
+    SERVICE_ERROR = 'service-error'
+
+    CHOICES = [
+        (UNREACHABLE, 'Unreachable'),
+        (NOTIFICATION_RECENTLY_SENT, 'Notification recently sent'),
+        (NOT_SEDENTARY, 'Not sedentary'),
+        (NO_STEP_COUNT_DATA, 'No step-count data'),
+        (ON_VACATION, 'On vaaction'),
+        (DISABLED, 'Disabled'),
+        (SERVICE_ERROR, 'service-error')
+    ]
+
+    decision = models.ForeignKey(
+        'randomization.Decision',
+        on_delete = models.CASCADE
+    )
+    reason = models.CharField(max_length=150, choices=CHOICES)
+
 class Decision(models.Model):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
@@ -31,9 +58,8 @@ class Decision(models.Model):
 
     test = models.BooleanField(default=False)
     imputed = models.BooleanField(default=False)
-    
-    available = models.BooleanField(default=True)
-    unavailable_reason = models.CharField(max_length=150, null=True, blank=True)
+    available = models.NullBooleanField(null=True)
+    sedentary = models.NullBooleanField(null=True)
 
     time = models.DateTimeField()
 
@@ -47,6 +73,60 @@ class Decision(models.Model):
 
     class Meta:
         ordering = ['-time']
+
+    def __get_unavailable_reason(self, reason):
+        try:
+            UnavailableReason.objects.get(
+                decision = self,
+                reason = reason
+            )
+            return True
+        except UnavailableReason.DoesNotExist:
+            return False
+
+    def __set_unavailable_reason(self, reason, value):
+        if value:
+            UnavailableReason.objects.update_or_create(
+                decision = self,
+                reason = reason
+            )
+        else:
+            try:
+                reason = UnavailableReason.objects.get(
+                    decision = self,
+                    reason = reason
+                )
+                reason.delete()
+            except UnavailableReason.DoesNotExist:
+                pass
+
+    def make_unavailable_property(reason):
+        def get_reason(self):
+            return self.__get_unavailable_reason(
+                reason = reason
+            )
+        def set_reason(self, value):
+            self.__set_unavailable_reason(
+                reason = reason,
+                value = value
+            )
+        return property(get_reason, set_reason)
+
+    def update_available_value(self):
+        reasons = UnavailableReason.objects.filter(
+            decision = self
+        ).count()
+        if reasons > 0:
+            self.available = False
+        else:
+            self.available = True
+
+    unavailable_no_step_count_data = make_unavailable_property(UnavailableReason.NO_STEP_COUNT_DATA)
+    unavailable_not_sedentary = make_unavailable_property(UnavailableReason.NOT_SEDENTARY)
+    unavailable_notification_recently_sent = make_unavailable_property(UnavailableReason.NOTIFICATION_RECENTLY_SENT)
+    unavailable_unreachable = make_unavailable_property(UnavailableReason.UNREACHABLE)
+    unavailable_disabled = make_unavailable_property(UnavailableReason.DISABLED)
+    unavailable_service_error = make_unavailable_property(UnavailableReason.SERVICE_ERROR)
 
     def get_treated(self):
         return self.treated
@@ -135,8 +215,36 @@ class Decision(models.Model):
             return False
     
     def get_local_datetime(self):
-        service = DayService(user=self.user)
-        return service.get_datetime_at(self.time)
+        return self.timezone.localize(self.time)
+
+    @property
+    def timezone(self):
+        if hasattr(self, '_timezone'):
+            return self._timezone
+        service = DayService(user = self._user)
+        tz = service.get_timezone_at(self.time)
+        self._timezone = tz
+        return self._timezone
+
+    def fitbit_previous_step_count(self, duration):
+        service = FitbitStepCountService(user = self.user)
+        return service.get_step_count_between(
+            start = self.time - timedelta(minutes=duration),
+            end = self.time
+        )
+
+    def fitbit_post_step_count(self, duration):
+        service = FitbitStepCountService(user = self.user)
+        return service.get_step_count_between(
+            start = self.time,
+            end = self.time + timedelta(minutes=duration)
+        )
+
+    def watch_app_previous_step_count(self, duration):
+        return 10
+
+    def watch_app_post_step_count(self, duration):
+        return 10
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

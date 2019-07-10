@@ -26,7 +26,5 @@ class AntiSedentaryServiceRequest(ServiceRequest):
 class AntiSedentaryDecision(Decision):
     MESSAGE_TEMPLATE_MODEL = AntiSedentaryMessageTemplate
 
-    sedentary = models.NullBooleanField(null=True)
-
     def get_treatment_probability(self):
         return 0.15
