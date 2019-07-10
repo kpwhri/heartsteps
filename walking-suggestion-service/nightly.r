@@ -56,7 +56,7 @@ tryCatch(expr = {
   paths <- paste("./data/", "user", input$userID, sep="")
 
   request <- toJSON(input)
-  write(request, file = paste(paths, "/request history/", "nightly_", input$studyDay, ".json",sep="")) # save the request
+  write(request, file = paste(paths, "/request_history/", "nightly_", input$studyDay, ".json",sep="")) # save the request
 
   load(paste(paths, "/imputation.Rdata", sep=""))
   load(paste(paths, "/daily.Rdata", sep="")) 
