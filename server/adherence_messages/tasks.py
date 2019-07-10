@@ -6,3 +6,4 @@ from .services import AdherenceService
 def update_adherence(username):
     service = AdherenceService(username=username)
     service.update_adherence()
+    service.send_message()
