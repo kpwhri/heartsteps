@@ -82,6 +82,7 @@ class WalkingSuggestionServiceRequest(ServiceRequest):
 class WalkingSuggestionDecision(Decision):
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
+    SEDENTARY_STEP_COUNT = 250
     
     @property
     def category(self):

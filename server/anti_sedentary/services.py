@@ -157,16 +157,6 @@ class AntiSedentaryService:
             return service.get_step_count_at(time)
         except StepCountService.NoStepCountRecorded:
             return 0
-    
-    def is_sedentary_at(self, time):
-        try:
-            steps = self.get_step_count_at(time)
-        except AntiSedentaryService.NoSteps:
-            return False
-        if steps < 150:
-            return True
-        else:
-            return False
 
     def update(self, date):
         if not self._client:
@@ -187,8 +177,8 @@ class AntiSedentaryService:
             decision_times.append({
                 'id': str(decision.id),
                 'time': current_time,
-                'sedentary': steps_service.is_sedentary_at(current_time),
-                'steps': steps_service.steps_at(current_time)
+                'sedentary': decision.is_sedentary(),
+                'steps': decision.get_sedentary_step_count()
             })
             current_time = current_time + timedelta(minutes=decision_interval)
 

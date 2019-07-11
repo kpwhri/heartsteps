@@ -1,5 +1,6 @@
 import uuid, random
 from datetime import datetime
+from datetime import timedelta
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -53,6 +54,7 @@ class UnavailableReason(models.Model):
 class Decision(models.Model):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
+    SEDENTARY_STEP_COUNT = 150
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
@@ -110,6 +112,30 @@ class Decision(models.Model):
             self.available = False
         else:
             self.available = True
+
+    def get_sedentary_step_count(self):
+        service = WatchAppStepCountService(user = self.user)
+        try:
+            return service.get_step_count_between(
+                start = time - timedelta(minutes=40),
+                end = time
+            )
+        except WatchAppStepCountService.NoStepCountRecorded:
+            return 0
+        
+    def is_sedentary(self):
+        service = WatchAppStepCountService(user = self.user)
+        try:
+            steps = service.get_step_count_between(
+                start = self.time - timedelta(minutes=40),
+                end = self.time
+            )
+        except WatchAppStepCountService.NoStepCountRecorded:
+            return False
+        if steps < self.SEDENTARY_STEP_COUNT:
+            return True
+        else:
+            return False
 
     unavailable_no_step_count_data = make_unavailable_property(UnavailableReason.NO_STEP_COUNT_DATA)
     unavailable_not_sedentary = make_unavailable_property(UnavailableReason.NOT_SEDENTARY)
