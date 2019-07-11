@@ -9,7 +9,7 @@ from fitbit_activities.services import FitbitStepCountService
 from fitbit_api.services import FitbitService
 from randomization.services import DecisionMessageService, DecisionContextService
 from walking_suggestion_times.models import SuggestionTime
-from watch_app.models import StepCount
+from watch_app.services import StepCountService
 
 from anti_sedentary.clients import AntiSedentaryClient
 from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
@@ -142,29 +142,21 @@ class AntiSedentaryService:
             self.__configuration.save()
 
     def get_step_count_at(self, time):
-        end = time
-        start = end - timedelta(minutes=40)
-        step_counts = StepCount.objects.filter(
-            user = self.__user,
-            start__gte=start,
-            end__lte=end
-        ).all()
-        step_counts = list(step_counts)
-        if not step_counts:
+        service = StepCountService(user = self.__user)
+        try:
+            return service.get_step_count_between(
+                start = time - timedelta(minutes=40),
+                end = time
+            )
+        except StepCountService.NoStepCountRecorded:
             raise AntiSedentaryService.NoSteps('No steps')
-        total_steps = 0
-        for step_count in step_counts:
-            total_steps += step_count.steps
-        return total_steps
 
     def get_step_count_change_at(self, time):
-        step_count = StepCount.objects.filter(
-            user = self.__user,
-            end__lte = time
-        ).last()
-        if not step_count:
+        service = StepCountService(user = self.__user)
+        try:
+            return service.get_step_count_at(time)
+        except StepCountService.NoStepCountRecorded:
             return 0
-        return step_count.steps
     
     def is_sedentary_at(self, time):
         try:
