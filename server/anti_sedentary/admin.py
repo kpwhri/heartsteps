@@ -72,51 +72,8 @@ class AntiSedentaryDecisionResouce(DecisionResource):
     class Meta:
         model = AntiSedentaryDecision
 
-        fields = [
-            'id',
-            'user__username',
-            'local_time',
-            'step_count',
-            'fitbit_step_count',
-            'test',
-            'imputed',
-            'available',
-            'unavailable_reason',
-            'treated',
-            'treatment_probability',
-            'sent_time',
-            'received_time',
-            'opened_time',
-            'engaged_time',
-            'message',
-            'all_tags'
-        ]
-
-        export_order = [
-            'id',
-            'user__username',
-            'local_time',
-            'step_count',
-            'fitbit_step_count',
-            'test',
-            'imputed',
-            'available',
-            'unavailable_reason',
-            'treated',
-            'treatment_probability',
-            'sent_time',
-            'received_time',
-            'opened_time',
-            'engaged_time',
-            'message',
-            'all_tags'
-        ]
-
-    def dehydrate_step_count(self, decision):
-        return get_step_count(decision)
-
-    def dehydrate_fitbit_step_count(self, decision):
-        return get_fitbit_step_count(decision)
+        fields = DecisionResource.FIELDS
+        export_order = DecisionResource.FIELDS
 
 
 class AntiSedentaryDecisionAdmin(ExportMixin, DecisionAdmin):

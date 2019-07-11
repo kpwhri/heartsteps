@@ -12,6 +12,7 @@ from days.services import DayService
 from fitbit_activities.services import FitbitStepCountService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
+from watch_app.services import StepCountService as WatchAppStepCountService
 
 class ContextTag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -74,42 +75,31 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
-    def __get_unavailable_reason(self, reason):
-        try:
-            UnavailableReason.objects.get(
-                decision = self,
-                reason = reason
-            )
-            return True
-        except UnavailableReason.DoesNotExist:
-            return False
-
-    def __set_unavailable_reason(self, reason, value):
-        if value:
-            UnavailableReason.objects.update_or_create(
-                decision = self,
-                reason = reason
-            )
-        else:
+    def make_unavailable_property(reason):
+        def get_reason(self):
             try:
-                reason = UnavailableReason.objects.get(
+                UnavailableReason.objects.get(
                     decision = self,
                     reason = reason
                 )
-                reason.delete()
+                return True
             except UnavailableReason.DoesNotExist:
-                pass
-
-    def make_unavailable_property(reason):
-        def get_reason(self):
-            return self.__get_unavailable_reason(
-                reason = reason
-            )
+                return False
         def set_reason(self, value):
-            self.__set_unavailable_reason(
-                reason = reason,
-                value = value
-            )
+            if value:
+                UnavailableReason.objects.update_or_create(
+                    decision = self,
+                    reason = reason
+                )
+            else:
+                try:
+                    reason = UnavailableReason.objects.get(
+                        decision = self,
+                        reason = reason
+                    )
+                    reason.delete()
+                except UnavailableReason.DoesNotExist:
+                    pass
         return property(get_reason, set_reason)
 
     def update_available_value(self):
@@ -215,36 +205,16 @@ class Decision(models.Model):
             return False
     
     def get_local_datetime(self):
-        return self.timezone.localize(self.time)
+        return self.time.astimezone(self.timezone)
 
     @property
     def timezone(self):
         if hasattr(self, '_timezone'):
             return self._timezone
-        service = DayService(user = self._user)
+        service = DayService(user = self.user)
         tz = service.get_timezone_at(self.time)
         self._timezone = tz
         return self._timezone
-
-    def fitbit_previous_step_count(self, duration):
-        service = FitbitStepCountService(user = self.user)
-        return service.get_step_count_between(
-            start = self.time - timedelta(minutes=duration),
-            end = self.time
-        )
-
-    def fitbit_post_step_count(self, duration):
-        service = FitbitStepCountService(user = self.user)
-        return service.get_step_count_between(
-            start = self.time,
-            end = self.time + timedelta(minutes=duration)
-        )
-
-    def watch_app_previous_step_count(self, duration):
-        return 10
-
-    def watch_app_post_step_count(self, duration):
-        return 10
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

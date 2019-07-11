@@ -28,40 +28,8 @@ class WalkingSuggestionDecisionResource(DecisionResource):
 
     class Meta:
         model = WalkingSuggestionDecision
-        fields = [
-            'id',
-            'user__username',
-            'local_time',
-            'test',
-            'imputed',
-            'available',
-            'unavailable_reason',
-            'treated',
-            'treatment_probability',
-            'sent_time',
-            'received_time',
-            'opened_time',
-            'engaged_time',
-            'message',
-            'all_tags'
-        ]
-        export_order = [
-            'id',
-            'user__username',
-            'local_time',
-            'test',
-            'imputed',
-            'available',
-            'unavailable_reason',
-            'treated',
-            'treatment_probability',
-            'sent_time',
-            'received_time',
-            'opened_time',
-            'engaged_time',
-            'message',
-            'all_tags'
-        ]
+        fields = DecisionResource.FIELDS
+        export_order = DecisionResource.FIELDS
 
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
