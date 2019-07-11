@@ -77,12 +77,12 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
-    def make_unavailable_property(reason):
+    def make_unavailable_property(property_reason):
         def get_reason(self):
             try:
                 UnavailableReason.objects.get(
                     decision = self,
-                    reason = reason
+                    reason = property_reason
                 )
                 return True
             except UnavailableReason.DoesNotExist:
@@ -91,13 +91,13 @@ class Decision(models.Model):
             if value:
                 UnavailableReason.objects.update_or_create(
                     decision = self,
-                    reason = reason
+                    reason = property_reason
                 )
             else:
                 try:
                     reason = UnavailableReason.objects.get(
                         decision = self,
-                        reason = reason
+                        reason = property_reason
                     )
                     reason.delete()
                 except UnavailableReason.DoesNotExist:
@@ -117,8 +117,8 @@ class Decision(models.Model):
         service = WatchAppStepCountService(user = self.user)
         try:
             return service.get_step_count_between(
-                start = time - timedelta(minutes=40),
-                end = time
+                start = self.time - timedelta(minutes=40),
+                end = self.time
             )
         except WatchAppStepCountService.NoStepCountRecorded:
             return 0

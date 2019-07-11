@@ -70,13 +70,29 @@ class AntiSedentaryService:
                 ]
             )
         except AntiSedentaryDecision.DoesNotExist:
-            return AntiSedentaryDecision.objects.create(
+            decision = AntiSedentaryDecision.objects.create(
                 user = self.__user,
                 time = time,
                 imputed = True,
-                treated = False,
-                sedentary = self.is_sedentary_at(time)
+                treated = False
             )
+            decision.sedentary = decision.is_sedentary()
+            decision.save()
+            return decision
+
+    def is_sedentary_at(self, time):
+        service = StepCountService(user = self.__user)
+        try:
+            steps = service.get_step_count_between(
+                start = time - timedelta(minutes=40),
+                end = time
+            )
+        except StepCountService.NoStepCountRecorded:
+            return False
+        if steps < AntiSedentaryDecision.SEDENTARY_STEP_COUNT:
+            return True
+        else:
+            return False   
 
     def decide(self, decision):
         if self._client:
@@ -212,7 +228,7 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
 
     def update_availability(self):
         super().update_availability()
-        if self.__anti_sedentary_service.is_sedentary_at(self.decision.time):
+        if self.decision.is_sedentary():
             self.decision.sedentary = True
             self.decision.save()            
         else:
