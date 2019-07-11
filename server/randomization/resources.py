@@ -25,7 +25,7 @@ class DecisionResource(resources.ModelResource):
         'unavailable_service_error',
         'treated',
         'treatment_probability',
-        'step_count',
+        'watch_step_count',
         'fitbit_step_count',
         'watch_step_count',
         'watch_step_count_previous_30_minutes',
@@ -182,4 +182,3 @@ class DecisionResource(resources.ModelResource):
 
     def dehydrate_unavailable_service_error(self, decision):
         return decision.unavailable_service_error
-

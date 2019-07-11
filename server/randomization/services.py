@@ -81,7 +81,7 @@ class DecisionService():
                 self.add_context(tag)
 
     def update_availability(self):
-        pass
+        self.decision.update()
 
     def update(self):
         self.update_context()
@@ -228,19 +228,6 @@ class DecisionContextService(DecisionService):
 class DecisionMessageService(DecisionService):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
-
-    def update_availability(self):
-        recent_notification_count = Message.objects.filter(
-            recipient = self.decision.user,
-            created__range = [
-                self.decision.time - timedelta(minutes=60),
-                self.decision.time
-            ],
-            message_type = Message.NOTIFICATION
-        ).count()
-        if recent_notification_count > 0:
-            self.decision.unavailable_notification_recently_sent = True
-            self.decision.save()
 
     def get_message_template_tags(self):
         tags = self.decision.get_context()

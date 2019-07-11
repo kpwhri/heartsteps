@@ -23,13 +23,22 @@ class StepCountService:
             raise self.NoUser('No user')
         self.__user = user
 
-    def get_step_count_between(self, start, end):
-        step_counts = StepCount.objects.filter(
+    def get_step_count_query(self, start, end, created_before=None):
+        queryset = StepCount.objects.filter(
             user = self.__user,
-            start__gte=start,
-            end__lte=end
-        ).all()
-        step_counts = list(step_counts)
+            start__gte = start,
+            end__lte = end
+        )
+        if created_before:
+            return queryset.filter(
+                created__lte = created_before
+            )
+        else:
+            return queryset
+
+    def get_step_count_between(self, start, end, created_before=None):
+        queryset = self.get_step_count_query(start, end, created_before)
+        step_counts = list(queryset.all())
         if not step_counts:
             raise StepCountService.NoStepCountRecorded('No steps')
         total_steps = 0
@@ -38,11 +47,11 @@ class StepCountService:
         return total_steps
 
     def get_step_count_at(self, time):
-        step_count = StepCount.objects.filter(
-            user = self.__user,
-            start__gte = time - timedelta(minutes=5),
-            end__lte = time
-        ).last()
+        queryset = self.get_step_count_query(
+            start = time - timedelta(minutes=5),
+            end = time
+        )
+        step_count = queryset.last()
         if not step_count:
             raise StepCountService.NoStepCountRecorded('No step count at time')
         return step_count.steps 

@@ -82,8 +82,18 @@ class WalkingSuggestionServiceRequest(ServiceRequest):
 class WalkingSuggestionDecision(Decision):
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
-    SEDENTARY_STEP_COUNT = 250
-    
+
+    @property
+    def sedentary_step_count(self):
+        if hasattr(settings,'WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT'):
+            return int(settings.WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT)
+        return self.SEDENTARY_STEP_COUNT
+
+    def get_sedentary_duration_minutes(self):
+        if hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
+            return int(settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES)
+        return self.SEDENTARY_DURATION_MINUTES
+
     @property
     def category(self):
         for tag in self.tags.all():

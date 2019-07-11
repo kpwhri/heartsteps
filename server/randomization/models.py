@@ -55,6 +55,7 @@ class Decision(models.Model):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
     SEDENTARY_STEP_COUNT = 150
+    SEDENTARY_DURATION_MINUTES = 40
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
@@ -103,38 +104,82 @@ class Decision(models.Model):
                 except UnavailableReason.DoesNotExist:
                     pass
         return property(get_reason, set_reason)
-
-    def update_available_value(self):
+    
+    def is_available(self):
         reasons = UnavailableReason.objects.filter(
             decision = self
         ).count()
         if reasons > 0:
-            self.available = False
+            return False
         else:
-            self.available = True
+            return True
+
+    def update(self):
+        UnavailableReason.objects.filter(decision=self).delete()
+        if self.is_notification_recently_sent():
+            self.unavailable_notification_recently_sent = True
+        try:
+            if not self._is_sedentary():
+                self.unavailable_not_sedentary = True
+                self.sedentary = False
+            else:
+                self.sedentary = True
+        except WatchAppStepCountService.NoStepCountRecorded:
+            self.unavailable_no_step_count_data = True
+            self.sedentary = False
+        self.available = self.is_available()
+        self.save()
+
+    def is_notification_recently_sent(self):
+        return self.__is_message_recently_sent()
+
+    def __is_message_recently_sent(self, message_model=None, duration_minutes=60):
+        if not message_model:
+            message_model = Message
+        recent_notification_count = message_model.objects.filter(
+            recipient = self.user,
+            created__range = [
+                self.time - timedelta(minutes = duration_minutes),
+                self.time
+            ],
+            message_type = Message.NOTIFICATION
+        ).count()
+        if recent_notification_count > 0:
+            return True
+        else:
+            return False
+
+    def _get_sedentary_step_count(self):
+        service = WatchAppStepCountService(user = self.user)
+        return service.get_step_count_between(
+            start = self.time - timedelta(minutes = self.get_sedentary_duration_minutes()),
+            end = self.time
+        )
+
+    def get_sedentary_duration_minutes(self):
+        return self.SEDENTARY_DURATION_MINUTES
+
+    @property
+    def sedentary_step_count(self):
+        return self.SEDENTARY_STEP_COUNT
+
+    def _is_sedentary(self):
+        steps = self._get_sedentary_step_count()
+        if steps < self.sedentary_step_count:
+            return True
+        else:
+            return False
 
     def get_sedentary_step_count(self):
-        service = WatchAppStepCountService(user = self.user)
         try:
-            return service.get_step_count_between(
-                start = self.time - timedelta(minutes=40),
-                end = self.time
-            )
+            return self._get_sedentary_step_count()
         except WatchAppStepCountService.NoStepCountRecorded:
             return 0
         
     def is_sedentary(self):
-        service = WatchAppStepCountService(user = self.user)
         try:
-            steps = service.get_step_count_between(
-                start = self.time - timedelta(minutes=40),
-                end = self.time
-            )
+            return self._is_sedentary()
         except WatchAppStepCountService.NoStepCountRecorded:
-            return False
-        if steps < self.SEDENTARY_STEP_COUNT:
-            return True
-        else:
             return False
 
     unavailable_no_step_count_data = make_unavailable_property(UnavailableReason.NO_STEP_COUNT_DATA)

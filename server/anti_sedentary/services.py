@@ -223,19 +223,6 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
             context.append(time_of_day_context)
         return context
 
-    def update_sedentary(self):
-        pass
-
-    def update_availability(self):
-        super().update_availability()
-        if self.decision.is_sedentary():
-            self.decision.sedentary = True
-            self.decision.save()            
-        else:
-            self.decision.sedentary = False
-            self.decision.unavailable_not_sedentary = True
-            self.decision.save()
-
     def get_time_of_day_context(self):
         service = DayService(user = self.decision.user)
         local_timezone = service.get_timezone_at(self.decision.time)

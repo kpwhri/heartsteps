@@ -132,23 +132,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.unavailable_disabled = True
             self.decision.save()
 
-        step_counts = self.get_step_counts()
-        if not step_counts:
-            self.decision.unavailable_no_step_count_data = True
-            self.decision.save()
-            return False
-        steps = 0
-        for step_count in step_counts:
-            steps += step_count.steps        
-        if not hasattr(settings,'WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT'):
-            raise ImproperlyConfigured("Walking suggestion decision unavailable step count not set")
-        max_step_count = int(settings.WALKING_SUGGESTION_DECISION_UNAVAILABLE_STEP_COUNT)
-        if steps > max_step_count:
-            self.decision.unavailable_not_sedentary = True
-            self.decision.save()
-            return False
-        return True
-
     def get_step_counts(self):
         if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
             raise ImproperlyConfigured("Walking suggestion decision window minutes not set")

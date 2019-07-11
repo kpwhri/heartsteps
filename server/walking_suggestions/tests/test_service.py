@@ -679,9 +679,8 @@ class DecisionAvailabilityTest(TestCase):
         )
         service = WalkingSuggestionDecisionService(decision)
 
-        available = service.update_availability()
+        service.update_availability()
 
-        self.assertTrue(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertTrue(decision.available)
 
@@ -695,9 +694,8 @@ class DecisionAvailabilityTest(TestCase):
         )
         service = WalkingSuggestionDecisionService(decision)
 
-        available = service.update_availability()
+        service.update_availability()
 
-        self.assertTrue(available)
         decision = WalkingSuggestionDecision.objects.get()
         self.assertTrue(decision.available)
 

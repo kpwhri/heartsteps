@@ -1,11 +1,10 @@
-from django.urls import reverse
-from django.utils import timezone
-
 from unittest.mock import patch
 from datetime import timedelta
-from django.test import override_settings, TestCase
 
 from django.contrib.auth.models import User
+from django.test import override_settings, TestCase
+from django.urls import reverse
+from django.utils import timezone
 
 from behavioral_messages.models import ContextTag as MessageTag, MessageTemplate
 from push_messages.models import Message as PushMessage, Device
@@ -18,6 +17,11 @@ class DecisionMessageTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
+
+        is_sedentary_patch = patch.object(Decision, '_is_sedentary')
+        self.is_sedentary_patch = is_sedentary_patch.start()
+        self.is_sedentary_patch.return_value = True
+        self.addCleanup(is_sedentary_patch.stop)
 
     def make_decision_service(self):
         decision = Decision.objects.create(
