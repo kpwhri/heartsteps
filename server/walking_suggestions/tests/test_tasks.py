@@ -46,18 +46,18 @@ class CreateDecisionTest(TestCase):
             minute = 0
         )
 
-        # Before decision window minutes
+        # Before decision window
         self.now.return_value = datetime(2019, 4, 30, 10, 59).astimezone(pytz.UTC)
         create_decision(username="test")
 
-        # Before decision window minutes
+        # After decision window
         self.now.return_value = datetime(2019, 4, 30, 11, 6).astimezone(pytz.UTC)
         create_decision(username="test")
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
         self.make_decision.assert_not_called()
 
-        # Before decision window minutes
+        # In decision window
         self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
         create_decision(username="test")
 
