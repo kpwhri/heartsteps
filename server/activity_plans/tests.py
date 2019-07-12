@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from days.services import DayService
 from locations.services import LocationService
 from walking_suggestion_times.models import SuggestionTime
 
@@ -151,8 +152,8 @@ class ActivityPlanViewTest(TestBase):
         self.assertEqual(response.data['vigorous'], True)
         self.assertEqual(response.data['complete'], False)
 
-    @patch.object(LocationService, 'get_timezone_on', return_value=pytz.timezone('Etc/GMT+8'))
-    def test_complete_plan_creates_log(self, get_timezone_on):
+    @patch.object(DayService, 'get_timezone_at', return_value=pytz.timezone('Etc/GMT+8'))
+    def test_complete_plan_creates_log(self, get_timezone_at):
 
         response = self.client.post(reverse('activity-plan-detail', kwargs={
             'plan_id': self.plan.id

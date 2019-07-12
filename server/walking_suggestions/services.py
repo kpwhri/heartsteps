@@ -66,12 +66,15 @@ class WalkingSuggestionTimeService:
         if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
             raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
         decision_window_minutes = int(settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES)
-        
+
         for suggestion_time in self.__configuration.suggestion_times:
             suggestion_time_today = suggestion_time.get_datetime_on(time)
-            if time < suggestion_time_today:
+            
+            suggestion_time_today_utc = suggestion_time_today.astimezone(pytz.UTC)
+            time_utc = time.astimezone(pytz.UTC)
+            if time_utc < suggestion_time_today_utc:
                 continue
-            difference = time - suggestion_time_today
+            difference = time_utc - suggestion_time_today_utc
             if difference.seconds >= 0 and difference.seconds < decision_window_minutes*60:
                 return suggestion_time.category
         return False

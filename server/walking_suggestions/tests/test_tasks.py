@@ -6,9 +6,11 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from days.services import DayService
+
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import create_decision, start_decision, make_decision, nightly_update
+from walking_suggestions.tasks import create_decision, make_decision, nightly_update
 
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
 class CreateDecisionTest(TestCase):
@@ -98,6 +100,29 @@ class CreateDecisionTest(TestCase):
 
     def testCreateDecision(self):
         datetime_now = datetime(2019, 4, 30, 20, 0).astimezone(pytz.UTC)
+        self.now.return_value = datetime_now
+
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.EVENING,
+            hour = 20,
+            minute = 0
+        )
+
+        create_decision(username="test")
+
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.time, datetime_now)
+        self.assertIn(SuggestionTime.EVENING, decision.get_context())
+        self.make_decision.assert_called_with(kwargs={
+            'decision_id': str(decision.id)
+        })
+
+    @patch.object(DayService, 'get_timezone_at')
+    def test_handles_timezones_correctly(self, get_timezone_at):
+        tz = pytz.timezone('America/Los_Angeles')
+        get_timezone_at.return_value = tz
+        datetime_now = tz.localize(datetime(2019, 4, 30, 20, 4))
         self.now.return_value = datetime_now
 
         SuggestionTime.objects.create(

@@ -4,7 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from locations.services import LocationService
+from days.services import DayService
 
 class SuggestionTime(models.Model):
 
@@ -34,12 +34,14 @@ class SuggestionTime(models.Model):
         return "%s:%s (%s) - %s" % (self.hour, self.minute, self.category, self.user)         
 
     def get_datetime_on(self, date):
-        location_service = LocationService(self.user)
-        tz = location_service.get_timezone_on(date)
-        return tz.localize(datetime(
-            date.year,
-            date.month,
-            date.day,
+        service = DayService(user = self.user)
+        tz = service.get_timezone_at(date)
+        local_date = service.get_date_at(date)
+        dt = datetime(
+            local_date.year,
+            local_date.month,
+            local_date.day,
             self.hour,
             self.minute
-        )) 
+        )
+        return tz.localize(dt) 

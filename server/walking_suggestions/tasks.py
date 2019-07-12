@@ -34,10 +34,6 @@ def create_decision(username):
         })
 
 @shared_task
-def start_decision(username, category):
-    pass
-
-@shared_task
 def make_decision(decision_id):
     decision = WalkingSuggestionDecision.objects.get(id=decision_id)
     if decision.is_complete():
