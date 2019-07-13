@@ -9,6 +9,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from anti_sedentary.models import AntiSedentaryDecision
 from behavioral_messages.models import MessageTemplate
 from locations.models import Place
 from service_requests.models import ServiceRequest
@@ -116,7 +117,7 @@ class ServiceTestCase(TestCase):
             minute = 0
         )
     
-    def create_walking_suggestion_decision(self, category, treated=False, treatment_probability=0.2):
+    def create_walking_suggestion_decision(self, category, available=True, treated=False, treatment_probability=0.2, location=None, temperature=None, pre_steps=100, post_steps=100):
         day = date.today()
 
         suggestion_time = SuggestionTime.objects.get(
@@ -128,6 +129,7 @@ class ServiceTestCase(TestCase):
             user = self.user,
             treated = treated,
             treatment_probability = treatment_probability,
+            available = available,
             time = datetime(
                 day.year,
                 day.month,
@@ -137,6 +139,64 @@ class ServiceTestCase(TestCase):
             ).astimezone(pytz.UTC)
         )
         decision.add_context(category)
+        if location:
+            decision.add_context(location)
+        if not temperature:
+            temperature = 65
+        self.create_forecast(decision=decision, temperature=temperature)
+        if treated:
+            self.add_notification_to_decision(decision)
+        FitbitMinuteStepCount.objects.create(
+            account = self.fitbit_account,
+            time = decision.time - timedelta(minutes=5),
+            steps = pre_steps
+        )
+        FitbitMinuteStepCount.objects.create(
+            account = self.fitbit_account,
+            time = decision.time + timedelta(minutes=5),
+            steps = post_steps
+        )
+
+
+    def create_forecast(self, decision, temperature):
+        forecast = WeatherForecast.objects.create(
+            latitude = 1,
+            longitude = 1,
+            precip_probability = 0,
+            precip_type = 'None',
+            temperature = temperature,
+            apparent_temperature = 100,
+            time = timezone.now()
+        )
+        DecisionContext.objects.create(
+            decision = decision,
+            content_object = forecast
+        )
+
+    def create_anti_sedentary_decision(self, time, treated=True):
+        decision = AntiSedentaryDecision.objects.create(
+            user = self.user,
+            time = time,
+            treated = True,
+            treatment_probability = 0.25
+        )
+        if treated:
+            self.add_notification_to_decision(decision)
+    
+    def add_notification_to_decision(self, decision, received=True):
+        notification = Message.objects.create(
+            recipient = self.user,
+            message_type = Message.NOTIFICATION,
+            content = 'foo'
+        )
+        if received:
+            MessageReceipt.objects.create(
+                message = notification,
+                type = MessageReceipt.RECEIVED,
+                time = decision.time + timedelta(minutes = 1)
+            )
+            decision.add_context_object(notification)
+
 
 class MockResponse:
     def __init__(self, status_code, text):
@@ -287,28 +347,46 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         with self.assertRaises(WalkingSuggestionService.NotInitialized):
             self.service.decide(decision)
 
-    @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
-    @patch.object(WalkingSuggestionService, 'get_study_day', return_value=10)
-    @patch.object(WalkingSuggestionService, 'get_steps', return_value=500)
-    @patch.object(WalkingSuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
-    @patch.object(WalkingSuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
-    @patch.object(WalkingSuggestionService, 'get_post_steps', return_value=[700, 700, 700, 700, 700])
-    @patch.object(WalkingSuggestionService, 'get_received_messages', return_value=[True, True, True, True, True])
-    @patch.object(WalkingSuggestionService, 'get_availabilities', return_value=[False, False, False, False, False])
-    @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
-    @patch.object(WalkingSuggestionService, 'get_previous_anti_sedentary_treatments', return_value=[False, False, False, False, False])
-    def test_update(self, get_previous_anti_sedentary_treatments, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, study_day):
-        # Create and initialize a participant, and send first nightly update.
+    def test_update(self):
         today = date.today()
+        self.configuration.service_initialized_date = date.today() - timedelta(days=10)
+        self.configuration.save()
         self.create_fitbit_day(date.today(), step_count=1500)
         # Create walking suggestion for all but morning suggestion time
-        self.create_walking_suggestion_decision(SuggestionTime.LUNCH)
-        self.create_walking_suggestion_decision(SuggestionTime.MIDAFTERNOON)
-        self.create_walking_suggestion_decision(SuggestionTime.EVENING)
+        self.create_walking_suggestion_decision(
+            category = SuggestionTime.LUNCH,
+            location = Place.WORK
+        )
+        self.create_walking_suggestion_decision(
+            category = SuggestionTime.MIDAFTERNOON,
+            location = Place.WORK,
+            treated = True
+        )
+        self.create_walking_suggestion_decision(
+            category = SuggestionTime.EVENING,
+            location = Place.OTHER,
+            available = False,
+            pre_steps = 1500,
+            post_steps = 7
+        )
         self.create_walking_suggestion_decision(
             category = SuggestionTime.POSTDINNER,
             treated = True,
-            treatment_probability = 0.987
+            treatment_probability = 0.987,
+            location = Place.HOME,
+            temperature = 35,
+            pre_steps = 20,
+            post_steps = 120
+        )
+        dt = self.configuration.get_walking_suggestion_time(category = SuggestionTime.MORNING, day = today)
+        dt = dt + timedelta(minutes = 10)
+        self.create_anti_sedentary_decision(
+            time = dt
+        )
+        dt = self.configuration.get_walking_suggestion_time(category = SuggestionTime.POSTDINNER, day = today)
+        dt = dt + timedelta(minutes = 10)
+        self.create_anti_sedentary_decision(
+            time = dt
         )
         self.create_page_views(day = today, amount = 25)
 
@@ -317,21 +395,19 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
         request_data = self.make_request.call_args[1]['data']
-        self.assertEqual(request_data, {
-            'actionArray': [None, False, False, False, True],
-            'probArray': [None, 0.2, 0.2, 0.2, 0.987],
-            'studyDay': 10,
-            'appClick': 25,
-            'totalSteps': 500,
-            'lastActivity': False,
-            'temperatureArray': [10, 10, 10, 10, 10],
-            'preStepsArray': [7, 7, 7, 7, 7],
-            'postStepsArray': [700, 700, 700, 700, 700],
-            'availabilityArray': [False, False, False, False, False],
-            'priorAntiArray': [False, False, False, False, False, False],
-            'lastActivityArray': [False, True, True, True, True],
-            'locationArray': [1, 1, 1, 1, 1]
-        })
+        self.assertEqual(request_data['actionArray'], [None, False, True, False, True])
+        self.assertEqual(request_data['availabilityArray'], [False, True, True, False, True])
+        self.assertEqual(request_data['probArray'], [None, 0.2, 0.2, 0.2, 0.987])
+        self.assertEqual(request_data['appClick'], 25)
+        self.assertEqual(request_data['priorAntiArray'], [False, True, False, False, False, True])
+        self.assertEqual(request_data['lastActivityArray'], [False, False, False, True, False])
+        self.assertEqual(request_data['lastActivity'], True)
+        self.assertEqual(request_data['totalSteps'], 1500)
+        self.assertEqual(request_data['studyDay'], 10)
+        self.assertEqual(request_data['locationArray'], [0, 1, 1, 0, 2])
+        self.assertEqual(request_data['temperatureArray'], [None, 18.33, 18.33, 18.33, 1.67])
+        self.assertEqual(request_data['preStepsArray'], [None, 100, 100, 1500, 20])
+        self.assertEqual(request_data['postStepsArray'], [None, 100, 100, 7, 120])
 
     def test_update_throws_error_not_initialized(self):
         self.configuration.service_initialized_date = None
@@ -602,18 +678,9 @@ class TemperatureTests(ServiceTestCase):
             )
             decision.add_context('activity suggestion')
             decision.add_context(time_category)
-            forecast = WeatherForecast.objects.create(
-                latitude = 1,
-                longitude = 1,
-                precip_probability = 0,
-                precip_type = 'None',
-                temperature = 50, # Only value that matters for test
-                apparent_temperature = 100,
-                time = timezone.now()
-            )
-            DecisionContext.objects.create(
+            self.create_forecast(
                 decision = decision,
-                content_object = forecast
+                temperature = 50
             )
 
     def test_temperature(self):

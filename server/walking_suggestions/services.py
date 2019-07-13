@@ -376,38 +376,6 @@ class WalkingSuggestionService():
             return day.step_count
         return None
 
-    def get_previous_anti_sedentary_treatments(self, date):
-        decisions = self.get_decisions_for(date)
-        previous_treatments = []
-        for time_category in SuggestionTime.TIMES:
-            decision = decisions[time_category]
-            previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
-            previous_treatments.append(previous_treatment)
-        return previous_treatments
-
-    def get_end_of_day_anti_sedentary_treatment(self, date):
-        postdinner_decision = WalkingSuggestionDecision.objects.filter(
-            user = self.__user,
-            time__range = [
-                self.__configuration.get_start_of_day(date),
-                self.__configuration.get_end_of_day(date)
-            ]
-        ).filter(
-            tags__tag = SuggestionTime.POSTDINNER
-        ).first()
-        if postdinner_decision:
-            return self.anti_sedentary_treated_between(
-                postdinner_decision.time,
-                self.__configuration.get_end_of_day(date)
-            )
-        else:
-            return False
-
-    def get_all_anti_sedentary_treatments(self, date):
-        treatments = self.get_previous_anti_sedentary_treatments(date)
-        treatments.append(self.get_end_of_day_anti_sedentary_treatment(date))
-        return treatments
-
     def get_received_messages(self, date):
         decisions = self.get_decisions_for(date)
         was_received = []
@@ -455,9 +423,13 @@ class WalkingSuggestionService():
             forecasts = service.get_forecasts()
 
             forecast_temperatures = [forecast.temperature for forecast in forecasts]
-            average_temperature = sum(forecast_temperatures)/len(forecast_temperatures)
-            temperature_celcius = (average_temperature - 32)/1.8
-            temperatures.append(temperature_celcius)
+            if not forecast_temperatures:
+                temperatures.append(None)
+            else:
+                average_temperature = sum(forecast_temperatures)/len(forecast_temperatures)
+                temperature_celcius = (average_temperature - 32)/1.8
+                temperature_celcius = round(temperature_celcius, 2)
+                temperatures.append(temperature_celcius)
         return temperatures
 
     def get_pre_steps(self, date):
@@ -628,17 +600,6 @@ class WalkingSuggestionService():
             ]
         ).first()
 
-    def anti_sedentary_treated_since_previous_decision(self, decision):
-        previous_decision = self.get_previous_decision(decision)
-        if previous_decision:
-            start_time = previous_decision.time
-        else:
-            start_time = self.__configuration.get_start_of_day(decision.time)
-        return self.anti_sedentary_treated_between(
-            start_time,
-            decision.time
-        )
-
     def anti_sedentary_treated_between(self, start, end):
         treated_anti_sedentary_decisions = AntiSedentaryDecision.objects.filter(
             user = self.__user,
@@ -650,3 +611,46 @@ class WalkingSuggestionService():
             if notification and notification.received:
                 return True
         return False
+
+    def anti_sedentary_treated_since_previous_decision(self, decision):
+        previous_decision = self.get_previous_decision(decision)
+        if previous_decision:
+            start_time = previous_decision.time
+        else:
+            start_time = self.__configuration.get_start_of_day(decision.time)
+        return self.anti_sedentary_treated_between(
+            start_time,
+            decision.time
+        )
+
+    def get_previous_anti_sedentary_treatments(self, date):
+        decisions = self.get_decisions_for(date)
+        previous_treatments = []
+        for time_category in SuggestionTime.TIMES:
+            decision = decisions[time_category]
+            previous_treatment = self.anti_sedentary_treated_since_previous_decision(decision)
+            previous_treatments.append(previous_treatment)
+        return previous_treatments
+
+    def get_end_of_day_anti_sedentary_treatment(self, date):
+        postdinner_decision = WalkingSuggestionDecision.objects.filter(
+            user = self.__user,
+            time__range = [
+                self.__configuration.get_start_of_day(date),
+                self.__configuration.get_end_of_day(date)
+            ]
+        ).filter(
+            tags__tag = SuggestionTime.POSTDINNER
+        ).first()
+        if postdinner_decision:
+            return self.anti_sedentary_treated_between(
+                postdinner_decision.time,
+                self.__configuration.get_end_of_day(date)
+            )
+        else:
+            return False
+
+    def get_all_anti_sedentary_treatments(self, date):
+        treatments = self.get_previous_anti_sedentary_treatments(date)
+        treatments.append(self.get_end_of_day_anti_sedentary_treatment(date))
+        return treatments

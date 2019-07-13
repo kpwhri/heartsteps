@@ -25,6 +25,9 @@ class Configuration(models.Model):
     day_end_hour = models.PositiveSmallIntegerField(default=21)
     day_end_minute = models.PositiveSmallIntegerField(default=0)
 
+    class SuggestionTimeDoesNotExist(RuntimeError):
+        pass
+
     def __str__(self):
         return self.user.username
     
@@ -67,6 +70,12 @@ class Configuration(models.Model):
             minute = self.day_end_minute,
             tzinfo = self.timezone
         )
+    
+    def get_walking_suggestion_time(self, category, day):
+        for suggestion_time in self.suggestion_times:
+            if suggestion_time.category == category:
+                return suggestion_time.get_datetime_on(day)
+        raise Configuration.SuggestionTimeDoesNotExist('No suggestion time found')
 
     @property
     def suggestion_times(self):
