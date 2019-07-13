@@ -15,6 +15,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
 from locations.models import Place
+from page_views.models import PageView
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
@@ -336,7 +337,11 @@ class WalkingSuggestionService():
         return self.__configuration.service_initialized
 
     def get_clicks(self, date):
-        return 0
+        return PageView.objects.filter(
+            user = self.__user,
+            time__gte = self.__configuration.get_start_of_day(date),
+            time__lte = self.__configuration.get_end_of_day(date)
+        ).count()
 
     def get_actions(self, date):
         actions_list = []

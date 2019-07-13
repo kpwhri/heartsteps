@@ -1,5 +1,8 @@
-import requests, json, pytz
+import requests
+import json
+import pytz
 from datetime import datetime, timedelta, date
+import random
 from unittest.mock import patch, call
 
 from django.test import TestCase, override_settings
@@ -17,6 +20,7 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
+from page_views.models import PageView
 from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
@@ -48,6 +52,18 @@ class ServiceTestCase(TestCase):
             account = self.fitbit_account,
             user = self.user
         )
+
+    def create_page_views(self, day, amount):
+        start = self.configuration.get_start_of_day(day)
+        end = self.configuration.get_end_of_day(day)
+        # Remove 100 so, we don't accidentally get to next day
+        difference_seconds = (end - start).seconds - 100
+        for x in range(amount):
+            offset_seconds = random.randrange(difference_seconds)
+            PageView.objects.create(
+                user = self.user,
+                time = start + timedelta(seconds=offset_seconds)
+            )
 
     def create_heart_rate_range(self, start_datetime, minutes):
         for offset in range(minutes):
@@ -273,7 +289,6 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
     @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
     @patch.object(WalkingSuggestionService, 'get_study_day', return_value=10)
-    @patch.object(WalkingSuggestionService, 'get_clicks', return_value=20)
     @patch.object(WalkingSuggestionService, 'get_steps', return_value=500)
     @patch.object(WalkingSuggestionService, 'get_temperatures', return_value=[10, 10, 10, 10, 10])
     @patch.object(WalkingSuggestionService, 'get_pre_steps', return_value=[7, 7, 7, 7, 7])
@@ -282,7 +297,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
     @patch.object(WalkingSuggestionService, 'get_availabilities', return_value=[False, False, False, False, False])
     @patch.object(WalkingSuggestionService, 'get_locations', return_value=[1, 1, 1, 1, 1])
     @patch.object(WalkingSuggestionService, 'get_previous_anti_sedentary_treatments', return_value=[False, False, False, False, False])
-    def test_update(self, get_previous_anti_sedentary_treatments, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, clicks, study_day):
+    def test_update(self, get_previous_anti_sedentary_treatments, get_locations, get_availabilities, get_received_messages, post_steps, pre_steps, temperatures, steps, study_day):
         # Create and initialize a participant, and send first nightly update.
         today = date.today()
         self.create_fitbit_day(date.today(), step_count=1500)
@@ -295,6 +310,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             treated = True,
             treatment_probability = 0.987
         )
+        self.create_page_views(day = today, amount = 25)
 
         self.service.update(today)
 
@@ -305,7 +321,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
             'actionArray': [None, False, False, False, True],
             'probArray': [None, 0.2, 0.2, 0.2, 0.987],
             'studyDay': 10,
-            'appClick': 20,
+            'appClick': 25,
             'totalSteps': 500,
             'lastActivity': False,
             'temperatureArray': [10, 10, 10, 10, 10],
