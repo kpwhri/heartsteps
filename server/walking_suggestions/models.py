@@ -48,7 +48,10 @@ class Configuration(models.Model):
         return timezone.now().astimezone(self.timezone)
 
     def get_start_of_day(self, day=None):
-        if not day:
+        if day:
+            service = DayService(user=self.user)
+            day = service.get_date_at(day)
+        else:
             day = self.current_datetime
         return datetime(
             year = day.year,
@@ -60,15 +63,10 @@ class Configuration(models.Model):
         )
 
     def get_end_of_day(self, day=None):
-        if not day:
-            day = self.current_datetime
-        return datetime(
-            year = day.year,
-            month = day.month,
-            day = day.day,
+        dt = self.get_start_of_day(day=day)
+        return dt.replace(
             hour = self.day_end_hour,
-            minute = self.day_end_minute,
-            tzinfo = self.timezone
+            minute = self.day_end_minute
         )
     
     def get_walking_suggestion_time(self, category, day):
