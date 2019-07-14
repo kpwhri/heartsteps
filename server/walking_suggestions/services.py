@@ -96,6 +96,9 @@ class WalkingSuggestionTimeService:
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
+    class RandomizationUnavailable(RuntimeError):
+        pass
+
     class DecisionDoesNotExist(ImproperlyConfigured):
         pass
 
@@ -110,6 +113,38 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         except Configuration.DoesNotExist:
             self.__configuration = None
             self.enabled = False
+
+    def make_decision_now(user=None, username=None):
+        WalkingSuggestionDecisionService.make_decision(
+            datetime = timezone.now(),
+            user = user,
+            username = username
+        )
+
+    def make_decision(datetime, user=None, username=None):
+        category = None
+        try:
+            service = WalkingSuggestionTimeService(
+                user = user,
+                username = username
+            )
+            category = service.suggestion_time_category_available_at(datetime)
+        except WalkingSuggestionTimeService.Unavailable:
+            pass
+        if not category:
+            raise WalkingSuggestionDecisionService.RandomizationUnavailable('Unable to randomize at time')
+        decision = service.create_decision(
+            category = category,
+            time = datetime
+        )
+        WalkingSuggestionDecisionService.process_decision(decision)
+
+    def process_decision(decision):
+        decision_service = WalkingSuggestionDecisionService(decision)
+        decision_service.update_context()
+        decision_service.update_availability()
+        if decision_service.decide():
+            decision_service.send_message()
 
     def create_decision(user, category, time=None, test=False):
         if not time:

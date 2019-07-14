@@ -118,8 +118,9 @@ INSTALLED_APPS = [
     'dashboard',
     'sms_service',
     'sms_messages',
-    'heartsteps_data_download',
     'adherence_messages',
+    'heartsteps_data_download',
+    'heartsteps_messages'
 ]
 
 MIDDLEWARE = [

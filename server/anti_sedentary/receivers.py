@@ -11,7 +11,6 @@ from .services import AntiSedentaryService
 from .models import User
 from .models import AntiSedentaryMessageTemplate
 from .models import Configuration
-from .tasks import start_decision
 
 @receiver(nightly_update, sender=User)
 def update_anti_sedentary_service(user, day, *args, **kwargs):
@@ -35,12 +34,6 @@ def suggestion_times_update(sender, username, *args, **kwargs):
         )
     except User.DoesNotExist:
         pass
-
-@receiver(step_count_updated, sender=User)
-def step_count_update(sender, username, *args, **kwargs):
-    start_decision.apply_async(kwargs = {
-        'username': username
-    })
 
 @receiver(pre_save, sender=AntiSedentaryMessageTemplate)
 def set_message_template_title(sender, instance, *args, **kwargs):

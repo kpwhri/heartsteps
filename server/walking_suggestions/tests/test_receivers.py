@@ -11,8 +11,9 @@ from participants.signals import nightly_update as participant_nightly_update
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated
 
-from walking_suggestions.models import SuggestionTime, Configuration
-from walking_suggestions.tasks import create_decision, nightly_update
+from walking_suggestions.models import Configuration
+from walking_suggestions.models import SuggestionTime
+from walking_suggestions.tasks import nightly_update
 
 class ConfigutationTest(TestCase):
 
@@ -34,18 +35,6 @@ class ConfigutationTest(TestCase):
     def test_does_nothing_if_no_user(self):
         suggestion_times_updated.send(User, username="test")        
         self.assertEqual(0, Configuration.objects.count())
-
-class UpdateFromStepCount(TestCase):
-
-    @patch.object(create_decision, 'apply_async')
-    def testCreatesDecision(self, create_decision):
-        user = User.objects.create(username="test")
-
-        step_count_updated.send(sender=User, username="test")
-
-        create_decision.assert_called_with(kwargs={
-            'username': 'test'
-        })
 
 class NightlyUpdateTest(TestCase):
 

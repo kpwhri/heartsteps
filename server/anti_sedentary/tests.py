@@ -21,7 +21,6 @@ from watch_app.signals import step_count_updated
 from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, User, Configuration
 from .services import AntiSedentaryService, AntiSedentaryDecisionService
-from .tasks import make_decision, start_decision
 
 class TestBase(TestCase):
 
@@ -150,36 +149,42 @@ class StartDecisionTaskTest(TestBase):
         self.now = now_patch.start()
         self.addCleanup(now_patch.stop)
 
-        make_decision_patch = patch.object(make_decision, 'apply_async')
-        self.make_decision = make_decision_patch.start()
-        self.addCleanup(make_decision_patch.stop)
+        process_decision_patch = patch.object(AntiSedentaryDecisionService, 'process_decision')
+        self.process_decision = process_decision_patch.start()
+        self.addCleanup(process_decision_patch.stop)
 
     def testRandomizesDuringDay(self):
         self.now.return_value = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
 
-        start_decision("test")
+        AntiSedentaryDecisionService.make_decision_now(username="test")
 
         decision = AntiSedentaryDecision.objects.get()
         self.assertEqual("test", decision.user.username)
-        self.make_decision.assert_called_with(kwargs={
-            'decision_id': str(decision.id)
-        })
+        self.process_decision.assert_called()
 
     def testDoesNotRandomizeBeforeDay(self):
         self.now.return_value = self.local_timezone.localize(datetime(2019, 1, 18, 7, 59))
 
-        start_decision("test")
+        try:
+            AntiSedentaryDecisionService.make_decision_now(username="test")
+            self.fail('Test should have failed')
+        except AntiSedentaryDecisionService.RandomizationUnavailable:
+            pass
 
         self.assertEqual(AntiSedentaryDecision.objects.count(), 0)
-        self.make_decision.assert_not_called()
+        self.process_decision.assert_not_called()
     
     def testDoesNotRandomizeAfterDay(self):
         self.now.return_value = self.local_timezone.localize(datetime(2019, 1, 18, 20, 1))
 
-        start_decision("test")
+        try:
+            AntiSedentaryDecisionService.make_decision_now(username="test")
+            self.fail('Test should have failed')
+        except AntiSedentaryDecisionService.RandomizationUnavailable:
+            pass
 
         self.assertEqual(AntiSedentaryDecision.objects.count(), 0)
-        self.make_decision.assert_not_called()        
+        self.process_decision.assert_not_called()        
 
 
 class MakeDecisionTests(TestBase):
@@ -192,10 +197,6 @@ class MakeDecisionTests(TestBase):
             time = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
-        start_decision_mock = patch.object(start_decision, 'apply_async')
-        start_decision_mock.start()
-        self.addCleanup(start_decision_mock.stop)
-
     def testUnavailableWhenActive(self):
         StepCount.objects.create(
             user = self.user,
@@ -204,7 +205,7 @@ class MakeDecisionTests(TestBase):
             end = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
-        make_decision(self.decision.id)
+        AntiSedentaryDecisionService.process_decision(self.decision)
 
         self.send_notification.assert_not_called()
 
@@ -222,7 +223,7 @@ class MakeDecisionTests(TestBase):
             end = self.local_timezone.localize(datetime(2019, 1, 18, 14, 00))
         )
 
-        make_decision(self.decision.id)
+        AntiSedentaryDecisionService.process_decision(self.decision)
 
         decision = AntiSedentaryDecision.objects.get()
         self.assertTrue(decision.sedentary)
@@ -239,7 +240,7 @@ class MakeDecisionTests(TestBase):
             return True
         self.decision_decide.side_effect = mock_decide
 
-        make_decision(self.decision.id)
+        AntiSedentaryDecisionService.process_decision(self.decision)
 
         self.send_notification.assert_called_with("Example message", title='Been sitting for too long?')
     
@@ -251,7 +252,7 @@ class MakeDecisionTests(TestBase):
             'pi_it': 0.75
         }
 
-        make_decision(self.decision.id)
+        AntiSedentaryDecisionService.process_decision(self.decision)
 
         decision = AntiSedentaryDecision.objects.get()
         self.assertTrue(decision.treated)
@@ -285,7 +286,7 @@ class MakeDecisionTests(TestBase):
             'pi_it': 0.123    
         }
 
-        make_decision(self.decision.id)
+        AntiSedentaryDecisionService.process_decision(self.decision)
 
         make_request.assert_called_with(
             uri='decision',
@@ -309,10 +310,6 @@ class DetermineSedentary(TestBase):
         self.service = AntiSedentaryService(
             configuration=self.configuration
         )
-
-        start_decision_mock = patch.object(start_decision, 'apply_async')
-        start_decision_mock.start()
-        self.addCleanup(start_decision_mock.stop)
 
     def create_step_count(self, time, steps):
         StepCount.objects.create(
@@ -414,14 +411,6 @@ class UpdateAntiSedentaryService(TestBase):
 
         self.assertEqual(self.make_request.call_count, 145)
         self.assertEqual(AntiSedentaryDecision.objects.count(), 145)
-
-class ReceivesStepCountUpdates(TestCase):
-
-    @patch.object(start_decision, 'apply_async')
-    def testTriggerStartDecision(self, start_decision):
-        step_count_updated.send(User, username='test')
-
-        start_decision.assert_called_with(kwargs={'username': 'test'})
 
 class EnableConfiguration(TestCase):
 

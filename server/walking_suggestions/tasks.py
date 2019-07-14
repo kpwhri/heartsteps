@@ -18,33 +18,6 @@ from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
 
 @shared_task
-def create_decision(username):
-    try:
-        service = WalkingSuggestionTimeService(username=username)
-        category = service.suggestion_time_category_available_at(timezone.now())
-    except WalkingSuggestionTimeService.Unavailable:
-        return False
-    if category:
-        decision = service.create_decision(
-            category = category,
-            time = timezone.now()
-        )
-        make_decision.apply_async(kwargs={
-            'decision_id': str(decision.id)
-        })
-
-@shared_task
-def make_decision(decision_id):
-    decision = WalkingSuggestionDecision.objects.get(id=decision_id)
-    if decision.is_complete():
-        return False
-    
-    decision_service = WalkingSuggestionDecisionService(decision)
-    decision_service.update()
-    if decision_service.decide():
-        decision_service.send_message()
-
-@shared_task
 def nightly_update(username, day_string):
     dt = datetime.strptime(day_string, '%Y-%m-%d')
     day = date(dt.year, dt.month, dt.day)

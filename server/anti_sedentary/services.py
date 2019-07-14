@@ -50,10 +50,12 @@ class AntiSedentaryService:
         except AntiSedentaryClient.NoConfiguration:
             self._client = None
 
-    def create_decision(self, test=False):
+    def create_decision(self, test=False, time=None):
+        if not time:
+            time = timezone.now()
         decision = AntiSedentaryDecision.objects.create(
             user = self.__user,
-            time = timezone.now(),
+            time = time,
             test = test
         )
         return decision
@@ -208,6 +210,9 @@ class AntiSedentaryService:
 
 class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextService):
 
+    class RandomizationUnavailable(RuntimeError):
+        pass
+
     MESSAGE_TEMPLATE_MODEL = AntiSedentaryMessageTemplate
 
     def __init__(self, decision):
@@ -215,6 +220,27 @@ class AntiSedentaryDecisionService(DecisionMessageService, DecisionContextServic
         self.__anti_sedentary_service = AntiSedentaryService(
             user = self.decision.user
         )
+
+    def make_decision_now(user=None, username=None):
+        AntiSedentaryDecisionService.make_decision(
+            datetime = timezone.now(),
+            user = user,
+            username = username
+        )
+
+    def make_decision(datetime, user=None, username=None):
+        service = AntiSedentaryService(user=user, username=username)
+        if not service.can_randomize(datetime):
+            raise AntiSedentaryDecisionService.RandomizationUnavailable('Unable to randomize at %s' % (datetime.strftime('%Y-%m-%d %H:%M')))
+        decision = service.create_decision(time = datetime)
+        AntiSedentaryDecisionService.process_decision(decision)
+    
+    def process_decision(decision):
+        decision_service = AntiSedentaryDecisionService(decision)
+        decision_service.update_availability()
+        if decision_service.decide():
+            decision_service.update_context()
+            decision_service.send_message()
 
     def generate_context(self):
         context = super().generate_context()

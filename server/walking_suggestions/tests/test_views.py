@@ -7,7 +7,6 @@ from rest_framework.test import APITestCase
 
 from walking_suggestions.models import WalkingSuggestionDecision, SuggestionTime, User
 from walking_suggestions.services import WalkingSuggestionDecisionService
-from walking_suggestions.tasks import make_decision
 
 class WalkingSuggestionCreateTest(APITestCase):
     

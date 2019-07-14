@@ -8,7 +8,6 @@ from django.utils import timezone
 
 from rest_framework.test import APITestCase
 
-from anti_sedentary.tasks import start_decision
 from participants.models import Participant, User
 
 from .models import StepCount, WatchInstall

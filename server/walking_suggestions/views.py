@@ -8,7 +8,6 @@ from locations.services import LocationService
 
 from .models import WalkingSuggestionDecision, SuggestionTime
 from .services import WalkingSuggestionDecisionService
-from .tasks import make_decision
 
 class WalkingSuggestionCreateView(APIView):
 
@@ -21,8 +20,8 @@ class WalkingSuggestionCreateView(APIView):
                 category = request.data['category'],
                 test = True
             )
-            service.update_context()
-            service.decide()
-            service.send_message()
+            WalkingSuggestionDecisionService.process_decision(
+                decision = service.decision
+            )
             return Response('', status = status.HTTP_201_CREATED)
         return Response('', status=status.HTTP_400_BAD_REQUEST)

@@ -10,7 +10,7 @@ from days.services import DayService
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
-from walking_suggestions.tasks import create_decision, make_decision, nightly_update
+from walking_suggestions.tasks import nightly_update
 
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
 class CreateDecisionTest(TestCase):
@@ -26,18 +26,22 @@ class CreateDecisionTest(TestCase):
         self.now = now_patch.start()
         self.addCleanup(now_patch.stop)
 
-        make_decision_patch = patch.object(make_decision, 'apply_async')
-        self.make_decision = make_decision_patch.start()
-        self.addCleanup(make_decision_patch.stop)
+        process_decision_patch = patch.object(WalkingSuggestionDecisionService, 'process_decision')
+        self.process_decision = process_decision_patch.start()
+        self.addCleanup(process_decision_patch.stop)
 
     def testDoesNotMakeDecisionIfNotConfigured(self):
         self.configuration.enabled = False
         self.configuration.save()
 
-        create_decision(username="test")
+        try:
+            WalkingSuggestionDecisionService.make_decision_now(username='test')
+            self.fail('Should have thrown exception')
+        except WalkingSuggestionDecisionService.RandomizationUnavailable:
+            pass
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
-        self.make_decision.assert_not_called()
+        self.process_decision.assert_not_called()
 
     @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='5')
     def testDoesNotCreateDecisionIfNotCorrectTime(self):
@@ -50,21 +54,29 @@ class CreateDecisionTest(TestCase):
 
         # Before decision window
         self.now.return_value = datetime(2019, 4, 30, 10, 59).astimezone(pytz.UTC)
-        create_decision(username="test")
+        try:
+            WalkingSuggestionDecisionService.make_decision_now(username='test')
+            self.fail('Should have thrown exception')
+        except WalkingSuggestionDecisionService.RandomizationUnavailable:
+            pass
 
         # After decision window
         self.now.return_value = datetime(2019, 4, 30, 11, 6).astimezone(pytz.UTC)
-        create_decision(username="test")
+        try:
+            WalkingSuggestionDecisionService.make_decision_now(username='test')
+            self.fail('Should have thrown exception')
+        except WalkingSuggestionDecisionService.RandomizationUnavailable:
+            pass
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
-        self.make_decision.assert_not_called()
+        self.process_decision.assert_not_called()
 
         # In decision window
         self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
-        create_decision(username="test")
+        WalkingSuggestionDecisionService.make_decision_now(username='test')
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
-        self.make_decision.assert_called()
+        self.process_decision.assert_called()
 
     def testDoesNotCreateMultipleDecisionsOfSameType(self):
         SuggestionTime.objects.create(
@@ -81,22 +93,25 @@ class CreateDecisionTest(TestCase):
         )
 
         self.now.return_value = datetime(2019, 4, 30, 11).astimezone(pytz.UTC)
-        create_decision(username="test")
+        WalkingSuggestionDecisionService.make_decision_now(username='test')
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
 
         #Should not make new decision
         self.now.return_value = datetime(2019, 4, 30, 11, 3).astimezone(pytz.UTC)
-        create_decision(username="test")
+        try:
+            WalkingSuggestionDecisionService.make_decision_now(username='test')
+            self.fail('Should have thrown exception')
+        except WalkingSuggestionDecisionService.RandomizationUnavailable:
+            pass
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
 
         #New decision for midafternoon
         self.now.return_value = datetime(2019, 4, 30, 15, 30).astimezone(pytz.UTC)
-        create_decision(username="test")
+        WalkingSuggestionDecisionService.make_decision_now(username='test')
 
         self.assertEqual(WalkingSuggestionDecision.objects.count(), 2)
-
 
     def testCreateDecision(self):
         datetime_now = datetime(2019, 4, 30, 20, 0).astimezone(pytz.UTC)
@@ -109,14 +124,12 @@ class CreateDecisionTest(TestCase):
             minute = 0
         )
 
-        create_decision(username="test")
+        WalkingSuggestionDecisionService.make_decision_now(username='test')
 
         decision = WalkingSuggestionDecision.objects.get()
         self.assertEqual(decision.time, datetime_now)
         self.assertIn(SuggestionTime.EVENING, decision.get_context())
-        self.make_decision.assert_called_with(kwargs={
-            'decision_id': str(decision.id)
-        })
+        self.process_decision.assert_called()
 
     @patch.object(DayService, 'get_timezone_at')
     def test_handles_timezones_correctly(self, get_timezone_at):
@@ -132,14 +145,12 @@ class CreateDecisionTest(TestCase):
             minute = 0
         )
 
-        create_decision(username="test")
+        WalkingSuggestionDecisionService.make_decision_now(username='test')
 
         decision = WalkingSuggestionDecision.objects.get()
         self.assertEqual(decision.time, datetime_now)
         self.assertIn(SuggestionTime.EVENING, decision.get_context())
-        self.make_decision.assert_called_with(kwargs={
-            'decision_id': str(decision.id)
-        })
+        self.process_decision.assert_called()
 
 class MakeDecisionTest(TestCase):
 
@@ -165,7 +176,7 @@ class MakeDecisionTest(TestCase):
 
     @patch.object(WalkingSuggestionDecisionService, 'decide', return_value=True)
     def test_decision_to_treat(self, decide):
-        make_decision(str(self.decision.id))
+        WalkingSuggestionDecisionService.process_decision(self.decision)
 
         self.update_context.assert_called()
         decide.assert_called()
@@ -173,7 +184,7 @@ class MakeDecisionTest(TestCase):
 
     @patch.object(WalkingSuggestionDecisionService, 'decide', return_value=False)
     def test_decision_not_to_treat(self, decide):
-        make_decision(str(self.decision.id))
+        WalkingSuggestionDecisionService.process_decision(self.decision)
 
         self.update_context.assert_called()
         decide.assert_called()
@@ -185,7 +196,7 @@ class MakeDecisionTest(TestCase):
     @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
     @patch.object(WalkingSuggestionService, 'decide', side_effect=raise_service_error)
     def test_walking_suggestion_service_error(self, decide):
-        make_decision(str(self.decision.id))
+        WalkingSuggestionDecisionService.process_decision(self.decision)
 
         decision = WalkingSuggestionDecision.objects.get()
         self.assertFalse(decision.treated)

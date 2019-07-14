@@ -7,9 +7,9 @@ from watch_app.signals import step_count_updated
 
 from .models import Configuration
 from .models import SuggestionTime
-from .models import WalkingSuggestionMessageTemplate
 from .models import User
-from .tasks import create_decision, nightly_update
+from .models import WalkingSuggestionMessageTemplate
+from .tasks import nightly_update
 
 @receiver(suggestion_times_updated, sender=User)
 def post_save_configuration(sender, username, *args, **kwargs):
@@ -23,12 +23,6 @@ def post_save_configuration(sender, username, *args, **kwargs):
             'enabled': True
         }
     )
-
-@receiver(step_count_updated, sender=User)
-def step_count_update(sender, username, *args, **kwargs):
-    create_decision.apply_async(kwargs = {
-        'username': username
-    })
 
 @receiver(participant_nightly_update, sender=User)
 def queue_nightly_update(sender, user, day, *args, **kwargs):
