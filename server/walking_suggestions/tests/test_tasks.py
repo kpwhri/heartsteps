@@ -7,10 +7,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from days.services import DayService
+from fitbit_activities.models import FitbitDay
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update
+from walking_suggestions.tasks import initialize_and_update
 
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
 class CreateDecisionTest(TestCase):
@@ -264,4 +268,36 @@ class NightlyUpdateTask(TestCase):
         for day in [date.today() - timedelta(days=offset) for offset in range(3)]:
             update.assert_any_call(date=day)
 
+@override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
+@override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
+class InitializeAndUpdateTaskTests(TestCase):
+
+    @patch.object(FitbitDay, 'get_wore_fitbit', return_value=True)
+    @patch.object(WalkingSuggestionService, 'initialize')
+    @patch.object(WalkingSuggestionService, 'update')
+    def test_initialize_and_update(self, update, initialize, get_wore_fitbit):
+        user = User.objects.create(
+            username = 'test',
+            date_joined = timezone.now() - timedelta(days=10)
+        )
+        configuration = Configuration.objects.create(
+            user = user,
+            enabled = True
+        )
+        account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            account = account,
+            user = user
+        )
+        for offset in range(7):
+            FitbitDay.objects.create(
+                account = account,
+                date = date.today() - timedelta(days=offset)
+            )
+
+        initialize_and_update(username='test')
+
+        initialize.assert_called_with(date.today() - timedelta(days=4))
+        self.assertEqual(update.call_count, 3)
+        self.assertEqual(NightlyUpdate.objects.count(), 3)
 

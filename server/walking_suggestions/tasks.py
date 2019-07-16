@@ -52,13 +52,14 @@ def nightly_update(username, day_string):
             last_updated_day = last_updated_day + timedelta(days=1)
 
 @shared_task
-def initialize_and_historical_update(username):
+def initialize_and_update(username):
     configuration = Configuration.objects.get(user__username = username)
     day_service = DayService(user=configuration.user)
     walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
     
-    days_to_go_back = 21
+    date_joined = day_service.get_date_at(configuration.user.date_joined)
     today = day_service.get_current_date()
+    days_to_go_back = (today - date_joined).days
     date_range = [today - timedelta(days=offset+1) for offset in range(days_to_go_back)]
 
     while len(date_range):
@@ -80,14 +81,3 @@ def initialize_and_historical_update(username):
             day = update_date,
             updated = True
         )
-
-@shared_task
-def reinitialize(username):
-    configuration = Configuration.objects.get(user__username = username)
-    day_service = DayService(user=configuration.user)
-    walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
-
-    today = day_service.get_current_date()
-    yesterday = today - timedelta(days=1)
-    NightlyUpdate.objects.filter(user = configuration.user).delete()
-    walking_suggestion_service.initialize(yesterday)

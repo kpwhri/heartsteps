@@ -21,8 +21,7 @@ from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
-from walking_suggestions.tasks import initialize_and_historical_update
-from walking_suggestions.tasks import reinitialize
+from walking_suggestions.tasks import initialize_and_update
 
 class WalkingSuggestionDecisionResource(DecisionResource):
 
@@ -79,7 +78,7 @@ def send_walking_suggestion(modeladmin, request, queryset):
 
 def initialize_walking_suggestion_service(modeladmin, request, queryset):
     for configuration in queryset:
-        reinitialize.apply_async(
+        initialize_and_update.apply_async(
             kwargs = {
                 'username': configuration.user.username
             }
