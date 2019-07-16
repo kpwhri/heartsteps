@@ -29,6 +29,16 @@ class AdherenceService:
             self.__user = configuration.user
         else:
             raise RuntimeError('configuration not set')
+
+    def initialize(self):
+        day_service = DayService(user = self.__user)
+        start_date = day_service.get_date_at(self.__user.date_joined)
+        end_date = day_service.get_current_date()
+        difference = (end_date - start_date).days
+        dates_to_update = [end_date - timedelta(days=offset) for offset in range(difference)]
+        dates_to_update.reverse()
+        for date in dates_to_update:
+            self.update_adherence(date)
     
     def update_adherence(self, date = None):
         if not date:

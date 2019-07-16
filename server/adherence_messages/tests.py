@@ -16,6 +16,7 @@ from .models import User
 from .services import AdherenceService
 from .signals import update_adherence as update_adherence_signal
 from .tasks import update_adherence as update_adherence_task
+from .tasks import initialize_adherence as initialize_adherence_task
 
 @override_settings(ADHERENCE_UPDATE_TIME='13:22')
 class AdherenceConfigurationTests(TestCase):
@@ -75,16 +76,54 @@ class AdherenceConfigurationTests(TestCase):
 class AdherenceTaskTestBase(TestCase):
     
     def setUp(self):
+        message_send_patch = patch.object(AdherenceMessage, 'send')
+        send_patch = message_send_patch.start()
+        send_patch.return_value = 'test-1234'
+        self.addCleanup(message_send_patch.stop)
+
+        initialize_adherence_patch = patch.object(initialize_adherence_task, 'apply_async')
+        self.initialize_adherence_task = initialize_adherence_patch.start()
+        self.addCleanup(initialize_adherence_patch.stop)
+
         self.user = User.objects.create(username='test')
         self.configuration = Configuration.objects.create(
             user = self.user,
             enabled = True
         )
 
-        message_send_patch = patch.object(AdherenceMessage, 'send')
-        send_patch = message_send_patch.start()
-        send_patch.return_value = 'test-1234'
-        self.addCleanup(message_send_patch.stop)
+class AdherenceInitializationTests(AdherenceTaskTestBase):
+
+    def test_new_configuration_initializes_adherence(self):
+        configuration = Configuration.objects.create(
+            user = User.objects.create(username='participant'),
+            enabled = False
+        )
+
+        self.initialize_adherence_task.assert_called_with(
+            kwargs = {
+                'username': 'participant'
+            }
+        )
+        # First call is from setup, second is from test
+        self.assertEqual(self.initialize_adherence_task.call_count, 2)
+
+        configuration.enabled = True
+        configuration.save()
+
+        # Ensureing initialize is only called when configuration is created
+        self.assertEqual(self.initialize_adherence_task.call_count, 2)
+
+    def test_recreates_adherence(self):
+        self.user.date_joined = timezone.now() - timedelta(days=3)
+        self.user.save()
+
+        initialize_adherence_task(username='test')
+
+        dates_with_adherence = []
+        for metric in AdherenceMetric.objects.order_by('-date').all():
+            if metric.date not in dates_with_adherence:
+                dates_with_adherence.append(metric.date)
+        self.assertEqual(dates_with_adherence, [date.today() - timedelta(days=offset) for offset in range(3)])
 
 class AdherenceTaskTests(AdherenceTaskTestBase):
 

@@ -11,6 +11,7 @@ from .models import AdherenceMetric
 from .models import Configuration
 from .models import User
 from .signals import update_adherence as update_adherence_signal
+from .tasks import initialize_adherence
 
 @receiver(initialize_participant, sender=User)
 def enable_configuration(sender, user, *args, **kwargs):
@@ -26,6 +27,16 @@ def pre_save(sender, instance, *args, **kwargs):
     if instance.hour is None or instance.minute is None:
         instance.set_default_time()
     instance.update_daily_task()
+
+@receiver(post_save, sender=Configuration)
+def post_save_initialize(sender, instance, created, *args, **kwargs):
+    if created:
+        initialize_adherence.apply_async(
+            kwargs = {
+                'username': instance.user.username
+            }
+        )
+
 
 @receiver(update_adherence_signal, sender=User)
 def check_app_installed(sender, user, date, *args, **kwargs):
