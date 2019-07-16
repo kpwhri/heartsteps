@@ -30,7 +30,7 @@ class ServiceRequest(models.Model):
                 delta = self.request_time - self.response_time
             return delta.seconds
         else:
-            return None
+            return 0
 
     def __str__(self):
         if self.response_code:

@@ -53,6 +53,6 @@ class ServiceRequestAdmin(ExportMixin, admin.ModelAdmin):
     sucessful.boolean = True
 
     def duration(admin, instance):
-        return '%d seconds' % instance.duration 
+        return '%d seconds' % instance.duration
 
 admin.site.register(ServiceRequest, ServiceRequestAdmin)
