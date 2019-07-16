@@ -37,7 +37,6 @@ def post_save_initialize(sender, instance, created, *args, **kwargs):
             }
         )
 
-
 @receiver(update_adherence_signal, sender=User)
 def check_app_installed(sender, user, date, *args, **kwargs):
     service = DayService(user = user)

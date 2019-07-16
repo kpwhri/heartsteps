@@ -21,6 +21,11 @@ from .tasks import initialize_adherence as initialize_adherence_task
 @override_settings(ADHERENCE_UPDATE_TIME='13:22')
 class AdherenceConfigurationTests(TestCase):
 
+    def setUp(self):
+        initialize_adherence_patch = patch.object(initialize_adherence_task, 'apply_async')
+        self.initialize_adherence_task = initialize_adherence_patch.start()
+        self.addCleanup(initialize_adherence_patch.stop)
+
     def test_participant_initialization_enables_configuration(self):
         user = User.objects.create(
             username = 'test'

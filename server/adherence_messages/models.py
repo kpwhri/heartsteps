@@ -39,6 +39,12 @@ class Configuration(models.Model):
         auto_now = True
     )
 
+    def __str__(self):
+        if self.enabled:
+            return '%s (enabled)' % (self.user.username)
+        else:
+            return '%s (disabled)' % (self.user.username)
+
     def set_default_time(self):
         if hasattr(settings, 'ADHERENCE_UPDATE_TIME'):
             try:
@@ -110,6 +116,9 @@ class AdherenceMetric(models.Model):
     value = models.BooleanField(
         default = False
     )
+
+    def __str__(self):
+        return '%s: %s on %s' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'))
 
 class AdherenceMessage(models.Model):
     user = models.ForeignKey(
