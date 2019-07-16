@@ -36,3 +36,4 @@ class SMSService:
         )
         message.external_id = message_id
         message.save()
+        return message
