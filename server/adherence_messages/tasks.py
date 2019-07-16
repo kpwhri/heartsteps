@@ -8,7 +8,12 @@ def initialize_adherence(username):
     service.initialize()
 
 @shared_task
-def update_adherence(username):
+def send_adherence_message(username):
     service = AdherenceService(username=username)
     service.update_adherence()
     service.send_message()
+
+@shared_task
+def update_adherence(username):
+    service = AdherenceService(username=username)
+    service.update_adherence()

@@ -46,9 +46,9 @@ class Configuration(models.Model):
             return '%s (disabled)' % (self.user.username)
 
     def set_default_time(self):
-        if hasattr(settings, 'ADHERENCE_UPDATE_TIME'):
+        if hasattr(settings, 'ADHERENCE_MESSAGE_TIME'):
             try:
-                hour, minute = [int(piece) for piece in settings.ADHERENCE_UPDATE_TIME.split(':')]
+                hour, minute = [int(piece) for piece in settings.ADHERENCE_MESSAGE_TIME.split(':')]
                 self.hour = hour
                 self.minute = minute
             except:
@@ -56,7 +56,7 @@ class Configuration(models.Model):
                 self.minute = None
 
     def update_daily_task(self):
-        task = 'adherence_messages.tasks.update_adherence',
+        task = 'adherence_messages.tasks.send_adherence_message',
         task_name = 'Adherence update for %s' % (self.user.username)
         task_arguments = {
             'username': self.user.username

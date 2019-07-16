@@ -15,10 +15,11 @@ from .models import AdherenceMetric
 from .models import User
 from .services import AdherenceService
 from .signals import update_adherence as update_adherence_signal
-from .tasks import update_adherence as update_adherence_task
 from .tasks import initialize_adherence as initialize_adherence_task
+from .tasks import send_adherence_message as send_adherence_message_task
+from .tasks import update_adherence as update_adherence_task
 
-@override_settings(ADHERENCE_UPDATE_TIME='13:22')
+@override_settings(ADHERENCE_MESSAGE_TIME='13:22')
 class AdherenceConfigurationTests(TestCase):
 
     def setUp(self):
@@ -139,6 +140,21 @@ class AdherenceTaskTests(AdherenceTaskTestBase):
             username = self.user.username
         )
 
+        update_adherence_signal.assert_called_with(
+            sender = User,
+            user = self.user,
+            date = date.today()
+        )
+
+    @patch.object(AdherenceService, 'send_message')
+    @patch.object(update_adherence_signal, 'send')
+    def test_send_adherence_message(self, update_adherence_signal, send_message):
+
+        send_adherence_message_task(
+            username = self.user.username
+        )
+
+        send_message.assert_called()
         update_adherence_signal.assert_called_with(
             sender = User,
             user = self.user,
