@@ -3,3 +3,12 @@
     background-color: lightgoldenrodyellow;
     font-weight: bold;
 }
+
+table th {
+    position: sticky;
+    top: 0px;
+}
+
+table th, table td {
+    white-space: nowrap;
+}
