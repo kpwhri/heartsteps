@@ -6,6 +6,9 @@ from django.test import TestCase
 from django.test import override_settings
 from django.utils import timezone
 
+from fitbit_activities.models import FitbitDay
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
 from participants.signals import initialize_participant
 from page_views.models import PageView
 
@@ -246,6 +249,14 @@ class AdherenceTaskTests(AdherenceTaskTestBase):
 
 class AppInstallationAdherenceTests(AdherenceTaskTestBase):
 
+    def setUp(self):
+        super().setUp()
+        self.account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = self.account
+        )
+
     def test_app_installation_checked_with_update(self):
         PageView.objects.create(
             user = self.user,
@@ -264,92 +275,88 @@ class AppInstallationAdherenceTests(AdherenceTaskTestBase):
         self.assertEqual(metric.date, date.today())
         self.assertTrue(metric.value)
 
-    @patch.object(AdherenceService, 'get_message_text_for', return_value='Example text')
-    def test_send_adherence_message_if_7_days_fitbit_and_no_install(self, get_message_text_for):
+    @patch.object(FitbitDay, 'get_wore_fitbit', return_value=True)
+    def test_adherence_alert_created_if_enough_wear_and_no_page_views(self, get_wore_fitbit):
+        self.user.date_joined = timezone.now() - timedelta(days=9)
+        self.user.save()
         for offset in range(7):
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today(),
-                category = AdherenceMetric.APP_INSTALLED,
-                value = False
+            FitbitDay.objects.create(
+                account = self.account,
+                date = date.today() - timedelta(days=offset)
             )
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today(),
-                category = AdherenceMetric.WORE_FITBIT,
-                value = True
-            )
+        
+        update_adherence_task(
+            username = self.user.username
+        )
 
-        service = AdherenceService(configuration = self.configuration)
-        service.send_message()
+        alert = AdherenceAlert.objects.get(
+            user = self.user,
+            category = AdherenceMetric.APP_INSTALLED
+        )
+
+    @patch('adherence_messages.receivers.render_to_string', return_value='Example text')
+    def test_send_adherence_message_if_7_days_fitbit_and_no_install(self, render_to_string):
+        AdherenceAlert.objects.create(
+            user = self.user,
+            category = AdherenceMetric.APP_INSTALLED,
+            start = timezone.now()
+        )
+
+        send_adherence_message_task(username=self.user.username)
 
         message = AdherenceMessage.objects.get()
-        self.assertEqual(message.user, self.user)
-        self.assertEqual(message.category, 'app-installed')
+        self.assertEqual(message.adherence_alert.user, self.user)
+        self.assertEqual(message.adherence_alert.category, 'app-installed')
         self.assertEqual(message.body, 'Example text')
-        get_message_text_for.assert_called_with('app-installed')
+        render_to_string.assert_called_with(
+            template_name = 'adherence_messages/app-installed.txt'
+        )
 
     def test_does_not_send_adherence_message_if_installed(self):
-        for offset in range(7):
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today() - timedelta(days=offset),
-                category = AdherenceMetric.APP_INSTALLED,
-                value = False
-            )
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today() - timedelta(days=offset),
-                category = AdherenceMetric.WORE_FITBIT,
-                value = True
-            )
-        AdherenceMetric.objects.update_or_create(
+        AdherenceAlert.objects.create(
             user = self.user,
-            date = date.today(),
             category = AdherenceMetric.APP_INSTALLED,
-            defaults = {
-                'value': True
-            }
+            start = timezone.now()
+        )
+        PageView.objects.create(
+            user = self.user,
+            uri = 'foo',
+            time = timezone.now()
         )
 
-        service = AdherenceService(configuration = self.configuration)
-        service.send_message()
+        send_adherence_message_task(username=self.user.username)
 
-        self.assertEqual(AdherenceMessage.objects.count(), 0)       
+        self.assertEqual(AdherenceMessage.objects.count(), 0)
+        alert = AdherenceAlert.objects.get(
+            user = self.user,
+            category = AdherenceMetric.APP_INSTALLED
+        )
+        self.assertIsNotNone(alert.end)
 
     def test_send_adherence_message_sends_only_3_messages(self):
-        for offset in range(9):
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today() - timedelta(days=offset),
-                category = AdherenceMetric.APP_INSTALLED,
-                value = False
-            )
-            AdherenceMetric.objects.create(
-                user = self.user,
-                date = date.today() - timedelta(days=offset),
-                category = AdherenceMetric.WORE_FITBIT,
-                value = True
-            )
-        AdherenceMessage.objects.create(
+        alert = AdherenceAlert.objects.create(
             user = self.user,
-            date = date.today() - timedelta(2),
-            category = 'app-installed',
-            body = 'first message'
+            category = AdherenceMetric.APP_INSTALLED,
+            start = timezone.now()
         )
-        AdherenceMessage.objects.create(
-            user = self.user,
-            date = date.today() - timedelta(1),
-            category = 'app-installed',
-            body = 'second message'
+        message = AdherenceMessage.objects.create(
+            adherence_alert = alert,
+            body = 'foo'
         )
-
-        service = AdherenceService(configuration = self.configuration)
-        service.send_message()
+        message.created = timezone.now() - timedelta(days=2)
+        message.save()
+        message = AdherenceMessage.objects.create(
+            adherence_alert = alert,
+            body = 'bar'
+        )
+        message.created = timezone.now() - timedelta(days=1)
+        message.save()
+        
+        send_adherence_message_task(username=self.user.username)
 
         self.assertEqual(AdherenceMessage.objects.count(), 3)
 
-        service.send_message()
+        send_adherence_message_task(username=self.user.username)
 
         self.assertEqual(AdherenceMessage.objects.count(), 3)
 

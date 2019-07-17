@@ -8,6 +8,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from days.services import DayService
+from fitbit_activities.models import FitbitDay
+from fitbit_api.models import FitbitAccountUser
 from page_views.models import PageView
 from participants.signals import initialize_participant
 
@@ -71,6 +73,71 @@ def check_app_installed(sender, user, date, *args, **kwargs):
             date = date,
             value = False
         )
+
+@receiver(update_adherence_alert_signal, sender=User)
+def update_adherence_alert_app_installed(sender, user, *args, **kwargs):
+    try:
+        account_user = FitbitAccountUser.objects.get(
+            user = user
+        )
+        account = account_user.account
+
+        day_service = DayService(user = user)
+        day_joined = day_service.get_date_at(user.date_joined)
+
+        days_worn = FitbitDay.objects.filter(
+            account = account,
+            date__gte = day_joined,
+            wore_fitbit = True
+        ).count()
+        page_view = PageView.objects.filter(
+            user = user,
+            time__gte = user.date_joined
+        ).last()
+        if days_worn >= 7:
+            if not page_view:
+                AdherenceAlert.objects.create(
+                    user = user,
+                    category = AdherenceMetric.APP_INSTALLED,
+                    start = timezone.now()
+                )
+            else:
+                try:
+                    alert = AdherenceAlert.objects.get(
+                        user = user,
+                        category = AdherenceMetric.APP_INSTALLED
+                    )
+                    alert.end = timezone.now()
+                    alert.save()
+                except AdherenceAlert.DoesNotExist:
+                    pass
+        else:
+            if page_view:
+                try:
+                    alert = AdherenceAlert.objects.get(
+                        user = user,
+                        category = AdherenceMetric.APP_INSTALLED
+                    )
+                    alert.end = timezone.now()
+                    alert.save()
+                except AdherenceAlert.DoesNotExist:
+                    pass
+    except FitbitAccountUser.DoesNotExist:
+        pass
+
+@receiver(send_adherence_message_signal, sender=AdherenceAlert)
+def send_app_install_adherence_message(sender, adherence_alert, *args, **kwargs):
+    if adherence_alert.category == AdherenceMetric.APP_INSTALLED:
+        number_messages = len(adherence_alert.messages)
+        if number_messages < 3:
+            message_text = render_to_string(
+                template_name = 'adherence_messages/app-installed.txt'
+            )
+            try:
+                adherence_alert.create_message(message_text)
+            except AdherenceAlert.AdherenceMessageRecentlySent:
+                pass
+
 
 @receiver(update_adherence_signal, sender=User)
 def check_app_used(sender, user, date, *args, **kwargs):
@@ -139,4 +206,7 @@ def check_to_send_adherence_message(sender, adherence_alert, *args, **kwargs):
                     'study_phone_number': settings.STUDY_PHONE_NUMBER
                 }
             )
-            adherence_alert.create_message(message_text)
+            try:
+                adherence_alert.create_message(message_text)
+            except AdherenceAlert.AdherenceMessageRecentlySent:
+                pass
