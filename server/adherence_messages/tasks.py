@@ -11,9 +11,11 @@ def initialize_adherence(username):
 def send_adherence_message(username):
     service = AdherenceService(username=username)
     service.update_adherence()
+    service.update_adherence_alerts()
     service.send_adherence_message()
 
 @shared_task
 def update_adherence(username):
     service = AdherenceService(username=username)
     service.update_adherence()
+    service.update_adherence_alerts()

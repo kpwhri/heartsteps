@@ -9,6 +9,7 @@ from .models import AdherenceMetric
 from .models import Configuration
 from .models import User
 from .signals import update_adherence as update_adherence_signal
+from .signals import update_adherence_alert as update_adherence_alert_signal
 
 class AdherenceService:
 
@@ -47,6 +48,12 @@ class AdherenceService:
             sender = User,
             user = self.__user,
             date = date
+        )
+
+    def update_adherence_alerts(self):
+        update_adherence_alert_signal.send(
+            sender = User,
+            user = self.__user
         )
 
     def get_current_adherence_alerts(self):

@@ -152,11 +152,20 @@ class AdherenceAlert(models.Model):
     def __str__(self):
         return '%s: %s' % (self.user.username, self.category)
 
-    def is_active(self):
+    @property
+    def active(self):
         if self.end:
             return False
         else:
             return True
+
+    @property
+    def duration(self):
+        return timezone.now() - self.start
+
+    @property
+    def messages(self):
+        return list(self.adherencemessage_set.all())
 
     def start_date(self):
         service = DayService(user = self.user)
