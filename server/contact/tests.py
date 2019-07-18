@@ -13,7 +13,7 @@ class ContactViewTests(APITestCase):
             user = user,
             name = "Test User",
             email = "test@user.com",
-            phone = "+15104100020"
+            phone = "1234567890"
         )
 
         self.client.force_authenticate(user=user)
@@ -36,7 +36,7 @@ class ContactViewTests(APITestCase):
         response = self.client.post(reverse('contact-information'), {
             'name':'Sample User Name',
             'email':'example@user.com',
-            'phone':'123 456-7890'
+            'phone':"1234567890"
         })
         
         self.assertEqual(response.status_code, 200)

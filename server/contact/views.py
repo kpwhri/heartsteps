@@ -27,13 +27,10 @@ class ContactInformationView(APIView):
     def post(self, request, format=None):
         serialized = ContactInformationSerializer(data=request.data)
         if serialized.is_valid():
-            contact_information, created = ContactInformation.objects.get_or_create(user=request.user)
-            
-            contact_information.name = serialized.validated_data['name']
-            contact_information.email = serialized.validated_data['email']
-            contact_information.phone = serialized.validated_data['phone']
-            contact_information.save()
-
+            ContactInformation.objects.update_or_create(
+                user = request.user,
+                defaults = serialized.validated_data
+            )
             return Response(serialized.data, status=status.HTTP_200_OK)
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 

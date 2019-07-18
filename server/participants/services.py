@@ -12,6 +12,7 @@ from walking_suggestions.services import WalkingSuggestionService
 
 from .models import Participant, User
 from .signals import nightly_update
+from .signals import initialize_participant
 
 class ParticipantService:
 
@@ -68,6 +69,10 @@ class ParticipantService:
         )
         WalkingSuggestionConfiguration.objects.update_or_create(
             user=self.participant.user
+        )
+        initialize_participant.send(
+            sender = Participant,
+            participant = self.participant
         )
     
     def deactivate(self):

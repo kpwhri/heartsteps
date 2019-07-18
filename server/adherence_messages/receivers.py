@@ -11,6 +11,7 @@ from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccountUser
 from page_views.models import PageView
+from participants.models import Participant
 from participants.signals import initialize_participant
 
 from .models import AdherenceAlert
@@ -22,10 +23,10 @@ from .signals import update_adherence as update_adherence_signal
 from .signals import update_adherence_alert as update_adherence_alert_signal
 from .tasks import initialize_adherence
 
-@receiver(initialize_participant, sender=User)
-def enable_configuration(sender, user, *args, **kwargs):
+@receiver(initialize_participant, sender=Participant)
+def enable_configuration(sender, participant, *args, **kwargs):
     Configuration.objects.update_or_create(
-        user = user,
+        user = participant.user,
         defaults = {
             'enabled': True
         }

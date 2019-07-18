@@ -10,6 +10,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from participants.signals import initialize_participant
+from participants.models import Participant
 from page_views.models import PageView
 from sms_messages.services import SMSService
 from sms_messages.models import Message as SMSMessage
@@ -39,10 +40,14 @@ class AdherenceConfigurationTests(TestCase):
         user = User.objects.create(
             username = 'test'
         )
+        participant = Participant.objects.create(
+            heartsteps_id = 'test',
+            user = user
+        )
 
         initialize_participant.send(
-            sender = User,
-            user = user
+            sender = Participant,
+            participant = participant
         )
 
         configuration = Configuration.objects.get(
@@ -61,10 +66,14 @@ class AdherenceConfigurationTests(TestCase):
             user = user,
             enabled = False
         )
+        participant = Participant.objects.create(
+            heartsteps_id = 'test',
+            user = user
+        )
 
         initialize_participant.send(
-            sender = User,
-            user = user
+            sender = Participant,
+            participant = participant
         )
 
         configuration = Configuration.objects.get(user = user)
