@@ -142,12 +142,20 @@ def just_send_adherence_message(sender, adherence_alert, *args, **kwargs):
     except AdherenceAlert.AdherenceMessageRecentlySent:
         pass
 
+def connect_send_message_signal():
+    send_adherence_message_signal.connect(just_send_adherence_message, sender=AdherenceAlert)
+
+def disconnect_send_message_signal():
+    send_adherence_message_signal.disconnect(just_send_adherence_message, sender=AdherenceAlert)
+
 @override_settings(ADHERENCE_MESSAGE_BUFFER_HOURS=2)
 class AdherenceAlertMessagesTests(AdherenceTaskTestBase):
 
     def setUp(self):
         super().setUp()
-        send_adherence_message_signal.connect(just_send_adherence_message, sender=AdherenceAlert)
+        
+        connect_send_message_signal()
+        self.addCleanup(disconnect_send_message_signal)
     
     def test_sends_adherence_alert(self):
         alert = AdherenceAlert.objects.create(
@@ -444,6 +452,8 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
         )
 
     def test_adherence_message_sent_once(self):
+        AdherenceMessage.objects.all().delete()
+
         alert = AdherenceAlert.objects.create(
             user = self.user,
             category = AdherenceMetric.APP_USED,
@@ -459,4 +469,4 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
         service = AdherenceService(configuration = self.configuration)
         service.send_adherence_message()
 
-        self.assertEqual(AdherenceMessage.objects.count(), 1)
+        self.assertEqual(len(alert.messages), 1)
