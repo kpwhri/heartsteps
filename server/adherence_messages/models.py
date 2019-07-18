@@ -191,7 +191,7 @@ class AdherenceAlert(models.Model):
         else:
             raise AdherenceAlert.AdherenceMessageBufferNotSet('Message buffer not set')
 
-    def create_message(self, body):
+    def send_message(self, body):
         recently_sent_message_count = AdherenceMessage.objects.filter(
             adherence_alert__user = self.user,
             created__gte = self.get_message_buffer_time()
@@ -200,10 +200,11 @@ class AdherenceAlert(models.Model):
         if recently_sent_message_count > 0:
             raise AdherenceAlert.AdherenceMessageRecentlySent('Unable to send message')
         else:
-            return AdherenceMessage.objects.create(
+            message = AdherenceMessage.objects.create(
                 adherence_alert = self,
                 body = body
             )
+            message.send()
 
 class AdherenceMessage(models.Model):
     adherence_alert = models.ForeignKey(
@@ -224,6 +225,6 @@ class AdherenceMessage(models.Model):
 
     def send(self):
         if not self.message:
-            service = SMSService(user = self.user)
+            service = SMSService(user = self.adherence_alert.user)
             self.message = service.send(self.body)
             self.save()

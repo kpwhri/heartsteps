@@ -11,6 +11,9 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from participants.signals import initialize_participant
 from page_views.models import PageView
+from sms_messages.services import SMSService
+from sms_messages.models import Message as SMSMessage
+from sms_messages.models import Contact as SMSContact
 
 from .models import AdherenceAlert
 from .models import AdherenceMessage
@@ -84,12 +87,19 @@ class AdherenceConfigurationTests(TestCase):
         self.assertFalse(configuration.enabled)
         self.assertFalse(configuration.daily_task.enabled)
 
+def send_sms(body):
+    return SMSMessage.objects.create(
+        recipient = 'test-phone-number',
+        sender = 'other-phone-number',
+        body = body
+    )
+
 class AdherenceTaskTestBase(TestCase):
     
     def setUp(self):
-        message_send_patch = patch.object(AdherenceMessage, 'send')
-        send_patch = message_send_patch.start()
-        send_patch.return_value = 'test-1234'
+        message_send_patch = patch.object(SMSService, 'send')
+        self.send_sms_message = message_send_patch.start()
+        self.send_sms_message.side_effect = send_sms
         self.addCleanup(message_send_patch.stop)
 
         initialize_adherence_patch = patch.object(initialize_adherence_task, 'apply_async')
@@ -101,6 +111,12 @@ class AdherenceTaskTestBase(TestCase):
             user = self.user,
             enabled = True
         )
+
+        SMSContact.objects.create(
+            user = self.user,
+            number = 'my-phone-number'
+        )
+
 
 class AdherenceInitializationTests(AdherenceTaskTestBase):
 
@@ -138,7 +154,7 @@ class AdherenceInitializationTests(AdherenceTaskTestBase):
 
 def just_send_adherence_message(sender, adherence_alert, *args, **kwargs):
     try:
-        adherence_alert.create_message('Example message')
+        adherence_alert.send_message('Example message')
     except AdherenceAlert.AdherenceMessageRecentlySent:
         pass
 

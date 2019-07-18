@@ -134,7 +134,7 @@ def send_app_install_adherence_message(sender, adherence_alert, *args, **kwargs)
                 template_name = 'adherence_messages/app-installed.txt'
             )
             try:
-                adherence_alert.create_message(message_text)
+                adherence_alert.send_message(message_text)
             except AdherenceAlert.AdherenceMessageRecentlySent:
                 pass
 
@@ -207,6 +207,6 @@ def check_to_send_adherence_message(sender, adherence_alert, *args, **kwargs):
                 }
             )
             try:
-                adherence_alert.create_message(message_text)
+                adherence_alert.send_message(message_text)
             except AdherenceAlert.AdherenceMessageRecentlySent:
                 pass
