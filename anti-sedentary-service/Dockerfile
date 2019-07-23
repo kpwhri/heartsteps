@@ -4,6 +4,8 @@ FROM heartsteps_service-template:latest
 WORKDIR /anti-sedentary-service
 ADD . /anti-sedentary-service
 
+RUN chmod 777 ../utils/copy-files
+
 RUN pip install -r requirements.txt
 RUN Rscript install.r
 
