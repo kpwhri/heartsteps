@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
+from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
 
@@ -106,6 +107,16 @@ class AdherenceServiceBase:
             body = body
         )
         message.send()
+        return message
+
+    def try_to_create_adherence_message(self, body, category=None):
+        try:
+            return self.create_adherence_message(
+                body = body,
+                category = category
+            )
+        except AdherenceServiceBase.AdherenceMessageRecentlySent:
+            return None
 
 class AdherenceAppInstalled(AdherenceServiceBase):
 
@@ -211,7 +222,7 @@ class AdherenceAppUsedService(AdherenceServiceBase):
                     body = message_text
                 )
 
-class AdherenceFitbitUpdated(AdherenceServiceBase):
+class AdherenceFitbitUpdatedService(AdherenceServiceBase):
 
     def update_fitbit_updated(self, date):
         fitbit_service = FitbitService(user = self._user)
@@ -244,16 +255,14 @@ class AdherenceFitbitUpdated(AdherenceServiceBase):
     def send_fitbit_not_updated_message(self):
         last_update_time = self.last_fitbit_update_time()
         difference = timezone.now() - last_update_time
-        if difference.days < 2:            
-            messages_sent = AdherenceMessage.objects.filter(
+        if difference.days >= 2: 
+            messages_query = AdherenceMessage.objects.filter(
                 user = self._user,
-                category = AdherenceMessage.FITBIT_UPDATED,
-                created__gt = last_update_time
-            ).count()
-            
-            if messages_sent < 2:
+                category = AdherenceMessage.FITBIT_UPDATED
+            )
+            if messages_query.count() < 2:
                 message_text = render_to_string(
-                    template_name = 'adherence_messages/fitbit-updated.txt',
+                    template_name = 'adherence_messages/fitbit-not-updated.txt',
                     context = {
                         'study_phone_number': settings.STUDY_PHONE_NUMBER
                     }
@@ -266,11 +275,77 @@ class AdherenceFitbitUpdated(AdherenceServiceBase):
                 except AdherenceServiceBase.AdherenceMessageRecentlySent:
                     pass
 
+class AdherenceFitbitWornService(AdherenceServiceBase):
+
+    def update_fitbit_worn(self, date):
+        if self.wore_fitbit_on(date):
+            self.mark_adherent(
+                category = AdherenceMetric.FITBIT_WORN,
+                date = date
+            )
+        else:
+            self.mark_non_adherent(
+                category = AdherenceMetric.FITBIT_WORN,
+                date = date
+            )
+    
+    def wore_fitbit_on(self, date):
+        fitbit_service = FitbitService(user = self._user)
+        try:
+            day = FitbitDay.objects.get(
+                account = fitbit_service.account,
+                date = date
+            )
+            if day.wore_fitbit:
+                return True
+        except FitbitDay.DoesNotExist:
+            pass
+        return False
+
+    def last_fitbit_wear_time(self):
+        fitbit_service = FitbitService(user = self._user)
+        last_heart_rate = FitbitMinuteHeartRate.objects.order_by('time').filter(
+            account = fitbit_service.account,
+            heart_rate__gt = 0
+        ).last()
+        if last_heart_rate:
+            return last_heart_rate.time
+        else:
+            return self._user.date_joined
+
+    def send_fitbit_not_worn_message(self):
+        fitbit_service = FitbitService(user = self._user)
+        last_wear_time = self.last_fitbit_wear_time()
+        difference = timezone.now() - last_wear_time
+        if difference.days >= 2:
+            previous_messages_query = AdherenceMessage.objects.filter(
+                user = self._user,
+                category = AdherenceMessage.FITBIT_WORN,
+                created__gt = last_wear_time
+            )
+            if previous_messages_query.count() < 2:
+                first_message = previous_messages_query.first()
+                if first_message:
+                    difference = timezone.now() - first_message.created
+                    if difference.days < 2:
+                        return None
+                message_text = render_to_string(
+                    template_name = 'adherence_messages/fitbit-not-worn.txt',
+                    context = {
+                        'study_phone_number': settings.STUDY_PHONE_NUMBER
+                    }
+                )
+                self.try_to_create_adherence_message(
+                    body = message_text,
+                    category = AdherenceMessage.FITBIT_WORN
+                )
+
 class AdherenceService(
         AdherenceAppInstalled,
         AdherenceAppInstallMessageService,
         AdherenceAppUsedService,
-        AdherenceFitbitUpdated
+        AdherenceFitbitUpdatedService,
+        AdherenceFitbitWornService
     ):
 
     def update_adherence(self, date = None):
@@ -278,9 +353,11 @@ class AdherenceService(
             date = self._get_current_date()
         self.update_app_installed(date)
         self.update_app_used(date)
-        self.update_fitbit_updated(date)    
+        self.update_fitbit_updated(date)
+        self.update_fitbit_worn(date) 
 
     def send_adherence_message(self):
         self.send_app_install_message()
         self.send_app_use_adherence_message()
         self.send_fitbit_not_updated_message()
+        self.send_fitbit_not_worn_message()
