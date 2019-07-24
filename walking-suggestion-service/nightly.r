@@ -1,5 +1,5 @@
 rm(list = ls())
-server = T
+server = F
 localtest = F
 #' ---
 #' title:  Nightly Udates in the bandit algorithm in HS 2.0
@@ -37,9 +37,9 @@ if(server){
     
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
     
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
     
-    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
     
@@ -570,22 +570,58 @@ if(is.null(check)){
   
   # ================ Save everything ================
   
-  save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
-  save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
-  save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
-  save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
-  save(data.history, file = paste(paths, "/history.Rdata", sep=""))
-  save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
-  
-  if(nrow(train.dat) > 0){
+  save.try <- try(expr = {save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
+    save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
+    save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
+    save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
+    save(data.history, file = paste(paths, "/history.Rdata", sep=""))
+    save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
+    if(nrow(train.dat) > 0){
+      
+      train <- data.frame(id = input$userID, train.dat);
+      save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+      
+    }
     
-    train <- data.frame(id = input$userID, train.dat);
-    save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+    }, silent = T)
+
+  if(is(save.try,"try-error")){
+    
+    cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save (Attempt 1): ", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+    
+    save.try <- try(expr = {save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
+      save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
+      save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
+      save(data.policy, file = paste(paths, "/policy.Rdata", sep=""))
+      save(data.history, file = paste(paths, "/history.Rdata", sep=""))
+      save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
+      if(nrow(train.dat) > 0){
+        train <- data.frame(id = input$userID, train.dat);
+        save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+      }
+    }, silent = T)
+    
+    if(is(save.try,"try-error")){
+      
+      cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save (Attempt 2):", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+      
+    }else{
+      
+      cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
+      
+    }
+    
+    
+  }else{
+    
+    cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
     
   }
   
   
-  cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
+  
+  
+  
 }
 
 
