@@ -604,6 +604,7 @@ if(is.null(check)){
     if(is(save.try,"try-error")){
       
       cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save (Attempt 2):", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+      stop("Fail to save the data")
       
     }else{
       
