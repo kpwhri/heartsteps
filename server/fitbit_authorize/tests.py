@@ -144,9 +144,43 @@ class FitbitAuthorizationTest(APITestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('fitbit-authorize-complete'))
 
+    def test_authorize_saves_redirect(self):
+        user = User.objects.create(username="test")
+        session = AuthenticationSession.objects.create(user=user)
+
+        response = self.client.get(
+            path = reverse('fitbit-authorize-login', kwargs={
+                'token': str(session.token)
+            }),
+            data = {
+                'redirect': '/example/redirect'
+            }
+        )
+
+        session = AuthenticationSession.objects.get(user = user)
+        self.assertEqual(session.redirect, '/example/redirect')
+
+    @patch.object(FitbitOauth2Client, 'fetch_access_token', mock_access_token)
+    @patch('fitbit_api.tasks.subscribe_to_fitbit.apply_async')
+    def test_process_redirects(self, subscribe_to_fitbit):
+        user = User.objects.create(username="test")
+        AuthenticationSession.objects.create(
+            user = user,
+            state = 'example-state',
+            redirect = '/example/url'
+        )
+
+        response = self.client.get(reverse('fitbit-authorize-process'), {
+            'code': 'sample-1234',
+            'state': 'example-state'
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/example/url')
+
     def test_complete(self):
         user = User.objects.create(username="test")
 
         response = self.client.get(reverse('fitbit-authorize-complete'))
 
-        self.assertEqual(response.status_code, 200)   
+        self.assertEqual(response.status_code, 200)

@@ -22,7 +22,8 @@ export class BrowserService {
                 return Promise.reject("Opening browser not supported")
             })
         } else {
-            return this.openInBrowser(url)
+            this.navigateTo(url);
+            return Promise.resolve(true);
         }
     }
 
@@ -80,7 +81,7 @@ export class BrowserService {
 
     private openInBrowser(url: string): Promise<boolean> {
         return new Promise((resolve) => {
-            const childWindow: Window = window.open(url)
+            const childWindow: Window = window.open(url);
             const interval = setInterval(function() {
                 if(childWindow.closed) {
                     resolve();
@@ -88,5 +89,9 @@ export class BrowserService {
                 }
             }, 500);
         });
+    }
+
+    private navigateTo(url: string) {
+        window.location.assign(url);
     }
 }
