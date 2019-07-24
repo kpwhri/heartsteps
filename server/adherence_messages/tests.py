@@ -9,6 +9,7 @@ from django.utils import timezone
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
+from fitbit_api.services import FitbitService
 from participants.signals import initialize_participant
 from participants.models import Participant
 from page_views.models import PageView
@@ -116,6 +117,12 @@ class AdherenceTaskTestBase(TestCase):
         self.configuration = Configuration.objects.create(
             user = self.user,
             enabled = True
+        )
+
+        self.account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            user = self.user,
+            account = self.account
         )
 
         SMSContact.objects.create(
@@ -255,15 +262,33 @@ class AdherenceTaskTests(AdherenceTaskTestBase):
 
         send_adherence_message.assert_called()
 
+class FitbitUpdatedTests(AdherenceTaskTestBase):
+
+    def setUp(self):
+        super().setUp()
+
+        fitbit_updated_on_patch = patch.object(FitbitService, 'was_updated_on')
+        self.addCleanup(fitbit_updated_on_patch.stop)
+        self.fitbit_was_update_on = fitbit_updated_on_patch.start()
+        self.fitbit_was_update_on.return_value = True
+
+
+    def test_updates_fitbit_updated(self):
+
+        service = AdherenceService(user = self.user)
+        service.update_adherence()
+
+        metric = AdherenceMetric.objects.get(
+            user = self.user,
+            category = AdherenceMetric.FITBIT_UPDATED
+        )
+        self.assertTrue(metric.value) 
+        self.assertEqual(metric.date, date.today())
+
 class AppInstallationAdherenceTests(AdherenceTaskTestBase):
 
     def setUp(self):
         super().setUp()
-        self.account = FitbitAccount.objects.create(fitbit_user='test')
-        FitbitAccountUser.objects.create(
-            user = self.user,
-            account = self.account
-        )
 
         wore_fitbit_patch = patch.object(FitbitDay, 'get_wore_fitbit')
         self.addCleanup(wore_fitbit_patch.stop)
@@ -375,7 +400,8 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
     @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
     @patch('adherence_messages.services.render_to_string', return_value='Example text')
     @patch.object(AdherenceMessage, 'send')
-    def test_adherence_message_sent_no_use_4_days(self, adherence_messsage_send, render_to_string):
+    @patch.object(AdherenceService, 'send_fitbit_not_updated_message')
+    def test_adherence_message_sent_no_use_4_days(self, fitbit_udpated, adherence_messsage_send, render_to_string):
         PageView.objects.create(
             user = self.user,
             uri = 'foo',
@@ -415,7 +441,11 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
         service = AdherenceService(configuration = self.configuration)
         service.send_adherence_message()
 
-        self.assertEqual(AdherenceMessage.objects.count(), 1)
+        message_count = AdherenceMessage.objects.filter(
+            user = self.user,
+            category = AdherenceMessage.APP_USED
+        ).count()
+        self.assertEqual(message_count, 1)
 
     def test_adherence_message_sent_if_newly_non_adherent(self):
         PageView.objects.create(

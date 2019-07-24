@@ -97,14 +97,16 @@ class Configuration(models.Model):
 
 class AdherenceBase(models.Model):
 
-    WORE_FITBIT = 'wore-fitbit'
-    APP_USED = 'app-used'
     APP_INSTALLED = 'app-installed'
+    APP_USED = 'app-used'
+    FITBIT_UPDATED = 'fitbit-updated'
+    FITBIT_WORN = 'fitbit-worn'
 
     ADHERENCE_METRIC_CHOICES = [
-        (WORE_FITBIT, 'Wore fitbit'),
-        (APP_USED, 'Used app'),
-        (APP_INSTALLED, 'Installed app')
+        (APP_INSTALLED, 'App installed'),
+        (APP_USED, 'App used'),
+        (FITBIT_UPDATED, 'Fitbit updated'),
+        (FITBIT_WORN, 'Fitbit worn')
     ]
 
     user = models.ForeignKey(

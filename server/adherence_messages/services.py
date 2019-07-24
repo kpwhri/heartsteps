@@ -211,10 +211,66 @@ class AdherenceAppUsedService(AdherenceServiceBase):
                     body = message_text
                 )
 
+class AdherenceFitbitUpdated(AdherenceServiceBase):
+
+    def update_fitbit_updated(self, date):
+        fitbit_service = FitbitService(user = self._user)
+        if fitbit_service.was_updated_on(date):        
+            self.mark_adherent(
+                category = AdherenceMetric.FITBIT_UPDATED,
+                date = date
+            )
+        else:
+            self.mark_non_adherent(
+                category = AdherenceMetric.FITBIT_UPDATED,
+                date = date
+            )
+
+    def last_fitbit_update_time(self):
+        try:
+            fitbit_service = FitbitService(user = self._user)
+            return fitbit_service.last_updated_on()
+        except FitbitService.AccountNeverUpdated:
+            return self._user.date_joined
+
+    def fitbit_updated_recently(self):
+        last_update_time = self.last_fitbit_update_time()
+        if last_update_time:
+            difference = timezone.now() - last_update_time
+            if difference.days < 2:
+                return True
+        return False
+
+    def send_fitbit_not_updated_message(self):
+        last_update_time = self.last_fitbit_update_time()
+        difference = timezone.now() - last_update_time
+        if difference.days < 2:            
+            messages_sent = AdherenceMessage.objects.filter(
+                user = self._user,
+                category = AdherenceMessage.FITBIT_UPDATED,
+                created__gt = last_update_time
+            ).count()
+            
+            if messages_sent < 2:
+                message_text = render_to_string(
+                    template_name = 'adherence_messages/fitbit-updated.txt',
+                    context = {
+                        'study_phone_number': settings.STUDY_PHONE_NUMBER
+                    }
+                )
+                try:
+                    self.create_adherence_message(
+                        category = AdherenceMessage.FITBIT_UPDATED,
+                        body = message_text
+                    )
+                except AdherenceServiceBase.AdherenceMessageRecentlySent:
+                    pass
+
 class AdherenceService(
         AdherenceAppInstalled,
         AdherenceAppInstallMessageService,
-        AdherenceAppUsedService
+        AdherenceAppUsedService,
+        AdherenceFitbitUpdated
     ):
 
     def update_adherence(self, date = None):
@@ -222,8 +278,9 @@ class AdherenceService(
             date = self._get_current_date()
         self.update_app_installed(date)
         self.update_app_used(date)
-        
+        self.update_fitbit_updated(date)    
 
     def send_adherence_message(self):
         self.send_app_install_message()
         self.send_app_use_adherence_message()
+        self.send_fitbit_not_updated_message()

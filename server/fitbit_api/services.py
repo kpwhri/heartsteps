@@ -9,9 +9,18 @@ from django.core.exceptions import ImproperlyConfigured
 from fitbit import Fitbit
 from fitbit.exceptions import HTTPUnauthorized
 
-from fitbit_api.models import User, FitbitAccount, FitbitAccountUser, FitbitSubscription
+from days.services import DayService
+
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitSubscription
+from fitbit_api.models import FitbitSubscriptionUpdate
+from fitbit_api.models import User
 
 class FitbitService:
+
+    class AccountNeverUpdated(RuntimeError):
+        pass
 
     class NoAccount(ImproperlyConfigured):
         pass
@@ -68,6 +77,27 @@ class FitbitService:
             return True
         else:
             return False
+    
+    def was_updated_on(self, date):
+        day_service = DayService(user = self.__user)
+        updates = FitbitSubscriptionUpdate.objects.filter(
+            subscription__fitbit_account = self.__account,
+            created__gte = day_service.get_start_of_day(date),
+            created__lte = day_service.get_end_of_day(date)
+        ).count()
+        if updates > 0:
+            return True
+        else:
+            return False
+    
+    def last_updated_on(self):
+        last_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
+            subscription__fitbit_account = self.__account
+        ).last()
+        if last_update:
+            return last_update.created
+        else:
+            raise FitbitService.AccountNeverUpdated('Account never updated')
 
 
 def create_fitbit(**kwargs):
