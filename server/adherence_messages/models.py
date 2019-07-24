@@ -12,8 +12,6 @@ from days.services import DayService
 from sms_messages.models import Message
 from sms_messages.services import SMSService
 
-from .signals import send_adherence_message as send_adherence_message_signal
-
 User = get_user_model()
 
 class Configuration(models.Model):
@@ -97,8 +95,7 @@ class Configuration(models.Model):
         else:
             self.daily_task.disable()
 
-
-class AdherenceMetric(models.Model):
+class AdherenceBase(models.Model):
 
     WORE_FITBIT = 'wore-fitbit'
     APP_USED = 'app-used'
@@ -113,13 +110,21 @@ class AdherenceMetric(models.Model):
     user = models.ForeignKey(
         User,
         related_name = '+',
-        on_delete=models.CASCADE
+        on_delete = models.CASCADE
     )
-    date = models.DateField()
     category = models.CharField(
         max_length = 70,
-        choices = ADHERENCE_METRIC_CHOICES
+        choices = ADHERENCE_METRIC_CHOICES,
+        null = True
     )
+
+    class Meta:
+        abstract = True
+
+
+class AdherenceMetric(AdherenceBase):
+
+    date = models.DateField()
     value = models.BooleanField(
         default = False
     )
@@ -127,90 +132,8 @@ class AdherenceMetric(models.Model):
     def __str__(self):
         return '%s: %s on %s' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'))
 
-class AdherenceAlert(models.Model):
+class AdherenceMessage(AdherenceBase):
 
-    class AdherenceMessageRecentlySent(RuntimeError):
-        pass
-
-    class AdherenceMessageBufferNotSet(ImproperlyConfigured):
-        pass
-
-    user = models.ForeignKey(
-        User,
-        related_name = '+',
-        on_delete = models.CASCADE
-    )
-    start = models.DateTimeField()
-    end = models.DateTimeField(
-        null = True
-    )
-
-    category = models.CharField(
-        max_length = 70
-    )
-
-    def __str__(self):
-        return '%s: %s' % (self.user.username, self.category)
-
-    @property
-    def active(self):
-        if self.end:
-            return False
-        else:
-            return True
-
-    @property
-    def duration(self):
-        return timezone.now() - self.start
-
-    @property
-    def messages(self):
-        return list(self.adherencemessage_set.all())
-
-    def start_date(self):
-        service = DayService(user = self.user)
-        return service.get_date_at(self.start)
-
-    def end_date(self):
-        if self.end:
-            service = DayService(user = self.user)
-            return service.get_date_at(self.end)
-        else:
-            return None
-
-    def send_adherence_message(self):
-        send_adherence_message_signal.send(
-            sender = AdherenceAlert,
-            adherence_alert = self
-        )
-
-    def get_message_buffer_time(self):
-        if hasattr(settings, 'ADHERENCE_MESSAGE_BUFFER_HOURS'):
-            buffer_hours = settings.ADHERENCE_MESSAGE_BUFFER_HOURS
-            return timezone.now() - timedelta(hours=int(buffer_hours))
-        else:
-            raise AdherenceAlert.AdherenceMessageBufferNotSet('Message buffer not set')
-
-    def send_message(self, body):
-        recently_sent_message_count = AdherenceMessage.objects.filter(
-            adherence_alert__user = self.user,
-            created__gte = self.get_message_buffer_time()
-        ).count()
-
-        if recently_sent_message_count > 0:
-            raise AdherenceAlert.AdherenceMessageRecentlySent('Unable to send message')
-        else:
-            message = AdherenceMessage.objects.create(
-                adherence_alert = self,
-                body = body
-            )
-            message.send()
-
-class AdherenceMessage(models.Model):
-    adherence_alert = models.ForeignKey(
-        AdherenceAlert,
-        on_delete = models.CASCADE
-    )
     message = models.ForeignKey(
         Message,
         null = True,
@@ -225,6 +148,6 @@ class AdherenceMessage(models.Model):
 
     def send(self):
         if not self.message:
-            service = SMSService(user = self.adherence_alert.user)
+            service = SMSService(user = self.user)
             self.message = service.send(self.body)
             self.save()
