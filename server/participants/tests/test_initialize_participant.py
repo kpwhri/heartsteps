@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from daily_tasks.models import DailyTask
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from morning_messages.models import Configuration as MorningMessageConfiguration
@@ -9,7 +10,6 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 
 from participants.models import Participant, User, TASK_CATEGORY
 from participants.services import ParticipantService
-from participants.signals import initialize_participant
 
 @override_settings(PARTICIPANT_NIGHTLY_UPDATE_TIME='4:15')
 class InitializeTask(TestCase):
@@ -50,12 +50,23 @@ class InitializeTask(TestCase):
         configuration = AntiSedentaryConfiguration.objects.get()
         self.assertEqual(configuration.user.username, "test")
 
-    @patch.object(initialize_participant, 'send')
-    def test_sends_initialize_participant_signal(self, initialize_participant):
-        service = ParticipantService(participant = self.participant)
+    def test_creates_adherence_message_configuration(self):
+        service = ParticipantService(username="test")
         service.initialize()
 
-        initialize_participant.assert_called_with(
-            sender = Participant,
-            participant = self.participant
+        configuration = AdherenceMessageConfiguration.objects.get()
+        self.assertEqual(configuration.user.username, "test")
+        self.assertTrue(configuration.enabled)
+
+    def test_enables_adherence_message_configuration(self):
+        AdherenceMessageConfiguration.objects.create(
+            user = self.user,
+            enabled = False
         )
+
+        service = ParticipantService(username="test")
+        service.initialize()
+
+        configuration = AdherenceMessageConfiguration.objects.get()
+        self.assertEqual(configuration.user.username, "test")
+        self.assertTrue(configuration.enabled)

@@ -11,8 +11,6 @@ from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
-from participants.signals import initialize_participant
-from participants.models import Participant
 from page_views.models import PageView
 from sms_messages.services import SMSService
 from sms_messages.models import Message as SMSMessage
@@ -34,49 +32,6 @@ class AdherenceConfigurationTests(TestCase):
         initialize_adherence_patch = patch.object(initialize_adherence_task, 'apply_async')
         self.initialize_adherence_task = initialize_adherence_patch.start()
         self.addCleanup(initialize_adherence_patch.stop)
-
-    def test_participant_initialization_enables_configuration(self):
-        user = User.objects.create(
-            username = 'test'
-        )
-        participant = Participant.objects.create(
-            heartsteps_id = 'test',
-            user = user
-        )
-
-        initialize_participant.send(
-            sender = Participant,
-            participant = participant
-        )
-
-        configuration = Configuration.objects.get(
-            user = user
-        )
-        self.assertTrue(configuration.enabled)
-        self.assertTrue(configuration.daily_task.enabled)
-        self.assertEqual(configuration.daily_task.hour, 13)
-        self.assertEqual(configuration.daily_task.minute, 22)
-
-    def test_participant_initialize_reenables_configuration(self):
-        user = User.objects.create(
-            username = 'test'
-        )
-        Configuration.objects.create(
-            user = user,
-            enabled = False
-        )
-        participant = Participant.objects.create(
-            heartsteps_id = 'test',
-            user = user
-        )
-
-        initialize_participant.send(
-            sender = Participant,
-            participant = participant
-        )
-
-        configuration = Configuration.objects.get(user = user)
-        self.assertTrue(configuration.enabled)
 
     def test_configuration_gets_disabled(self):
         user = User.objects.create(

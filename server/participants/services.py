@@ -2,17 +2,18 @@ from datetime import datetime, timedelta, date
 
 from rest_framework.authtoken.models import Token
 
-from days.services import DayService
-from fitbit_activities.services import FitbitDayService
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
+from days.services import DayService
+from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
+from sms_messages.models import Contact as SMSContact
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 
 from .models import Participant, User
 from .signals import nightly_update
-from .signals import initialize_participant
 
 class ParticipantService:
 
@@ -30,6 +31,7 @@ class ParticipantService:
         if not participant:
             raise ParticipantService.NoParticipant()
         self.participant = participant
+        self.user = participant.user
 
     def get_participant(token, birth_year):
         try:
@@ -70,10 +72,18 @@ class ParticipantService:
         WalkingSuggestionConfiguration.objects.update_or_create(
             user=self.participant.user
         )
-        initialize_participant.send(
-            sender = Participant,
-            participant = self.participant
+        AdherenceMessageConfiguration.objects.update_or_create(
+            user = self.participant.user,
+            defaults = {
+                'enabled': True
+            }
         )
+        try:
+            sms_contact = SMSContact.objects.get(user = self.user)
+            sms_contact.enabled = True
+            sms_contact.save()
+        except SMSContact.DoesNotExist:
+            pass
     
     def deactivate(self):
         pass
