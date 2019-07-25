@@ -40,7 +40,7 @@ export class FitbitAuth implements OnInit {
         .then(() => {
             setTimeout(() => {
                 this.saved.emit(true);
-            }, 500);
+            }, 2000);
         })
         .catch(() => {
             this.alertController.show("There was a problem authorizing Fitbit. Please try again.");

@@ -20,9 +20,9 @@ const appRoutes:Routes = [{
 }]
 
 const routerOptions: any = {}
-if (!process.env.PRODUCTION) {
-    routerOptions.useHash = true;
-}
+// if (!process.env.PRODUCTION) {
+//     routerOptions.useHash = true;
+// }
 
 @NgModule({
     declarations: [
