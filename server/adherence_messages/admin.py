@@ -1,13 +1,57 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib import admin
+from django.contrib import messages
+from django.utils import timezone
 
 from days.services import DayService
 
 from .models import Configuration
 from .models import AdherenceMessage
 from .models import AdherenceMetric
+from .services import AdherenceService
+from .tasks import initialize_adherence
+from .tasks import update_adherence
+
+def initialize_configuration(modeladmin, request, queryset):
+    for configuration in queryset.all():
+        initialize_adherence.apply_async(kwargs = {
+            'username': configuration.user.username
+        })
+        messages.add_message(request, messages.INFO, 'Queued initialization for %s' % (configuration.user.username))
+
+def send_adherence_message(modeladmin, request, queryset):
+    for configuration in queryset.all():
+        try:
+            service = AdherenceService(configuration = configuration)
+            service.send_adherence_message()
+            messages_sent = AdherenceMessage.objects.filter(
+                user = configuration.user,
+                created__gte = timezone.now() - timedelta(minutes=2)
+            ).count()
+            if messages_sent:
+                messages.add_message(request, messages.INFO, 'Adherence message sent to %s' % (configuration.user.username))
+            else:
+                messages.add_message(request, messages.INFO, 'No adherence messages sent to %s' % (configuration.user.username))
+        except:
+            messages.add_message(request, messages.ERROR, 'Error while sending adherence message to %s' % (configuration.user.username))
+
+def update_adherence_metrics(modeladmin, request, queryset):
+    for configuration in queryset.all():
+        update_adherence.apply_async(kwargs = {
+            'username': configuration.user.username
+        })
+        messages.add_message(request, messages.INFO, 'Queued adherence update for %s' % (configuration.user.username))
 
 class ConfigurationAdmin(admin.ModelAdmin):
+
+    actions = [
+        initialize_configuration,
+        send_adherence_message,
+        update_adherence_metrics
+    ]
+
     fields = [
         'user',
         'enabled',
