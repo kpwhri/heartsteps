@@ -23,6 +23,9 @@ class AdherenceServiceBase:
     class AdherenceMessageDisabled(RuntimeError):
         pass
 
+    class NoConfiguration(RuntimeError):
+        pass
+
     def __init__(self, configuration=None, user=None, username=None):
         if username:
             try:
@@ -38,7 +41,7 @@ class AdherenceServiceBase:
             self._configuration = configuration
             self._user = configuration.user
         else:
-            raise RuntimeError('configuration not set')
+            raise AdherenceServiceBase.NoConfiguration('configuration not set')
 
     def initialize(self):
         day_service = DayService(user = self._user)

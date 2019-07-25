@@ -1,7 +1,6 @@
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
-from participants.signals import nightly_update as participant_nightly_update
 from walking_suggestion_times.signals import suggestion_times_updated
 from watch_app.signals import step_count_updated
 
@@ -9,7 +8,6 @@ from .models import Configuration
 from .models import SuggestionTime
 from .models import User
 from .models import WalkingSuggestionMessageTemplate
-from .tasks import nightly_update
 
 @receiver(suggestion_times_updated, sender=User)
 def post_save_configuration(sender, username, *args, **kwargs):
@@ -23,13 +21,6 @@ def post_save_configuration(sender, username, *args, **kwargs):
             'enabled': True
         }
     )
-
-@receiver(participant_nightly_update, sender=User)
-def queue_nightly_update(sender, user, day, *args, **kwargs):
-    nightly_update.apply_async(kwargs={
-        'username': user.username,
-        'day_string': day.strftime('%Y-%m-%d')
-    })
 
 @receiver(pre_save, sender=WalkingSuggestionMessageTemplate)
 def set_message_template_title(sender, instance, *args, **kwargs):
