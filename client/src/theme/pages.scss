@@ -4,7 +4,26 @@
     padding: 0px;
     margin: 0px;
 
-    > * {
+    &:before,
+    &:after {
+        content: '';
+        display: block;
+        width: 100%;
+    }
+
+    &:before {
+        height: env(safe-area-inset-top);
+        // height: 2em;
+    }
+
+    &:after {
+        height: env(safe-area-inset-bottom);
+        // height: 2em;
+    }
+
+    > *,
+    &:before,
+    &:after {
         background-color: $background-alternate;
     }
 
@@ -21,6 +40,10 @@
         background-color: $background-primary;
         padding: 1em;
     }
+
+    &:after {
+        background-color: $background-primary;
+    }
 }
 
 @media(min-width: 650px) {
@@ -28,7 +51,9 @@
         padding: 2em 0em;
     }
 
-    .heartsteps-page > * {
+    .heartsteps-page > *,
+    .heartsteps-page:before,
+    .heartsteps-page:after {
         width: 635px;
         margin: 0px auto;
     }
@@ -38,25 +63,6 @@
     .title,
     h2, h3, h4, h5, h6 {
         text-transform: none;
-    }
-}
-
-.heartsteps-page {
-
-    &:before,
-    &:after {
-        content: '';
-        display: block;
-        width: 100%;
-        background-color: transparent;
-    }
-
-    &:before {
-        padding-top: env(safe-area-inset-top);
-    }
-
-    &:after {
-        height: env(safe-area-inset-bottom);
     }
 }
 
