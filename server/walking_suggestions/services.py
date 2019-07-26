@@ -577,13 +577,10 @@ class WalkingSuggestionService():
         return None
 
     def get_study_day(self, time):
-        day = datetime_date(time.year, time.month, time.day)
-        initialized_day = datetime_date(
-            year = self.__configuration.service_initialized_date.year,
-            month = self.__configuration.service_initialized_date.month,
-            day = self.__configuration.service_initialized_date.day
-        )
-        difference = day - self.__configuration.service_initialized_date
+        day_service = DayService(user = self.__user)
+        day = day_service.get_date_at(time)
+        initialized_day = day_service.get_date_at(self.__configuration.service_initialized_date)
+        difference = day - initialized_day
         return difference.days
     
     def categorize_suggestion_time(self, decision):
