@@ -22,7 +22,11 @@ from randomization.services import DecisionService, DecisionContextService, Deci
 from weather.models import WeatherForecast
 from watch_app.models import StepCount as WatchStepCount
 
-from .models import Configuration, SuggestionTime, WalkingSuggestionDecision, WalkingSuggestionMessageTemplate
+from .models import Configuration
+from .models import NightlyUpdate
+from .models import SuggestionTime
+from .models import WalkingSuggestionDecision
+from .models import WalkingSuggestionMessageTemplate
 from .models import WalkingSuggestionServiceRequest as ServiceRequest
 
 class WalkingSuggestionTimeService:
@@ -244,6 +248,32 @@ class WalkingSuggestionService():
             self.__base_url = settings.WALKING_SUGGESTION_SERVICE_URL
         if not self.__configuration.enabled:
             raise self.Unavailable('Walking suggestion configuration disabled')
+
+    def nightly_update(self, date):
+        if not self.is_initialized():
+            NightlyUpdate.objects.filter(user = self.__user).delete()
+            self.initialize(date=date)
+        else:
+            last_update_query = NightlyUpdate.objects.filter(
+                user = self.__user,
+                updated = True,
+                day__gt = self.__configuration.service_initialized_date
+            )
+            if last_update_query.count() > 0:
+                last_updated_day = last_update_query.last().day
+            else:
+                last_updated_day = self.__configuration.service_initialized_date
+            last_updated_day = last_updated_day + timedelta(days=1)
+            while last_updated_day <= date:
+                self.update(date=last_updated_day)
+                NightlyUpdate.objects.update_or_create(
+                    user = self.__user,
+                    day = last_updated_day,
+                    defaults = {
+                        'updated': True
+                    }
+                )
+                last_updated_day = last_updated_day + timedelta(days=1)
 
     def make_request(self, uri, data):
         url = urljoin(self.__base_url, uri)

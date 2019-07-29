@@ -11,6 +11,8 @@ from anti_sedentary.services import AntiSedentaryService
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
+from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
+from walking_suggestions.services import WalkingSuggestionService
 
 from participants.models import Participant, User
 from participants.tasks import daily_update
@@ -54,8 +56,13 @@ class NightlyUpdateTest(TestCase):
 
         anti_sedentary_service_update.assert_called()
 
-    @patch('participants.services.walking_suggestions_nightly_update')
+    @patch.object(WalkingSuggestionService, 'nightly_update')
     def test_walking_suggestions_nightly_update(self, walking_suggestions_nightly_update):
+        WalkingSuggestionConfiguration.objects.create(
+            user = self.user,
+            enabled = True
+        )
+
         daily_update(username=self.user.username)
 
         walking_suggestions_nightly_update.assert_called()

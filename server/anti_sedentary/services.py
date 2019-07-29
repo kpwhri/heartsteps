@@ -24,6 +24,9 @@ class AntiSedentaryService:
     
     class NoSteps(ValueError):
         pass
+    
+    class RequestError(RuntimeError):
+        pass
 
     def __init__(self, configuration=None, user=None, username=None):
         try:
@@ -98,13 +101,16 @@ class AntiSedentaryService:
 
     def decide(self, decision):
         if self._client:
-            return self._client.decide(
-                decision = decision,
-                step_count = self.get_step_count_change_at(decision.time),
-                time = self.localize_time(decision.time),
-                day_start = self.get_day_start(decision.time),
-                day_end = self.get_day_end(decision.time)
-            )
+            try:
+                return self._client.decide(
+                    decision = decision,
+                    step_count = self.get_step_count_change_at(decision.time),
+                    time = self.localize_time(decision.time),
+                    day_start = self.get_day_start(decision.time),
+                    day_end = self.get_day_end(decision.time)
+                )
+            except AntiSedentaryClient.RequestError:
+                raise AntiSedentaryService.RequestError('Error from anti-sedentary-service')
         else:
             return decision.decide()
 
@@ -200,11 +206,14 @@ class AntiSedentaryService:
             })
             current_time = current_time + timedelta(minutes=decision_interval)
 
-        self._client.update(
-            decisions = decision_times,
-            day_start = day_start,
-            day_end = day_end
-        )
+        try:
+            self._client.update(
+                decisions = decision_times,
+                day_start = day_start,
+                day_end = day_end
+            )
+        except AntiSedentaryClient.RequestError:
+            raise AntiSedentaryService.RequestError('Update failed')
 
     
 

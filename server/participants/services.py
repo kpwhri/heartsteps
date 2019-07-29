@@ -125,14 +125,17 @@ class ParticipantService:
                 user = self.user
             )
             anti_sedentary_service.update(date)
-        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable):
+        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable, AntiSedentaryService.RequestError):
             pass
 
     def update_walking_suggestions(self, date):
-        walking_suggestions_nightly_update(
-            username = self.user.username,
-            day_string = date.strftime('%Y-%m-%d')
-        )
+        try:
+            walking_suggestion_service = WalkingSuggestionService(
+                user = self.user
+            )
+            walking_suggestion_service.nightly_update(date)
+        except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
+            print('unavaiable or error?', e)
     
     def queue_data_export(self):
         export_user_data.apply_async(kwargs={

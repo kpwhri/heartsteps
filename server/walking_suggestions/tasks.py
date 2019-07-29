@@ -26,7 +26,6 @@ def historical_update(username):
             time__gt = configuration.user.date_joined
         ).order_by('time')
         for decision in query.all():
-            print(decision.time)
             decision.update()
     except Configuration.DoesNotExist:
         pass
@@ -38,33 +37,9 @@ def nightly_update(username, day_string):
     day = date(dt.year, dt.month, dt.day)
     try:
         service = WalkingSuggestionService(username=username)
+        service.nightly_update(day)
     except WalkingSuggestionService.Unavailable:
         return None
-    configuration = Configuration.objects.get(user__username = username)
-    if not service.is_initialized():
-        NightlyUpdate.objects.filter(user = configuration.user).delete()
-        service.initialize(date=day)
-    else:
-        last_update_query = NightlyUpdate.objects.filter(
-            user = configuration.user,
-            updated = True,
-            day__gt = configuration.service_initialized_date
-        )
-        if last_update_query.count() > 0:
-            last_updated_day = last_update_query.last().day
-        else:
-            last_updated_day = configuration.service_initialized_date
-        last_updated_day = last_updated_day + timedelta(days=1)
-        while last_updated_day <= day:
-            service.update(date=last_updated_day)
-            NightlyUpdate.objects.update_or_create(
-                user = configuration.user,
-                day = last_updated_day,
-                defaults = {
-                    'updated': True
-                }
-            )
-            last_updated_day = last_updated_day + timedelta(days=1)
 
 @shared_task
 def initialize_and_update(username):
