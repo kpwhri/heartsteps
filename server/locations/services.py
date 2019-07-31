@@ -33,6 +33,9 @@ class LocationService:
             return location
         else:
             raise self.InvalidLocation()
+    
+    def get_current_location(self):
+        return self.get_last_location()
 
     def get_last_location(self):
         location = Location.objects.filter(user = self.__user).first()

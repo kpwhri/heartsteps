@@ -135,7 +135,7 @@ class ParticipantService:
             )
             walking_suggestion_service.nightly_update(date)
         except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
-            print('unavaiable or error?', e)
+            pass
     
     def queue_data_export(self):
         export_user_data.apply_async(kwargs={
