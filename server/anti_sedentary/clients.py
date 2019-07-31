@@ -47,14 +47,14 @@ class AntiSedentaryClient:
             response = requests.post(url, json=data)
         except:
             request_record.save()
-            raise RequestError('Error making request')
+            raise AntiSedentaryClient.RequestError('Error making request')
         request_record.response_code = response.status_code
         request_record.response_data = response.text
         request_record.response_time = timezone.now()
         request_record.save()
 
         if not response.text:
-            raise RequestError('Did not receive payload')
+            raise AntiSedentaryClient.RequestError('Did not receive payload')
 
         try:
             return json.loads(response.text)
