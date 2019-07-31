@@ -1,9 +1,14 @@
 import { Injectable } from "@angular/core";
+import { WeatherService } from "@heartsteps/weather/weather.service";
 
 @Injectable()
 export class BackgroundService{
 
-    constructor() {}
+    constructor(
+        private weatherService: WeatherService
+    ) {}
 
-    init() {}
+    public updateCache() {
+        this.weatherService.updateCache()
+    }
 }
