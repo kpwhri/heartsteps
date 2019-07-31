@@ -35,9 +35,9 @@ ENV PATH /root/anaconda3/bin:$PATH
 
 RUN conda create -n py36 python=3.6
 
-RUN conda install -c conda-forge pyreadr
+RUN conda install --name py36 -c conda-forge pyreadr
 
-RUN conda install --name py36 jupyter
+RUN conda install --name py36 -c conda-forge jupyter
 
 RUN conda install  --name py36 -c conda-forge tensorflow
 
