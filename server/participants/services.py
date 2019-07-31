@@ -14,6 +14,7 @@ from sms_messages.models import Contact as SMSContact
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
+from weather.services import WeatherService
 
 from .models import Participant, User
 
@@ -95,6 +96,7 @@ class ParticipantService:
             day = self.get_current_datetime()
         self.update_fitbit(day)
         self.update_adherence(day)
+        self.update_weather_forecasts(day)
 
         self.update_anti_sedentary(day)
         self.update_walking_suggestions(day)
@@ -135,6 +137,14 @@ class ParticipantService:
             )
             walking_suggestion_service.nightly_update(date)
         except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
+            pass
+
+    def update_weather_forecasts(self, date):
+        try:
+            weather_service = WeatherService(user = self.user)
+            weather_service.update_daily_forecast(date)
+            weather_service.update_forecasts()
+        except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
             pass
     
     def queue_data_export(self):

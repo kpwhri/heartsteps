@@ -59,7 +59,7 @@ class DarkSkyApiManager:
             service_request.response_data = response.text
             service_request.response_time = timezone.now()
             service_request.save()
-            raise self.RequestFailed()
+            raise DarkSkyApiManager.RequestFailed('DarkSky request failed')
 
         service_request.response_code = response.status_code
         service_request.response_data = response.text
