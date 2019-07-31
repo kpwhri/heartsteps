@@ -1,0 +1,3 @@
+We've noticed that you have not worn your Fitbit in a few days.
+If you are having problems with your Fitbit,
+please give us a call at {{study_phone_number}} and we'll help you.

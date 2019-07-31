@@ -1,9 +1,6 @@
 
-app-modal > article {
-    @extend .heartsteps-page;
-
-    z-index: 15;
-
+app-modal {
+    // z-index: 15;
 
     &:before {
         content: '';
@@ -15,6 +12,11 @@ app-modal > article {
         left: 0px;
         background-color: #000;
         opacity: 0.3;
-        z-index:-1;
+        z-index: 5;
     }
+}
+
+app-modal > article {
+    @extend .heartsteps-page;
+    z-index: 10;
 }

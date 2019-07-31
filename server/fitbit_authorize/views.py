@@ -30,13 +30,20 @@ def authorize(request, token):
     if token:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
-            session = AuthenticationSession.objects.get(token=token, disabled=False, created__gt=valid_time)
+            session = AuthenticationSession.objects.get(
+                token=token,
+                disabled=False,
+                created__gt=valid_time
+            )
         except AuthenticationSession.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
 
         fitbit = create_fitbit()
         callback_url = create_callback_url(request)
         authorize_url, state = fitbit.client.authorize_token_url(redirect_uri=callback_url)
+
+        if 'redirect' in request.GET:
+            session.redirect = request.GET['redirect']
         
         session.state = state
         session.save()
@@ -89,6 +96,8 @@ def authorize_process(request):
             'username': fitbit_user
         })
         
+        if session.redirect:
+            return redirect(session.redirect)
         return redirect(reverse('fitbit-authorize-complete'))
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 

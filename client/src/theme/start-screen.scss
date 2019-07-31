@@ -5,7 +5,9 @@
 
     color: $color-white;
 
-    > * {
+    > *,
+    &:before,
+    &:after {
         background-color: transparent;
     }
 
@@ -86,6 +88,10 @@
     legend,
     button {
         color: $color-white;
+    }
+
+    .heartsteps-remove-button:after {
+        background-color: $color-white;
     }
 
 }

@@ -10,6 +10,7 @@ app-page.start-screen {
 
     > article {
         @extend .start-screen;
+        color: $color-white;
         padding: 0em;
         margin: 0em;
     }

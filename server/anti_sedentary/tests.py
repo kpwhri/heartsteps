@@ -10,7 +10,6 @@ from django.utils import timezone
 from days.services import DayService 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from locations.services import LocationService
-from participants.signals import nightly_update
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
 from walking_suggestion_times.models import SuggestionTime
@@ -421,24 +420,3 @@ class EnableConfiguration(TestCase):
 
         configuration = Configuration.objects.get()
         self.assertTrue(configuration.enabled)
-
-class UpdateAtNightlyUpdate(TestCase):
-
-    @override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
-    @patch.object(AntiSedentaryService, 'update')
-    def test_nightly_update(self, anti_sedentary_service_update):
-        user = User.objects.create(username="test")
-        Configuration.objects.create(
-            user = user,
-            enabled = True
-        )
-
-        nightly_update.send(
-            sender = User,
-            user = user,
-            day = date.today()
-        )
-
-        anti_sedentary_service_update.assert_called_with(date.today())
-
-

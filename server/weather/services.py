@@ -1,5 +1,7 @@
 from django.utils import timezone
+from geopy.distance import distance as geopy_distance
 
+from days.services import DayService
 from locations.services import LocationService
 
 from .darksky_api_manager import DarkSkyApiManager
@@ -7,6 +9,12 @@ from .models import WeatherForecast
 from .models import DailyWeatherForecast
 
 class WeatherService:
+
+    class UnknownLocation(RuntimeError):
+        pass
+
+    class ForecastUnavailable(RuntimeError):
+        pass
 
     class NoForecast(RuntimeError):
         pass
@@ -63,42 +71,104 @@ class WeatherService:
             precipitation_type = worst_precipitation_type
         )
 
-    def update_daily_forecast(self, date):
-        location_service = LocationService(user=self.__user)
-        location = location_service.get_location_on(date)
-        
-        forecast = self._client.get_daily_forecast(
-            date = date,
-            latitude = location.latitude,
-            longitude = location.longitude
-        )
+    def is_forecast_in_past(self, forecast):
+        day_service = DayService(user = self.__user)
+        end_of_day = day_service.get_end_of_day(forecast.date)
+        if end_of_day < timezone.now():
+            return True
+        else:
+            return False
 
-        daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
+    def is_forecast_location_accurate(self, forecast):
+        if not forecast.latitude or not forecast.longitude:
+            return False
+
+        location_service = LocationService(user = self.__user)
+        current_location = location_service.get_current_location()
+        current_coords = (current_location.latitude, current_location.longitude)
+
+        forecast_coords = (forecast.latitude, forecast.longitude)
+        distance = geopy_distance(current_coords, forecast_coords)
+        if distance.km <= 50:
+            return True
+        else:
+            return False
+
+    def _can_update_forecast(self, forecast):
+        if self.is_forecast_in_past(forecast):
+            return False
+        if self.is_forecast_location_accurate(forecast):
+            return False
+        return True
+
+    def get_forecast(self, date):
+        try:
+            forecast = DailyWeatherForecast.objects.get(
+                user = self.__user,
+                date = date
+            )
+            if self._can_update_forecast(forecast):
+                return self.update_daily_forecast(date)
+            else:
+                return forecast
+        except DailyWeatherForecast.DoesNotExist:
+           return self.update_daily_forecast(date = date)
+
+    def get_forecasts(self, start, end):
+        forecasts = DailyWeatherForecast.objects.filter(
             user = self.__user,
-            date = date,
-            defaults = {
-                'category': forecast['category'],
-                'high': forecast['high'],
-                'low': forecast['low']
-            }
-        )
-        return daily_forecast
+            date__gte=start,
+            date__lte=end
+        ).all()
+        return forecasts
 
-    def update_forecasts(self):
-        location_service = LocationService(user=self.__user)
-        recent_location = location_service.get_last_location()
+    def update_daily_forecast(self, date):
+        try:
+            location_service = LocationService(user=self.__user)
+            location = location_service.get_location_on(date)
+            
+            forecast = self._client.get_daily_forecast(
+                date = date,
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
 
-        forecasts = []
-        for forecast in self._client.get_weekly_forecast(latitude = recent_location.latitude, longitude = recent_location.longitude):
             daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
                 user = self.__user,
-                date = forecast['date'],
+                date = date,
                 defaults = {
                     'category': forecast['category'],
                     'high': forecast['high'],
                     'low': forecast['low']
                 }
             )
-            forecasts.append(daily_forecast)
-        return forecasts
+            return daily_forecast
+        except LocationService.UnknownLocation as e:
+            raise WeatherService.UnknownLocation(e)
+        except DailyWeatherForecast.RequestFailed:
+            raise WeatherService.ForecastUnavailable('Request failed')
+
+
+    def update_forecasts(self):
+        try:
+            location_service = LocationService(user=self.__user)
+            recent_location = location_service.get_last_location()
+
+            forecasts = []
+            for forecast in self._client.get_weekly_forecast(latitude = recent_location.latitude, longitude = recent_location.longitude):
+                daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
+                    user = self.__user,
+                    date = forecast['date'],
+                    defaults = {
+                        'category': forecast['category'],
+                        'high': forecast['high'],
+                        'low': forecast['low']
+                    }
+                )
+                forecasts.append(daily_forecast)
+            return forecasts
+        except LocationService.UnknownLocation as e:
+            raise WeatherService.UnknownLocation(e)
+        except DarkSkyApiManager.RequestFailed:
+            raise WeatherForecast.ForecastUnavailable('Request failed')
 

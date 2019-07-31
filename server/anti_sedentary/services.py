@@ -24,6 +24,9 @@ class AntiSedentaryService:
     
     class NoSteps(ValueError):
         pass
+    
+    class RequestError(RuntimeError):
+        pass
 
     def __init__(self, configuration=None, user=None, username=None):
         try:
@@ -61,26 +64,27 @@ class AntiSedentaryService:
         return decision
     
     def get_decision(self, time):
-        try:
-            delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
-            return AntiSedentaryDecision.objects.get(
-                user = self.__user,
-                test = False,
-                time__range = [
-                    time - delta,
-                    time
-                ]
-            )
-        except AntiSedentaryDecision.DoesNotExist:
-            decision = AntiSedentaryDecision.objects.create(
-                user = self.__user,
-                time = time,
-                imputed = True,
-                treated = False
-            )
-            decision.sedentary = decision.is_sedentary()
-            decision.save()
+        delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
+        decision = AntiSedentaryDecision.objects.filter(
+            user = self.__user,
+            test = False,
+            time__range = [
+                time - delta,
+                time
+            ]
+        ).last()
+        if decision:
             return decision
+
+        decision = AntiSedentaryDecision.objects.create(
+            user = self.__user,
+            time = time,
+            imputed = True,
+            treated = False
+        )
+        decision.sedentary = decision.is_sedentary()
+        decision.save()
+        return decision
 
     def is_sedentary_at(self, time):
         service = StepCountService(user = self.__user)
@@ -98,13 +102,16 @@ class AntiSedentaryService:
 
     def decide(self, decision):
         if self._client:
-            return self._client.decide(
-                decision = decision,
-                step_count = self.get_step_count_change_at(decision.time),
-                time = self.localize_time(decision.time),
-                day_start = self.get_day_start(decision.time),
-                day_end = self.get_day_end(decision.time)
-            )
+            try:
+                return self._client.decide(
+                    decision = decision,
+                    step_count = self.get_step_count_change_at(decision.time),
+                    time = self.localize_time(decision.time),
+                    day_start = self.get_day_start(decision.time),
+                    day_end = self.get_day_end(decision.time)
+                )
+            except AntiSedentaryClient.RequestError:
+                raise AntiSedentaryService.RequestError('Error from anti-sedentary-service')
         else:
             return decision.decide()
 
@@ -200,11 +207,14 @@ class AntiSedentaryService:
             })
             current_time = current_time + timedelta(minutes=decision_interval)
 
-        self._client.update(
-            decisions = decision_times,
-            day_start = day_start,
-            day_end = day_end
-        )
+        try:
+            self._client.update(
+                decisions = decision_times,
+                day_start = day_start,
+                day_end = day_end
+            )
+        except AntiSedentaryClient.RequestError:
+            raise AntiSedentaryService.RequestError('Update failed')
 
     
 

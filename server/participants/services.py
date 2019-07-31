@@ -2,17 +2,21 @@ from datetime import datetime, timedelta, date
 
 from rest_framework.authtoken.models import Token
 
-from days.services import DayService
-from fitbit_activities.services import FitbitDayService
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
+from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
+from days.services import DayService
+from heartsteps_data_download.tasks import export_user_data
+from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
+from sms_messages.models import Contact as SMSContact
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
+from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
+from weather.services import WeatherService
 
 from .models import Participant, User
-from .signals import nightly_update
-from .signals import initialize_participant
 
 class ParticipantService:
 
@@ -30,6 +34,7 @@ class ParticipantService:
         if not participant:
             raise ParticipantService.NoParticipant()
         self.participant = participant
+        self.user = participant.user
 
     def get_participant(token, birth_year):
         try:
@@ -70,10 +75,18 @@ class ParticipantService:
         WalkingSuggestionConfiguration.objects.update_or_create(
             user=self.participant.user
         )
-        initialize_participant.send(
-            sender = Participant,
-            participant = self.participant
+        AdherenceMessageConfiguration.objects.update_or_create(
+            user = self.participant.user,
+            defaults = {
+                'enabled': True
+            }
         )
+        try:
+            sms_contact = SMSContact.objects.get(user = self.user)
+            sms_contact.enabled = True
+            sms_contact.save()
+        except SMSContact.DoesNotExist:
+            pass
     
     def deactivate(self):
         pass
@@ -81,18 +94,60 @@ class ParticipantService:
     def update(self, day=None):
         if not day:
             day = self.get_current_datetime()
+        self.update_fitbit(day)
+        self.update_adherence(day)
+        self.update_weather_forecasts(day)
 
+        self.update_anti_sedentary(day)
+        self.update_walking_suggestions(day)
+
+        self.queue_data_export()
+
+
+    def update_fitbit(self, date):
         try:
             fitbit_day = FitbitDayService(
                 user = self.participant.user,
-                date = day
+                date = date
             )
             fitbit_day.update()
         except FitbitDayService.NoAccount:
             pass
 
-        nightly_update.send(
-            sender = User,
-            user = self.participant.user,
-            day = date(day.year, day.month, day.day)
-        )
+    def update_adherence(self, date):
+        try:
+            service = AdherenceService(user = self.user)
+            service.update_adherence(date)
+        except AdherenceService.NoConfiguration:
+            pass
+
+    def update_anti_sedentary(self, date):
+        try:
+            anti_sedentary_service = AntiSedentaryService(
+                user = self.user
+            )
+            anti_sedentary_service.update(date)
+        except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable, AntiSedentaryService.RequestError):
+            pass
+
+    def update_walking_suggestions(self, date):
+        try:
+            walking_suggestion_service = WalkingSuggestionService(
+                user = self.user
+            )
+            walking_suggestion_service.nightly_update(date)
+        except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
+            pass
+
+    def update_weather_forecasts(self, date):
+        try:
+            weather_service = WeatherService(user = self.user)
+            weather_service.update_daily_forecast(date)
+            weather_service.update_forecasts()
+        except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
+            pass
+    
+    def queue_data_export(self):
+        export_user_data.apply_async(kwargs={
+            'username': self.user.username
+        })

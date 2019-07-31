@@ -14,17 +14,9 @@ class DailyWeatherView(DayView):
     def get(self, request, day):
         day = self.parse_date(day)
         self.validate_date(request.user, day)
-        try:
-            weather_forcast = DailyWeatherForecast.objects.get(
-                user = request.user,
-                date = day
-            )
-        except DailyWeatherForecast.DoesNotExist:
-            service = WeatherService(user = request.user)
-            weather_forcast = service.update_daily_forecast(
-                date = day
-            )
-        serialized = DailyWeatherForecastSerializer(weather_forcast)
+        service = WeatherService(user = request.user)
+        forecast = service.get_forecast(date = day)
+        serialized = DailyWeatherForecastSerializer(forecast)
         return Response(serialized.data)
 
 class DailyWeatherRangeView(DayView):
@@ -41,17 +33,7 @@ class DailyWeatherRangeView(DayView):
 
         if start_date > end_date:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
-        results = DailyWeatherForecast.objects.filter(
-            user = request.user,
-            date__range=[start_date, end_date]
-        ).all()
+        service = WeatherService(user = request.user)
+        results = service.get_forecasts(start_date, end_date)
         serialized = DailyWeatherForecastSerializer(results, many=True)
-        return Response(serialized.data, status=status.HTTP_200_OK)
-
-class DailyWeatherUpdateForecastsView(APIView):
-
-    def get(self, request):
-        service = WeatherService(user=request.user)
-        forecasts = service.update_forecasts()
-        serialized = DailyWeatherForecastSerializer(forecasts, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)

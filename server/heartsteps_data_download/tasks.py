@@ -8,6 +8,8 @@ from django.conf import settings
 from import_export import resources
 from import_export.fields import Field
 
+from adherence_messages.models import AdherenceMetric
+from adherence_messages.services import AdherenceService
 from anti_sedentary.admin import AntiSedentaryDecisionResouce
 from anti_sedentary.models import AntiSedentaryDecision
 from anti_sedentary.models import AntiSedentaryServiceRequest
@@ -86,8 +88,6 @@ def export_fitbit_data(username, directory):
     )
 
 def export_walking_suggestion_decisions(username, directory):
-    print('- walking suggestion decisions for %s' % (username))
-
     try:
         configuration = Configuration.objects.get(user__username = username)
     except Configuration.DoesNotExist:
@@ -104,8 +104,6 @@ def export_walking_suggestion_decisions(username, directory):
     )
     total_rows = queryset.count()
 
-    print('Total rows: %s' % (total_rows))
-
     filename = '%s.walking_suggestion_decisions.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     
@@ -116,7 +114,6 @@ def export_walking_suggestion_decisions(username, directory):
         end_index = start_index + slice_size
         if end_index >= total_rows:
             end_index = total_rows - 1
-        print('Get rows %d to %d' % (start_index, end_index))
         dataset = WalkingSuggestionDecisionResource().export(
             queryset = queryset[start_index:end_index]
         )
@@ -127,13 +124,10 @@ def export_walking_suggestion_decisions(username, directory):
             csv_list = csv.split('\r\n')
             csv = '\r\n'.join(csv_list[1:])
         _file.write(csv)
-        print('--> wrote data %d to %d' % (start_index, end_index))
         start_index = start_index + slice_size
     _file.close()
-    print('Done')
 
 def export_walking_suggestion_service_requests(username, directory):
-    print('- walkling suggestion service_requests')
     dataset = ServiceRequestResource().export(
         queryset = WalkingSuggestionServiceRequest.objects.filter(
             user__username = username
@@ -146,11 +140,8 @@ def export_walking_suggestion_service_requests(username, directory):
     )
 
 def export_anti_sedentary_decisions(username, directory):
-    print('- anti-sedentary decisions for %s' % (username))
-
     queryset = AntiSedentaryDecision.objects.filter(user__username=username)
     total_rows = queryset.count()
-    print('Total rows: %d' % total_rows)
     filename = '%s.anti_sedentary_decisions.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     start_index = 0
@@ -170,13 +161,10 @@ def export_anti_sedentary_decisions(username, directory):
             csv_list = csv.split('\r\n')
             csv = '\r\n'.join(csv_list[1:])
         _file.write(dataset.csv)
-        print('--> wrote data %d to %d' % (start_index, end_index))
         start_index = start_index + slice_size
     _file.close()
-    print('Done')
 
 def export_anti_sedentary_service_requests(username, directory):
-    print('- anti-sedentary service requests')
     dataset = ServiceRequestResource().export(
         queryset = AntiSedentaryServiceRequest.objects.filter(
             user__username = username
@@ -185,6 +173,93 @@ def export_anti_sedentary_service_requests(username, directory):
     write_csv_file(
         directory = directory,
         filename = '%s.anti_sedentary_service_requests' % (username),
+        content = dataset.csv
+    )
+
+class DailyAdherenceResource(resources.Resource):
+    date = Field()
+    app_used = Field()
+    app_installed = Field()
+    fitbit_worn = Field()
+    fitbit_updated = Field()
+    minutes_worn = Field()
+    fitbit_step_count = Field()
+    watch_app_step_count = Field()
+
+    class Meta:
+        export_order = [
+            'date',
+            'app_installed',
+            'app_used',
+            'fitbit_updated',
+            'fitbit_worn',
+            'minutes_worn',
+            'fitbit_step_count'
+        ]
+    
+    def get_key(self, instance, key):
+        if key in instance:
+            return instance[key]
+        else:
+            return None
+
+    def dehydrate_app_installed(self, instance):
+        return self.get_key(instance, AdherenceMetric.APP_INSTALLED)
+
+    def dehydrate_app_used(self, instance):
+        return self.get_key(instance, AdherenceMetric.APP_USED)
+
+    def dehydrate_fitbit_worn(self, instance):
+        return self.get_key(instance, AdherenceMetric.FITBIT_WORN)
+
+    def dehydrate_fitbit_updated(self, instance):
+        return self.get_key(instance, AdherenceMetric.FITBIT_UPDATED)
+
+    def dehydrate_date(self, instance):
+        return instance['date'].strftime('%Y-%m-%d')
+
+    def dehydrate_minutes_worn(self, instance):
+        return self.get_key(instance, 'fitbit_minutes_worn')
+
+    def dehydrate_fitbit_step_count(self, instance):
+        return self.get_key(instance, 'fitbit_step_count')
+
+def export_adherence_metrics(username, directory):
+    adherence_service = AdherenceService(username = username)
+    adherence_days = {}
+    for metric in AdherenceMetric.objects.order_by('date').filter(user__username=username).all():
+        date_string = metric.date.strftime('%Y-%m-%d')
+        if date_string not in adherence_days:
+            adherence_days[date_string] = {
+                'date': metric.date
+            }
+        adherence_days[date_string][metric.category] = metric.value
+
+    days = []
+    for value in adherence_days.values():
+        days.append(value)
+    days.sort(key=lambda day: day['date'])
+
+    try:
+        fitbit_service = FitbitService(username=username)
+        account = fitbit_service.account
+        for day in days:
+            try:
+                fitbit_day = FitbitDay.objects.get(
+                    account = account,
+                    date = day['date']
+                )
+                day['fitbit_step_count'] = fitbit_day.step_count
+                day['fitbit_minutes_worn'] = fitbit_day.get_minutes_worn()
+            except FitbitDay.DoesNotExist:
+                pass
+    except FitbitService.NoAccount:
+        account = None
+    
+    dataset = DailyAdherenceResource().export(queryset=days)
+    write_csv_file(
+        directory = directory,
+        filename = '%s.adherence_metrics.csv' % (username),
         content = dataset.csv
     )
 
@@ -204,6 +279,7 @@ def export_user_data(username):
     export_anti_sedentary_decisions(username=username, directory=user_directory)
     export_anti_sedentary_service_requests(username=username, directory=user_directory)
     export_fitbit_data(username=username, directory=user_directory)
+    export_adherence_metrics(username=username, directory=user_directory)
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
         shell=True

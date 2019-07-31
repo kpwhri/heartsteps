@@ -22,6 +22,7 @@ from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import initialize_and_update
+from walking_suggestions.tasks import historical_update
 
 class WalkingSuggestionDecisionResource(DecisionResource):
 
@@ -83,6 +84,16 @@ def initialize_walking_suggestion_service(modeladmin, request, queryset):
                 'username': configuration.user.username
             }
         )
+        messages.add_message(request, messages.INFO, 'Queued initialization for %s' % (configuration.user.username))
+
+def historical_update(modeladmin, request, queryset):
+    for configuration in queryset:
+        historical_update.apply_async(
+            kwargs = {
+                'username': configuration.user.username
+            }
+        )
+        messages.add_message(request, messages.INFO, 'Queued historical update for %s' % (configuration.user.username))
 
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'enabled', 'service_initialized']
@@ -91,7 +102,11 @@ class ConfigurationAdmin(admin.ModelAdmin):
         'service_initialized_date',
         'walking_suggestion_times'
     ]
-    actions = [send_walking_suggestion, initialize_walking_suggestion_service]
+    actions = [
+        send_walking_suggestion,
+        initialize_walking_suggestion_service,
+        historical_update
+    ]
 
     def walking_suggestion_times(self, configuration):
         times = []

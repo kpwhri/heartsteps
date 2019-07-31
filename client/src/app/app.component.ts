@@ -51,7 +51,7 @@ export class MyApp {
 
     setupBackgroundProcess(participant:any) {
         if(participant && participant.profileComplete) {
-            this.backgroundService.init();
+            this.backgroundService.updateCache();
         }
     }
 

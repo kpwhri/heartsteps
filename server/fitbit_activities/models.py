@@ -104,11 +104,7 @@ class FitbitDay(models.Model):
             time = time + timedelta(minutes=1)
         return data
 
-    def get_wore_fitbit(self):
-        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES'):
-            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES')
-        minimum_wear_minutes = settings.FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES
-
+    def get_minutes_worn(self):
         day_start = self.get_start_datetime()
         active_day_start = day_start.replace(hour=8)
         active_day_end = day_start.replace(hour=20)
@@ -121,12 +117,18 @@ class FitbitDay(models.Model):
             ],
             heart_rate__gt = 0
         ).count()
-        if total_heart_rates >= minimum_wear_minutes:
+        return total_heart_rates
+
+    def get_wore_fitbit(self):
+        if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES'):
+            raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES')
+        minimum_wear_minutes = settings.FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES
+        minutes_worn = self.get_minutes_worn()
+        if minutes_worn >= minimum_wear_minutes:
             return True
         else:
             return False
         
-
     def get_timezone(self):
         return pytz.timezone(self._timezone)
     

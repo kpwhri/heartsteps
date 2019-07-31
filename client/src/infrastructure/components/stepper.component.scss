@@ -2,7 +2,9 @@ heartsteps-stepper {
     @extend .heartsteps-page;
     @extend .heartsteps-scroll-full;
 
-    > * {
+    > *,
+    &:before,
+    &:after {
         background-color: $background-primary;
     }
 
@@ -36,7 +38,9 @@ heartsteps-stepper {
 
 heartsteps-stepper.start-screen {
 
-    > * {
+    > *,
+    &:before,
+    &:after {
         background-color: transparent;
     }
 
