@@ -63,6 +63,10 @@ class ParticipantService:
         timezone = service.get_current_timezone()
         return datetime.now(timezone)
 
+    def get_date_at(self, datetime):
+        service = DayService(user = self.participant.user)
+        return service.get_date_at(datetime)
+
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
@@ -91,15 +95,17 @@ class ParticipantService:
     def deactivate(self):
         pass
     
-    def update(self, day=None):
-        if not day:
-            day = self.get_current_datetime()
-        self.update_fitbit(day)
-        self.update_adherence(day)
-        self.update_weather_forecasts(day)
+    def update(self, datetime=None):
+        if not datetime:
+            datetime = self.get_current_datetime()
+        date = self.get_date_at(datetime)
+        
+        self.update_fitbit(datetime)
+        self.update_adherence(datetime)
+        self.update_weather_forecasts(datetime)
 
-        self.update_anti_sedentary(day)
-        self.update_walking_suggestions(day)
+        self.update_anti_sedentary(datetime)
+        self.update_walking_suggestions(date)
 
         self.queue_data_export()
 
