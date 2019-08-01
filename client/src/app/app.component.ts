@@ -3,7 +3,6 @@ import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { BackgroundService } from '@app/background.service';
 import { NotificationService } from './notification.service';
 import { AuthorizationService } from './authorization.service';
 import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
@@ -20,7 +19,6 @@ export class MyApp {
         statusBar: StatusBar,
         splashScreen: SplashScreen,
         private participantService:ParticipantService,
-        private backgroundService: BackgroundService,
         private notificationService: NotificationService,
         private authorizationService: AuthorizationService,
         private analyticsService: AnalyticsService
@@ -32,7 +30,6 @@ export class MyApp {
         .then(() => {
             this.participantService.participant.subscribe((participant: any) => {
                 this.setupAuthorization(participant);
-                this.setupBackgroundProcess(participant);
                 this.setupNotifications(participant);
             });
             return this.participantService.update();
@@ -43,23 +40,17 @@ export class MyApp {
         });
     }
 
-    setupNotifications(participant:any) {
-        if(participant && participant.profileComplete) {
-            this.notificationService.setup();
-        }
-    }
-
-    setupBackgroundProcess(participant:any) {
-        if(participant && participant.profileComplete) {
-            this.backgroundService.updateCache();
-        }
-    }
-
-    setupAuthorization(participant:any) {
+    private setupAuthorization(participant:any) {
         if(participant) {
             this.authorizationService.setup();
         } else {
             this.authorizationService.reset();
+        }
+    }
+
+    private setupNotifications(participant:any) {
+        if(participant && participant.profileComplete) {
+            this.notificationService.setup();
         }
     }
 }

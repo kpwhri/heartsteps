@@ -13,6 +13,7 @@ import { ProfileService } from './profile.factory';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 import { ParticipantInformationService } from './participant-information.service';
+import { WeatherModule } from '@heartsteps/weather/weather.module';
 
 @NgModule({
     imports: [
@@ -24,7 +25,8 @@ import { ParticipantInformationService } from './participant-information.service
         ContactInformationModule,
         WalkingSuggestionsModule,
         PlacesModule,
-        WeeklySurveyModule
+        WeeklySurveyModule,
+        WeatherModule
     ],
     providers: [
         ParticipantService,
