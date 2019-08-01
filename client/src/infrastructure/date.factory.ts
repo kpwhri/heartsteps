@@ -50,6 +50,16 @@ export class DateFactory {
         return this.getWeek(new Date());
     }
 
+    public getPreviousWeek():Array<Date> {
+        const dateLastWeek = moment().subtract(7, 'days').toDate();
+        return this.getWeek(dateLastWeek);
+    }
+
+    public getNextWeek():Array<Date> {
+        const dateLastWeek = moment().add(7, 'days').toDate();
+        return this.getWeek(dateLastWeek);
+    }
+
     public getRemainingDaysInWeek():Array<Date> {
         const now:Date = new Date();
         const today:Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());

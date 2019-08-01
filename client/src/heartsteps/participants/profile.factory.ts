@@ -12,6 +12,7 @@ import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.se
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 import { ParticipantInformationService } from "./participant-information.service";
+import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 
 
 @Injectable()
@@ -30,7 +31,8 @@ export class ProfileService {
         private cachedActivityLogService: CachedActivityLogService,
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService,
-        private participantInformationService: ParticipantInformationService
+        private participantInformationService: ParticipantInformationService,
+        private dailySummaryService: DailySummaryService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -65,7 +67,8 @@ export class ProfileService {
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
             this.setupActivityTypeService(),
-            this.loadParticipantInformation()
+            this.loadParticipantInformation(),
+            this.loadDailySummaries()
         ])
         .then(() => {
             return Promise.resolve(true);
@@ -288,6 +291,16 @@ export class ProfileService {
         return this.participantInformationService.load()
         .then(() => {
             return true
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        })
+    }
+
+    private loadDailySummaries(): Promise<boolean> {
+        return this.dailySummaryService.setup()
+        .then(() => {
+            return true;
         })
         .catch(() => {
             return Promise.resolve(false);
