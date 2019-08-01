@@ -24,28 +24,4 @@ CMD gcsfuse --implicit-dirs walking-suggestions-data ./data && gunicorn -b 0.0.0
 
 
 
-RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
-RUN bash Anaconda3-5.0.1-Linux-x86_64.sh -b
-RUN rm Anaconda3-5.0.1-Linux-x86_64.sh
-
-
-#ENV PATH /root/anaconda3/bin:$PATH
-ENV PATH /root/anaconda3/bin:$PATH
-
-
-RUN conda create -n py36 python=3.6
-
-RUN conda install --name py36 -c conda-forge pyreadr
-
-RUN conda install --name py36 -c conda-forge jupyter
-
-RUN conda install  --name py36 -c conda-forge tensorflow
-
-RUN conda install --name py36  -c conda-forge gpflow 
-RUN conda install pytorch torchvision -c pytorch
-
-RUN pip install git+https://github.com/cornellius-gp/gpytorch.git
-
-
-
-
+RUN install_python.sh
