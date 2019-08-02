@@ -6,7 +6,6 @@ from adherence_messages.models import Configuration as AdherenceMessageConfigura
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
-from days.services import DayService
 from heartsteps_data_download.tasks import export_user_data
 from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
@@ -58,15 +57,6 @@ class ParticipantService:
     def get_heartsteps_id(self):
         return self.participant.heartsteps_id
 
-    def get_current_datetime(self):
-        service = DayService(user=self.participant.user)
-        timezone = service.get_current_timezone()
-        return datetime.now(timezone)
-
-    def get_date_at(self, datetime):
-        service = DayService(user = self.participant.user)
-        return service.get_date_at(datetime)
-
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
@@ -95,20 +85,15 @@ class ParticipantService:
     def deactivate(self):
         pass
     
-    def update(self, datetime=None):
-        if not datetime:
-            datetime = self.get_current_datetime()
-        date = self.get_date_at(datetime)
-        
-        self.update_fitbit(datetime)
-        self.update_adherence(datetime)
-        self.update_weather_forecasts(datetime)
+    def update(self, date):        
+        self.update_fitbit(date)
+        self.update_adherence(date)
+        self.update_weather_forecasts(date)
 
-        self.update_anti_sedentary(datetime)
+        self.update_anti_sedentary(date)
         self.update_walking_suggestions(date)
 
         self.queue_data_export()
-
 
     def update_fitbit(self, date):
         try:
