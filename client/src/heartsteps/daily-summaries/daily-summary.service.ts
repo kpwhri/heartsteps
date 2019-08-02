@@ -8,6 +8,7 @@ import { BehaviorSubject } from "rxjs";
 import * as moment from 'moment';
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
+import { DateFactory } from "@infrastructure/date.factory";
 
 @Injectable()
 export class DailySummaryService {
@@ -20,6 +21,7 @@ export class DailySummaryService {
         private activityLogService: ActivityLogService,
         private heartstepsServer: HeartstepsServer,
         private serializer: DailySummarySerializer,
+        private dateFactory: DateFactory,
         storageService: DocumentStorageService
     ) {
         this.storage = storageService.create('daily-summaries');
@@ -29,6 +31,34 @@ export class DailySummaryService {
         });
         this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
             this.get(activityLog.start);
+        });
+    }
+
+    public setup(): Promise<void> {
+        return this.updateCache()
+        .then(() => {
+            return Promise.all([
+                this.getDatesToStore(),
+                this.storage.getIds()
+            ])
+        })
+        .then((results) => {
+            const datesToStore: Array<Date> = results[0];
+            const storedIds: Array<String> = results[1];
+
+            const datesToUpdate = datesToStore.filter((date) => {
+                const serializedDate = this.serializer.formatDate(date);
+                if (storedIds.indexOf(serializedDate) === -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            return this.loadDates(datesToUpdate);
+        })
+        .then(() => {
+            return Promise.resolve(undefined)
         });
     }
 
@@ -147,6 +177,40 @@ export class DailySummaryService {
         .then(() => {
             return summary;
         });
+    }
+
+    private updateCache(): Promise<undefined> {
+        this.storage.getAll()
+        .then((data) => {
+            const newData = {};
+            this.getDatesToStore().forEach((date) => {
+                const date_string = this.serializer.formatDate(date);
+                if(data[date_string]) {
+                    newData[date_string] = data[date_string];
+                }
+            });
+            return this.storage.setAll(newData);
+        })
+        return Promise.resolve(undefined);
+    }
+
+    private getDatesToStore(): Array<Date> {
+        const currentWeek = this.dateFactory.getCurrentWeek();
+        const previousWeek = this.dateFactory.getPreviousWeek();
+        return previousWeek.concat(currentWeek);
+    }
+
+    private loadDates(dates:Array<Date>): Promise<void> {
+        let promise = Promise.resolve();
+        dates.forEach((date) => {
+            promise = promise.then(()=> {
+                return this.get(date)
+                .then(() => {
+                    return Promise.resolve(undefined);
+                });
+            });
+        });
+        return promise;
     }
 
 }

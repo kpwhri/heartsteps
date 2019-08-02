@@ -13,6 +13,7 @@ from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
+from weather.services import WeatherService
 
 from participants.models import Participant, User
 from participants.tasks import daily_update
@@ -76,4 +77,13 @@ class NightlyUpdateTest(TestCase):
         daily_update(username = self.user.username)
 
         update_adherence.assert_called()
+
+    @patch.object(WeatherService, 'update_forecasts')
+    @patch.object(WeatherService, 'update_daily_forecast')
+    def test_updates_daily_weather_forecasts(self, update_daily_forecast, update_forecasts):
+
+        daily_update(username = self.user.username)
+
+        update_daily_forecast.assert_called()
+        update_forecasts.assert_called()
 

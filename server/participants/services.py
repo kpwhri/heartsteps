@@ -14,6 +14,7 @@ from sms_messages.models import Contact as SMSContact
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
+from weather.services import WeatherService
 
 from .models import Participant, User
 
@@ -62,6 +63,10 @@ class ParticipantService:
         timezone = service.get_current_timezone()
         return datetime.now(timezone)
 
+    def get_date_at(self, datetime):
+        service = DayService(user = self.participant.user)
+        return service.get_date_at(datetime)
+
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
@@ -90,14 +95,17 @@ class ParticipantService:
     def deactivate(self):
         pass
     
-    def update(self, day=None):
-        if not day:
-            day = self.get_current_datetime()
-        self.update_fitbit(day)
-        self.update_adherence(day)
+    def update(self, datetime=None):
+        if not datetime:
+            datetime = self.get_current_datetime()
+        date = self.get_date_at(datetime)
+        
+        self.update_fitbit(datetime)
+        self.update_adherence(datetime)
+        self.update_weather_forecasts(datetime)
 
-        self.update_anti_sedentary(day)
-        self.update_walking_suggestions(day)
+        self.update_anti_sedentary(datetime)
+        self.update_walking_suggestions(date)
 
         self.queue_data_export()
 
@@ -135,7 +143,15 @@ class ParticipantService:
             )
             walking_suggestion_service.nightly_update(date)
         except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
-            print('unavaiable or error?', e)
+            pass
+
+    def update_weather_forecasts(self, date):
+        try:
+            weather_service = WeatherService(user = self.user)
+            weather_service.update_daily_forecast(date)
+            weather_service.update_forecasts()
+        except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
+            pass
     
     def queue_data_export(self):
         export_user_data.apply_async(kwargs={

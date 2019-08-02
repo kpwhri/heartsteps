@@ -35,6 +35,13 @@ export class DocumentStorage {
         });
     }
 
+    public getIds():Promise<Array<string>> {
+        return this.getData()
+        .then((data) => {
+            return Object.keys(data);
+        });
+    }
+
     public setAll(objects:any): Promise<boolean> {
         return this.setData(objects);
     }

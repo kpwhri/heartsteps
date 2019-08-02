@@ -295,30 +295,83 @@ class WeatherServiceTest(TestCase):
         self.assertEqual(forecast.high, 98.7)
         self.assertEqual(forecast.low, 65.4)
 
-class ForecastViewTests(APITestCase):
+class WeatherTestBase(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(
-            username="test"
-        )
-        self.client.force_authenticate(self.user)
+        self.user = User.objects.create(username='test')
 
-    def create_weather_forecast(self, date, category=DailyWeatherForecast.CLEAR, high=75, low=57):
-        DailyWeatherForecast.objects.create(
+        class MockLocation:
+            latitude = 12
+            longitude = 34
+
+        get_location_on_patch = patch.object(LocationService, 'get_location_on')
+        self.get_location_on = get_location_on_patch.start()
+        self.get_location_on.return_value = MockLocation()
+        self.addCleanup(get_location_on_patch.stop)
+
+        get_last_location_patch = patch.object(LocationService, 'get_last_location')
+        self.get_last_location = get_last_location_patch.start()
+        self.get_last_location.return_value = MockLocation()
+        self.addCleanup(get_last_location_patch.stop)
+
+    def create_weather_forecast(
+        self,
+        date,
+        category=DailyWeatherForecast.CLEAR,
+        high=75,
+        low=57,
+        latitude = 12,
+        longitude = 34
+    ):
+        return DailyWeatherForecast.objects.create(
             user = self.user,
             date = date,
             category = category,
             high = high,
-            low = low
+            low = low,
+            latitude = latitude,
+            longitude = longitude
         )
 
-    @patch.object(LocationService, 'get_location_on')
+
+class CanUpdateForecastTests(WeatherTestBase):
+
+    def setUp(self):
+        super().setUp()
+        self.service = WeatherService(user = self.user)
+
+    def test_does_not_update_forecasts_in_past(self):
+        yesterday = date.today() - timedelta(days=1)
+        forecast = self.create_weather_forecast(date = yesterday)
+
+        self.assertFalse(self.service._can_update_forecast(forecast))
+
+    def test_updates_if_no_latitude_or_longitude(self):
+        forecast = self.create_weather_forecast(
+            date = date.today(),
+            latitude = None,
+            longitude = None    
+        )
+
+        self.assertTrue(self.service._can_update_forecast(forecast))
+
+    def test_updates_if_location_changed_more_than_50_meters(self):
+        forecast = self.create_weather_forecast(
+            date = date.today(),
+            latitude = None,
+            longitude = None    
+        )
+
+        self.assertTrue(self.service._can_update_forecast(forecast))
+
+class ForecastViewTests(WeatherTestBase, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_authenticate(self.user)
+
     @patch.object(DarkSkyApiManager, 'get_daily_forecast')
-    def test_weather_forecast_does_not_exist(self, get_forecast, get_location_on):
-        class MockLocation:
-            latitude = 12
-            longitude = 34
-        get_location_on.return_value = MockLocation()
+    def test_weather_forecast_does_not_exist(self, get_forecast):
         get_forecast.return_value = {
             'date': date.today(),
             'category': DailyWeatherForecast.RAIN,
@@ -353,6 +406,25 @@ class ForecastViewTests(APITestCase):
         self.assertEqual(response.data['high'], 75)
         self.assertEqual(response.data['low'], 57)
 
+    @patch.object(DarkSkyApiManager, 'get_daily_forecast')
+    @patch.object(WeatherService, '_can_update_forecast', return_value=True)
+    def test_updates_stale_weather_forecast(self, _can_update_forecast, get_forecast):
+        get_forecast.return_value = {
+            'date': date.today(),
+            'category': DailyWeatherForecast.RAIN,
+            'high': 67.8,
+            'low': 56.7
+        }
+        self.create_weather_forecast(date = date.today())
+
+        response = self.client.get(reverse('weather-day', kwargs={
+            'day': date.today().strftime('%Y-%m-%d')
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['category'], DailyWeatherForecast.RAIN)
+
+
     def test_get_weather_for_date_range(self):
         for offset in range(14):
             self.create_weather_forecast(
@@ -372,32 +444,3 @@ class ForecastViewTests(APITestCase):
         forecast = response.data[-1]
         self.assertEqual(forecast['date'], date.today().strftime('%Y-%m-%d'))
         self.assertEqual(forecast['high'], 80)
-
-    @patch.object(WeatherService, 'update_forecasts')
-    def test_update_forecasts(self, update_forecasts):
-        update_forecasts.return_value = [
-            DailyWeatherForecast.objects.create(
-                user = self.user,
-                date = date(2019,6,27),
-                category = DailyWeatherForecast.CLEAR,
-                high = 78.9,
-                low = 45.6
-            ), 
-            DailyWeatherForecast.objects.create(
-                user = self.user,
-                date = date(2019,6,28),
-                category = DailyWeatherForecast.RAIN,
-                high = 67.8,
-                low = 54.3
-            )
-        ]
-
-        response = self.client.get(reverse('weather-update'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        forecast = response.data[1]
-        self.assertEqual(forecast['date'], '2019-06-28')
-        self.assertEqual(forecast['category'], 'rain')
-        self.assertEqual(forecast['high'], 67.8)
-        self.assertEqual(forecast['low'], 54.3)

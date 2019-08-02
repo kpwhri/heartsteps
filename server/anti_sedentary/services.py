@@ -64,26 +64,27 @@ class AntiSedentaryService:
         return decision
     
     def get_decision(self, time):
-        try:
-            delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
-            return AntiSedentaryDecision.objects.get(
-                user = self.__user,
-                test = False,
-                time__range = [
-                    time - delta,
-                    time
-                ]
-            )
-        except AntiSedentaryDecision.DoesNotExist:
-            decision = AntiSedentaryDecision.objects.create(
-                user = self.__user,
-                time = time,
-                imputed = True,
-                treated = False
-            )
-            decision.sedentary = decision.is_sedentary()
-            decision.save()
+        delta = timedelta(minutes=self.decision_minute_interval) - timedelta(seconds=1)
+        decision = AntiSedentaryDecision.objects.filter(
+            user = self.__user,
+            test = False,
+            time__range = [
+                time - delta,
+                time
+            ]
+        ).last()
+        if decision:
             return decision
+
+        decision = AntiSedentaryDecision.objects.create(
+            user = self.__user,
+            time = time,
+            imputed = True,
+            treated = False
+        )
+        decision.sedentary = decision.is_sedentary()
+        decision.save()
+        return decision
 
     def is_sedentary_at(self, time):
         service = StepCountService(user = self.__user)

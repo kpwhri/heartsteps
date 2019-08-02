@@ -4,6 +4,7 @@ import { DocumentStorageService, DocumentStorage } from "@infrastructure/documen
 import { DailyWeather } from "./daily-weather.model";
 import { Observable, Subject } from "rxjs";
 import * as moment from 'moment';
+import { DateFactory } from "@infrastructure/date.factory";
 
 
 @Injectable()
@@ -13,14 +14,14 @@ export class WeatherService {
 
     constructor(
         private heartstepsServer: HeartstepsServer,
+        private dateFactory: DateFactory,
         storage: DocumentStorageService
     ) {
         this.storage = storage.create('weather');
     }
 
     public get(date: Date): Promise<DailyWeather> {
-        const date_string = moment(date).format('YYYY-MM-DD')
-        return this.storage.get(date_string)
+        return this.retrieve(date)
         .then((data) => {
             return this.deserialize(data)
         })
@@ -29,25 +30,98 @@ export class WeatherService {
         });
     }
 
-    public update(date: Date): Promise<DailyWeather> {
-        const date_string = moment(date).format('YYYY-MM-DD')
-        return this.heartstepsServer.get('weather/'+date_string)
-        .then((data: any) => {
-            const forecast = this.deserialize(data);
-            return this.store(forecast);
-        });
-    }
-
     public watch(date: Date): Observable<DailyWeather> {
         const subject: Subject<DailyWeather> = new Subject();
-
-        this.get(date).then((weather) => {
-            subject.next(weather);
+        this.retrieve(date)
+        .then((forecast) => {
+            subject.next(forecast);
+            this.update(date);
+        })
+        .catch(() => {
+            this.load(date)
+            .then((forecast) => {
+                subject.next(forecast);
+                console.log('Try to store date', date);
+                if(this.canStoreDate(date)) {
+                    console.log('Storing date', date);
+                    this.store(forecast);
+                }
+            });
         });
 
         return subject.asObservable();
     }
 
+    public updateCache(): Promise<void> {
+        return this.retrieveAll()
+        .then((forecasts) => {
+            const forecasts_to_save = forecasts.filter((forecast) => {
+                return this.canStoreDate(forecast.date);
+            });
+            return this.storeAll(forecasts_to_save);
+        })
+        .then(() => {
+            return undefined;
+        });
+    }
+
+    private update(date: Date): Promise<DailyWeather> {
+        return this.load(date)
+        .then((forecast) => {
+            return this.store(forecast);
+        });
+    }
+
+    private load(date: Date): Promise<DailyWeather> {
+        const date_string = moment(date).format('YYYY-MM-DD')
+        return this.heartstepsServer.get('weather/'+date_string)
+        .then((data: any) => {
+            return this.deserialize(data);
+        });
+    }
+
+    private retrieve(date: Date): Promise<DailyWeather> {
+        const date_string = moment(date).format('YYYY-MM-DD')
+        return this.storage.get(date_string);
+    }
+
+    private retrieveAll(): Promise<Array<DailyWeather>> {
+        return this.storage.getList()
+        .then((storedObjects) => {
+            return storedObjects.map((data) => {
+                return this.deserialize(data)
+            })
+        });
+    }
+
+    private storeAll(forecasts: Array<DailyWeather>): Promise<Array<DailyWeather>> {
+        const forecastsObj = {};
+        forecasts.forEach((forecast) => {
+            const serialized = this.serialize(forecast);
+            forecastsObj[serialized.date] = forecast;
+        });
+        return this.storage.setAll(forecastsObj)
+        .then(() => {
+            return forecasts;
+        })
+
+    }
+
+    private canStoreDate(date: Date): boolean {
+        const datesToSave = this.cacheableDates();
+        const minDate = datesToSave[0];
+        const maxDate = datesToSave[datesToSave.length - 1];
+        if (minDate <= date && maxDate >= date) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private cacheableDates(): Array<Date> {
+        return this.dateFactory.getCurrentWeek();
+    }
+ 
     private store(forecast: DailyWeather): Promise<DailyWeather> {
         const serialized = this.serialize(forecast);
         return this.storage.set(serialized.date, serialized)
