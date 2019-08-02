@@ -5,8 +5,6 @@ RUN apt-get update && \
     apt-get install -y r-base
 
 ADD credentials /credentials
-ADD service-template/utils /utils 
-ENV PATH $PATH:/utils
 
 # Install google cloud sdk and gcsfuse
 ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/gae-storage-service.json
@@ -19,3 +17,7 @@ RUN echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -
 # Set up google cloud project
 RUN gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
     gcloud config set project heartsteps-kpwhri
+
+ADD service-template/utils /utils 
+ENV PATH $PATH:/utils
+RUN chmod +x /utils/*
