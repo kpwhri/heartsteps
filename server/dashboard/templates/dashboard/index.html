@@ -84,12 +84,12 @@
                     {{ participant.fitbit_first_updated|date }}
                 </td>
                 <td>
-                    {{ participant.fitbit_last_updated|date }}
+                    {{ participant.last_updated_on }}
                 </td>
                 <td {% if participant.adherence_install_app > 0 %}
                         class='adherence-issue'
                     {% endif %}>
-                    {{participant.wore_fitbit_days}}
+                    {{ participant.days_wore_fitbit }}
                 </td>
                 <td>
                     <!-- Is app installed -->
