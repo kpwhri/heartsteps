@@ -39,9 +39,10 @@ class LocationService:
 
     def get_last_location(self):
         location = Location.objects.filter(user = self.__user).first()
-        if not location:
+        if location:
+            return location
+        else:
             raise self.UnknownLocation()
-        return location
     
     def categorize_location(self, latitude, longitude):
         near_by_places = []
@@ -73,7 +74,7 @@ class LocationService:
             time__lte=time
         ).first()
         if not location:
-            raise self.UnknownLocation()
+            raise LocationService.UnknownLocation()
         return location
 
     def get_current_timezone(self):
