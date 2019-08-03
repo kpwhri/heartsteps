@@ -129,9 +129,11 @@ class WeatherService:
                 date = date
             )
             if self._can_update_forecast(forecast):
-                return self.update_daily_forecast(date)
-            else:
-                return forecast
+                try:
+                    return self.update_daily_forecast(date)
+                except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
+                    pass
+            return forecast
         except DailyWeatherForecast.DoesNotExist:
            return self.update_daily_forecast(date = date)
 
