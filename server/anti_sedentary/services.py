@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
 
 from django.utils import timezone
 from django.conf import settings
@@ -7,12 +9,15 @@ from django.core.exceptions import ImproperlyConfigured
 from days.services import DayService
 from fitbit_activities.services import FitbitStepCountService
 from fitbit_api.services import FitbitService
-from randomization.services import DecisionMessageService, DecisionContextService
+from randomization.services import DecisionContextService
+from randomization.services import DecisionMessageService
 from walking_suggestion_times.models import SuggestionTime
 from watch_app.services import StepCountService
 
-from anti_sedentary.clients import AntiSedentaryClient
-from anti_sedentary.models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, Configuration
+from .clients import AntiSedentaryClient
+from .models import AntiSedentaryDecision
+from .models import AntiSedentaryMessageTemplate
+from .models import Configuration
 
 class AntiSedentaryService:
 
@@ -116,8 +121,12 @@ class AntiSedentaryService:
             return decision.decide()
 
     def localize_time(self, time):
-        service = DayService(self.__user)
-        local_timezone = service.get_timezone_at(time)
+        day_service = DayService(self.__user)
+        local_timezone = day_service.get_timezone_at(time)
+        if isinstance(time, datetime):
+            return time.astimezone(local_timezone)
+        else:
+            return datetime(time.year, time.month, time.day, tzinfo=local_timezone)
         return time.astimezone(local_timezone)
 
     def get_day_end(self, time):
@@ -127,13 +136,13 @@ class AntiSedentaryService:
                 user=self.__user,
                 category = SuggestionTime.POSTDINNER
             )
+            updated_time = local_time.replace(
+                hour = suggestion_time.hour,
+                minute = suggestion_time.minute
+            )
+            return updated_time + timedelta(hours=1)
         except SuggestionTime.DoesNotExist:
             return local_time.replace(hour=20, minute=0)
-        updated_time = local_time.replace(
-            hour = suggestion_time.hour,
-            minute = suggestion_time.minute
-        )
-        return updated_time + timedelta(hours=1)
 
 
     def get_day_start(self, time):
