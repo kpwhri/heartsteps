@@ -164,7 +164,7 @@ class WeatherService:
             return daily_forecast
         except LocationService.UnknownLocation as e:
             raise WeatherService.UnknownLocation(e)
-        except DailyWeatherForecast.RequestFailed:
+        except DarkSkyApiManager.RequestFailed:
             raise WeatherService.ForecastUnavailable('Request failed')
 
 
