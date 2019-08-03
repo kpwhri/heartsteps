@@ -1,4 +1,7 @@
-import requests, json, pytz
+import requests
+import json
+import pytz
+import time
 from datetime import datetime, timedelta, date as datetime_date
 from urllib.parse import urljoin
 
@@ -275,7 +278,7 @@ class WalkingSuggestionService():
                 )
                 last_updated_day = last_updated_day + timedelta(days=1)
 
-    def make_request(self, uri, data):
+    def make_request(self, uri, data, attempt=1):
         url = urljoin(self.__base_url, uri)
         data['userID'] = self.__user.username
         request_record = ServiceRequest.objects.create(
@@ -294,6 +297,10 @@ class WalkingSuggestionService():
         request_record.save()
 
         if response.status_code >= 400:
+            if attempt <= 2:
+                attempt += 1
+                time.sleep(20)
+                return self.make_request(uri, data, attempt)
             raise self.RequestError('Request failed')
 
         try:

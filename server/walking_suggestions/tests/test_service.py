@@ -1,6 +1,7 @@
 import requests
 import json
 import pytz
+import time
 from datetime import datetime, timedelta, date
 import random
 from unittest.mock import patch, call
@@ -34,6 +35,10 @@ class ServiceTestCase(TestCase):
     def setUp(self):
         self.create_walking_suggestion_service()
         self.create_fitbit_account()
+
+        time_patch = patch.object(time, 'sleep')
+        time_patch.start()
+        self.addCleanup(time_patch.stop)
 
     def create_walking_suggestion_service(self):
         self.user, _ = User.objects.get_or_create(username="test")
