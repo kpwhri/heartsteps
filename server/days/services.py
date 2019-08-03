@@ -4,6 +4,8 @@ import pytz
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
+from locations.services import LocationService
+
 from .models import Day
 from .models import User
 
@@ -65,17 +67,17 @@ class DayService:
     def get_best_timezone_for_date(self, dt):
         previous_day = Day.objects.filter(
             user = self.__user,
-            date__lt = dt
+            date__lte = dt
         ).last()
         if previous_day:
             return previous_day.get_timezone()
         next_day = Day.objects.filter(
             user = self.__user,
-            date__gt = dt
+            date__gte = dt
         ).first()
         if next_day:
             return next_day.get_timezone()
-        return pytz.UTC
+        return self.get_default_timezone()
 
     def get_best_timezone_for_datetime(self, dt):
         previous_day = Day.objects.filter(
@@ -90,7 +92,11 @@ class DayService:
         ).first()
         if next_day:
             return next_day.get_timezone()
-        return pytz.UTC
+        return self.get_default_timezone()
+
+    def get_default_timezone(self):
+        service = LocationService(user = self.__user)
+        return service.get_home_timezone()
 
     def get_timezone_at(self, dt):
         day = self.get_day(dt)
