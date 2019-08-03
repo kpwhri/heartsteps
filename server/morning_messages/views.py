@@ -9,78 +9,54 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from locations.services import LocationService
+from days.views import DayView
 
 from .services import MorningMessageService
 from .serializers import MorningMessageSerializer, MorningMessageSurveySerializer
 
-def format_date(date):
-    return datetime.strftime(date, '%Y-%m-%d')
-
-def parse_date(day):
-    try:
-        dt = datetime.strptime(day, '%Y-%m-%d').astimezone(pytz.UTC)
-        return date(dt.year, dt.month, dt.day)
-    except:
-        raise Http404()
-
-def get_day_joined(user):
-    location_service = LocationService(user)
-    tz = location_service.get_current_timezone()
-    date_joined = user.date_joined.astimezone(tz)
-    return date(
-        date_joined.year,
-        date_joined.month,
-        date_joined.day
-    )
-
-def check_valid_date(user, day):
-    day_joined = get_day_joined(user)
-    if day < day_joined:
-        raise Http404()
-
-class AnchorMessageView(APIView):
+class AnchorMessageView(DayView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, day):
-        request_date = parse_date(day)
-        check_valid_date(request.user, request_date)
+        date = self.parse_date(day)
+        self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
             user = request.user
         )
-        morning_message, _ = morning_message_service.get_or_create(request_date)
+        morning_message, _ = morning_message_service.get_or_create(date)
         return Response({
             'message': morning_message.anchor
         }, status = status.HTTP_200_OK)
 
-class MorningMessageView(APIView):
+class MorningMessageView(DayView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, day):
-        request_date = parse_date(day)
-        check_valid_date(request.user, request_date)
+        date = self.parse_date(day)
+        self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
             user = request.user
         )
-        morning_message, _ = morning_message_service.get_or_create(request_date)
+        morning_message, _ = morning_message_service.get_or_create(date)
         serialized = MorningMessageSerializer(morning_message)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
     def post(self, request, day):
-        request_date = parse_date(day)
-        check_valid_date(request.user, request_date)
+        date = self.parse_date(day)
+        self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(user = request.user)
-        morning_message_service.send_notification(request_date)
+        morning_message_service.send_notification(date)
         return Response({}, status=status.HTTP_201_CREATED)
 
-class MorningMessageSurveyView(APIView):
+class MorningMessageSurveyView(DayView):
 
     def get_survey(self, request, day):
-        request_date = parse_date(day)
-        check_valid_date(request.user, request_date)
+        date = self.parse_date(day)
+        self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
             user = request.user
         )
-        morning_message, _ = morning_message_service.get_or_create(request_date)
+        morning_message, _ = morning_message_service.get_or_create(date)
         if morning_message.survey:
             return morning_message.survey
         else:
