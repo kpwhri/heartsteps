@@ -4,7 +4,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    padding: 1em;
+    padding: 0.5em 1em;
     font-size: 1em;
     text-align: center;
     border: 1px $color-primary solid;
@@ -24,6 +24,19 @@
     &:active {
         background-color: $color-primary;
         color: $color-white;
+    }
+}
+
+.heartsteps-primary-button {
+    @extend .heartsteps-button;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    background-color: $color-primary;
+    color: $color-white;
+
+    &:focus, &:hover {
+        box-shadow: inset 0 0 0.5em 0px $color-white;
+        outline: none;
     }
 }
 

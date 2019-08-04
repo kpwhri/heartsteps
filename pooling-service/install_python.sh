@@ -3,10 +3,7 @@ wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
 bash Anaconda3-5.0.1-Linux-x86_64.sh -b
 rm Anaconda3-5.0.1-Linux-x86_64.sh
 
-
-#ENV PATH /root/anaconda3/bin:$PATH
-ENV PATH /root/anaconda3/bin:$PATH
-
+sudo ln -s /root/anaconda3/bin/conda /usr/local/bin/conda
 
 conda create -n py36 python=3.6
 

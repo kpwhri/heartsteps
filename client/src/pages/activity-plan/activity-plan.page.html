@@ -1,20 +1,18 @@
 <app-modal
-    title="Activity Plan"
+    title="Edit Activity Plan"
     dismiss="Cancel"
     (onDismiss)="dismiss()"
     >
-    <a *ngIf="!activityPlan.complete"
-        app-page-control
+    <button *ngIf="!activityPlan.complete"
         (click)="goToComplete()"
         >
         Complete
-    </a>
-    <a *ngIf="activityPlan.activityLogId"
-        app-page-control
+    </button>
+    <button *ngIf="activityPlan.activityLogId"
         (click)="goToActivityLog()"
         >
         Edit
-    </a>
+    </button>
     <app-form
         [formGroup]="planForm"
         [disabled]="disabled"

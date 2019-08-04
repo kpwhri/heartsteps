@@ -2,7 +2,7 @@
     title="Complete Activity Plan"
     (onDismiss)="dismiss()"
     >
-    <a app-page-control (click)="editPlan()">Edit</a>
+    <button (click)="editPlan()">Edit</button>
     <app-form
         [formGroup]="form"
         submitLabel="Complete"

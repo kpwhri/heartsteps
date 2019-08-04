@@ -94,6 +94,27 @@ class WeatherService:
         else:
             return False
 
+    def _get_location_on(self, date):
+        try:
+            location_service = LocationService(user=self.__user)
+            return location_service.get_location_on(date)
+        except LocationService.UnknownLocation:
+            return self._get_home_location()
+
+    def _get_home_location(self):
+        try:
+            location_service = LocationService(user=self.__user)
+            return location_service.get_home_location()
+        except LocationService.UnknownLocation:
+            raise WeatherService.UnknownLocation('Unknown location')
+
+    def _get_current_location(self):
+        try:
+            location_service = LocationService(user = self.__user)
+            return location_service.get_current_location()
+        except LocationService.UnknownLocation:
+            return self._get_home_location()
+
     def _can_update_forecast(self, forecast):
         if self.is_forecast_in_past(forecast):
             return False
@@ -108,9 +129,11 @@ class WeatherService:
                 date = date
             )
             if self._can_update_forecast(forecast):
-                return self.update_daily_forecast(date)
-            else:
-                return forecast
+                try:
+                    return self.update_daily_forecast(date)
+                except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
+                    pass
+            return forecast
         except DailyWeatherForecast.DoesNotExist:
            return self.update_daily_forecast(date = date)
 
@@ -124,9 +147,7 @@ class WeatherService:
 
     def update_daily_forecast(self, date):
         try:
-            location_service = LocationService(user=self.__user)
-            location = location_service.get_location_on(date)
-            
+            location = self._get_location_on(date)
             forecast = self._client.get_daily_forecast(
                 date = date,
                 latitude = location.latitude,
@@ -145,17 +166,15 @@ class WeatherService:
             return daily_forecast
         except LocationService.UnknownLocation as e:
             raise WeatherService.UnknownLocation(e)
-        except DailyWeatherForecast.RequestFailed:
+        except DarkSkyApiManager.RequestFailed:
             raise WeatherService.ForecastUnavailable('Request failed')
 
 
     def update_forecasts(self):
         try:
-            location_service = LocationService(user=self.__user)
-            recent_location = location_service.get_last_location()
-
+            current_location = self._get_current_location()
             forecasts = []
-            for forecast in self._client.get_weekly_forecast(latitude = recent_location.latitude, longitude = recent_location.longitude):
+            for forecast in self._client.get_weekly_forecast(latitude = current_location.latitude, longitude = current_location.longitude):
                 daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
                     user = self.__user,
                     date = forecast['date'],

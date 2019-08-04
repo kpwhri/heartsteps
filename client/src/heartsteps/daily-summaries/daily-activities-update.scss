@@ -1,12 +1,11 @@
 heartsteps-activity-daily-update {
 
     > button {
-        @extend .heartsteps-bottom-button;
-        padding-bottom: 0.25em;
+        margin-bottom: 0.5em;
     }
 
     > button.is-loading {
-        padding-bottom: 1.5em;
+        margin-bottom: 1.75em;
     }
 
     > p {

@@ -21,6 +21,7 @@ import { ActivityPlanField } from './activity-plan-field.component';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 import { ActivityLogPageModule } from '@pages/activity-log/activity-log.module';
 import { WeatherModule } from '@heartsteps/weather/weather.module';
+import { ParticipantModule } from '@heartsteps/participants/participant.module';
 
 const routes: Routes = [
     {
@@ -80,7 +81,8 @@ const routes: Routes = [
         ReactiveFormsModule,
         ActivityTypeModule,
         RouterModule.forChild(routes),
-        WeatherModule
+        WeatherModule,
+        ParticipantModule
     ],
     providers: [
         ActivityPlanResolver,
