@@ -334,6 +334,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         args, kwargs = self.make_request.call_args
         self.assertEqual(args[0], 'decision')
         request_data = kwargs['data']
+        self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
         self.assertEqual(request_data['studyDay'], 1)
         self.assertEqual(request_data['location'], 2)
         decision = WalkingSuggestionDecision.objects.get()
@@ -408,6 +409,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(request_data['lastActivityArray'], [False, False, False, True, False])
         self.assertEqual(request_data['lastActivity'], True)
         self.assertEqual(request_data['totalSteps'], 1500)
+        self.assertEqual(request_data['date'], today.strftime('%Y-%m-%d'))
         self.assertEqual(request_data['studyDay'], 10)
         self.assertEqual(request_data['locationArray'], [0, 1, 1, 0, 2])
         self.assertEqual(request_data['temperatureArray'], [None, 18.33, 18.33, 18.33, 1.67])

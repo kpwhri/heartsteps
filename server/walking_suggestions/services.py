@@ -369,6 +369,7 @@ class WalkingSuggestionService():
             raise self.NotInitialized()
 
         data = {
+            'date': date.strftime('%Y-%m-%d'),
             'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
@@ -391,8 +392,12 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
 
+        day_service = DayService(user = decision.user)
+        date = day_service.get_date_at(decision.time)
+
         response = self.make_request('decision',
             data = {
+                'date': date.strftime('%Y-%m-%d'),
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
                 'availability': decision.available,
