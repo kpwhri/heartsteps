@@ -39,9 +39,10 @@ class LocationService:
 
     def get_last_location(self):
         location = Location.objects.filter(user = self.__user).first()
-        if not location:
+        if location:
+            return location
+        else:
             raise self.UnknownLocation()
-        return location
     
     def categorize_location(self, latitude, longitude):
         near_by_places = []
@@ -73,7 +74,7 @@ class LocationService:
             time__lte=time
         ).first()
         if not location:
-            raise self.UnknownLocation()
+            raise LocationService.UnknownLocation()
         return location
 
     def get_current_timezone(self):
@@ -114,3 +115,31 @@ class LocationService:
     def get_datetime_on(self, datetime):
         timezone = self.get_timezone_on(datetime)
         return datetime.astimezone(timezone)
+
+    def get_home_location(self):
+        home = Place.objects.filter(
+            user = self.__user,
+            type = Place.HOME
+        ).first()
+        if home:
+            location = Location(
+                user = self.__user,
+                latitude = home.latitude,
+                longitude = home.longitude
+            )
+            return location
+        else:
+            raise LocationService.UnknownLocation('No home location set')
+
+    def get_default_location(self):
+        return self.get_home_location()
+
+    def get_home_timezone(self):
+        try:
+            home = self.get_home_location()
+            return self.get_timezone_for(
+                latitude = home.latitude,
+                longitude = home.longitude
+            )
+        except LocationService.UnknownLocation:
+            return pytz.UTC

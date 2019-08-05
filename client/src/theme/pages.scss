@@ -38,7 +38,18 @@
 
     > .content {
         background-color: $background-primary;
-        padding: 1em;
+        padding: 0em 1em;
+
+        > * {
+            display: block;
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+
+        > button {
+            display: block;
+            width: 100%;
+        }
     }
 
     &:after {

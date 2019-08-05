@@ -12,7 +12,6 @@ ADD . /pooling-service
 RUN /pooling-service/install_python.sh
 
 FROM heartsteps_service-template:latest
-RUN chmod 777 utils/copy-files
 
 RUN pip install -r requirements.txt
 RUN Rscript install.r

@@ -404,7 +404,7 @@ class UpdateAntiSedentaryService(TestBase):
         service = AntiSedentaryService(
             configuration = self.configuration
         )
-        today = self.localize_time(datetime(2019, 1, 18, 14, 0))
+        today = date(2019, 1, 18)
 
         service.update(today)
 
