@@ -2,13 +2,16 @@
 <html>
     <head>
         {% load static %}
+        {% load template_filters %}
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}" >
         <title>Dashboard</title>
 
         <script type='text/javascript'>
+            // Set ph# for pop-up window for texting
             $(function () {
                 $('.sms-btn').on('click', function () {
                     // Set to_number for call
@@ -17,6 +20,21 @@
                     to_number_field.val(this_to_number);
                 });
             });
+            // Show study ID details in modal pane
+            $(function () {
+                $('.study-btn').on('click', function () {
+                    let this_to_study_id = $('span.study-id', this).text();
+                    let this_to_token = $('span.token', this).text();
+                    let this_to_birth_year = $('span.birth-year', this).text();
+                    alert("Study ID: " + this_to_study_id + "\n" +
+                          "Entry Token: " + this_to_token + "\n" +
+                          "Year of Birth: " + this_to_birth_year);
+                });
+            });
+            // Enable tooltips for page
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
         </script>
     </head>
 
@@ -33,20 +51,47 @@
     <table class='table table-striped table-bordered table-hover'>
         <thead class="thead-dark">
             <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Token</th>
-                <th scope="col">Birth Year</th>
-                <th scope="col">Phone</th>
-                <th scope="col">Active</th>
-                <th scope="col">Joined</th>
-                <th scope="col">Fitbit Authorized</th>
-                <th scope="col">Fitbit First Update</th>
-                <th scope="col">Fitbit Last Update</th>
-                <th scope="col">Fitbit Days Worn</th>
-                <th scope="col">Mobile App Installed</th>
-                <th scope="col">Last Page View</th>
-                <th scope="col">Watch App Installed</th>
-                <th scope="col">Last Update</th>
+                <th scope="col" class='study_btn'>ID</th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Click to text the participant'>
+                    Phone
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Date server account was created'>
+                    Account Created
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Authorization has been provided to access Fitbit data'>
+                    Fitbit Authorized
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='First time Fitbit subscription data was received'>
+                    Fitbit First Update
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Most recent time Fitbit subscription data was received'>
+                    Fitbit Last Update
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Number of days Fitbit was worn (per adherence definitions)'>
+                    Fitbit Days Worn
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='First interaction recorded with mobile app'>
+                    Mobile App Installed
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Most recent page view recorded with mobile app'>
+                    Last App Use
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Date Fitbit watch app was authenticated'>
+                    Watch App Installed
+                </th>
+                <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                    title='Most recent data Fitbit watch app sent data'>
+                    Last Watch App Update
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -54,26 +99,20 @@
             <tr>
                 {% load tz %}
                 {% timezone 'US/Pacific' %}
-                <td>{{participant.heartsteps_id}}</td>
-                <td>
-                    {{participant.enrollment_token}}
+                <td data-toggle='modal' data-target='#view-study-id-modal'
+                        class='btn study-btn'>
+                    <span class='study-id'>{{participant.heartsteps_id}}</span>
+                    <span class='token hidden'>{{participant.enrollment_token}}</span>
+                    <span class='birth-year hidden'>{{participant.birth_year}}</span>
                 </td>
-                <td>
-                    {{participant.birth_year}}
+                <td data-toggle='tooltip' data-placement='right'
+                    title='Click to text participant'>
+                    <a data-toggle='modal' data-target="#send-sms-modal"
+                       class='btn sms-btn'>
+                        {{participant.phone_number }}
+                    </a>
                 </td>
-                <td><a data-toggle='modal' data-target="#send-sms-modal" class='btn sms-btn'>{{participant.user.contactinformation.phone_e164 }}</a></td>
-                <td>{% if participant.is_active %}
-                        <img src="{% static 'admin/img/icon-yes.svg' %}" />
-                    {% else %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}" />
-                    {% endif %}
-                </td>
-                <td>{% if participant.enrolled %}
-                        {{ participant.enrollment_date|date }}
-                    {% else %}
-                    <img src="{% static 'admin/img/icon-no.svg' %}" />
-                    {% endif %}
-                </td>
+                <td>{{ participant.date_joined|date }}</td>
                 <td>{% if participant.fitbit_authorized %}
                         <img src="{% static 'admin/img/icon-yes.svg' %}" />
                     {% else %}
@@ -84,7 +123,7 @@
                     {{ participant.fitbit_first_updated|date }}
                 </td>
                 <td>
-                    {{ participant.last_updated_on }}
+                    {{ participant.fitbit_last_updated | date }}
                 </td>
                 <td {% if participant.adherence_install_app > 0 %}
                         class='adherence-issue'
@@ -92,7 +131,7 @@
                     {{ participant.days_wore_fitbit }}
                 </td>
                 <td>
-                    <!-- Is app installed -->
+                    {{ participant.first_page_view|date }}
                 </td>
                 <td>
                     {{ participant.last_page_view|date }}

@@ -4,27 +4,14 @@ from adherence_messages.services import (
     AdherenceAppInstallMessageService,
     AdherenceFitbitUpdatedService
 )
-from fitbit_api.models import (
-    FitbitAccount,
-    FitbitAccountUser#,
-    #FitbitSubscriptionUpdate
-)
-from fitbit_api.services import (
-    FitbitService  #,
-    # FitbitSubscriptionUpdate
-)
+from fitbit_api.models import (FitbitAccount, FitbitAccountUser)
+from fitbit_api.services import FitbitService
 
 
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):
 
     def __init__(self, user=None):
         self._user = user
-
-
-# class AdherenceFitbitUpdatedDashboard(AdherenceFitbitUpdatedService):
-
-#     def __init__(self, user=None):
-#         self._user = user
 
 
 class FitbitServiceDashboard(FitbitService):
@@ -39,20 +26,15 @@ class FitbitServiceDashboard(FitbitService):
             self.account = None
             self._FitbitService__account = None
             self.__user = user
-        # print("Init acct: " + str(self.__account))
 
     def get_account(user):
         try:
-            super(FitbitServiceDashboard, self).get_account()
+            return super(FitbitServiceDashboard, self).get_account()
         except FitbitServiceDashboard.NoAccount:
             return None
 
     def last_updated_on(self):
         try:
-            super(FitbitServiceDashboard, self).last_updated_on()
-            x = super(FitbitServiceDashboard, self).last_updated_on()
-            print("Updated!")
-            print("x: " + str(x))
-            print("Date: " + str(self.last_updated_on()))
+            return super(FitbitServiceDashboard, self).last_updated_on()
         except FitbitServiceDashboard.AccountNeverUpdated:
             return None

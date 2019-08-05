@@ -2,6 +2,7 @@ import json
 import logging
 import pytz
 from datetime import datetime
+from warnings import warn
 
 from django.db import models
 from django.conf import settings
@@ -137,9 +138,8 @@ class Participant(models.Model):
     def _watch_app_installed_date(self):
         u = self.user
         if u:
-            dt = u.watchinstall_set.all() \
+            return u.watchinstall_set.all() \
                   .aggregate(models.Max('created'))['created__max']
-            return dt
         else:
             return None
 
@@ -155,13 +155,13 @@ class Participant(models.Model):
     def watch_app_installed(self):
         return self._watch_app_installed
 
-
-
     def _fitbit_authorized(self):
         return self.fitbit_authorized_date() is not None
     _fitbit_authorized.boolean = True
 
+    # Deprecated.  last_fitbit_sync() no longer exists, always returning 0
     def _last_fitbit_sync_elapsed_hours(self):
+        warn("_last_fitbit_sync_elapsed_hours is not expected to work any more")
         if self._last_fitbit_sync() == 0 or self.last_fitbit_sync() is None:
             return 0
         else:
