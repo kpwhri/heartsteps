@@ -3,8 +3,8 @@
 ## Numbers = "REAL PEOPLE"
 ## "Test-XXXX" = "FAKE PERSON" (e.g., peng, walter)
 getwd()
-#setwd("heartsteps/anti-sedentary-service/data/")
-participants = c("10008", "10032","10110", "10187", "10296", "10214","10327",  
+setwd("..")
+participants = c("10008", "10032","10110", "10187", "10296", "10214","10327",  "10342",
                   "10388", "10399",
                  "test-donna", "test-nickreid", "test-pedja", 
                  "test-mash", "test-peng")
@@ -32,10 +32,11 @@ state_results = aggregate(online_state~day(time) + month(time) + userid, data = 
 ## Number of times of individual is AVAILABLE (availability = 1) given by Nick's service, aggregated by user-day
 availability_results = aggregate(available~day(time) + month(time) + userid, data = subset(complete_data, online_state != -1), FUN = sum)
 
-current_block_start = 24
-current_block_end = 30
+current_block_start = 1
+current_block_end = 4
+current_month = 8 
 
-last_block_start = 18
+last_block_start = 24
 last_block_end = 23
 
 ### NUMBER OF REQUESTS SUMMARIES
@@ -45,8 +46,8 @@ last_block_end = 23
 #numberrequests_block3 = numberrequests_results$`month(time)` == 7 & (numberrequests_results$`day(time)` >= 11 & numberrequests_results$`day(time)` <= 13)
 #numberrequests_block4 = numberrequests_results$`month(time)` == 7 & (numberrequests_results$`day(time)` >= 14 & numberrequests_results$`day(time)` <= 17)
 #numberrequests_block5 = numberrequests_results$`month(time)` == 7 & (numberrequests_results$`day(time)` >= 18 & numberrequests_results$`day(time)` <= 23)
-numberrequests_lastblock = numberrequests_results$`month(time)` == 7 & (numberrequests_results$`day(time)` >= last_block_start  & numberrequests_results$`day(time)` <= current_block_end)
-numberrequests_currentblock = numberrequests_results$`month(time)` == 7 & (numberrequests_results$`day(time)` >= current_block_start  & numberrequests_results$`day(time)` <= current_block_end)
+numberrequests_lastblock = numberrequests_results$`month(time)` == current_month & (numberrequests_results$`day(time)` >= last_block_start  & numberrequests_results$`day(time)` <= current_block_end)
+numberrequests_currentblock = numberrequests_results$`month(time)` == current_month & (numberrequests_results$`day(time)` >= current_block_start  & numberrequests_results$`day(time)` <= current_block_end)
 
 
 
@@ -73,10 +74,10 @@ numberrequests_currentblock = numberrequests_results$`month(time)` == 7 & (numbe
 #hist(numberrequests_results$unit[numberrequests_block5], main = "Per user-day from July 18th to July 23rd", xlab = "Number of requests per day", breaks = 15)
 #dev.off()
 #summary(numberrequests_results$unit[numberrequests_block5])
-png(filename = "~/figs_heartsteps/numrequest-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
+#png(filename = "~/figs_heartsteps/numrequest-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
 hist(numberrequests_results$unit[numberrequests_currentblock], main = paste("Per user-day July ",current_block_start,"-",current_block_end), xlab = "Number of requests per day", breaks = 15)
 summary(numberrequests_results$unit[numberrequests_currentblock])
-dev.off()
+#dev.off()
 #(numberrequests_results[numberrequests_block4,])[numberrequests_results$unit[numberrequests_block4] < 100,]
 
 
@@ -105,12 +106,12 @@ summary(state_results$online_state[state_blockcurrent])
 
 
 ### AVAILABILITY 
-availability_block1 = (availability_results$`month(time)` == 7 & availability_results$`day(time)` < 3 ) | (availability_results$`month(time)` == 6 & availability_results$`day(time)` >= 26)
-availability_block2 = availability_results$`month(time)` == 7 & (availability_results$`day(time)` >= 3 & availability_results$`day(time)` <= 10)
-availability_block3 = availability_results$`month(time)` == 7 & (availability_results$`day(time)` >= 11 & availability_results$`day(time)` <= 13)
+availability_block1 = (availability_results$`month(time)` == current_month & availability_results$`day(time)` < 3 ) | (availability_results$`month(time)` == 6 & availability_results$`day(time)` >= 26)
+availability_block2 = availability_results$`month(time)` == current_month & (availability_results$`day(time)` >= 3 & availability_results$`day(time)` <= 10)
+availability_block3 = availability_results$`month(time)` == current_month & (availability_results$`day(time)` >= 11 & availability_results$`day(time)` <= 13)
 availability_block4 = availability_results$`month(time)` == 7 & (availability_results$`day(time)` >= 14 & availability_results$`day(time)` <= 17)
 availability_block5 = availability_results$`month(time)` == 7 & (availability_results$`day(time)` >= 18 & availability_results$`day(time)` <= 23)
-availability_blockcurrent = availability_results$`month(time)` == 7 & (availability_results$`day(time)` >= current_block_start & availability_results$`day(time)` <= current_block_end)
+availability_blockcurrent = availability_results$`month(time)` == current_month & (availability_results$`day(time)` >= current_block_start & availability_results$`day(time)` <= current_block_end)
 
 # png(filename = "./figs/available-Jul3-Jul10.png", width = 480, height = 480, units = "px", pointsize = 12)
 #hist(availability_results$available[availability_block1], main = "Per user-day from June 26th to July 2nd", xlab = "Number of available times per day", breaks = 15)
@@ -134,9 +135,9 @@ availability_blockcurrent = availability_results$`month(time)` == 7 & (availabil
 #dev.off()
 #summary(availability_results$available[availability_block5])
 
-png(filename = "~/figs_heartsteps/available-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
+#png(filename = "~/figs_heartsteps/available-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
 hist(availability_results$available[availability_blockcurrent], main = paste("Per user-day from July ", current_block_start,"-",current_block_end), xlab = "Number of available times per day", breaks = 15)
-dev.off()
+#dev.off()
 summary(availability_results$available[availability_blockcurrent])## FRACTION
 
 
@@ -158,11 +159,11 @@ block5_title = "Per user-day from July 18th to July 23rd"
 #hist(action_results$action[action_block5], main = paste(block5_title), xlab = "Number of anti-sedentary messages per day", breaks = 15)
 # dev.off()
 #summary(action_results$action[action_block5])
-action_blockcurrent = action_results$`month(time)` == 7 & (action_results$`day(time)` >= current_block_start & action_results$`day(time)` <=current_block_end)
-png(filename = "~/figs_heartsteps/actions-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
+action_blockcurrent = action_results$`month(time)` == current_month & (action_results$`day(time)` >= current_block_start & action_results$`day(time)` <=current_block_end) | action_results$`month(time)` == 7 & (action_results$`day(time)` == 31)
+#png(filename = "~/figs_heartsteps/actions-Jul24-Jul30.png", width = 480, height = 480, units = "px", pointsize = 12)
 
 hist(action_results$action[action_blockcurrent], main = paste( "Per user-day July ",current_block_start,"-",current_block_end), xlab = "Number of anti-sedentary messages per day", breaks = 15)
-dev.off()
+#dev.off()
 summary(action_results$action[action_blockcurrent])
 x=aggregate(action ~ userid, subset(action_results, action_blockcurrent ), FUN = mean,drop=FALSE)
 print(x,digits=3)

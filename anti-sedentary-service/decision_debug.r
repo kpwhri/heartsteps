@@ -1,12 +1,47 @@
 #! /usr/bin/Rscript
+
 ## Required packages and source files
 source("functions.R"); library('chron'); library('rjson')
 
 ## Script is assuming JSON input and output always
-args <- commandArgs(trailingOnly = TRUE)
-input = fromJSON(args)
+#args <- commandArgs(trailingOnly = TRUE)
 
+return_default = FALSE
+to_return = FALSE
+reasons = rep(0,0)
+json_file <- "debug.json"
+return_immediately<-function(jfile){
+  tryCatch(
+{
+input = fromJSON(file=jfile)
+return(to_return)
+},
+error= function(c){
+  print('c')
+  print(c)
+  to_return= TRUE
+  print(return_default)
+  reasons=paste(reasons, 'Data request problem; ', sep = "")
+  reasons=paste(reasons, c, sep = "")
+  temp = c(as.vector(unlist(input)), reasons)
+  write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+  return(to_return)  
+}
+)
+}
+return_default<-return_immediately(json_file)
+print(return_default)
+if(return_default) {
+    ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
+    print('here')
+    results <- list(
+    a_it = 0,
+    pi_it = 0
+    )
+    temp = c(as.vector(unlist(input)), reasons)
+    write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
 
+}else{
 # payload = ' {
 #   "userid": [ "test-pedja" ],
 #   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
@@ -24,8 +59,6 @@ input = fromJSON(args)
 
 
 
-return_default = FALSE
-reasons = rep(0,0)
 
 ## CHECK 1: Datetime correct
 if (any(is.na(strptime(input$time, "%Y-%m-%d %H:%M")),
@@ -85,16 +118,16 @@ if(return_default) {
   ## RETURN_DEFAULT = FALSE, then we move on to calculating rand probs
 
   # Pull in the Necessary CSVs
-  setwd("./data/")
+  #setwd("./data/")
   # window.time = read.csv("window_time.csv")
-  r_min_x.table = readRDS("rminx.RDS")
-  r_minus_x_plus.table = readRDS("rminusxplus.RDS")
-  Sedentary.values = read.csv("sed_values.csv")
-  Sedentary.length = read.csv("sed_length.csv")
+  r_min_x.table = readRDS("data/rminx.RDS")
+  r_minus_x_plus.table = readRDS("data/rminusxplus.RDS")
+  Sedentary.values = read.csv("data/sed_values.csv")
+  Sedentary.length = read.csv("data/sed_length.csv")
   
   # If userID file exists then pull that in
   # Otherwise construct a dataframe
-  file_name = paste("user_",input$userid,"_antised_data.csv", sep = "")
+  file_name = paste("data/user_",input$userid,"_antised_data.csv", sep = "")
   
   if(file.exists(file_name)) {
     user.data = read.csv(file = file_name, header= TRUE)
@@ -124,7 +157,7 @@ if(return_default) {
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
   seq.hour = c(14:23,0:1)
-  fraction.data = readRDS("fractiondata.RDS")
+  fraction.data = readRDS("data/fractiondata.RDS")
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
@@ -236,7 +269,8 @@ if(return_default) {
     write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
-
+}
+print(return_default)
 # output the results
 cat(toJSON(results))
   
