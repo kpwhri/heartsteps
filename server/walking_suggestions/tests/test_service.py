@@ -401,9 +401,9 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.make_request.assert_called()
         self.assertEqual(self.make_request.call_args[0][0], 'nightly')
         request_data = self.make_request.call_args[1]['data']
-        self.assertEqual(request_data['actionArray'], [None, False, True, False, True])
+        self.assertEqual(request_data['actionArray'], [False, False, True, False, True])
         self.assertEqual(request_data['availabilityArray'], [False, True, True, False, True])
-        self.assertEqual(request_data['probArray'], [None, 0.2, 0.2, 0.2, 0.987])
+        self.assertEqual(request_data['probArray'], [0, 0.2, 0.2, 0.2, 0.987])
         self.assertEqual(request_data['appClick'], 25)
         self.assertEqual(request_data['priorAntiArray'], [False, True, False, False, False, True])
         self.assertEqual(request_data['lastActivityArray'], [False, False, False, True, False])

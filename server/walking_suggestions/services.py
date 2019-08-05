@@ -424,7 +424,7 @@ class WalkingSuggestionService():
         actions_list = []
         for decision in self.get_decision_list_for(date):
             if decision.imputed:
-                actions_list.append(None)
+                actions_list.append(False)
             else:
                 actions_list.append(decision.treated)
         return actions_list
@@ -433,7 +433,7 @@ class WalkingSuggestionService():
         probability_list = []
         for decision in self.get_decision_list_for(date):
             if decision.imputed:
-                probability_list.append(None)
+                probability_list.append(0)
             else:
                 probability_list.append(decision.treatment_probability)
         return probability_list
