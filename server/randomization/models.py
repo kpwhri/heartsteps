@@ -116,6 +116,8 @@ class Decision(models.Model):
 
     def update(self):
         UnavailableReason.objects.filter(decision=self).delete()
+        if self.imputed:
+            self.unavailable_unreachable = True
         if self.is_notification_recently_sent():
             self.unavailable_notification_recently_sent = True
         try:
