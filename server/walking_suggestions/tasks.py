@@ -18,20 +18,6 @@ from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
 
 @shared_task
-def historical_update(username):
-    try:
-        configuration = Configuration.objects.get(user__username = username)
-        query = WalkingSuggestionDecision.objects.filter(
-            user = configuration.user,
-            time__gt = configuration.user.date_joined
-        ).order_by('time')
-        for decision in query.all():
-            decision.update()
-    except Configuration.DoesNotExist:
-        pass
-
-
-@shared_task
 def nightly_update(username, day_string):
     dt = datetime.strptime(day_string, '%Y-%m-%d')
     day = date(dt.year, dt.month, dt.day)
