@@ -77,7 +77,7 @@ class FitbitService:
             return True
         else:
             return False
-    
+
     def was_updated_on(self, date):
         day_service = DayService(user = self.__user)
         updates = FitbitSubscriptionUpdate.objects.filter(
@@ -89,7 +89,7 @@ class FitbitService:
             return True
         else:
             return False
-    
+
     def last_updated_on(self):
         last_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
             subscription__fitbit_account = self.__account
@@ -246,9 +246,9 @@ class FitbitClient():
             activities = []
         if request_url:
             response = self.client.make_request(request_url)
-        else:   
+        else:
             response = self.__request_activities(date)
-        
+
         more_activities = True
         for activity in response['activities']:
             startTime = dateutil_parser.parse(activity['startTime'])
@@ -260,17 +260,17 @@ class FitbitClient():
             return self.get_activities(
                 date = date,
                 request_url=response['pagination']['next'],
-                activities = activities    
+                activities = activities
             )
         else:
             return activities
 
     def format_date(self, date):
         return format_fitbit_date(date)
-    
+
     def parse_date(self, date):
         return parse_fitbit_date(date)
-        
+
     def get_intraday_activity(self, activity_type, date):
         response = self.make_request('user/-/activities/{activity_type}/date/{date}/1d/1min.json'.format(
             activity_type = activity_type,

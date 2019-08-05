@@ -12,3 +12,11 @@ table th {
 table th, table td {
     white-space: nowrap;
 }
+
+table td a.sms-btn:hover {
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}

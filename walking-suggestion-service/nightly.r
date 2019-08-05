@@ -272,9 +272,24 @@ if(is.null(check)){
           
         }else{
           
-          prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)
-          action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)
-          random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)
+          if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 1){
+            
+            # only one request
+            
+            prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)
+            action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)
+            random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)
+          
+          }else{
+            
+            
+            # multiple requests (take the last one for right now -- this should not happen)
+            
+            ind <- nrow(subset(data.decision, day == input$studyDay & timeslot == kk))
+            prob <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$prob)[ind]
+            action <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$action)[ind]
+            random.num <- as.numeric(subset(data.decision, day == input$studyDay & timeslot == kk)$random.number)[ind]
+          
           
           
         }
