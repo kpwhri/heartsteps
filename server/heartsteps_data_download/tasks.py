@@ -172,7 +172,7 @@ def export_anti_sedentary_service_requests(username, directory):
     )
     write_csv_file(
         directory = directory,
-        filename = '%s.anti_sedentary_service_requests' % (username),
+        filename = '%s.anti_sedentary_service_requests.csv' % (username),
         content = dataset.csv
     )
 

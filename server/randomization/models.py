@@ -11,8 +11,12 @@ from django.contrib.auth.models import User
 from behavioral_messages.models import MessageTemplate
 from days.services import DayService
 from fitbit_activities.services import FitbitStepCountService
+from locations.models import Location
+from locations.models import Place
+from locations.services import LocationService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
+from weather.models import WeatherForecast
 from watch_app.services import StepCountService as WatchAppStepCountService
 
 class ContextTag(models.Model):
@@ -288,6 +292,88 @@ class Decision(models.Model):
         tz = service.get_timezone_at(self.time)
         self._timezone = tz
         return self._timezone
+    
+    def get_location(self):
+        if hasattr(self, '_location'):
+            return self._location
+        location_content_type = ContentType.objects.get_for_model(Location)
+        existing_decision_locations = DecisionContext.objects.filter(
+            decision = self,
+            content_type = location_content_type
+        ).all()
+        if len(existing_decision_locations) > 0:
+            self._location = existing_decision_locations[0].content_object
+            return self._location
+        else:
+            return None
+
+    def update_location(self):
+        location_content_type = ContentType.objects.get_for_model(Location)
+        existing_decision_locations = DecisionContext.objects.filter(
+            decision = self.decision,
+            content_type = location_content_type
+        ).delete()
+
+        try:
+            location_service = LocationService(self.user)
+            location = location_service.get_location_on(self.time)
+            DecisionContext.objects.create(
+                decision = self.decision,
+                content_object = location
+            )
+            self.location = location
+            return location
+        except LocationService.UnknownLocation:
+            return None
+
+    def get_location_type(self):
+        location = self.get_location()
+        if location:
+            location_service = LocationService(self.user)
+            return location_service.categorize_location(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+        else:
+            return Place.OTHER
+
+    def get_forecast(self):
+        if hasattr(self, '_forecast'):
+            return self._forecast
+        else:
+            forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+            context = DecisionContext.objects.filter(
+                decision = self,
+                content_type = forecast_content_type
+            ).last()
+            if context:
+                self._forecast = context.content_object
+                return self._forecast
+        return None
+
+    @property
+    def precipitation_type(self):
+        forecast = self.get_forecast()
+        if forecast:
+            return forecast.precip_type
+        else:
+            return None
+
+    @property
+    def precipitation_probability(self):
+        forecast = self.get_forecast()
+        if forecast:
+            return forecast.precip_probability
+        else:
+            return None 
+
+    @property
+    def temperature(self):
+        forecast = self.get_forecast()
+        if forecast:
+            return forecast.temperature
+        else:
+            return None
 
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d at %H:%M")

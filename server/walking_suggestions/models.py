@@ -118,3 +118,13 @@ class NightlyUpdate(models.Model):
 
     class Meta:
         ordering = ['day']
+
+class PoolingServiceConfiguration(models.Model):
+    user = models.ForeignKey(User)
+    use_pooling = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+
+class PoolingServiceRequest(ServiceRequest):
+    pass
