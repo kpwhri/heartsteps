@@ -9,10 +9,11 @@ source("functions.R"); library('chron'); library('rjson')
 return_default = FALSE
 to_return = FALSE
 reasons = rep(0,0)
-json_file <- "debug.json"
-return_immediately<-function(jfile){
+
+return_immediately<-function(){
   tryCatch(
 {
+  jfile <- "debug.json"
 input = fromJSON(file=jfile)
 return(to_return)
 },
@@ -29,7 +30,7 @@ error= function(c){
 }
 )
 }
-return_default<-return_immediately(json_file)
+return_default<-return_immediately()
 print(return_default)
 if(return_default) {
     ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
@@ -38,10 +39,11 @@ if(return_default) {
     a_it = 0,
     pi_it = 0
     )
-    temp = c(as.vector(unlist(input)), reasons)
-    write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+   
 
 }else{
+  print("input")
+  print(input)
 # payload = ' {
 #   "userid": [ "test-pedja" ],
 #   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
@@ -120,14 +122,14 @@ if(return_default) {
   # Pull in the Necessary CSVs
   #setwd("./data/")
   # window.time = read.csv("window_time.csv")
-  r_min_x.table = readRDS("data/rminx.RDS")
-  r_minus_x_plus.table = readRDS("data/rminusxplus.RDS")
-  Sedentary.values = read.csv("data/sed_values.csv")
-  Sedentary.length = read.csv("data/sed_length.csv")
+  r_min_x.table = readRDS("./data/rminx.RDS")
+  r_minus_x_plus.table = readRDS("./data/rminusxplus.RDS")
+  Sedentary.values = read.csv("./data/sed_values.csv")
+  Sedentary.length = read.csv("./data/sed_length.csv")
   
   # If userID file exists then pull that in
   # Otherwise construct a dataframe
-  file_name = paste("data/user_",input$userid,"_antised_data.csv", sep = "")
+  file_name = paste("./data/user_",input$userid,"_antised_data.csv", sep = "")
   
   if(file.exists(file_name)) {
     user.data = read.csv(file = file_name, header= TRUE)
@@ -157,7 +159,7 @@ if(return_default) {
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
   seq.hour = c(14:23,0:1)
-  fraction.data = readRDS("data/fractiondata.RDS")
+  fraction.data = readRDS("./data/fractiondata.RDS")
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   

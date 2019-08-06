@@ -1,31 +1,24 @@
 #! /usr/bin/Rscript
 ## Required packages and source files
 source("functions.R"); library('chron'); library('rjson')
-
+return_default = FALSE
+reasons = rep(0,0)
+return_immediately<-function(){
+    tryCatch(
+    {
 ## Script is assuming JSON input and output always
 args <- commandArgs(trailingOnly = TRUE)
 input = fromJSON(args)
 
-
-# payload = ' {
-#   "userid": [ "test-pedja" ],
-#   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
-#   "time": [ "2019-06-01 16:30:00" ] ,
-#   "daystart": [ "2019-06-01 8:00" ] ,
-#   "dayend": [ "2019-06-01 20:00" ] ,
-#   "state": [ 1 ],
-#   "steps": [ 10 ],
-#   "available": [ 1 ]
-# }
-# '
-# input = fromJSON(payload)
-
-## INSERT SANITY CHECKS
+#reasons=paste(reasons, 'Data request problem; ', sep = "")
+#temp = c(as.vector(unlist(input)), reasons)
+#write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+#results <- list(
+#a_it = 0,
+#pi_it = 0
+#)
 
 
-
-return_default = FALSE
-reasons = rep(0,0)
 
 ## CHECK 1: Datetime correct
 if (any(is.na(strptime(input$time, "%Y-%m-%d %H:%M")),
@@ -42,6 +35,7 @@ if(!is.element(input$state, 0:1)){
 
 ## Check 3: step count negative 
 if(input$steps < 0 | !is.numeric(input$steps) ) {
+  return_default = TRUE
   reasons = paste(reasons, 'Bad step count provided; ', sep = "")
 }
 
@@ -59,6 +53,7 @@ beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Et
 ## CHECK 5: DAYSTART TO DAYEND IS 12 HOURS
 daylength.inhours = as.numeric(difftime(final.time, beginning.time, hours))
 if(daylength.inhours != 12) {
+  return_default = TRUE
   beginning.time = ISOdate(year(beginning.time),month(beginning.time),day(beginning.time),8,00,tz="Etc/GMT+6")
   final.time = ISOdate(year(final.time),month(final.time),day(final.time),20,00,tz="Etc/GMT+6")
   reasons = paste(reasons, 'Day length provided not 12 hours long so went with default; ', sep = "")
@@ -73,28 +68,31 @@ if(!isgood.time) {
 
 
 if(return_default) {
+  
   ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
   results <- list(
-    a_it = A.t,
-    pi_it = rho.t
+    a_it = 0,
+    pi_it = 0
   )
+  
   temp = c(as.vector(unlist(input)), reasons)
   write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
   
 } else {
+  
   ## RETURN_DEFAULT = FALSE, then we move on to calculating rand probs
-
+  
   # Pull in the Necessary CSVs
-  setwd("./data/")
+  #setwd("./data/")
   # window.time = read.csv("window_time.csv")
-  r_min_x.table = readRDS("rminx.RDS")
-  r_minus_x_plus.table = readRDS("rminusxplus.RDS")
-  Sedentary.values = read.csv("sed_values.csv")
-  Sedentary.length = read.csv("sed_length.csv")
+  r_min_x.table = readRDS("./data/rminx.RDS")
+  r_minus_x_plus.table = readRDS("./data/rminusxplus.RDS")
+  Sedentary.values = read.csv("./data/sed_values.csv")
+  Sedentary.length = read.csv("./data/sed_length.csv")
   
   # If userID file exists then pull that in
   # Otherwise construct a dataframe
-  file_name = paste("user_",input$userid,"_antised_data.csv", sep = "")
+  file_name = paste("./data/user_",input$userid,"_antised_data.csv", sep = "")
   
   if(file.exists(file_name)) {
     user.data = read.csv(file = file_name, header= TRUE)
@@ -124,7 +122,7 @@ if(return_default) {
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
   seq.hour = c(14:23,0:1)
-  fraction.data = readRDS("fractiondata.RDS")
+  fraction.data = readRDS("./data/fractiondata.RDS")
   fraction.df = data.frame(fraction.data)
   names(fraction.df) = c("current.hour", "mean", "var")
   
@@ -152,6 +150,7 @@ if(return_default) {
     )
     
   } else {
+    
     ## SETUP BLOCKS
     min.hours = 14; max.hours = 2
     time.steps = seq(0, as.numeric(final.time - beginning.time)*(60/5)-1)
@@ -236,8 +235,40 @@ if(return_default) {
     write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
+return(results)
+    },error= function(err){
+     
+      reasons=paste(reasons, err, sep = "")
+      temp = c(as.vector(unlist(input)), reasons)
+      write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+      results <- list(
+        a_it = 0,
+        pi_it = 0
+      )
+      return(results)
+      
+}
 
+)
+}
+#return(results)
+      #},error = function(c){
+      #  c
+      #  results <- list(
+         # a_it = 0,
+      #    pi_it = 0
+      #  )
+        #return(results)
+      #}
+#)
+  #}
+
+  results<-return_immediately()
+#}
+  
 # output the results
 cat(toJSON(results))
+#return_default
+#cat(toJSON(results))
   
   
