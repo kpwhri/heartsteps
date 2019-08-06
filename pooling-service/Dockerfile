@@ -1,17 +1,20 @@
-FROM python:3.6.8 as pooling-service-base
-ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update && \
-    apt-get install -y r-base
-
-
-# Create and add files to Docker
-WORKDIR /pooling-service
-ADD . /pooling-service
-
-RUN /pooling-service/install_python.sh
-
 FROM heartsteps_service-template:latest
+
+RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh && \
+    bash Anaconda3-5.0.1-Linux-x86_64.sh -b && \
+    rm Anaconda3-5.0.1-Linux-x86_64.sh && \
+    ln -s /root/anaconda3/bin/conda /usr/local/bin/conda
+
+RUN conda create -n py36 python=3.6 && \
+    conda install --name py36 -c conda-forge pyreadr && \
+    conda install --name py36 -c conda-forge jupyter && \
+    conda install  --name py36 -c conda-forge tensorflow && \
+    conda install --name py36  -c conda-forge gpflow  && \
+    conda install pytorch torchvision -c pytorch && \
+    pip install git+https://github.com/cornellius-gp/gpytorch.git
+
+ADD . /pooling-service
+WORKDIR /pooling-service
 
 RUN pip install -r requirements.txt
 RUN Rscript install.r

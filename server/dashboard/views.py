@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 from contact.models import ContactInformation
@@ -25,6 +26,9 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
     # queryset = Participant.objects.all().prefetch_related(
     #     'user').order_by('heartsteps_id')
     template_name = 'dashboard/index.html'
+
+    def get_login_url(self):
+        return reverse('admin:app_list', kwargs={'app_label': 'login'})
 
     def test_func(self):
         if not self.request.user:

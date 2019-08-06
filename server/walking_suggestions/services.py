@@ -369,6 +369,7 @@ class WalkingSuggestionService():
             raise self.NotInitialized()
 
         data = {
+            'date': date.strftime('%Y-%m-%d'),
             'studyDay': self.get_study_day(date),
             'appClick': self.get_clicks(date),
             'totalSteps': self.get_steps(date),
@@ -391,8 +392,12 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
 
+        day_service = DayService(user = decision.user)
+        date = day_service.get_date_at(decision.time)
+
         response = self.make_request('decision',
             data = {
+                'date': date.strftime('%Y-%m-%d'),
                 'studyDay': self.get_study_day(decision.time),
                 'decisionTime': self.categorize_suggestion_time(decision),
                 'availability': decision.available,
@@ -419,7 +424,7 @@ class WalkingSuggestionService():
         actions_list = []
         for decision in self.get_decision_list_for(date):
             if decision.imputed:
-                actions_list.append(None)
+                actions_list.append(False)
             else:
                 actions_list.append(decision.treated)
         return actions_list
@@ -428,7 +433,7 @@ class WalkingSuggestionService():
         probability_list = []
         for decision in self.get_decision_list_for(date):
             if decision.imputed:
-                probability_list.append(None)
+                probability_list.append(0)
             else:
                 probability_list.append(decision.treatment_probability)
         return probability_list
@@ -465,7 +470,10 @@ class WalkingSuggestionService():
         decisions = self.get_decisions_for(date) 
         for time_category in SuggestionTime.TIMES:
             decision = decisions[time_category]
-            availabilities.append(decision.available)
+            if decision.available:
+                availabilities.append(True)
+            else:
+                availabilities.append(False)
         return availabilities
 
     def get_location_type(self, decision):
