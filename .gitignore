@@ -19,6 +19,10 @@ static/static
 
 # Ignore jupyter notebook cache files
 .ipynb*
+anti-sedentary-service/debug.json
+anti-sedentary-service/debug_nightly.json
+anti-sedentary-service/decision_debug.r
+anti-sedentary-service/nightly_debug.r
 
 *~
 *.sw[mnpcod]
