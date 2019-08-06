@@ -6,12 +6,17 @@ RUN apt-get update && \
 
 
 # Create and add files to Docker
-WORKDIR /pooling-service
 ADD . /pooling-service
 
-RUN /pooling-service/install_python.sh
+RUN chmod +x /pooling-service/install.sh && \
+    /pooling-service/install.sh
 
 FROM heartsteps_service-template:latest
+ADD . /pooling-service
+WORKDIR /pooling-service
+
+RUN ls
+RUN pwd
 
 RUN pip install -r requirements.txt
 RUN Rscript install.r
