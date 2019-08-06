@@ -20,10 +20,10 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get update && \ 
     apt-get install -y nodejs
 
-WORKDIR /client
-ADD . /client
-
 RUN npm install cordova ionic sass -g
+
+ADD . /client
+WORKDIR /client
 
 # Turn off bin links, because docker gets cranky
 # RUN npm config set bin-links false
