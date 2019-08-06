@@ -25,7 +25,7 @@ error= function(c){
   reasons=paste(reasons, 'Data request problem; ', sep = "")
   reasons=paste(reasons, c, sep = "")
   temp = c(as.vector(unlist(input)), reasons)
-  write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+  write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
   return(to_return)  
 }
 )

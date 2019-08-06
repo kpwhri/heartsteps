@@ -240,7 +240,7 @@ return(results)
      
       reasons=paste(reasons, err, sep = "")
       temp = c(as.vector(unlist(input)), reasons)
-      write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+      write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
       results <- list(
         a_it = 0,
         pi_it = 0
