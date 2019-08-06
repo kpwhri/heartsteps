@@ -25,6 +25,7 @@ anti-sedentary-service/decision_debug.r
 anti-sedentary-service/nightly_debug.r
 anti-sedentary-service/look_at_pedja.ipynb
 anti-sedentary-service/compare_pedja.ipynb
+anti-sedentary-service/get_morning_afternoon_stats.ipynb
 
 *~
 *.sw[mnpcod]
