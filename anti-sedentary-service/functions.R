@@ -78,6 +78,8 @@ randomization.probability <- function(N, current.state, remaining.time, current.
 }  
 
 which.block <- function(current.hour) {
+ bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
+ buckets = list(bucket1,bucket2, bucket3)
   if( is.numeric(current.hour) & !is.na(current.hour)) {
     if( (current.hour >= buckets[[1]][1]) & (current.hour <= buckets[[1]][2])) {
       return(1)

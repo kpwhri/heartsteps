@@ -70,7 +70,7 @@ return_immediately<-function(){
             reasons = paste(reasons, 'Current time outside daystart and dayend times provided; ', sep = "")
         }
         
-        
+        buckets
         if(return_default) {
             
             ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
