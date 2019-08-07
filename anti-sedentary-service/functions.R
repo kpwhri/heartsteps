@@ -20,7 +20,8 @@ fraction.time.in.state <- function(current.hour, buckets) {
   ## Computes fraction of time in Sedentary 
   ## or Not Sedentary for remainder of study at the 
   ## hour level
-  
+  bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
+  buckets = list(bucket1,bucket2, bucket3)
   current.block = which.block(current.hour)
   
   if(current.hour > 24) {stop("Hour outside normal range")}
