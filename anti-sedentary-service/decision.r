@@ -76,7 +76,7 @@ if(return_default) {
   )
   
   temp = c(as.vector(unlist(input)), reasons)
-  write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
+  write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
   
 } else {
   
@@ -141,7 +141,9 @@ if(return_default) {
                            online_state = input$state, online_step = input$steps, available = input$available,
                            batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                            missingindicator = 0, duplicate = TRUE)
-    
+    reasons=paste(reasons, 'line 144; ', sep = "")
+    temp = c(as.vector(unlist(input)), reasons)
+    write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
     write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
     
     results <- list(
