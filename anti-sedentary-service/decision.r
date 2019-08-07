@@ -75,8 +75,8 @@ if(!isgood.time) {
 if(return_default) {
   ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
   results <- list(
-    a_it = A.t,
-    pi_it = rho.t
+    a_it = 0,
+    pi_it = 0
   )
   temp = c(as.vector(unlist(input)), reasons)
   write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
