@@ -116,8 +116,8 @@ if(return_default) {
   }
   
   ## Define the 3 4-hour buckets in GMT
-  bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
-  buckets = list(bucket1,bucket2, bucket3)
+  #bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
+  #buckets = list(bucket1,bucket2, bucket3)
   
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
