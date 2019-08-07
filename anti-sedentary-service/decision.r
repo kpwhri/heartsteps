@@ -247,6 +247,17 @@ return(results)
         a_it = 0,
         pi_it = 0
       )
+      current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+      final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+      beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
+      
+      temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
+      time = current.time, daystart = beginning.time, dayend = final.time,
+      online_state = input$state, online_step = input$steps, available = input$available,
+      batch_state = -1, batch_step = -1, probaction = 0, action = 0,
+      missingindicator = 0, duplicate = FALSE)
+      
+      write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
       return(results)
       
 }

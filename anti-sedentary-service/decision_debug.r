@@ -83,7 +83,7 @@ return_immediately<-function(){
             write(x = temp, file = "./data/errorfiletest.log", ncolumns = length(temp), append = TRUE)
             
         } else {
-            
+            print('here')
             ## RETURN_DEFAULT = FALSE, then we move on to calculating rand probs
             
             # Pull in the Necessary CSVs
@@ -128,6 +128,7 @@ return_immediately<-function(){
             seq.hour = c(14:23,0:1)
             fraction.data = readRDS("./data/fractiondata.RDS")
             fraction.df = data.frame(fraction.data)
+            print(fraction.df)
             names(fraction.df) = c("current.hour", "mean", "var")
             
             ## USE LUBRIDATE FOR DATETIME OBJECTS
