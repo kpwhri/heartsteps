@@ -1,24 +1,31 @@
 #! /usr/bin/Rscript
 ## Required packages and source files
 source("functions.R"); library('chron'); library('rjson')
-return_default = FALSE
-reasons = rep(0,0)
-return_immediately<-function(){
-    tryCatch(
-    {
+
 ## Script is assuming JSON input and output always
 args <- commandArgs(trailingOnly = TRUE)
 input = fromJSON(args)
 
-#reasons=paste(reasons, 'Data request problem; ', sep = "")
-#temp = c(as.vector(unlist(input)), reasons)
-#write(x = temp, file = "errorfile.log", ncolumns = length(temp), append = TRUE)
-#results <- list(
-#a_it = 0,
-#pi_it = 0
-#)
+
+# payload = ' {
+#   "userid": [ "test-pedja" ],
+#   "decisionid": [ "dba4b6d0-3138-4fc3-a394-bac2b1a301e3" ] ,
+#   "time": [ "2019-06-01 16:30:00" ] ,
+#   "daystart": [ "2019-06-01 8:00" ] ,
+#   "dayend": [ "2019-06-01 20:00" ] ,
+#   "state": [ 1 ],
+#   "steps": [ 10 ],
+#   "available": [ 1 ]
+# }
+# '
+# input = fromJSON(payload)
+
+## INSERT SANITY CHECKS
 
 
+
+return_default = FALSE
+reasons = rep(0,0)
 
 ## CHECK 1: Datetime correct
 if (any(is.na(strptime(input$time, "%Y-%m-%d %H:%M")),
@@ -35,7 +42,6 @@ if(!is.element(input$state, 0:1)){
 
 ## Check 3: step count negative 
 if(input$steps < 0 | !is.numeric(input$steps) ) {
-  return_default = TRUE
   reasons = paste(reasons, 'Bad step count provided; ', sep = "")
 }
 
@@ -53,7 +59,6 @@ beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Et
 ## CHECK 5: DAYSTART TO DAYEND IS 12 HOURS
 daylength.inhours = as.numeric(difftime(final.time, beginning.time, hours))
 if(daylength.inhours != 12) {
-  return_default = TRUE
   beginning.time = ISOdate(year(beginning.time),month(beginning.time),day(beginning.time),8,00,tz="Etc/GMT+6")
   final.time = ISOdate(year(final.time),month(final.time),day(final.time),20,00,tz="Etc/GMT+6")
   reasons = paste(reasons, 'Day length provided not 12 hours long so went with default; ', sep = "")
@@ -68,20 +73,17 @@ if(!isgood.time) {
 
 
 if(return_default) {
-  
   ## RETURN_DEFAULT = TRUE, then we send default answers and append error log files
   results <- list(
-    a_it = 0,
-    pi_it = 0
+    a_it = A.t,
+    pi_it = rho.t
   )
-  
   temp = c(as.vector(unlist(input)), reasons)
   write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
   
 } else {
-  
   ## RETURN_DEFAULT = FALSE, then we move on to calculating rand probs
-  
+
   # Pull in the Necessary CSVs
   #setwd("./data/")
   # window.time = read.csv("window_time.csv")
@@ -116,8 +118,8 @@ if(return_default) {
   }
   
   ## Define the 3 4-hour buckets in GMT
-  #bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
-  #buckets = list(bucket1,bucket2, bucket3)
+  bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
+  buckets = list(bucket1,bucket2, bucket3)
   
   ## Create a data.frame for Expected time Remaining
   ## Range of current hour = c(14:23,0:1)
@@ -141,9 +143,7 @@ if(return_default) {
                            online_state = input$state, online_step = input$steps, available = input$available,
                            batch_state = -1, batch_step = -1, probaction = 0.0, action = 0.0, 
                            missingindicator = 0, duplicate = TRUE)
-    reasons=paste(reasons, 'line 144; ', sep = "")
-    temp = c(as.vector(unlist(input)), reasons)
-    write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
+    
     write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
     
     results <- list(
@@ -152,7 +152,6 @@ if(return_default) {
     )
     
   } else {
-    
     ## SETUP BLOCKS
     min.hours = 14; max.hours = 2
     time.steps = seq(0, as.numeric(final.time - beginning.time)*(60/5)-1)
@@ -237,51 +236,8 @@ if(return_default) {
     write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
   }
 }
-return(results)
-    },error= function(err){
-     
-      reasons=paste(reasons, err, sep = "")
-      temp = c(as.vector(unlist(input)), reasons)
-      write(x = temp, file = "./data/errorfile.log", ncolumns = length(temp), append = TRUE)
-      results <- list(
-        a_it = 0,
-        pi_it = 0
-      )
-      current.time = as.POSIXct(strptime(input$time, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-      final.time = as.POSIXct(strptime(input$dayend, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-      beginning.time = as.POSIXct(strptime(input$daystart, "%Y-%m-%d %H:%M"), tz = "Etc/GMT+6")
-      
-      temp.data = data.frame(userid = input$userid, decisionid = input$decisionid,
-      time = current.time, daystart = beginning.time, dayend = final.time,
-      online_state = input$state, online_step = input$steps, available = input$available,
-      batch_state = -1, batch_step = -1, probaction = 0, action = 0,
-      missingindicator = 0, duplicate = FALSE)
-      
-      write.csv(rbind(user.data, temp.data), file = file_name, row.names = FALSE)
-      return(results)
-      
-}
 
-)
-}
-#return(results)
-      #},error = function(c){
-      #  c
-      #  results <- list(
-         # a_it = 0,
-      #    pi_it = 0
-      #  )
-        #return(results)
-      #}
-#)
-  #}
-
-  results<-return_immediately()
-#}
-  
 # output the results
 cat(toJSON(results))
-#return_default
-#cat(toJSON(results))
   
   
