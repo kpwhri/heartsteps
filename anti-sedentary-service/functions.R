@@ -20,8 +20,7 @@ fraction.time.in.state <- function(current.hour, buckets) {
   ## Computes fraction of time in Sedentary 
   ## or Not Sedentary for remainder of study at the 
   ## hour level
-  bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
-  buckets = list(bucket1,bucket2, bucket3)
+
   current.block = which.block(current.hour)
   
   if(current.hour > 24) {stop("Hour outside normal range")}
@@ -39,7 +38,7 @@ fraction.time.in.state <- function(current.hour, buckets) {
   return(list("mean" = mean(temp[,3]), "var" = var(temp[,3])))
 }
 
-full.remainder.fn <- function(remaining.time, current.state, current.run.length, current.hour, eta) {
+full.remainder.fn <- function(remaining.time, current.state, current.run.length, current.hour, eta,r_min_x.table,r_minus_x_plus.table,fraction.df) {
   ## Combines exp. and fraction. functions to 
   ## Produce estimate of expectation and standard 
   ## deviation e(i,r) and sd(i,r).  Use these with
@@ -64,7 +63,7 @@ weighted.history <- function(current.state, time.diff, old.states, lambda, old.A
   
 }
 
-randomization.probability <- function(N, current.state, remaining.time, current.run.length, current.hour, H.t, lambda, eta, max.prob = 0.995, min.prob = 0.005) {
+randomization.probability <- function(N, current.state, remaining.time, current.run.length, current.hour, H.t, lambda, eta,r_min_x.table,r_minus_x_plus.table,fraction.df, max.prob = 0.995, min.prob = 0.005) {
   ## Randomization probabilifty function 
   ## depending on weighted history and full.remainder.fn.
   
@@ -72,15 +71,13 @@ randomization.probability <- function(N, current.state, remaining.time, current.
     return(0) 
   } else {
     temp = (N[current.state+1] - weighted.history(current.state, H.t$time.diff, H.t$old.states, lambda, H.t$old.A, H.t$old.rho))/
-             full.remainder.fn(remaining.time, current.state, current.run.length, current.hour, eta)
+             full.remainder.fn(remaining.time, current.state, current.run.length, current.hour, eta,r_min_x.table,r_minus_x_plus.table,fraction.df)
     return(min(max(temp,min.prob),max.prob))
   }
   
 }  
 
-which.block <- function(current.hour) {
- bucket1 = c(14,17); bucket2 = c(18,21); bucket3 = c(22,1)
- buckets = list(bucket1,bucket2, bucket3)
+which.block <- function(current.hour,buckets) {
   if( is.numeric(current.hour) & !is.na(current.hour)) {
     if( (current.hour >= buckets[[1]][1]) & (current.hour <= buckets[[1]][2])) {
       return(1)
