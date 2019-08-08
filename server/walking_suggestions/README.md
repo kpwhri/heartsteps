@@ -1,0 +1,1 @@
+Placeholder for heartsteps-server walking suggestion documentation.
