@@ -38,7 +38,11 @@ class DecisionResource(resources.ModelResource):
         'received_time',
         'opened_time',
         'engaged_time',
-        'all_tags'
+        'location_tag',
+        'location_imputed',
+        'temperature',
+        'precipitation_type',
+        'precipitation_probability'
     ]
 
     local_time = Field(column_name='time')
@@ -62,6 +66,13 @@ class DecisionResource(resources.ModelResource):
     unavailable_unreachable = Field()
     unavailable_disabled = Field()
     unavailable_service_error = Field()
+
+    location_tag = Field()
+    location_imputed = Field()
+
+    temperature = Field()
+    precipitation_type = Field()
+    precipitation_probability = Field()
 
     def format_datetime(self, time):
         if time:
@@ -182,3 +193,12 @@ class DecisionResource(resources.ModelResource):
 
     def dehydrate_unavailable_service_error(self, decision):
         return decision.unavailable_service_error
+
+    def dehydrate_location_tag(self, decision):
+        return decision.get_location_type()
+
+    def dehydrate_location_imputed(self, decision):
+        if decision.get_location():
+            return False
+        else:
+            return True

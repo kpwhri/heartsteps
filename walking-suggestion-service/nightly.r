@@ -35,13 +35,14 @@ if(server){
     
   }else{
     
+    
+    input <- fromJSON(file = "/Users/Peng/Desktop/walking/user10006/request_history/nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
-    
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
-    
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
+    
     
   }
   
@@ -66,7 +67,8 @@ tryCatch(expr = {
   load(paste(paths, "/decision.Rdata", sep="")) 
   load(paste(paths, "/quality.Rdata", sep="")) 
 
-  }, error = function(err) {
+  }, 
+  error = function(err) {
   
     stop("Initiliazation has not done for the user or user ID is missing")
   
@@ -177,10 +179,10 @@ if(is.null(check)){
      
      
   }
+  
   data.dosage$dataset <- data.dosage$dataset[order(data.dosage$dataset$day, data.dosage$dataset$timeslot), ]
   
   # =============== Add the decision time for reinitialization ===============
-  
   if(nrow(subset(data.decision, day == input$studyDay)) < 5){
     
     index <- c(1:5)[!(1:5 %in% subset(data.decision, day == input$studyDay)$timeslot)]
@@ -252,6 +254,8 @@ if(is.null(check)){
                              other.loc, 
                              variation.indc)
       
+      # get the probability and action
+      
       if(is.null(data.decision) == TRUE){
         
         # since the initialization, nothing occurs 
@@ -266,6 +270,8 @@ if(is.null(check)){
         if(nrow(subset(data.decision, day == input$studyDay & timeslot == kk)) == 0){
           
           # decision does not occur 
+          # NOTE: this step never occurs if prob and action are set to non-null for the imputed decision time
+          
           prob <- 0
           action <- 0
           random.num <- NA
@@ -316,6 +322,7 @@ if(is.null(check)){
                                   NA,
                                   random.num)) 
       
+      }
     }
     day.history <- data.frame(day.history[order(day.history[, 2]),])
     colnames(day.history) <- data.day$var.names

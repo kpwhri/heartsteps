@@ -255,6 +255,8 @@ The *nightly* service has no output except for a message indicating successful u
 	"preStepsArray":[12,50,100,0,null],
 	"postStepsArray":[300,null,100,130,31],
 	"availabilityArray": [true, false, true, false, true],
+	"actionArray": [false, false, false, true, false],
+	"probArray": [0.5, 0, 0.1, 0, 0.2],
  	"priorAntiArray": [true, false, true, false, true],
  	"lastActivityArray": [true, false, true, false, true],
  	"locationArray": [0, 1, 2, 0, 2]
@@ -317,10 +319,11 @@ Can either be `true` or `false`
  	   If neither of above is true, then the recieved input for the correspond decision time will be a number; including 0, meaning 
 	that the pariticipant is classified as "wear the sensor" and the Fibit collects 0 step during the 30 min window before (after) the decision time.
 
-9. `availabilityArray`, `priorAntiArray`, `lastActivityArray `, `locationArray `
+9. `availabilityArray`, `probArray`, `actionArray`, `priorAntiArray`, `lastActivityArray `, `locationArray `
 
 	- These are the vectors of `availability`, `priorAnti `, `lastActivity ` and `location` collected at the five decision times in a day. The first element correpsonds to the first decision time and second element to the second decision time and etc. 
-	- In the case where the walking suggestion service is reached by Heartsteps main server at all five decision times during the day, these information will be identical to the ones received during the day.  We resend this information at the nightly update time to hanlde the case where for some reason the heatstep main server cannot contact walking suggestion service at some decision time. 
+	- In the case where the walking suggestion service is reached by Heartsteps main server at all five decision times during the day, these information will be identical to the ones received during the day (We resend this information at the nightly update time to hanlde the case where for some reason the heatstep main server cannot contact walking suggestion service at some decision time)
+	- For the decision times at which the walking suggestion service is not called by the server, the availability,  probability and action are set to FALSE, 0 and FALSE. 
 
 ### CONDITION CHECKING
 

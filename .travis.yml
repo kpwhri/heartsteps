@@ -3,17 +3,13 @@ services:
 sudo: required
 
 install: 
-- docker-compose build service-template
-# install google cloud sdk
+# install google cloud sdk and kubernetes
+- sudo apt-get clean && sudo apt-get update && sudo apt-get install -y apt-transport-https dpkg
+- curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
 - echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-- curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-- sudo apt-get update && sudo apt-get install google-cloud-sdk
-- sudo apt-get install kubectl
-- gcloud auth activate-service-account --key-file=credentials/gce.json
-- gcloud auth configure-docker -q
-- gcloud config set project ${GAE_PROJECT_ID}
-- gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
+- echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+- sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 
 before_script:
 - cp .env-production server/.env
@@ -28,6 +24,11 @@ script:
 - docker-compose run client npm run build:app --prod
 
 after_success:
+# authenticate with gcloud and set up kubernetes
+- gcloud auth activate-service-account --key-file=credentials/gce.json
+- gcloud auth configure-docker -q
+- gcloud config set project ${GAE_PROJECT_ID}
+- gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
 # move app files into server
 - gsutil -m rsync -dr client/www gs://heartsteps-assets/app
 # generate website and upload

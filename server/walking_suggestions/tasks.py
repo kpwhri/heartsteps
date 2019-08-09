@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+import requests
 
 from days.services import DayService
 
@@ -13,6 +14,8 @@ from .models import SuggestionTime
 from .models import Configuration
 from .models import WalkingSuggestionDecision
 from .models import NightlyUpdate
+from .models import PoolingServiceConfiguration
+from .models import PoolingServiceRequest
 from .services import WalkingSuggestionService
 from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
@@ -57,3 +60,31 @@ def initialize_and_update(username):
             day = update_date,
             updated = True
         )
+
+@shared_task
+def update_pooling_service():
+    if not hasattr(settings, 'POOLING_SERVICE_URL'):
+        return False
+    url = settings.POOLING_SERVICE_URL
+    
+    users = []
+    for configuration in PoolingServiceConfiguration.objects.all():
+        users.append(configuration.user.username)
+
+    data = {
+        'users': users
+    }
+
+    request_record = PoolingServiceRequest.objects.create(
+        name = 'Pooling service update',
+        url = url,
+        request_data = json.dumps(data),
+        request_time = timezone.now()
+    )
+
+    response = requests.post(url, json=data)
+
+    request_record.response_code = response.status_code
+    request_record.response_data = response.text
+    request_record.response_time = timezone.now()
+    request_record.save()
