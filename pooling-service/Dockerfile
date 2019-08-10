@@ -17,7 +17,6 @@ ADD . /pooling-service
 WORKDIR /pooling-service
 
 RUN pip install -r requirements.txt
-RUN Rscript install.r
 
 ENV googleStorageBucket walking-suggestions-data
 
