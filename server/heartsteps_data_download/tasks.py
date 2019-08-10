@@ -225,7 +225,10 @@ class DailyAdherenceResource(resources.Resource):
         return self.get_key(instance, 'fitbit_step_count')
 
 def export_adherence_metrics(username, directory):
-    adherence_service = AdherenceService(username = username)
+    try:
+        adherence_service = AdherenceService(username = username)
+    except AdherenceService.NoConfiguration:
+        return False
     adherence_days = {}
     for metric in AdherenceMetric.objects.order_by('date').filter(user__username=username).all():
         date_string = metric.date.strftime('%Y-%m-%d')
