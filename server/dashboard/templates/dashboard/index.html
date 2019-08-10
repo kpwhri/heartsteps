@@ -16,7 +16,7 @@
                 $('.sms-btn').on('click', function () {
                     // Set to_number for call
                     let to_number_field = $('#id_to_number');
-                    let this_to_number = $(this).text();
+                    let this_to_number = $(this).text().trim();
                     to_number_field.val(this_to_number);
                 });
             });
@@ -139,7 +139,7 @@
                 </td>
                 <td>
                     {% if participant.watch_app_installed %}
-                        {{ participant.watch_app_installed_date|date }}
+                        {{ participant.watch_app_installed_date }}
                     {% endif %}
                 </td>
                 <td>

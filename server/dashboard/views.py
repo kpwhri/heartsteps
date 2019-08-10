@@ -28,7 +28,7 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/index.html'
 
     def get_login_url(self):
-        return reverse('admin:app_list', kwargs={'app_label': 'login'})
+        return reverse('login')
 
     def test_func(self):
         if not self.request.user:
