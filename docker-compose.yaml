@@ -81,6 +81,7 @@ services:
       - server
   pooling-service:
       build: ./pooling-service
+      command: python app.py
       volumes:
         - ./pooling-service:/pooling-service
         - ./credentials:/credentials
