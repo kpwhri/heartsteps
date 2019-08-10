@@ -3,8 +3,9 @@
 ## Numbers = "REAL PEOPLE"
 ## "Test-XXXX" = "FAKE PERSON" (e.g., peng, walter)
 getwd()
-setwd("..")
-participants = c("10008", "10032","10110", "10187", "10296", "10214","10327",  "10342",
+setwd("anti-sedentary-service")
+
+participants = c("10008","10027", "10032","10110","10137", "10187","10214", "10296","10307", "10327",  "10342",
                   "10388", "10399",
                  "test-donna", "test-nickreid", "test-pedja", 
                  "test-mash", "test-peng")
@@ -33,7 +34,7 @@ state_results = aggregate(online_state~day(time) + month(time) + userid, data = 
 availability_results = aggregate(available~day(time) + month(time) + userid, data = subset(complete_data, online_state != -1), FUN = sum)
 
 current_block_start = 1
-current_block_end = 4
+current_block_end = 8
 current_month = 8 
 
 last_block_start = 24
