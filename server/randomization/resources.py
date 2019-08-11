@@ -19,6 +19,7 @@ class DecisionResource(resources.ModelResource):
         'available',
         'unavailable_no_step_count_data',
         'unavailable_not_sedentary',
+        'unavailable_recently_active',
         'unavailable_notification_recently_sent',
         'unavailable_unreachable',
         'unavailable_disabled',
@@ -181,6 +182,9 @@ class DecisionResource(resources.ModelResource):
 
     def dehydrate_unavailable_not_sedentary(self, decision):
         return decision.unavailable_not_sedentary
+
+    def dehydrate_unavailable_recently_active(self, decision):
+        return decision.unavailable_recently_active
 
     def dehydrate_unavailable_notification_recently_sent(self, decision):
         return decision.unavailable_notification_recently_sent

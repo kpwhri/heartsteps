@@ -175,7 +175,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         super().update_availability()
 
         if not self.enabled:
-            self.decision.unavailable_disabled = True
+            self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_DISABLED)
             self.decision.save()
 
     def get_step_counts(self):
@@ -211,7 +211,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         except WalkingSuggestionService.RequestError:
             self.decision.treated = False
             self.decision.treatment_probability = 0
-            self.decision.unavailable_service_error = True
+            self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_SERVICE_ERROR)
             self.decision.save()
         return self.decision.treated
 
