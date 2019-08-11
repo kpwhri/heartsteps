@@ -109,23 +109,18 @@ class MorningMessageQuestion(Question):
 
 class MorningMessageSurvey(Survey):
     QUESTION_MODEL = MorningMessageQuestion
-    WORD_PAIR_SETS = [
-        [
-            ('Alert', 'Fatigued'),
-            ('Excited', 'Bored'),
-            ('Elated', 'Depressed'),
-            ('Happy', 'Sad')
-        ],
-        [
-            ('Tense', 'Calm'),
-            ('Nervous', 'Relaxed'),
-            ('Stressed', 'Serene'),
-            ('Upset', 'Contented')
-        ]
+    WORD_OPTIONS = [
+        'Energetic',
+        'Fatigued',
+        'Happy',
+        'Sad',
+        'Relaxed',
+        'Stressed',
+        'Tense'
     ]
 
-    word_set_string = models.CharField(max_length=225, null=True)
     selected_word = models.CharField(max_length=50, null=True)
+    word_set_string = models.CharField(max_length=225, null=True)
 
     @property
     def word_set(self):
@@ -141,20 +136,9 @@ class MorningMessageSurvey(Survey):
         return None
 
     def randomize_word_set(self):
-        words = []
-        for word_set in self.WORD_PAIR_SETS:
-            pair = random.choice(word_set)
-            words.append(pair[0])
-            words.append(pair[1])
+        words = self.WORD_OPTIONS.copy()
         random.shuffle(words)
         self.word_set_string = ','.join(words)
-
-    # @property
-    # def answered(self):
-    #     if self.selected_word:
-    #         return True
-    #     else:
-    #         return super().answered
 
     def get_answers(self):
         answers = super().get_answers()
