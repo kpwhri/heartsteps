@@ -338,7 +338,6 @@ def export_adherence_metrics(username, directory):
         account = None
 
     for day in days:
-        print(day['date'])
 
         day_service = DayService(username = username)
         day_start = day_service.get_start_of_day(day['date'])
@@ -365,7 +364,6 @@ def export_adherence_metrics(username, directory):
             messages_engaged = 0
 
             for message in messages:
-                print(message.created, message.body)
                 if message.sent:
                     messages_sent += 1
                 if message.received:
@@ -393,7 +391,6 @@ def export_adherence_metrics(username, directory):
         ).all()
         for decision in anti_sedentary_decisions:
             if decision.notification:
-                print('anti-sedentary message at', decision.time)
                 anti_sedentary_messages.append(decision.notification)
         tally_messages(anti_sedentary_messages, prefix='anti_sedentary_messages')
         
@@ -404,7 +401,6 @@ def export_adherence_metrics(username, directory):
         ).all()
         for decision in walking_suggestion_decisions:
             if decision.notification:
-                print('walking-suggestion message at', decision.time)
                 walking_suggestion_messages.append(decision.notification)
         tally_messages(walking_suggestion_messages, prefix='walking_suggestion_messages')
 
