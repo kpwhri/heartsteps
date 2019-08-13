@@ -5,6 +5,9 @@ from .models import Message
 
 class SMSService:
 
+    class UnknownContact(RuntimeError):
+        pass
+
     class ContactNotEnabled(RuntimeError):
         pass
 
@@ -19,7 +22,7 @@ class SMSService:
         except Contact.DoesNotExist:
             contact = None
         if not contact:
-            raise RuntimeError('No contact')
+            raise SMSService.UnknownContact('No contact')
         self.__contact = contact
         self.__user = contact.user
         self.__client = SMSClient()
