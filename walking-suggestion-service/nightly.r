@@ -609,7 +609,7 @@ if(is.null(check)){
   }, silent = T)
   
   kk <- 1
-  max.try <- 3
+  max.try <- 5
   while(is(save.try,"try-error") & kk <= max.try){
     
     kk <- kk + 1
@@ -634,6 +634,7 @@ if(is.null(check)){
   if(is(save.try,"try-error")){
     
     cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save after", max.try, "attemps", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+    stop("Fail to save the data")
     
   }else{
     
