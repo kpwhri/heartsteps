@@ -6,7 +6,7 @@ from fitbit_api.services import FitbitService
 @shared_task
 def subscribe_to_fitbit(username):
     try:
-        service = FitbitService(username=username)
+        service = FitbitService(fitbit_user=username)
         fitbit_client = FitbitClient(account=service.account)
         fitbit_client.subscriptions_update()
         if not fitbit_client.is_subscribed():
