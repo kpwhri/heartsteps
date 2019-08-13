@@ -8,8 +8,10 @@ class SMSService:
     class ContactNotEnabled(RuntimeError):
         pass
 
-    def __init__(self, contact=None, user=None, username=None):
+    def __init__(self, contact=None, user=None, username=None, phone_number=None):
         try:
+            if phone_number:
+                contact = Contact.objects.get(number=phone_number)
             if username:
                 contact = Contact.objects.get(user__username=username)
             if user:
@@ -27,7 +29,7 @@ class SMSService:
             raise ContactNotEnabled('Contact not enabled')
         message = Message.objects.create(
             recipient = self.__contact.number,
-            sender = self.__client.number,
+            sender = self.__client.phone_number,
             body = body
         )
         message_id = self.__client.send(

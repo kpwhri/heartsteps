@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -12,9 +13,9 @@ from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Participant
-from sms_service.forms import SendSMSForm
-from sms_service.views import SendSmsCreateView
+from sms_messages.services import SMSService
 
+from .forms import SendSMSForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 
@@ -81,4 +82,12 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        return SendSmsCreateView.as_view()(request)
+        form = SendSMSForm(request.POST)
+        if form.is_valid():
+            phone_number = form.cleaned_data['to_number']
+            body = form.cleaned_data['body']
+
+            service = SMSService(phone_number=phone_number)
+            service.send(body)
+
+        return HttpResponseRedirect(reverse('dashboard-index'))
