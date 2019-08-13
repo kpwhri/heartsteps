@@ -196,7 +196,7 @@ class MorningMessageSurveyTests(MorningMessageTestBase):
             user = self.user
         )
 
-        self.assertEqual(len(survey.word_set), 4)
+        self.assertEqual(len(survey.word_set), 7)
 
 class MorningMessageSurveyViewTest(APITestCase):
 

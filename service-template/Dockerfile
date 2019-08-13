@@ -1,8 +1,8 @@
-FROM python:3.6
+FROM python:3.6.8
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && \
-    apt-get install -y r-base
+    apt-get install -y r-base=3.3.3-1
 
 ADD credentials /credentials
 

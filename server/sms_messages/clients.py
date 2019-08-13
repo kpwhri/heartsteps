@@ -9,16 +9,12 @@ class SMSClient:
             settings.TWILIO_ACCOUNT_SID,
             settings.TWILIO_AUTH_TOKEN
         )
-        self.__phone_number = settings.TWILIO_PHONE_NUMBER
-
-    @property
-    def number(self):
-        return self.__phone_number
+        self.phone_number = settings.TWILIO_PHONE_NUMBER
 
     def send(self, number, body):
         response = self.__client.messages.create(
             body = body,
             to = number,
-            from_ = self.__phone_number
+            from_ = self.phone_number
         )
         return response.sid

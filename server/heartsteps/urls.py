@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from sms_messages.views import TwilioReplyView
+
 urlpatterns = [
     url(r'^api/walking-suggestions/times/', include('walking_suggestion_times.urls')),
     url(r'^api/walking-suggestions/', include('walking_suggestions.urls')),
@@ -23,6 +25,17 @@ urlpatterns = [
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/', include('weather.urls')),
     url(r'^admin/', admin.site.urls),
+    url(
+        r'^login/$',
+        auth_views.login,
+        {'template_name': 'dashboard/login.html'},
+        name='login'
+    ),
+    url(
+        r'^twilio/reply',
+        TwilioReplyView.as_view(),
+        name = 'sms-messages-reply'
+    ),
     url(r'^api-auth', include('rest_framework.urls')),
     url(r'^export/', include('data_export.urls')),
     url(r'^dashboard/', include('dashboard.urls')),

@@ -11,13 +11,13 @@ RUN conda create -n py36 python=3.6 && \
     conda install  --name py36 -c conda-forge tensorflow && \
     conda install --name py36  -c conda-forge gpflow  && \
     conda install pytorch torchvision -c pytorch && \
-    pip install git+https://github.com/cornellius-gp/gpytorch.git
+    pip install git+https://github.com/cornellius-gp/gpytorch.git && \
+    conda clean --all
 
 ADD . /pooling-service
 WORKDIR /pooling-service
 
 RUN pip install -r requirements.txt
-RUN Rscript install.r
 
 ENV googleStorageBucket walking-suggestions-data
 

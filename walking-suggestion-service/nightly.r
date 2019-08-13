@@ -9,6 +9,7 @@ localtest = F
 #' 
 
 library(rjson)
+library(methods)
 library(zoo, warn.conflicts=FALSE, quietly = T)
 library(fda, warn.conflicts=FALSE, quietly =T)
 
@@ -591,7 +592,6 @@ if(is.null(check)){
   data.quality$totalsteps <- rbind(data.quality$totalsteps, c(input$studyDay, input$totalSteps))
   
   # ================ Save everything ================
-  
   save.try <- try(expr = {save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
     save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
     save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
@@ -605,12 +605,14 @@ if(is.null(check)){
       
     }
     
-    }, silent = T)
-
-  if(is(save.try,"try-error")){
     
-    cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save (Attempt 1): ", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+  }, silent = T)
+  
+  kk <- 1
+  max.try <- 5
+  while(is(save.try,"try-error") & kk <= max.try){
     
+    kk <- kk + 1
     save.try <- try(expr = {save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
       save(data.dosage, file = paste(paths, "/dosage.Rdata", sep=""))
       save(data.day, file = paste(paths, "/daily.Rdata", sep=""))
@@ -618,28 +620,29 @@ if(is.null(check)){
       save(data.history, file = paste(paths, "/history.Rdata", sep=""))
       save(data.imputation, file = paste(paths, "/imputation.Rdata", sep=""))
       if(nrow(train.dat) > 0){
+        
         train <- data.frame(id = input$userID, train.dat);
         save(train, file = paste(paths, "/train.Rdata", sep="")) # For pooling
+        
       }
+      
     }, silent = T)
     
-    if(is(save.try,"try-error")){
-      
-      cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save (Attempt 2):", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
-      stop("Fail to save the data")
-      
-    }else{
-      
-      cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
-      
-    }
     
+  }
+  
+  if(is(save.try,"try-error")){
+    
+    cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save after", max.try, "attemps", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
+    stop("Fail to save the data")
     
   }else{
     
-    cat(paste("\nNightly:", "Day =", input$studyDay, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
+    cat(paste0("\nNightly: ", "Day = ", input$studyDay, " Success", "[", kk, "]"), file =  paste(paths, "/log", sep=""), append = TRUE) 
     
   }
+  
+
   
   
   
