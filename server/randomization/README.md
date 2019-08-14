@@ -7,7 +7,9 @@ The decision model references contextual objects, which are used to select an ap
 ## Availability
 A user can only be treated if they are available for treatment. To be available for treatment, and participant must meet various availability critera. All reasons for a user being unavailable for treatment are stored as Unavailable Reasons, that reference a specific decision.
 
-* **Unreachable** means the heartsteps-server was unable to get the participant's context at the decision time. This unavailable reason is often used when a decision was *imputed.*
+* **Unreachable** means the heartsteps-server was unable to create the decision at the time the decision was supposed to be processed. This would happen if no decision context from a participant had been recieved with the **decision time window.**
+    - This unavailable reason is often used when a decision was *imputed.*
+    - Imputed decision times will mark the participant as unavailable, but will generate context using data that was not available at the decision time.
 * **Notification recently sent** means that a notification was sent to the user in the past hour.
 * **No step count data** means there was no fitbit-watch-app data available at the time of the decision, so there is no way for the decision to determine if the participant was sedentary.
 * **Not sedentary** means the participant has taken more than 150 steps in the past 30 minutes. This uses data that is reported by the fitbit-watch-app.
