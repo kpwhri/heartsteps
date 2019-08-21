@@ -3,7 +3,9 @@ import math
 from datetime import timedelta, datetime
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import JSONField
 
 from activity_summaries.models import Day
 from days.services import DayService
@@ -20,7 +22,11 @@ class WeekSurvey(Survey):
 class Week(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
     number = models.IntegerField(null=True)
 
     start_date = models.DateField()
@@ -30,9 +36,27 @@ class Week(models.Model):
     confidence = models.FloatField(null=True)
 
     survey = models.ForeignKey(WeekSurvey, null=True)
+    _barrier_options = JSONField(null=True)
 
     class Meta:
         ordering = ['start_date']
+
+    def save(self, *args, **kwargs):
+        if self.number is None:
+            number_of_weeks = Week.objects.filter(user=self.user).count()
+            self.number = number_of_weeks + 1
+        if not self.goal:
+            self.goal = self.get_default_goal()
+        if not self.survey:
+            survey = WeekSurvey.objects.create(
+                user = self.user
+            )
+            survey.randomize_questions()
+            self.survey = survey
+        if not self._barrier_options:
+            self._barrier_options = self.get_barrier_options()
+
+        super().save(*args, **kwargs)
 
     @property
     def id(self):
@@ -57,6 +81,76 @@ class Week(models.Model):
             hour = 23,
             minute = 59
         ))
+
+    @property
+    def previous_week(self):
+        if hasattr(self, '_previous_week'):
+            return self._previous_week
+        week = Week.objects.filter(
+            user = self.user,
+            end_date__lt = self.start_date
+        ).last()
+        if week:
+            self._previous_week = week
+            return week
+        else:
+            return None
+
+    @property
+    def next_week(self):
+        if hasattr(self, '_next_week'):
+            return self._next_week
+        week = Week.objects.filter(
+            user = self.user,
+            start_date__gt = self.end_date
+        ).first()
+        if week:
+            self._next_week = week
+            return week
+        else:
+            return None
+
+    @property
+    def barrier_options(self):
+        if not self._barrier_options:
+            return []
+        return self._barrier_options
+
+    def _get_all_barrier_options(self):
+        barrier_options = WeeklyBarrierOption.objects.filter(Q(user = None) | Q(user = self.user)).all()
+        options = []
+        for option in barrier_options:
+            options.append(option.name)
+        options.sort()
+        return options
+
+    def _get_barrier_usage_dictionay(self):
+        barriers = {}
+        for weekly_barrier in WeeklyBarrier.objects.filter(week__user = self.user).all():
+            barrier = weekly_barrier.barrier.name
+            if barrier not in barriers:
+                barriers[barrier] = 0
+            barriers[barrier] += 1
+        for option in self._get_all_barrier_options():
+            if option not in barriers:
+                barriers[option] = 0
+        return barriers
+
+    def _get_previous_barriers(self):
+        barriers = []
+        if self.previous_week:
+            for recent_barrier in WeeklyBarrier.objects.filter(week = self.previous_week).all():
+                barriers.append(recent_barrier.barrier.name)
+        return barriers
+
+    def get_barrier_options(self):
+        options = self._get_all_barrier_options()
+        barrier_usage = self._get_barrier_usage_dictionay()
+        recent_barriers = self._get_previous_barriers()
+        
+        options.sort(key = lambda name: barrier_usage[name], reverse=True)
+        options.sort(key = lambda name: name in recent_barriers, reverse=True)
+        return options
 
     def __localize_datetime(self, time):
         service = DayService(user=self.user)
@@ -88,3 +182,24 @@ class Week(models.Model):
 
     def __str__(self):
         return "%s to %s (%s)" % (self.start_date, self.end_date, self.user)
+
+class WeeklyBarrierOption(models.Model):
+    name = models.CharField(max_length=150)
+    user = models.ForeignKey(
+        User,
+        null = True,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
+
+class WeeklyBarrier(models.Model):
+    week = models.ForeignKey(
+        Week,
+        related_name = 'weekly_barriers_set',
+        on_delete = models.CASCADE
+    )
+    barrier = models.ForeignKey(
+        WeeklyBarrierOption,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
