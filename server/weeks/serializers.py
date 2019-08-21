@@ -25,3 +25,8 @@ class WeekSerializer(serializers.ModelSerializer):
 class GoalSerializer(serializers.Serializer):
     goal = serializers.IntegerField()
     confidence = serializers.FloatField(required=False, allow_null=True)
+
+class BarriersSerializer(serializers.Serializer):
+    barriers = serializers.ListField(
+        child = serializers.CharField()
+    )

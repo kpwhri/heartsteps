@@ -111,6 +111,40 @@ class Week(models.Model):
             return None
 
     @property
+    def barriers(self):
+        barriers = []
+        for barrier in WeeklyBarrier.objects.filter(week = self).all():
+            barriers.append(barrier.barrier.name)
+        barriers.sort()
+        return barriers
+    
+    def add_barrier(self, barrier_name):
+        try:
+            barrier = WeeklyBarrierOption.objects.filter(
+                name = barrier_name,
+            ).filter(
+                Q(user=None) | Q(user=self.user)
+            ).get()
+        except WeeklyBarrierOption.DoesNotExist:
+            barrier = WeeklyBarrierOption.objects.create(
+                name = barrier_name,
+                user = self.user
+            )
+        WeeklyBarrier.objects.update_or_create(
+            week = self,
+            barrier = barrier
+        )
+
+    def set_barriers(self, barrier_names):
+        current_barriers = self.barriers
+        for barrier in self.barriers:
+            if barrier not in barrier_names:
+                WeeklyBarrier.objects.filter(week=self, barrier__name=barrier).delete()
+        for barrier in barrier_names:
+            if barrier not in current_barriers:
+                self.add_barrier(barrier)
+
+    @property
     def barrier_options(self):
         if not self._barrier_options:
             return []
