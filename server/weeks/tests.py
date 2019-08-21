@@ -389,7 +389,8 @@ class WeekBarriersViewTests(APITestCase):
             response.data,
             {
                 'barriers': ['Example barrier'],
-                'options': ['Example barrier', 'Poor weather', 'Travel']
+                'options': ['Example barrier', 'Poor weather', 'Travel'],
+                'will_barriers_continue': None
             }
         )
 
@@ -409,3 +410,17 @@ class WeekBarriersViewTests(APITestCase):
         self.assertEqual(self.current_week.barriers, ['Example barrier', 'Test barrier'])
         test_barrier = WeeklyBarrierOption.objects.get(name='Test barrier')
         self.assertEqual(test_barrier.user, self.user)
+
+    def test_update_will_barrier_continue(self):
+
+        response = self.client.post(
+            reverse('week-barriers', kwargs = {'week_number': self.current_week.number}),
+            {
+                'barriers': ['Test barrier', 'Example barrier'],
+                'will_barriers_continue': 'unknown'
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        week = Week.objects.filter(user = self.user).last()
+        self.assertEqual(week.will_barriers_continue, 'unknown')

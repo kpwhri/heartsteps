@@ -100,7 +100,8 @@ class WeekBarriersView(WeekView):
         return Response(
             {
                 'barriers':week.barriers,
-                'options': week.barrier_options
+                'options': week.barrier_options,
+                'will_barriers_continue': week.will_barriers_continue
             },
             status=status.HTTP_200_OK
         )
@@ -110,10 +111,14 @@ class WeekBarriersView(WeekView):
         serialized = BarriersSerializer(data=request.data)
         if serialized.is_valid():
             week.set_barriers(serialized.validated_data['barriers'])
+            if 'will_barriers_continue' in serialized.validated_data:
+                week.will_barriers_continue = serialized.validated_data['will_barriers_continue']
+                week.save()
             return Response(
                 {
                     'barriers': week.barriers,
-                    'options': week.barrier_options
+                    'options': week.barrier_options,
+                    'will_barriers_continue': week.will_barriers_continue
                 },
                 status=status.HTTP_200_OK
             )

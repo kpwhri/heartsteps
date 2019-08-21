@@ -28,5 +28,14 @@ class GoalSerializer(serializers.Serializer):
 
 class BarriersSerializer(serializers.Serializer):
     barriers = serializers.ListField(
-        child = serializers.CharField()
+        child = serializers.CharField(),
+        allow_empty = True
+    )
+    will_barriers_continue = serializers.ChoiceField(
+        choices = [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+            ('unknown', 'Unknown')
+        ],
+        required = False
     )

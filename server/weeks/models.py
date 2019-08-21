@@ -37,6 +37,15 @@ class Week(models.Model):
 
     survey = models.ForeignKey(WeekSurvey, null=True)
     _barrier_options = JSONField(null=True)
+    will_barriers_continue = models.CharField(
+        max_length = 50,
+        choices = [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+            ('unknown', 'Unknown')
+        ],
+        null = True
+    )
 
     class Meta:
         ordering = ['start_date']
