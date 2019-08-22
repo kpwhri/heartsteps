@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from unittest.mock import patch
 import pytz
+import json
 
 from django.test import TestCase
 from django.utils import timezone
@@ -13,7 +14,11 @@ from locations.services import LocationService
 from push_messages.services import PushMessageService
 from weekly_reflection.signals import weekly_reflection
 
-from .models import User, Week, WeekQuestion
+from .models import Week
+from .models import WeekQuestion
+from .models import WeeklyBarrier
+from .models import WeeklyBarrierOption
+from .models import User
 from .services import WeekService
 from .tasks import send_reflection
 
@@ -283,3 +288,139 @@ class WeekSurveyTests(TestCase):
 
         self.assertIsNotNone(week.survey)
         self.assertEqual(len(week.survey.questions), 2)
+
+class WeeklyBarriersTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test')
+
+        WeeklyBarrierOption.objects.create(name = 'Poor weather')
+        WeeklyBarrierOption.objects.create(name = 'Test')
+        WeeklyBarrierOption.objects.create(name = 'Too busy')
+        WeeklyBarrierOption.objects.create(name = 'Travel')
+
+    def test_sets_week_barrier_options(self):
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 19),
+            end_date = date(2019, 8, 25)
+        )
+        
+        weekly_survey = week.survey
+        self.assertEqual(week.barrier_options, ['Poor weather', 'Test', 'Too busy', 'Travel'])
+
+    def test_sorts_by_barrier_use(self):
+        previous_week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 5),
+            end_date = date(2019, 8, 11)
+        )
+        WeeklyBarrier.objects.create(
+            week = previous_week,
+            barrier = WeeklyBarrierOption.objects.get(name = 'Too busy')
+        )
+
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 19),
+            end_date = date(2019, 8, 25)
+        )
+
+        self.assertEqual(week.barrier_options, ['Too busy', 'Poor weather', 'Test', 'Travel'])
+
+    def test_sorts_by_recent_barriers(self):
+        previous_week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 5),
+            end_date = date(2019, 8, 11)
+        )
+        WeeklyBarrier.objects.create(
+            week = previous_week,
+            barrier = WeeklyBarrierOption.objects.get(name = 'Too busy')
+        )
+        last_week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019,8,12),
+            end_date = date(2019, 8, 18)
+        )
+        WeeklyBarrier.objects.create(
+            week = last_week,
+            barrier = WeeklyBarrierOption.objects.get(name = 'Travel')
+        )
+
+        week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 19),
+            end_date = date(2019, 8, 25)
+        )
+
+        self.assertEqual(week.barrier_options, ['Travel', 'Too busy', 'Poor weather', 'Test'])
+
+class WeekBarriersViewTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test')
+        self.client.force_authenticate(user=self.user)
+
+        WeeklyBarrierOption.objects.create(name = 'Example barrier')
+        WeeklyBarrierOption.objects.create(name = 'Travel')
+        WeeklyBarrierOption.objects.create(name = 'Poor weather')
+
+        self.last_week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 12),
+            end_date = date(2019, 8, 18)
+        )
+        self.current_week = Week.objects.create(
+            user = self.user,
+            start_date = date(2019, 8, 19),
+            end_date = date(2019, 8, 25)
+        )
+
+    def test_get_current_barriers(self):
+        self.current_week.add_barrier('Example barrier')
+        
+        response = self.client.get(
+            reverse('week-barriers', kwargs = {'week_number': self.current_week.number})
+        )
+
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(
+            response.data,
+            {
+                'barriers': ['Example barrier'],
+                'options': ['Example barrier', 'Poor weather', 'Travel'],
+                'will_barriers_continue': None
+            }
+        )
+
+    def test_set_current_barriers(self):
+        self.current_week.add_barrier('Barrier to remove')
+
+        response = self.client.post(
+            reverse('week-barriers', kwargs = {'week_number': self.current_week.number}),
+            {
+                'barriers': ['Test barrier', 'Example barrier']
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['barriers'], ['Example barrier', 'Test barrier'])
+        self.assertEqual(response.data['options'], ['Example barrier', 'Poor weather', 'Travel'])
+        self.assertEqual(self.current_week.barriers, ['Example barrier', 'Test barrier'])
+        test_barrier = WeeklyBarrierOption.objects.get(name='Test barrier')
+        self.assertEqual(test_barrier.user, self.user)
+
+    def test_update_will_barrier_continue(self):
+
+        response = self.client.post(
+            reverse('week-barriers', kwargs = {'week_number': self.current_week.number}),
+            {
+                'barriers': ['Test barrier', 'Example barrier'],
+                'will_barriers_continue': 'unknown'
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        week = Week.objects.filter(user = self.user).last()
+        self.assertEqual(week.will_barriers_continue, 'unknown')

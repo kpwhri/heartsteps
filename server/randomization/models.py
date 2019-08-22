@@ -45,7 +45,7 @@ class UnavailableReason(models.Model):
         (NOTIFICATION_RECENTLY_SENT, 'Notification recently sent'),
         (NOT_SEDENTARY, 'Not sedentary'),
         (NO_STEP_COUNT_DATA, 'No step-count data'),
-        (ON_VACATION, 'On vaaction'),
+        (ON_VACATION, 'On vacation'),
         (DISABLED, 'Disabled'),
         (SERVICE_ERROR, 'service-error')
     ]
