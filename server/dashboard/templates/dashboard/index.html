@@ -138,9 +138,7 @@
                     {{ participant.last_page_view|date }}
                 </td>
                 <td>
-                    {% if participant.watch_app_installed %}
-                        {{ participant.watch_app_installed_date }}
-                    {% endif %}
+                    {{ participant.watch_app_installed_date|date }}
                 </td>
                 <td>
                     {{ participant.last_watch_app_data|date }}
