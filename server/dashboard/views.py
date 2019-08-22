@@ -77,9 +77,9 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
                 'last_page_view': participant.last_page_view,
                 'watch_app_installed_date':
                     participant.watch_app_installed_date,
-                'last_watch_app_data': participant.last_watch_app_data
+                'last_watch_app_data': participant.last_watch_app_data,
+                'last_text_sent': participant.last_text_sent
             })
-            print("Watch App Dt: " + str(participant.watch_app_installed_date()))
         context['participant_list'] = participants
         return context
 
