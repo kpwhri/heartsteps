@@ -57,7 +57,7 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
 
             try:
                 first_page_view = participant.user.pageview_set.all() \
-                    .aggregate(models.Max('time'))['time__max']
+                    .aggregate(models.Min('time'))['time__min']
             except AttributeError:
                 first_page_view = None
 
