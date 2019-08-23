@@ -119,10 +119,18 @@
                 </td>
                 <td>{{ participant.last_text_sent|date }}</td>
                 <td>{{ participant.date_joined|date }}</td>
-                <td>{% if participant.fitbit_authorized %}
-                        <img src="{% static 'admin/img/icon-yes.svg' %}" />
-                    {% else %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}" />
+                <td>{% if participant.fitbit_authorized == 'current' %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Currently authorized' />
+                    {% elif participant.fitbit_authorized == 'never' %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Never authorized' />
+                    {% elif participant.fitbit_authorized == 'prior' %}
+                        <img src="{% static 'admin/img/icon-unlink.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Previously authorized' />
                     {% endif %}
                 </td>
                 <td>

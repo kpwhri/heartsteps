@@ -73,13 +73,17 @@ class DashboardParticipantTests(TestCase):
         WatchInstall.objects.all().delete()
         self.assertEqual(self.participant.watch_app_installed_date(), None)
 
-    def test_fitbit_authorized_true(self):
-        self.assertEqual(self.participant.fitbit_authorized, True)
+    def test_fitbit_authorized_current(self):
+        self.assertEqual(self.participant.fitbit_authorized, 'current')
 
-    def test_fitbit_authorized_false(self):
+    def test_fitbit_authorized_prior(self):
         self.fitbit_account.access_token = None
         self.fitbit_account.save()
-        self.assertEqual(self.participant.fitbit_authorized, False)
+        self.assertEqual(self.participant.fitbit_authorized, 'prior')
+
+    def test_fitbit_authorized_never(self):
+        self.fitbit_account.delete()
+        self.assertEqual(self.participant.fitbit_authorized, 'never')
 
     def test_last_fitbit_sync_has_synched(self):
         subscription = FitbitSubscription.objects.create(

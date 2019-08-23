@@ -79,10 +79,20 @@ class Participant(models.Model):
             return None
 
     @property
+    # A little different from FitbitAccount.authorized
+    # FA looks if any of access_token, refresh_token, expires_at are None
+    # We now want 3 values for this:
+    #   (1) never authorized (no records in FitbitAccount)
+    #   (2) currently authorized (valid values in FitbitAccount)
+    #   (3) previously authorized (invalid value in extant FitbitAccount record)
     def fitbit_authorized(self):
         if self.fitbit_account:
-            return self.fitbit_account.authorized
-        return False
+            if self.fitbit_account.authorized:
+                return 'current'
+            else:
+                return 'prior'
+        else:
+            return 'never'
 
     @property
     def fitbit_first_updated(self):
