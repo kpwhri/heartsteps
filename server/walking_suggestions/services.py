@@ -31,6 +31,7 @@ from .models import SuggestionTime
 from .models import WalkingSuggestionDecision
 from .models import WalkingSuggestionMessageTemplate
 from .models import WalkingSuggestionServiceRequest as ServiceRequest
+from .models import PoolingServiceConfiguration
 
 class WalkingSuggestionTimeService:
 
@@ -175,7 +176,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         super().update_availability()
 
         if not self.enabled:
-            self.decision.unavailable_disabled = True
+            self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_DISABLED)
             self.decision.save()
 
     def get_step_counts(self):
@@ -211,7 +212,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         except WalkingSuggestionService.RequestError:
             self.decision.treated = False
             self.decision.treatment_probability = 0
-            self.decision.unavailable_service_error = True
+            self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_SERVICE_ERROR)
             self.decision.save()
         return self.decision.treated
 
@@ -392,6 +393,13 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
 
+        pooling = False
+        try:
+            pooling_configuration = PoolingServiceConfiguration.objects.get(user=self.__configuration.user)
+            pooling = pooling_configuration.use_pooling
+        except PoolingServiceConfiguration.DoesNotExist:
+            pass
+
         day_service = DayService(user = decision.user)
         date = day_service.get_date_at(decision.time)
 
@@ -403,7 +411,8 @@ class WalkingSuggestionService():
                 'availability': decision.available,
                 'priorAnti': self.anti_sedentary_treated_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
-                'location': self.get_location_type(decision)
+                'location': self.get_location_type(decision),
+                'pooling': pooling
             }
         )
         decision.treated = response['send']
@@ -423,7 +432,7 @@ class WalkingSuggestionService():
     def get_actions(self, date):
         actions_list = []
         for decision in self.get_decision_list_for(date):
-            if decision.imputed:
+            if decision.imputed or decision.treated is None:
                 actions_list.append(False)
             else:
                 actions_list.append(decision.treated)
@@ -432,7 +441,7 @@ class WalkingSuggestionService():
     def get_probabilities(self, date):
         probability_list = []
         for decision in self.get_decision_list_for(date):
-            if decision.imputed:
+            if decision.imputed or decision.treatment_probability is None:
                 probability_list.append(0)
             else:
                 probability_list.append(decision.treatment_probability)

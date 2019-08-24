@@ -6,7 +6,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Week
-from .serializers import GoalSerializer, WeekSerializer, SurveySerializer
+from .serializers import BarriersSerializer
+from .serializers import GoalSerializer
+from .serializers import WeekSerializer
+from .serializers import SurveySerializer
 from .services import WeekService
 
 class WeekView(APIView):
@@ -89,3 +92,35 @@ class WeekSurveyView(WeekView):
 
         serialized = SurveySerializer(survey)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
+class WeekBarriersView(WeekView):
+
+    def get(self, request, week_number):
+        week = self.get_week(request.user, week_number)
+        return Response(
+            {
+                'barriers':week.barriers,
+                'options': week.barrier_options,
+                'will_barriers_continue': week.will_barriers_continue
+            },
+            status=status.HTTP_200_OK
+        )
+
+    def post(self, request, week_number):
+        week = self.get_week(request.user, week_number)
+        serialized = BarriersSerializer(data=request.data)
+        if serialized.is_valid():
+            week.set_barriers(serialized.validated_data['barriers'])
+            if 'will_barriers_continue' in serialized.validated_data:
+                week.will_barriers_continue = serialized.validated_data['will_barriers_continue']
+                week.save()
+            return Response(
+                {
+                    'barriers': week.barriers,
+                    'options': week.barrier_options,
+                    'will_barriers_continue': week.will_barriers_continue
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

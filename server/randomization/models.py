@@ -16,8 +16,8 @@ from locations.models import Place
 from locations.services import LocationService
 from push_messages.models import Message
 from push_messages.services import PushMessageService
-from weather.models import WeatherForecast
 from watch_app.services import StepCountService as WatchAppStepCountService
+from weather.models import WeatherForecast
 
 class ContextTag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -34,6 +34,7 @@ class UnavailableReason(models.Model):
     UNREACHABLE = 'unreachable'
     NOTIFICATION_RECENTLY_SENT = 'notification-recently-sent'
     NOT_SEDENTARY = 'not-sedentary'
+    RECENTLY_ACTIVE = 'recently-active'
     ON_VACATION = 'on-vacation'
     NO_STEP_COUNT_DATA = 'no-step-count-data'
     DISABLED = 'disabled'
@@ -44,7 +45,7 @@ class UnavailableReason(models.Model):
         (NOTIFICATION_RECENTLY_SENT, 'Notification recently sent'),
         (NOT_SEDENTARY, 'Not sedentary'),
         (NO_STEP_COUNT_DATA, 'No step-count data'),
-        (ON_VACATION, 'On vaaction'),
+        (ON_VACATION, 'On vacation'),
         (DISABLED, 'Disabled'),
         (SERVICE_ERROR, 'service-error')
     ]
@@ -60,6 +61,15 @@ class Decision(models.Model):
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
     SEDENTARY_STEP_COUNT = 150
     SEDENTARY_DURATION_MINUTES = 40
+
+    UNAVAILABLE_UNREACHABLE = UnavailableReason.UNREACHABLE
+    UNAVAILABLE_NOTIFICATION_RECENTLY_SENT = UnavailableReason.NOTIFICATION_RECENTLY_SENT
+    UNAVAILABLE_NOT_SEDENTARY = UnavailableReason.NOT_SEDENTARY
+    UNAVAILABLE_RECENTLY_ACTIVE = UnavailableReason.RECENTLY_ACTIVE
+    UNAVAILABLE_ON_VACATION = UnavailableReason.ON_VACATION
+    UNAVAILABLE_NO_STEP_COUNT_DATA = UnavailableReason.NO_STEP_COUNT_DATA
+    UNAVAILABLE_DISABLED = UnavailableReason.DISABLED
+    UNAVAILABLE_SERVICE_ERROR = UnavailableReason.SERVICE_ERROR
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
@@ -92,22 +102,7 @@ class Decision(models.Model):
                 return True
             except UnavailableReason.DoesNotExist:
                 return False
-        def set_reason(self, value):
-            if value:
-                UnavailableReason.objects.update_or_create(
-                    decision = self,
-                    reason = property_reason
-                )
-            else:
-                try:
-                    reason = UnavailableReason.objects.get(
-                        decision = self,
-                        reason = property_reason
-                    )
-                    reason.delete()
-                except UnavailableReason.DoesNotExist:
-                    pass
-        return property(get_reason, set_reason)
+        return property(get_reason)
     
     def is_available(self):
         reasons = UnavailableReason.objects.filter(
@@ -118,21 +113,29 @@ class Decision(models.Model):
         else:
             return True
 
+    def add_unavailable_reason(self, reason):
+        UnavailableReason.objects.create(
+            decision = self,
+            reason = reason
+        )
+
     def update(self):
         UnavailableReason.objects.filter(decision=self).delete()
         if self.imputed:
-            self.unavailable_unreachable = True
+            self.add_unavailable_reason(UnavailableReason.UNREACHABLE)
         if self.is_notification_recently_sent():
-            self.unavailable_notification_recently_sent = True
+            self.add_unavailable_reason(UnavailableReason.NOTIFICATION_RECENTLY_SENT)
         try:
             if not self._is_sedentary():
-                self.unavailable_not_sedentary = True
+                self.add_unavailable_reason(UnavailableReason.NOT_SEDENTARY)
                 self.sedentary = False
             else:
                 self.sedentary = True
         except WatchAppStepCountService.NoStepCountRecorded:
-            self.unavailable_no_step_count_data = True
+            self.add_unavailable_reason(UnavailableReason.NO_STEP_COUNT_DATA)
             self.sedentary = False
+        if self.is_recently_active():
+            self.add_unavailable_reason(UnavailableReason.RECENTLY_ACTIVE)
         self.available = self.is_available()
         self.save()
 
@@ -188,8 +191,33 @@ class Decision(models.Model):
         except WatchAppStepCountService.NoStepCountRecorded:
             return False
 
+    def _get_recently_active_minutes(self):
+        if hasattr(settings, 'RANDOMIZATION_RECENTLY_ACTIVE_DURATION_MINUTES'):
+            return settings.RANDOMIZATION_RECENTLY_ACTIVE_DURATION_MINUTES
+        return 120
+
+    def _get_recently_active_step_count_threshold(self):
+        if hasattr(settings, 'RANDOMIZATION_RECENTLY_ACTIVE_STEP_COUNT_THRESHOLD'):
+            return settings.RANDOMIZATION_RECENTLY_ACTIVE_STEP_COUNT_THRESHOLD
+        return 2000
+
+    def is_recently_active(self):
+        try:
+            service = WatchAppStepCountService(user = self.user)
+            step_count = service.get_step_count_between(
+                start = self.time - timedelta(minutes = self._get_recently_active_minutes()),
+                end = self.time
+            )
+            if step_count > self._get_recently_active_step_count_threshold():
+                return True
+            else:
+                return False
+        except WatchAppStepCountService.NoStepCountRecorded:
+            return False
+
     unavailable_no_step_count_data = make_unavailable_property(UnavailableReason.NO_STEP_COUNT_DATA)
     unavailable_not_sedentary = make_unavailable_property(UnavailableReason.NOT_SEDENTARY)
+    unavailable_recently_active = make_unavailable_property(UnavailableReason.RECENTLY_ACTIVE)
     unavailable_notification_recently_sent = make_unavailable_property(UnavailableReason.NOTIFICATION_RECENTLY_SENT)
     unavailable_unreachable = make_unavailable_property(UnavailableReason.UNREACHABLE)
     unavailable_disabled = make_unavailable_property(UnavailableReason.DISABLED)

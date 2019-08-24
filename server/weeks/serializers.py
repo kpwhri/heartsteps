@@ -25,3 +25,17 @@ class WeekSerializer(serializers.ModelSerializer):
 class GoalSerializer(serializers.Serializer):
     goal = serializers.IntegerField()
     confidence = serializers.FloatField(required=False, allow_null=True)
+
+class BarriersSerializer(serializers.Serializer):
+    barriers = serializers.ListField(
+        child = serializers.CharField(),
+        allow_empty = True
+    )
+    will_barriers_continue = serializers.ChoiceField(
+        choices = [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+            ('unknown', 'Unknown')
+        ],
+        required = False
+    )

@@ -1,5 +1,6 @@
 import pytz
 from datetime import date, datetime, timedelta
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -48,7 +49,8 @@ class DashboardParticipantTests(TestCase):
     def test_watch_app_installed_true(self):
         WatchInstall.objects.create(
             user=self.user,
-            version='test'
+            version='test',
+            created=date(2019, 6, 19)
         )
         self.assertEqual(self.participant.watch_app_installed(), True)
 
@@ -56,13 +58,32 @@ class DashboardParticipantTests(TestCase):
         WatchInstall.objects.all().delete()
         self.assertEqual(self.participant.watch_app_installed(), False)
 
-    def test_fitbit_authorized_true(self):
-        self.assertEqual(self.participant.fitbit_authorized, True)
+    def test_watch_app_installed_date_true(self):
+        mocked_dt = datetime(2019, 6, 20, 12, 12, 12, tzinfo=pytz.utc)
+        with mock.patch('django.utils.timezone.now',
+                        mock.Mock(return_value=mocked_dt)):
+            WatchInstall.objects.create(
+                user=self.user,
+                version='test'
+            )
+            self.assertEqual(self.participant.watch_app_installed_date(),
+                             mocked_dt)
 
-    def test_fitbit_authorized_false(self):
+    def test_watch_app_installed_date_false(self):
+        WatchInstall.objects.all().delete()
+        self.assertEqual(self.participant.watch_app_installed_date(), None)
+
+    def test_fitbit_authorized_current(self):
+        self.assertEqual(self.participant.fitbit_authorized, 'current')
+
+    def test_fitbit_authorized_prior(self):
         self.fitbit_account.access_token = None
         self.fitbit_account.save()
-        self.assertEqual(self.participant.fitbit_authorized, False)
+        self.assertEqual(self.participant.fitbit_authorized, 'prior')
+
+    def test_fitbit_authorized_never(self):
+        self.fitbit_account.delete()
+        self.assertEqual(self.participant.fitbit_authorized, 'never')
 
     def test_last_fitbit_sync_has_synched(self):
         subscription = FitbitSubscription.objects.create(

@@ -57,6 +57,10 @@
                     title='Click to text the participant'>
                     Phone
                 </th>
+                <th scope='col' data-toggle='tooltip' data-placement='bottom'
+                    title='Date of last text message sent by server'>
+                    Last Text Message
+                </th>
                 <th scope="col" data-toggle='tooltip' data-placement='bottom'
                     title='Date server account was created'>
                     Account Created
@@ -113,11 +117,20 @@
                         {{participant.phone_number }}
                     </a>
                 </td>
+                <td>{{ participant.last_text_sent|date }}</td>
                 <td>{{ participant.date_joined|date }}</td>
-                <td>{% if participant.fitbit_authorized %}
-                        <img src="{% static 'admin/img/icon-yes.svg' %}" />
-                    {% else %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}" />
+                <td>{% if participant.fitbit_authorized == 'current' %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Currently authorized' />
+                    {% elif participant.fitbit_authorized == 'never' %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Never authorized' />
+                    {% elif participant.fitbit_authorized == 'prior' %}
+                        <img src="{% static 'admin/img/icon-unlink.svg' %}"
+                            data-toggle='tooltip' data-placement='bottom'
+                            title='Previously authorized' />
                     {% endif %}
                 </td>
                 <td>
@@ -138,9 +151,7 @@
                     {{ participant.last_page_view|date }}
                 </td>
                 <td>
-                    {% if participant.watch_app_installed %}
-                        {{ participant.watch_app_installed_date }}
-                    {% endif %}
+                    {{ participant.watch_app_installed_date|date }}
                 </td>
                 <td>
                     {{ participant.last_watch_app_data|date }}
@@ -151,7 +162,7 @@
         </tbody>
     </table>
 
-    {% include 'sms_service/sendsms_form.html' %}
+    {% include 'dashboard_sms/sendsms_form.html' %}
 
     </body>
 

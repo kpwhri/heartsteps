@@ -16,6 +16,7 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_api.models import FitbitSubscription
 from fitbit_api.models import FitbitSubscriptionUpdate
 from page_views.models import PageView
+from sms_messages.models import (Contact, Message)
 from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
@@ -78,10 +79,20 @@ class Participant(models.Model):
             return None
 
     @property
+    # A little different from FitbitAccount.authorized
+    # FA looks if any of access_token, refresh_token, expires_at are None
+    # We now want 3 values for this:
+    #   (1) never authorized (no records in FitbitAccount)
+    #   (2) currently authorized (valid values in FitbitAccount)
+    #   (3) previously authorized (invalid value in extant FitbitAccount record)
     def fitbit_authorized(self):
         if self.fitbit_account:
-            return self.fitbit_account.authorized
-        return False
+            if self.fitbit_account.authorized:
+                return 'current'
+            else:
+                return 'prior'
+        else:
+            return 'never'
 
     @property
     def fitbit_first_updated(self):
@@ -237,6 +248,20 @@ class Participant(models.Model):
     @property
     def adherence_app_use(self):
         return self._adherence_app_use
+
+    def _last_text_sent(self):
+        u = self.user
+        if u:
+            participant_number = Contact.objects.get(user=u.id).number
+            last_text_sent = Message.objects.filter(
+                recipient__exact=participant_number).latest('created').created
+            return last_text_sent
+        else:
+            return None
+
+    @property
+    def last_text_sent(self):
+        return self._last_text_sent
 
     @property
     def date_enrolled(self):

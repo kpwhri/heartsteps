@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -12,9 +13,9 @@ from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Participant
-from sms_service.forms import SendSMSForm
-from sms_service.views import SendSmsCreateView
+from sms_messages.services import SMSService
 
+from .forms import SendSMSForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 
@@ -28,7 +29,7 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/index.html'
 
     def get_login_url(self):
-        return reverse('login')
+        return reverse('dashboard-login')
 
     def test_func(self):
         if not self.request.user:
@@ -56,7 +57,7 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
 
             try:
                 first_page_view = participant.user.pageview_set.all() \
-                    .aggregate(models.Max('time'))['time__max']
+                    .aggregate(models.Min('time'))['time__min']
             except AttributeError:
                 first_page_view = None
 
@@ -74,11 +75,21 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
                 'date_joined': participant.date_joined,
                 'first_page_view': first_page_view,
                 'last_page_view': participant.last_page_view,
-                'watch_app_installed_date': participant.watch_app_installed_date,
-                'last_watch_app_data': participant.last_watch_app_data
+                'watch_app_installed_date':
+                    participant.watch_app_installed_date,
+                'last_watch_app_data': participant.last_watch_app_data,
+                'last_text_sent': participant.last_text_sent
             })
         context['participant_list'] = participants
         return context
 
     def post(self, request, *args, **kwargs):
-        return SendSmsCreateView.as_view()(request)
+        form = SendSMSForm(request.POST)
+        if form.is_valid():
+            phone_number = form.cleaned_data['to_number']
+            body = form.cleaned_data['body']
+
+            service = SMSService(phone_number=phone_number)
+            service.send(body)
+
+        return HttpResponseRedirect(reverse('dashboard-index'))

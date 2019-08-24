@@ -6,6 +6,7 @@ from adherence_messages.services import (
 )
 from fitbit_api.models import (FitbitAccount, FitbitAccountUser)
 from fitbit_api.services import FitbitService
+from sms_messages.models import (Contact, Message)
 
 
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):

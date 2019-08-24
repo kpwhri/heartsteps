@@ -191,7 +191,7 @@ class FitbitClient():
 
     def list_subscriptions(self):
         subscription_ids = []
-        response = self.client.list_subscriptions()
+        response = self.client.list_subscriptions(collection='activities')
         if 'apiSubscriptions' in response:
             for subscription in response['apiSubscriptions']:
                 subscription_ids.append(subscription['subscriptionId'])
@@ -209,7 +209,8 @@ class FitbitClient():
         try:
             self.client.subscription(
                 subscription_id = str(self.subscription.uuid),
-                subscriber_id = settings.FITBIT_SUBSCRIBER_ID
+                subscriber_id = settings.FITBIT_SUBSCRIBER_ID,
+                collection='activities'
             )
             return True
         except:
