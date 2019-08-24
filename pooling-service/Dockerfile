@@ -13,7 +13,7 @@ RUN conda create -n py36 python=3.6.8 && \
     conda install  --name py36 -c conda-forge tensorflow && \
     conda install --name py36  -c conda-forge gpflow  && \
     conda install pytorch torchvision -c pytorch && \
-<<<<<<< HEAD
+
 	conda install  --name py36 -c conda-forge scikit-learn && \
     conda clean --all
 
@@ -24,10 +24,7 @@ RUN echo $PATH
 
 RUN ~/anaconda3/envs/py36/bin/pip install git+https://github.com/cornellius-gp/gpytorch.git
 
-=======
-    pip install git+https://github.com/cornellius-gp/gpytorch.git && \
-    conda clean --all
->>>>>>> f4512036c697d4ab36810db64d80b68330e71985
+
 
 ADD . /pooling-service
 WORKDIR /pooling-service
