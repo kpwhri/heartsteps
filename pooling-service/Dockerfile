@@ -20,6 +20,7 @@ WORKDIR /pooling-service
 RUN pip install -r requirements.txt
 
 ENV googleStorageBucket walking-suggestions-data
+RUN chmod +x update.sh
 
 # Mount GCSFuse Run the server
 RUN mkdir -p ./data
