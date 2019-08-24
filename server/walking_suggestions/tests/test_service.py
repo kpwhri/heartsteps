@@ -27,6 +27,7 @@ from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime
+from walking_suggestions.models import PoolingServiceConfiguration
 
 @override_settings(FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES=20)
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
@@ -317,6 +318,10 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(WalkingSuggestionDecision.objects.filter(imputed=True).count(), 20)
 
     def test_decision(self):
+        PoolingServiceConfiguration.objects.create(
+            user = self.user,
+            use_pooling = True
+        )
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
@@ -337,6 +342,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
         self.assertEqual(request_data['date'], date.today().strftime('%Y-%m-%d'))
         self.assertEqual(request_data['studyDay'], 1)
         self.assertEqual(request_data['location'], 2)
+        self.assertTrue(request_data['pooling'])
         decision = WalkingSuggestionDecision.objects.get()
         self.assertEqual(decision.treated, True)
         self.assertEqual(decision.treatment_probability, 0.123)

@@ -31,6 +31,7 @@ from .models import SuggestionTime
 from .models import WalkingSuggestionDecision
 from .models import WalkingSuggestionMessageTemplate
 from .models import WalkingSuggestionServiceRequest as ServiceRequest
+from .models import PoolingServiceConfiguration
 
 class WalkingSuggestionTimeService:
 
@@ -392,6 +393,13 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             raise self.NotInitialized()
 
+        pooling = False
+        try:
+            pooling_configuration = PoolingServiceConfiguration.objects.get(user=self.__configuration.user)
+            pooling = pooling_configuration.use_pooling
+        except PoolingServiceConfiguration.DoesNotExist:
+            pass
+
         day_service = DayService(user = decision.user)
         date = day_service.get_date_at(decision.time)
 
@@ -403,7 +411,8 @@ class WalkingSuggestionService():
                 'availability': decision.available,
                 'priorAnti': self.anti_sedentary_treated_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
-                'location': self.get_location_type(decision)
+                'location': self.get_location_type(decision),
+                'pooling': pooling
             }
         )
         decision.treated = response['send']
