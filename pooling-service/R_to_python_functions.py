@@ -7,7 +7,7 @@ import os
 
 def get_user_ids():
 
-    return {'test-pedja':1,'test-nickreid':2}
+    return {'test-pedja':1,'test-nickreid':2,'10032':3,'10110':4}
 
 def process_data(rdata,baseline_features,user_id):
     

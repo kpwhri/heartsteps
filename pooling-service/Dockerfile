@@ -3,18 +3,39 @@ FROM heartsteps_service-template:latest
 RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh && \
     bash Anaconda3-5.0.1-Linux-x86_64.sh -b && \
     rm Anaconda3-5.0.1-Linux-x86_64.sh && \
-    ln -s /root/anaconda3/bin/conda /usr/local/bin/conda
+    ln -s /root/anaconda3/bin/conda /usr/local/bin/conda 
 
-RUN conda create -n py36 python=3.6 && \
+RUN echo $PATH
+
+RUN conda create -n py36 python=3.6.8 && \
     conda install --name py36 -c conda-forge pyreadr && \
     conda install --name py36 -c conda-forge jupyter && \
     conda install  --name py36 -c conda-forge tensorflow && \
     conda install --name py36  -c conda-forge gpflow  && \
     conda install pytorch torchvision -c pytorch && \
-    pip install git+https://github.com/cornellius-gp/gpytorch.git
+	conda install  --name py36 -c conda-forge scikit-learn && \
+    conda clean --all
+
+ENV PATH="~/anaconda3/bin:${PATH}"
+
+RUN echo $PATH
+
+
+RUN ~/anaconda3/envs/py36/bin/pip install git+https://github.com/cornellius-gp/gpytorch.git
+
 
 ADD . /pooling-service
 WORKDIR /pooling-service
+
+
+
+
+
+RUN echo $PATH
+RUN conda env list
+
+RUN chmod -R 777 ./
+
 
 RUN pip install -r requirements.txt
 
