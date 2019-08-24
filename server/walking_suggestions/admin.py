@@ -112,5 +112,5 @@ admin.site.register(Configuration, ConfigurationAdmin)
 admin.site.register(WalkingSuggestionServiceRequest, ServiceRequestAdmin)
 
 class PoolingServiceConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['user__username', 'use_pooling']
+    list_display = ['user', 'use_pooling']
 admin.site.register(PoolingServiceConfiguration, PoolingServiceConfigurationAdmin)
