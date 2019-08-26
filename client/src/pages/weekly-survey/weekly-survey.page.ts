@@ -5,6 +5,7 @@ import { SurveyStartPage } from "./survey-start.page";
 import { SurveyComponent } from "./survey.component";
 import { NextWeekGoalComponent } from "./next-week-goal.component";
 import { NextWeekPlansComponent } from "./next-week-plans.component";
+import { BarriersComponent } from "./barriers.component";
 
 @Component({
     templateUrl: './weekly-survey.page.html'
@@ -30,6 +31,11 @@ export class WeeklySurveyPage implements OnInit {
             key: 'survey',
             title: 'Weekly Questions',
             component: SurveyComponent
+        },
+        {
+            key: 'barriers',
+            title: 'Weekly Barriers',
+            component: BarriersComponent
         }, {
             key:'next-goal',
             title: 'Next Goal',

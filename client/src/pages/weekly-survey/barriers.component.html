@@ -1,0 +1,21 @@
+<app-form
+    [formGroup]="form"
+    submitLabel="Next page"
+    (onSubmit)="nextPage()"
+    >
+    <app-select-multiple-field
+        formControlName="barriers"
+        label="Did any of the following make it difficult for you to be active this week?"
+        [options]="barrierOptions"
+        triggerName="Other barrier"
+        (triggered)="addBarrier()"
+        >
+    </app-select-multiple-field>
+    <app-choice-field
+        formControlName="willBarriersContinue"
+        label="Is this barrier to being active likely to continue into next week?"
+        [options]="willCompleteOptions"
+    >
+
+    </app-choice-field>
+</app-form>

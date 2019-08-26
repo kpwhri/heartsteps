@@ -1,0 +1,14 @@
+<app-modal-dialog
+    title="Add barrier"
+    >
+    <app-form
+        [formGroup]="form"
+        (onSubmit)="save()"
+        >
+        <app-text-field
+            label="Barrier name"
+            formControlName="name"
+            >
+        </app-text-field>
+    </app-form>
+</app-modal-dialog>

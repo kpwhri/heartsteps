@@ -232,6 +232,14 @@ fieldset.heartsteps-form-field {
     input[type=radio]:checked {
         @extend .heartsteps-checkmark-button-selected;
     }
+
+    input[type=checkbox].heartsteps-add-button {
+        @extend .heartsteps-add-button;
+
+        &:checked {
+            @extend .heartsteps-add-button-selected;
+        }
+    }
 }
 
 .heartsteps-form .select-button {

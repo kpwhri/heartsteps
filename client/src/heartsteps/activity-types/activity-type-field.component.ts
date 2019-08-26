@@ -61,7 +61,7 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         });
     }
 
-    private updateOptions() {
+    public updateOptions() {
         const options:Array<SelectOption> = [];
         this.activityTypes.slice(0,4).forEach((activityType) => {
             options.push({

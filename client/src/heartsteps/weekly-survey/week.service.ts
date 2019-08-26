@@ -32,6 +32,23 @@ export class WeekService {
         });
     }
 
+    public getWeekBarriers(week: Week): Promise<any> {
+        return this.heartstepsServer.get('weeks/' + week.id + '/barriers')
+        .then((response) => {
+            return response;
+        })
+    }
+
+    public submitWeekBarriers(week: Week, barriers: Array<string>, willBarriersContinue: string): Promise<any> {
+        return this.heartstepsServer.post('weeks/' + week.id + '/barriers', {
+            barriers: barriers,
+            will_barriers_continue: willBarriersContinue 
+        })
+        .then((response) => {
+            return response;
+        });
+    }
+
     public setWeekGoal(week:Week, minutes:number, confidence:number):Promise<Week> {
         const postData = {
             goal: minutes

@@ -152,6 +152,20 @@
     }
 }
 
+.heartsteps-add-button {
+    @extend .heartsteps-checkmark-button;
+    &:before {
+        mask-image: url('../assets/icon-add.svg');
+    }
+}
+
+.heartsteps-add-button-selected {
+    @extend .heartsteps-checkmark-button-selected;
+    &:before {
+        mask-image: url('../assets/icon-add.svg');
+    }
+}
+
 .heartsteps-banner-button {
     display: block;
     background-color: $color-primary;

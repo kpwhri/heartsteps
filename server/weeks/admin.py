@@ -3,7 +3,9 @@ from django.contrib import messages
 
 from surveys.admin import QuestionAdmin
 
-from .models import Week, WeekQuestion
+from .models import Week
+from .models import WeeklyBarrierOption
+from .models import WeekQuestion
 from .services import WeekService
 
 def send_reflection(modeladmin, request, queryset):
@@ -38,3 +40,19 @@ class WeekQuestionAdmin(QuestionAdmin):
     pass
 
 admin.site.register(WeekQuestion, WeekQuestionAdmin)
+
+class WeeklyBarrierOptionAdmin(admin.ModelAdmin):
+    ordering = ['name']
+    list_display = [
+        'name',
+        'user'
+    ]
+    fields = [
+        'name',
+        'user'
+    ]
+    readonly_fields = [
+        'user'
+    ]
+
+admin.site.register(WeeklyBarrierOption, WeeklyBarrierOptionAdmin)
