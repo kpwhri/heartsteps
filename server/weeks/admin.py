@@ -18,13 +18,25 @@ def send_reflection(modeladmin, request, queryset):
             'Sent weekly reflection to %s' % (week.user.username)
         )
 
+def reset_week(modeladmin, request, queryset):
+    for week in queryset.all():
+        week.reset()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Reset %s week %d' % (week.user.username, week.number)
+        )
+
 class WeekAdmin(admin.ModelAdmin):
-    ordering = ['-start_date']
+    ordering = ['-start_date', 'user__username', 'number']
     list_display = ['user', 'number', 'start_date', 'end_date']
     fields = ['user', 'number', 'goal']
     readonly_fields = ['uuid', 'user', 'number', 'start_date', 'end_date', 'goal']
 
-    actions = [send_reflection]
+    actions = [
+        reset_week,
+        send_reflection
+    ]
 
     def goal(admin, week):
         if week.minutes:
