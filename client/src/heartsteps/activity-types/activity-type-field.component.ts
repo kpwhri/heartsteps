@@ -36,7 +36,7 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         .filter((activityTypes) => activityTypes !== undefined)
         .subscribe((activityTypes) => {
             this.activityTypes = activityTypes;
-            this.updateOptions();
+            this.updateActivityTypeOptions();
         });
     }
 
@@ -46,7 +46,7 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
 
     writeValue(activityName:string): void {
         this.selectedOption = undefined;
-        this.updateOptions();
+        this.updateActivityTypeOptions();
         this.getActivityType(activityName)
         .then((activityType) => {
             this.activityType = activityType;
@@ -61,7 +61,7 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         });
     }
 
-    public updateOptions() {
+    private updateActivityTypeOptions() {
         const options:Array<SelectOption> = [];
         this.activityTypes.slice(0,4).forEach((activityType) => {
             options.push({

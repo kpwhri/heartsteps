@@ -119,8 +119,6 @@ export class BarriersComponent implements OnInit {
                 value: barrier
             });
         });
-        console.log('updated barrier options', this.barrierOptions);
-
     }
 
 }

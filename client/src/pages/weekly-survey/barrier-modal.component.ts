@@ -1,13 +1,9 @@
 import { Component, ViewChild } from "@angular/core";
 import { ModalDialogComponent } from "@infrastructure/dialogs/modal-dialog.component";
-import { ModalDialogController } from "@infrastructure/dialogs/modal-dialog.controller";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 @Component({
-    templateUrl: './barrier-modal.component.html',
-    providers: [
-        ModalDialogController
-    ]
+    templateUrl: './barrier-modal.component.html'
 })
 export class BarrierModalComponent {
     @ViewChild(ModalDialogComponent) modal: ModalDialogComponent;

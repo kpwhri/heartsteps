@@ -10,7 +10,7 @@ export class BarrierModalController extends ModalDialogController {
         return this.createModal(BarrierModalComponent)
         .then((response) => {
             if(response && typeof(response) === 'string' && response !== '') {
-                return response;
+                return Promise.resolve(response);
             } else {
                 return Promise.reject('No string returned')
             }
