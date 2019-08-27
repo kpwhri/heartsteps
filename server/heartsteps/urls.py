@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^api/walking-suggestions/times/', include('walking_suggestion_times.urls')),
     url(r'^api/walking-suggestions/', include('walking_suggestions.urls')),
     url(r'^api/anti-sedentary/', include('anti_sedentary.urls')),
+    url(r'^api/activity-suggestion/', include('randomization.urls')),
     url(r'^api/activity/', include('activity_types.urls')),
     url(r'^api/activity/', include('activity_logs.urls')),
     url(r'^api/activity/', include('activity_plans.urls')),
