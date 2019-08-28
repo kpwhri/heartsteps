@@ -1,3 +1,4 @@
+import json
 import uuid
 from django.db import models
 
@@ -69,6 +70,13 @@ class Message(models.Model):
     @property
     def engaged(self):
         return self.__get_receipt_time(MessageReceipt.ENGAGED)
+
+    @property
+    def data(self):
+        try:
+            return json.loads(self.content)
+        except:
+            return {}
 
 class MessageReceipt(models.Model):
     SENT = 'sent'

@@ -18,5 +18,13 @@ class AntiSedentaryMessageCreateView(APIView):
         decision_service.decide()
         decision_service.update_context()
         decision_service.send_message()
-        return Response('', status = status.HTTP_201_CREATED)
+
+        decision = decision_service.decision
+        return Response(
+            {
+                'id': str(decision.id),
+                'messageId': str(decision.notification.uuid)
+            },
+            status = status.HTTP_201_CREATED
+        )
 

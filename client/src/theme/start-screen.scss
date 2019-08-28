@@ -105,6 +105,11 @@
         background-color: $color-white;
     }
 
+    input[type=text] {
+        color: $text-color;
+        padding: 1em 0.5em;
+        margin-top: 0.5em;
+    }
 }
 
 @media(min-width: 650px) {

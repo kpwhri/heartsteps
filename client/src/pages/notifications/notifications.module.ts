@@ -5,6 +5,8 @@ import { NotificationPage } from './notification.page';
 import { NotificationResolver } from './notification.resolver';
 import { BrowserModule } from '@angular/platform-browser';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
+import { FormModule } from '@infrastructure/form/form.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const notificationRoutes: Routes = [{
     path: 'notification/:notificationId',
@@ -20,6 +22,8 @@ const notificationRoutes: Routes = [{
     ],
     imports: [
         BrowserModule,
+        FormModule,
+        ReactiveFormsModule,
         HeartstepsComponentsModule,
         HeartstepsNotificationsModule,
         RouterModule.forChild(notificationRoutes)

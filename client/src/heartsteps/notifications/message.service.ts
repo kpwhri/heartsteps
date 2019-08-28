@@ -53,6 +53,21 @@ export class MessageService {
         }
     }
 
+    public waitUntilSetup(): Promise<void> {
+        const _promise: Promise<void> = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if(this.isSetup) {
+                    resolve();
+                } else {
+                    reject();
+                }
+            }, 500)
+        });
+        return _promise.catch(()=> {
+            return this.waitUntilSetup();
+        });
+    }
+
     public createNotification(id: string, text: string): Promise<boolean> {
         return Promise.reject('Do not create notification');
     }
@@ -150,18 +165,33 @@ export class MessageService {
 
     public getMessage(messageId:string):Promise<Message> {
         console.log('MessageService: Get message id=' + messageId);
-        return this.messageStorage.get(messageId)
+        return this.waitUntilSetup()
+        .then(() => {
+            return this.messageStorage.get(messageId)
+            .then((data) => {
+                console.log('MessageService: returning message');
+                return this.deserializeMessage(data);
+            })
+            .catch(() => {
+                return this.loadMessage(messageId);
+            })
+            .catch(() => {
+                console.log('MessageService: message not found');
+                return Promise.reject('Message not found');
+            });
+        });
+    }
+
+    public loadMessage(messageId: string): Promise<Message> {
+        console.log('MessageService: loading message');
+        return this.heartstepsServer.get('messages/' + messageId)
         .then((data) => {
-            console.log('MessageService: returning message');
-            return this.deserializeMessage(data);
-        })
-        .catch(() => {
-            console.log('MessageService: message not found');
-            return Promise.reject('Message not found');
+            const message = this.deserializeMessage(data);
+            return this.saveMessage(message);
         })
     }
 
-    private serializeMessage(message: Message):any {
+    public serializeMessage(message: Message):any {
         return {
             id: message.id,
             type: message.type,
@@ -171,7 +201,7 @@ export class MessageService {
         }
     }
 
-    private deserializeMessage(data: any): Message {
+    public deserializeMessage(data: any): Message {
         const message = new Message(this.messageReceiptService);
         message.id = data.id;
         message.type = data.type;

@@ -13,6 +13,11 @@ class DecisionRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = DecisionRating
         fields = ('liked', 'comments')
+        extra_kwargs = {
+            'comments': {
+                'allow_blank': True
+            }
+        }
 
 class DecisionRatingView(APIView):
 

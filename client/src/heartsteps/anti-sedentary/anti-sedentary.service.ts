@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { Message } from "@heartsteps/notifications/message.model";
+import { MessageService } from "@heartsteps/notifications/message.service";
 
 
 
@@ -7,13 +9,14 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 export class AntiSedentaryService {
 
     constructor(
-        private heartstepsServer: HeartstepsServer
+        private heartstepsServer: HeartstepsServer,
+        private messageService: MessageService
     ) {}
 
-    public sendTestMessage():Promise<boolean> {
+    public sendTestMessage():Promise<Message> {
         return this.heartstepsServer.post('anti-sedentary/', {})
-        .then(() => {
-            return true;
+        .then((data) => {
+            return this.messageService.loadMessage(data.messageId);
         });
     }
 
