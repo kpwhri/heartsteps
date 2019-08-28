@@ -122,7 +122,13 @@ class DecisionMessageTest(TestCase):
 
         decision_service.send_message()
 
-        send_notification.assert_called_with(message_template.body, title=message_template.title)
+        send_notification.assert_called_with(
+            message_template.body,
+            title=message_template.title,
+            data={
+                'randomizationId': str(decision_service.decision.id)
+            } 
+        )
 
         context_objects = [obj.content_object for obj in DecisionContext.objects.all()]
         self.assertIn(message_template, context_objects)
