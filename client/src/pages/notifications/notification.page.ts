@@ -4,6 +4,7 @@ import { Message } from "@heartsteps/notifications/message.model";
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { FormGroup, FormControl } from "@angular/forms";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
 
 @Component({
     selector: 'heartsteps-notification-page',
@@ -17,12 +18,14 @@ export class NotificationPage implements OnInit {
 
     public loading: boolean;
     public ratingForm: FormGroup;
+    public isStaff: boolean;
 
     constructor(
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private messageService: MessageService,
-        private heartstepsServer: HeartstepsServer
+        private heartstepsServer: HeartstepsServer,
+        private participantInformationService: ParticipantInformationService
     ) {}
 
     ngOnInit() {
@@ -38,9 +41,13 @@ export class NotificationPage implements OnInit {
 
                 if(this.notification.context.randomizationId) {
                     this.setupRatingForm();
+                    this.updateStaffStatus();
                 } else {
                     this.ratingForm = null;
                 }
+            }) 
+            this.messageService.getMessage(notificationId)
+            .then((notification) => {
             });
         });
     }
@@ -48,6 +55,16 @@ export class NotificationPage implements OnInit {
     public dismiss() {
         this.notification.engaged();
         this.router.navigate(['']);
+    }
+
+    private updateStaffStatus() {
+        this.participantInformationService.isStaff()
+        .then(() => {
+            this.isStaff = true;
+        })
+        .catch(() => {
+            this.isStaff = false;
+        });
     }
 
     private setupRatingForm() {

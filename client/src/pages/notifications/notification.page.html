@@ -9,7 +9,7 @@
         submitLabel = "Complete"
         (onSubmit) = "saveRating()"
         >
-        <fieldset class="input-group">
+        <fieldset class="input-group thumbs">
             <legend>Do you like this message?</legend>
             <ul>
                 <li>
@@ -37,7 +37,7 @@
             </ul>
         </fieldset>
 
-        <app-text-field
+        <app-text-field *ngIf="isStaff"
             formControlName="comments"
             label="Comments"
             description="Visible to staff only"
