@@ -51,17 +51,28 @@ class PushMessageService():
             raise DeviceMissingError()
         return device
 
-    def init_message(self):
-        return Message(
-            uuid = uuid.uuid4(),
+    def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}):
+        message = Message.objects.create(
             recipient = self.user,
-            device = self.device
+            device = self.device,
+            message_type = message_type,
+            body = body,
+            title = title,
+            collapse_subject = collapse_subject
         )
+        data['messageId'] = str(message.uuid)
+        message.data = data
+        message.save()
 
-    def __send(self, message, request):
         try:
-            external_id = self.__client.send(request)
+            external_id = self.__client.send(
+                body = message.body,
+                title = message.title,
+                collapse_subject = message.collapse_subject,
+                data = message.data
+            )
         except self.__client.MessageSendError as error:
+            message.delete()
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
             message = message,
@@ -73,28 +84,23 @@ class PushMessageService():
             message.save()
         return message
 
-    def send_notification(self, body, title=None, data={}):
+    def send_notification(self, body, title=None, collapse_subject=None, data={}):
         if title is None:
-            title = "HeartSteps"
-        
-        message = self.init_message()
-        message.message_type = Message.NOTIFICATION
-        message.body = body
-        message.title = title
+            title = "HeartSteps"        
+        data['body'] = body
+        data['title'] = title
+        data['collapse_subject'] = collapse_subject
 
-        data['messageId'] = str(message.uuid)
-        request = self._service.format_notification(body, title, data)
-        message.content = json.dumps(request)
-        message.save()
-
-        return self.__send(message, request)
+        return self.__send(
+            message_type = Message.NOTIFICATION,
+            body = body,
+            title = title,
+            collapse_subject = collapse_subject,
+            data = data   
+        )
 
     def send_data(self, data):
-        message = self.init_message()
-        message.message_type = Message.DATA
-        data['messageId'] = str(message.uuid)
-        request = self._service.format_data(data)
-        message.content = json.dumps(request)
-        message.save()
-
-        return self.__send(message, request)
+        return self.__send(
+            message_type = Message.DATA,
+            data = data
+        )
