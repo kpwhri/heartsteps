@@ -277,7 +277,8 @@ class DecisionMessageService(DecisionService):
             title = message_template.title,
             data = {
                 'randomizationId': str(self.decision.id)
-            }
+            },
+            collapse_subject = 'activity-suggestion'
         )
         DecisionContext.objects.create(
             decision = self.decision,

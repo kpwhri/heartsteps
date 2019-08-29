@@ -127,7 +127,8 @@ class DecisionMessageTest(TestCase):
             title=message_template.title,
             data={
                 'randomizationId': str(decision_service.decision.id)
-            } 
+            },
+            collapse_subject = 'activity-suggestion'
         )
 
         context_objects = [obj.content_object for obj in DecisionContext.objects.all()]

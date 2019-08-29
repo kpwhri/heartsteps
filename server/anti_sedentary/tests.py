@@ -246,7 +246,8 @@ class MakeDecisionTests(TestBase):
             title='Been sitting for too long?',
             data={
                 'randomizationId': str(self.decision.id)
-            }            
+            },
+            collapse_subject = 'activity-suggestion'        
         )
     
     @override_settings(ANTI_SEDENTARY_SERVICE_URL='http://example')
@@ -267,7 +268,8 @@ class MakeDecisionTests(TestBase):
             title='Been sitting for too long?',
             data={
                 'randomizationId': str(self.decision.id)
-            }
+            },
+            collapse_subject = 'activity-suggestion'
         )
 
         make_request.assert_called_with(
