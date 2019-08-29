@@ -164,6 +164,12 @@ class MorningMessageTaskTest(MorningMessageTestBase):
         self.assertEqual(sent_data['text'], 'Example morning message')
         self.assertEqual(sent_data['anchor'], 'Anchor message')
 
+    def test_message_sent_with_collapse_id(self):
+        send_morning_message(username='test')
+
+        self.send_notification.assert_called()
+        send_kwargs = self.send_notification.call_args[1]
+        self.assertEqual(send_kwargs['collapse_subject'], 'morning-message')
 
 class MorningMessageSurveyTests(MorningMessageTestBase):
 
