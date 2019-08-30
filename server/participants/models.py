@@ -5,6 +5,7 @@ from datetime import datetime
 from warnings import warn
 
 from django.db import models
+from django.db.models import (Min, Max)
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -94,17 +95,45 @@ class Participant(models.Model):
         else:
             return 'never'
 
+    # Changing definitions of first & last updated
+    # Had relied on self.fitbit_account.first_updated
+    # which in turn depends on FitbitSubscriptionUpdate
+    # which isn't behaving as expected
     @property
     def fitbit_first_updated(self):
-        if self.fitbit_account:
-            return self.fitbit_account.first_updated
+        if not self._is_enrolled:
+            return None
+        u = self.user
+        if u:
+            try:
+                min_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).aggregate(mindt=Min('date'))
+                if min_dt:
+                    return min_dt['mindt']
+                else:
+                    return None
+            except (FitbitAccountUser.DoesNotExist,
+                    FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
+                return None
         else:
             return None
 
     @property
     def fitbit_last_updated(self):
-        if self.fitbit_account:
-            return self.fitbit_account.last_updated
+        if not self._is_enrolled:
+            return None
+        u = self.user
+        if u:
+            try:
+                max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).aggregate(maxdt=Max('date'))
+                if max_dt:
+                    return max_dt['maxdt']
+                else:
+                    return None
+            except (FitbitAccountUser.DoesNotExist,
+                    FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
+                return None
         else:
             return None
 
@@ -137,7 +166,6 @@ class Participant(models.Model):
                     wore_fitbit=True).count()
             except (FitbitAccountUser.DoesNotExist,
                     FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
-                logger.info("_wore_fitbit_days Error in " + u.username + ": " + str(e))
                 return 0
         else:
             return 0
