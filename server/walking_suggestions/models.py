@@ -80,6 +80,25 @@ class Configuration(models.Model):
         results = SuggestionTime.objects.filter(user=self.user).all()
         return list(results)
 
+    def set_default_walking_suggestion_times(self):
+        SuggestionTime.objects.filter(user=self.user).delete()
+
+        suggestion_times = {
+            SuggestionTime.MORNING: '8:30',
+            SuggestionTime.LUNCH: '12:15',
+            SuggestionTime.MIDAFTERNOON: '15:00',
+            SuggestionTime.EVENING: '18:30',
+            SuggestionTime.POSTDINNER: '21:00'
+        }
+        for category, time in suggestion_times.items():
+            hour, minute = [int(x) for x in time.split(':')]
+            SuggestionTime.objects.create(
+                user = self.user,
+                category = category,
+                hour = hour,
+                minute = minute
+            )
+
 class WalkingSuggestionMessageTemplate(MessageTemplate):
     pass
 
