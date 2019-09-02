@@ -76,9 +76,11 @@ export class NotificationPage implements OnInit {
 
     public saveRating() {
         const randomizationId = this.notification.context.randomizationId;
-        console.log(this.ratingForm.value);
         if(randomizationId) {
             this.heartstepsServer.post('activity-suggestions/' + randomizationId +'/rating', this.ratingForm.value)
+            .catch(() => {
+                // nothing
+            })
             .then(() => {
                 this.dismiss();
             })
