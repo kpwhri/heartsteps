@@ -60,8 +60,7 @@ class FitbitDay(models.Model):
         unique_together = ('account', 'date')
 
     def save(self, *args, **kwargs):
-        # if self.wore_fitbit is None:
-        #     self.wore_fitbit = self.get_wore_fitbit()
+        self.wore_fitbit = self.get_wore_fitbit()
         super().save(*args, **kwargs)
 
     @property
