@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from django_celery_results.models import TaskResult
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, SolarSchedule
 
+from .models import Cohort
 from .models import Participant
 from .services import ParticipantService
 
@@ -46,3 +47,8 @@ class ParticipantAdmin(admin.ModelAdmin):
     daily_update.short_description = 'Daily update'
 
 admin.site.register(Participant, ParticipantAdmin)
+
+class CohortAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Cohort, CohortAdmin)

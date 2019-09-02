@@ -21,7 +21,6 @@ class Day(models.Model):
 
     class Meta:
         ordering = ['date']
-        unique_together = ('user', 'date')
 
     def get_timezone(self):
         return pytz.timezone(self.timezone)

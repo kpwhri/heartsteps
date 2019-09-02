@@ -14,6 +14,7 @@ from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Participant
 from sms_messages.services import SMSService
+from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
 from .forms import SendSMSForm
 from .models import AdherenceAppInstallDashboard
@@ -61,6 +62,15 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
             except AttributeError:
                 first_page_view = None
 
+            walking_suggestion_service_initialized_date = None
+            try:
+                if participant.user:
+                    configuration = WalkingSuggestionConfiguration.objects.get(user = participant.user)
+                    if configuration.service_initialized_date:
+                        walking_suggestion_service_initialized_date = configuration.service_initialized_date.strftime('%Y-%m-%d')
+            except WalkingSuggestionConfiguration.DoesNotExist:
+                pass
+
             # fitbit_service = FitbitServiceDashboard(user=participant.user)
             participants.append({
                 'heartsteps_id': participant.heartsteps_id,
@@ -78,7 +88,8 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
                 'watch_app_installed_date':
                     participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
-                'last_text_sent': participant.last_text_sent
+                'last_text_sent': participant.last_text_sent,
+                'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
         return context
