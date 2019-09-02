@@ -97,6 +97,9 @@
                     title='Most recent data Fitbit watch app sent data'>
                     Last Watch App Update
                 </th>
+                <th scope="col">
+                    Walking suggestion service initialized date
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -156,6 +159,7 @@
                 <td>
                     {{ participant.last_watch_app_data|date }}
                 </td>
+                <td>{{participant.walking_suggestion_service_initialized_date}}</td>
                 {% endtimezone %}
             </tr>
             {% endfor %}
