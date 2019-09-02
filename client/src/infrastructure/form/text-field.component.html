@@ -6,3 +6,8 @@
     (ngModelChange)="onChange($event)"
     (focus)="isFocused()"
     (blur)="isBlurred()" />
+<p *ngIf="error && isInvalid"
+    class="error"
+    >
+    {{error}}
+</p>

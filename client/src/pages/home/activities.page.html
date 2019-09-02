@@ -1,3 +1,25 @@
+<article>
+    <h2>All time stats</h2>
+    <dl class="total-activity-stats">
+        <dt>Active time</dt>
+        <dd>
+            {{totalActivityTime}}
+        </dd>
+        <dt>Activities completed</dt>
+        <dd>
+            {{totalActivitiesComplete}}
+        </dd>
+        <dt>Distance</dt>
+        <dd>
+            {{totalDistance}}
+        </dd>
+        <dt>Steps</dt>
+        <dd>
+            {{totalSteps}}
+        </dd>
+    </dl>
+</article>
+
 <activity-log-daily-summary *ngFor="let day of days"
     [date]="day"
     >

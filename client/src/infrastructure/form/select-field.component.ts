@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, ElementRef, Renderer2 } from "@angular/core";
+import { Component, forwardRef, Input, ElementRef, Renderer2, Output, EventEmitter } from "@angular/core";
 import { NG_VALUE_ACCESSOR, FormGroupDirective } from "@angular/forms";
 import { AbstractField } from "./abstract-field";
 import { SelectOption, SelectDialogController } from "@infrastructure/dialogs/select-dialog.controller";
@@ -16,9 +16,12 @@ import { SelectOption, SelectDialogController } from "@infrastructure/dialogs/se
 })
 export class SelectFieldComponent extends AbstractField {
 
-    @Input('options') public options:Array<SelectOption>
+    public options:Array<SelectOption>
     public selectedOption: SelectOption;
     public displayValue: string;
+
+    @Input('triggerName') public triggerName: string;
+    @Output('triggered') private triggered: EventEmitter<void> = new EventEmitter();
 
     constructor(
         formGroup: FormGroupDirective,
@@ -40,8 +43,17 @@ export class SelectFieldComponent extends AbstractField {
             this.updateValue(value);
         })
         .catch(() => {
-            console.log('Nothing selected');
+            return;
         });
+    }
+
+    @Input('options')
+    set updateOptions(options: Array<SelectOption>) {
+        if(options && Array.isArray(options)) {
+            this.options = options;
+        } else {
+            this.options = undefined;
+        }
     }
 
     public writeValue(value:any) {
@@ -77,6 +89,10 @@ export class SelectFieldComponent extends AbstractField {
         this.writeValue(value);
         this.onChange(value);
         this.onTouched();
+    }
+
+    public triggerEvent(): void {
+        this.triggered.emit();
     }
 
 }

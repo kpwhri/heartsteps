@@ -50,6 +50,18 @@ class Week(models.Model):
     class Meta:
         ordering = ['start_date']
 
+    def reset(self):
+        WeeklyBarrier.objects.filter(week=self).delete()
+        self._barrier_options = self.get_barrier_options()
+        
+        self.survey.delete()
+        self.survey = WeekSurvey.objects.create(
+            user = self.user
+        )
+        self.survey.randomize_questions()
+        
+        self.save()
+        
     def save(self, *args, **kwargs):
         if self.number is None:
             number_of_weeks = Week.objects.filter(user=self.user).count()

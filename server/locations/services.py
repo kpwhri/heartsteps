@@ -143,3 +143,15 @@ class LocationService:
             )
         except LocationService.UnknownLocation:
             return pytz.UTC
+
+    def get_home_current_datetime(self):
+        tz = self.get_home_timezone()
+        return timezone.now().astimezone(tz)
+
+    def get_home_current_date(self):
+        dt = self.get_home_current_datetime()
+        return date(
+            dt.year,
+            dt.month,
+            dt.day
+        )

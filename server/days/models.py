@@ -8,7 +8,11 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Day(models.Model):
-    user = models.ForeignKey(User, related_name="days")
+    user = models.ForeignKey(
+        User,
+        related_name="+",
+        on_delete = models.CASCADE
+    )
     date = models.DateField()
     timezone = models.CharField(max_length=150)
 

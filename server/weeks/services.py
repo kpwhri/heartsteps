@@ -92,5 +92,6 @@ class WeekService:
                 'type': 'weekly-reflection',
                 'currentWeek': week_serialized.data,
                 'nextWeek': next_week_serialized.data
-            }
+            },
+            collapse_subject = 'weekly-reflection'
         )

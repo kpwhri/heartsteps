@@ -18,6 +18,9 @@ export class WeeklySurvey {
     public completed: boolean;
     public questions: any;
     public response: any;
+    public barriers: Array<string>;
+    public barrierOptions: Array<string>;
+    public willBarriersContinue: string;
 }
 
 const storageKey:string = 'weekly-survey';
@@ -66,7 +69,7 @@ export class WeeklySurveyService {
         return this.set(currentWeek, nextWeek, message.id);
     }
 
-    public submitSurvey(values:any) {
+    public submitSurvey(values:any): Promise<void> {
         return this.get()
         .then((weeklySurvey) => {
             return this.weekService.submitWeekSurvey(weeklySurvey.currentWeek, values)
@@ -74,7 +77,25 @@ export class WeeklySurveyService {
                 weeklySurvey.response = values;
                 return this.save(weeklySurvey);
             });
+        })
+        .then(() => {
+            return undefined;
         });
+    }
+
+    public submitBarriers(barriers: Array<string>, willBarrierContinue: string): Promise<void> {
+        return this.get()
+        .then((weeklySurvey) => {
+            return this.weekService.submitWeekBarriers(weeklySurvey.currentWeek, barriers, willBarrierContinue)
+            .then(() => {
+                weeklySurvey.barriers = barriers;
+                weeklySurvey.willBarriersContinue = willBarrierContinue;
+                return this.save(weeklySurvey);
+            });
+        })
+        .then(() => {
+            return undefined;
+        })
     }
 
     public complete():Promise<boolean> {
@@ -182,6 +203,15 @@ export class WeeklySurveyService {
                 weeklySurvey.questions = survey.questions;
                 return this.save(weeklySurvey);
             });
+        })
+        .then((weeklySurvey) => {
+            return this.weekService.getWeekBarriers(survey.currentWeek)
+            .then((survey) => {
+                weeklySurvey.barriers = survey.barriers;
+                weeklySurvey.barrierOptions = survey.options;
+                weeklySurvey.willBarriersContinue = survey.willBarriersContinue;
+                return this.save(weeklySurvey);
+            })
         });
     }
 
@@ -194,7 +224,10 @@ export class WeeklySurveyService {
             expires: survey.expires,
             completed: survey.completed,
             questions: survey.questions,
-            response: survey.response
+            response: survey.response,
+            barriers: survey.barriers,
+            barrierOptions: survey.barrierOptions,
+            willBarriersContinue: survey.willBarriersContinue
         }
     }
 
@@ -208,6 +241,9 @@ export class WeeklySurveyService {
         if(data['completed']) survey.completed = data['completed'];
         survey.questions = data['questions'];
         survey.response = data['response'];
+        survey.barriers = data['barriers'];
+        survey.barrierOptions = data['barrierOptions'];
+        survey.willBarriersContinue = data['willBarriersContinue'];
         return survey;
     }
  

@@ -9,6 +9,7 @@ import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
 import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
+import { Message } from "@heartsteps/notifications/message.model";
 
 declare var process: {
     env: {
@@ -60,11 +61,22 @@ export class SettingsPage {
     public testAntisedentaryMessage() {
         this.loadingService.show("Requesting anti-sedentary message");
         this.antiSedentaryService.sendTestMessage()
+        .then((message) => {
+            this.loadingService.dismiss();
+            if(!this.platform.is('cordova')) {
+                return this.openMessage(message);
+            }
+        })
         .catch(() => {
             this.alertDialog.show('Error sending anti-sedentary message');
-        })
+        });
+    }
+
+    private openMessage(message: Message) {
+        message.received();
+        return this.router.navigate(['notification', message.id])
         .then(() => {
-            this.loadingService.dismiss();
+            message.displayed();
         });
     }
 

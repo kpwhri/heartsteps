@@ -11,6 +11,8 @@ export class DailySummary {
     public steps: number = 0;
     public miles: number = 0;
 
+    public activitiesCompleted: number = 0;
+
     public isToday():boolean {
         return this.isDate(new Date());
     }

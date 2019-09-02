@@ -274,8 +274,12 @@ class DecisionMessageService(DecisionService):
         message_template = self.get_message_template()
         message = push_message_service.send_notification(
             message_template.body,
-            title = message_template.title
-            )
+            title = message_template.title,
+            data = {
+                'randomizationId': str(self.decision.id)
+            },
+            collapse_subject = 'activity-suggestion'
+        )
         DecisionContext.objects.create(
             decision = self.decision,
             content_object = message

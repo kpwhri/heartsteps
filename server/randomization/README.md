@@ -11,7 +11,7 @@ A user can only be treated if they are available for treatment. To be available 
     - This unavailable reason is often used when a decision was *imputed.*
     - Imputed decision times will mark the participant as unavailable, but will generate context using data that was not available at the decision time.
 * **Notification recently sent** means that a notification was sent to the user in the past hour.
-* **No step count data** means there was no fitbit-watch-app data available at the time of the decision, so there is no way for the decision to determine if the participant was sedentary.
+* **No step count data** means there was no fitbit-watch-app data at all in prior 40 min for activity suggestion and no step count at all in prior 30 min for anti-sedentary message. 
 * **Not sedentary** means the participant has taken more than 150 steps in the past 30 minutes. This uses data that is reported by the fitbit-watch-app.
 * **Recently active** means the participant has taken more than 2,000 steps in the past 2 hours. This unavialble check was added to not send notifications to participants if they are resting after doing an activity.
 * **On vacation** means the user has set a temporary block on activity suggestions throught the heartsteps-client app.

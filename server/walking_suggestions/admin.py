@@ -20,6 +20,7 @@ from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.models import PoolingServiceConfiguration
+from walking_suggestions.models import PoolingServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import initialize_and_update
@@ -114,3 +115,5 @@ admin.site.register(WalkingSuggestionServiceRequest, ServiceRequestAdmin)
 class PoolingServiceConfigurationAdmin(admin.ModelAdmin):
     list_display = ['user', 'use_pooling']
 admin.site.register(PoolingServiceConfiguration, PoolingServiceConfigurationAdmin)
+
+admin.site.register(PoolingServiceRequest, ServiceRequestAdmin)

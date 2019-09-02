@@ -16,6 +16,7 @@ export class DailySummaryService {
     public updated: EventEmitter<DailySummary> = new EventEmitter();
 
     private storage: DocumentStorage;
+    private cacheStartDate: Date;
 
     constructor(
         private activityLogService: ActivityLogService,
@@ -34,7 +35,9 @@ export class DailySummaryService {
         });
     }
 
-    public setup(): Promise<void> {
+    public setup(cacheStartDate?:Date): Promise<void> {
+        this.cacheStartDate = cacheStartDate;
+
         return this.updateCache()
         .then(() => {
             return Promise.all([
@@ -143,6 +146,15 @@ export class DailySummaryService {
         return weekSummarySubject;
     }
 
+    public getAll(): Promise<Array<DailySummary>> {
+        return this.storage.getList()
+        .then((items) => {
+            return items.map((data) => {
+                return this.serializer.deserialize(data);
+            });
+        });
+    }
+
     private retrieve(date: Date): Promise<DailySummary> {
         return this.storage.get(this.serializer.formatDate(date))
         .then((data) => {
@@ -195,9 +207,11 @@ export class DailySummaryService {
     }
 
     private getDatesToStore(): Array<Date> {
-        const currentWeek = this.dateFactory.getCurrentWeek();
-        const previousWeek = this.dateFactory.getPreviousWeek();
-        return previousWeek.concat(currentWeek);
+        if(this.cacheStartDate) {
+            return this.dateFactory.getDatesFrom(this.cacheStartDate);
+        } else {
+            return this.dateFactory.getCurrentWeek();
+        }
     }
 
     private loadDates(dates:Array<Date>): Promise<void> {

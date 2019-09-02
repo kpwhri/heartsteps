@@ -39,6 +39,30 @@ class DeviceView(APIView):
 
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
+class MessageView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, message_id):
+        try:
+            message = Message.objects.get(
+                uuid = message_id
+            )
+        except Message.DoesNotExist:
+            return Response({}, status = status.HTTP_404_NOT_FOUND)
+        if request.user.id is not message.recipient.id:
+            return Response({}, status = status.HTTP_401_NOT_AUTHORIZED)
+        return Response(
+            {
+                'id': str(message.uuid),
+                'type': message.message_type,
+                'title': message.title,
+                'body': message.body,
+                'context': message.data
+            },
+            status = status.HTTP_200_OK
+        )
+
 
 class RecievedMessageView(APIView):
     """

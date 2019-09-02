@@ -26,9 +26,17 @@ export class DateFactory {
         return moment(time, 'H:mm').toDate();
     }
 
-    public getWeek(date:Date):Array<Date> {
-        let week:Array<Date> = []
+    public getDateRange(start:Date, end:Date): Array<Date> {
+        const dates: Array<Date> = [];
+        let _date = moment(start);
+        while(_date.isSameOrBefore(moment(end))) {
+            dates.push(_date.toDate());
+            _date = _date.add(1, 'days');
+        }
+        return dates;
+    }
 
+    public getWeek(date:Date):Array<Date> {
         const day:number = date.getDay();
         let monday: Date;
         if(day === 0) {
@@ -36,14 +44,8 @@ export class DateFactory {
         } else {
             monday = moment(date).subtract(day - 1, 'days').toDate();
         }
-
-        for(let i=0; i <= 6; i++) {
-            const momentDate = moment(monday);
-            momentDate.add(i, 'days');
-            let newDate = new Date(momentDate.year(), momentDate.month(), momentDate.date())
-            week.push(newDate)
-        }
-        return week
+        const sunday:Date = moment(monday).add(6, 'days').toDate();
+        return this.getDateRange(monday, sunday);
     }
 
     public getCurrentWeek():Array<Date> {
@@ -71,5 +73,9 @@ export class DateFactory {
             }
         });
         return remainingDays;
+    }
+
+    public getDatesFrom(start: Date): Array<Date> {
+        return this.getDateRange(start, new Date());
     }
 }

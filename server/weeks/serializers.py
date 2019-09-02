@@ -37,5 +37,6 @@ class BarriersSerializer(serializers.Serializer):
             ('no', 'No'),
             ('unknown', 'Unknown')
         ],
-        required = False
+        required = False,
+        allow_null = True
     )

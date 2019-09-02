@@ -417,3 +417,15 @@ class DecisionContext(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+class DecisionRating(models.Model):
+    decision = models.OneToOneField(
+        Decision,
+        on_delete = models.CASCADE,
+        related_name = 'rating'
+    )
+    liked = models.NullBooleanField()
+    comments = models.CharField(
+        max_length=250,
+        null = True
+    )

@@ -1,0 +1,52 @@
+heartsteps-notification-page {
+
+    app-form {
+        flex-grow: 0;
+    }
+
+    fieldset.input-group.thumbs {
+
+        ul {
+            display: flex;
+            flex-direction: row-reverse;
+            > li {
+                flex-grow: 1;
+            }
+        }
+
+        ul > li {
+            width: 3em;
+            height: 3em;
+            overflow: hidden;
+            position: relative;
+
+            > input[type=radio],
+            > input[type=radio]:checked {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 3em;
+                height: 3em;
+                border-radius: 1.5em;
+
+                &#notification-liked:before {
+                    mask-image: url('../assets/icon-thumbs-up.svg');
+                    mask-size: 70%;
+                    mask-position: 50% 40%;
+                }
+
+                &#notification-disliked:before {
+                    mask-image: url('../assets/icon-thumbs-down.svg');
+                    mask-size: 70%;
+                    mask-position: 50% 70%;
+                }
+            }
+
+            > label {
+                position: absolute;
+                top: 3em;
+            }
+        }
+    }
+}

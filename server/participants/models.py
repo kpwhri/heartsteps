@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
+from days.models import Day
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
@@ -39,6 +40,12 @@ class Participant(models.Model):
 
     class NotEnrolled(RuntimeError):
         pass
+
+    def delete(self):
+        if self.user:
+            Day.objects.filter(user = self.user).delete()
+            self.user.delete()
+        super().delete()
 
     def enroll(self):
         user, created = User.objects.get_or_create(

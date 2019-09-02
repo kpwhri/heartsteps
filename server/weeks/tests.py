@@ -253,7 +253,9 @@ class WeekReflectionMessageSendTest(TestCase):
         weekly_reflection.send(User, username="test")
 
         self.send_notification.assert_called()
-        data = self.send_notification.call_args[1]['data']
+        send_kwargs = self.send_notification.call_args[1]
+        self.assertEqual(send_kwargs['collapse_subject'], 'weekly-reflection')
+        data = send_kwargs['data']
         self.assertEqual(data['type'], 'weekly-reflection')
         self.assertEqual(data['currentWeek']['id'], 1)
         self.assertEqual(data['nextWeek']['id'], 2)

@@ -1,6 +1,48 @@
 <app-page class="start-screen">
-    <div class="headline">
+    <div *ngIf="!loading"
+        class="headline"
+        >
         <p>{{body}}</p>
     </div>
-    <button (click)="dismiss()">Ok</button>
+    <app-form *ngIf="ratingForm && !loading"
+        [formGroup] = "ratingForm"
+        submitLabel = "Complete"
+        (onSubmit) = "saveRating()"
+        >
+        <fieldset class="input-group thumbs">
+            <legend>Do you like this message?</legend>
+            <ul>
+                <li>
+                    <input id="notification-liked"
+                        type="radio"
+                        name="liked"
+                        [value]="true"
+                        formControlName="liked"
+                        />
+                    <label for="notification-liked">
+                        Like message
+                    </label>
+                </li>
+                <li>
+                    <input id="notification-disliked"
+                        type="radio"
+                        name="liked"
+                        [value]="false"
+                        formControlName="liked"
+                        />
+                    <label for="notification-disliked">
+                        Dislike message
+                    </label>
+                </li>
+            </ul>
+        </fieldset>
+
+        <app-text-field *ngIf="isStaff"
+            formControlName="comments"
+            label="Comments"
+            description="Visible to staff only"
+            >
+        </app-text-field>
+    </app-form>
+    <button *ngIf="!ratingForm && !loading" (click)="dismiss()">Close</button>
 </app-page>
