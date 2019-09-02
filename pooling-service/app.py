@@ -20,7 +20,7 @@ def update():
             users.append(str(_user))
 
     subprocess.Popen(
-                    "/pooling-service/update_working.sh --users='%s'" % (','.join(users)),
+                    "/pooling-service/update.sh --users='%s'" % (','.join(users)),
                     shell=True,
                    
                    )
