@@ -58,7 +58,11 @@ export class DailySummaryService {
                 }
             });
 
-            return this.loadDates(datesToUpdate);
+            if(datesToUpdate.length >= 3) {
+                return this.reload();
+            } else {
+                return this.loadDates(datesToUpdate);
+            }
         })
         .then(() => {
             return Promise.resolve(undefined)
@@ -227,4 +231,24 @@ export class DailySummaryService {
         return promise;
     }
 
+    private reload(dates?:Array<Date>): Promise<void> {
+        const range = 10;
+        
+        if(!dates) {
+            dates = this.getDatesToStore();
+        }
+
+        if(dates.length > range) {
+            const datesToLoad = dates.splice(0, range);
+            this.getRange(datesToLoad.shift(), datesToLoad.pop())
+            .then(() => {
+                return this.reload(dates);
+            });
+        } else {
+            return this.getRange(dates[0], dates[dates.length - 1])
+            .then(() => {
+                return undefined;
+            })
+        }
+    }
 }
