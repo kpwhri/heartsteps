@@ -13,9 +13,9 @@ export class ActivitiesPage implements OnInit, OnDestroy {
     public days: Array<Date>
 
     public totalActivityTime: string = '--';
-    public totalActivitiesComplete: number;
+    public totalActivitiesComplete: string;
     public totalDistance: string = '--';
-    public totalSteps: number;
+    public totalSteps: string;
 
     private totalActivityTimeSubscription: Subscription;
     private totalActivitiesCompleteSubscription: Subscription;
@@ -51,7 +51,7 @@ export class ActivitiesPage implements OnInit, OnDestroy {
         this.totalActivitiesCompleteSubscription = this.activitySummaryService.totalActivitiesCompleted
         .filter(activities => activities !== undefined)
         .subscribe((totalActivitiesComplete) => {
-            this.totalActivitiesComplete = totalActivitiesComplete;
+            this.totalActivitiesComplete = totalActivitiesComplete.toLocaleString();
         });
         this.totalActivityTimeSubscription = this.activitySummaryService.totalActivityMinutes
         .filter(minutes => minutes !== undefined)
@@ -64,12 +64,13 @@ export class ActivitiesPage implements OnInit, OnDestroy {
         this.totalMilesSubscription = this.activitySummaryService.totalMiles
         .filter(miles => miles !== undefined)
         .subscribe((miles) => {
-            this.totalDistance = `${miles} miles`;
+            const miles_formatted = Math.ceil(miles).toLocaleString();
+            this.totalDistance = `${miles_formatted} miles`;
         });
         this.totalStepsSubscription = this.activitySummaryService.totalSteps
         .filter(steps => steps !== undefined)
         .subscribe((steps) => {
-            this.totalSteps = steps;
+            this.totalSteps = steps.toLocaleString();
         });
 
     }
