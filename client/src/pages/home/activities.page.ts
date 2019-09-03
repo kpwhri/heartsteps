@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 import { ActivitySummaryService } from "@heartsteps/daily-summaries/activity-summary.service";
 import { Subscription } from "rxjs";
+import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
+import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({
     templateUrl: './activities.page.html'
@@ -22,12 +24,25 @@ export class ActivitiesPage implements OnInit, OnDestroy {
 
     constructor(
         private activitySummaryService: ActivitySummaryService,
+        private dailySummaryService: DailySummaryService,
+        private loadingService: LoadingService,
         private cachedActivityLogService: CachedActivityLogService
     ){
         this.cachedActivityLogService.getCachedDates()
         .then((cachedDates) => {
             this.days = cachedDates.reverse();
             this.cachedActivityLogService.update();
+        });
+    }
+
+    public reload() {
+        this.loadingService.show('Reloading activities');
+        this.dailySummaryService.reload()
+        .catch(() => {
+            // nothing
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 

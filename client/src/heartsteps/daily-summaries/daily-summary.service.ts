@@ -38,7 +38,7 @@ export class DailySummaryService {
     public setup(cacheStartDate?:Date): Promise<void> {
         this.cacheStartDate = cacheStartDate;
 
-        return this.updateCache()
+        return this.cleanCache()
         .then(() => {
             return Promise.all([
                 this.getDatesToStore(),
@@ -48,7 +48,6 @@ export class DailySummaryService {
         .then((results) => {
             const datesToStore: Array<Date> = results[0];
             const storedIds: Array<String> = results[1];
-
             const datesToUpdate = datesToStore.filter((date) => {
                 const serializedDate = this.serializer.formatDate(date);
                 if (storedIds.indexOf(serializedDate) === -1) {
@@ -57,7 +56,6 @@ export class DailySummaryService {
                     return false;
                 }
             });
-
             if(datesToUpdate.length >= 3) {
                 return this.reload();
             } else {
@@ -69,16 +67,35 @@ export class DailySummaryService {
         });
     }
 
+    public reload(dates?:Array<Date>): Promise<void> {
+        if(!dates) {
+            dates = this.getDatesToStore();
+        }
+        dates.sort();
+        return this.loadRange(dates.shift(), dates.pop())
+        .then((summaries) => {
+            summaries.forEach((summary) => {
+                this.updated.emit(summary);
+            });
+            return undefined;
+        });
+    }
+
     public get(date: Date): Promise<DailySummary> {
-        const dateFormatted:string = this.serializer.formatDate(date);
-        return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
-        .then((data:any) => {
-            const summary = this.serializer.deserialize(data);
-            return this.store(summary)
-        })
+        return this.loadDate(date)
         .then((summary) => {
             this.updated.emit(summary);
             return summary;
+        });
+    }
+
+    public getRange(start: Date, end:Date):Promise<Array<DailySummary>> {
+        return this.loadRange(start, end)
+        .then((summaries) => {
+            summaries.forEach((summary) => {
+                this.updated.emit(summary)
+            });
+            return summaries;
         });
     }
 
@@ -101,30 +118,6 @@ export class DailySummaryService {
 
         return dailySummarySubject
         .filter(summary => summary !== undefined);
-    }
-
-    public update(date: Date): Promise<DailySummary> {
-        const dateFormatted:string = this.serializer.formatDate(date);
-        return this.heartstepsServer.get(`/activity/summary/update/${dateFormatted}`)
-        .then((response:any) => {
-            const summary = this.serializer.deserialize(response);
-            this.updated.emit(summary);
-            return summary;
-        });
-    }
-
-    public getRange(start: Date, end:Date):Promise<Array<DailySummary>> {
-        const startFormatted = this.serializer.formatDate(start);
-        const endFormatted = this.serializer.formatDate(end);
-        return this.heartstepsServer.get(`activity/summary/${startFormatted}/${endFormatted}`)
-        .then((response:Array<any>) => {
-            const summaries:Array<DailySummary> = [];
-            response.forEach((item)=> {
-                const summary = this.serializer.deserialize(item)
-                summaries.push(summary);
-            })
-            return summaries;
-        });
     }
 
     public watchRange(start: Date, end: Date): Subscribable<Array<DailySummary>> {
@@ -195,7 +188,7 @@ export class DailySummaryService {
         });
     }
 
-    private updateCache(): Promise<undefined> {
+    private cleanCache(): Promise<undefined> {
         this.storage.getAll()
         .then((data) => {
             const newData = {};
@@ -221,7 +214,8 @@ export class DailySummaryService {
     private loadDates(dates:Array<Date>): Promise<void> {
         let promise = Promise.resolve();
         dates.forEach((date) => {
-            promise = promise.then(()=> {
+            promise = promise
+            .then(()=> {
                 return this.get(date)
                 .then(() => {
                     return Promise.resolve(undefined);
@@ -231,24 +225,37 @@ export class DailySummaryService {
         return promise;
     }
 
-    private reload(dates?:Array<Date>): Promise<void> {
-        const range = 10;
-        
-        if(!dates) {
-            dates = this.getDatesToStore();
-        }
+    private loadDate(date: Date): Promise<DailySummary> {
+        const dateFormatted = this.serializer.formatDate(date);
+        return this.heartstepsServer.get(`activity/summary/${dateFormatted}`)
+        .then((data) => {
+            const summary = this.serializer.deserialize(data);
+            return this.store(summary);
+        });
+    }
 
-        if(dates.length > range) {
-            const datesToLoad = dates.splice(0, range);
-            this.getRange(datesToLoad.shift(), datesToLoad.pop())
-            .then(() => {
-                return this.reload(dates);
+    private loadRange(start: Date, end: Date): Promise<Array<DailySummary>> {
+        const startFormatted = this.serializer.formatDate(start);
+        const endFormatted = this.serializer.formatDate(end);
+        return this.heartstepsServer.get(`activity/summary/${startFormatted}/${endFormatted}`)
+        .then((response:Array<any>) => {
+            const summaries:Array<DailySummary> = [];
+            let promise = Promise.resolve();
+
+            response.forEach((item)=> {
+                const summary = this.serializer.deserialize(item)
+                summaries.push(summary);
+
+                promise = promise.then(() => {
+                    return this.store(summary)
+                    .then(() => {
+                        return undefined;
+                    });
+                })
             });
-        } else {
-            return this.getRange(dates[0], dates[dates.length - 1])
-            .then(() => {
-                return undefined;
-            })
-        }
+            return promise.then(() => {
+                return summaries
+            });
+        });
     }
 }
