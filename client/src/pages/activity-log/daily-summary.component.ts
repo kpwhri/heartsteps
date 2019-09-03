@@ -15,8 +15,8 @@ import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activ
 export class DailySummaryComponent {
 
     @Input('date') day: Date;
-    private summary: DailySummary;
-
+    
+    public summary: DailySummary;
     public activities: Array<ActivityLog>;
 
     public isToday: boolean;
@@ -44,8 +44,8 @@ export class DailySummaryComponent {
             .subscribe((logs) => {
                 this.activities = logs;
             })
-            this.dailySummaryService.get(this.day)
-            .then((dailySummary) => {
+            this.dailySummaryService.watch(this.day)
+            .subscribe((dailySummary) => {
                 this.summary = dailySummary;
             });
         }

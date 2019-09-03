@@ -28,10 +28,10 @@ export class DailySummaryService {
         this.storage = storageService.create('daily-summaries');
 
         this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
-            this.get(activityLog.start);
+            this.update(activityLog.start);
         });
         this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
-            this.get(activityLog.start);
+            this.update(activityLog.start);
         });
     }
 
@@ -82,10 +82,13 @@ export class DailySummaryService {
     }
 
     public get(date: Date): Promise<DailySummary> {
-        return this.loadDate(date)
-        .then((summary) => {
-            this.updated.emit(summary);
-            return summary;
+        return this.retrieve(date)
+        .catch(() => {
+            return this.loadDate(date)
+            .then((summary) => {
+                this.updated.emit(summary);
+                return summary;
+            });
         });
     }
 
@@ -96,6 +99,14 @@ export class DailySummaryService {
                 this.updated.emit(summary)
             });
             return summaries;
+        });
+    }
+
+    public update(date: Date): Promise<DailySummary> {
+        return this.loadDate(date)
+        .then((summary) => {
+            this.updated.emit(summary);
+            return summary;
         });
     }
 
