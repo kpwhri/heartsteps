@@ -1,6 +1,7 @@
 heartsteps-activity-daily-update {
 
     > button {
+        @extend .heartsteps-minor-button;
         margin-bottom: 0.5em;
     }
 

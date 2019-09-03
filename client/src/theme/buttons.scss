@@ -4,7 +4,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    padding: 0.5em 1em;
+    padding: 1em;
     font-size: 1em;
     text-align: center;
     border: 1px $color-primary solid;
@@ -58,6 +58,8 @@
 .heartsteps-minor-button {
     @extend .heartsteps-button;
     border: 0px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
 
     &:focus, &:hover {
         box-shadow: none;
