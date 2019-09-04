@@ -1,6 +1,6 @@
 rm(list = ls())
 server = T
-localtest = T
+localtest = F
 options(warn=-1)
 #' ---
 #' title:  Nightly Udates in the bandit algorithm in HS 2.0
@@ -40,11 +40,12 @@ if(server){
     
     
     # input <- fromJSON(file = "/Users/Peng/Desktop/walking/user10006/request_history/nightly_1.json")
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_7.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_7.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/data/user10110/request_history/nightly_34.json")
     
     
   }
@@ -207,6 +208,11 @@ if(is.null(check)){
   
   
  
+  
+  
+  # =============== Remove work location (once) =============
+  data.day$var.names <- data.day$var.names[!(data.day$var.names %in% "work.location")]
+  data.history <- data.history[!(colnames(data.history)%in% "work.location")]
   
   # =============== Create the day history ============= 
   
