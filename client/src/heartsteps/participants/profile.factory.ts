@@ -69,9 +69,11 @@ export class ProfileService {
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
             this.setupActivityTypeService(),
-            this.loadParticipantInformation(),
-            this.loadDailySummaries()
+            this.loadParticipantInformation()
         ])
+        .then(() => {
+            return this.loadDailySummaries();
+        })
         .then(() => {
             return Promise.resolve(true);
         })
@@ -300,13 +302,16 @@ export class ProfileService {
     }
 
     private loadDailySummaries(): Promise<boolean> {
-        return this.dailySummaryService.setup()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.resolve(false);
-        })
+        return this.participantInformationService.getDateEnrolled()
+        .then((enrolledDate) => {
+            return this.dailySummaryService.setup(enrolledDate)
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                return Promise.resolve(false);
+            });
+        });
     }
 
     private updateWeatherCache(): Promise<boolean> {

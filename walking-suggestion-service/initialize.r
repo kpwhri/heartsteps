@@ -1,10 +1,12 @@
 rm(list = ls())
 server = T
-localtest = F
+localtest = T
+options(warn=-1)
 #' ---
 #' title:  Initialize the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   2019-05
+#' date:   2019-08
+#' version: removing work + change default prob
 #' ---
 #'  
 
@@ -38,8 +40,9 @@ if(server){
   
     # input <- fromJSON(file = "./test/start_mash.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/init.json")
-    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_init.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_init.json")
     # input <- fromJSON(file = "./test/start.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/start.json")
     
   }
   
@@ -214,7 +217,6 @@ data.policy <- list()
 # intercept
 # (standarized) current.dosage,  
 # engagement.indc, 
-# work.loc, 
 # other.loc, 
 # variation.indc
 
@@ -229,7 +231,7 @@ data.policy$eta.fn <- function(x) 0
 
 var.names <- c("day", "decision.time", 
            "availability", "probability", "action", "reward",
-           "dosage", "engagement", "work.location", "other.location", "variation",
+           "dosage", "engagement", "other.location", "variation",
            "temperature", "logpresteps", "sqrt.totalsteps", "prepoststeps", "deliever", "appclick" ,"random.number")
 
 data.history <- matrix(NA, nrow = 5*ndays, ncol = length(var.names))

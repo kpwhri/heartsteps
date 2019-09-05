@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from daily_tasks.models import DailyTask
+from days.models import Day
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
@@ -24,6 +25,9 @@ TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+class Cohort(models.Model):
+    name = models.CharField(max_length=75)
+
 
 class Participant(models.Model):
     """
@@ -36,9 +40,20 @@ class Participant(models.Model):
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+    cohort = models.ForeignKey(
+        Cohort,
+        null = True,
+        on_delete = models.SET_NULL
+    )
 
     class NotEnrolled(RuntimeError):
         pass
+
+    def delete(self):
+        if self.user:
+            Day.objects.filter(user = self.user).delete()
+            self.user.delete()
+        super().delete()
 
     def enroll(self):
         user, created = User.objects.get_or_create(

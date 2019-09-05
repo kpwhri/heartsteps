@@ -131,9 +131,12 @@ class DailyTask(models.Model):
         )
 
     def delete_task(self):
-        if self.task:
-            self.task.crontab.delete()
-            self.task.delete()
+        try:
+            if self.task:
+                self.task.crontab.delete()
+                self.task.delete()
+        except PeriodicTask.DoesNotExist:
+            pass
 
     def get_next_run_time(self):
         if not self.enabled:

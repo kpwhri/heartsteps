@@ -3,9 +3,10 @@
 ## Numbers = "REAL PEOPLE"
 ## "Test-XXXX" = "FAKE PERSON" (e.g., peng, walter)
 getwd()
-setwd("..")
-participants = c("10008", "10032","10110", "10187", "10296", "10214","10327",  "10342",
-                  "10388", "10399",
+setwd("heartsteps/anti-sedentary-service")
+
+participants = c("10006","10008","10027", "10032","10055","10110","10118","10137","10142","10157", "10187","10214", "10271","10296","10307", "10327",  "10342",
+                  "10388", "10389","10399",
                  "test-donna", "test-nickreid", "test-pedja", 
                  "test-mash", "test-peng")
 ## GENERATE A FULL DATAFRAME OF ALL DATA ACROSS PARTICIPANTS
@@ -32,8 +33,8 @@ state_results = aggregate(online_state~day(time) + month(time) + userid, data = 
 ## Number of times of individual is AVAILABLE (availability = 1) given by Nick's service, aggregated by user-day
 availability_results = aggregate(available~day(time) + month(time) + userid, data = subset(complete_data, online_state != -1), FUN = sum)
 
-current_block_start = 1
-current_block_end = 4
+current_block_start = 19
+current_block_end = 29
 current_month = 8 
 
 last_block_start = 24

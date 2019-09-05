@@ -188,7 +188,7 @@ class ActivitLogUpdateDay(TestCase):
 
     def create_log_for_date(self, date, vigorous=False):
         activity_type, created = ActivityType.objects.get_or_create(name="run")
-        ActivityLog.objects.create(
+        return ActivityLog.objects.create(
             user = self.user,
             type = activity_type,
             start = timezone.now().replace(
@@ -205,25 +205,32 @@ class ActivitLogUpdateDay(TestCase):
 
         day = Day.objects.get()
         self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.activities_completed, 1)
         self.assertEqual(day.moderate_minutes, 10)
 
     def test_activity_log_updates_day(self):
         self.create_log_for_date(date(2019, 1, 6))
 
         day = Day.objects.get()
-        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.activities_completed, 1)
         self.assertEqual(day.moderate_minutes, 10)
 
         self.create_log_for_date(date(2019, 1, 6))
 
         day = Day.objects.get()
-        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.activities_completed, 2)
         self.assertEqual(day.moderate_minutes, 20)
 
-        self.create_log_for_date(date(2019, 1, 6), True)
+        activity_log = self.create_log_for_date(date(2019, 1, 6), True)
         
         day = Day.objects.get()
-        self.assertEqual(day.user.username, self.user.username)
+        self.assertEqual(day.activities_completed, 3)
         self.assertEqual(day.moderate_minutes, 20)
         self.assertEqual(day.vigorous_minutes, 10)
         self.assertEqual(day.total_minutes, 40)
+
+        activity_log.delete()
+
+        day = Day.objects.get()
+        self.assertEqual(day.activities_completed, 2)
+        self.assertEqual(day.total_minutes, 20)

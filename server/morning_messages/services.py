@@ -109,7 +109,8 @@ class MorningMessageService:
         message = push_service.send_notification(
             body = morning_message.notification,
             title = 'Morning check-in',
-            data = serialized
+            data = serialized,
+            collapse_subject = 'morning-message'
         )
         morning_message.add_context(message)
 

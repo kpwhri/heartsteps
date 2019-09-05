@@ -36,6 +36,17 @@ class ReflectionTime(models.Model):
         else:
             return "Inactive (%s)" % (self.user)
 
+    def save(self, *args, **kwargs):
+        if not self.daily_task:
+            self.create_daily_task()
+        else:
+            self.update_daily_task()
+        if self.active:
+            self.daily_task.enable()
+        else:
+            self.daily_task.disable()
+        super().save(*args, **kwargs)
+
     def create_daily_task(self):
         task_name = 'weekly reflection for %s' % (self.user.username)
         try:

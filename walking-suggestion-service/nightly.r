@@ -1,10 +1,12 @@
 rm(list = ls())
 server = T
 localtest = F
+options(warn=-1)
 #' ---
 #' title:  Nightly Udates in the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   2019-05
+#' date:   2019-08
+#' version: removing work + change default prob
 #' ---
 #' 
 
@@ -37,12 +39,13 @@ if(server){
   }else{
     
     
-    input <- fromJSON(file = "/Users/Peng/Desktop/walking/user10006/request_history/nightly_1.json")
-    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_1.json")
+    # input <- fromJSON(file = "/Users/Peng/Desktop/walking/user10006/request_history/nightly_1.json")
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/update_7.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nickreid/nightly_6.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/10118/user10118_request history_nightly_1.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/nightly_3.json")
     # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/data/pedja/usertest-pedja_request_history_nightly_10.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/data/user10110/request_history/nightly_34.json")
     
     
   }
@@ -206,6 +209,11 @@ if(is.null(check)){
   
  
   
+  
+  # =============== Remove work location (once) =============
+  data.day$var.names <- data.day$var.names[!(data.day$var.names %in% "work.location")]
+  data.history <- data.history[!(colnames(data.history)%in% "work.location")]
+  
   # =============== Create the day history ============= 
   
   # imputed dosage dataset for all days
@@ -243,7 +251,6 @@ if(is.null(check)){
       
       # other interactions 
       current.dosage <- dosage.mat$dosage[which(dosage.mat$day == input$studyDay & dosage.mat$timeslot == kk)]
-      work.loc <- input$locationArray[kk] == 1;
       other.loc <- input$locationArray[kk] == 0;
       
       engagement.indc <- data.day$engagement;
@@ -251,7 +258,6 @@ if(is.null(check)){
       
       interaction.terms <- c(current.dosage, 
                              engagement.indc, 
-                             work.loc, 
                              other.loc, 
                              variation.indc)
       
@@ -477,7 +483,7 @@ if(is.null(check)){
   wm.txt <- txt.eff.update(train.dat, 
                       mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1,
                       mu2 = bandit.spec$mu2, Sigma2 = bandit.spec$Sigma2, sigma = bandit.spec$sigma,
-                      int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                      int.names = c("dosage", "engagement", "other.location", "variation"),
                       nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))
   data.policy$mu.beta <- wm.txt$mean
   data.policy$Sigma.beta <- wm.txt$var
@@ -486,17 +492,17 @@ if(is.null(check)){
   if(bandit.spec$weight.est > 0){
     
     alpha0 <- unavail.update(train.dat, mu0 = bandit.spec$mu0, Sigma0 = bandit.spec$Sigma0, sigma = bandit.spec$sigma, 
-                             int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                             int.names = c("dosage", "engagement", "other.location", "variation"),
                              nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))$mean
     
     alpha1 <- main.eff.update(train.dat, mu1 = bandit.spec$mu1, Sigma1 = bandit.spec$Sigma1, sigma = bandit.spec$sigma, 
-                    int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                    int.names = c("dosage", "engagement", "other.location", "variation"),
                     nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))$mean
     
     alpha2 <- wm.txt$mean
     
     data.policy$eta.fn <- eta.update (train.dat, alpha0, alpha1, alpha2, 
-                            int.names = c("dosage", "engagement", "work.location", "other.location", "variation"),
+                            int.names = c("dosage", "engagement", "other.location", "variation"),
                             nonint.names = c("temperature", "logpresteps", "sqrt.totalsteps"))
     
     
@@ -609,7 +615,7 @@ if(is.null(check)){
   }, silent = T)
   
   kk <- 1
-  max.try <- 5
+  max.try <- 3
   while(is(save.try,"try-error") & kk <= max.try){
     
     kk <- kk + 1
@@ -634,7 +640,6 @@ if(is.null(check)){
   if(is(save.try,"try-error")){
     
     cat(paste("\nNightly:", "Day =", input$studyDay, "Fail to save after", max.try, "attemps", save.try), file =  paste(paths, "/log", sep=""), append = TRUE) 
-    stop("Fail to save the data")
     
   }else{
     

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sleep 2
-
+python create_dirs.py
 for i in "$@"
 do
 case $i in
@@ -11,4 +11,5 @@ case $i in
     ;;
 esac
 done
-echo $USERS
+source activate py36
+python run.py $USERS

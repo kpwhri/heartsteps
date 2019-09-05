@@ -1,0 +1,66 @@
+
+dl.total-activity-stats {
+
+    dt {
+        color: $color-secondary;
+    }
+
+}
+
+dl.total-activity-stats {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    > * {
+        flex: 1 1 50%;
+        padding: 1.5em;
+        margin: 0px;
+    }
+
+    > dt {
+        position: absolute;
+        white-space: nowrap;
+        top: 0%;
+        left: 0%;
+        overflow: visible;
+        padding-top: 0.75em;
+        padding-bottom: 0em;
+
+        &:nth-of-type(2) {
+            top: 0%;
+            left: 50%;
+        }
+
+        &:nth-of-type(3) {
+            top: 50%;
+            left: 0%;
+        }
+
+        &:nth-of-type(4) {
+            top: 50%;
+            left: 50%;
+        }
+    }
+
+    > dd {
+        padding-top: 2em;
+        padding-bottom: 0.5em;
+
+        &:nth-of-type(1),
+        &:nth-of-type(3) {
+            border-right: 1px $color-gray solid;
+        }
+
+        &:nth-of-type(1),
+        &:nth-of-type(2) {
+            border-bottom: 1px $color-gray solid;
+        }
+
+    }
+
+
+
+}
+

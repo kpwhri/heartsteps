@@ -16,6 +16,7 @@ export class DailySummaryService {
     public updated: EventEmitter<DailySummary> = new EventEmitter();
 
     private storage: DocumentStorage;
+    private cacheStartDate: Date;
 
     constructor(
         private activityLogService: ActivityLogService,
@@ -27,15 +28,17 @@ export class DailySummaryService {
         this.storage = storageService.create('daily-summaries');
 
         this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
-            this.get(activityLog.start);
+            this.update(activityLog.start);
         });
         this.activityLogService.deleted.subscribe((activityLog: ActivityLog) => {
-            this.get(activityLog.start);
+            this.update(activityLog.start);
         });
     }
 
-    public setup(): Promise<void> {
-        return this.updateCache()
+    public setup(cacheStartDate?:Date): Promise<void> {
+        this.cacheStartDate = cacheStartDate;
+
+        return this.cleanCache()
         .then(() => {
             return Promise.all([
                 this.getDatesToStore(),
@@ -45,7 +48,6 @@ export class DailySummaryService {
         .then((results) => {
             const datesToStore: Array<Date> = results[0];
             const storedIds: Array<String> = results[1];
-
             const datesToUpdate = datesToStore.filter((date) => {
                 const serializedDate = this.serializer.formatDate(date);
                 if (storedIds.indexOf(serializedDate) === -1) {
@@ -54,21 +56,54 @@ export class DailySummaryService {
                     return false;
                 }
             });
-
-            return this.loadDates(datesToUpdate);
+            if(datesToUpdate.length >= 3) {
+                return this.reload();
+            } else {
+                return this.loadDates(datesToUpdate);
+            }
         })
         .then(() => {
             return Promise.resolve(undefined)
         });
     }
 
+    public reload(dates?:Array<Date>): Promise<void> {
+        if(!dates) {
+            dates = this.getDatesToStore();
+        }
+        dates.sort();
+        return this.loadRange(dates.shift(), dates.pop())
+        .then((summaries) => {
+            summaries.forEach((summary) => {
+                this.updated.emit(summary);
+            });
+            return undefined;
+        });
+    }
+
     public get(date: Date): Promise<DailySummary> {
-        const dateFormatted:string = this.serializer.formatDate(date);
-        return this.heartstepsServer.get(`/activity/summary/${dateFormatted}`)
-        .then((data:any) => {
-            const summary = this.serializer.deserialize(data);
-            return this.store(summary)
-        })
+        return this.retrieve(date)
+        .catch(() => {
+            return this.loadDate(date)
+            .then((summary) => {
+                this.updated.emit(summary);
+                return summary;
+            });
+        });
+    }
+
+    public getRange(start: Date, end:Date):Promise<Array<DailySummary>> {
+        return this.loadRange(start, end)
+        .then((summaries) => {
+            summaries.forEach((summary) => {
+                this.updated.emit(summary)
+            });
+            return summaries;
+        });
+    }
+
+    public update(date: Date): Promise<DailySummary> {
+        return this.loadDate(date)
         .then((summary) => {
             this.updated.emit(summary);
             return summary;
@@ -96,30 +131,6 @@ export class DailySummaryService {
         .filter(summary => summary !== undefined);
     }
 
-    public update(date: Date): Promise<DailySummary> {
-        const dateFormatted:string = this.serializer.formatDate(date);
-        return this.heartstepsServer.get(`/activity/summary/update/${dateFormatted}`)
-        .then((response:any) => {
-            const summary = this.serializer.deserialize(response);
-            this.updated.emit(summary);
-            return summary;
-        });
-    }
-
-    public getRange(start: Date, end:Date):Promise<Array<DailySummary>> {
-        const startFormatted = this.serializer.formatDate(start);
-        const endFormatted = this.serializer.formatDate(end);
-        return this.heartstepsServer.get(`activity/summary/${startFormatted}/${endFormatted}`)
-        .then((response:Array<any>) => {
-            const summaries:Array<DailySummary> = [];
-            response.forEach((item)=> {
-                const summary = this.serializer.deserialize(item)
-                summaries.push(summary);
-            })
-            return summaries;
-        });
-    }
-
     public watchRange(start: Date, end: Date): Subscribable<Array<DailySummary>> {
         const weekSummarySubject: BehaviorSubject<Array<DailySummary>> = new BehaviorSubject([]);
 
@@ -141,6 +152,15 @@ export class DailySummaryService {
         });
 
         return weekSummarySubject;
+    }
+
+    public getAll(): Promise<Array<DailySummary>> {
+        return this.storage.getList()
+        .then((items) => {
+            return items.map((data) => {
+                return this.serializer.deserialize(data);
+            });
+        });
     }
 
     private retrieve(date: Date): Promise<DailySummary> {
@@ -179,7 +199,7 @@ export class DailySummaryService {
         });
     }
 
-    private updateCache(): Promise<undefined> {
+    private cleanCache(): Promise<undefined> {
         this.storage.getAll()
         .then((data) => {
             const newData = {};
@@ -195,15 +215,18 @@ export class DailySummaryService {
     }
 
     private getDatesToStore(): Array<Date> {
-        const currentWeek = this.dateFactory.getCurrentWeek();
-        const previousWeek = this.dateFactory.getPreviousWeek();
-        return previousWeek.concat(currentWeek);
+        if(this.cacheStartDate) {
+            return this.dateFactory.getDatesFrom(this.cacheStartDate);
+        } else {
+            return this.dateFactory.getCurrentWeek();
+        }
     }
 
     private loadDates(dates:Array<Date>): Promise<void> {
         let promise = Promise.resolve();
         dates.forEach((date) => {
-            promise = promise.then(()=> {
+            promise = promise
+            .then(()=> {
                 return this.get(date)
                 .then(() => {
                     return Promise.resolve(undefined);
@@ -213,4 +236,37 @@ export class DailySummaryService {
         return promise;
     }
 
+    private loadDate(date: Date): Promise<DailySummary> {
+        const dateFormatted = this.serializer.formatDate(date);
+        return this.heartstepsServer.get(`activity/summary/${dateFormatted}`)
+        .then((data) => {
+            const summary = this.serializer.deserialize(data);
+            return this.store(summary);
+        });
+    }
+
+    private loadRange(start: Date, end: Date): Promise<Array<DailySummary>> {
+        const startFormatted = this.serializer.formatDate(start);
+        const endFormatted = this.serializer.formatDate(end);
+        return this.heartstepsServer.get(`activity/summary/${startFormatted}/${endFormatted}`)
+        .then((response:Array<any>) => {
+            const summaries:Array<DailySummary> = [];
+            let promise = Promise.resolve();
+
+            response.forEach((item)=> {
+                const summary = this.serializer.deserialize(item)
+                summaries.push(summary);
+
+                promise = promise.then(() => {
+                    return this.store(summary)
+                    .then(() => {
+                        return undefined;
+                    });
+                })
+            });
+            return promise.then(() => {
+                return summaries
+            });
+        });
+    }
 }

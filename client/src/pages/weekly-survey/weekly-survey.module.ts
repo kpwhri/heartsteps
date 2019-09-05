@@ -14,6 +14,9 @@ import { NextWeekPlansComponent } from './next-week-plans.component';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { FormModule } from '@infrastructure/form/form.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { BarriersComponent } from './barriers.component';
+import { BarrierModalComponent } from './barrier-modal.component';
+import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
 
 const routes: Routes = [
     {
@@ -30,6 +33,8 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
+    BarriersComponent,
+    BarrierModalComponent,
     WeeklySurveyPage,
     SurveyStartPage,
     NextWeekGoalComponent,
@@ -37,6 +42,8 @@ const routes: Routes = [
     SurveyComponent
   ],
   entryComponents: [
+    BarriersComponent,
+    BarrierModalComponent,
     NextWeekGoalComponent,
     NextWeekPlansComponent,
     SurveyComponent,
@@ -46,6 +53,7 @@ const routes: Routes = [
       WeeklySurveyResolver
   ],
   imports: [
+    DialogsModule,
     InfrastructureModule,
     HeartstepsComponentsModule,
     HeartstepsWeeklySurveyModule,

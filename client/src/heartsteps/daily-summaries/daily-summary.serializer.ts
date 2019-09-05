@@ -23,7 +23,8 @@ export class DailySummarySerializer {
             vigorousMinutes: summary.vigorousMinutes,
             minutes: summary.minutes,
             steps: summary.steps,
-            miles: summary.miles
+            miles: summary.miles,
+            activitiesCompleted: summary.activitiesCompleted
         }
     }
 
@@ -31,11 +32,12 @@ export class DailySummarySerializer {
         const summary:DailySummary = new DailySummary();
         summary.date = this.parseDate(data.date);
         summary.updated = new Date(data.updated);
-        summary.moderateMinutes = data.moderateMinutes;
-        summary.vigorousMinutes = data.vigorousMinutes;
-        summary.minutes = data.minutes;
-        summary.steps = data.steps;
-        summary.miles = data.miles;
+        summary.moderateMinutes = data.moderateMinutes ? data.moderateMinutes : 0;
+        summary.vigorousMinutes = data.vigorousMinutes ? data.vigorousMinutes : 0;
+        summary.minutes = data.minutes ? data.minutes : 0;
+        summary.steps = data.steps ? data.steps : 0;
+        summary.miles = data.miles ? data.miles : 0;
+        summary.activitiesCompleted = data.activitiesCompleted ? data.activitiesCompleted : 0;
         return summary;
     }
 

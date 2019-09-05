@@ -16,6 +16,7 @@ import { SelectFieldComponent } from "./select-field.component";
 import { RangeFieldComponent } from "./range-field.component";
 import { IncrementFieldComponent } from "./increment-field.component";
 import { ChoiceFieldComponent } from "./choice-field.component";
+import { SelectMultipleFieldComponent } from "./select-multiple-field.component";
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { ChoiceFieldComponent } from "./choice-field.component";
         PhoneFieldComponent,
         RangeFieldComponent,
         SelectFieldComponent,
+        SelectMultipleFieldComponent,
         TextFieldComponent,
         TimeFieldComponent,
         YearFieldComponent
@@ -48,6 +50,7 @@ import { ChoiceFieldComponent } from "./choice-field.component";
         FormComponent,
         IncrementFieldComponent,
         SelectFieldComponent,
+        SelectMultipleFieldComponent,
         RangeFieldComponent,
         PhoneFieldComponent,
         TextFieldComponent,

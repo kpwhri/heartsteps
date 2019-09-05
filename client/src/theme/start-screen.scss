@@ -61,17 +61,6 @@
         }
     }
 
-    .heartsteps-primary-button {
-        background-color: $color-white;
-        color: $color-primary;
-
-        &:hover,
-        &:focus {
-            box-shadow: inset 0 0 0.5em 0px $color-primary;
-        }
-
-    }
-
     .heartsteps-checkmark-button {
         border-color: $color-white;
         &:before {
@@ -105,6 +94,11 @@
         background-color: $color-white;
     }
 
+    input[type=text] {
+        color: $text-color;
+        padding: 1em 0.5em;
+        margin-top: 0.5em;
+    }
 }
 
 @media(min-width: 650px) {

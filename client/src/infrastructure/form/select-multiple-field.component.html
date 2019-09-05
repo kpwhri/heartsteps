@@ -1,0 +1,35 @@
+<fieldset class="input-group">
+    <legend *ngIf="label"
+        class="description"
+        >
+        {{label}}
+    </legend>
+    <p *ngIf="error && isInvalid"
+        class="error"
+        >
+        {{error}}
+    </p>
+    <p *ngIf="!options">No options available</p>
+    <ul>
+        <li *ngFor="let option of options; let index = index">
+            <input id="{{name}}-{{index}}"
+                type="checkbox"
+                name="{{name}}-{{index}}"
+                class="heartsteps-add-button"
+                [value]="option"
+                (change)="updateValue(option.value)"
+                [checked]="isSelected(option.value)"
+                [disabled]="isDisabled"
+                />
+            <label for="{{name}}-{{index}}">
+                {{option.name}}
+            </label>
+        </li>
+    </ul>
+</fieldset>
+<button *ngIf="triggerName"
+    type="button"
+    (click)="triggerEvent()"
+    >
+    {{triggerName}}
+</button>

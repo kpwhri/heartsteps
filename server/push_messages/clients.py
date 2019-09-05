@@ -21,18 +21,8 @@ class ClientBase:
     def __init__(self, device):
         self.device = device
 
-    def send(self, request):
+    def send(self, body=None, title=None, collapse_subject=None, data=None):
         return None
-
-    def format_notification(self, body, title, data):
-        notification = {
-            'title': title,
-            'body': body
-        }
-        return {**data, **notification}
-
-    def format_data(self, data):
-        return data
     
 
 class ApplePushClient(ClientBase):
@@ -70,38 +60,6 @@ class FirebaseMessageService(ClientBase):
             'Content-Type': 'application/json'
         }
 
-    def send(self, request):
-
-        request['to'] = self.device.token
-        request['priority'] = 'high'
-
-        response = requests.post(
-            FCM_SEND_URL,
-            headers = self.make_headers(),
-            json = request
-        )
-
-        if response.status_code == 200:
-            json = response.json()
-            if json['success'] == 1:
-                return json['multicast_id']
-        raise FirebaseMessageService.MessageSendError()
-
-    def format_notification(self, body, title, data):
-        notification = {
-            'title': title,
-            'body': body
-        }
-        return {
-            'data': {**data, **notification}
-        }
-
-    def format_data(self, data):
-        request = {
-            'data': data
-        }
-        return request
-
 class OneSignalClient(ClientBase):
 
     def __init__(self, device):
@@ -114,10 +72,13 @@ class OneSignalClient(ClientBase):
         self.api_key = settings.ONESIGNAL_API_KEY
         self.app_id = settings.ONESIGNAL_APP_ID
 
-    def send(self, request):
+    def get_one_signal_notification_url(self):
+        return 'https://onesignal.com/api/v1/notifications'
+
+    def send(self, body=None, title=None, collapse_subject=None, data={}):
         
         response = requests.post(
-            'https://onesignal.com/api/v1/notifications',
+            self.get_one_signal_notification_url(),
             headers = {
                 'Content-Type': 'application/json',
                 'Authorization': 'Basic %s' % (self.api_key)
@@ -126,12 +87,13 @@ class OneSignalClient(ClientBase):
                 'app_id': self.app_id,
                 'include_player_ids': [self.device.token],
                 'contents': {
-                    'en': request['body']
+                    'en': body
                 },
                 'headings': {
-                    'en': request['title']
+                    'en': title
                 },
-                'data': request
+                'collapse_id': collapse_subject,
+                'data': data
             }
         )
 

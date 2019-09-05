@@ -21,6 +21,10 @@ app.conf.beat_schedule = {
     'update-pooling-service': {
         'task': 'walking_suggestions.tasks.update_pooling_service',
         'schedule': crontab(hour='11')
+    },
+    'reset-test-participants': {
+        'task': 'participants.tests.reset_test_participants',
+        'schedule': crontab(hour='11')
     }
 }
 

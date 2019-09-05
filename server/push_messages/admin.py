@@ -70,7 +70,7 @@ class MessageAdmin(ExportMixin, admin.ModelAdmin):
         'device',
         'title',
         'body',
-        'content',
+        'data',
         'sent',
         'received',
         'opened',

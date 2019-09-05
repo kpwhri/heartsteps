@@ -17,6 +17,7 @@ class Day(models.Model):
     steps = models.PositiveIntegerField(default=0)
     miles = models.FloatField(default=0)
 
+    activities_completed = models.PositiveIntegerField(default=0)
     moderate_minutes = models.PositiveIntegerField(default=0)
     vigorous_minutes = models.PositiveIntegerField(default=0)
     total_minutes = models.PositiveIntegerField(default=0)
@@ -55,6 +56,7 @@ class Day(models.Model):
         self.save()
     
     def update_from_activities(self):
+        self.activities_completed = 0
         self.moderate_minutes = 0
         self.vigorous_minutes = 0
         self.total_minutes = 0
@@ -65,6 +67,7 @@ class Day(models.Model):
             start__lte = self.day_end
         ).all()
         for activity in activities:
+            self.activities_completed += 1
             self.total_minutes += activity.earned_minutes
             if activity.vigorous:
                 self.vigorous_minutes += activity.duration

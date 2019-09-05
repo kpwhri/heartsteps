@@ -5,6 +5,10 @@ from flask import json
 
 import subprocess
 
+import sys
+
+
+
 app = Flask(__name__)
 
 @app.route('/update', methods=['POST'])
@@ -16,11 +20,30 @@ def update():
             users.append(str(_user))
 
     subprocess.Popen(
-        "/pooling-service/update.sh --users='%s'" % (','.join(users)),
-        shell=True
-        )
+                    "/pooling-service/update.sh --users='%s'" % (','.join(users)),
+                    shell=True,
+                   
+                   )
+                   #print('This is error output', file=sys.stderr)
+#print('This is standard output', file=sys.stdout)
 
-    return 'Update started'
+
+
+
+
+
+
+    return '{}'.format('')
+            
+            #if response.returncode > 0:
+#print(response.stdout)
+
+#else:
+#print(response.stdout)
+#return
+
+
+    return response.stdout
 
 if __name__ == "__main__":
     app.run(

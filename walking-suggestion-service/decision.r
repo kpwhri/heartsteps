@@ -1,10 +1,12 @@
 rm(list = ls())
 server = T
-localtest = F
+localtest = T
+options(warn=-1)
 #' ---
 #' title:  Action selection in the bandit algorithm in HS 2.0
 #' author: Peng Liao
-#' date:   2019-05
+#' date:   2019-08
+#' version: removing work + change default prob
 #' ---
 #' 
 
@@ -35,8 +37,8 @@ if(server){
   }else{
     
     
-    input <- fromJSON(file = "./test/call_1_5.json")
-    # input <- fromJSON(file = filename)
+    # input <- fromJSON(file = "./test/call_1_5.json")
+    input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/call_9_1.json")
     
   }
   
@@ -214,14 +216,10 @@ if(is.null(output)){
       # ================ create the interaction terms ================ 
       
       # other interactions 
-      work.loc <- input$location == 1;
       other.loc <- input$location == 0;
       engagement.indc <- data.day$engagement;
       variation.indc <- data.day$variation[input$decisionTime]
       
-      # interaction.terms <- c(current.dosage, engagement.indc, 
-      #                        work.loc, other.loc, variation.indc)
-      # 
       
       # ================ action Selection ================  
       if(input$availability){
@@ -235,7 +233,7 @@ if(is.null(output)){
         pi_min <- data.policy$pi_min;  
         
         # create the feature (standardization ocurrs here)
-        feat <- c(1, std.dosage(current.dosage), engagement.indc, work.loc, other.loc, variation.indc) 
+        feat <- c(1, std.dosage(current.dosage), engagement.indc, other.loc, variation.indc) 
         
         # posterior dist
         pos.mean <- c(feat %*% mu)
@@ -247,8 +245,11 @@ if(is.null(output)){
         # raw prob
         pit0 <- pnorm((pos.mean-margin)/sqrt(pos.var))
         
-        # clipping
-        prob <- min(c(pi_max, max(c(pi_min, pit0))))
+        # changing default prob and clipping
+        # prob <- min(c(pi_max, max(c(pi_min, pit0))))
+        tranprob = function(p)  min(pi_max, pi_min + max (p-0.5, 0) * (1-pi_min)/0.5)
+        prob <- tranprob(pit0)
+        
         
         # output type (1: bandit, 0: MRT)
         type <- 1

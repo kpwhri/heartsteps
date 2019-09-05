@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
 from unittest.mock import patch
+import json
 
 import pytz
 from timezonefinder import TimezoneFinder
@@ -9,8 +10,8 @@ from django.test import override_settings
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
-
-from django.utils import timezone
+from django.urls import reverse
+from rest_framework.test import APITestCase
 
 from behavioral_messages.models import ContextTag as MessageTag
 from behavioral_messages.models import MessageTemplate
@@ -25,6 +26,7 @@ from weather.services import WeatherService
 from .models import User
 from .models import Decision
 from .models import DecisionContext
+from .models import DecisionRating
 from .services import DecisionContextService
 from .services import DecisionMessageService
 
@@ -120,7 +122,14 @@ class DecisionMessageTest(TestCase):
 
         decision_service.send_message()
 
-        send_notification.assert_called_with(message_template.body, title=message_template.title)
+        send_notification.assert_called_with(
+            message_template.body,
+            title=message_template.title,
+            data={
+                'randomizationId': str(decision_service.decision.id)
+            },
+            collapse_subject = 'activity-suggestion'
+        )
 
         context_objects = [obj.content_object for obj in DecisionContext.objects.all()]
         self.assertIn(message_template, context_objects)
@@ -396,3 +405,87 @@ class DecisionActivityTests(TestCase):
 
         self.assertTrue(decision.available)
         self.assertFalse(decision.unavailable_recently_active)
+
+class DecisionRatingTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test')
+        self.client.force_authenticate(user=self.user)
+
+        self.decision = Decision.objects.create(
+            user = self.user,
+            time = timezone.now()
+        )
+
+    def get_decision_rating_url(self):
+        return reverse(
+            'randomization-rating',
+            kwargs = {
+                'decision_id': str(self.decision.id)
+            }
+        )
+
+    def test_get_decision_rating(self):
+        DecisionRating.objects.create(
+            decision = self.decision,
+            liked = True,
+            comments = 'This is a test'
+        )
+
+        response = self.client.get(
+            self.get_decision_rating_url()
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['liked'], True)
+        self.assertEqual(response.data['comments'], 'This is a test')
+
+    def test_create_decision_rating(self):
+
+        response = self.client.post(
+            self.get_decision_rating_url(),
+            {
+                'liked': False,
+                'comments': 'Test comments'
+            },
+            format = 'json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        decision_rating = DecisionRating.objects.get()
+        self.assertEqual(decision_rating.decision.id, self.decision.id)
+        self.assertFalse(decision_rating.liked)
+        self.assertEqual(decision_rating.comments, 'Test comments')
+
+    def test_updates_decision_rating(self):
+        DecisionRating.objects.create(
+            decision = self.decision,
+            liked = False,
+            comments = 'Test'
+        )
+
+        response = self.client.post(
+            self.get_decision_rating_url(),
+            {
+                'liked': None,
+                'comments': None
+            },
+            format = 'json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        decision_rating = DecisionRating.objects.get()
+        self.assertEqual(decision_rating.liked, None)
+        self.assertEqual(decision_rating.comments, None)
+
+    def test_comments_are_optional(self):
+        response = self.client.post(
+            self.get_decision_rating_url(),
+            {
+                'liked': None
+            },
+            format = 'json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        

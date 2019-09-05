@@ -19,6 +19,8 @@ from walking_suggestions.models import SuggestionTime, Configuration
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
+from walking_suggestions.models import PoolingServiceConfiguration
+from walking_suggestions.models import PoolingServiceRequest
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import initialize_and_update
@@ -109,3 +111,9 @@ class ConfigurationAdmin(admin.ModelAdmin):
 admin.site.register(Configuration, ConfigurationAdmin)
 
 admin.site.register(WalkingSuggestionServiceRequest, ServiceRequestAdmin)
+
+class PoolingServiceConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['user', 'use_pooling']
+admin.site.register(PoolingServiceConfiguration, PoolingServiceConfigurationAdmin)
+
+admin.site.register(PoolingServiceRequest, ServiceRequestAdmin)
