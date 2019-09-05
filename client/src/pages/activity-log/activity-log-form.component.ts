@@ -74,11 +74,11 @@ export class ActivityLogFormComponent {
         activityLog.enjoyed = values.enjoyed;
 
         const updatedStart:Date = new Date();
-        updatedStart.setDate(values.date.getDate());
-        updatedStart.setMonth(values.date.getMonth());
         updatedStart.setFullYear(values.date.getFullYear());
-        updatedStart.setHours(values.date.getHours());
-        updatedStart.setMinutes(values.date.getMinutes());
+        updatedStart.setMonth(values.date.getMonth());
+        updatedStart.setDate(values.date.getDate());
+        updatedStart.setHours(values.time.getHours());
+        updatedStart.setMinutes(values.time.getMinutes());
         activityLog.start = updatedStart;
 
         this.submitted.emit(activityLog);
