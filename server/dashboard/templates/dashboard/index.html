@@ -157,6 +157,11 @@
                     {{ participant.last_watch_app_data|date }}
                 </td>
                 {% endtimezone %}
+                <td>
+                    {% for text in participant.text_message_history %}
+                        {{ text.created }} " : " {{ text.body }} <br />
+                    {% endfor %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

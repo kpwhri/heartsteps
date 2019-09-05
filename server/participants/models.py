@@ -5,7 +5,6 @@ from datetime import datetime
 from warnings import warn
 
 from django.db import models
-from django.db.models import (Min, Max)
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -107,7 +106,7 @@ class Participant(models.Model):
         if u:
             try:
                 min_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).aggregate(mindt=Min('date'))
+                    wore_fitbit=True).aggregate(mindt=models.Min('date'))
                 if min_dt:
                     return min_dt['mindt']
                 else:
@@ -126,7 +125,7 @@ class Participant(models.Model):
         if u:
             try:
                 max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).aggregate(maxdt=Max('date'))
+                    wore_fitbit=True).aggregate(maxdt=models.Max('date'))
                 if max_dt:
                     return max_dt['maxdt']
                 else:
@@ -290,6 +289,25 @@ class Participant(models.Model):
     @property
     def last_text_sent(self):
         return self._last_text_sent
+
+    def _text_message_history(self):
+        u = self.user
+        if u:
+            print("Got to user")
+            print(u.id)
+            participant_number = Contact.objects.get(user=u.id).number
+            if participant_number:
+                return Message.objects.filter(
+                    recipient__exact=participant_number
+                    ).values('created', 'body').order_by('-created')
+            else:
+                return None
+        else:
+            return None
+
+    @property
+    def text_message_history(self):
+        return self._text_message_history
 
     @property
     def date_enrolled(self):
