@@ -99,11 +99,12 @@ export class SettingsPage {
         })
         .then(() => {
             this.loadingService.dismiss();
+            this.router.navigate(['morning-survey']);
         });
     }
 
     public testMorningMessage() {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.platform.is('cordova')) {
             this.requestMorningMessage();
         } else {
             this.loadMorningMessage();
@@ -129,11 +130,12 @@ export class SettingsPage {
         })
         .then(() => {
             this.loadingService.dismiss();
+            this.router.navigate(['weekly-survey']);
         })
     }
 
     public testWeeklySurveyMessage() {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.platform.is('cordova')) {
             this.requestWeeklySurvey();
         } else {
             this.loadWeeklySurvey();

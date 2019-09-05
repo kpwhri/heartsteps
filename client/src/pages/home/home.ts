@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -12,6 +12,8 @@ class Tab {
     templateUrl: 'home.html'
 })
 export class HomePage implements OnInit, OnDestroy {
+    @ViewChild('#home-container') container: ElementRef;
+
     public pageTitle: string;
     public activeTab: string;
     public backButton: boolean;
@@ -33,7 +35,8 @@ export class HomePage implements OnInit, OnDestroy {
     }];
 
     constructor(
-        private router: Router
+        private router: Router,
+        private element: ElementRef
     ) {}
 
     ngOnInit() {
@@ -52,6 +55,9 @@ export class HomePage implements OnInit, OnDestroy {
     private updateFromUrl(url:string) {
         this.getActiveTab(url)
         .then((activeTab: Tab) => {
+            if(this.activeTab !== activeTab.key) {
+                this.element.nativeElement.querySelector('#home-content').scrollTop = 0;
+            }
             this.pageTitle = activeTab.name;
             this.activeTab = activeTab.key;
         })
