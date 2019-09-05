@@ -85,7 +85,7 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
                     participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
-                'text_message_history': participant.text_message_history
+                'text_message_history': participant.text_message_history,
                 'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
