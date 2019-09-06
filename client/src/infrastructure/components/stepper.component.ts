@@ -1,4 +1,4 @@
-import { Component, Input, ComponentFactoryResolver, ViewChild, ViewContainerRef, EventEmitter, Output, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, ComponentFactoryResolver, ViewChild, ViewContainerRef, EventEmitter, Output, OnInit, OnDestroy, ElementRef } from "@angular/core";
 import { ActivatedRoute, Router, ParamMap } from "@angular/router";
 import { Subscription } from "rxjs";
 
@@ -31,7 +31,8 @@ export class StepperComponent implements OnInit, OnDestroy {
     constructor(
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private componentFactoryResolver: ComponentFactoryResolver
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private element: ElementRef
     ){}
 
     ngOnInit() {
@@ -88,6 +89,8 @@ export class StepperComponent implements OnInit, OnDestroy {
         } else {
             this.title = undefined;
         }
+
+        this.element.nativeElement.scrollTop = 0;
 
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(step.component);
         const componentRef = this.container.createComponent(componentFactory);
