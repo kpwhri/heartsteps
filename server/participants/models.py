@@ -139,8 +139,8 @@ class Participant(models.Model):
         u = self.user
         if u:
             try:
-                max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).aggregate(maxdt=models.Max('date'))
+                max_dt = u.fitbitaccountuser.account.fitbitday_set.aggregate(
+                         maxdt=models.Max('date'))
                 if max_dt:
                     return max_dt['maxdt']
                 else:

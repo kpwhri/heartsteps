@@ -86,21 +86,15 @@ class DashboardParticipantTests(TestCase):
         self.assertEqual(self.participant.fitbit_authorized, 'never')
 
     def test_last_fitbit_sync_has_synched(self):
-        subscription = FitbitSubscription.objects.create(
-            fitbit_account=self.fitbit_account,
-            uuid='test'
-        )
-        FitbitSubscriptionUpdate.objects.create(
-            subscription=subscription,
-            uuid='test',
-            payload="['test':'test']"
-        )
-        FitbitSubscriptionUpdate.objects.filter(uuid='test').update(
-                                 created=pytz.utc.localize(self.basetime))
+        late_date = date(2021, 9, 9)
+        FitbitDay.objects.create(account=self.fitbit_account,
+                                 date=late_date, step_count=10000,
+                                 wore_fitbit=True)
         self.assertEqual(self.participant.fitbit_last_updated,
-                         pytz.utc.localize(self.basetime))
+                         late_date)
 
     def test_last_fitbit_sync_has_not_synched(self):
+        FitbitDay.objects.all().delete()
         self.assertEqual(self.participant.fitbit_last_updated, None)
 
     def make_page_view(self, dtm):
