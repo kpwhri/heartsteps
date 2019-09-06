@@ -160,11 +160,13 @@
                     {{ participant.last_watch_app_data|date }}
                 </td>
                 <td>{{participant.walking_suggestion_service_initialized_date}}</td>
+                {% comment %}
                 <td>
                     {% for text in participant.text_message_history %}
                         {{ text.created }} " : " {{ text.body }} <br />
                     {% endfor %}
                 </td>
+                {% endcomment %}
                 {% endtimezone %}
             </tr>
             {% endfor %}
