@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'privacy_policy',
+    'user_event_logs',
     'contact',
     'corsheaders',
     'service_requests',
