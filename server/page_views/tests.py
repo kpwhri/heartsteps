@@ -11,16 +11,20 @@ from .models import PageView, User
 
 class PageViewViewTests(APITestCase):
 
-    def testPost(self):
-        user = User.objects.create(username="test")
+    def test_accepts_single_page_view(self):
+        user = User.objects.create(username='test')
         self.client.force_authenticate(user=user)
 
-        response = self.client.post(reverse('page-views'),
-            json.dumps([{
+        response = self.client.post(
+            reverse('page-views'),
+            json.dumps({
+                'platform': PageView.WEBSITE,
+                'version': '2.0.1',
+                'build': '12345',
                 'uri': '/some/page',
-                'time': '2019-03-15T14:30:02-08:00'
-            }]),
-            content_type='application/json'
+                'time': '2019-09-07T15:00:00-08:00',
+            }),
+            content_type = 'application/json'
         )
 
         self.assertEqual(response.status_code, 201)
@@ -28,7 +32,7 @@ class PageViewViewTests(APITestCase):
         page_view = PageView.objects.get()
         self.assertEqual(page_view.user.username, "test")
         self.assertEqual(page_view.uri, '/some/page')
-        self.assertEqual(page_view.time, datetime(2019,3,15,22,30,2).astimezone(pytz.UTC))
+        self.assertEqual(page_view.time, datetime(2019,9,7,23,0).astimezone(pytz.UTC))
     
     def testMultipleObjects(self):
         user = User.objects.create(username="test")
