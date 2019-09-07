@@ -1,5 +1,4 @@
 import json
-import logging
 import pytz
 from datetime import datetime
 from warnings import warn
@@ -21,9 +20,6 @@ from sms_messages.models import (Contact, Message)
 from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
