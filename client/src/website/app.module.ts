@@ -6,6 +6,7 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 import { HeartstepsWebsite } from './website.component';
 import { EnrollmentModule } from '@pages/enrollment/enrollment.module';
 import { BrowserModule } from '@angular/platform-browser';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 declare var process: {
     env: {
@@ -20,9 +21,9 @@ const appRoutes:Routes = [{
 }]
 
 const routerOptions: any = {}
-// if (!process.env.PRODUCTION) {
-//     routerOptions.useHash = true;
-// }
+if (!process.env.PRODUCTION) {
+    routerOptions.useHash = true;
+}
 
 @NgModule({
     declarations: [
@@ -40,6 +41,9 @@ const routerOptions: any = {}
     bootstrap: [IonicApp],
     entryComponents: [
         HeartstepsWebsite
+    ],
+    providers: [
+        AnalyticsService
     ]
 })
 export class AppModule {}

@@ -1,9 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 
 @Component({
     templateUrl: './website.component.html'
 })
-export class HeartstepsWebsite {
+export class HeartstepsWebsite implements OnInit {
 
-    constructor() {}
+    constructor(
+        private analyticsService: AnalyticsService
+    ) {}
+
+    public ngOnInit() {
+        this.analyticsService.setup();
+    }
+    
 }
