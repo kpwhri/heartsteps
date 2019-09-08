@@ -188,4 +188,12 @@ export class SettingsPage {
             }
         }]);
     }
+
+    public editNotifications() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'notifications'].join('/')
+            }
+        }])
+    }
 } 

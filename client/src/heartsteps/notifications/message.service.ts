@@ -72,6 +72,22 @@ export class MessageService {
         return Promise.reject('Do not create notification');
     }
 
+    public requestedPermission():Promise<boolean> {
+        return this.pushNotificationService.hasPermission()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+          return this.storage.get('notificationsDisabled')
+        })
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.reject('Permission has not been requested');
+        });
+    }
+
     public isEnabled():Promise<boolean> {
         return this.pushNotificationService.hasPermission()
         .then(() => {
@@ -80,8 +96,12 @@ export class MessageService {
         .catch(() => {
             return this.storage.get('notificationsDisabled');
         })
-        .then(() => {
-            return true;
+        .then((notificationsDisabled) => {
+            if(notificationsDisabled) {
+                return Promise.reject("Notifications disabled");
+            } else {
+                return Promise.resolve(true);
+            }
         })
         .catch(() => {
             return Promise.reject("No permission");
