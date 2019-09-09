@@ -11,5 +11,5 @@ case $i in
     ;;
 esac
 done
-source activate py36
+conda activate py36
 python run.py $USERS
