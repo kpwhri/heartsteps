@@ -16,4 +16,4 @@ conda init bash > /dev/null
 source ~/.bashrc
 conda activate py36
 
-python run.py $USERS
+#python run.py $USERS

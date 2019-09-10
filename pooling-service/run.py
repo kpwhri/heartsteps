@@ -26,7 +26,7 @@ def run_updates(data_path,users):
 if __name__=="__main__":
     user_string = sys.argv[1]
     to_return =  user_string
-    print(user_string)
+    #print(user_string)
     data_path = './data'
     #print(os.listdir('./data'))
     try:
@@ -42,7 +42,7 @@ if __name__=="__main__":
         
     except Exception as e:
         print(e)
-        with open('data/errors.txt','w+') as f:
+        with open('data/errors_pool.txt','w+') as f:
             f.write('{}'.format(e))
             f.write('\n')
         to_return = 'Errors'
