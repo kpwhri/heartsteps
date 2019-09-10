@@ -7,7 +7,30 @@ import os
 
 def get_user_ids():
 
-    return {'test-pedja':1,'test-nickreid':2,'10032':3,'10110':4}
+    return {'10217': 0,
+        '10157': 1,
+            '10307': 2,
+                '10399': 3,
+                    '10118': 4,
+                        '10187': 5,
+                            '10142': 6,
+                                '10110': 7,
+                                    '10261': 8,
+                                        '10008': 9,
+                                            '10006': 10,
+                                                '10055': 11,
+                                                    '10027': 12,
+                                                        '10214': 13,
+                                                            '10101': 14,
+                                                                '10137': 15,
+                                                                    '10199': 16,
+                                                                        '10342': 17,
+                                                                            '10389': 18,
+                                                                                '10327': 19,
+                                                                                    '10178': 20,
+                                                                                        '10388': 21,
+                                                                                            '10296': 22,
+                                                                                                '10032': 23}
 
 def process_data(rdata,baseline_features,user_id):
     
@@ -65,9 +88,10 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
 
 def get_one_user(data_path,user_id):
     result = pyreadr.read_r(data_path)
+   
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
-                         'dosage', 'engagement', 'work.location', 'other.location', 'variation']
-    responsivity_features = ['dosage', 'engagement', 'work.location', 'other.location', 'variation']
+                         'dosage', 'engagement',  'other.location', 'variation']
+    responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
                          #print(result['train'])
     data_dict = process_data(result['train'],baseline_features,user_id)
                          
@@ -91,8 +115,8 @@ def combine_users(data_path,user_list):
     big_prob_list = []
     
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
-                         'dosage', 'engagement', 'work.location', 'other.location', 'variation']
-    responsivity_features = ['dosage', 'engagement', 'work.location', 'other.location', 'variation']
+                         'dosage', 'engagement',  'other.location', 'variation']
+    responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
     
     baseline_indices = [i for i in range(len(baseline_features))]
     responsivity_indices = [i for i in range(len(baseline_features)) if baseline_features[i] in set(responsivity_features)]
@@ -120,6 +144,7 @@ def combine_users(data_path,user_list):
     temp_data = {'avail':big_avail_list,'actions': big_action_list,'prob':big_prob_list,\
 'users':big_user_list,'reward':big_reward_list
 }
+    #if train:
     x,y,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
 
     return  user, x,y

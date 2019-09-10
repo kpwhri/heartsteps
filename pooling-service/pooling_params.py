@@ -46,17 +46,17 @@ class TS_global_params:
         self.sigma_theta =self.get_theta(self.theta_dim)
         self.lr = 0.001
    
-        self.sigma_u =np.array([[0.0710, 0.0189 ],[ 0.0189,    0.0061]])
+        self.sigma_u =np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]])
       
-        self.rho_term =1.6248689729968946
+        self.rho_term = -0.9398
       
-        self.u1 =0.06449696
+        self.u1 =1.5898
         
-        self.u2 =0.00896479
+        self.u2 =0.6828
         
-        self.noise_term =1.3305
+        self.noise_term =5.5440
         
-        self.o_noise_term =1.3305
+        self.o_noise_term =5.5440
   
         self.cov=np.array([1])
         #self.psi = psi.psi()
