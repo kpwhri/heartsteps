@@ -90,7 +90,7 @@ services:
         - "5002:8000"
   pooling-service-gcloud:
     image: heartsteps_pooling-service
-    command: bash -c "gcsfuse --implicit-dirs walking-suggestions-data ./data && python app.py"
+    command: bash -c "mkdir -p ./data && rm -rf ./data/* && gcsfuse --implicit-dirs walking-suggestions-data ./data && python app.py"
     volumes:
       - ./pooling-service:/pooling-service
       - ./credentials:/credentials
