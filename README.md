@@ -4,19 +4,16 @@ This is the HeartSteps application, which is comprised of multiple services:
 * *heartsteps-server* a Django web server
 * *heartsteps-client* an Ionic hybrid mobile applicaiton
 * *heartsteps-fitbit* a fitbit os application for the fitbit versa
-* *activity-suggestion-service* randomizes activity-suggestions
+* *walking-suggestion-service* randomizes walking-suggestions
 * *anti-sedentary-service* responsible for randomizing anti-sedentary intervention
+* *pooling-service* creates pooled randomizations for walking-suggestion-service
 
 To understand the application architecture, please see the [application architecture google doc,](https://docs.google.com/document/d/1UsdR3xgVDtPpmmskc6mGsm7YJNCXJlhmE-qGk96isQw/edit?usp=sharing) which is still a work in progress.
 
 The following outlines how to run the applications for local development, and then deploy the entire application.
 
 ## Development
-
-The entire application stack can be started in development mode by running:
-```
-$ docker-compose up
-```
+Please don't use docker-compose up, multiple services of the same type will be built and created.
 
 This will start all services in development mode, so any file changes will be reloaded and shown. *This is not recommended for working on a single service because:*
 * Many development tasks need more complex commands to update database models
@@ -75,6 +72,28 @@ $ docker-compose build activity-suggestion
 Docker's cached containers sometimes need to be removed, the best way to remove them is:
 ```
 $ docker rm -f $(docker ps -aq)
+```
+
+### Pooling Service
+
+To run the pooling service for development, run:
+
+```
+$ docker-compose run --service-ports pooling-service
+```
+
+This will run the pooling-service at http://localhost:5002
+
+To copy current walking-suggestion-service data into the pooling service for development, run the copy-files command before starting the pooling-service
+```
+$ docker-compose run pooling-service copy-files
+$ docker-compose run --service-ports pooling-service
+```
+
+To run the pooling service with the current data stored in Google Cloud Storage:
+```
+# NOTE: This will delete the current contents of pooling-service/data
+$ docker-compose run --service-ports pooling-service-gcloud
 ```
 
 ## Deployment
