@@ -19,13 +19,15 @@ def update():
                 # out =
     subprocess.Popen(
         "/pooling-service/update.sh --users='%s'" % (','.join(users)),
-        shell=True
+                     shell=True,stdout=subprocess.PIPE,
+                     stderr=subprocess.STDOUT,
+                     universal_newlines=True
     )
 #.communicate()
     #print('This is error output', file=sys.stderr)
 # out =subprocess.Popen.communicate()
 #print(out)
-    return 'Success!'
+    return 'gt'
 #(resp.text, resp.status_code, resp.headers.items())
 
 if __name__ == "__main__":

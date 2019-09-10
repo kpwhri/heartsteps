@@ -92,14 +92,14 @@ def get_one_user(data_path,user_id):
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
                          'dosage', 'engagement',  'other.location', 'variation']
     responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
-                         #print(result['train'])
+    #print(result['train'])
     data_dict = process_data(result['train'],baseline_features,user_id)
                          
                          #standard_x = get_standard_x(data_dict['data'])
     
     #feature_vector =standard_x[~np.isnan(standard_x).any(axis=1)]
     #user_vect
-    
+   
     return data_dict
 
 
@@ -107,6 +107,7 @@ def get_one_user(data_path,user_id):
 def combine_users(data_path,user_list):
     #data_path  = '../../../walking-suggestion-service/data'
     user_files = [directory for directory in os.listdir(data_path) if directory.strip('user') in user_list]
+    #print()
     big_user_list = []
     big_data_list = []
     big_reward_list = []
@@ -117,7 +118,7 @@ def combine_users(data_path,user_list):
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
                          'dosage', 'engagement',  'other.location', 'variation']
     responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
-    
+    #print(responsivity_features)
     baseline_indices = [i for i in range(len(baseline_features))]
     responsivity_indices = [i for i in range(len(baseline_features)) if baseline_features[i] in set(responsivity_features)]
     
