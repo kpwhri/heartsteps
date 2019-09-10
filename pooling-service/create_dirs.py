@@ -8,13 +8,15 @@ if __name__=="__main__":
         users = [f for f in os.listdir('data') if 'user' in f]
         newdir = [f+'_pooled_params' for f in users if '_pooled' not in f]
         to_delete = [f for f in os.listdir('data') if 'pooled_params_pooled_params' in f  ]
-            #for f in to_delete:
-            #os.rmdir('data/{}'.format(f))
+        for f in to_delete:
+            os.rmdir('data/{}'.format(f))
         for f in newdir:
-        
+            #print(os.path.isdir('data/{}'.format(f)))
             if not os.path.isdir('data/{}'.format(f)):
                 os.mkdir('data/{}'.format(f))
-            copyfile('data/{}/policy.Rdata'.format(f[:f.index('pooled')]),'data/{}'.format(f))
+            #print('dn')
+            if 'policy.Rdata' in os.listdir('data/{}'.format(f[:f.index('_pooled')])):
+                    copyfile('data/{}/policy.Rdata'.format(f[:f.index('_pooled')]),'data/{}/policy.Rdata'.format(f))
     except Exception as e:
         print(e)
         with open('data/errors_pool.txt','w+') as f:
