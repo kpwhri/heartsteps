@@ -15,7 +15,8 @@ conda install --name py36  -c conda-forge pandas && \
 	conda install  --name py36 -c conda-forge scikit-learn && \
     conda clean --all
 
-RUN /root/anaconda3/envs/py36/bin/pip install git+https://github.com/cornellius-gp/gpytorch.git
+RUN /root/anaconda3/envs/py36/bin/pip install git+https://github.com/cornellius-gp/gpytorch.git && \
+    /root/anaconda3/envs/py36/bin/pip install pandas
 
 ADD . /pooling-service
 WORKDIR /pooling-service
