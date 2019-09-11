@@ -9,10 +9,11 @@ return_immediately<-function(){
     {
        
        for (id in participants) {
-           tempfile_name = paste("data/user", id, "_pooling_params/temp_policy.Rdata", sep = "")
-           oldfile= paste("data/user", id, "_pooling_params/policy.Rdata", sep = "")
+           tempfile = paste("data/user", id, "_pooled_params/temp_policy.Rdata", sep = "")
+           oldfile= paste("data/user", id, "_pooled_params/policy.Rdata", sep = "")
        
        load(oldfile)
+       print('loaded old')
        load(tempfile)
        data.policy$mu.beta = dataset$mu
        data.policy$sigma.beta = dataset$sigma
@@ -20,10 +21,11 @@ return_immediately<-function(){
        }
        return("")
     },error= function(err){
-        
+        reasons = 'savine'
+        print(err)
         reasons=paste(reasons, err, sep = "")
-        temp = c(as.vector(unlist(input)), reasons)
-        write(x = temp, file = "data/errorfile_merge.txt", ncolumns = length(temp), append = TRUE)
+        temp = c(reasons)
+        write(x = temp, file = "errorfile_pooled.txt", ncolumns = length(temp), append = TRUE)
        
         return("")
         
