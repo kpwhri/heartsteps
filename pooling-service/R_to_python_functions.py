@@ -30,7 +30,7 @@ def get_user_ids():
                                                                                     '10178': 20,
                                                                                         '10388': 21,
                                                                                             '10296': 22,
-                                                                                                '10032': 23}
+                                                                                                '10032': 23,'test-nickreid': 24}
 
 def process_data(rdata,baseline_features,user_id):
     
