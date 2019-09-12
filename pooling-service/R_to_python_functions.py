@@ -30,7 +30,7 @@ def get_user_ids():
                                                                                     '10178': 20,
                                                                                         '10388': 21,
                                                                                             '10296': 22,
-                                                                                                '10032': 23,'test-nickreid': 24}
+                                                                                                '10032': 23,'test-nickreid': 24,'test-pedja': 25}
 
 def process_data(rdata,baseline_features,user_id):
     
@@ -132,14 +132,15 @@ def combine_users(data_path,user_list):
         data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
         #print(data)
         #x,y,user = get_phi(data['data'],data,baseline_indices,responsivity_indices)
-        big_user_list = big_user_list+data['users']
-        big_data_list = big_data_list+data['data']
-        big_avail_list =big_avail_list+data['avail']
-        big_action_list =big_action_list+data['actions']
-        big_prob_list =big_prob_list+data['prob']
+        if user_id in get_user_ids():
+            big_user_list = big_user_list+data['users']
+            big_data_list = big_data_list+data['data']
+            big_avail_list =big_avail_list+data['avail']
+            big_action_list =big_action_list+data['actions']
+            big_prob_list =big_prob_list+data['prob']
         
     
-        big_reward_list = big_reward_list+data['reward']
+            big_reward_list = big_reward_list+data['reward']
     
     temp_X = get_standard_x(big_data_list)
     temp_data = {'avail':big_avail_list,'actions': big_action_list,'prob':big_prob_list,\

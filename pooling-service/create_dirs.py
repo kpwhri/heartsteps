@@ -15,7 +15,7 @@ if __name__=="__main__":
             if not os.path.isdir('data/{}'.format(f)):
                 os.mkdir('data/{}'.format(f))
             #print('dn')
-            if 'policy.Rdata' in os.listdir('data/{}'.format(f[:f.index('_pooled')])):
+            if 'policy.Rdata' in os.listdir('data/{}'.format(f[:f.index('_pooled')])) :
                     copyfile('data/{}/policy.Rdata'.format(f[:f.index('_pooled')]),'data/{}/policy.Rdata'.format(f))
     except Exception as e:
         print(e)

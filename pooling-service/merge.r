@@ -1,7 +1,7 @@
 #! /usr/bin/Rscript
 ## Required packages and source files
 
-participants = c("10110")
+participants = c("test-nickreid","test-pedja")
 
 
 return_immediately<-function(){
