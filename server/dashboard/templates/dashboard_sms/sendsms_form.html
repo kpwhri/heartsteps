@@ -15,7 +15,7 @@
     <div class='modal-body'>
         {% csrf_token %}
         <div class='form-group'>
-            {% for field in form %}
+            {% for field in sms_form %}
                 <div class="fieldWrapper">
                     {{ field.errors }}
                     {{ field.label_tag }} {{ field }}

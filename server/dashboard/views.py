@@ -39,7 +39,8 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
         context['from_number'] = settings.TWILIO_PHONE_NUMBER
-        context['form'] = SendSMSForm
+        context['sms_form'] = SendSMSForm
+        context['test_history_form'] = TestHistoryForm
 
         participants = []
         for participant in Participant.objects.all().prefetch_related(

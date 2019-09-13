@@ -120,7 +120,13 @@
                         {{participant.phone_number }}
                     </a>
                 </td>
-                <td>{{ participant.last_text_sent|date }}</td>
+                <td data-toggle='tooltip' data-placement='right'
+                    title='Full text history'>
+                    <a data-toggle='modal' data-target="#text-history-modal"
+                       class='btn sms-btn'>
+                        {{participant.last_text_sent|date }}
+                    </a>
+                </td>
                 <td>{{ participant.date_joined|date }}</td>
                 <td>{% if participant.fitbit_authorized == 'current' %}
                         <img src="{% static 'admin/img/icon-yes.svg' %}"
@@ -174,6 +180,7 @@
     </table>
 
     {% include 'dashboard_sms/sendsms_form.html' %}
+    {% include 'dashboard_sms/texthistory_form.html' %}
 
     </body>
 
