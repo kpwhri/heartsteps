@@ -41,9 +41,13 @@ class TS_global_params:
         self.theta_dim =1+self.num_baseline_features + 2*(1+self.num_responsivity_features)
         self.baseline_indices =  [i for i in range(self.theta_dim)]
         #print(self.theta_dim)
-        self.mu_theta =np.zeros(self.theta_dim)
-        self.mu_theta[0]=4.6
-        self.sigma_theta =self.get_theta(self.theta_dim)
+        #self.mu_theta =np.zeros(self.theta_dim)
+        #self.mu_theta[0]=4.6
+        
+        self.mu_theta= [ 0.8231421 , 1.9493709 , 3.8116041, -0.1918933,  0.7626614 , 0.0000000, -0.9168122 , 0.0000000,0.4701715, 0.0000000, 0.0000000, 0.0000000, 0.0000000,0.4701715, 0.0000000, 0.0000000, 0.0000000,0.0000000]
+        
+        self.sigma_theta =np.diag([14.2413945, 13.3546165,  3.2355121 , 0.5701742, 18.9986360 , 0.2578251, 16.9993579,  7.3453086,4.9266238, 24.5584807,  4.9509419 , 0.6749049  ,0.8163259,4.9266238, 24.5584807,  4.9509419,  0.6749049 , 0.8163259])
+            #self.get_theta(self.theta_dim)
         self.lr = 0.001
    
         self.sigma_u =np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]])

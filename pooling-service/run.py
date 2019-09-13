@@ -36,12 +36,12 @@ def update_params(users,g,lookup):
   
         #print(data_path)
             if u in lookup and lookup[u] in g:
-                print(u)
+                #print(u)
                 datap = 'data/{}/temp_policy.Rdata'.format('user'+u+'_pooled_params')
                 mu = g[lookup[u]][0]
                 sigma_string = g[lookup[u]][1]
-                with open('data/errors_pool.txt','w+') as f:
-                    f.write('{}'.format(sigma_string))
+                    #with open('data/errors_pool.txt','w+') as f:
+                    #f.write('{}'.format(sigma_string))
                     
                 to_save = {'mu':mu}
                 for i in range(len(sigma_string)):
@@ -53,6 +53,11 @@ def update_params(users,g,lookup):
 
     except Exception as e:
         print(e)
+        with open('runerrors_pool.txt','w+') as f:
+            f.write('{}'.format(e))
+            f.write('\n')
+            to_return = 'Errors'
+            print( to_return)
         with open('data/errors_pool.txt','w+') as f:
             f.write('{}'.format(e))
             f.write('\n')

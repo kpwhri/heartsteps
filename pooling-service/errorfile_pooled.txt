@@ -1,166 +1,18 @@
-savineError in load(tempfile): bad 'file' argument
-
-savineError in load(tempfile): bad 'file' argument
-
-savineError in load(tempfile): bad 'file' argument
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-
-savineError: error reading from connection
-
-savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+savineError in load(oldfile): empty (zero-byte) input file
 
 savineError in gzfile(file, "wb"): cannot open the connection
 
-savineError: error reading from connection
+savineError in gzfile(file, "wb"): cannot open the connection
 
 savineError in load(oldfile): empty (zero-byte) input file
 
-savineError: the input does not start with a magic number compatible with loading from a connection
+savineError in load(oldfile): empty (zero-byte) input file
 
-savineError: no input is available
+savineError in gzfile(file, "wb"): cannot open the connection
 
-savineError: the input does not start with a magic number compatible with loading from a connection
+savineError in gzfile(file, "wb"): cannot open the connection
 
 savineError in load(oldfile): empty (zero-byte) input file
 
-savineError in A[i, ] <- temp[i, ]: incorrect number of subscripts on matrix
-
-savineError: the input does not start with a magic number compatible with loading from a connection
-
-savineError: no input is available
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
 savineError: error reading from connection
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
-
-savineError in A[1, ] = dataset$sigma0: number of items to replace is not a multiple of replacement length
 

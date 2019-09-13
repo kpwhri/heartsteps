@@ -13,7 +13,7 @@ return_immediately<-function(){
            oldfile= paste("data/user", id, "_pooled_params/policy.Rdata", sep = "")
        
        load(oldfile)
-       print('loaded old')
+       #print('loaded old')
        load(tempfile)
        data.policy$mu.beta = dataset$mu
        
@@ -26,7 +26,7 @@ return_immediately<-function(){
        #colnames(temp) <- NULL
        data.policy$Sigma.beta = A
        save(data.policy, file = oldfile)
-       print('set new')
+       #print('set new')
        }
        return("")
     },error= function(err){
