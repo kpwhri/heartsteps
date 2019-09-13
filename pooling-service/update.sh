@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sleep 2
-python create_dirs.py
+#python create_dirs.py
 Rscript merge.r
 for i in "$@"
 do

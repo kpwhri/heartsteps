@@ -39,9 +39,18 @@ def update_params(users,g,lookup):
                 print(u)
                 datap = 'data/{}/temp_policy.Rdata'.format('user'+u+'_pooled_params')
                 mu = g[lookup[u]][0]
-                sigma = g[lookup[u]][1]
-        
-                pyreadr.write_rdata(datap, pd.DataFrame({'mu':mu,'sigma':sigma}))
+                sigma_string = g[lookup[u]][1]
+                with open('data/errors_pool.txt','w+') as f:
+                    f.write('{}'.format(sigma_string))
+                    
+                to_save = {'mu':mu}
+                for i in range(len(sigma_string)):
+                    to_save['sigma{}'.format(i)]=sigma_string[i]
+                pyreadr.write_rdata(datap, pd.DataFrame(to_save))
+                #print(sigma_string)
+                #z = np.array([float(i) for i in j.split(' ') for j in sigma_string])
+             
+
     except Exception as e:
         print(e)
         with open('data/errors_pool.txt','w+') as f:
