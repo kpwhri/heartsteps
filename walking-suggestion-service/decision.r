@@ -39,7 +39,7 @@ if(server){
     
     # input <- fromJSON(file = "./test/call_1_5.json")
     input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/test/call_9_1.json")
-    
+    # input <- fromJSON(file = "/Users/Peng/Dropbox/GitHubRepo/heartsteps/walking-suggestion-service/data/usertest-nickreid/request_history/decision_108_4.json")
   }
   
 }
@@ -58,7 +58,29 @@ tryCatch(
   load(paste(paths, "/daily.Rdata", sep="")) 
 
   # policy related
-  load(paste(paths, "/policy.Rdata", sep="")) 
+  if(input$pooling){
+    
+    load(paste(paths, "_pooled_params/policy.Rdata", sep="")) 
+    
+  }else{
+    
+    load(paste(paths, "/policy.Rdata", sep="")) 
+    
+  }
+  
+  # save the policy
+  if(dir.exists(paste0(paths, "/policy_history")) == FALSE){
+    
+    dir.create(paste0(paths, "/policy_history"), showWarnings = FALSE)
+    
+  }
+  save(data.policy, file = paste(paths, "/policy_history/", "policy_", input$studyDay, "_", input$decisionTime, ".Rdata",sep="")) # save the policy
+
+  
+  
+  
+
+  
   
   # dosage 
   load(paste(paths, "/dosage.Rdata", sep=""))
@@ -295,7 +317,7 @@ if(is.null(output)){
       save(data.decision, file = paste(paths, "/decision.Rdata", sep=""))
       
       
-      cat(paste("\nDecision:", "Day =", input$studyDay, "Slot =", input$decisionTime, "Success"), file =  paste(paths, "/log", sep=""), append = TRUE) 
+      cat(paste("\nDecision:", "Day =", input$studyDay, "Slot =", input$decisionTime, "Success", "Pool=", input$pooling), file =  paste(paths, "/log", sep=""), append = TRUE) 
       list(send = action, probability = prob, type = type);
       
   
