@@ -8,27 +8,42 @@ from django.contrib.auth.models import User
 from .models import Participant
 from .services import ParticipantService
 
+class LogoutView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            service = ParticipantService(user = request.user)
+        except ParticipantService.NoParticipant:
+            return Response({}, status.HTTP_400_BAD_REQUEST)
+        service.destroy_authorization_token()
+        service.disable()
+        return Response({}, status.HTTP_200_OK)
+
 class LoginView(APIView):
 
     def post(self, request):
         enrollment_token = request.data.get('enrollmentToken')
         birth_year = request.data.get('birthYear', None)
-        if enrollment_token:
-            try:
-                service = ParticipantService.get_participant(
-                    token = enrollment_token,
-                    birth_year = birth_year
-                )
-                self.service = service
-                self.participant = service.participant
-            except ParticipantService.NoParticipant:
-                return Response({}, status.HTTP_401_UNAUTHORIZED)
-            self.authentication_successful()
-            return Response(
-                self.get_response(),
-                headers=self.get_headers()
+        if not enrollment_token:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            service = ParticipantService.get_participant(
+                token = enrollment_token,
+                birth_year = birth_year
             )
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        except ParticipantService.NoParticipant:
+            return Response({}, status.HTTP_401_UNAUTHORIZED)
+        
+        self.service = service
+        self.participant = service.participant
+        self.authentication_successful()
+
+        return Response(
+            self.get_response(),
+            headers=self.get_headers()
+        )
 
     def get_response(self):
         return {
