@@ -115,7 +115,7 @@ export class DailySummaryService {
         
         this.get(date)
         .then((summary) => {
-          dailySummarySubject.get(summay);
+          dailySummarySubject.next(summary);
         });
 
         this.updated.subscribe((summary) => {
