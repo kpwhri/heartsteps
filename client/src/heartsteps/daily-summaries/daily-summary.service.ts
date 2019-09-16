@@ -112,13 +112,10 @@ export class DailySummaryService {
 
     public watch(date: Date): Subscribable<DailySummary> {
         const dailySummarySubject: BehaviorSubject<DailySummary> = new BehaviorSubject(undefined);
-
-        this.retrieve(date)
-        .catch(() => {
-            return this.get(date);
-        })
+        
+        this.get(date)
         .then((summary) => {
-            dailySummarySubject.next(summary);
+          dailySummarySubject.get(summay);
         });
 
         this.updated.subscribe((summary) => {
