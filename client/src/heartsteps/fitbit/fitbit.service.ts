@@ -9,6 +9,8 @@ const storageKey: string = 'fitbit-account'
 @Injectable()
 export class FitbitService {
 
+    private redirectURL: string = '/';
+
     constructor(
         private heartstepsServer: HeartstepsServer,
         private browser: BrowserService,
@@ -16,23 +18,42 @@ export class FitbitService {
         private platform: Platform
     ) {}
 
-    authorize():Promise<boolean> {
+    public setRedirectURL(url: string) {
+        this.redirectURL = url;
+    }
+
+    public authorize():Promise<boolean> {
+        if (this.platform.is('cordova')) {
+            return this.openBrowser();
+        } else {
+            return this.redirectBrowser();
+        }
+    }
+
+    private getURL(): Promise<string> {
         return this.getAuthorizationToken()
-        .then((token: string)=> {
-            let url = this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
-            if (!this.platform.is('cordova')) {
-                return this.setIsAuthorizing()
-                .then(() => {
-                    this.browser.open(url + '?redirect=/setup/fitbitAuthorization');
-                    return Promise.resolve(true);
-                })
-            } else {
-                this.browser.open(url);
-                return this.waitForAuthorization();
-            }
+        .then((token) => {
+            return this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
         })
-        .catch(() => {
-            return Promise.reject("Fitbit authorization failed");
+    }
+
+    private openBrowser(): Promise<boolean> {
+        return this.getURL()
+        .then((url) => {
+            this.browser.open(url);
+            return this.waitForAuthorization();    
+        });
+    }
+
+    private redirectBrowser(): Promise<boolean> {
+        return this.getURL()
+        .then((url) => {
+            this.browser.open(url + '?redirect=' + this.redirectURL);
+            return new Promise<boolean>((resolve) => {
+                setTimeout(() => {
+                    resolve(true);
+                }, 2000);
+            });  
         });
     }
 
@@ -54,7 +75,7 @@ export class FitbitService {
         });
     }
 
-    private setIsAuthorizing(): Promise<boolean> {
+    public setIsAuthorizing(): Promise<boolean> {
         return this.storage.set('fitbit-is-authorizing', true)
         .then(() => {
             return Promise.resolve(true);

@@ -10,10 +10,13 @@ import { ParticipantModule } from "@heartsteps/participants/participant.module";
 import { CurrentWeekModule } from "@heartsteps/current-week/current-week.module";
 import { SetupPage } from "./setup.page";
 import { CompletePage } from "./complete.page";
+import { EnrollmentGaurd } from "./enrollment.gaurd";
+import { InfrastructureModule } from "@infrastructure/infrastructure.module";
 
 const enrollmentRoutes: Routes = [{
     path: 'complete',
-    component: CompletePage
+    component: CompletePage,
+    canActivate: [EnrollmentGaurd]
 }, {
     path: 'welcome',
     component: WelcomePageComponent
@@ -25,7 +28,8 @@ const enrollmentRoutes: Routes = [{
     component: EnrollmentPage
 }, {
     path: 'setup/:page',
-    component: SetupPage
+    component: SetupPage,
+    canActivate: [EnrollmentGaurd]
 }, {
     path: 'setup',
     pathMatch: 'full',
@@ -50,7 +54,11 @@ const enrollmentRoutes: Routes = [{
         ParticipantModule,
         CurrentWeekModule,
         ReactiveFormsModule,
+        InfrastructureModule,
         RouterModule.forChild(enrollmentRoutes)
+    ],
+    providers: [
+        EnrollmentGaurd
     ]
 })
 export class EnrollmentModule {}
