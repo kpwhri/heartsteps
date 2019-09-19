@@ -64,6 +64,7 @@ class DecisionResource(resources.ModelResource):
     unavailable_no_step_count_data = Field()
     unavailable_not_sedentary = Field()
     unavailable_notification_recently_sent = Field()
+    unavailable_recently_active = Field()
     unavailable_unreachable = Field()
     unavailable_disabled = Field()
     unavailable_service_error = Field()

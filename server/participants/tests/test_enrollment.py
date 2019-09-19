@@ -1,12 +1,35 @@
 from unittest.mock import patch
 
 from django.urls import reverse
-from django.contrib.auth.models import User
-
 from rest_framework.test import APITestCase
 from rest_framework.test import force_authenticate
 
 from participants.models import Participant
+from participants.models import User
+from participants.services import ParticipantService
+
+class LogoutViewTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username = 'test'
+        )
+        self.participant = Participant.objects.create(
+            heartsteps_id = 'test',
+            enrollment_token = 'test-test',
+            user = self.user
+        )
+        self.participant_service = ParticipantService(participant = self.participant)
+
+    def test_logout(self):
+        self.participant_service.get_authorization_token()
+        self.client.force_authenticate(self.user)
+
+        response = self.client.post(reverse('participants-logout'), {})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.participant_service.has_authorization_token())
+
 
 class EnrollViewTests(APITestCase):
 

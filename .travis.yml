@@ -24,30 +24,4 @@ script:
 - docker-compose run client npm run build:app --prod
 
 after_success:
-# authenticate with gcloud and set up kubernetes
-- gcloud auth activate-service-account --key-file=credentials/gce.json
-- gcloud auth configure-docker -q
-- gcloud config set project ${GAE_PROJECT_ID}
-- gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
-# move app files into server
-- gsutil -m rsync -dr client/www gs://heartsteps-assets/app
-# generate website and upload
-- docker-compose run client npm run build:website
-- gsutil -m rsync -dr client/www gs://heartsteps-assets/website
-# collect static files for server
-- docker-compose run server python manage.py collectstatic
-- gsutil -m rsync -dr server/static gs://heartsteps-assets/static
-# upload images
-- docker tag heartsteps_nginx gcr.io/heartsteps-kpwhri/heartsteps-nginx
-- docker push gcr.io/heartsteps-kpwhri/heartsteps-nginx
-- docker tag heartsteps_server gcr.io/heartsteps-kpwhri/heartsteps-server
-- docker push gcr.io/heartsteps-kpwhri/heartsteps-server
-- docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walking-suggestion-service
-- docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
-- docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
-- docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
-# update kubernetes images...
-- sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
-- kubectl apply -f deployment.yaml
-# Migrate database
-- docker-compose run server-gcloud python manage.py migrate
+- ./deploy.sh

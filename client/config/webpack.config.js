@@ -25,7 +25,9 @@ var envs = new webpack.EnvironmentPlugin({
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',
+    BUILD_PLATFORM: 'website',
     BUILD_VERSION: '2.0.0',
+    BUILD_NUMBER: '12345',
     BUILD_DATE: '2019-04-22'
 });
 

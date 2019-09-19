@@ -10,11 +10,11 @@ heartsteps-stepper {
 
     > header {
         border-width: 0px;
-        padding-top: 1em;
+        padding-top: 2em;
     }
 
     > header > .back {
-        top: 1em;
+        top: 2.25em;
     }
 
     .pagination-bullets {
@@ -27,12 +27,14 @@ heartsteps-stepper {
             height: 1em;
             width: 1em;
             border-radius: 50%;
-            background-color: $color-gray-light;
+            background-color: transparent;
+            border: $text-color 1px solid;
             overflow: hidden;
             text-indent: -3000em;
         }
         & > .active {
             background-color: $color-primary;
+            border-color: $color-primary;
         }
     }
 }

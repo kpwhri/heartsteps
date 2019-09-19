@@ -2,6 +2,7 @@
     <nav>
         <ul>
             <li><button (click)="editContactInformation()">Contact information</button></li>
+            <li><button (click)="editNotifications()">Notifications</button></li>
             <li><button (click)="editPlaces()">Places</button></li>
             <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
             <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
@@ -23,5 +24,5 @@
 <article>
     <h3>Logout</h3>
     <p>This will remove all data from your phone, and stop all push notifications.</p>
-    <button class="danger" (click)="unenroll()">Logout</button>
+    <button class="danger" (click)="logout()">Logout</button>
 </article>

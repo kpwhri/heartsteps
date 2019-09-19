@@ -31,8 +31,10 @@ page-home {
             display: block;
             position: relative;
             width: 70px;
-            padding: $space-size/2 0px;
-            padding-top: 50px;
+            padding: 0px;
+            padding-top: 45px;
+            padding-bottom: 5px;
+            margin: 0px;
             text-align: center;
             font-size: 12px;
             text-decoration: none;
@@ -46,7 +48,7 @@ page-home {
             background-color: $color-gray-dark;
             display: block;
             position: absolute;
-            top: $space-size/2;
+            top: 5px;
             left: 50%;
             transform: translate(-50%, 0%);
             height: 35px;

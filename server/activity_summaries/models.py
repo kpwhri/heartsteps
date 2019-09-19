@@ -12,7 +12,11 @@ User = get_user_model()
 
 class Day(models.Model):
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        related_name='+',
+        on_delete=models.CASCADE    
+    )
     date = models.DateField()
     steps = models.PositiveIntegerField(default=0)
     miles = models.FloatField(default=0)

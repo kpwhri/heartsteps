@@ -32,6 +32,7 @@ class ParticipantService:
             pass
         if not participant:
             raise ParticipantService.NoParticipant()
+        
         self.participant = participant
         self.user = participant.user
 
@@ -49,10 +50,22 @@ class ParticipantService:
                 new_token = token[:4] + "-" + token[4:]
                 return ParticipantService.get_participant(new_token, birth_year)
             raise ParticipantService.NoParticipant('No participant for token')
+
+    def has_authorization_token(self):
+        if not self.user:
+            False
+        try:
+            Token.objects.get(user=self.participant.user)
+            return True
+        except Token.DoesNotExist:
+            return False
     
     def get_authorization_token(self):
         token, _ = Token.objects.get_or_create(user=self.participant.user)
         return token
+
+    def destroy_authorization_token(self):
+        Token.objects.filter(user = self.participant.user).delete()
     
     def get_heartsteps_id(self):
         return self.participant.heartsteps_id
@@ -60,6 +73,12 @@ class ParticipantService:
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
+        self.enable()
+
+    def is_enabled(self):
+        pass
+
+    def enable(self):
         AntiSedentaryConfiguration.objects.update_or_create(
             user = self.participant.user
         )
@@ -82,8 +101,11 @@ class ParticipantService:
         except SMSContact.DoesNotExist:
             pass
     
-    def deactivate(self):
-        pass
+    def disable(self):
+        AntiSedentaryConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
+        MorningMessagesConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
+        WalkingSuggestionConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
+        AdherenceMessageConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
     
     def update(self, date):        
         self.update_fitbit(date)

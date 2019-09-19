@@ -13,6 +13,8 @@ import { GoalPage } from './goal.page';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
 import { BrowserModule } from '@angular/platform-browser';
+import { NotificationsPage } from './notifications.page';
+import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 
 const settingsRoutes: Routes = [
     {
@@ -35,6 +37,10 @@ const settingsRoutes: Routes = [
         path: 'settings/weekly-goal',
         component: GoalPage,
         outlet: 'modal'
+    }, {
+        path: 'settings/notifications',
+        component: NotificationsPage,
+        outlet: 'modal'
     }
 ]
 
@@ -45,6 +51,7 @@ const settingsRoutes: Routes = [
         ContactPage,
         PlacesPage,
         ReflectionTimePage,
+        NotificationsPage,
         GoalPage
     ],
     entryComponents: [
@@ -61,6 +68,7 @@ const settingsRoutes: Routes = [
         PlacesModule,
         WeeklySurveyModule,
         WalkingSuggestionsModule,
+        NotificationsModule,
         RouterModule.forChild(settingsRoutes)
     ],
 })

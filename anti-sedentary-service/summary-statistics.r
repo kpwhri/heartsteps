@@ -33,9 +33,10 @@ state_results = aggregate(online_state~day(time) + month(time) + userid, data = 
 ## Number of times of individual is AVAILABLE (availability = 1) given by Nick's service, aggregated by user-day
 availability_results = aggregate(available~day(time) + month(time) + userid, data = subset(complete_data, online_state != -1), FUN = sum)
 
-current_block_start = 19
-current_block_end = 29
-current_month = 8 
+current_block_start = 1
+current_block_end = 4
+current_month = 9
+
 
 last_block_start = 24
 last_block_end = 23

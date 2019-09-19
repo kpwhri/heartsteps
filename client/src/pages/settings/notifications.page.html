@@ -1,0 +1,22 @@
+<app-modal
+    title="Notifications"
+    (onDismiss)="goBack()"
+    >
+    <div *ngIf="notificationsEnabled">
+        <p>Notifications are enabled.</p>
+        <button
+            (click)="disableNotifications()"
+            class="heartsteps-danger-button"
+            >
+            Disable notifications
+        </button>
+    </div>
+    <div *ngIf="!notificationsEnabled">
+        <p>Notifications are disabled.</p>
+        <button
+            (click)="enableNotifications()"
+            >
+            Enable notifications
+        </button>
+    </div>
+</app-modal>

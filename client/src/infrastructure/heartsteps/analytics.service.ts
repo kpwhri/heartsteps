@@ -3,14 +3,30 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { AuthorizationService } from "@infrastructure/authorization.service";
 import { Router, NavigationEnd } from "@angular/router";
 
+declare var process: {
+    env: {
+        BUILD_PLATFORM: string,
+        BUILD_VERSION: string,
+        BUILD_NUMBER: string
+    }
+}
+
 @Injectable()
 export class AnalyticsService {
+
+    private platform: string;
+    private version: string; 
+    private build: string;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
         private authorizationService: AuthorizationService,
         private router: Router
-    ) {}
+    ) {
+        this.build = process.env.BUILD_NUMBER;
+        this.platform = process.env.BUILD_PLATFORM;
+        this.version = process.env.BUILD_VERSION;
+    }
 
     public setup() {
         this.setupRouter();
@@ -35,10 +51,13 @@ export class AnalyticsService {
     public trackPageView(uri:string):Promise<boolean> {
         return this.authorizationService.isAuthorized()
         .then(() => {
-            return this.heartstepsServer.post('/page-views', [{
+            return this.heartstepsServer.post('/page-views', {
                 uri: uri,
-                time: new Date().toISOString()
-            }]);
+                time: new Date().toISOString(),
+                platform: this.platform,
+                version: this.version,
+                build: this.build
+            });
         })
         .then(() => {
             return true;

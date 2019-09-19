@@ -100,28 +100,33 @@ export class PushNotificationService {
     }
 
     public hasPermission(): Promise<boolean> {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        return this.isPhone()
+        .then(() => {
             return this.hasProvidedPrivacyConsent()
-            .then(() => {
-                return this.hasDevicePermission();
-            });
-        } else {
-            return Promise.reject('Not a phone');
-        }
+        })
+        .then(() => {
+            return this.hasDevicePermission();
+        });
     }
 
     public getPermission(): Promise<boolean> {
-        console.log('PushNotificaionService: get permission')
-        if(this.platform.is('ios') || this.platform.is('android')) {
-            console.log('PushNotificationService: Provide consent and prompt for user response')
+        console.log('PushNotificationService: Get permission');
+        return this.isPhone()
+        .then(() => {
             window.plugins.OneSignal.provideUserConsent(true);
             if(this.platform.is('ios')) {
                 return this.getPermissionIOS();
             } else {
                 return Promise.resolve(true);
             }
+        });
+    }
+
+    private isPhone(): Promise<void> {
+        if(this.platform.is('cordova') || this.platform.is('cordova')) {
+            return Promise.resolve(undefined);
         } else {
-            return Promise.resolve(true);
+            return Promise.reject('Not a phone');
         }
     }
 

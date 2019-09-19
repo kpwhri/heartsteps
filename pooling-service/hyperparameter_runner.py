@@ -19,7 +19,7 @@ def initialize_policy_params_TS(standardize=False,baseline_features=None,psi_fea
                                 responsivity_keys=None):
     #,'location_1','location_2','location_3'
     #'continuous_temp',
-    global_p =gtp.TS_global_params(21,baseline_features=baseline_features,psi_features=psi_features, responsivity_keys= responsivity_keys)
+    global_p =gtp.TS_global_params(18,baseline_features=baseline_features,psi_features=psi_features, responsivity_keys= responsivity_keys)
     #personal_p = pp.TS_personal_params()
     #global_p =gtp.TS_global_params(10,context_dimension)
     
@@ -27,20 +27,20 @@ def initialize_policy_params_TS(standardize=False,baseline_features=None,psi_fea
     
     #global_p.mu_dimension = 64
     
-    global_p.kdim =24
+    global_p.kdim =18
     #194
     global_p.baseline_indices = [i for i in range(3+ len(baseline_features)+2*len(responsivity_keys))]
     #[i for i in range(192)]
     #[0,1,2,3,4,5,6]
-    global_p.psi_indices = [0] + [1+baseline_features.index(j) for j in psi_features] \
-    + [len(baseline_features)+1] + [(2+len(baseline_features))+baseline_features.index(j) for j in psi_features]
+    #print(global_p.baseline_indices )
+    global_p.psi_indices = [0,1+len(baseline_features)]
     #[0,64]
     global_p.user_id_index =0
     
     global_p.psi_features =psi_features
     #[0,64]
     
-    #print(global_p.psi_indices )
+  
     
     #global_p.update_period = update_period
     
@@ -108,6 +108,7 @@ class MyKernel(Kernel):
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
+        #print(self.psi_indices)
         
         
         self.init_u1 = gparams.sigma_u[0][0]
@@ -260,8 +261,8 @@ class GPRegressionModel(gpytorch.models.ExactGP):
 
 def real_run(X,users,y):
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
-                         'dosage', 'engagement', 'work.location', 'other.location', 'variation']
-    responsivity_features = ['dosage', 'engagement', 'work.location', 'other.location', 'variation']
+                         'dosage', 'engagement',  'other.location', 'variation']
+    responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
 
     global_params = initialize_policy_params_TS(standardize=False,baseline_features=[i for i in range(len(baseline_features))],psi_features=[],responsivity_keys=[i for i in range(3,len(baseline_features))])
 

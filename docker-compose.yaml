@@ -88,7 +88,15 @@ services:
       ports:
         - "8888:8893"
         - "5002:8000"
-      privileged: true
+  pooling-service-gcloud:
+    image: heartsteps_pooling-service
+    command: bash -c "mkdir -p ./data && rm -rf ./data/* && gcsfuse --implicit-dirs walking-suggestions-data ./data && python app.py"
+    volumes:
+      - ./pooling-service:/pooling-service
+      - ./credentials:/credentials
+    ports:
+      - "5002:8000"
+    privileged: true
   rabbitmq:
     image: rabbitmq:3.7
   service-template:

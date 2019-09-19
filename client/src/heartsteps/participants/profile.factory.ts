@@ -172,7 +172,7 @@ export class ProfileService {
     }
 
     private checkNotificationsEnabled():Promise<boolean> {
-        return this.messageService.isEnabled()
+        return this.messageService.requestedPermission()
         .then(() => {
             return true
         })

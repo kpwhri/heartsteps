@@ -1,0 +1,18 @@
+savineError in load(oldfile): empty (zero-byte) input file
+
+savineError in gzfile(file, "wb"): cannot open the connection
+
+savineError in gzfile(file, "wb"): cannot open the connection
+
+savineError in load(oldfile): empty (zero-byte) input file
+
+savineError in load(oldfile): empty (zero-byte) input file
+
+savineError in gzfile(file, "wb"): cannot open the connection
+
+savineError in gzfile(file, "wb"): cannot open the connection
+
+savineError in load(oldfile): empty (zero-byte) input file
+
+savineError: error reading from connection
+

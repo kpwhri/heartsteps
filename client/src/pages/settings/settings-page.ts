@@ -142,10 +142,17 @@ export class SettingsPage {
         }
     }
 
-    public unenroll() {
+    public logout() {
+        this.loadingService.show('Logging out');
         this.enrollmentService.unenroll()
         .then(() => {
             this.router.navigate(['welcome']);
+        })
+        .catch((error) => {
+            console.error('Settings page, logout:', error);
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
@@ -187,5 +194,13 @@ export class SettingsPage {
                 modal: ['settings','suggestion-times'].join('/')
             }
         }]);
+    }
+
+    public editNotifications() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'notifications'].join('/')
+            }
+        }])
     }
 } 
