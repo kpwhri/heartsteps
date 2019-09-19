@@ -139,7 +139,8 @@ class Participant(models.Model):
         u = self.user
         if u:
             try:
-                max_dt = u.fitbitaccountuser.account.fitbitday_set.aggregate(
+                max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).aggregate(
                          maxdt=models.Max('date'))
                 if max_dt:
                     return max_dt['maxdt']
@@ -308,8 +309,6 @@ class Participant(models.Model):
     def _text_message_history(self):
         u = self.user
         if u:
-            print("Got to user")
-            print(u.id)
             participant_number = Contact.objects.get(user=u.id).number
             if participant_number:
                 return Message.objects.filter(
