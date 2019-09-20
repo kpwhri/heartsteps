@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Participant
+from sms_messages.models import Message
 
 
 class SendSMSForm(forms.Form):
@@ -10,10 +10,7 @@ class SendSMSForm(forms.Form):
 
 
 class TextHistoryForm(forms.ModelForm):
-
     class Meta:
-        model = Participant
-        fields = ['text_message_history']
-
-    to_number = forms.CharField(max_length=13)
-    body = forms.CharField()
+        model = Message
+        fields = ['body', ]
+        readonly_fields = ['created', ]

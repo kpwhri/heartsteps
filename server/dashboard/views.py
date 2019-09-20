@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.http import HttpResponseRedirect
+from django.http import (HttpResponseRedirect, JsonResponse)
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -16,9 +16,22 @@ from participants.models import Participant
 from sms_messages.services import SMSService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
-from .forms import SendSMSForm
+from .forms import (SendSMSForm, TextHistoryForm)
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
+
+
+def get_text_history(request):
+    heartsteps_id = request.GET.get('heartsteps_id', None)
+    participants = Participant.objects.filter(
+        heartsteps_id__exact=heartsteps_id)
+
+    data = []
+    for participant in participants:
+        data.append(participant.text_message_history).__dict__
+    print(data)
+
+    return JsonResponse(data)
 
 
 class DashboardListView(UserPassesTestMixin, TemplateView):
@@ -40,7 +53,6 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
         context = super(DashboardListView, self).get_context_data(**kwargs)
         context['from_number'] = settings.TWILIO_PHONE_NUMBER
         context['sms_form'] = SendSMSForm
-        context['test_history_form'] = TestHistoryForm
 
         participants = []
         for participant in Participant.objects.all().prefetch_related(
@@ -86,7 +98,6 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
                     participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
-                'text_message_history': participant.text_message_history,
                 'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
@@ -102,3 +113,6 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
             service.send(body)
 
         return HttpResponseRedirect(reverse('dashboard-index'))
+
+    def text_message_history(self, request, *args, **kwargs):
+        ...

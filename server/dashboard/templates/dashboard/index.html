@@ -20,6 +20,25 @@
                     to_number_field.val(this_to_number);
                 });
             });
+            // Copy text history details to modal form
+            $(function () {
+                $('.texthx-btn').on('click', function () {
+                    console.log( $(this).val() );
+                    let heartsteps_id = $(this).data('text');
+                    let body_field = $('#text-history');
+                    $.ajax({
+                        url: 'dashboard/text_history',
+                        data: {
+                            'heartsteps_id': heartsteps_id
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            alert("something");
+                            body_field.val(data);
+                        }
+                    });
+                });
+            });
             // Show study ID details in modal pane
             $(function () {
                 $('.study-btn').on('click', function () {
@@ -123,7 +142,7 @@
                 <td data-toggle='tooltip' data-placement='right'
                     title='Full text history'>
                     <a data-toggle='modal' data-target="#text-history-modal"
-                       class='btn sms-btn'>
+                       class='btn texthx-btn' data-text='{{participant.heartsteps_id}}'>
                         {{participant.last_text_sent|date }}
                     </a>
                 </td>
@@ -166,13 +185,7 @@
                     {{ participant.last_watch_app_data|date }}
                 </td>
                 <td>{{participant.walking_suggestion_service_initialized_date}}</td>
-                {% comment %}
-                <td>
-                    {% for text in participant.text_message_history %}
-                        {{ text.created }} " : " {{ text.body }} <br />
-                    {% endfor %}
-                </td>
-                {% endcomment %}
+
                 {% endtimezone %}
             </tr>
             {% endfor %}

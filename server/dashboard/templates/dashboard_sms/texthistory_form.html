@@ -13,6 +13,8 @@
     </div>
 
     <div class='modal-body'>
+        <textarea id='text-history'></textarea>
+        {% comment %}
         {% csrf_token %}
         <div class='form-group'>
             {% for field in test_history_form %}
@@ -23,6 +25,7 @@
             {% endfor %}
         </div>
     </div>
+    {% endcomment %}
 </form>
 
         </div>
