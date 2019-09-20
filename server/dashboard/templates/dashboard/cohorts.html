@@ -1,0 +1,11 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<ul>
+{% for cohort in cohorts %}
+    <li>
+        <a href="{% url 'dashboard-cohort-participants' cohort.id %}">{{cohort.name}}</a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}
