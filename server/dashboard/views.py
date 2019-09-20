@@ -50,19 +50,6 @@ class CohortListView(UserPassesTestMixin, TemplateView):
             })
         return context
 
-def get_text_history(request):
-    heartsteps_id = request.GET.get('heartsteps_id', None)
-    participants = Participant.objects.filter(
-        heartsteps_id__exact=heartsteps_id)
-
-    data = []
-    for participant in participants:
-        data.append(participant.text_message_history).__dict__
-    print(data)
-
-    return JsonResponse(data)
-
-
 class DashboardListView(CohortListView):
 
     template_name = 'dashboard/index.html'
