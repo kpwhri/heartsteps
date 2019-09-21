@@ -1,0 +1,16 @@
+{% extends 'dashboard/participants.html'%}
+
+{% block content %}
+<p>Create a new participant</p>
+<form action="" method="POST" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+    </div>
+    {% endfor %}
+    <input type="submit" value="Create" />
+</form>
+{% endblock %}

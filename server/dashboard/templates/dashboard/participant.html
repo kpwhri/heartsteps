@@ -1,0 +1,20 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link active">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}" class="nav-link">Edit participant</a>
+{% endblock %}
+
+{% block content %}
+<dl>
+    <dt>HeartSteps ID</dt>
+    <dd>{{participant.heartsteps_id}}</dd>
+    <dt>Enrollment token</dt>
+    <dd>{{participant.enrollment_token}}</dd>
+    <dt>Birth year</dt>
+    <dd>{{participant.birth_year}}</dd>
+</dl>
+{% endblock %}

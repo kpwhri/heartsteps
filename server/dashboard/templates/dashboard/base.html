@@ -1,14 +1,22 @@
+{% load static %}
+{% load template_filters %}
 <!DOCTYPE html>
 <html>
     <head>
-        {% load static %}
-        {% load template_filters %}
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}" >
         <title>Dashboard</title>
     </head>
 
     <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{% url 'dashboard-cohorts'%}">Dashboard</a>
+            <div class="navbar-nav">
+            {% block navigation %}
+
+            {% endblock %}
+            </div>
+        </nav>
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -17,7 +25,7 @@
         </ul>
         {% endif %}
         {% block body %}
-        <div class="content">
+        <div class="container content">
         {% block content %}
             <p>Content goes here!</p>
         {% endblock %}
