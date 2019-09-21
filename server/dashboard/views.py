@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.serializers import json
 from django.db import models
+from django.http import Http404
 from django.http import (HttpResponseRedirect, JsonResponse)
 from django.shortcuts import render
 from django.urls import reverse
@@ -13,7 +14,9 @@ from django.views.generic import TemplateView
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from participants.models import Cohort
 from participants.models import Participant
+from participants.models import Study
 from sms_messages.services import SMSService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
@@ -31,7 +34,33 @@ def get_text_history(request):
     return JsonResponse(hx, safe=False)
 
 
-class DashboardListView(UserPassesTestMixin, TemplateView):
+class CohortListView(UserPassesTestMixin, TemplateView):
+
+    template_name = 'dashboard/cohorts.html'
+
+    def test_func(self):
+        if not self.request.user:
+            return False
+        admin_for_studies = Study.objects.filter(admins=self.request.user)
+        self.admin_for_studies = list(admin_for_studies)
+        if len(self.admin_for_studies):
+            return True
+        else:
+            return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['cohorts'] = []
+        studies = Study.objects.filter(admins=self.request.user).all()
+        for cohort in Cohort.objects.filter(study__in=studies).all():
+            context['cohorts'].append({
+                'id': cohort.id,
+                'name': cohort.name
+            })
+        return context
+
+class DashboardListView(CohortListView):
 
     template_name = 'dashboard/index.html'
 
@@ -39,21 +68,33 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if not self.request.user:
+        result = super().test_func()
+        if not result:
             return False
-        if not self.request.user.is_staff:
+        try:
+            cohort = Cohort.objects.get(id=self.kwargs['cohort_id'])
+            self.cohort = cohort
+        except Cohort.DoesNotExist:
+            raise Http404()
+        if self.cohort.study in self.admin_for_studies:
+            return True
+        else:
             return False
-        return True
+
+    def query_participants(self):
+        return Participant.objects\
+            .filter(cohort = self.cohort)\
+            .order_by('heartsteps_id')\
+            .prefetch_related('user')
 
     # Add the Twilio from-number for the form
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, cohort_id, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
         context['from_number'] = settings.TWILIO_PHONE_NUMBER
         context['sms_form'] = SendSMSForm
 
         participants = []
-        for participant in Participant.objects.all().prefetch_related(
-                                      'user').order_by('heartsteps_id'):
+        for participant in self.query_participants():
 
             adherence_app_install = AdherenceAppInstallDashboard(
                                     user=participant.user)

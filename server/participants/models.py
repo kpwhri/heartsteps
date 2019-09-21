@@ -21,9 +21,25 @@ from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
+class Study(models.Model):
+    name = models.CharField(
+        max_length = 75,
+        unique = True
+    )
+    contact_number = models.CharField(
+        max_length = 12,
+        null = True
+    )
+
+    admins = models.ManyToManyField(User)
+
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
-
+    study = models.ForeignKey(
+        Study,
+        null = True,
+        on_delete = models.CASCADE
+    )
 
 class Participant(models.Model):
     """

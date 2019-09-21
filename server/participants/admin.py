@@ -10,6 +10,7 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSch
 
 from .models import Cohort
 from .models import Participant
+from .models import Study
 from .services import ParticipantService
 
 def initialize_participant(modeladmin, request, queryset):
@@ -52,3 +53,7 @@ class CohortAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(Cohort, CohortAdmin)
+
+class StudyAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Study, StudyAdmin)

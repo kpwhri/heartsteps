@@ -56,7 +56,7 @@ export class AuthorizationService {
         })
     }
 
-    removeAuthorization() {
-        this.storage.remove('auth-token');
+    removeAuthorization():Promise<void> {
+        return this.storage.remove('auth-token');
     }
 }

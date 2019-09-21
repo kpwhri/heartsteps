@@ -41,19 +41,22 @@ export class EnrollmentService {
         });
     }
 
-    public unenroll():Promise<boolean> {
+    public unenroll():Promise<void> {
         return this.heartstepsServer.post('logout', {})
-        .then(() => {
-            return this.participantService.remove()
+        .catch(() => {
+            console.log('Server failed to logout, continue.');
         })
         .then(() => {
-            return this.authorizationService.removeAuthorization()
+            return this.participantService.remove();
+        })
+        .then(() => {
+            return this.authorizationService.removeAuthorization();
         })
         .then(() => {
             return this.storage.clear();
         })
         .then(() => {
-            return true;
+            return undefined;
         });
     }
 }
