@@ -5,16 +5,41 @@
 {% block navigation %}
 <a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
 <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link active">{{participant.heartsteps_id}}</a>
-<a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}" class="nav-link">Edit participant</a>
 {% endblock %}
 
 {% block content %}
-<dl>
-    <dt>HeartSteps ID</dt>
-    <dd>{{participant.heartsteps_id}}</dd>
-    <dt>Enrollment token</dt>
-    <dd>{{participant.enrollment_token}}</dd>
-    <dt>Birth year</dt>
-    <dd>{{participant.birth_year}}</dd>
-</dl>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <dl>
+                <dt>HeartSteps ID</dt>
+                <dd>{{participant.heartsteps_id}}</dd>
+                <dt>Enrollment token</dt>
+                <dd>{{participant.enrollment_token}}</dd>
+                <dt>Birth year</dt>
+                <dd>{{participant.birth_year}}</dd>
+            </dl>
+        </div>
+        <div class="col-sm">
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
+                            >
+                            Edit participant
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
+                            >
+                            Text Messages
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
 {% endblock %}

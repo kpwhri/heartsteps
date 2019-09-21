@@ -8,6 +8,7 @@ from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.db import models
 from django.views.generic import TemplateView
 
 from contact.models import ContactInformation
@@ -22,7 +23,6 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
-from .forms import TextHistoryForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 
@@ -153,17 +153,6 @@ class DashboardListView(CohortView):
         context['participant_list'] = participants
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = SendSMSForm(request.POST)
-        if form.is_valid():
-            phone_number = form.cleaned_data['to_number']
-            body = form.cleaned_data['body']
-
-            service = SMSService(phone_number=phone_number)
-            service.send(body)
-
-        return HttpResponseRedirect(reverse('dashboard-index'))
-
 class ParticipantView(CohortView):
     template_name = 'dashboard/participant.html'
 
@@ -259,3 +248,46 @@ class ParticipantCreateView(CohortView):
                 context
             )
 
+class ParticipantSMSMessagesView(ParticipantView):
+    
+    template_name = 'dashboard/sms-messages.html'
+
+    def test_func(self):
+        results = super().test_func()
+        if results:
+            try:
+                self.sms_service = SMSService(user = self.participant.user)
+            except SMSService.UnknownContact:
+                raise Http404('No contact for participant')
+            return True               
+        else:
+            return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = SendSMSForm()
+        messages = []
+        for message in self.sms_service.get_messages():
+            messages.append({
+                'body': message.body,
+                'time': message.created,
+                'sender': message.sender,
+                'from_participant': False
+            })
+        context['sms_messages'] = messages
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = SendSMSForm(request.POST)
+        if form.is_valid():
+            body = form.cleaned_data['body']
+
+            service = SMSService(user = self.participant.user)
+            service.send(body)
+        context = self.get_context_data()
+        context['form'] = form
+        return TemplateResponse(
+            request,
+            self.template_name,
+            context
+        )

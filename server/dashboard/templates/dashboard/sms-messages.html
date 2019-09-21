@@ -1,0 +1,37 @@
+{% extends 'dashboard/participant.html'%}
+
+{% block content %}
+<ul>
+    {% for message in sms_messages %}
+
+    <li class="card {% if message.from_participant %}text-white bg-dark{% endif %}">
+        <div class="card-header">
+            {% if message.from_participant %}
+            <span>Participant</span>
+            {% else %}
+            <span>HeartSteps</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{message.body}}</p>
+        </div>
+        <div class="card-footer text-muted">
+            <span>{{message.time}}</span>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="" method="POST" novalidate>
+    {% csrf_token %}
+    <legend>Send message</legend>
+    {% for field in form %}
+    <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+    </div>
+    {% endfor %}
+    <input type="submit" value="Send" />
+</form>
+{% endblock %}
