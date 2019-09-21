@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import json
 from django.db import models
 from django.http import (HttpResponseRedirect, JsonResponse)
 from django.shortcuts import render
@@ -23,15 +24,11 @@ from .models import FitbitServiceDashboard
 
 def get_text_history(request):
     heartsteps_id = request.GET.get('heartsteps_id', None)
-    participants = Participant.objects.filter(
-        heartsteps_id__exact=heartsteps_id)
+    participant = Participant.objects.get(heartsteps_id=heartsteps_id)
+    json_serializer = json.Serializer()
+    hx = json_serializer.serialize(participant.text_message_history())
 
-    data = []
-    for participant in participants:
-        data.append(participant.text_message_history).__dict__
-    print(data)
-
-    return JsonResponse(data)
+    return JsonResponse(hx, safe=False)
 
 
 class DashboardListView(UserPassesTestMixin, TemplateView):
@@ -74,13 +71,15 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
             walking_suggestion_service_initialized_date = None
             try:
                 if participant.user:
-                    configuration = WalkingSuggestionConfiguration.objects.get(user = participant.user)
+                    configuration = WalkingSuggestionConfiguration.objects.get(
+                        user=participant.user)
                     if configuration.service_initialized_date:
-                        walking_suggestion_service_initialized_date = configuration.service_initialized_date.strftime('%Y-%m-%d')
+                        walking_suggestion_service_initialized_date = \
+                            configuration.service_initialized_date.strftime(
+                                '%Y-%m-%d')
             except WalkingSuggestionConfiguration.DoesNotExist:
                 pass
 
-            # fitbit_service = FitbitServiceDashboard(user=participant.user)
             participants.append({
                 'heartsteps_id': participant.heartsteps_id,
                 'enrollment_token': participant.enrollment_token,
@@ -113,6 +112,3 @@ class DashboardListView(UserPassesTestMixin, TemplateView):
             service.send(body)
 
         return HttpResponseRedirect(reverse('dashboard-index'))
-
-    def text_message_history(self, request, *args, **kwargs):
-        ...

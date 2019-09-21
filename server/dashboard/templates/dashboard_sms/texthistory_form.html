@@ -1,5 +1,5 @@
 <div class='modal fade' id='text-history-modal' role='dialog'>
-    <div class='modal-dialog modal-md'>
+    <div class='modal-dialog modal-lg'>
         <div class='modal-content'>
 
         <style> form {background-color: white;} </style>
@@ -13,7 +13,7 @@
     </div>
 
     <div class='modal-body'>
-        <textarea id='text-history'></textarea>
+        <textarea id='text-history' cols='80' rows='50'></textarea>
         {% comment %}
         {% csrf_token %}
         <div class='form-group'>

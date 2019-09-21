@@ -13,7 +13,7 @@ table th, table td {
     white-space: nowrap;
 }
 
-table td a.sms-btn:hover {
+table td a.sms-btn:hover, a.texthx-btn:hover {
     font-weight: bold;
 }
 

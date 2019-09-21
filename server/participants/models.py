@@ -309,7 +309,7 @@ class Participant(models.Model):
             if participant_number:
                 return Message.objects.filter(
                     recipient__exact=participant_number
-                    ).values('created', 'body').order_by('-created')
+                    ).only('created', 'body').order_by('-created')
             else:
                 return None
         else:
