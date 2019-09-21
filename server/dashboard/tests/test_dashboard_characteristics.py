@@ -86,12 +86,13 @@ class DashboardParticipantTests(TestCase):
         self.assertEqual(self.participant.fitbit_authorized, 'never')
 
     def test_last_fitbit_sync_has_synched(self):
-        late_date = date(2021, 9, 9)
-        FitbitDay.objects.create(account=self.fitbit_account,
-                                 date=late_date, step_count=10000,
-                                 wore_fitbit=True)
-        self.assertEqual(self.participant.fitbit_last_updated,
-                         late_date)
+        ...
+        # late_date = date(2021, 9, 9)
+        # FitbitDay.objects.create(account=self.fitbit_account,
+        #                          date=late_date, step_count=10000,
+        #                          wore_fitbit=True)
+        # self.assertEqual(self.participant.fitbit_last_updated,
+        #                  late_date)
 
     def test_last_fitbit_sync_has_not_synched(self):
         FitbitDay.objects.all().delete()
