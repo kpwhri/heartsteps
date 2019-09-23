@@ -34,7 +34,7 @@ class CohortListView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if not self.request.user:
+        if not self.request.user or self.request.user.is_anonymous():
             return False
         admin_for_studies = Study.objects.filter(admins=self.request.user)
         self.admin_for_studies = list(admin_for_studies)
