@@ -1,8 +1,12 @@
 from django.conf.urls import url
-from . import views
+from .views import LoginView
+from .views import LogoutView
+from .views import EnrollView
+from .views import ParticipantInformationView
 
 urlpatterns = [
-    url(r'login', views.LoginView.as_view(), name='participants-login'),
-    url(r'enroll', views.EnrollView.as_view(), name='participants-enroll'),
-    url(r'information', views.ParticipantInformationView.as_view(), name='participants-information')
+    url(r'login', LoginView.as_view(), name='participants-login'),
+    url(r'logout', LogoutView.as_view(), name='participants-logout'),
+    url(r'enroll', EnrollView.as_view(), name='participants-enroll'),
+    url(r'information', ParticipantInformationView.as_view(), name='participants-information')
 ]

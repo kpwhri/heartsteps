@@ -19,7 +19,9 @@ def fitbit_account(request):
     try:
         service = FitbitService(user=request.user)
     except FitbitService.NoAccount:
-        return Response({}, status=status.HTTP_404_NOT_FOUND)
+        response = Response({}, status=status.HTTP_404_NOT_FOUND)
+        response['Cache-Control'] = 'no-cache'
+        return response
     return Response({
         'fitbit': service.fitbit_user,
         'isAuthorized': service.is_authorized()

@@ -14,6 +14,13 @@ class Contact(models.Model):
     )
     number = models.CharField(max_length=30)
 
+    @property
+    def messages(self):
+        messages = Message.objects.filter(
+            models.Q(recipient=self.number) | models.Q(sender=self.number)
+        ).all()
+        return list(messages)
+
 class Message(models.Model):
     recipient = models.CharField(max_length=30)
     sender = models.CharField(max_length=30)

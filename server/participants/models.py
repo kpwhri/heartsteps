@@ -21,9 +21,31 @@ from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
+class Study(models.Model):
+    name = models.CharField(
+        max_length = 75,
+        unique = True
+    )
+    contact_number = models.CharField(
+        max_length = 12,
+        null = True
+    )
+
+    admins = models.ManyToManyField(User)
+
+    def __str__(self):
+        return self.name
+
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
+    study = models.ForeignKey(
+        Study,
+        null = True,
+        on_delete = models.CASCADE
+    )
 
+    def __str__(self):
+        return self.name
 
 class Participant(models.Model):
     """
@@ -135,7 +157,8 @@ class Participant(models.Model):
         u = self.user
         if u:
             try:
-                max_dt = u.fitbitaccountuser.account.fitbitday_set.aggregate(
+                max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
+                    wore_fitbit=True).aggregate(
                          maxdt=models.Max('date'))
                 if max_dt:
                     return max_dt['maxdt']
@@ -304,13 +327,11 @@ class Participant(models.Model):
     def _text_message_history(self):
         u = self.user
         if u:
-            print("Got to user")
-            print(u.id)
             participant_number = Contact.objects.get(user=u.id).number
             if participant_number:
                 return Message.objects.filter(
                     recipient__exact=participant_number
-                    ).values('created', 'body').order_by('-created')
+                    ).only('created', 'body').order_by('-created')
             else:
                 return None
         else:

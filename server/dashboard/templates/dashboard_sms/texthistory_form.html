@@ -1,5 +1,5 @@
-<div class='modal fade' id='send-sms-modal' role='dialog'>
-    <div class='modal-dialog modal-md'>
+<div class='modal fade' id='text-history-modal' role='dialog'>
+    <div class='modal-dialog modal-lg'>
         <div class='modal-content'>
 
         <style> form {background-color: white;} </style>
@@ -13,9 +13,11 @@
     </div>
 
     <div class='modal-body'>
+        <textarea id='text-history' cols='80' rows='50'></textarea>
+        {% comment %}
         {% csrf_token %}
         <div class='form-group'>
-            {% for field in form %}
+            {% for field in test_history_form %}
                 <div class="fieldWrapper">
                     {{ field.errors }}
                     {{ field.label_tag }} {{ field }}
@@ -23,13 +25,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class='modal-footer'>
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" value='submit'>Send</button>
-            </div>
-        </div>
-    </div>
+    {% endcomment %}
 </form>
 
         </div>

@@ -1,180 +1,184 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        {% load static %}
-        {% load template_filters %}
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}" >
-        <title>Dashboard</title>
+{% extends 'dashboard/participants.html' %}
+{% load static %}
+{% load template_filters %}
 
-        <script type='text/javascript'>
-            // Set ph# for pop-up window for texting
-            $(function () {
-                $('.sms-btn').on('click', function () {
-                    // Set to_number for call
-                    let to_number_field = $('#id_to_number');
-                    let this_to_number = $(this).text().trim();
-                    to_number_field.val(this_to_number);
+{% block body %}
+<table class='table table-striped table-bordered table-hover'>
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col" class='study_btn' data-toggle='tooltip' data-placement='bottom'
+                title='Click to view study details'>ID</th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Click to text the participant'>
+                Phone
+            </th>
+            <th scope='col' data-toggle='tooltip' data-placement='bottom'
+                title='Date of last text message sent by server'>
+                Last Text Message
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Date server account was created'>
+                Account Created
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Authorization has been provided to access Fitbit data'>
+                Fitbit Authorized
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='First time Fitbit subscription data was received'>
+                Fitbit First Update
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Most recent time Fitbit subscription data was received'>
+                Fitbit Last Update
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Number of days Fitbit was worn (per adherence definitions)'>
+                Fitbit Days Worn
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='First interaction recorded with mobile app'>
+                Mobile App Installed
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Most recent page view recorded with mobile app'>
+                Last App Use
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Date Fitbit watch app was authenticated'>
+                Watch App Installed
+            </th>
+            <th scope="col" data-toggle='tooltip' data-placement='bottom'
+                title='Most recent data Fitbit watch app sent data'>
+                Last Watch App Update
+            </th>
+            <th scope="col">
+                Walking suggestion service initialized date
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for participant in participant_list %}
+        <tr>
+            {% load tz %}
+            {% timezone 'US/Pacific' %}
+            <td data-toggle='modal' data-target='#view-study-id-modal'>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}">{{participant.heartsteps_id}}</a>
+            </td>
+            <td data-toggle='tooltip' data-placement='right'
+                title='Click to text participant'>
+                <a data-toggle='modal' data-target="#send-sms-modal"
+                    class='btn sms-btn'>
+                    {{participant.phone_number }}
+                </a>
+            </td>
+            <td data-toggle='tooltip' data-placement='right'
+                title='Full text history'>
+                <a data-toggle='modal' data-target="#text-history-modal"
+                    class='btn texthx-btn' data-text='{{participant.heartsteps_id}}'>
+                    {{participant.last_text_sent|date }}
+                </a>
+            </td>
+            <td>{{ participant.date_joined|date }}</td>
+            <td>{% if participant.fitbit_authorized == 'current' %}
+                    <img src="{% static 'admin/img/icon-yes.svg' %}"
+                        data-toggle='tooltip' data-placement='bottom'
+                        title='Currently authorized' />
+                {% elif participant.fitbit_authorized == 'never' %}
+                    <img src="{% static 'admin/img/icon-no.svg' %}"
+                        data-toggle='tooltip' data-placement='bottom'
+                        title='Never authorized' />
+                {% elif participant.fitbit_authorized == 'prior' %}
+                    <img src="{% static 'admin/img/icon-unlink.svg' %}"
+                        data-toggle='tooltip' data-placement='bottom'
+                        title='Previously authorized' />
+                {% endif %}
+            </td>
+            <td>
+                {{ participant.fitbit_first_updated|date }}
+            </td>
+            <td>
+                {{ participant.fitbit_last_updated | date }}
+            </td>
+            <td {% if participant.adherence_install_app > 0 %}
+                    class='adherence-issue'
+                {% endif %}>
+                {{ participant.days_wore_fitbit }}
+            </td>
+            <td>
+                {{ participant.first_page_view|date }}
+            </td>
+            <td>
+                {{ participant.last_page_view|date }}
+            </td>
+            <td>
+                {{ participant.watch_app_installed_date|date }}
+            </td>
+            <td>
+                {{ participant.last_watch_app_data|date }}
+            </td>
+            <td>{{participant.walking_suggestion_service_initialized_date}}</td>
+
+            {% endtimezone %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block script %}
+    <script type='text/javascript'>
+        // Set ph# for pop-up window for texting
+        $(function () {
+            $('.sms-btn').on('click', function () {
+                // Set to_number for call
+                let to_number_field = $('#id_to_number');
+                let this_to_number = $(this).text().trim();
+                to_number_field.val(this_to_number);
+            });
+        });
+        // Copy text history details to modal form
+        $(function () {
+            $('.texthx-btn').on('click', function () {
+                let heartsteps_id = $(this).data('text');
+                let body_field = $('#text-history');
+                $.ajax({
+                    url: 'dashboard/text_history',
+                    data: {
+                        'heartsteps_id': heartsteps_id
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        let text_hx = JSON.parse(data);
+                        let textContent = new String();
+                        for (const msg of text_hx) {
+                            direction = (msg.fields.recipient == '+12063503346' ?
+                                'Received: ' : 'Sent: ');
+                            let text_dt = msg.fields.created.substring(0, 10);
+                            textContent += (direction + text_dt + '\n\n');
+                            textContent += (msg.fields.body += '\n\n\n');
+                        }
+                        body_field.val(textContent);
+                    }
                 });
             });
-            // Show study ID details in modal pane
-            $(function () {
-                $('.study-btn').on('click', function () {
-                    let this_to_study_id = $('span.study-id', this).text();
-                    let this_to_token = $('span.token', this).text();
-                    let this_to_birth_year = $('span.birth-year', this).text();
-                    alert("Study ID: " + this_to_study_id + "\n" +
-                          "Entry Token: " + this_to_token + "\n" +
-                          "Year of Birth: " + this_to_birth_year);
-                });
+        });
+        // Show study ID details in modal pane
+        $(function () {
+            $('.study-btn').on('click', function () {
+                let this_to_study_id = $('span.study-id', this).text();
+                let this_to_token = $('span.token', this).text();
+                let this_to_birth_year = $('span.birth-year', this).text();
+                alert("Study ID: " + this_to_study_id + "\n" +
+                    "Entry Token: " + this_to_token + "\n" +
+                    "Year of Birth: " + this_to_birth_year);
             });
-            // Enable tooltips for page
-            $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
-            })
-        </script>
-    </head>
-
-    <body>
-
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    <table class='table table-striped table-bordered table-hover'>
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col" class='study_btn' data-toggle='tooltip' data-placement='bottom'
-                    title='Click to view study details'>ID</th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Click to text the participant'>
-                    Phone
-                </th>
-                <th scope='col' data-toggle='tooltip' data-placement='bottom'
-                    title='Date of last text message sent by server'>
-                    Last Text Message
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Date server account was created'>
-                    Account Created
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Authorization has been provided to access Fitbit data'>
-                    Fitbit Authorized
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='First time Fitbit subscription data was received'>
-                    Fitbit First Update
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Most recent time Fitbit subscription data was received'>
-                    Fitbit Last Update
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Number of days Fitbit was worn (per adherence definitions)'>
-                    Fitbit Days Worn
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='First interaction recorded with mobile app'>
-                    Mobile App Installed
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Most recent page view recorded with mobile app'>
-                    Last App Use
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Date Fitbit watch app was authenticated'>
-                    Watch App Installed
-                </th>
-                <th scope="col" data-toggle='tooltip' data-placement='bottom'
-                    title='Most recent data Fitbit watch app sent data'>
-                    Last Watch App Update
-                </th>
-                <th scope="col">
-                    Walking suggestion service initialized date
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for participant in participant_list %}
-            <tr>
-                {% load tz %}
-                {% timezone 'US/Pacific' %}
-                <td data-toggle='modal' data-target='#view-study-id-modal'
-                        class='btn study-btn'>
-                    <span class='study-id'>{{participant.heartsteps_id}}</span>
-                    <span class='token hidden'>{{participant.enrollment_token}}</span>
-                    <span class='birth-year hidden'>{{participant.birth_year}}</span>
-                </td>
-                <td data-toggle='tooltip' data-placement='right'
-                    title='Click to text participant'>
-                    <a data-toggle='modal' data-target="#send-sms-modal"
-                       class='btn sms-btn'>
-                        {{participant.phone_number }}
-                    </a>
-                </td>
-                <td>{{ participant.last_text_sent|date }}</td>
-                <td>{{ participant.date_joined|date }}</td>
-                <td>{% if participant.fitbit_authorized == 'current' %}
-                        <img src="{% static 'admin/img/icon-yes.svg' %}"
-                            data-toggle='tooltip' data-placement='bottom'
-                            title='Currently authorized' />
-                    {% elif participant.fitbit_authorized == 'never' %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}"
-                            data-toggle='tooltip' data-placement='bottom'
-                            title='Never authorized' />
-                    {% elif participant.fitbit_authorized == 'prior' %}
-                        <img src="{% static 'admin/img/icon-unlink.svg' %}"
-                            data-toggle='tooltip' data-placement='bottom'
-                            title='Previously authorized' />
-                    {% endif %}
-                </td>
-                <td>
-                    {{ participant.fitbit_first_updated|date }}
-                </td>
-                <td>
-                    {{ participant.fitbit_last_updated | date }}
-                </td>
-                <td {% if participant.adherence_install_app > 0 %}
-                        class='adherence-issue'
-                    {% endif %}>
-                    {{ participant.days_wore_fitbit }}
-                </td>
-                <td>
-                    {{ participant.first_page_view|date }}
-                </td>
-                <td>
-                    {{ participant.last_page_view|date }}
-                </td>
-                <td>
-                    {{ participant.watch_app_installed_date|date }}
-                </td>
-                <td>
-                    {{ participant.last_watch_app_data|date }}
-                </td>
-                <td>{{participant.walking_suggestion_service_initialized_date}}</td>
-                {% comment %}
-                <td>
-                    {% for text in participant.text_message_history %}
-                        {{ text.created }} " : " {{ text.body }} <br />
-                    {% endfor %}
-                </td>
-                {% endcomment %}
-                {% endtimezone %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+        });
+        // Enable tooltips for page
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
     {% include 'dashboard_sms/sendsms_form.html' %}
-
-    </body>
-
-</html>
+    {% include 'dashboard_sms/texthistory_form.html' %}
+{% endblock %}

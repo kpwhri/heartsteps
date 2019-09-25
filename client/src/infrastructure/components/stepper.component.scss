@@ -27,12 +27,14 @@ heartsteps-stepper {
             height: 1em;
             width: 1em;
             border-radius: 50%;
-            background-color: $color-gray-light;
+            background-color: transparent;
+            border: $text-color 1px solid;
             overflow: hidden;
             text-indent: -3000em;
         }
         & > .active {
             background-color: $color-primary;
+            border-color: $color-primary;
         }
     }
 }

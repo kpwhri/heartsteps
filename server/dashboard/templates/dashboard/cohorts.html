@@ -1,0 +1,18 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block content %}
+<div>
+{% for study in studies %}
+    <h3>{{study.name}}</h3>
+    <ul>
+    {% for cohort in study.cohorts %}
+        <li>
+            <a href="{% url 'dashboard-cohort-participants' cohort.id %}">{{cohort.name}}</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+</div>
+{% endblock %}

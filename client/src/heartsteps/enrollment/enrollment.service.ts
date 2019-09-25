@@ -14,7 +14,7 @@ export class EnrollmentService {
         private storage:StorageService
     ) {}
 
-    enroll(token:String, birthYear:Number):Promise<boolean> {
+    public enroll(token:String, birthYear:Number):Promise<boolean> {
         const postData = {
             enrollmentToken: token
         };
@@ -41,17 +41,22 @@ export class EnrollmentService {
         });
     }
 
-    unenroll():Promise<boolean> {
-        // TODO unenroll on heartsteps server
-        return this.participantService.remove()
+    public unenroll():Promise<void> {
+        return this.heartstepsServer.post('logout', {})
+        .catch(() => {
+            console.log('Server failed to logout, continue.');
+        })
         .then(() => {
-            return this.authorizationService.removeAuthorization()
+            return this.participantService.remove();
+        })
+        .then(() => {
+            return this.authorizationService.removeAuthorization();
         })
         .then(() => {
             return this.storage.clear();
         })
         .then(() => {
-            return true;
+            return undefined;
         });
     }
 }

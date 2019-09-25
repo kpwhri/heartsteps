@@ -19,7 +19,8 @@
     ],
     "buildTargets": [
       "higgs",
-      "meson"
+      "meson",
+      "gemini"
     ],
     "i18n": {
       "en": {
@@ -32,12 +33,13 @@
     "build": "fitbit-build"
   },
   "dependencies": {
-    "@fitbit/sdk-cli": "^1.6.0",
-    "io-ts": "^1.8.2",
-    "keytar": "^4.4.0",
-    "node-gyp": "^4.0.0"
+    "@fitbit/sdk-cli": "^1.6.3",
+    "gulp": "^4.0.2",
+    "io-ts": "^2.0.1",
+    "keytar": "^5.0.0-beta.2",
+    "node-gyp": "^5.0.3"
   },
   "devDependencies": {
-    "@fitbit/sdk": "^3.1.0"
+    "@fitbit/sdk": "~3.1.2"
   }
 }
