@@ -9,10 +9,10 @@ Rscript merge.r
 for i in "$@"
 do
 case $i in
-    -u=*|--users=*)
-     USERS="${i#*=}"
-    shift # past argument=value
-    ;;
+-u=*|--users=*)
+USERS="${i#*=}"
+shift # past argument=value
+;;
 esac
 done
 conda init bash > /dev/null
