@@ -13,7 +13,7 @@ export class BrowserService {
     ) {}
 
     public open(url: string): Promise<boolean> {
-        if (this.platform.is('ios') || this.platform.is('android')) {
+        if (this.platform.is('cordova')) {
             return this.checkSafariAvailable()
             .then(() => {
                 return this.openInSafari(url)
