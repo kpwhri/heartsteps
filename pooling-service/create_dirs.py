@@ -5,8 +5,8 @@ from shutil import copyfile
 
 if __name__=="__main__":
     to_return = 'hellow'
-    os.mkdir('data/pooled_hyper')
-    copyfile('data/errors_pool.txt'.format(f),'data/pooled_hyper/errors_pool.txt')
+    #os.mkdir('data/pooled_hyper')
+    #copyfile('data/errors_pool.txt'.format(f),'data/pooled_hyper/errors_pool.txt')
     #return
     try:
         
