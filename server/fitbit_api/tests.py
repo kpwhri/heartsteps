@@ -7,7 +7,10 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 
-from fitbit_api.models import FitbitSubscription, FitbitSubscriptionUpdate, FitbitAccount, FitbitAccountUser
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitAccountUpdate
+from fitbit_api.models import FitbitSubscription
 from fitbit_api.services import FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
 from fitbit_api.signals import update_date
@@ -85,7 +88,7 @@ class SubscriptionUpdate(APITestCase):
         }], format="json")
 
         self.assertEqual(response.status_code, 204)
-        updates = FitbitSubscriptionUpdate.objects.all()
+        updates = FitbitAccountUpdate.objects.all()
         self.assertEqual(len(updates), 1)
         self.update_date.assert_called_with(
             sender = FitbitAccount,
@@ -118,7 +121,7 @@ class SubscriptionUpdate(APITestCase):
         ], format="json")
 
         self.assertEqual(response.status_code, 204)
-        updates = FitbitSubscriptionUpdate.objects.all()
+        updates = FitbitAccountUpdate.objects.all()
         self.assertEqual(len(updates), 3)
         self.assertEqual(self.update_date.call_count, 3)
         self.update_date.assert_any_call(

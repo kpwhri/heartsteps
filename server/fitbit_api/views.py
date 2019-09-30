@@ -11,7 +11,10 @@ from rest_framework.response import Response
 
 from fitbit_api.services import FitbitClient, FitbitService, parse_fitbit_date
 from fitbit_api.signals import update_date
-from fitbit_api.models import FitbitAccount, FitbitUpdate, FitbitSubscription, FitbitSubscriptionUpdate
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitUpdate
+from fitbit_api.models import FitbitSubscription
+from fitbit_api.models import FitbitAccountUpdate
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -38,19 +41,20 @@ def fitbit_subscription(request):
         payload = request.data
     )
     for update in request.data:
-        if 'subscriptionId' in update:
+        if 'ownerId' in update:
             try:
-                subscription = FitbitSubscription.objects.get(uuid=update['subscriptionId'])
-            except FitbitSubscription.DoesNotExist:
+                account = FitbitAccount.objects.get(
+                    fitbit_user = update['ownerId']
+                )
+                FitbitAccountUpdate.objects.create(
+                    account = account,
+                    update = fitbit_update
+                )
+                update_date.send(
+                    sender = FitbitAccount,
+                    fitbit_user = update['ownerId'],
+                    date = update['date']
+                )
+            except FitbitAccount.DoesNotExist:
                 continue
-            FitbitSubscriptionUpdate.objects.create(
-                subscription = subscription,
-                update = fitbit_update,
-                payload = update
-            ) 
-            update_date.send(
-                sender = FitbitAccount,
-                fitbit_user = subscription.fitbit_account.fitbit_user,
-                date = update['date']
-            )
     return Response('', status=status.HTTP_204_NO_CONTENT)

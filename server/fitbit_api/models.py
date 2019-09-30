@@ -26,27 +26,55 @@ class FitbitAccount(models.Model):
     def first_updated(self):
         if hasattr(self, '_first_updated'):
             return self._first_updated
-        first_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
-            subscription__fitbit_account = self
-        ).first()
+        first_update = self.get_first_update()        
         if first_update:
-            self._first_updated = first_update.created
+            self._first_updated = first_update
             return self._first_updated
         else:
             return None
+
+    def get_first_update(self):
+        subscription_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
+            subscription__fitbit_account = self
+        ).first()
+        account_update = FitbitAccountUpdate.objects.filter(account = self).first()
+        if account_update and subscription_update:
+            if account_update.created < subscription_update.created:
+                return account_update.created
+            else:
+                return subscription_update.created
+        if account_update:
+            return account_update.created
+        if subscription_update:
+            return subscription_update.created
+        return None
 
     @property
     def last_updated(self):
         if hasattr(self, '_last_updated'):
             return self._last_updated
-        last_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
-            subscription__fitbit_account = self
-        ).last()
+        last_update = self.get_last_update()
         if last_update:
             self._last_updated = last_update.created
             return self._last_updated
         else:
             return None
+
+    def get_last_update(self):
+        subscription_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
+            subscription__fitbit_account = self
+        ).last()
+        account_update = FitbitAccountUpdate.objects.filter(account = self).last()
+        if account_update and subscription_update:
+            if account_update.created > subscription_update.created:
+                return account_update.created
+            else:
+                return subscription_update.created
+        if account_update:
+            return account_update.created
+        if subscription_update:
+            return subscription_update.created
+        return None
 
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)
@@ -77,6 +105,25 @@ class FitbitUpdate(models.Model):
 
     def __str__(self):
         return "Update from FitBit at %s" % (self.created)
+
+class FitbitAccountUpdate(models.Model):
+    account = models.ForeignKey(
+        FitbitAccount,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+    update = models.ForeignKey(
+        FitbitUpdate,
+        null=True,
+        on_delete = models.SET_NULL
+    )
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created']
+
+    def __str__(self):
+        return 'Fitbit account %s updated at %s' % (self.account.fitbit_user, self.completed)
 
 class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
