@@ -33,6 +33,9 @@ class Study(models.Model):
 
     admins = models.ManyToManyField(User)
 
+    def __str__(self):
+        return self.name
+
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
     study = models.ForeignKey(
@@ -40,6 +43,9 @@ class Cohort(models.Model):
         null = True,
         on_delete = models.CASCADE
     )
+
+    def __str__(self):
+        return self.name
 
 class Participant(models.Model):
     """

@@ -20,3 +20,7 @@ table td a.sms-btn:hover, a.texthx-btn:hover {
 .hidden {
     display: none;
 }
+
+li.card {
+    margin: 0.5em 0em;
+}

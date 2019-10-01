@@ -42,3 +42,7 @@ class SMSService:
         message.external_id = message_id
         message.save()
         return message
+
+    def get_messages(self):
+        return self.__contact.messages
+

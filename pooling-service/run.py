@@ -1,3 +1,4 @@
+from datetime import date
 import gpytorch
 import pyreadr
 from sklearn import preprocessing
@@ -17,7 +18,8 @@ def run_updates(data_path,users):
     users,data,y = RPY.combine_users(data_path,users)
     print('got users')
     g = hyperparameter_runner.real_run(data,users,y)
-    print(g)
+
+#print(g)
     return g
 
             # with open('../data/test.pkl','wb') as f:

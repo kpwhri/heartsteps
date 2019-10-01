@@ -1,6 +1,6 @@
 
 import sys
-
+from datetime import date
 import pickle
 import pandas as pd
 import numpy as np
@@ -267,7 +267,10 @@ def real_run(X,users,y):
     global_params = initialize_policy_params_TS(standardize=False,baseline_features=[i for i in range(len(baseline_features))],psi_features=[],responsivity_keys=[i for i in range(3,len(baseline_features))])
 
     hyper = get_hyper(np.array(X),users,np.array(y),global_params)
-
+    with open('data/pooled_hyper/pooled_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
+        pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
+    with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
+        pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
     inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
     global_params.update_params(hyper)
     global_params.inv_term=inv_term
