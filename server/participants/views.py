@@ -1,12 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import permissions
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Participant
+from .serializers import ParticipantAddSerializer
 from .services import ParticipantService
+
 
 class LogoutView(APIView):
 
@@ -20,6 +25,7 @@ class LogoutView(APIView):
         service.destroy_authorization_token()
         service.disable()
         return Response({}, status.HTTP_200_OK)
+
 
 class LoginView(APIView):
 
@@ -35,7 +41,7 @@ class LoginView(APIView):
             )
         except ParticipantService.NoParticipant:
             return Response({}, status.HTTP_401_UNAUTHORIZED)
-        
+
         self.service = service
         self.participant = service.participant
         self.authentication_successful()
@@ -58,6 +64,7 @@ class LoginView(APIView):
     def authentication_successful(self):
         pass
 
+
 class EnrollView(LoginView):
 
     def authentication_successful(self):
@@ -65,7 +72,7 @@ class EnrollView(LoginView):
 
 
 class ParticipantInformationView(APIView):
-    
+
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -78,3 +85,17 @@ class ParticipantInformationView(APIView):
             'staff': request.user.is_staff,
             'date_enrolled': service.participant.date_enrolled.strftime('%Y-%m-%d')
         })
+
+
+class ParticipantAddView(APIView):
+    """
+    Add base data for a new participant to enroll.
+    """
+    def post(self, request):
+        # if request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = ParticipantAddSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
