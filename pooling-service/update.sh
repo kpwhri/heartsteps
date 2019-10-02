@@ -1,11 +1,4 @@
 #!/bin/bash
-conda init bash > /dev/null
-source ~/.bashrc
-conda activate py36
-python create_dirs.py
-conda deactivate
-sleep 2
-Rscript merge.r
 for i in "$@"
 do
 case $i in
@@ -15,6 +8,14 @@ shift # past argument=value
 ;;
 esac
 done
+echo $USERS
+conda init bash > /dev/null
+source ~/.bashrc
+conda activate py36
+python create_dirs.py
+conda deactivate
+sleep 2
+Rscript merge.r
 conda init bash > /dev/null
 source ~/.bashrc
 conda activate py36

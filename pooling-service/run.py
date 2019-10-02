@@ -18,9 +18,22 @@ def run_updates(data_path,users):
     users,data,y = RPY.combine_users(data_path,users)
     print('got users')
     g = hyperparameter_runner.real_run(data,users,y)
-
-#print(g)
     return g
+    #try:
+    #  users,data,y = RPY.combine_users(data_path,users)
+    # print('got users')
+    # g = hyperparameter_runner.real_run(data,users,y)
+    # return g
+    #except Exception as e:
+       
+
+       #with open('data/errors_pool.txt','w+') as f:
+       # f.write('{}'.format(e))
+       # f.write('\n')
+       # to_return = 'Errors'
+# print( to_return)
+
+
 
             # with open('../data/test.pkl','wb') as f:
             # pickle.dump(x,f)
@@ -55,7 +68,7 @@ def update_params(users,g,lookup):
 
     except Exception as e:
         print(e)
-        with open('runerrors_pool.txt','w+') as f:
+        with open('data/runerrors_pool.txt','w+') as f:
             f.write('{}'.format(e))
             f.write('\n')
             to_return = 'Errors'

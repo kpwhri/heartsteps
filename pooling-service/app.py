@@ -27,7 +27,7 @@ def update():
     #print('This is error output', file=sys.stderr)
 # out =subprocess.Popen.communicate()
 #print(out)
-    return 'gt'
+    return 'doing'
 #(resp.text, resp.status_code, resp.headers.items())
 
 if __name__ == "__main__":
