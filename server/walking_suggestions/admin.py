@@ -88,7 +88,12 @@ def initialize_walking_suggestion_service(modeladmin, request, queryset):
         messages.add_message(request, messages.INFO, 'Queued initialization for %s' % (configuration.user.username))
 
 class ConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'enabled', 'service_initialized']
+    list_display = [
+        'user',
+        'enabled',
+        'service_initialized_date',
+        'fitbit_days_worn'
+    ]
     exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
     readonly_fields = [
         'service_initialized_date',
@@ -98,6 +103,9 @@ class ConfigurationAdmin(admin.ModelAdmin):
         send_walking_suggestion,
         initialize_walking_suggestion_service
     ]
+
+    def fitbit_days_worn(self, configuration):
+        return configuration.fitbit_days_worn
 
     def walking_suggestion_times(self, configuration):
         times = []
