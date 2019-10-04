@@ -70,8 +70,10 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
     to_return = []
     
     users = []
+    ys = []
     for i in range(len(standard_x)):
         if all_dict['avail'][i]:
+            #print(all_dict['actions'][i]-all_dict['prob'][i])
             raw_data = standard_x[i]
             temp = [1]
             temp.extend([raw_data[i] for i in baseline_indices])
@@ -81,9 +83,16 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
             temp.extend([(all_dict['actions'][i]-all_dict['prob'][i])*d for d in temp_two])
             to_return.append(temp)
             users.append(all_dict['users'][i])
+            ys.append(all_dict['reward'][i])
     to_adjust = [np.array(all_dict['reward']).mean()]+[0]*(len(to_return[0])-1)
+
+
+
+
+#print(len(to_return))
+#print(len(all_dict['avail']))
     #to_adjust = np.ones(len(to_return[0]))
-    y = np.array([all_dict['reward'][i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
+    y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
     return to_return,y.tolist(),users
 
 def get_one_user(data_path,user_id):
@@ -143,6 +152,7 @@ def combine_users(data_path,user_list):
             big_reward_list = big_reward_list+data['reward']
     
     temp_X = get_standard_x(big_data_list)
+    #temp_X = big_data_list
     temp_data = {'avail':big_avail_list,'actions': big_action_list,'prob':big_prob_list,\
 'users':big_user_list,'reward':big_reward_list
 }

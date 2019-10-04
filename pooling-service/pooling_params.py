@@ -17,6 +17,7 @@ class TS_global_params:
                 init_params = pickle.load(f)
         except:
             init_params = {'sigma_u':np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]]),'noise_term':5.5440}
+        init_params = {'sigma_u':np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]]),'noise_term':5.5440}
         self.nums = set([np.float64,int,float])
         self.pi_max = 0.8
         self.pi_min = 0.1
@@ -53,7 +54,7 @@ class TS_global_params:
         
         self.sigma_theta =np.diag([14.2413945, 13.3546165,  3.2355121 , 0.5701742, 18.9986360 , 0.2578251, 16.9993579,  7.3453086,4.9266238, 24.5584807,  4.9509419 , 0.6749049  ,0.8163259,4.9266238, 24.5584807,  4.9509419,  0.6749049 , 0.8163259])
             #self.get_theta(self.theta_dim)
-        self.lr = 0.1
+        self.lr = 1.0
    
         self.sigma_u = init_params['sigma_u']
             #np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]])
@@ -63,6 +64,7 @@ class TS_global_params:
         self.u1 =1.5898
         
         self.u2 =0.6828
+        
         
         self.noise_term =init_params['noise_term']
         #5.5440

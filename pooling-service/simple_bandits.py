@@ -67,8 +67,11 @@ def create_H(num_baseline_features,num_responsivity_features,psi_indices):
     
     column_two = [0]
     column_two = column_two+[0]*num_baseline_features
-    column_two = column_two+[int(i in psi_indices) for i in range(2*num_responsivity_features+2)]
-
+    column_two =column_two+[1]+[0]*num_responsivity_features
+    
+    column_two =column_two+[1]+[0]*num_responsivity_features
+    #column_two+[int(i in psi_indices) for i in range(2*num_responsivity_features+2)]
+    #print( np.transpose(np.array([column_one,column_two])))
     
     return np.transpose(np.array([column_one,column_two]))
 
@@ -184,11 +187,27 @@ def get_M_faster(global_params,user_id,user_study_day,history,users,sigma_u):
     #history[:,global_params.user_id_index]
 
     my_days = np.ma.masked_where(user_ids==user_id, user_ids).mask.astype(float)
-    
-    if type(my_days)!=np.ndarray:
-        my_days = np.zeros(history.shape[0])
-    user_matrix = np.diag(my_days)
-
+    #print(users)
+    #print(user_ids)
+    user_matrix = []
+    for i in range(history.shape[0]):
+        temp2 = []
+        for j in range(history.shape[0]):
+            
+            temp2.append(1.0*int(users[i]==user_id))
+        user_matrix.append(temp2)
+        #print(len(user_matrix))
+#print(len(user_matrix[0]))
+#print(type(users[0]))
+#print(user_matrix)
+#with open('data/my_um_{}.pkl'.format(user_id),'wb') as f:
+#pickle.dump(user_matrix,f)
+    #if type(my_days)!=np.ndarray:
+    #my_days = np.zeros(history.shape[0])
+    #print('h')
+    #user_matrix = np.diag(my_days)
+    #print(user_matrix.shape)
+#print(user_matrix)
     t_two = np.matmul(user_matrix,temp)
   
     term = np.add(t_one,t_two)
@@ -239,6 +258,8 @@ def calculate_posterior_faster(global_params,user_id,user_study_day,X,users,y):
     H = create_H(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
     
     M = get_M_faster(global_params,user_id,user_study_day,X,users,global_params.sigma_u)
+        #with open('data/M_Test_{}.pkl'.format(user_id),'wb') as f:
+        #pickle.dump(M,f)
     ##change this to be mu_theta
     ##is it updated?  the current mu_theta?
     adjusted_rewards =get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
@@ -248,7 +269,9 @@ def calculate_posterior_faster(global_params,user_id,user_study_day,X,users,y):
     mu = get_middle_term(X.shape[0],global_params.cov,global_params.noise_term,M,adjusted_rewards,global_params.mu_theta,global_params.inv_term)
     #.reshape(X.shape[0],X.shape[0])
     sigma = get_post_sigma(H,global_params.cov,global_params.sigma_u.reshape(2,2),None,global_params.noise_term,M,X.shape[0],global_params.sigma_theta,global_params.inv_term)
-    
+    #print(mu)
+    #print(user_id)
+    #print(M)
     return mu[-(global_params.num_responsivity_features+1):],[j[-(global_params.num_responsivity_features+1):] for j in sigma[-(global_params.num_responsivity_features+1):]]
 
 
