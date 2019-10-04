@@ -270,7 +270,7 @@ def real_run(X,users,y):
 
         hyper = get_hyper(np.array(X),users,np.array(y),global_params)
         with open('data/pooled_hyper/pooled_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
-            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov':hyper['cov']},f)
+            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov':hyper['cov'],'iters':hyper['iters']},f)
         with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
         inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
