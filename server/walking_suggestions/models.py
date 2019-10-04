@@ -9,6 +9,8 @@ from django.utils import timezone
 
 from behavioral_messages.models import MessageTemplate
 from days.services import DayService
+from fitbit_activities.models import FitbitDay
+from fitbit_api.services import FitbitService
 from randomization.models import Decision
 from service_requests.models import ServiceRequest
 from walking_suggestion_times.models import SuggestionTime
@@ -61,6 +63,17 @@ class Configuration(models.Model):
             minute = self.day_start_minute,
             tzinfo = self.timezone
         )
+
+    @property
+    def fitbit_days_worn(self):
+        try:
+            fitbit_service = FitbitService(user = self.user)
+        except FitbitService.NoAccount:
+            return 0
+        return FitbitDay.objects.filter(
+            account = fitbit_service.account,
+            wore_fitbit = True
+        ).count()
 
     def get_end_of_day(self, day=None):
         dt = self.get_start_of_day(day=day)
