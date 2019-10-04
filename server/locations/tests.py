@@ -82,25 +82,25 @@ class PlaceTests(TestCase):
 
         self.assertEqual(place_type, 'other') 
 
-    def test_pedja_lives_closer_to_the_pie_bar(self):
-        user = User.objects.create(username="pedja")
+    # def test_pedja_lives_closer_to_the_pie_bar(self):
+    #     user = User.objects.create(username="pedja")
 
-        kpwri = make_kpwri_location()
-        kpwri.type = 'office'
-        kpwri.user = user
-        kpwri.save()
+    #     kpwri = make_kpwri_location()
+    #     kpwri.type = 'office'
+    #     kpwri.user = user
+    #     kpwri.save()
 
-        home = make_pedjas_house_location()
-        home.type = 'home'
-        home.user = user
-        home.save()
+    #     home = make_pedjas_house_location()
+    #     home.type = 'home'
+    #     home.user = user
+    #     home.save()
 
-        place = make_pie_bar_location()
+    #     place = make_pie_bar_location()
 
-        location_service = LocationService(user)
-        place_type = location_service.categorize_location(place.latitude, place.longitude)
+    #     location_service = LocationService(user)
+    #     place_type = location_service.categorize_location(place.latitude, place.longitude)
 
-        self.assertEqual(place_type, 'home')
+    #     self.assertEqual(place_type, 'home')
 
 class PlacesViewTests(APITestCase):
 
