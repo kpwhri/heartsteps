@@ -355,6 +355,9 @@ def get_hyper(X,users,y,global_params):
                         break
                                                                               
                 except Exception as e:
+                    with open('data/error_within_gpy.txt','w+') as f:
+                        f.write('{}'.format(e))
+                        f.write('\n')
                     print(e)
                                                                               
                 one_test = True
