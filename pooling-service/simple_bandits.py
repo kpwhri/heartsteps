@@ -183,7 +183,7 @@ def get_M_faster(global_params,user_id,user_study_day,history,users,sigma_u):
     temp = np.dot(temp,H.T)
     temp = np.dot(phi,temp)
     
-    user_ids =users
+    user_ids =np.array(users)
     #history[:,global_params.user_id_index]
 
     my_days = [int(user_ids[i]==user_id) for i in range(len(user_ids))]
@@ -202,9 +202,11 @@ def get_M_faster(global_params,user_id,user_study_day,history,users,sigma_u):
 #print(user_matrix)
 #with open('data/my_um_{}.pkl'.format(user_id),'wb') as f:
 #pickle.dump(user_matrix,f)
-    #if type(my_days)!=np.ndarray:
-    #my_days = np.zeros(history.shape[0])
-    #print('h')
+    my_days = np.ma.masked_where(user_ids==user_id, user_ids).mask.astype(float)
+    
+    if type(my_days)!=np.ndarray:
+        my_days = np.zeros(history.shape[0])
+        print('problem {}'.format(user_id))
     user_matrix = np.diag(my_days)
     #print(user_matrix.shape)
 #print(user_matrix)
@@ -329,6 +331,24 @@ def get_middle_term(X_dim,cov,noise_term,M,adjusted_rewards,mu_theta,inv_term):
 
 def is_pos_def(x):
     return np.all(np.linalg.eigvals(x) > 0)
+
+def other_cov_notime(data,sigma_theta,random_effects,sigma_u,user_matrix):
+    #K0 <- phi.mat %*% Sigma.theta %*% t(phi.mat)
+    #K1 <- (psi.mat %*% Sigma.u %*% t(psi.mat)) * id.mat
+    # K2 <- (psi.mat %*% Sigma.v %*% t(psi.mat)) * rho.mat
+    one = np.dot(data,sigma_theta)
+    one = np.dot(one,data.T)
+    #print(one[:,0])
+    two = np.dot(random_effects,sigma_u)
+    two = np.dot(two,random_effects.T)
+    two = np.multiply(user_matrix,two)
+    #print(two[:,0])
+    #three = np.dot(random_effects,sigma_v)
+    #three = np.dot(three,random_effects.T)
+    #three = np.multiply(time,three)
+    #print(three[:,0])
+    return one+two
+
 
 def get_covar_simple(X,users,global_params):
     matrix = []
