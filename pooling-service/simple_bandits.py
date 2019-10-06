@@ -186,16 +186,16 @@ def get_M_faster(global_params,user_id,user_study_day,history,users,sigma_u):
     user_ids =users
     #history[:,global_params.user_id_index]
 
-    my_days = np.ma.masked_where(user_ids==user_id, user_ids).mask.astype(float)
+    my_days = [int(user_ids[i]==user_id) for i in range(len(user_ids))]
     #print(users)
     #print(user_ids)
-    user_matrix = []
-    for i in range(history.shape[0]):
-        temp2 = []
-        for j in range(history.shape[0]):
+    #user_matrix = []
+    #for i in range(history.shape[0]):
+    #temp2 = []
+    #for j in range(history.shape[0]):
             
-            temp2.append(1.0*int(users[i]==user_id))
-        user_matrix.append(temp2)
+            #temp2.append(1.0*int(users[i]==user_id))
+            #user_matrix.append(temp2)
         #print(len(user_matrix))
 #print(len(user_matrix[0]))
 #print(type(users[0]))
@@ -205,7 +205,7 @@ def get_M_faster(global_params,user_id,user_study_day,history,users,sigma_u):
     #if type(my_days)!=np.ndarray:
     #my_days = np.zeros(history.shape[0])
     #print('h')
-    #user_matrix = np.diag(my_days)
+    user_matrix = np.diag(my_days)
     #print(user_matrix.shape)
 #print(user_matrix)
     t_two = np.matmul(user_matrix,temp)
@@ -255,6 +255,8 @@ def get_M_faster_four(global_params,user_id,user_study_day,history,users,sigma_u
 
 
 def calculate_posterior_faster(global_params,user_id,user_study_day,X,users,y):
+    
+    #print(cov)
     H = create_H(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
     
     M = get_M_faster(global_params,user_id,user_study_day,X,users,global_params.sigma_u)
@@ -268,10 +270,11 @@ def calculate_posterior_faster(global_params,user_id,user_study_day,X,users,y):
     #.reshape(X.shape[0],X.shape[0])
     mu = get_middle_term(X.shape[0],global_params.cov,global_params.noise_term,M,adjusted_rewards,global_params.mu_theta,global_params.inv_term)
     #.reshape(X.shape[0],X.shape[0])
-    sigma = get_post_sigma(H,global_params.cov,global_params.sigma_u.reshape(2,2),None,global_params.noise_term,M,X.shape[0],global_params.sigma_theta,global_params.inv_term)
+    sigma = get_post_sigma(H,global_params.cov,global_params.sigma_u.reshape(2,2),None,global_params.noise_term,M,X.shape[0],global_params.sigma_theta,global_params.inv_term,user_id)
     #print(mu)
     #print(user_id)
     #print(M)
+    #print(sigma)
     return mu[-(global_params.num_responsivity_features+1):],[j[-(global_params.num_responsivity_features+1):] for j in sigma[-(global_params.num_responsivity_features+1):]]
 
 
@@ -324,15 +327,45 @@ def get_middle_term(X_dim,cov,noise_term,M,adjusted_rewards,mu_theta,inv_term):
 
     return np.add(mu_theta,middle_term)
 
-def get_post_sigma(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term):
+def is_pos_def(x):
+    return np.all(np.linalg.eigvals(x) > 0)
+
+def get_covar_simple(X,users,global_params):
+    matrix = []
+    for i in range(X.shape[0]):
+        temp = []
+        for j in range(X.shape[0]):
+            base_one = X[i]
+            base_two = X[j]
+            re_one = np.array([X[i][k] for k in global_params.psi_indices])
+            re_two = np.array([X[j][k] for k in global_params.psi_indices])
+            first_term = np.dot(base_one,global_params.sigma_theta)
+            #print(first_term)
+            first_term = np.dot(first_term,base_two)
+            #print(first_term)
+            second_term = int(users[i]==users[j]) * np.dot(np.dot(re_one,global_params.sigma_u),re_two)
+            
+            #if second_term!=0:
+            #print('second')
+            #print(second_term)
+            final = np.add(first_term,second_term)
+            temp.append(final)
+        matrix.append(temp)
+    return matrix
+
+
+
+def get_post_sigma(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term,uid):
     #M = get_M(global_params,user_id,user_study_day,history[0])
     
     ##change this to be mu_theta
     ##is it updated?  the current mu_theta?
     #adjusted_rewards =[history[1][i]-np.dot(history[0][i][0:6],np.ones(6)) for i in range(len(history[0]))]
     
-    
-    
+    with open('eigs.pkl','wb') as f:
+        pickle.dump(np.linalg.eigvals(cov),f)
+    #print(H)
+    #print(np.linalg.eigvals(cov) )
     #first_term = np.add(sigma_u,sigma_v)
     first_term = sigma_u
     #print(first_term.shape)
@@ -341,16 +374,35 @@ def get_post_sigma(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term
     #print(first_term.shape)
     first_term = np.dot(first_term,H.T)
     #print(first_term)
-    
+    #with open('../../look/first_Term_{}.pkl'.format(uid),'wb') as f:
+#    pickle.dump(first_term,f)
     #noise = noise_term * np.eye(x_dim)
     #print(noise.shape)
     #middle_term = np.add(cov,noise)
     #print(middle_term.shape)
+    #with open('../../look/middle_Term11_{}.pkl'.format(uid),'wb') as f:
+    #    pickle.dump(M,f)
+    #with open('../../look/middle_Term12_{}.pkl'.format(uid),'wb') as f:
+    #    pickle.dump(inv_term,f)
     middle_term = np.dot(M.T,inv_term)
     #print(middle_term.shape)
+    #with open('../../look/middle_Term1_{}.pkl'.format(uid),'wb') as f:
+    #    pickle.dump(middle_term,f)
     middle_term = np.dot(middle_term,M)
+        #with open('../../look/middle_Term2_{}.pkl'.format(uid),'wb') as f:
+        #    pickle.dump(middle_term,f)
     #print(middle_term.shape)
     last = np.add(sigma_theta,first_term)
-    last = np.subtract(last,middle_term)
+        #with open('../../look/last_Term_{}.pkl'.format(uid),'wb') as f:
+        #    pickle.dump(last,f)
+    #print(sigma_u)
+    #print(sigma_theta)
+    #print(is_pos_def(last))
+    #print(is_pos_def(middle_term))
+    #print(np.subtract(np.diagonal(last),np.diagonal(middle_term)))
     
+    last = np.subtract(last,middle_term)
+
+
+
     return last

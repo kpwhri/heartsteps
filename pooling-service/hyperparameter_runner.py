@@ -279,12 +279,21 @@ def real_run(X,users,y):
         responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
 
         global_params = initialize_policy_params_TS(standardize=False,baseline_features=[i for i in range(len(baseline_features))],psi_features=[],responsivity_keys=[i for i in range(3,len(baseline_features))])
-
+        
         hyper = get_hyper(np.array(X),users,np.array(y),global_params)
-        with open('data/pooled_hyper/pooled_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
-            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
+        
         with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
+                #hyper['sigma_u']=np.array([[.09,.008],[.008,.001]])
+        global_params.sigma_u =hyper['sigma_u']
+        cov = simple_bandits.get_covar_simple(np.array(X),users,global_params)
+        
+        hyper['cov2']=hyper['cov']
+        hyper['cov']=cov
+        #hyper['noise']=1e10
+      
+        with open('data/pooled_hyper/pooled_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
+            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov2':hyper['cov2'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
         inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
         global_params.update_params(hyper)
 #print(global_params.sigma_u)
@@ -352,8 +361,8 @@ def get_hyper(X,users,y,global_params):
                                       ], lr=0.1)
                                       #global_params.lr
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
-                                      
-    num_iter=15
+
+    num_iter=20
 #print(X)
     losses = []
     Failure=False
@@ -413,9 +422,11 @@ def get_hyper(X,users,y,global_params):
                 covtemp = f_covar.detach().numpy()
                 cov=covtemp
                 noise = likelihood.noise_covar.noise.item()
-    print(sigma_u)
-    print(model.covar_module.u1.item())
-    print(model.covar_module.test.item())
+    #print(sigma_u)
+#print(model.covar_module.u1.item())
+#print(model.covar_module.test.item())
+#print(noise)
+#print(cov)
     with open('data/training_losses_{}.pkl'.format(str(date.today())),'wb') as f:
         pickle.dump(losses,f)
     #print(sigma_temp.all()==sigma_u.all())

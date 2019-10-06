@@ -92,7 +92,10 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
 #print(len(to_return))
 #print(len(all_dict['avail']))
     #to_adjust = np.ones(len(to_return[0]))
+    #print(np.array(ys).std())
     y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
+    #y.tolist()
+    #print(np.array(y).std())
     return to_return,y.tolist(),users
 
 def get_one_user(data_path,user_id):
@@ -151,8 +154,8 @@ def combine_users(data_path,user_list):
     
             big_reward_list = big_reward_list+data['reward']
     
-    temp_X = get_standard_x(big_data_list)
-    #temp_X = big_data_list
+    #temp_X = get_standard_x(big_data_list)
+    temp_X = big_data_list
     temp_data = {'avail':big_avail_list,'actions': big_action_list,'prob':big_prob_list,\
 'users':big_user_list,'reward':big_reward_list
 }

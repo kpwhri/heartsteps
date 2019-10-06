@@ -90,13 +90,13 @@ if __name__=="__main__":
         #print(user_string)
         
         users = set([i for i in user_string.split(',')])
-        print(users)
+        #print(users)
         x = run_updates(data_path,users)
         
         with open('data/test.pkl','wb') as f:
             pickle.dump(x,f)
         update_params(users,x,RPY.get_user_ids())
-        print(users)
+#print(users)
     except Exception as e:
         print(e)
         with open('data/errors_pool.txt','w+') as f:
