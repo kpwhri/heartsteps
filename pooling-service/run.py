@@ -82,9 +82,9 @@ def update_params(users,g,lookup):
 if __name__=="__main__":
     user_string = sys.argv[1]
     to_return =  user_string
-    print(user_string)
+    #print(user_string)
     data_path = 'data'
-    print(os.listdir('data'))
+    #print(os.listdir('data'))
     try:
         #users = json.loads(users)
         #print(user_string)

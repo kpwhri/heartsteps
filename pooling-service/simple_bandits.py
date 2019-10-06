@@ -362,8 +362,8 @@ def get_post_sigma(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term
     ##is it updated?  the current mu_theta?
     #adjusted_rewards =[history[1][i]-np.dot(history[0][i][0:6],np.ones(6)) for i in range(len(history[0]))]
     
-    with open('eigs.pkl','wb') as f:
-        pickle.dump(np.linalg.eigvals(cov),f)
+    #with open('eigs.pkl','wb') as f:
+    #pickle.dump(np.linalg.eigvals(cov),f)
     #print(H)
     #print(np.linalg.eigvals(cov) )
     #first_term = np.add(sigma_u,sigma_v)
