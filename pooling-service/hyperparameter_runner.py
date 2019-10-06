@@ -287,7 +287,7 @@ def real_run(X,users,y):
                 #hyper['sigma_u']=np.array([[.09,.008],[.008,.001]])
         global_params.sigma_u =hyper['sigma_u']
         cov = simple_bandits.get_covar_simple(np.array(X),users,global_params)
-        
+
         hyper['cov2']=hyper['cov']
         hyper['cov']=cov
         #hyper['noise']=1e10
@@ -391,7 +391,7 @@ def get_hyper(X,users,y,global_params):
                     f_preds = model(X)
                     f_covar = f_preds.covariance_matrix
                     covtemp = f_covar.detach().numpy()
-                                                      
+                    #print(eigs)
                     if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() and eigs[0][0]>0.0005 and eigs[0][1]>0.0005:
                                                           
                         sigma_u = sigma_temp
@@ -416,6 +416,7 @@ def get_hyper(X,users,y,global_params):
                   
 
     if one_test or Failure:
+                print('here')
                 sigma_u = get_sigma_u(model.covar_module.u1.item(),model.covar_module.u2.item(),model.covar_module.rho.item())
                 f_preds = model(X)
                 f_covar = f_preds.covariance_matrix

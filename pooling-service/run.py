@@ -90,6 +90,9 @@ if __name__=="__main__":
         #print(user_string)
         
         users = set([i for i in user_string.split(',')])
+        with open('data/user_list_pool.pkl','wb') as f:
+            pickle.dump(users)
+        users =set( ["10032","10006","10157","10075","10142","10055","10101","test-pedja"])
         #print(users)
         x = run_updates(data_path,users)
         

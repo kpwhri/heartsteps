@@ -139,6 +139,7 @@ def combine_users(data_path,user_list):
     
     for f in user_files:
         user_id = f.strip('user')
+        #print(user_id)
         #print(f)
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
         data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
