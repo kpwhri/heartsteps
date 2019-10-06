@@ -296,6 +296,8 @@ def real_run(X,users,y):
             pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov2':hyper['cov2'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
         inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
         global_params.update_params(hyper)
+        with open('../../data_to_test.pkl','wb') as f:
+            pickle.dump({'X':X,'y':y,'users':users,'gp':global_params},f)
 #print(global_params.sigma_u)
         global_params.inv_term=inv_term
         to_return = {i:simple_bandits.calculate_posterior_faster(global_params,\
