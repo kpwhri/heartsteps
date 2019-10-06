@@ -16,3 +16,6 @@ To copy production data from the google storage bucket to your local machine:
 ```bash
 docker-compose run anti-sedentary-service copy-files
 ```
+
+## Information about Anti-Sedentary Alg can be found at 
+https://docs.google.com/document/d/1DEkc8D2LSiwcS5p_p4qfhfeHbO5WXTbKMrGQYrcqQ2E/edit#   
