@@ -46,17 +46,23 @@ export class DailySummaryService {
             ])
         })
         .then((results) => {
+            console.log('setup')
             const datesToStore: Array<Date> = results[0];
             const storedIds: Array<String> = results[1];
+            console.log(datesToStore);
+            console.log(storedIds);
             const datesToUpdate = datesToStore.filter((date) => {
                 const serializedDate = this.serializer.formatDate(date);
+                console.log(serializedDate);
                 if (storedIds.indexOf(serializedDate) === -1) {
                     return true;
                 } else {
                     return false;
                 }
             });
+            console.log(datesToUpdate);
             if(datesToUpdate.length >= 3) {
+                console.log('reloading?')
                 return this.reload();
             } else {
                 return this.loadDates(datesToUpdate);
@@ -72,7 +78,7 @@ export class DailySummaryService {
             dates = this.getDatesToStore();
         }
         dates.sort();
-        return this.loadRange(dates.shift(), dates.pop())
+        return this.loadRange(dates.pop(), dates.shift())
         .then((summaries) => {
             summaries.forEach((summary) => {
                 this.updated.emit(summary);
@@ -108,6 +114,11 @@ export class DailySummaryService {
             this.updated.emit(summary);
             return summary;
         });
+    }
+
+    public updateCurrentWeek(): Promise<Array<DailySummary>> {
+        const currentWeek = this.dateFactory.getCurrentWeek();
+        return this.loadRange(currentWeek[0], currentWeek[currentWeek.length - 1]);
     }
 
     public watch(date: Date): Subscribable<DailySummary> {

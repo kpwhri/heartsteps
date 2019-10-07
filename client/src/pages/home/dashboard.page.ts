@@ -42,9 +42,9 @@ export class DashboardPage implements OnDestroy {
             this.weeklyGoal = week.goal;
         });
 
-        this.dailySummaryService.update(this.today);
+        this.dailySummaryService.updateCurrentWeek();
         this.resumeSubscription = this.platform.resume.subscribe(() => {
-            this.dailySummaryService.update(this.today);
+            this.dailySummaryService.updateCurrentWeek();
         });
 
         this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
