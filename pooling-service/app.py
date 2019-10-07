@@ -15,20 +15,12 @@ def update():
     if request.json and request.json['users'] and isinstance(request.json['users'], list):
         for _user in request.json['users']:
             users.append(str(_user))
-
-                # out =
     subprocess.Popen(
         "/pooling-service/update.sh --users='%s'" % (','.join(users)),
-                     shell=True,stdout=subprocess.PIPE,
-                     stderr=subprocess.STDOUT,
-                     universal_newlines=True
+        shell=True,
+        universal_newlines=True
     )
-#.communicate()
-    #print('This is error output', file=sys.stderr)
-# out =subprocess.Popen.communicate()
-#print(out)
     return 'doing'
-#(resp.text, resp.status_code, resp.headers.items())
 
 if __name__ == "__main__":
     app.run(
