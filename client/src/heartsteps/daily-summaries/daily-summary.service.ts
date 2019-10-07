@@ -108,6 +108,19 @@ export class DailySummaryService {
         });
     }
 
+    public updateFromFitbit(date: Date): Promise<DailySummary> {
+        const dateFormatted = this.serializer.formatDate(date);
+        return this.heartstepsServer.get(`activity/summary/update/${dateFormatted}`)
+        .then((data) => {
+            const summary = this.serializer.deserialize(data);
+            return this.store(summary);
+        })
+        .then((summary) => {
+            this.updated.emit(summary);
+            return summary;
+        })
+    }
+
     public update(date: Date): Promise<DailySummary> {
         return this.loadDate(date)
         .then((summary) => {
