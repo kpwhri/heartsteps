@@ -1,0 +1,271 @@
+Initialization: Success
+Nightly: Day = 1 Success[1]
+Nightly: Day = 2 Success[1]
+Nightly: Day = 3 Success[1]
+Nightly: Day = 5 Success[4]
+Nightly: Day = 6 Success[1]
+Nightly: Day = 7 Success[1]
+Nightly: Day = 8 Success[1]
+Nightly: Day = 9 Success[1]
+Nightly: Day = 10 Success[1]
+Nightly: Day = 12 Success[1]
+Nightly: Day = 13 Success[1]
+Nightly: Day = 14 Success[1]
+Nightly: Day = 16 Success[4]
+Nightly: Day = 18 Fail to save after 3 attemps Error in gzfile(file, "wb") : cannot open the connection
+
+Nightly: Day = 19 Success[1]
+Nightly: Day = 20 Success[1]
+Nightly: Day = 21 Success[1]
+Nightly: Day = 22 Success[1]
+Nightly: Day = 23 Success[1]
+Nightly: Day = 24 Success[1]
+Nightly: Day = 25 Success[1]
+Nightly: Day = 27 Success[4]
+Nightly: Day = 28 Success[4]
+Nightly: Day = 30 Success[4]
+Nightly: Day = 31 Success[1]
+Nightly: Day = 32 Success[1]
+Nightly: Day = 34 Success[4]
+Nightly: Day = 35 Success[1]
+Nightly: Day = 36 Success[1]
+Nightly: Day = 37 Success[1]
+Nightly: Day = 38 Success[1]
+Nightly: Day = 39 Success[1]
+Nightly: Day = 40 Success[1]
+Nightly: Day = 41 Success[1]
+Nightly: Day = 42 Success[1]
+Nightly: Day = 43 Success[1]
+Nightly: Day = 45 Success[1]
+Nightly: Day = 46 Success[1]
+Nightly: Day = 47 Success[1]
+Nightly: Day = 48 Success[1]
+Nightly: Day = 50 Success[4]
+Nightly: Day = 51 Success[1]
+Nightly: Day = 52 Success[4]
+Nightly: Day = 54 Success[3]
+Nightly: Day = 55 Success[1]
+Nightly: Day = 56 Success[1]
+Nightly: Day = 57 Success[1]
+Nightly: Day = 58 Success[1]
+Nightly: Day = 60 Success[4]
+Nightly: Day = 61 Success[1]
+Nightly: Day = 62 Success[1]
+Nightly: Day = 64 Success[1]
+Nightly: Day = 65 Success[1]
+Nightly: Day = 66 Success[1]
+Nightly: Day = 68 Success[1]
+Nightly: Day = 70 Success[1]
+Nightly: Day = 71 Success[1]
+Nightly: Day = 72 Success[1]
+Nightly: Day = 73 Success[1]
+Nightly: Day = 75 Success[4]
+Nightly: Day = 77 Success[1]
+Nightly: Day = 78 Success[1]
+Decision: Day = 79 Slot = 4 Success
+Decision: Day = 79 Slot = 5 Success
+Nightly: Day = 79 Success[1]
+Decision: Day = 80 Slot = 1 Success
+Decision: Day = 80 Slot = 3 Success
+Decision: Day = 80 Slot = 5 Success
+Nightly: Day = 80 Success[1]
+Decision: Day = 81 Slot = 1 Success
+Decision: Day = 81 Slot = 2 Success
+Decision: Day = 81 Slot = 4 Success
+Nightly: Day = 81 Success[1]
+Decision: Day = 82 Slot = 3 Success
+Decision: Day = 82 Slot = 4 Success
+Decision: Day = 82 Slot = 5 Success
+Nightly: Day = 82 Success[1]
+Decision: Day = 83 Slot = 3 Success
+Decision: Day = 83 Slot = 5 Success
+Nightly: Day = 83 Success[1]
+Decision: Day = 84 Slot = 1 Success
+Decision: Day = 84 Slot = 2 Success
+Decision: Day = 84 Slot = 3 Success
+Decision: Day = 84 Slot = 4 Success
+Nightly: Day = 84 Success[1]
+Decision: Day = 85 Slot = 4 Success
+Decision: Day = 85 Slot = 5 Success
+Nightly: Day = 85 Success[1]
+Decision: Day = 86 Slot = 3 Success
+Decision: Day = 86 Slot = 4 Success
+Decision: Day = 86 Slot = 5 Success
+Nightly: Day = 86 Success[1]
+Decision: Day = 87 Slot = 1 Success
+Decision: Day = 87 Slot = 3 Success
+Decision: Day = 87 Slot = 4 Success
+Decision: Day = 87 Slot = 5 Success
+Nightly: Day = 87 Success[1]
+Decision: Day = 88 Slot = 1 Success
+Decision: Day = 88 Slot = 2 Success
+Decision: Day = 88 Slot = 3 Success
+Decision: Day = 88 Slot = 4 Success
+Decision: Day = 88 Slot = 5 Success
+Nightly: Day = 88 Success[1]
+Decision: Day = 89 Slot = 1 Success
+Decision: Day = 89 Slot = 2 Success
+Decision: Day = 89 Slot = 3 Success
+Decision: Day = 89 Slot = 4 Success
+Decision: Day = 89 Slot = 5 Success
+Nightly: Day = 89 Success[1]
+Decision: Day = 90 Slot = 1 Success
+Decision: Day = 90 Slot = 2 Success
+Decision: Day = 90 Slot = 3 Success
+Decision: Day = 90 Slot = 4 Success
+Decision: Day = 90 Slot = 5 Success
+Nightly: Day = 90 Success[1]
+Decision: Day = 91 Slot = 1 Success
+Decision: Day = 91 Slot = 2 Success
+Decision: Day = 91 Slot = 3 Success
+Decision: Day = 91 Slot = 4 Success
+Decision: Day = 91 Slot = 5 Success
+Nightly: Day = 91 Success[1]
+Decision: Day = 92 Slot = 1 Success
+Decision: Day = 92 Slot = 2 Success
+Decision: Day = 92 Slot = 4 Success
+Decision: Day = 92 Slot = 5 Success
+Nightly: Day = 92 Success[1]
+Decision: Day = 93 Slot = 5 Success
+Nightly: Day = 93 Success[1]
+Decision: Day = 94 Slot = 1 Success
+Decision: Day = 94 Slot = 2 Success
+Decision: Day = 94 Slot = 3 Success
+Decision: Day = 94 Slot = 4 Success
+Nightly: Day = 94 Success[1]
+Decision: Day = 95 Slot = 1 Success
+Decision: Day = 95 Slot = 2 Success
+Decision: Day = 95 Slot = 3 Success
+Decision: Day = 95 Slot = 4 Success
+Nightly: Day = 95 Success[1]
+Decision: Day = 96 Slot = 1 Success
+Decision: Day = 96 Slot = 2 Success
+Decision: Day = 96 Slot = 4 Success
+Nightly: Day = 96 Success[1]
+Decision: Day = 97 Slot = 1 Success
+Decision: Day = 97 Slot = 2 Success
+Decision: Day = 97 Slot = 5 Success
+Nightly: Day = 97 Success[1]
+Decision: Day = 98 Slot = 2 Success
+Decision: Day = 98 Slot = 3 Success
+Decision: Day = 98 Slot = 4 Success
+Decision: Day = 98 Slot = 5 Success
+Nightly: Day = 98 Success[1]
+Decision: Day = 99 Slot = 2 Success
+Decision: Day = 99 Slot = 3 Success
+Decision: Day = 99 Slot = 4 Success
+Nightly: Day = 99 Success[1]
+Decision: Day = 100 Slot = 1 Success
+Decision: Day = 100 Slot = 2 Success
+Decision: Day = 100 Slot = 3 Success
+Decision: Day = 100 Slot = 5 micro-randomize Error: non-conformable arguments
+Decision: Day = 101 Slot = 2 Success
+Decision: Day = 101 Slot = 3 Success
+Decision: Day = 101 Slot = 4 micro-randomize Error: non-conformable arguments
+Decision: Day = 101 Slot = 5 Success
+Decision: Day = 102 Slot = 2 micro-randomize Error: non-conformable arguments
+Decision: Day = 102 Slot = 3 micro-randomize Error: non-conformable arguments
+Decision: Day = 102 Slot = 4 Success
+Decision: Day = 102 Slot = 5 Success
+Decision: Day = 103 Slot = 1 micro-randomize Error: non-conformable arguments
+Decision: Day = 103 Slot = 5 micro-randomize Error: non-conformable arguments
+Nightly: Day = 100 Success[1]
+Nightly: Day = 101 Success[1]
+Nightly: Day = 102 Success[1]
+Decision: Day = 104 Slot = 1 Success
+Decision: Day = 104 Slot = 2 Success
+Decision: Day = 104 Slot = 5 Success
+Nightly: Day = 104 Success[1]
+Decision: Day = 105 Slot = 1 Success
+Decision: Day = 105 Slot = 2 Success
+Decision: Day = 105 Slot = 3 Success
+Decision: Day = 105 Slot = 4 Success
+Decision: Day = 105 Slot = 5 Success
+Nightly: Day = 105 Success[1]
+Decision: Day = 106 Slot = 2 Success
+Decision: Day = 106 Slot = 4 Success
+Nightly: Day = 106 Success[1]
+Decision: Day = 107 Slot = 1 Success
+Decision: Day = 107 Slot = 2 Success
+Decision: Day = 107 Slot = 3 Success
+Decision: Day = 107 Slot = 5 Success
+Nightly: Day = 107 Success[1]
+Decision: Day = 108 Slot = 2 Success
+Nightly: Day = 108 Success[1]
+Decision: Day = 109 Slot = 3 Success
+Nightly: Day = 109 Success[1]
+Decision: Day = 110 Slot = 2 Success
+Decision: Day = 110 Slot = 4 Success
+Decision: Day = 110 Slot = 5 Success
+Nightly: Day = 110 Success[1]
+Decision: Day = 111 Slot = 2 Success
+Decision: Day = 111 Slot = 3 Success
+Decision: Day = 111 Slot = 4 Success
+Nightly: Day = 111 Success[1]
+Decision: Day = 112 Slot = 1 Success
+Decision: Day = 112 Slot = 2 Success
+Decision: Day = 112 Slot = 3 Success
+Decision: Day = 112 Slot = 4 Success
+Decision: Day = 112 Slot = 5 Success
+Nightly: Day = 112 Success[1]
+Decision: Day = 113 Slot = 1 Success
+Decision: Day = 113 Slot = 2 Success
+Decision: Day = 113 Slot = 3 Success
+Nightly: Day = 113 Success[1]
+Decision: Day = 114 Slot = 5 Success
+Nightly: Day = 114 Success[1]
+Decision: Day = 115 Slot = 1 Success
+Decision: Day = 115 Slot = 2 Success
+Decision: Day = 115 Slot = 3 Success
+Decision: Day = 115 Slot = 4 Success
+Decision: Day = 115 Slot = 5 Success
+Nightly: Day = 115 Success[1]
+Decision: Day = 116 Slot = 1 Success
+Decision: Day = 116 Slot = 2 Success
+Decision: Day = 116 Slot = 3 Success
+Decision: Day = 116 Slot = 4 Success
+Decision: Day = 116 Slot = 5 Success
+Nightly: Day = 116 Success[1]
+Decision: Day = 117 Slot = 1 Success
+Decision: Day = 117 Slot = 2 Success
+Decision: Day = 117 Slot = 3 Success
+Decision: Day = 117 Slot = 4 Success
+Decision: Day = 117 Slot = 5 Success
+Nightly: Day = 117 Success[1]
+Decision: Day = 118 Slot = 2 Success
+Decision: Day = 118 Slot = 3 Success
+Decision: Day = 118 Slot = 4 Success
+Decision: Day = 118 Slot = 5 Success
+Nightly: Day = 118 Success[1]
+Decision: Day = 119 Slot = 1 Success
+Decision: Day = 119 Slot = 2 Success
+Decision: Day = 119 Slot = 3 Success
+Decision: Day = 119 Slot = 4 Success
+Nightly: Day = 119 Success[1]
+Decision: Day = 120 Slot = 1 Success
+Decision: Day = 120 Slot = 2 Success Pool= FALSE
+Decision: Day = 120 Slot = 3 Success Pool= FALSE
+Decision: Day = 120 Slot = 4 Success Pool= FALSE
+Decision: Day = 120 Slot = 5 Success Pool= FALSE
+Nightly: Day = 120 Success[1]
+Decision: Day = 121 Slot = 2 Success Pool= FALSE
+Decision: Day = 121 Slot = 5 Success Pool= FALSE
+Nightly: Day = 121 Success[1]
+Decision: Day = 122 Slot = 1 Success Pool= FALSE
+Decision: Day = 122 Slot = 2 Success Pool= FALSE
+Decision: Day = 122 Slot = 3 Success Pool= FALSE
+Decision: Day = 122 Slot = 4 Success Pool= FALSE
+Decision: Day = 122 Slot = 5 Success Pool= FALSE
+Nightly: Day = 122 Success[1]
+Decision: Day = 123 Slot = 2 Success Pool= FALSE
+Decision: Day = 123 Slot = 5 Success Pool= FALSE
+Nightly: Day = 123 Success[1]
+Nightly: Day = 124 Success[1]
+Nightly: Day = 125 Success[1]
+Nightly: Day = 126 Success[1]
+Nightly: Day = 126 Success[1]
+Nightly: Day = 127 Success[1]
+Nightly: Day = 128 Success[1]
+Nightly: Day = 129 Success[1]
+Nightly: Day = 130 Success[1]
+Nightly: Day = 131 Success[1]

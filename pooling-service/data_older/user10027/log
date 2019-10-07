@@ -1,0 +1,93 @@
+Initialization: Success
+Nightly: Day = 1 Success[1]
+Nightly: Day = 2 Success[1]
+Nightly: Day = 3 Success[1]
+Nightly: Day = 4 Success[1]
+Nightly: Day = 5 Success[1]
+Nightly: Day = 6 Success[1]
+Nightly: Day = 7 Success[1]
+Nightly: Day = 8 Success[1]
+Nightly: Day = 10 Success[4]
+Nightly: Day = 12 Success[1]
+Nightly: Day = 13 Success[3]
+Nightly: Day = 14 Success[1]
+Nightly: Day = 16 Success[4]
+Nightly: Day = 17 Success[1]
+Nightly: Day = 18 Success[1]
+Nightly: Day = 20 Success[1]
+Nightly: Day = 22 Success[4]
+Nightly: Day = 23 Success[1]
+Nightly: Day = 24 Success[1]
+Nightly: Day = 25 Success[1]
+Nightly: Day = 26 Success[1]
+Nightly: Day = 27 Success[1]
+Nightly: Day = 28 Success[1]
+Nightly: Day = 29 Success[1]
+Nightly: Day = 30 Success[1]
+Nightly: Day = 31 Success[1]
+Nightly: Day = 32 Success[1]
+Nightly: Day = 33 Success[1]
+Nightly: Day = 34 Success[1]
+Decision: Day = 44 Slot = 1 Success
+Nightly: Day = 35 Success[1]
+Nightly: Day = 36 Success[1]
+Nightly: Day = 37 Success[1]
+Nightly: Day = 38 Success[5]
+Nightly: Day = 39 Success[1]
+Nightly: Day = 40 Success[1]
+Nightly: Day = 41 Success[1]
+Nightly: Day = 42 Success[1]
+Nightly: Day = 43 Success[1]
+Nightly: Day = 44 Success[1]
+Nightly: Day = 45 Success[1]
+Nightly: Day = 46 Success[1]
+Decision: Day = 48 Slot = 1 micro-randomize Error: non-conformable arguments
+Decision: Day = 49 Slot = 1 micro-randomize Error: non-conformable arguments
+Decision: Day = 49 Slot = 2 Success
+Decision: Day = 49 Slot = 3 Success
+Decision: Day = 49 Slot = 4 micro-randomize Error: non-conformable arguments
+Decision: Day = 49 Slot = 5 Success
+Decision: Day = 50 Slot = 1 micro-randomize Error: non-conformable arguments
+Nightly: Day = 47 Success[1]
+Nightly: Day = 48 Success[1]
+Nightly: Day = 49 Success[1]
+Nightly: Day = 50 Success[1]
+Nightly: Day = 51 Success[1]
+Nightly: Day = 52 Success[1]
+Nightly: Day = 53 Success[1]
+Nightly: Day = 54 Success[1]
+Nightly: Day = 55 Success[1]
+Nightly: Day = 56 Success[1]
+Nightly: Day = 57 Success[1]
+Decision: Day = 58 Slot = 2 Success
+Decision: Day = 58 Slot = 3 Success
+Decision: Day = 58 Slot = 4 Success
+Decision: Day = 58 Slot = 5 Success
+Nightly: Day = 58 Success[1]
+Nightly: Day = 59 Success[1]
+Nightly: Day = 60 Success[1]
+Nightly: Day = 61 Success[1]
+Nightly: Day = 62 Success[1]
+Nightly: Day = 63 Success[1]
+Nightly: Day = 64 Success[1]
+Nightly: Day = 65 Success[1]
+Nightly: Day = 66 Success[1]
+Decision: Day = 67 Slot = 2 Success Pool= FALSE
+Decision: Day = 67 Slot = 3 Success Pool= FALSE
+Decision: Day = 67 Slot = 4 Success Pool= FALSE
+Nightly: Day = 67 Success[1]
+Nightly: Day = 68 Success[1]
+Nightly: Day = 69 Success[1]
+Nightly: Day = 70 Success[1]
+Nightly: Day = 71 Success[1]
+Nightly: Day = 72 Success[1]
+Nightly: Day = 73 Success[1]
+Nightly: Day = 74 Success[1]
+Nightly: Day = 75 Success[1]
+Nightly: Day = 76 Success[1]
+Nightly: Day = 77 Success[1]
+Nightly: Day = 78 Success[1]
+Decision: Day = 79 Slot = 2 Success Pool= FALSE
+Decision: Day = 79 Slot = 3 Success Pool= FALSE
+Decision: Day = 79 Slot = 4 Success Pool= FALSE
+Decision: Day = 79 Slot = 5 Success Pool= FALSE

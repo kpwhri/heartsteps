@@ -1,0 +1,60 @@
+Initialization: Success
+Nightly: Day = 1 Success[1]
+Decision: Day = 2 Slot = 1 Success
+Nightly: Day = 2 Success[1]
+Nightly: Day = 3 Success[1]
+Nightly: Day = 4 Success[1]
+Decision: Day = 5 Slot = 5 Success
+Nightly: Day = 5 Success[1]
+Nightly: Day = 6 Success[1]
+Decision: Day = 7 Slot = 2 Success
+Decision: Day = 7 Slot = 3 Success
+Decision: Day = 7 Slot = 4 Success
+Decision: Day = 7 Slot = 5 Success
+Nightly: Day = 7 Success[1]
+Decision: Day = 8 Slot = 1 Success
+Decision: Day = 8 Slot = 2 Success
+Decision: Day = 8 Slot = 3 Success
+Decision: Day = 8 Slot = 4 Success
+Nightly: Day = 8 Success[1]
+Decision: Day = 9 Slot = 1 Success
+Decision: Day = 9 Slot = 2 Success
+Decision: Day = 9 Slot = 3 Success
+Decision: Day = 9 Slot = 4 Success
+Decision: Day = 9 Slot = 5 Success
+Nightly: Day = 9 Success[1]
+Decision: Day = 10 Slot = 1 Success
+Decision: Day = 10 Slot = 4 Success
+Decision: Day = 10 Slot = 5 Success
+Nightly: Day = 10 Success[1]
+Decision: Day = 11 Slot = 1 Success
+Decision: Day = 11 Slot = 3 Success
+Decision: Day = 11 Slot = 5 Success
+Nightly: Day = 11 Success[1]
+Decision: Day = 12 Slot = 1 Success
+Decision: Day = 12 Slot = 2 Success Pool= FALSE
+Decision: Day = 12 Slot = 3 Success Pool= FALSE
+Decision: Day = 12 Slot = 4 Success Pool= FALSE
+Decision: Day = 12 Slot = 5 Success Pool= FALSE
+Nightly: Day = 12 Success[1]
+Decision: Day = 13 Slot = 2 Success Pool= FALSE
+Nightly: Day = 13 Success[1]
+Nightly: Day = 14 Success[1]
+Nightly: Day = 15 Success[1]
+Nightly: Day = 16 Success[1]
+Decision: Day = 17 Slot = 2 Success Pool= FALSE
+Decision: Day = 17 Slot = 3 Success Pool= FALSE
+Nightly: Day = 17 Success[1]
+Nightly: Day = 18 Success[1]
+Nightly: Day = 19 Success[1]
+Nightly: Day = 20 Success[1]
+Nightly: Day = 21 Success[1]
+Decision: Day = 22 Slot = 4 Success Pool= FALSE
+Decision: Day = 22 Slot = 5 Success Pool= FALSE
+Nightly: Day = 22 Success[1]
+Decision: Day = 23 Slot = 1 Success Pool= FALSE
+Decision: Day = 23 Slot = 3 Success Pool= FALSE
+Nightly: Day = 23 Success[1]
+Decision: Day = 24 Slot = 3 Success Pool= FALSE
+Decision: Day = 24 Slot = 4 Success Pool= FALSE
+Decision: Day = 24 Slot = 5 Success Pool= FALSE

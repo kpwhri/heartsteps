@@ -10,6 +10,23 @@ from sklearn import preprocessing
 import os
 import random
 
+def dist(x,x2):
+    return math.exp(-((x-x2)**2)/1.0)
+
+def get_distance(days):
+    to_return = []
+    for i in range(len(days)):
+        temp = []
+        
+        temp=[dist(days[i],days[j]) for j in range(len(days))]
+        to_return.append(temp)
+    return np.array(to_return)
+
+def get_users(users,userstwo):
+    
+    xx,yy = np.meshgrid(users,userstwo,sparse=True)
+    #.99999999999
+    return (xx==yy).astype('float')
 
 
 def get_inv_term(cov,X_dim,noise_term):

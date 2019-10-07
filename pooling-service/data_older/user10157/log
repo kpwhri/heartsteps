@@ -1,0 +1,114 @@
+Initialization: Success
+Decision: Day = 1 Slot = 1 Success
+Decision: Day = 1 Slot = 3 Success
+Decision: Day = 1 Slot = 4 Success
+Decision: Day = 1 Slot = 5 Success
+Nightly: Day = 1 Success[1]
+Decision: Day = 2 Slot = 2 Success
+Decision: Day = 2 Slot = 4 Success
+Decision: Day = 2 Slot = 5 Success
+Nightly: Day = 2 Success[1]
+Nightly: Day = 3 Success[1]
+Nightly: Day = 4 Success[1]
+Nightly: Day = 5 Success[1]
+Decision: Day = 6 Slot = 2 Success
+Decision: Day = 6 Slot = 3 Success
+Decision: Day = 6 Slot = 4 Success
+Decision: Day = 7 Slot = 3 micro-randomize Error: non-conformable arguments
+Decision: Day = 7 Slot = 4 micro-randomize Error: non-conformable arguments
+Decision: Day = 7 Slot = 5 Success
+Nightly: Day = 6 Success[1]
+Decision: Day = 8 Slot = 1 Success
+Decision: Day = 8 Slot = 2 micro-randomize Error: non-conformable arguments
+Decision: Day = 8 Slot = 3 micro-randomize Error: non-conformable arguments
+Decision: Day = 8 Slot = 4 micro-randomize Error: non-conformable arguments
+Decision: Day = 8 Slot = 5 micro-randomize Error: non-conformable arguments
+Decision: Day = 9 Slot = 1 Success
+Decision: Day = 9 Slot = 2 micro-randomize Error: non-conformable arguments
+Decision: Day = 9 Slot = 3 micro-randomize Error: non-conformable arguments
+Decision: Day = 9 Slot = 4 Success
+Decision: Day = 9 Slot = 5 micro-randomize Error: non-conformable arguments
+Nightly: Day = 7 Success[1]
+Nightly: Day = 8 Success[1]
+Nightly: Day = 9 Success[1]
+Decision: Day = 10 Slot = 1 Success
+Decision: Day = 10 Slot = 2 Success
+Decision: Day = 10 Slot = 3 Success
+Decision: Day = 10 Slot = 4 Success
+Nightly: Day = 10 Success[1]
+Decision: Day = 11 Slot = 1 Success
+Decision: Day = 11 Slot = 3 Success
+Decision: Day = 11 Slot = 4 Success
+Decision: Day = 11 Slot = 5 Success
+Nightly: Day = 11 Success[1]
+Decision: Day = 12 Slot = 2 Success
+Decision: Day = 12 Slot = 4 Success
+Nightly: Day = 12 Success[1]
+Decision: Day = 13 Slot = 2 Success
+Decision: Day = 13 Slot = 3 Success
+Decision: Day = 13 Slot = 4 Success
+Decision: Day = 13 Slot = 5 Success
+Nightly: Day = 13 Success[1]
+Decision: Day = 14 Slot = 1 Success
+Decision: Day = 14 Slot = 2 Success
+Decision: Day = 14 Slot = 5 Success
+Nightly: Day = 14 Success[1]
+Decision: Day = 15 Slot = 1 Success
+Decision: Day = 15 Slot = 3 Success
+Decision: Day = 15 Slot = 4 Success
+Decision: Day = 15 Slot = 5 Success
+Nightly: Day = 15 Success[1]
+Decision: Day = 16 Slot = 1 Success
+Decision: Day = 16 Slot = 2 Success
+Decision: Day = 16 Slot = 3 Success
+Decision: Day = 16 Slot = 4 Success
+Decision: Day = 16 Slot = 5 Success
+Nightly: Day = 16 Success[1]
+Decision: Day = 17 Slot = 2 Success
+Decision: Day = 17 Slot = 3 Success
+Decision: Day = 17 Slot = 4 Success
+Decision: Day = 17 Slot = 5 Success
+Nightly: Day = 17 Success[1]
+Decision: Day = 18 Slot = 1 Success
+Decision: Day = 18 Slot = 2 Success
+Decision: Day = 18 Slot = 3 Success
+Nightly: Day = 18 Success[1]
+Decision: Day = 19 Slot = 2 Success
+Decision: Day = 19 Slot = 3 Success
+Decision: Day = 19 Slot = 4 Success
+Decision: Day = 19 Slot = 5 Success
+Nightly: Day = 19 Success[1]
+Decision: Day = 20 Slot = 2 Success
+Decision: Day = 20 Slot = 3 Success
+Decision: Day = 20 Slot = 4 Success
+Decision: Day = 20 Slot = 5 Success
+Nightly: Day = 20 Success[1]
+Decision: Day = 21 Slot = 2 Success
+Decision: Day = 21 Slot = 3 Success
+Decision: Day = 21 Slot = 4 Success
+Decision: Day = 21 Slot = 5 Success
+Nightly: Day = 21 Success[1]
+Decision: Day = 22 Slot = 2 Success
+Decision: Day = 22 Slot = 3 Success
+Decision: Day = 22 Slot = 4 Success
+Decision: Day = 22 Slot = 5 Success
+Nightly: Day = 22 Success[1]
+Decision: Day = 23 Slot = 1 Success
+Decision: Day = 23 Slot = 2 Success
+Decision: Day = 23 Slot = 3 Success
+Decision: Day = 23 Slot = 4 Success
+Nightly: Day = 23 Success[1]
+Nightly: Day = 24 Success[1]
+Nightly: Day = 25 Success[1]
+Nightly: Day = 26 Success[1]
+Nightly: Day = 27 Success[1]
+Nightly: Day = 28 Success[1]
+Nightly: Day = 29 Success[1]
+Nightly: Day = 30 Success[1]
+Nightly: Day = 31 Success[1]
+Nightly: Day = 32 Success[1]
+Nightly: Day = 33 Success[1]
+Nightly: Day = 34 Success[1]
+Nightly: Day = 35 Success[1]
+Nightly: Day = 36 Success[1]
+Nightly: Day = 37 Success[1]
