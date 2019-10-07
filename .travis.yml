@@ -14,8 +14,9 @@ install:
 before_script:
 - cp .env-production server/.env
 - cp .env-production client/.env
-- docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
-- docker-compose build server
+- docker-compose build service-template > /dev/null
+- docker-compose build walking-suggestion-service anti-sedentary-service nginx > /dev/null
+- docker-compose build server > /dev/null
 - docker-compose build client > /dev/null
 
 script:
