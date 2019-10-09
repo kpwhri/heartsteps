@@ -20,7 +20,7 @@ def update():
         shell=True,
         universal_newlines=True
     )
-    return 'doing'
+    return 'running'
 
 if __name__ == "__main__":
     app.run(
