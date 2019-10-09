@@ -96,7 +96,7 @@ def get_one_user(data_path,user_id):
 
 def combine_users(data_path,user_list):
     #data_path  = '../../../walking-suggestion-service/data'
-    user_list = ["10215", "10313", "10062", "10374", "10355", "10271", "10041", "10237", "10075", "10195"]
+    #user_list = ["10215", "10313", "10062", "10374", "10355", "10271", "10041", "10237", "10075", "10195"]
     user_files = [directory for directory in os.listdir(data_path) if directory.strip('user') in user_list]
     #print(user_files)
     #print()
