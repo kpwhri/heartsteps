@@ -60,6 +60,7 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
             temp.extend([(all_dict['actions'][i]-all_dict['prob'][i])*d for d in temp_two])
             to_return.append(temp)
             users.append(all_dict['users'][i])
+            #print(all_dict['users'][i])
             ys.append(all_dict['reward'][i])
     to_adjust = [np.array(all_dict['reward']).mean()]+[0]*(len(to_return[0])-1)
 
@@ -95,7 +96,9 @@ def get_one_user(data_path,user_id):
 
 def combine_users(data_path,user_list):
     #data_path  = '../../../walking-suggestion-service/data'
+    user_list = ["10215", "10313", "10062", "10374", "10355", "10271", "10041", "10237", "10075", "10195"]
     user_files = [directory for directory in os.listdir(data_path) if directory.strip('user') in user_list]
+    #print(user_files)
     #print()
     big_user_list = []
     big_data_list = []
@@ -117,20 +120,22 @@ def combine_users(data_path,user_list):
     for f in user_files:
         user_id = f.strip('user')
         #print(user_id)
+        #print(user_id)
         #print(f)
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
-        data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
+        if os.path.exists('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata')):
+            data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
         #print(data)
         #x,y,user = get_phi(data['data'],data,baseline_indices,responsivity_indices)
-        if user_id in get_user_ids():
-            big_user_list = big_user_list+data['users']
-            big_data_list = big_data_list+data['data']
-            big_avail_list =big_avail_list+data['avail']
-            big_action_list =big_action_list+data['actions']
-            big_prob_list =big_prob_list+data['prob']
+            if user_id in get_user_ids():
+                big_user_list = big_user_list+data['users']
+                big_data_list = big_data_list+data['data']
+                big_avail_list =big_avail_list+data['avail']
+                big_action_list =big_action_list+data['actions']
+                big_prob_list =big_prob_list+data['prob']
         
     
-            big_reward_list = big_reward_list+data['reward']
+                big_reward_list = big_reward_list+data['reward']
     
     #temp_X = get_standard_x(big_data_list)
     temp_X = big_data_list
@@ -138,6 +143,7 @@ def combine_users(data_path,user_list):
 'users':big_user_list,'reward':big_reward_list
 }
     #if train:
+    #print(temp_X)
     x,y,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
 
     return  user, x,y

@@ -273,7 +273,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
 
 def real_run(X,users,y):
     
-        
+    #print('here 1')
         baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
                          'dosage', 'engagement',  'other.location', 'variation']
         responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
@@ -313,12 +313,14 @@ def real_run(X,users,y):
 def get_hyper(X,users,y,global_params):
    
    
-    
+    print('here 2')
     #torch.manual_seed(111)
     
     user_mat= get_users(users,users)
-    
+    print(global_params.baseline_indices)
+    print(X.shape)
     first_mat = get_first_mat(np.eye(len(global_params.baseline_indices)),X,global_params.baseline_indices)
+    print('here 3')
     #print(user_mat)
     #print(users)
     #print(first_mat.shape)
@@ -370,6 +372,7 @@ def get_hyper(X,users,y,global_params):
 #print(X)
     losses = []
     Failure=False
+    one_test=True
     with gpytorch.settings.use_toeplitz(True):
             for i in range(num_iter):
                 try:
@@ -391,12 +394,13 @@ def get_hyper(X,users,y,global_params):
                     sigma_temp = get_sigma_u(model.covar_module.u1.item(),model.covar_module.u2.item(),model.covar_module.rho.item())
                     
                     eigs = np.linalg.eig(sigma_temp)
+                    #print(sigma_temp)
                     #print(eigs)
                     f_preds = model(X)
                     f_covar = f_preds.covariance_matrix
                     covtemp = f_covar.detach().numpy()
                     #print(eigs)
-                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() and eigs[0][0]>0.0005 and eigs[0][1]>0.0005:
+                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() and eigs[0][0]>0.0001 and eigs[0][1]>0.0001:
                                                           
                         sigma_u = sigma_temp
                         cov=covtemp
