@@ -49,14 +49,30 @@ class Day(models.Model):
     def day_end(self):
         return self.day_start + timedelta(days=1)
 
-    def update_from_fitbit(self):
-        try:
-            fitbitday_service = FitbitDayService(self.date, user=self.user)
-            fitbit_day = fitbitday_service.day
-        except FitbitDayService.NoAccount:
+    @property
+    def fitbit_day(self):
+        if not hasattr(self, '_fitbit_day'):
+            try:
+                fitbitday_service = FitbitDayService(self.date, user=self.user)
+                self._fitbit_day = fitbitday_service.day
+            except FitbitDayService.NoAccount:
+                self._fitbit_day = None
+        return self._fitbit_day
+
+    @property
+    def wore_fitbit(self):
+        if self.fitbit_day:
+            return self.fitbit_day.wore_fitbit
+        else:
             return False
-        self.steps = fitbit_day.step_count
-        self.miles = fitbit_day.distance
+
+    def update_from_fitbit(self):
+        if self.fitbit_day:
+            self.steps = self.fitbit_day.step_count
+            self.miles = self.fitbit_day.distance
+        else:
+            self.steps = 0
+            self.miles = 0
         self.save()
     
     def update_from_activities(self):

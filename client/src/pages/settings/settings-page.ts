@@ -47,6 +47,13 @@ export class SettingsPage {
         })
     }
 
+    public goBack() {
+        this.router.navigate(['/'])
+        .then(() => {
+            return this.participantService.update();
+        });
+    }
+
     public testWalkingSuggestion() {
         this.loadingService.show('Requesting walking suggestion message');
         this.walkingSuggestionService.createTestDecision()
@@ -202,5 +209,9 @@ export class SettingsPage {
                 modal: ['settings', 'notifications'].join('/')
             }
         }])
+    }
+
+    public testBaselineWeekPage() {
+        this.router.navigate(['baseline'])
     }
 } 

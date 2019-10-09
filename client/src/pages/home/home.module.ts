@@ -8,7 +8,6 @@ import { ResourceLibraryPage } from '@pages/resource-library/resource-library';
 import { Routes, RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { SettingsModule } from '@pages/settings/settings.module';
-import { SettingsPage } from '@pages/settings/settings-page';
 import { CurrentWeekResolver } from './current-week.resolver';
 import { ActivityPlanPageModule } from '@pages/activity-plan/plan.module';
 import { HomeGuard } from './home.guard';
@@ -19,6 +18,7 @@ import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.mo
 import { AnchorMessageResolver } from './anchor-message.resolver';
 import { ActivitiesPage } from './activities.page';
 import { DashboardNotificationComponent } from './dashboard-notifications.component';
+import { SettingsComponent } from '@pages/settings/settings.component';
 
 const routes:Routes = [
     {
@@ -47,7 +47,7 @@ const routes:Routes = [
             component: ResourceLibraryPage
         }, {
             path: 'settings',
-            component: SettingsPage
+            component: SettingsComponent
         }, {
             path: '',
             redirectTo: 'dashboard',

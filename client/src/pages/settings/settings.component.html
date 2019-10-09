@@ -1,0 +1,29 @@
+<article>
+    <nav>
+        <ul>
+            <li><button (click)="editContactInformation()">Contact information</button></li>
+            <li><button (click)="editNotifications()">Notifications</button></li>
+            <li><button (click)="editPlaces()">Places</button></li>
+            <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
+            <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
+            <li><button (click)="editDailyTimes()">Activity suggestion time</button></li>
+        </ul>
+    </nav>
+    <p>HeartSteps {{buildVersion}}, built on {{buildDate}}</p>
+</article>
+<article *ngIf="staffParticipant">
+    <h3>Testing Area</h3>
+    <p>This area is only visible to testing participants.</p>
+    <ul>
+        <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>
+        <li><button (click)="testMorningMessage()">Send Morning Message</button></li>
+        <li><button (click)="testWalkingSuggestion()">Send Walking Suggestion</button></li>
+        <li><button (click)="testWeeklySurveyMessage()">Send Weekly Survey</button></li>
+        <li><button (click)="testBaselineWeekPage()">View Baseline Week Page</button></li>
+    </ul>
+</article>
+<article>
+    <h3>Logout</h3>
+    <p>This will remove all data from your phone, and stop all push notifications.</p>
+    <button class="danger" (click)="logout()">Logout</button>
+</article>

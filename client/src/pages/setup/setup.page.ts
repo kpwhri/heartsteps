@@ -10,7 +10,7 @@ const onboardingPages:Array<Step> = [{
     title: 'Contact Information',
     component: ParticipantInformation
 }, {
-    key: 'fitbitAuthorization',
+    key: 'fitbit',
     title: 'Fitbit',
     component: FitbitAuth
 }];
@@ -25,11 +25,11 @@ export class SetupPage {
         private router: Router,
         private fitbitService: FitbitService
     ) {
-        this.fitbitService.setRedirectURL('/setup/fitbitAuthorization');
+        this.fitbitService.setRedirectURL('/setup/fitbit-authorize');
     }
 
     public finish() {
-        this.router.navigate(['complete']);
+        this.router.navigate(['setup','complete']);
     }
 
 }

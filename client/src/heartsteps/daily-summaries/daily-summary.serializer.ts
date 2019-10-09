@@ -19,6 +19,7 @@ export class DailySummarySerializer {
         return {
             date: this.formatDate(summary.date),
             updated: summary.updated,
+            wore_fitbit: summary.wore_fitbit,
             moderateMinutes: summary.moderateMinutes,
             vigorousMinutes: summary.vigorousMinutes,
             minutes: summary.minutes,
@@ -32,6 +33,7 @@ export class DailySummarySerializer {
         const summary:DailySummary = new DailySummary();
         summary.date = this.parseDate(data.date);
         summary.updated = new Date(data.updated);
+        summary.wore_fitbit = data.wore_fitbit ? true : false;
         summary.moderateMinutes = data.moderateMinutes ? data.moderateMinutes : 0;
         summary.vigorousMinutes = data.vigorousMinutes ? data.vigorousMinutes : 0;
         summary.minutes = data.minutes ? data.minutes : 0;

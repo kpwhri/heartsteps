@@ -15,6 +15,7 @@ import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.m
 import { BrowserModule } from '@angular/platform-browser';
 import { NotificationsPage } from './notifications.page';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
+import { SettingsComponent } from './settings.component';
 
 const settingsRoutes: Routes = [
     {
@@ -41,11 +42,15 @@ const settingsRoutes: Routes = [
         path: 'settings/notifications',
         component: NotificationsPage,
         outlet: 'modal'
+    }, {
+        path: 'settings',
+        component: SettingsPage
     }
 ]
 
 @NgModule({
     declarations: [
+        SettingsComponent,
         SettingsPage,
         SuggestionTimesPage,
         ContactPage,
