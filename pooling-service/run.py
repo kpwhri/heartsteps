@@ -15,11 +15,11 @@ def run_updates(data_path,users):
     
   
         #nusers = set(users)
-    users,data, y= RPY.combine_users(data_path,users)
+    users,data, y,ynon_adjusted= RPY.combine_users(data_path,users)
     #y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
     
     print('got users')
-    g = hyperparameter_runner.real_run(data,users,y)
+    g = hyperparameter_runner.real_run(data,users,y,ynon_adjusted)
     return g
     #try:
     #  users,data,y = RPY.combine_users(data_path,users)

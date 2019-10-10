@@ -271,7 +271,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
 
 
 
-def real_run(X,users,y):
+def real_run(X,users,y,ytwo):
     
     #print('here 1')
         baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\

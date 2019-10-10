@@ -7,7 +7,7 @@ import os
 
 def get_user_ids():
 
-    return {'10195':0,'10075':1,'10237':2,'10041':3,'10271':4,'10355':5,'10374':6,'10062':7,'10313':8,'10215':9}
+    return {'10195':0,'10075':1,'10237':2,'10041':3,'10271':4,'10355':5,'10374':6,'10062':7,'10313':8,'10215':9,'10395':10,'10152':11}
 
 def process_data(rdata,baseline_features,user_id):
     
@@ -74,7 +74,7 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
     y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
     #y.tolist()
     #print(np.array(y).std())
-    return to_return,y.tolist(),users
+    return to_return,y.tolist(),ys,users
 
 def get_one_user(data_path,user_id):
     result = pyreadr.read_r(data_path)
@@ -144,9 +144,9 @@ def combine_users(data_path,user_list):
 }
     #if train:
     #print(temp_X)
-    x,y,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
+    x,y,ys,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
 
-    return  user, x,y
+    return  user, x,y,ys
 
 
 
