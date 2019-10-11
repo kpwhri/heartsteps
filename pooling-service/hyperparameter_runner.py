@@ -364,11 +364,11 @@ def get_hyper(X,users,y,global_params):
     likelihood.train()
     optimizer = torch.optim.Adam([
                                       {'params': model.parameters()},  # Includes GaussianLikelihood parameters
-                                      ], lr=0.1)
+                                      ], lr=0.01)
                                       #global_params.lr
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
-    num_iter=20
+    num_iter=5
 #print(X)
     losses = []
     Failure=False
@@ -394,13 +394,14 @@ def get_hyper(X,users,y,global_params):
                     sigma_temp = get_sigma_u(model.covar_module.u1.item(),model.covar_module.u2.item(),model.covar_module.rho.item())
                     
                     eigs = np.linalg.eig(sigma_temp)
-                    #print(sigma_temp)
-                    #print(eigs)
+                    print(sigma_temp)
+                    print(eigs)
                     f_preds = model(X)
                     f_covar = f_preds.covariance_matrix
                     covtemp = f_covar.detach().numpy()
                     #print(eigs)
-                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() and eigs[0][0]>0.0001 and eigs[0][1]>0.0001:
+                    #and eigs[0][0]>0.0001 and eigs[0][1]>0.0001
+                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() :
                                                           
                         sigma_u = sigma_temp
                         cov=covtemp

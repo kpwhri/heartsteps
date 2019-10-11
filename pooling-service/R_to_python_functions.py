@@ -22,8 +22,10 @@ def process_data(rdata,baseline_features,user_id):
     users_to_ids = get_user_ids()
     #user_count = 0
     for k,v in rdata.iterrows():
-
-        feat_vec = [v[b] for b in baseline_features ]
+        #dosages = [v[b][0]   for b in baseline_features if b=='dosage' ]
+        #print(dosages)
+        #maxdosage = max(dosages)
+        feat_vec = [v[b] if b!='dosage' else v[b]/10 for b in baseline_features ]
         
         if ~np.isnan(feat_vec).any(axis=0):
             availabilities.append(v['availability'])
@@ -71,10 +73,10 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
 #print(len(all_dict['avail']))
     #to_adjust = np.ones(len(to_return[0]))
     #print(np.array(ys).std())
-    y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
+    #y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
     #y.tolist()
     #print(np.array(y).std())
-    return to_return,y.tolist(),ys,users
+    return to_return,ys,ys,users
 
 def get_one_user(data_path,user_id):
     result = pyreadr.read_r(data_path)

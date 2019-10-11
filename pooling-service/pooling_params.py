@@ -18,6 +18,8 @@ class TS_global_params:
         except:
             init_params = {'sigma_u':np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]]),'noise_term':5.44}
         #5.5440
+        #print(init_params)
+        #init_params['noise_term']=5.44
         #init_params = {'sigma_u':np.array([[1.5898, 0.0979],[ 0.0979,    0.6828]]),'noise_term':5.44}
         self.nums = set([np.float64,int,float])
         self.pi_max = 0.8

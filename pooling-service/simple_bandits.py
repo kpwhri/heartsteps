@@ -322,7 +322,7 @@ def calculate_posterior(global_params,user_id,user_study_day,X,y):
     M = get_M(global_params,user_id,user_study_day,X)
     ##change this to be mu_theta
     ##is it updated?  the current mu_theta?
-    adjusted_rewards =get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
+    adjusted_rewards=y #=get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
     #print('current global cov')
     #print(global_params.cov)
     #.reshape(X.shape[0],X.shape[0])
