@@ -37,7 +37,7 @@ export class EnrollmentPage {
 
         return this.enrollmentService.enroll(token, birthYear)
         .then(() => {
-            this.router.navigate(['setup'])
+            return this.router.navigate(['setup'])
         })
         .catch((error) => {
             this.error = error;

@@ -3,13 +3,15 @@ import { ProfileService } from "./profile.factory";
 import { StorageService } from "@infrastructure/storage.service";
 import { ParticipantInformationService } from "./participant-information.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
-import { BehaviorSubject } from "rxjs";
+import { ReplaySubject } from "rxjs";
+import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 
 export class Participant{
-    name: string;
-    profileComplete: boolean;
-    staff: boolean;
     dateEnrolled: Date;
+    isSetup: boolean;
+    isBaselineComplete: boolean;
+    name: string;
+    staff: boolean;
 }
 
 const storageKey = 'heartsteps-id'
@@ -17,13 +19,14 @@ const storageKey = 'heartsteps-id'
 @Injectable()
 export class ParticipantService {
 
-    public participant:BehaviorSubject<Participant> = new BehaviorSubject(undefined);
+    public participant:ReplaySubject<Participant> = new ReplaySubject(1);
 
     constructor(
         private storage:StorageService,
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
-        private contactInformationService: ContactInformationService
+        private contactInformationService: ContactInformationService,
+        private dailySummaryService: DailySummaryService
     ) {}
 
     public getProfile():Promise<any> {
@@ -37,10 +40,10 @@ export class ParticipantService {
         })
         .then(() => {
             return this.getParticipant()
-            .then((participant) => {
-                this.participant.next(participant);
-                return true;
-            });
+        })
+        .then((participant) => {
+            this.participant.next(participant);
+            return true;
         })
         .catch(() => {
             this.participant.next(null)
@@ -53,20 +56,43 @@ export class ParticipantService {
             this.getProfileComplete(),
             this.getStaffStatus(),
             this.getName(),
-            this.participantInformationService.getDateEnrolled()
+            this.participantInformationService.getDateEnrolled(),
+            this.getBaselineComplete()
         ])
         .then((results) => {
-            return {
-                name: results[2],
-                profileComplete: results[0],
-                staff: results[1],
-                dateEnrolled: results[3]
-            }
+            const participant = new Participant();
+            participant.isSetup = results[0];
+            participant.staff = results[1];
+            participant.name = results[2];
+            participant.dateEnrolled = results[3];
+            participant.isBaselineComplete = results[4];
+            return participant
         });
     }
 
     private getProfileComplete(): Promise<boolean> {
         return this.profileService.isComplete()
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    private getBaselineComplete(): Promise<boolean> {
+        return this.dailySummaryService.getAll()
+        .then((summaries) => {
+            const baselineDays = 7;
+            let days_worn = 0;
+            summaries.forEach((summary) => {
+                if(summary.wore_fitbit) {
+                    days_worn += 1;
+                }
+            });
+            if (days_worn >= baselineDays) {
+                return true;
+            } else {
+                return false;
+            }
+        })
         .catch(() => {
             return Promise.resolve(false);
         });

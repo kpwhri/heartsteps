@@ -4,6 +4,8 @@ export class DailySummary {
     public date: Date;
     public updated: Date;
 
+    public wore_fitbit: boolean;
+
     public moderateMinutes: number = 0;
     public vigorousMinutes: number = 0;
     public minutes: number = 0;

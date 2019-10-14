@@ -13,7 +13,7 @@ export class AuthorizationService {
         private enrollmentController: EnrollmentController
     ) {}
 
-    public setup() {
+    public setup(): Promise<void> {
         this.authorizationInfrastructure.onRetryAuthorization(() => {
             return this.enrollmentController.enroll("Please re-authenticate", false)
             .then(() => {
@@ -25,7 +25,8 @@ export class AuthorizationService {
                     return Promise.reject(false);
                 });
             });
-        })
+        });
+        return Promise.resolve(undefined);
     }
 
     public reset() {

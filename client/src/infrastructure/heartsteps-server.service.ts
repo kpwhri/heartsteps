@@ -134,7 +134,7 @@ export class HeartstepsServer {
         return Promise.reject(error.message);
     }
 
-    setAuthorizationHeaderToken():Promise<any> {
+    private setAuthorizationHeaderToken():Promise<any> {
         let headers = {
             'Content-Type': 'application/json'
         }
@@ -149,7 +149,7 @@ export class HeartstepsServer {
         });
     }
 
-    updateAuthorizationToken(response:any):any {
+    private updateAuthorizationToken(response:any):any {
         const token:string = response.headers['authorization-token'];
         if(token) {
             this.authorizationService.setAuthorization(token);

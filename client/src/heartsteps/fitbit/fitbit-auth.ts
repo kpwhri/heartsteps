@@ -14,19 +14,13 @@ export class FitbitAuth implements OnInit {
     public isAuthorized: boolean;
 
     constructor(
-        private loadingService:LoadingService,
-        private alertController: AlertDialogController,
-        private fitbitService: FitbitService
+        public loadingService:LoadingService,
+        public alertController: AlertDialogController,
+        public fitbitService: FitbitService
     ) {}
 
     ngOnInit() {
-        this.fitbitService.isAuthorizing()
-        .then(() => {
-            this.updateAuthorization();
-        })
-        .catch(() => {
-            this.update();
-        });
+
     }
 
     private update(): Promise<void> {
@@ -42,7 +36,7 @@ export class FitbitAuth implements OnInit {
         })
     }
 
-    private updateAuthorization(): Promise<void> {
+    public updateAuthorization(): Promise<void> {
         this.loadingService.show("Authorizing Fitbit");
         return this.fitbitService.setIsAuthorizing()
         .then(() => {

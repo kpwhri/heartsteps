@@ -77,8 +77,15 @@ export class DailySummaryService {
         if(!dates) {
             dates = this.getDatesToStore();
         }
-        dates.sort();
-        return this.loadRange(dates.pop(), dates.shift())
+        dates.sort(function(a, b) {
+            if(a > b) return 1;
+            if(a < b) return -1;
+            return 0;
+        });
+        return this.storage.destroy()
+        .then(() => {
+            return this.loadRange(dates.shift(), dates.pop())
+        })
         .then((summaries) => {
             summaries.forEach((summary) => {
                 this.updated.emit(summary);

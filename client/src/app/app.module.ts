@@ -20,21 +20,28 @@ import { MorningSurveyPageModule } from '@pages/morning-survey/morning-survey.mo
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { HeartstepsInfrastructureModule } from '@infrastructure/heartsteps/heartsteps.module';
 import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
+import { SetupPageModule } from '@pages/setup/setup.module';
+import { BaselineWeekModule } from '@pages/baseline-week/baseline-week.module';
+import { RootComponent } from './root.component';
 
-const appRoutes:Routes = [{
-  path: '',
-  redirectTo: '/home/dashboard',
-  pathMatch: 'full'
-}]
+const routes: Routes = [
+  {
+    path: '',
+    component: RootComponent
+  }
+]
 
 @NgModule({
   declarations: [
-    MyApp
+    MyApp,
+    RootComponent
   ],
   imports: [
+    BaselineWeekModule,
     WelcomePageModule,
     CurrentWeekModule,
     OnboardPageModule,
+    SetupPageModule,
     HomePageModule,
     HeartstepsInfrastructureModule,
     NotificationsModule,
@@ -44,7 +51,7 @@ const appRoutes:Routes = [{
     BrowserAnimationsModule,
     IonicModule.forRoot(MyApp),
     RouterModule.forRoot(
-      appRoutes,
+      routes,
       {
         useHash: true
       }

@@ -15,7 +15,7 @@ export class NotificationService {
         private router: Router
     ) {}
 
-    setup() {
+    setup(): Promise<void> {
         this.messageService.opened.subscribe((message: Message) => {
             console.log('AppNotificationService: Processing message id=' + message.id);
             this.processOpenedMessage(message)
@@ -24,7 +24,11 @@ export class NotificationService {
                 message.opened();
             });
         });
-        this.messageService.setup();
+
+        return this.messageService.setup()
+        .then(() => {
+            return undefined;
+        });
     }
 
     private processOpenedMessage(message: Message): Promise<boolean> {
