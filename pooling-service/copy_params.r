@@ -1,7 +1,16 @@
 #! /usr/bin/Rscript
 ## Required packages and source files
 #"test-nickreid","test-pedja"
-participants = c("10032","10006","10157","10075","10142","10055","10101","test-pedja")
+participants = c('10195',
+'10075',
+'10237',
+'10041',
+'10271',
+'10355',
+'10374',
+'10062',
+'10395',
+'10152')
 
 
 return_immediately<-function(){
