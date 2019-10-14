@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { NgModule, Injectable } from "@angular/core";
+import { RouterModule, Routes, ActivatedRouteSnapshot, RouterStateSnapshot, Resolve } from "@angular/router";
 import { HeartstepsComponentsModule } from "@infrastructure/components/components.module";
 import { FormModule } from "@infrastructure/form/form.module";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -11,12 +11,29 @@ import { CompletePage } from "./complete.page";
 import { EnrollmentGaurd } from "./enrollment.gaurd";
 import { InfrastructureModule } from "@infrastructure/infrastructure.module";
 import { FitbitAuthorizePage } from "./fitbit-authorize.page";
+import { StudyContactInformation, ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
+
+@Injectable()
+export class StudyContactInformationResolver implements Resolve<StudyContactInformation> {
+
+    constructor(
+        private participantInformationService: ParticipantInformationService
+        ) {}
+    
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        return this.participantInformationService.getStudyContactInformation();
+    }
+
+}
 
 const enrollmentRoutes: Routes = [
     {
         path: 'setup/complete',
         component: CompletePage,
-        canActivate: [EnrollmentGaurd]
+        canActivate: [EnrollmentGaurd],
+        resolve: {
+            studyContactInformation: StudyContactInformationResolver
+        }
     }, {
         path: 'setup/fitbit-authorize',
         component: FitbitAuthorizePage,
@@ -53,7 +70,8 @@ const enrollmentRoutes: Routes = [
         RouterModule.forChild(enrollmentRoutes)
     ],
     providers: [
-        EnrollmentGaurd
+        EnrollmentGaurd,
+        StudyContactInformationResolver
     ]
 })
 export class SetupPageModule {}

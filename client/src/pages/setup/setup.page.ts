@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
 import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
