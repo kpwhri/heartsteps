@@ -22,8 +22,10 @@ export class EnrollmentService {
         if(birthYear) {
             postData['birthYear'] = birthYear
         }
-        
-        return this.heartstepsServer.post('enroll' , postData)
+        return this.authorizationService.removeAuthorization()
+        .then(() => {
+            return this.heartstepsServer.post('enroll' , postData)
+        })
         .then((data) => {
             return this.participantService.setHeartstepsId(data.heartstepsId);
         })
