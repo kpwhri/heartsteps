@@ -26,10 +26,15 @@ class Study(models.Model):
         max_length = 75,
         unique = True
     )
-    contact_number = models.CharField(
-        max_length = 12,
+    contact_name = models.CharField(
+        max_length = 150,
         null = True
     )
+    contact_number = models.CharField(
+        max_length = 20,
+        null = True
+    )
+    baseline_period = models.PositiveIntegerField(default=7)
 
     admins = models.ManyToManyField(User)
 

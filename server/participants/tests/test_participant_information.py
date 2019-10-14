@@ -8,6 +8,8 @@ from rest_framework.test import force_authenticate
 
 from participants.models import Participant
 from participants.models import User
+from participants.models import Study
+from participants.models import Cohort
 
 class ParticipantInformationViewTests(APITestCase):
 
@@ -56,4 +58,34 @@ class ParticipantInformationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['staff'], True)
+
+    def test_returns_study_information(self):
+        study = Study.objects.create(
+            name = 'test',
+            contact_name = 'test contact',
+            contact_number = '(555) 555-5555',
+            baseline_period = 10
+        )
+        cohort = Cohort.objects.create(
+            name = 'test',
+            study = study
+        )
+        user = User.objects.create(
+            username='test',
+            is_staff=True
+        )
+        Participant.objects.create(
+            user = user,
+            heartsteps_id = 'sample-id',
+            enrollment_token = 'token',
+            cohort = cohort
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse('participants-information'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['studyContactName'], 'test contact')
+        self.assertEqual(response.data['studyContactNumber'], '(555) 555-5555')
+        self.assertEqual(response.data['baselinePeriod'], 10)
 

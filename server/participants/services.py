@@ -36,6 +36,35 @@ class ParticipantService:
         self.participant = participant
         self.user = participant.user
 
+    def get_study(self):
+        if not hasattr(self, '_study'):
+            if self.participant.cohort and self.participant.cohort.study:
+                self._study = self.participant.cohort.study
+            else:
+                self._study = None
+        return self._study
+
+    def get_study_contact_name(self):
+        study = self.get_study()
+        if study:
+            return study.contact_name
+        else:
+            return None
+    
+    def get_study_contact_number(self):
+        study = self.get_study()
+        if study:
+            return study.contact_number
+        else:
+            return None
+
+    def get_baseline_period(self):
+        study = self.get_study()
+        if study:
+            return study.baseline_period
+        else:
+            return None
+
     def get_participant(token, birth_year):
         try:
             participant = Participant.objects.get(
