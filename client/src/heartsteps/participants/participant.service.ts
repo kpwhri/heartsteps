@@ -5,6 +5,7 @@ import { ParticipantInformationService } from "./participant-information.service
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReplaySubject } from "rxjs";
 import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
+import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 
 export class Participant{
     dateEnrolled: Date;
@@ -26,7 +27,8 @@ export class ParticipantService {
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
         private contactInformationService: ContactInformationService,
-        private dailySummaryService: DailySummaryService
+        private dailySummaryService: DailySummaryService,
+        private fitbitWatchService: FitbitWatchService
     ) {}
 
     public getProfile():Promise<any> {
@@ -78,23 +80,31 @@ export class ParticipantService {
     }
 
     private getBaselineComplete(): Promise<boolean> {
-        return this.dailySummaryService.getAll()
-        .then((summaries) => {
-            const baselineDays = 7;
-            let days_worn = 0;
-            summaries.forEach((summary) => {
-                if(summary.wore_fitbit) {
-                    days_worn += 1;
-                }
-            });
-            if (days_worn >= baselineDays) {
-                return true;
-            } else {
-                return false;
-            }
+        return this.fitbitWatchService.wasMarkedInstalled()
+        .then(() => {
+            return true;
         })
         .catch(() => {
-            return Promise.resolve(false);
+            return this.dailySummaryService.getAll()
+            .then((summaries) => {
+                return this.participantInformationService.getBaselinePeriod()
+                .then((baselineDays) => {
+                    let days_worn = 0;
+                    summaries.forEach((summary) => {
+                        if(summary.wore_fitbit) {
+                            days_worn += 1;
+                        }
+                    });
+                    if (days_worn >= baselineDays) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+            })
+            .catch(() => {
+                return Promise.resolve(false);
+            });
         });
     }
 

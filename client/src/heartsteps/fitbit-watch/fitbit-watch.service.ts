@@ -11,12 +11,21 @@ export class FitbitWatchService {
     ) {}
 
     public isInstalled(): Promise<boolean> {
-        return this.storageService.get(storageKey)
+        return this.wasMarkedInstalled()
         .then(() => {
             return true;
         })
         .catch(() => {
             return Promise.reject('Fitbit watch not setup');
+        });
+    }
+
+    // This is being used to keep track if participants 
+    // installed the app before completing baseline
+    public wasMarkedInstalled(): Promise<void> {
+        return this.storageService.get(storageKey)
+        .then(() => {
+            return undefined;
         });
     }
 
