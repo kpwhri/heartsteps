@@ -22,9 +22,10 @@ export class BaselineWeekPage {
 
     public days: Array<Day>;
     public numberDaysWorn: Number;
+    public baselinePeriod: Number;
 
-    public studyContactName: string = 'Grace Do';
-    public studyContactPhone: string = '(310) 555-5555';
+    public studyContactName: string;
+    public studyContactPhone: string;
 
     constructor(
         private loadingService: LoadingService,
@@ -36,6 +37,11 @@ export class BaselineWeekPage {
         .subscribe((summary) => {
             this.summary = summary;
         });
+        this.participantInformationService.getStudyContactInformation()
+        .then((contactInformation) => {
+            this.studyContactName = contactInformation.name;
+            this.studyContactPhone = contactInformation.number;
+        })
         this.reload();
     }
 
@@ -62,7 +68,11 @@ export class BaselineWeekPage {
     }
 
     private setDays(): Promise<void> {
-        return this.dailySummaryService.getAll()
+        return this.participantInformationService.getBaselinePeriod()
+        .then((baselinePeriod) => {
+            this.baselinePeriod = baselinePeriod;
+            return this.dailySummaryService.getAll()
+        })
         .then((dailySummaries) => {
             const days: Array<Day> = [];
             dailySummaries.forEach((summary) => {
@@ -71,19 +81,21 @@ export class BaselineWeekPage {
                     days.push(day);
                 }
             });
+
             this.numberDaysWorn = days.length;
-    
+
             let date = new Date();
             if(days.length) {
                 date = days[days.length-1].date;
             }
-            while(days.length <= 7) {
+            
+            while(days.length <= this.baselinePeriod) {
                 date = moment(date).add(1, 'days').toDate();
                 const day = this.dateToDay(date, false);
                 days.push(day);
             }
-            this.days = days;
 
+            this.days = days;
         })
         .catch((error) => {
             console.log('errors', error)

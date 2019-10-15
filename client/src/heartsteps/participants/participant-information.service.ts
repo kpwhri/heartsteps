@@ -4,6 +4,11 @@ import { StorageService } from "@infrastructure/storage.service";
 
 import * as moment from 'moment';
 
+export class StudyContactInformation {
+    name: string;
+    number: string;
+}
+
 @Injectable()
 export class ParticipantInformationService {
 
@@ -17,7 +22,9 @@ export class ParticipantInformationService {
         .then((data) => {
             return Promise.all([
                 this.setDateEnrolled(data['date_enrolled']),
-                this.setStaff(data['staff'])
+                this.setStaff(data['staff']),
+                this.setBaselinePeriod(data['baselinePeriod']),
+                this.setStudyContactInformation(data['studyContactName'], data['studyContactNumber'])
             ])
         })
         .then(() => {
@@ -74,6 +81,40 @@ export class ParticipantInformationService {
         .catch(() => {
             return Promise.reject('No data');
         });
+    }
+
+    private setBaselinePeriod(baselinePeriod: number): Promise<boolean> {
+        return this.storage.set('baselinePeriod', baselinePeriod)
+        .then(() => {
+            return true;
+        });
+    }
+
+    public getBaselinePeriod(): Promise<number> {
+        return this.storage.get('baselinePeriod')
+        .then((baselinePeriod) => {
+            return baselinePeriod
+        });
+    }
+
+    private setStudyContactInformation(name: string, number: string): Promise<boolean> {
+        return this.storage.set('studyContactInformation', {
+            name: name,
+            number: number
+        })
+        .then(() => {
+            return true;
+        });
+    }
+
+    public getStudyContactInformation(): Promise<StudyContactInformation> {
+        return this.storage.get('studyContactInformation')
+        .then((info) => {
+            const contactInfo = new StudyContactInformation()
+            contactInfo.name = info.name;
+            contactInfo.number = info.number
+            return contactInfo;
+        })
     }
 
 }

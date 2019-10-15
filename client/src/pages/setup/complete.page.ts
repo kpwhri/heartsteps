@@ -1,17 +1,26 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 
 
 @Component({
     templateUrl: './complete.page.html'
 })
-export class CompletePage {
+export class CompletePage implements OnInit {
+
+    public studyContactName: string;
+    public studyContactNumber: string;
 
     constructor(
         private participantService: ParticipantService,
-        private router: Router
+        private router: Router,
+        private activatedRoute: ActivatedRoute
     ) {}
+
+    ngOnInit() {
+        this.studyContactName = this.activatedRoute.snapshot.data['studyContactInformation'].name;
+        this.studyContactNumber = this.activatedRoute.snapshot.data['studyContactInformation'].number;
+    }
 
     public logout() {
         this.participantService.logout()
