@@ -73,7 +73,14 @@ export class ParticipantService {
     }
 
     private getProfileComplete(): Promise<boolean> {
-        return this.profileService.isComplete()
+        return this.isOnboardComplete()
+        .then((isComplete) => {
+            if(isComplete) {
+                return true;
+            } else {
+                return this.profileService.isComplete()
+            }
+        })
         .catch(() => {
             return Promise.resolve(false);
         });
@@ -85,22 +92,29 @@ export class ParticipantService {
             return true;
         })
         .catch(() => {
-            return this.dailySummaryService.getAll()
-            .then((summaries) => {
-                return this.participantInformationService.getBaselinePeriod()
-                .then((baselineDays) => {
-                    let days_worn = 0;
-                    summaries.forEach((summary) => {
-                        if(summary.wore_fitbit) {
-                            days_worn += 1;
-                        }
-                    });
-                    if (days_worn >= baselineDays) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
+            return this.getStaffStatus()
+            .then((isStaff) => {
+                if (isStaff) {
+                    return true;
+                } else {
+                    return this.dailySummaryService.getAll()
+                    .then((summaries) => {
+                        return this.participantInformationService.getBaselinePeriod()
+                        .then((baselineDays) => {
+                            let days_worn = 0;
+                            summaries.forEach((summary) => {
+                                if(summary.wore_fitbit) {
+                                    days_worn += 1;
+                                }
+                            });
+                            if (days_worn >= baselineDays) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        })
+                    });                    
+                }
             })
             .catch(() => {
                 return Promise.resolve(false);
@@ -178,6 +192,20 @@ export class ParticipantService {
         })
         .then(() => {
             return true;
+        });
+    }
+
+    public markOnboardComplete(): Promise<void> {
+        return this.storage.set('onboard-complete', true);
+    }
+
+    public isOnboardComplete(): Promise<boolean> {
+        return this.storage.get('onboard-complete')
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
         });
     }
 }

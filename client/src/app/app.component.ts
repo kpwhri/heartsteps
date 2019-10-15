@@ -54,7 +54,7 @@ export class MyApp {
             } else if (participant && participant.isSetup) {
                 this.router.navigate(['baseline']);
             } else if (participant) {
-                this.router.navigate(['setup'])
+                this.router.navigate(['onboard'])
             } else {
                 this.router.navigate(['welcome']);
             }   
