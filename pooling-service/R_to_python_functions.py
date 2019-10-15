@@ -7,7 +7,7 @@ import os
 
 def get_user_ids():
 
-    return {'10195':0,'10075':1,'10237':2,'10041':3,'10271':4,'10355':5,'10374':6,'10062':7,'10313':8,'10215':9,'10395':10,'10152':11,'10194':12}
+    return {'10237':0,'10271':1,'10041':2,'10355':3,'10062':4,'10374':5,'10215':6,'10313':7,'10395':8,'10152':9,'10194':10,'10259':11}
 
 def process_data(rdata,baseline_features,user_id):
     
@@ -127,6 +127,8 @@ def combine_users(data_path,user_list):
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
         if os.path.exists('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata')):
             data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
+        with open('data/log_data/user_{}_{}.pkl'.format(user_id,str(date.today())),'wb') as f:
+            pickle.dump(data,f)
         #print(data)
         #x,y,user = get_phi(data['data'],data,baseline_indices,responsivity_indices)
             if user_id in get_user_ids():
