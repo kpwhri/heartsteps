@@ -73,7 +73,14 @@ export class ParticipantService {
     }
 
     private getProfileComplete(): Promise<boolean> {
-        return this.profileService.isComplete()
+        return this.isOnboardComplete()
+        .then((isComplete) => {
+            if(isComplete) {
+                return true;
+            } else {
+                return this.profileService.isComplete()
+            }
+        })
         .catch(() => {
             return Promise.resolve(false);
         });
@@ -185,6 +192,20 @@ export class ParticipantService {
         })
         .then(() => {
             return true;
+        });
+    }
+
+    public markOnboardComplete(): Promise<void> {
+        return this.storage.set('onboard-complete', true);
+    }
+
+    public isOnboardComplete(): Promise<boolean> {
+        return this.storage.get('onboard-complete')
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
         });
     }
 }

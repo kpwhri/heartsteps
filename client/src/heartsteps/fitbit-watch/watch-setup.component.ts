@@ -22,10 +22,7 @@ export class WatchSetupComponent {
     }
 
     public markDone() {
-        this.fitbitWatchService.markInstalled()
-        .then(() => {
-            this.saved.emit(true);
-        });
+        this.saved.emit(true);
     }
 
 }

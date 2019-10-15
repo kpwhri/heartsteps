@@ -16,12 +16,6 @@ export class FitbitWatchService {
             return true;
         })
         .catch(() => {
-            return this.isMarkedInstalled()
-            .then(() => {
-                return true;
-            });
-        })
-        .catch(() => {
             return Promise.reject('Fitbit watch not setup');
         });
     }
@@ -32,20 +26,6 @@ export class FitbitWatchService {
         return this.storageService.get('fitbit-watch')
         .then(() => {
             return undefined;
-        });
-    }
-
-    private isMarkedInstalled(): Promise<void> {
-        return this.storageService.get(storageKey)
-        .then(() => {
-            return undefined;
-        })
-    }
-
-    public markInstalled(): Promise<boolean> {
-        return this.storageService.set(storageKey, true)
-        .then(() => {
-            return true
         });
     }
 
