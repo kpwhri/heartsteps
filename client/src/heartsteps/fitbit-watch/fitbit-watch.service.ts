@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 
-const storageKey = 'fitbit-watch'
+const storageKey = 'watch-app-installed'
 
 @Injectable()
 export class FitbitWatchService {
@@ -16,6 +16,12 @@ export class FitbitWatchService {
             return true;
         })
         .catch(() => {
+            return this.isMarkedInstalled()
+            .then(() => {
+                return true;
+            });
+        })
+        .catch(() => {
             return Promise.reject('Fitbit watch not setup');
         });
     }
@@ -23,10 +29,17 @@ export class FitbitWatchService {
     // This is being used to keep track if participants 
     // installed the app before completing baseline
     public wasMarkedInstalled(): Promise<void> {
-        return this.storageService.get(storageKey)
+        return this.storageService.get('fitbit-watch')
         .then(() => {
             return undefined;
         });
+    }
+
+    private isMarkedInstalled(): Promise<void> {
+        return this.storageService.get(storageKey)
+        .then(() => {
+            return undefined;
+        })
     }
 
     public markInstalled(): Promise<boolean> {

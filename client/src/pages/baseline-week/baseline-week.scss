@@ -9,27 +9,23 @@ baseline-week-page {
 
     article > header > h2 {
         @extend .heartsteps-logo;
-        margin: 0.5em;
-        margin-left: 1em;
+        margin: 1em auto;
         height: 50px;
-        width: auto;
 
         &:after {
             background-color: $color-primary;
-            mask-position: 0% 0%;
+            mask-position: 50% 0%;
         }
     }
 
-    article > header > button.settings {
-        right: 1em;
-        bottom: 0.25em;
+    button.settings {
         &:before {
             content: ' ';
             mask-image: url('../assets/settings.svg');
             mask-repeat: no-repeat;
             mask-position: 50% 50%;
             background-color: $color-primary;
-            display: block;
+            display: inline-block;
             height: 1em;
             width: 1em;
             margin-right: 0.5em;
@@ -42,6 +38,8 @@ baseline-week-page {
         flex-direction: row;
         flex-wrap: nowrap;
         justify-content: space-between;
+
+        overflow: hidden;
         
         > li {
             @extend .label;
