@@ -129,8 +129,8 @@ def combine_users(data_path,user_list):
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
         if os.path.exists('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata')):
             data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
-        with open('data/log_data/user_{}_{}.pkl'.format(user_id,str(date.today())),'wb') as f:
-            pickle.dump(data,f)
+            with open('data/log_data/user_{}_{}.pkl'.format(user_id,str(date.today())),'wb') as f:
+                pickle.dump(data,f)
         #print(data)
         #x,y,user = get_phi(data['data'],data,baseline_indices,responsivity_indices)
             if user_id in get_user_ids():
