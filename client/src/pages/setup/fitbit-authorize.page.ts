@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Router } from "@angular/router";
 import { LoadingService } from "@infrastructure/loading.service";
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
@@ -22,7 +21,8 @@ export class FitbitAuthorizePage extends FitbitAuth implements OnInit{
     }
 
     ngOnInit() {
-        this.updateAuthorization()
+        this.loadingService.show('Updating Fitbit Authorization');
+        this.fitbitService.updateAuthorization()
         .then(() => {
             return this.fitbitService.isAuthorized()
             .then(() => {
@@ -31,6 +31,9 @@ export class FitbitAuthorizePage extends FitbitAuth implements OnInit{
         })
         .catch(() => {
             this.router.navigate(['setup', 'fitbit'])
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 
