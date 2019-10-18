@@ -18,6 +18,7 @@ import { NotificationsModule } from '@heartsteps/notifications/notifications.mod
 import { SettingsComponent } from './settings.component';
 import { FitbitAuthorizationPage } from './fitbit-authorization.page';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
+import { FitbitWatchPage } from './fitbit-watch.page';
 
 const settingsRoutes: Routes = [
     {
@@ -51,6 +52,11 @@ const settingsRoutes: Routes = [
         outlet: 'modal'
     },
     {
+        path: 'settings/fitbit-watch',
+        component: FitbitWatchPage,
+        outlet: 'modal'
+    },
+    {
         path: 'settings',
         component: SettingsPage
     }
@@ -66,7 +72,8 @@ const settingsRoutes: Routes = [
         ReflectionTimePage,
         NotificationsPage,
         GoalPage,
-        FitbitAuthorizationPage
+        FitbitAuthorizationPage,
+        FitbitWatchPage
     ],
     entryComponents: [
         SettingsPage

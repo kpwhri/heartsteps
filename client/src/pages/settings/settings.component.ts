@@ -223,4 +223,12 @@ export class SettingsComponent {
             }
         }])
     }
+
+    public editFitbitWatch() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'fitbit-watch'].join('/')
+            }
+        }])
+    }
 } 
