@@ -88,7 +88,7 @@ def get_one_user(data_path,user_id):
     responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
     #print(result['train'])
     data_dict = process_data(result['train'],baseline_features,user_id)
-                         
+
                          #standard_x = get_standard_x(data_dict['data'])
     
     #feature_vector =standard_x[~np.isnan(standard_x).any(axis=1)]
@@ -129,6 +129,8 @@ def combine_users(data_path,user_list):
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
         if os.path.exists('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata')):
             data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
+                #print(user_id)
+                #print(set(data['avail']))
             with open('data/log_data/user_{}_{}.pkl'.format(user_id,str(date.today())),'wb') as f:
                 pickle.dump(data,f)
         #print(data)

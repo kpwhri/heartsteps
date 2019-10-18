@@ -4,13 +4,14 @@
 participants = c("10339","10259","10194","10360")
 
 
-return_immediately<-function(){
-    tryCatch(
-    {
+return_immediately<-function(id){
+    tryCatch({
+      print(id)
+    
        
-       for (id in participants) {
-           tempfile = paste("data/user", id, "_pooled_params/temp_policy.Rdata", sep = "")
-           oldfile= paste("data/user", id, "_pooled_params/policy.Rdata", sep = "")
+       
+       tempfile = paste("data/user", id, "_pooled_params/temp_policy.Rdata", sep = "")
+       oldfile= paste("data/user", id, "_pooled_params/policy.Rdata", sep = "")
        
        load(oldfile)
        #print('loaded old')
@@ -27,21 +28,32 @@ return_immediately<-function(){
        data.policy$Sigma.beta = A
        save(data.policy, file = oldfile)
        #print('set new')
-       }
-       return("")
-    },error= function(err){
-        reasons = 'savine'
-        print(err)
-        reasons=paste(reasons, err, sep = "")
-        temp = c(reasons)
-        write(x = temp, file = "errorfile_pooled.txt", ncolumns = length(temp), append = TRUE)
-       
-        return("")
-        
-    }
+
+  
+},error= function(err){
+    reasons = 'savine'
+    print(err)
+    reasons=paste(reasons, err, sep = "")
+    temp = c(reasons)
+    write(x = temp, file = "errorfile_pooled.txt", ncolumns = length(temp), append = TRUE)
+
+
     
-    )
 }
 
-results<-return_immediately()
+)
+     
+    
+    #if(inherits(possibleError, "error")) next
+    
+}
+call_all<-function(){
+    for (id in participants) {
+       return_immediately(id)
+    }
+    return("")
+}
+results<-call_all()
+#return_immediately()
+
 

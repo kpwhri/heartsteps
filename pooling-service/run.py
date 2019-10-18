@@ -52,6 +52,7 @@ def update_params(users,g,lookup):
         for u in users:
   
         #print(data_path)
+            print(g.keys())
             if u in lookup and lookup[u] in g:
                 #print(u)
                 datap = 'data/{}/temp_policy.Rdata'.format('user'+u+'_pooled_params')
