@@ -70,7 +70,7 @@ export class MyApp {
     }
 
     private setupNotifications(participant:any) {
-        if(participant && participant.profileComplete) {
+        if(participant) {
             this.notificationService.setup();
         }
     }
