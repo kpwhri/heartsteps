@@ -16,6 +16,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NotificationsPage } from './notifications.page';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
 import { SettingsComponent } from './settings.component';
+import { FitbitAuthorizationPage } from './fitbit-authorization.page';
+import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 
 const settingsRoutes: Routes = [
     {
@@ -42,7 +44,13 @@ const settingsRoutes: Routes = [
         path: 'settings/notifications',
         component: NotificationsPage,
         outlet: 'modal'
-    }, {
+    },
+    {
+        path: 'settings/fitbit-authorization',
+        component: FitbitAuthorizationPage,
+        outlet: 'modal'
+    },
+    {
         path: 'settings',
         component: SettingsPage
     }
@@ -57,7 +65,8 @@ const settingsRoutes: Routes = [
         PlacesPage,
         ReflectionTimePage,
         NotificationsPage,
-        GoalPage
+        GoalPage,
+        FitbitAuthorizationPage
     ],
     entryComponents: [
         SettingsPage
@@ -71,6 +80,7 @@ const settingsRoutes: Routes = [
         ContactInformationModule,
         HeartstepsComponentsModule,
         PlacesModule,
+        FitbitModule,
         WeeklySurveyModule,
         WalkingSuggestionsModule,
         NotificationsModule,
