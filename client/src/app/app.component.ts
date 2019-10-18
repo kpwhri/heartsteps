@@ -49,7 +49,7 @@ export class MyApp {
 
     private updateRoute(participant: Participant) {
         if(this.router.url === "/") {
-            if(participant && participant.isSetup && participant.isBaselineComplete) {
+            if(participant && participant.isSetup && (participant.isBaselineComplete || participant.staff)) {
                 this.router.navigate(['home', 'dashboard']);
             } else if (participant && participant.isSetup) {
                 this.router.navigate(['baseline']);
