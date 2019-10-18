@@ -1,14 +1,12 @@
 import { Injectable } from "@angular/core";
 import { CanActivate, Router } from "@angular/router";
 import { AuthorizationService } from "@infrastructure/authorization.service";
-import { ParticipantService } from "@heartsteps/participants/participant.service";
 
 @Injectable()
 export class HomeGuard implements CanActivate {
 
     constructor(
         private authorizationService: AuthorizationService,
-        private participantService: ParticipantService,
         private router: Router
     ){}
 
@@ -18,11 +16,8 @@ export class HomeGuard implements CanActivate {
             return true;
         })
         .catch(() => {
-            return this.router.navigate(['/'])
-            .then(() => {
-                this.participantService.update();
-                return false;
-            });
+            this.router.navigate(['/']);
+            return false;
         });
     }
 
