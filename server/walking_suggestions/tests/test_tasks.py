@@ -57,7 +57,7 @@ class CreateDecisionTest(TestCase):
         )
 
         # Before decision window
-        self.now.return_value = datetime(2019, 4, 30, 10, 59).astimezone(pytz.UTC)
+        self.now.return_value = datetime(2019, 4, 30, 10, 54).astimezone(pytz.UTC)
         try:
             WalkingSuggestionDecisionService.make_decision_now(username='test')
             self.fail('Should have thrown exception')

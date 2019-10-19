@@ -24,7 +24,10 @@ export class FitbitService {
 
     public authorize():Promise<boolean> {
         if (this.platform.is('cordova')) {
-            return this.openBrowser();
+            return this.openBrowser()
+            .then(() => {
+                return this.isAuthorized();
+            });
         } else {
             return this.redirectBrowser();
         }
@@ -37,11 +40,20 @@ export class FitbitService {
         })
     }
 
-    private openBrowser(): Promise<boolean> {
+    private openBrowser(): Promise<void> {
         return this.getURL()
         .then((url) => {
-            this.browser.open(url);
-            return this.waitForAuthorization();    
+            const browserPromise = this.browser.openAndWait(url)
+            .then(() => {
+                this.updateAuthorization()
+            });
+            return Promise.race([
+                browserPromise,
+                this.waitForAuthorization()
+            ])
+            .then(() => {
+                return undefined;
+            })    
         });
     }
 
@@ -66,7 +78,7 @@ export class FitbitService {
 
     private waitForAuthorization(): Promise<boolean> {
         return new Promise((resolve) => {
-            const interval = setInterval(function() {
+            const interval = setInterval(() => {
                 this.updateAuthorization()
                 .then(() => {
                     resolve(true);
@@ -75,32 +87,7 @@ export class FitbitService {
         });
     }
 
-    public setIsAuthorizing(): Promise<boolean> {
-        return this.storage.set('fitbit-is-authorizing', true)
-        .then(() => {
-            return Promise.resolve(true);
-        });
-    }
-
-    public isAuthorizing(): Promise<boolean> {
-        return this.storage.get('fitbit-is-authorizing')
-        .then((value) => {
-            if(value) {
-                return Promise.resolve(true);
-            } else {
-                return Promise.reject('Not authorizing');
-            }
-        });
-    }
-
-    public clearIsAuthorizing(): Promise<boolean> {
-        return this.storage.remove('fitbit-is-authorizing')
-        .then(() => {
-            return Promise.resolve(true);
-        })
-    }
-
-    updateAuthorization(): Promise<string> {
+    public updateAuthorization(): Promise<string> {
         return this.heartstepsServer.get('fitbit/account')
         .then((response) => {
             return this.storage.set(storageKey, response.fitbit);

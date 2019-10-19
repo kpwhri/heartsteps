@@ -9,19 +9,6 @@ from .models import SuggestionTime
 from .models import User
 from .models import WalkingSuggestionMessageTemplate
 
-@receiver(suggestion_times_updated, sender=User)
-def post_save_configuration(sender, username, *args, **kwargs):
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return False
-    configuration, _ = Configuration.objects.update_or_create(
-        user = user,
-        defaults = {
-            'enabled': True
-        }
-    )
-
 @receiver(pre_save, sender=WalkingSuggestionMessageTemplate)
 def set_message_template_title(sender, instance, *args, **kwargs):
     if not instance.title:

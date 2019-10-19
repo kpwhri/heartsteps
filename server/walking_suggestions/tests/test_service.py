@@ -795,6 +795,24 @@ class DecisionAvailabilityTest(TestCase):
         decision = WalkingSuggestionDecision.objects.get()
         self.assertTrue(decision.available)
 
+    def test_step_count_before_walking_suggestion_time(self):
+        now = timezone.now()
+        suggestion_time = now + timedelta(minutes=10)
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = suggestion_time.hour,
+            minute = suggestion_time.minute
+        )
+
+        WalkingSuggestionDecisionService.make_decision(
+            datetime = now,
+            user=self.user
+        )
+
+        decision = WalkingSuggestionDecision.objects.get()
+        self.assertEqual(decision.category, SuggestionTime.MIDAFTERNOON)
+
 class TestLastWalkingSuggestion(ServiceTestCase):
 
     def setUp(self):

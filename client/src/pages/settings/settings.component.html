@@ -2,11 +2,17 @@
     <nav>
         <ul>
             <li><button (click)="editContactInformation()">Contact information</button></li>
-            <li><button (click)="editNotifications()">Notifications</button></li>
             <li><button (click)="editPlaces()">Places</button></li>
             <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
             <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
             <li><button (click)="editDailyTimes()">Activity suggestion time</button></li>
+        </ul>
+    </nav>
+    <nav>
+        <ul>
+            <li><button (click)="editNotifications()">Notifications</button></li>
+            <li><button (click)="editFitbitAuthorization()">Fitbit Authorization</button></li>
+            <li><button (click)="editFitbitWatch()">HeartSteps Clockface</button></li>
         </ul>
     </nav>
     <p>HeartSteps {{buildVersion}}, built on {{buildDate}}</p>

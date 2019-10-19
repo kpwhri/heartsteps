@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
+import { BrowserService } from "@infrastructure/browser.service";
 
 const storageKey = 'watch-app-installed'
 
@@ -7,8 +8,14 @@ const storageKey = 'watch-app-installed'
 export class FitbitWatchService {
 
     constructor(
-        private storageService: StorageService
+        private storageService: StorageService,
+        private browserService: BrowserService
     ) {}
+
+    public openWatchInstallPage() {
+        const url = 'https://gam.fitbit.com/gallery/clock/0bd06f9e-2adc-4391-ab05-d177dda1a167';
+        this.browserService.open_external(url);
+    }
 
     public isInstalled(): Promise<boolean> {
         return this.wasMarkedInstalled()

@@ -79,7 +79,7 @@ export class BrowserService {
         });
     }
 
-    private openInBrowser(url: string): Promise<boolean> {
+    public openAndWait(url: string): Promise<boolean> {
         return new Promise((resolve) => {
             const childWindow: Window = window.open(url);
             const interval = setInterval(function() {

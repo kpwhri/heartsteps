@@ -215,4 +215,20 @@ export class SettingsComponent {
     public testBaselineWeekPage() {
         this.router.navigate(['baseline'])
     }
+
+    public editFitbitAuthorization() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'fitbit-authorization'].join('/')
+            }
+        }])
+    }
+
+    public editFitbitWatch() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'fitbit-watch'].join('/')
+            }
+        }])
+    }
 } 

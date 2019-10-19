@@ -1,18 +1,8 @@
 <p>HeartSteps uses Fitbit to collect information about your physical activity. Activities detected by Fitbit will be shown in HeartSteps.</p>
-<p *ngIf="isAuthorized">
-    HeartSteps is authorized to access from Fitbit.
-</p>
-<button *ngIf="isAuthorized"
-    (click)="nextPage()"
-    class="heartsteps-primary-button"
-    >
-    Next
-</button>
-<p *ngIf="!isAuthorized">
+<p>
     Please <strong>allow all permissions</strong> when connecting Fitbit to HeartSteps.
 </p>
-<button *ngIf="!isAuthorized" 
-    (click)="authorize()"    
+<button (click)="authorize()"    
     class="heartsteps-primary-button"
     >
     Connect to Fitbit

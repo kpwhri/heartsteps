@@ -78,15 +78,17 @@ class WalkingSuggestionTimeService:
 
         for suggestion_time in self.__configuration.suggestion_times:
             suggestion_time_today = suggestion_time.get_datetime_on(time)
-            
             suggestion_time_today_utc = suggestion_time_today.astimezone(pytz.UTC)
             time_utc = time.astimezone(pytz.UTC)
+
+            difference = None
             if time_utc < suggestion_time_today_utc:
-                continue
-            difference = time_utc - suggestion_time_today_utc
-            if difference.seconds >= 0 and difference.seconds < decision_window_minutes*60:
+                difference = suggestion_time_today_utc - time_utc
+            else:
+                difference = time_utc - suggestion_time_today_utc
+            if difference.seconds is not None and difference.seconds < decision_window_minutes*60:
                 return suggestion_time.category
-        return False
+        return None
 
     def create_decision(self, category, time=None):
         if not time:
@@ -153,6 +155,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         decision_service.update_availability()
         if decision_service.decide():
             decision_service.send_message()
+            decision = WalkingSuggestionDecision.objects.get()
 
     def create_decision(user, category, time=None, test=False):
         if not time:
@@ -250,8 +253,10 @@ class WalkingSuggestionService():
             raise self.Unavailable("No WALKING_SUGGESTION_SERVICE_URL")
         else:
             self.__base_url = settings.WALKING_SUGGESTION_SERVICE_URL
-        if not self.__configuration.enabled:
-            raise self.Unavailable('Walking suggestion configuration disabled')
+
+    def enable(self):
+        self.__configuration.enabled = True
+        self.__configuration.save()
 
     def nightly_update(self, date):
         if not self.is_initialized():

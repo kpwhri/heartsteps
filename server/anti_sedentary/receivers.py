@@ -11,19 +11,6 @@ from .models import User
 from .models import AntiSedentaryMessageTemplate
 from .models import Configuration
 
-@receiver(suggestion_times_updated, sender=User)
-def suggestion_times_update(sender, username, *args, **kwargs):
-    try:
-        user = User.objects.get(username=username)
-        Configuration.objects.update_or_create(
-            user = user,
-            defaults = {
-                'enabled': True
-            }
-        )
-    except User.DoesNotExist:
-        pass
-
 @receiver(pre_save, sender=AntiSedentaryMessageTemplate)
 def set_message_template_title(sender, instance, *args, **kwargs):
     if not instance.title:

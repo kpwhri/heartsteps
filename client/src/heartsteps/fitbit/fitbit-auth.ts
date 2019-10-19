@@ -8,54 +8,14 @@ import { resolve } from 'path';
     selector: 'heartsteps-fitbit-auth',
     templateUrl: 'fitbit-auth.html'
 })
-export class FitbitAuth implements OnInit {
+export class FitbitAuth {
     @Output() saved = new EventEmitter<boolean>();
-
-    public isAuthorized: boolean;
 
     constructor(
         public loadingService:LoadingService,
         public alertController: AlertDialogController,
         public fitbitService: FitbitService
     ) {}
-
-    ngOnInit() {
-
-    }
-
-    private update(): Promise<void> {
-        return this.fitbitService.isAuthorized()
-        .then(() => {
-            this.isAuthorized = true;
-        })
-        .catch(() => {
-            this.isAuthorized = false;
-        })
-        .then(() => {
-            return undefined;
-        })
-    }
-
-    public updateAuthorization(): Promise<void> {
-        this.loadingService.show("Authorizing Fitbit");
-        return this.fitbitService.setIsAuthorizing()
-        .then(() => {
-            return new Promise((resolve) => {
-                setTimeout(resolve, 2000);
-            });
-        })
-        .then(() => {
-            return this.fitbitService.updateAuthorization();
-        })
-        .catch(() => {
-            this.showAuthorizationError();
-        })
-        .then(() => {
-            this.fitbitService.clearIsAuthorizing();
-            this.loadingService.dismiss();
-            return this.update();
-        });
-    }
     
     private showAuthorizationError(){
         this.alertController.show("There was a problem authorizing Fitbit. Please try again.");
@@ -67,17 +27,15 @@ export class FitbitAuth implements OnInit {
 
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
-        this.fitbitService.setIsAuthorizing()
+        return this.fitbitService.authorize()
         .then(() => {
-            return this.fitbitService.authorize();
+            this.nextPage();            
         })
         .catch(() => {
             this.showAuthorizationError();
         })
         .then(() => {
-            this.fitbitService.clearIsAuthorizing();
             this.loadingService.dismiss();
-            return this.update();
         });
     }
 }
