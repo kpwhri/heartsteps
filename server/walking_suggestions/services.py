@@ -253,8 +253,10 @@ class WalkingSuggestionService():
             raise self.Unavailable("No WALKING_SUGGESTION_SERVICE_URL")
         else:
             self.__base_url = settings.WALKING_SUGGESTION_SERVICE_URL
-        if not self.__configuration.enabled:
-            raise self.Unavailable('Walking suggestion configuration disabled')
+
+    def enable(self):
+        self.__configuration.enabled = True
+        self.__configuration.save()
 
     def nightly_update(self, date):
         if not self.is_initialized():

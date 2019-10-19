@@ -7,6 +7,7 @@ from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
 from heartsteps_data_download.tasks import export_user_data
+from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from sms_messages.models import Contact as SMSContact
@@ -105,7 +106,17 @@ class ParticipantService:
         self.enable()
 
     def is_enabled(self):
-        pass
+        return self.participant.enrolled
+
+    def is_baseline_complete(self):
+        try:
+            service = FitbitActivityService(user=self.user)
+        except FitbitActivityService.NoAccount:
+            return False
+        if self.user.is_staff or service.get_days_worn() >= self.get_baseline_period():
+            return True
+        else:
+            return False
 
     def enable(self):
         AntiSedentaryConfiguration.objects.update_or_create(
@@ -168,6 +179,8 @@ class ParticipantService:
             anti_sedentary_service = AntiSedentaryService(
                 user = self.user
             )
+            if self.is_enabled() and self.is_baseline_complete():
+                anti_sedentary_service.enable()
             anti_sedentary_service.update(date)
         except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable, AntiSedentaryService.RequestError):
             pass
@@ -177,6 +190,8 @@ class ParticipantService:
             walking_suggestion_service = WalkingSuggestionService(
                 user = self.user
             )
+            if self.is_enabled() and self.is_baseline_complete():
+                walking_suggestion_service.enable()
             walking_suggestion_service.nightly_update(date)
         except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
             pass

@@ -424,13 +424,3 @@ class UpdateAntiSedentaryService(TestBase):
 
         self.assertEqual(self.make_request.call_count, 145)
         self.assertEqual(AntiSedentaryDecision.objects.count(), 145)
-
-class EnableConfiguration(TestCase):
-
-    def testEnablesOnSuggestionTimesUpdate(self):
-        test = User.objects.create(username="test")
-        
-        suggestion_times_updated.send(sender=User, username="test")
-
-        configuration = Configuration.objects.get()
-        self.assertTrue(configuration.enabled)

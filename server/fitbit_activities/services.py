@@ -12,6 +12,11 @@ from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitDailyUnprocessedData
 
+class FitbitActivityService(FitbitService):
+
+    def get_days_worn(self):
+        return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
+
 class FitbitDayService(FitbitService):
 
     def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None, fitbit_user=None):
