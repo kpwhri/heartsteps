@@ -101,6 +101,8 @@ if __name__=="__main__":
         
         with open('data/test.pkl','wb') as f:
             pickle.dump(x,f)
+        with open('data/test_{}.pkl'.format(str(date.today())),'wb') as f:
+            pickle.dump(x,f)
         update_params(users,x,RPY.get_user_ids())
 #print(users)
     except Exception as e:
