@@ -2,6 +2,7 @@ from datetime import date
 from datetime import datetime
 import pytz
 
+from django.conf import settings
 from django.utils import timezone
 import requests
 
@@ -18,12 +19,19 @@ class DarkSkyApiManager:
     https://darksky.net/dev/docs
     """
 
-    class RequestFailed(Exception):
+    class RequestFailed(RuntimeError):
+        pass
+
+    class NoAPIKey(RuntimeError):
         pass
 
     def __init__(self, user=None):
         self.__user = user
-        self.__API_KEY = "f076fa5dc90a5a68a86d075d6f7abab6"
+
+        if hasattr(settings, 'DARKSKY_API_KEY'):
+            self.__API_KEY = settings.DARKSKY_API_KEY
+        else:
+            raise NoAPIKey('No api key')
 
     def make_url(self, latitude, longitude, datetime=None, exclude=[]):
         if datetime:
