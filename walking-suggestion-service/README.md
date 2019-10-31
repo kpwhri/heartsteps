@@ -17,7 +17,7 @@ To copy production data from the google storage bucket to your local machine:
 docker-compose run walking-suggestion-service copy-files
 ```
 
-** List of changes made to HS Bandit**
+**List of changes made to HS Bandit**
 
 -	Change the default probability to 0.1 on Sept 6
 -	Update the prior distribution using HS V2 participants’ data on Sept 6
