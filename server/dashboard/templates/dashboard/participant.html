@@ -19,6 +19,11 @@
                 <dt>Birth year</dt>
                 <dd>{{participant.birth_year}}</dd>
             </dl>
+            <form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="message" value="Hi, this is a test message." />
+                <input type="submit" value="Send test notification" />
+            </form>
         </div>
         <div class="col-sm">
             <nav>

@@ -17,6 +17,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
+from push_messages.services import PushMessageService
 from sms_messages.services import SMSService
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
@@ -247,6 +248,29 @@ class ParticipantCreateView(CohortView):
                 self.template_name,
                 context
             )
+
+class ParticipantNotificationsView(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+
+        if 'message' in request.POST and request.POST['message'] is not '':
+            try:
+                service = PushMessageService(username=self.participant.heartsteps_id)
+                service.send_notification(request.POST['message'])
+                messages.add_message(request, messages.SUCCESS, 'Message sent')
+            except:
+                messages.add_message(request, messages.ERROR, 'Could not send message')
+        else:
+            messages.add_message(request, messages.ERROR, 'No message to send')
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'participant_id': self.participant.heartsteps_id,
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )
 
 class ParticipantSMSMessagesView(ParticipantView):
     
