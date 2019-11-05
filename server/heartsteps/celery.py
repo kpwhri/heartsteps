@@ -36,6 +36,9 @@ app.conf.task_routes = {
     'anti_sedentary.tasks.*': {
         'queue': 'messages'
     },
+    'heartsteps_messages.tasks.*': {
+        'queue': 'messages'
+    },
     'fitbit_activities.tasks.*': {
         'queue': 'fitbit'
     },
