@@ -153,7 +153,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         decision_service.update_availability()
         if decision_service.decide():
             decision_service.send_message()
-            decision = WalkingSuggestionDecision.objects.get()
 
     def create_decision(user, category, time=None, test=False):
         if not time:
