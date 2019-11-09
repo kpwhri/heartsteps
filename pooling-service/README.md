@@ -4,4 +4,4 @@ The reward model is the same as for the bandit used in the walking suggestion se
 
 The hyper-parameters were trained using data gathered within V2 (I'm not sure exactly how many people were used). The exact hyper-parameters are: 
 
-Sigma_u = ``[[[1.5898, 0.0979],[ 0.0979,    0.6828]]]``
+Sigma_u = ``[[1.5898, 0.0979],[ 0.0979,    0.6828]]`` sigma_squared_epsilon = ``5.44``.
