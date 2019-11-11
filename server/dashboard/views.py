@@ -26,6 +26,7 @@ from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
+from .models import DashboardParticipant
 
 class CohortListView(UserPassesTestMixin, TemplateView):
 
@@ -168,16 +169,56 @@ class ParticipantView(CohortView):
     def setup_participant(self):
         if 'participant_id' in self.kwargs:
             try:
-                participant = Participant.objects.get(heartsteps_id=self.kwargs['participant_id'])
+                participant = DashboardParticipant.objects.get(heartsteps_id=self.kwargs['participant_id'])
                 self.participant = participant
             except Participant.DoesNotExist:
                 raise Http404('No matching participant')
         else:
             raise Http404('No participant')
 
+    def count_decision_messages(self, decisions):
+        total = 0
+        for decision in decisions:
+            if decision.treated:
+                total += 1
+        return total
+
+    def count_available_decisions(self, decisions):
+        total = 0
+        for decision in decisions:
+            if decision.available:
+                total += 1
+        return total
+
+    def decision_availability(self, decisions):
+        if not decisions or not len(decisions):
+            return 0
+        available_count = 0
+        for decision in decisions:
+            if decision.available:
+                available_count += 1
+        return available_count/len(decisions)
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['participant'] = self.participant
+
+        intervention_summaries = []
+        for time_range in self.participant.TIME_RANGES:
+            anti_sedentary_decisions = self.participant.get_anti_sedentary_decisions(time_range)
+            walking_suggestion_decisions = self.participant.get_walking_suggestion_decisions(time_range)
+
+            intervention_summaries.append({
+                'title': time_range.name,
+                'walking_suggestion_messages': self.count_decision_messages(walking_suggestion_decisions),
+                'walking_suggestion_decisions': len(walking_suggestion_decisions),
+                'walking_suggestion_availability': self.decision_availability(walking_suggestion_decisions),
+                'anti_sedentary_messages': self.count_decision_messages(anti_sedentary_decisions),
+                'anti_sedentary_decisions': len(anti_sedentary_decisions),
+                'anti_sedentary_availability': self.decision_availability(anti_sedentary_decisions)
+            })
+        context['intervention_summaries'] = intervention_summaries
         return context
 
 class ParticipantEditView(ParticipantView):
