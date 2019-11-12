@@ -8,6 +8,7 @@ import json
 import pickle
 import sys
 import os
+import numpy as np
 
 import pandas as pd
 
@@ -83,6 +84,7 @@ def update_params(users,g,lookup):
             print( to_return)
 
 if __name__=="__main__":
+    np.random.seed(10)
     user_string = sys.argv[1]
     to_return =  user_string
     #print(user_string)

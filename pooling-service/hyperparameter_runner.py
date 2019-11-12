@@ -30,6 +30,7 @@ def initialize_policy_params_TS(standardize=False,baseline_features=None,psi_fea
     global_p.kdim =18
     #194
     global_p.baseline_indices = [i for i in range(3+ len(baseline_features)+2*len(responsivity_keys))]
+    
     #[i for i in range(192)]
     #[0,1,2,3,4,5,6]
     #print(global_p.baseline_indices )
@@ -104,13 +105,14 @@ class MyKernel(Kernel):
         super(MyKernel, self).__init__(active_dims=active_dims)
         self.user_mat = user_mat
         self.first_mat = first_mat
-        
+        self.action_indices = [8,13]
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
         #print(self.psi_indices)
-        
-        
+        self.g_indices = [i for i in range(8)]
+        self.action_indices_one = [i for i in range(8,8+5)]
+        self.action_indices_two = [i for i in range(8+5,18)]
         self.init_u1 = gparams.sigma_u[0][0]
         
         
@@ -146,14 +148,32 @@ class MyKernel(Kernel):
         #self.rho=1
     #self.r;
     def forward(self, x1, x2, batch_dims=None, **params):
+        action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)\
++torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
+#combine into new feature vector
+#print('one')
+        baseline_vector =torch.stack([torch.Tensor(x1)[:,i] for  i in [self.g_indices]],dim=1)
+        #print('two')
+        #print(baseline_vector.size())
+        #print(action_vector.size())
+        fake_vector_one = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
+#x1=[]  print()
+#print('three')
+        action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)\
++torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
+    #combine into new feature vector
+        baseline_vector =torch.stack([torch.Tensor(x2)[:,i] for  i in [self.g_indices]],dim=1)
+        fake_vector_two = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
+    #x1=[]
+    
+
+    #fake_vector_one[:,i]
+        x1_ = torch.stack([ fake_vector_one[:,i] for  i in self.psi_indices],dim=1)
         
-        
-        x1_ = torch.stack([x1[:,i] for  i in self.psi_indices],dim=1)
-        
-        x2_ =    torch.stack([x2[:,i] for  i in self.psi_indices],dim=1)
+        x2_ =    torch.stack([fake_vector_two[:,i] for  i in self.psi_indices],dim=1)
         #print(x1_.shape)
         #print(x2_.shape)
-        #print(x2_)
+        #print(x2_[:4,:])
         if batch_dims == (0, 2):
             print('batch bims here')
         
@@ -311,16 +331,16 @@ def real_run(X,users,y,ytwo):
 
 
 def get_hyper(X,users,y,global_params):
-   
-   
-    print('here 2')
+    torch.manual_seed(10)
+
+    #print('here 2')
     #torch.manual_seed(111)
     
     user_mat= get_users(users,users)
-    print(global_params.baseline_indices)
-    print(X.shape)
+    #print(global_params.baseline_indices)
+    #print(X.shape)
     first_mat = get_first_mat(np.eye(len(global_params.baseline_indices)),X,global_params.baseline_indices)
-    print('here 3')
+    #print('here 3')
     #print(user_mat)
     #print(users)
     #print(first_mat.shape)
