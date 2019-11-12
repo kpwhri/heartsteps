@@ -30,6 +30,13 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link"
+                            href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}"
+                            >
+                            Intervention Summary
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
                             href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
                             >
                             Text Messages
@@ -44,33 +51,6 @@
                 <input type="submit" value="Send test notification" />
             </form>
         </div>
-    </div>
-    <div class="row">
-        <h3>Intervention Summary</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Time range</th>
-                    <th>Anti-Sedentary Suggestions</th>
-                    <th>Walking Suggestions</th>
-                </tr>
-            </thead>
-            {% for range in intervention_summaries %}
-                <tr>
-                    <th>{{range.title}}</th>
-                    <td>
-                        {{range.anti_sedentary_messages}} messages sent.
-                        <br />
-                        {{ range.anti_sedentary_availability | floatformat:2 }} availablity for {{range.anti_sedentary_decisions}} decisions.
-                    </td>
-                    <td>
-                        {{ range.walking_suggestion_messages }} messages sent.
-                        <br />
-                        {{ range.walking_suggestion_availability | floatformat:2 }} of {{range.walking_suggestion_decisions}} decisions.
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
     </div>
 </div>
 {% endblock %}
