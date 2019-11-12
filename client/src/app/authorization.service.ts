@@ -29,8 +29,9 @@ export class AuthorizationService {
         return Promise.resolve(undefined);
     }
 
-    public reset() {
-        this.authorizationInfrastructure.removeRetryAuthorization();
+    public reset(): Promise<void> {
+        this.authorizationInfrastructure.removeRetryAuthorization()
+        return Promise.resolve();
     }
 }
 

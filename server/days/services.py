@@ -130,13 +130,13 @@ class DayService:
         return self.get_date_at(timezone.now())
     
     def get_start_of_day(self, dt):
-        tz = self.get_timezone_at(dt)
-        start_of_day = datetime.datetime(
-            dt.year,
-            dt.month,
-            dt.day
+        local_datetime = self.get_datetime_at(dt)
+        return local_datetime.replace(
+            hour = 0,
+            minute = 0,
+            second = 0,
+            microsecond = 0
         )
-        return tz.localize(start_of_day)
 
     def get_end_of_day(self, dt):
         return self.get_start_of_day(dt) + datetime.timedelta(days=1)

@@ -813,6 +813,28 @@ class DecisionAvailabilityTest(TestCase):
         decision = WalkingSuggestionDecision.objects.get()
         self.assertEqual(decision.category, SuggestionTime.MIDAFTERNOON)
 
+    def test_single_walking_suggestion_per_period(self):
+        now = timezone.now()
+        suggestion_time = now + timedelta(minutes=10)
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MIDAFTERNOON,
+            hour = suggestion_time.hour,
+            minute = suggestion_time.minute
+        )
+        WalkingSuggestionDecisionService.make_decision(
+            datetime = now - timedelta(minutes=5),
+            user=self.user
+        )
+
+        try:
+            WalkingSuggestionDecisionService.make_decision_now(
+                user = self.user
+            )
+            self.fail('Should not have made second walking suggestion decision')
+        except WalkingSuggestionDecisionService.RandomizationUnavailable:
+            pass
+
 class TestLastWalkingSuggestion(ServiceTestCase):
 
     def setUp(self):

@@ -11,6 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col-sm">
+            <h3>Participant Information</h3>
             <dl>
                 <dt>HeartSteps ID</dt>
                 <dd>{{participant.heartsteps_id}}</dd>
@@ -19,15 +20,19 @@
                 <dt>Birth year</dt>
                 <dd>{{participant.birth_year}}</dd>
             </dl>
+            <a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
+                >
+                Edit participant information
+            </a>
         </div>
         <div class="col-sm">
             <nav>
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
+                            href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}"
                             >
-                            Edit participant
+                            Intervention Summary
                         </a>
                     </li>
                     <li class="nav-item">
@@ -39,6 +44,12 @@
                     </li>
                 </ul>
             </nav>
+
+            <form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="message" value="Hi, this is a test message." />
+                <input type="submit" value="Send test notification" />
+            </form>
         </div>
     </div>
 </div>

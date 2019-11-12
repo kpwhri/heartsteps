@@ -32,6 +32,7 @@ from .models import WalkingSuggestionDecision
 from .models import WalkingSuggestionMessageTemplate
 from .models import WalkingSuggestionServiceRequest as ServiceRequest
 from .models import PoolingServiceConfiguration
+from .models import User
 
 class WalkingSuggestionTimeService:
 
@@ -55,13 +56,14 @@ class WalkingSuggestionTimeService:
 
     def suggestion_time_category_available_at(self, time):
         category = self.suggestion_time_category_at(time)
+        day_service = DayService(user = self.__user)
 
         query = WalkingSuggestionDecision.objects.filter(
             user = self.__user,
             test = False,
             time__range = [
-                self.__configuration.get_start_of_day(time),
-                self.__configuration.get_end_of_day(time)
+                day_service.get_start_of_day(time),
+                day_service.get_end_of_day(time)
             ]
         )
         tags = [decision.category for decision in query.all()] 
@@ -90,21 +92,11 @@ class WalkingSuggestionTimeService:
                 return suggestion_time.category
         return None
 
-    def create_decision(self, category, time=None):
-        if not time:
-            time = timezone.now()
-        if category not in SuggestionTime.TIMES:
-            raise RuntimeError('Category is not suggestion time')
-
-        decision = WalkingSuggestionDecision.objects.create(
-            user = self.__user,
-            time = timezone.now()
-        )
-        decision.add_context(category)
-        return decision
-
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
+
+    class UserDoesNotExist(RuntimeError):
+        pass
 
     class RandomizationUnavailable(RuntimeError):
         pass
@@ -133,6 +125,11 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
     def make_decision(datetime, user=None, username=None):
         category = None
+        if not user:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                raise WalkingSuggestionDecisionService.UserDoesNotExist('No user found')
         try:
             service = WalkingSuggestionTimeService(
                 user = user,
@@ -143,11 +140,12 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             pass
         if not category:
             raise WalkingSuggestionDecisionService.RandomizationUnavailable('Unable to randomize at time')
-        decision = service.create_decision(
+        decision_service = WalkingSuggestionDecisionService.create_decision(
+            user = user,
             category = category,
             time = datetime
         )
-        WalkingSuggestionDecisionService.process_decision(decision)
+        WalkingSuggestionDecisionService.process_decision(decision_service.decision)
 
     def process_decision(decision):
         decision_service = WalkingSuggestionDecisionService(decision)
@@ -155,7 +153,6 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
         decision_service.update_availability()
         if decision_service.decide():
             decision_service.send_message()
-            decision = WalkingSuggestionDecision.objects.get()
 
     def create_decision(user, category, time=None, test=False):
         if not time:

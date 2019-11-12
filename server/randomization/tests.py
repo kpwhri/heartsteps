@@ -15,6 +15,7 @@ from rest_framework.test import APITestCase
 
 from behavioral_messages.models import ContextTag as MessageTag
 from behavioral_messages.models import MessageTemplate
+from days.services import DayService
 from locations.models import Location, Place
 from locations.services import LocationService
 from push_messages.models import Message as PushMessage, Device
@@ -325,7 +326,7 @@ class DecisionContextTest(TestCase):
         
         self.assertEqual(context, "weekend")
 
-    @patch.object(TimezoneFinder, 'timezone_at', return_value="US/Pacific")
+    @patch.object(DayService, 'get_timezone_at', return_value=pytz.timezone("US/Pacific"))
     def test_corrects_weekend_for_timezone(self, timezone_at):
         # Day is early monday morning UTC - late sunday evening PST
         decision_time = datetime(2018, 10, 15, 2).astimezone(pytz.utc)
@@ -344,7 +345,7 @@ class DecisionContextTest(TestCase):
         context = decision_service.get_week_context()
         
         self.assertEqual(context, "weekend")
-        timezone_at.assert_called_with(lat=123.123, lng=42.42)
+        timezone_at.assert_called_with(decision_time)
 
 class DecisionActivityTests(TestCase):
 

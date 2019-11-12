@@ -6,6 +6,7 @@ from timezonefinder import TimezoneFinder
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 
+from days.services import DayService
 from locations.models import Location, Place
 from locations.services import LocationService
 from push_messages.services import PushMessageService
@@ -204,17 +205,8 @@ class DecisionContextService(DecisionService):
         return forecast
 
     def get_local_decision_time(self):
-        location = self.get_location()
-        if location:
-            timezone_finder = TimezoneFinder()
-            timezone_string = timezone_finder.timezone_at(
-                lng = location.longitude,
-                lat = location.latitude
-            )
-            local_timezone = pytz.timezone(timezone_string)
-            return self.decision.time.astimezone(local_timezone)
-        return self.decision.time
-
+        day_service = DayService(user = self.user)
+        return day_service.get_datetime_at(self.decision.time)
 
     def get_week_context(self):
         WEEKEND_DAYS = [5, 6]

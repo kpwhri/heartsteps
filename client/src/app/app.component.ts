@@ -35,7 +35,11 @@ export class MyApp {
                 Promise.all([
                     this.setupAuthorization(participant),
                     this.setupNotifications(participant)
-                ]).then(() => {
+                ])
+                .catch(() => {
+                    console.log('There was an error');
+                })
+                .then(() => {
                     this.updateRoute(participant);
                 });
             });
@@ -63,15 +67,17 @@ export class MyApp {
 
     private setupAuthorization(participant:any) {
         if(participant) {
-            this.authorizationService.setup();
+            return this.authorizationService.setup();
         } else {
-            this.authorizationService.reset();
+            return this.authorizationService.reset();
         }
     }
 
-    private setupNotifications(participant:any) {
+    private setupNotifications(participant:any): Promise<void> {
         if(participant) {
-            this.notificationService.setup();
+            return this.notificationService.setup();
+        } else {
+            return Promise.resolve();
         }
     }
 }
