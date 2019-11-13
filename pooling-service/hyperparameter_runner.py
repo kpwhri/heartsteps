@@ -301,7 +301,9 @@ def real_run(X,users,y,ytwo):
         global_params = initialize_policy_params_TS(standardize=False,baseline_features=[i for i in range(len(baseline_features))],psi_features=[],responsivity_keys=[i for i in range(3,len(baseline_features))])
         
         hyper = get_hyper(np.array(X),users,np.array(y),global_params)
-        
+        with open('data/ran_new_model.txt','w+') as f:
+                f.write('{}'.format('ran'))
+                f.write('\n')
         with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
                 #hyper['sigma_u']=np.array([[.09,.008],[.008,.001]])
