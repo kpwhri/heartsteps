@@ -164,145 +164,6 @@ class DashboardListView(CohortView):
 class InterventionSummaryView(CohortView):
     template_name = 'dashboard/intervention-summary.page.html'
 
-    def get_intervention_decisions(self, model, users, start, end):
-        query = model.objects.filter(
-            user__in = users,
-            time__gte = start,
-            time__lte = end,
-            test = False
-        )
-        return query.all()
-
-    def get_walking_suggestion_decisions(self, users, start, end):
-        return self.get_intervention_decisions(
-            model = WalkingSuggestionDecision,
-            users = users,
-            start = start,
-            end = end
-        )
-
-    def get_anti_sedentary_decisions(self, users, start, end):
-        return self.get_intervention_decisions(
-            model = AntiSedentaryDecision,
-            users = users,
-            start = start,
-            end = end
-        )
-
-    def count_decision_messages(self, decisions):
-        total = 0
-        for decision in decisions:
-            if decision.treated:
-                total += 1
-        return total
-
-    def count_available_decisions(self, decisions):
-        total = 0
-        for decision in decisions:
-            if decision.available:
-                total += 1
-        return total
-
-    def count_unavailable_reasons(self, decisions):
-        unavailable_reasons = {}
-        query = UnavailableReason.objects.filter(
-            decision__in = decisions
-        )
-        for _reason in query.all():
-            if _reason.reason not in unavailable_reasons:
-                unavailable_reasons[_reason.reason] = 0
-            unavailable_reasons[_reason.reason] += 1
-        return unavailable_reasons
-
-    def list_unavailable_reasons(self, decisions):
-        counts = self.count_unavailable_reasons(decisions)
-        decisions_total = len(decisions)
-        unavailable_reasons = []
-        for reason, name in UnavailableReason.CHOICES:
-            count = 0
-            percentage = 0
-            if reason in counts:
-                count = counts[reason]
-            if decisions_total:
-                percentage = count/decisions_total
-            unavailable_reasons.append({
-                'name': name,
-                'reason': reason,
-                'count': count,
-                'percentage': percentage
-            })
-        unavailable_reasons.sort(key = lambda x: (1-x['percentage'], x['name']))
-        return unavailable_reasons
-
-    def decision_availability(self, decisions):
-        if not decisions or not len(decisions):
-            return 0
-        available_count = 0
-        for decision in decisions:
-            if decision.available:
-                available_count += 1
-        return available_count/len(decisions)
-
-    def filter_decisions(self, decisions, start, end):
-        _decisions = []
-        for decision in decisions:
-            if decision.time >= start and decision.time <= end:
-                _decisions.append(decision)
-        return _decisions
-
-    def make_time_range(self, name, offset):
-        return {
-            'name': name,
-            'offset': offset
-        }
-
-    def get_intervention_summaries(self, users):
-        intervention_summaries = []
-        time_ranges = [
-            self.make_time_range('Last 3 days', 3),
-            self.make_time_range('Last 7 days', 7),
-            self.make_time_range('Last 14 days', 14),
-            self.make_time_range('Last 28 days', 28)
-        ]
-        time_ranges.reverse()
-
-        walking_suggestion_decisions = self.get_walking_suggestion_decisions(
-            users = users,
-            start = timezone.now() - timedelta(days=28),
-            end = timezone.now()
-        )
-        anti_sedentary_decisions = self.get_anti_sedentary_decisions(
-            users = users,
-            start = timezone.now() - timedelta(days=28),
-            end = timezone.now()
-        )
-
-        for time_range_dict in time_ranges:
-            walking_suggestion_decisions = self.filter_decisions(
-                decisions = walking_suggestion_decisions,
-                start = timezone.now() - timedelta(days=time_range_dict['offset']),
-                end = timezone.now()
-            )
-            anti_sedentary_decisions = self.filter_decisions(
-                decisions = anti_sedentary_decisions,
-                start = timezone.now() - timedelta(days=time_range_dict['offset']),
-                end = timezone.now()
-            )
-            intervention_summaries.append({
-                'title': time_range_dict['name'],
-                'walking_suggestion_unavailable_reasons': self.list_unavailable_reasons(walking_suggestion_decisions),
-                'walking_suggestion_messages': self.count_decision_messages(walking_suggestion_decisions),
-                'walking_suggestion_decisions': len(walking_suggestion_decisions),
-                'walking_suggestion_availability': self.decision_availability(walking_suggestion_decisions),
-                'anti_sedentary_messages': self.count_decision_messages(anti_sedentary_decisions),
-                'anti_sedentary_decisions': len(anti_sedentary_decisions),
-                'anti_sedentary_availability': self.decision_availability(anti_sedentary_decisions),
-                'anti_sedentary_unavailable_reasons': self.list_unavailable_reasons(anti_sedentary_decisions),
-            })
-
-        intervention_summaries.reverse()
-        return intervention_summaries
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -311,13 +172,45 @@ class InterventionSummaryView(CohortView):
             if participant.user:
                 users.append(participant.user)
 
-        context['intervention_summaries'] = self.get_intervention_summaries(
-            users = users
+        anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
+            users = users,
+            start = timezone.now() - timedelta(days=28),
+            end = timezone.now()
         )
+        walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
+            users = users,
+            start = timezone.now() - timedelta(days=28),
+            end = timezone.now()
+        )
+
+        time_ranges = []
+        for offset in [3, 7, 14, 28]:
+            time_ranges.append({
+                'title': 'Last %d days' % (offset),
+                'walking_suggestion_summary': DashboardParticipant.summaries.summarize_walking_suggestions(
+                    users = users,
+                    end = timezone.now(),
+                    start = timezone.now() - timedelta(days=offset),
+                    decisions = walking_suggestion_decisions
+                ),
+                'anti_sedentary_suggestion_summary': DashboardParticipant.summaries.summarize_anti_sedentary_suggestions(
+                    users = users,
+                    end = timezone.now(),
+                    start = timezone.now() - timedelta(days=offset),
+                    decisions = anti_sedentary_decisions
+                ),
+                'watch_app_availability_summary': DashboardParticipant.watch_app_step_counts.summary(
+                    users = users,
+                    start = timezone.now() - timedelta(days=offset),
+                    end = timezone.now()
+                )
+            })
+
+        context['time_ranges'] = time_ranges
 
         return context
 
-class ParticipantView(InterventionSummaryView):
+class ParticipantView(CohortView):
     template_name = 'dashboard/participant.html'
 
     def test_func(self):
@@ -349,12 +242,47 @@ class ParticipantInterventionSummaryView(ParticipantView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         users = []
         if self.participant.user:
             users.append(self.participant.user)
-        context['intervention_summaries'] = self.get_intervention_summaries(
-            users = users
+
+        anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
+            users = users,
+            start = timezone.now() - timedelta(days=28),
+            end = timezone.now()
         )
+        walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
+            users = users,
+            start = timezone.now() - timedelta(days=28),
+            end = timezone.now()
+        )
+
+        time_ranges = []
+        for offset in [3, 7, 14, 28]:
+            time_ranges.append({
+                'title': 'Last %d days' % (offset),
+                'walking_suggestion_summary': DashboardParticipant.summaries.summarize_walking_suggestions(
+                    users = users,
+                    end = timezone.now(),
+                    start = timezone.now() - timedelta(days=offset),
+                    decisions = walking_suggestion_decisions
+                ),
+                'anti_sedentary_suggestion_summary': DashboardParticipant.summaries.summarize_anti_sedentary_suggestions(
+                    users = users,
+                    end = timezone.now(),
+                    start = timezone.now() - timedelta(days=offset),
+                    decisions = anti_sedentary_decisions
+                ),
+                'watch_app_availability_summary': DashboardParticipant.watch_app_step_counts.summary(
+                    users = users,
+                    start = timezone.now() - timedelta(days=offset),
+                    end = timezone.now()
+                )
+            })
+
+        context['time_ranges'] = time_ranges
+
         return context
 
 class ParticipantEditView(ParticipantView):
