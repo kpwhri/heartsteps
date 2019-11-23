@@ -105,6 +105,12 @@ class DashboardListView(CohortView):
 
     template_name = 'dashboard/index.html'
 
+    def query_participants(self):
+        return DashboardParticipant.objects\
+            .filter(cohort = self.cohort)\
+            .order_by('heartsteps_id')\
+            .prefetch_related('user')
+
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
@@ -156,6 +162,8 @@ class DashboardListView(CohortView):
                     participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
+                'anti_sedentary_suggestions_enabled': participant.anti_sedentary_suggestions_enabled,
+                'walking_suggestions_enabled': participant.walking_suggestions_enabled,
                 'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants

@@ -17,6 +17,12 @@ from sms_messages.models import (Contact, Message)
 from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
 
+from morning_messages.models import Configuration as MorningMessageConfiguration
+from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
+
+
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):
 
     def __init__(self, user=None):
@@ -186,6 +192,26 @@ class WatchAppSummaryManager(models.Manager):
             start__gte = start,
             end__lte = end
         )
+        return query.all()
+
+    def __get_time_range(self, time_range):
+        if time_range not in self.TIME_RANGES:
+            raise RuntimeError('time range not found')
+        else:
+            service = DayService(user = self.user)
+            today = service.get_current_date()
+            start_date = today - timedelta(days=time_range.offset)
+            return [
+                service.get_start_of_day(start_date),
+                service.get_end_of_day(today)
+            ]
+
+    def get_randomization_decisions(self, model, time_range):
+        query = model.objects.filter(
+            user = self.user,
+            time__range = self.__get_time_range(time_range),
+            test = False
+        )
         for step_count in query.all():
             if step_count.end <= step_count.created:
                 step_counts.append(step_count)
@@ -220,6 +246,41 @@ class DashboardParticipant(Participant):
 
     class Meta:
         proxy = True
+
+    def _is_configuration_enabled(self, model, keyname):
+        if hasattr(self, keyname):
+            return getattr(self, keyname)
+        if not self.user:
+            setattr(self, keyname, False)
+        else:
+            try:
+                configuration = model.objects.get(user = self.user)
+                setattr(self, keyname, configuration.enabled)
+            except model.DoesNotExist:
+                setattr(self, keyname, False)        
+        return getattr(self, keyname)
+        
+
+    @property
+    def walking_suggestions_enabled(self):
+        return self._is_configuration_enabled(
+            model = WalkingSuggestionConfiguration,
+            keyname = '_walking_suggestions_enabled'
+        )
+
+    @property
+    def anti_sedentary_suggestions_enabled(self):
+        return self._is_configuration_enabled(
+            model = AntiSedentaryConfiguration,
+            keyname = '_anti_sedentary_enabled'
+        )
+
+    @property
+    def morning_messages_enabled(self):
+        return self._is_morning_messages_enabled(
+            model = MorningMessageConfiguration,
+            keyname = '_morning_messages_enabled'
+        )
 
 
 class FitbitServiceDashboard(FitbitService):
