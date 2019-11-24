@@ -36,6 +36,7 @@ class Survey(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
     user = models.ForeignKey(User)
+    answered = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -50,6 +51,13 @@ class Survey(models.Model):
         pass
     
     QUESTION_MODEL = Question
+
+    def save(self, *args, **kwargs):
+        if self.is_answered():
+            self.answered = True
+        else:
+            self.answered = False
+        super().save(*args, **kwargs)
 
     @property
     def id(self):
@@ -154,8 +162,7 @@ class Survey(models.Model):
         return answer_value
 
 
-    @property
-    def answered(self):
+    def is_answered(self):
         response_count = SurveyResponse.objects.filter(
             survey = self
         ).count()

@@ -18,6 +18,8 @@ from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
 
 from morning_messages.models import Configuration as MorningMessageConfiguration
+from morning_messages.models import MorningMessage
+from morning_messages.models import MorningMessageSurvey
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
@@ -277,10 +279,26 @@ class DashboardParticipant(Participant):
 
     @property
     def morning_messages_enabled(self):
-        return self._is_morning_messages_enabled(
+        return self._is_configuration_enabled(
             model = MorningMessageConfiguration,
-            keyname = '_morning_messages_enabled'
+            keyname = '_morning_message_enabled'
         )
+
+    @property
+    def date_last_morning_message_survey_completed(self):
+        if not self.user:
+            return None
+        survey = MorningMessageSurvey.objects.filter(
+            user = self.user,
+            answered = True
+        ).order_by('created').last()
+        print(self.user.username, survey)
+        if survey:
+            morning_message = MorningMessage.objects.get(
+                survey = survey
+            )
+            return morning_message.date
+        return None
 
 
 class FitbitServiceDashboard(FitbitService):

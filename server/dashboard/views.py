@@ -158,8 +158,9 @@ class DashboardListView(CohortView):
                 'date_joined': participant.date_joined,
                 'first_page_view': first_page_view,
                 'last_page_view': participant.last_page_view,
-                'watch_app_installed_date':
-                    participant.watch_app_installed_date,
+                'morning_messages_enabled': participant.morning_messages_enabled,
+                'last_morning_message_survey_completed': participant.date_last_morning_message_survey_completed,
+                'watch_app_installed_date': participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
                 'anti_sedentary_suggestions_enabled': participant.anti_sedentary_suggestions_enabled,

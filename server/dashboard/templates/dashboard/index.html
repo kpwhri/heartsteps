@@ -11,6 +11,7 @@
             <th>Fitbit</th>
             <th>Mobile App</th>
             <th>Watch App</th>
+            <th>Morning Messages</th>
             <th>Anti-sedentary suggestions</th>
             <th>Walking suggestions</th>
         </tr>
@@ -71,6 +72,19 @@
                     <dt>Last update:</dt>
                     <dd>{{ participant.last_watch_app_data|date }}</dd>
                 </dl>
+            </td>
+            <td>
+                {% if participant.morning_messages_enabled %}
+                Enabled
+                {% else %}
+                Disabled
+                {% endif %}
+                <br />
+                {% if participant.last_morning_message_survey_completed %}
+                <strong>Last completed survey on</strong> {{participant.last_morning_message_survey_completed|date }}
+                {% else %}
+                No morning message survey completed.
+                {% endif %}
             </td>
             <td>
                 {% if participant.anti_sedentary_suggestions_enabled %}
