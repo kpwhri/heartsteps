@@ -305,7 +305,6 @@ class DashboardParticipant(Participant):
             user = self.user,
             answered = True
         ).order_by('created').last()
-        print(self.user.username, survey)
         if survey:
             morning_message = MorningMessage.objects.get(
                 survey = survey
