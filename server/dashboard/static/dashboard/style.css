@@ -24,3 +24,23 @@ table td a.sms-btn:hover, a.texthx-btn:hover {
 li.card {
     margin: 0.5em 0em;
 }
+
+dl dd.success:before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-image: url('/static/admin/img/icon-yes.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+i.icon-error {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-image: url('/static/admin/img/icon-no.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+}

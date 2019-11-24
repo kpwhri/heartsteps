@@ -165,7 +165,9 @@ class DashboardListView(CohortView):
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
                 'anti_sedentary_suggestions_enabled': participant.anti_sedentary_suggestions_enabled,
+                'last_anti_sedentary_suggestion_datetime': participant.last_anti_sedentary_suggestion_datetime,
                 'walking_suggestions_enabled': participant.walking_suggestions_enabled,
+                'last_walking_suggestion_datetime': participant.last_walking_suggestion_datetime,
                 'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants

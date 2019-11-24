@@ -283,12 +283,56 @@ class DashboardParticipant(Participant):
             keyname = '_walking_suggestions_enabled'
         )
 
+    def get_last_walking_suggestion(self):
+        if not self.user:
+            return None
+        return WalkingSuggestionDecision.objects.filter(
+            user = self.user,
+            test = False,
+            treated = True
+        ).order_by('time').last()
+
+    @property
+    def last_walking_suggestion(self):
+        if not hasattr(self, '_last_walking_suggestion'):
+            setattr(self, '_last_walking_suggestion', self.get_last_walking_suggestion())
+        return getattr(self, '_last_walking_suggestion')
+    
+    @property
+    def last_walking_suggestion_datetime(self):
+        if self.last_walking_suggestion:
+            return self.last_walking_suggestion.time
+        else:
+            return None
+
     @property
     def anti_sedentary_suggestions_enabled(self):
         return self._is_configuration_enabled(
             model = AntiSedentaryConfiguration,
             keyname = '_anti_sedentary_enabled'
         )
+
+    def get_last_anti_sedentary_suggestion(self):
+        if not self.user:
+            return None
+        return AntiSedentaryDecision.objects.filter(
+            user = self.user,
+            test = False,
+            treated = True
+        ).order_by('time').last()
+
+    @property
+    def last_anti_sedentary_suggestion(self):
+        if not hasattr(self, '_last_anti_sedentary_suggestion'):
+            setattr(self, '_last_anti_sedentary_suggestion', self.get_last_anti_sedentary_suggestion())
+        return getattr(self, '_last_anti_sedentary_suggestion')
+    
+    @property
+    def last_anti_sedentary_suggestion_datetime(self):
+        if self.last_anti_sedentary_suggestion:
+            return self.last_anti_sedentary_suggestion.time
+        else:
+            return None
 
     @property
     def morning_messages_enabled(self):

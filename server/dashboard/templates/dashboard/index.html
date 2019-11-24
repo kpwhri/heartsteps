@@ -26,87 +26,123 @@
                     >
                     {{participant.heartsteps_id}}
                 </a>
-                <p><strong>Account created:</strong>{{ participant.date_joined|date }}</p>
+                <dl>
+                    {% if participant.date_joined %}
+                    <dt>Joined date</dt>
+                    <dd>{{ participant.date_joined|date }}</dd>
+                    {% endif %}
+                </dl>
             </td>
             <td>
-                <strong>Phone:</strong>{{participant.phone_number }}
-                <br />
-                <strong>Last text sent:</strong>{{participant.last_text_sent|date }}
+                <dl>
+                    <dt>Phone</dt>
+                    {% if participant.phone_number %}
+                    <dd>{{participant.phone_number }}</dd>
+                    {% endif %}
+                    {% if participant.last_text_sent %}
+                    <dt>Last text sent</dt>
+                    <dd>{{participant.last_text_sent}}</dd>
+                    {% endif %}
+                </dl>
             </td>
             <td>
-                {% if participant.fitbit_authorized == 'current' %}
-                    <img src="{% static 'admin/img/icon-yes.svg' %}"
-                        data-toggle='tooltip' data-placement='bottom'
-                        title='Currently authorized' />
-                {% elif participant.fitbit_authorized == 'never' %}
-                    <img src="{% static 'admin/img/icon-no.svg' %}"
-                        data-toggle='tooltip' data-placement='bottom'
-                        title='Never authorized' />
-                {% elif participant.fitbit_authorized == 'prior' %}
-                    <img src="{% static 'admin/img/icon-unlink.svg' %}"
-                        data-toggle='tooltip' data-placement='bottom'
-                        title='Previously authorized' />
-                {% endif %}
-                <p>
-                    <strong>First update: </strong>{{ participant.fitbit_first_updated|date }}
-                </p>
-                <p>
-                    <strong>Last update:</strong> {{ participant.fitbit_last_updated | date }}
-                </p>
-                <p>
-                    <strong>Days worn:</strong> {{ participant.days_wore_fitbit }}
-                <p>
+                <dl>
+                    <dt>Status</dt>
+                    {% if participant.fitbit_authorized == 'current' %}
+                     <dd class="success">Authorized</dd>
+                    {% elif participant.fitbit_authorized == 'never' %}
+                    <dd class="error">No account</dd>
+                    {% elif participant.fitbit_authorized == 'prior' %}
+                    <dd class="error">Unauthorized</dd> 
+                    {% endif %}
+                    {% if participant.fitbit_first_updated %}
+                    <dd>First update {{ participant.fitbit_first_updated|date }}</dd>
+                    {% endif %}
+                    {% if participant.fitbit_last_updated %}
+                    <dd>Last update {{participant.last_updated}}</dd>
+                    {% endif %}
+                    <dt>Days worn</dt>
+                    <dd>{{participant.days_wore_fitbit}}</dd>
+                </dl>
             </td>
             <td>
                 <dl>
                     <dt>Installed</dt>
+                    {% if participant.first_page_view %}
                     <dd>{{ participant.first_page_view|date }}<dd>
+                    {% else %}
+                    <dd class="error">Not installed</dd>
+                    {% endif %}
+                    {% if participant.last_page_view %}
                     <dt>Last page view</dt>
                     <dd>{{ participant.last_page_view|date }}</dd>
+                    {% endif %}
                 </dl>
             </td>
             <td>
                 <dl>
                     <dt>Installed</dt>
+                    {% if participant.watch_app_installed_date %}
                     <dd>{{ participant.watch_app_installed_date|date }}</dd>
-                    <dt>Last update:</dt>
+                    {% else %}
+                    <dd class="error">Not installed</dd>
+                    {% endif %}
+                    {% if participant.last_watch_app_data %}
+                    <dt>Last update</dt>
                     <dd>{{ participant.last_watch_app_data|date }}</dd>
+                    {% endif %}
                 </dl>
             </td>
             <td>
-                {% if participant.morning_messages_enabled %}
-                Enabled
-                {% else %}
-                Disabled
-                {% endif %}
-                <br />
-                {% if participant.last_morning_message_survey_completed %}
-                <strong>Last completed survey on</strong> {{participant.last_morning_message_survey_completed|date }}
-                {% else %}
-                No morning message survey completed.
-                {% endif %}
+                <dl>
+                    <dt>Status</dt>
+                    {% if participant.morning_messages_enabled %}
+                    <dd class="success">Enabled</dd>
+                    {% else %}
+                    <dd class="error">Disabled</dd>
+                    {% endif %}
+                    {% if participant.last_morning_message_survey_completed %}
+                    <dt>Last completed survey</dt>
+                    <dd>{{participant.last_morning_message_survey_completed|date }}</dd>
+                    {% endif %}
+                </dl>
             </td>
             <td>
-                {% if participant.anti_sedentary_suggestions_enabled %}
-                Enabled
-                {% else %}
-                Disabled
-                {% endif %}
+                <dl>
+                    <dt>Status</dt>
+                    <dd>
+                    {% if participant.anti_sedentary_suggestions_enabled %}
+                        Enabled
+                    {% else %}
+                    Disabled
+                        {% endif %}
+                    </dd>
+                    {% if participant.last_anti_sedentary_suggestion_datetime %}
+                    <dt>Last suggestion</dt>
+                    <dd>{{participant.last_anti_sedentary_suggestion_datetime|date}}</dd>
+                    {% endif %}
+                </dl>
             </td>
             <td>
-                {% if participant.walking_suggestions_enabled %}
-                Enabled
-                {% else %}
-                Disabled
-                {% endif %}
-                <p>
-                {% if participant.walking_suggestion_service_initialized_date %}
-                    <strong>Service initialized date:</strong>
-                {{participant.walking_suggestion_service_initialized_date}}
-                {% else %}
-                    Not initialized
-                {% endif %}
-                </p>
+                <dl>
+                    <dt>Status</dt>
+                    <dd>
+                    {% if participant.walking_suggestions_enabled %}
+                    Enabled
+                    {% else %}
+                    Disabled
+                    {% endif %}
+                    </dd>
+                    {% if participant.walking_suggestion_service_initialized_date %}
+                    <dd>Service initialized on {{participant.walking_suggestion_service_initialized_date}}</dd>
+                    {% else %}
+                    <dd>Service not initialized</dd>
+                    {% endif %}
+                    {% if participant.last_walking_suggestion_datetime %}
+                    <dt>Last decision</dt>
+                    <dd>{{ participant.last_walking_suggestion_datetime|date}}<dd>
+                    {% endif %}
+                </dl>
             </td>
 
             {% endtimezone %}
