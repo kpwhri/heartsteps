@@ -21,6 +21,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
+from participants.services import ParticipantService
 from push_messages.services import PushMessageService
 from randomization.models import UnavailableReason
 from sms_messages.services import SMSService
@@ -226,9 +227,7 @@ class ParticipantView(CohortView):
         results = super().test_func()
         if results:
             self.setup_participant()
-            return True
-        else:
-            return False
+        return results
 
     def setup_participant(self):
         if 'participant_id' in self.kwargs:
@@ -243,6 +242,21 @@ class ParticipantView(CohortView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['participant'] = self.participant
+
+        context['configurations'] = [
+            {
+                'title': 'Anti-Sedentary Suggestions',
+                'enabled': self.participant.anti_sedentary_suggestions_enabled
+            },
+            {
+                'title': 'Walking Suggestions',
+                'enabled': self.participant.walking_suggestions_enabled
+            },
+            {
+                'title': 'Morning Messages',
+                'enabled': self.participant.morning_messages_enabled
+            }
+        ]
 
         return context
 
@@ -429,3 +443,50 @@ class ParticipantSMSMessagesView(ParticipantView):
             self.template_name,
             context
         )
+
+class ParticipantDisableView(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+        service = ParticipantService(
+            participant=self.participant
+        )
+        service.disable()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Disabled %s' % (self.participant.user.username)
+            )
+
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'participant_id': self.participant.heartsteps_id,
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )
+
+class ParticipantEnableView(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+        service = ParticipantService(
+            participant=self.participant
+        )
+        service.enable()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Enabled %s' % (self.participant.user.username)
+            )
+
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'participant_id': self.participant.heartsteps_id,
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )        
+

@@ -249,6 +249,19 @@ class DashboardParticipant(Participant):
     class Meta:
         proxy = True
 
+    def is_enabled(self):
+        if not self.user:
+            return False
+        configurations = [
+            self.walking_suggestions_enabled,
+            self.anti_sedentary_suggestions_enabled,
+            self.morning_messages_enabled
+        ]
+        if True in configurations:
+            return True
+        else:
+            return False
+
     def _is_configuration_enabled(self, model, keyname):
         if hasattr(self, keyname):
             return getattr(self, keyname)
