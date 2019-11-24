@@ -135,6 +135,7 @@ class ParticipantService:
                 user=self.participant.user
             )
             morning_message_configuration.enabled = True
+            morning_message_configuration.save()
 
             walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
                 user=self.participant.user
