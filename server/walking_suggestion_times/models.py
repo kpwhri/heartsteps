@@ -31,7 +31,15 @@ class SuggestionTime(models.Model):
     minute = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "%s:%s (%s) - %s" % (self.hour, self.minute, self.category, self.user)         
+        return "%s:%s (%s) - %s" % (self.hour, self.minute, self.category, self.user)
+
+    @property
+    def time_formatted(self):
+        hour = str(self.hour)
+        minute = self.minute
+        if minute < 10:
+            minute = "0" + str(minute)
+        return "%s:%s" % (hour, minute)
 
     def get_datetime_on(self, date):
         service = DayService(user = self.user)

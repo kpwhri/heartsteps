@@ -22,6 +22,10 @@ from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
 
 @shared_task
+def create_walking_suggestion(username):
+    pass
+
+@shared_task
 def nightly_update(username, day_string):
     dt = datetime.strptime(day_string, '%Y-%m-%d')
     day = date(dt.year, dt.month, dt.day)

@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
 from behavioral_messages.models import MessageTemplate
+from daily_tasks.models import DailyTask
 from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
@@ -32,6 +33,12 @@ class Configuration(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.suggestion_times:
+            self.set_default_walking_suggestion_times()
+        self.update_walking_suggestion_tasks()
     
     @property
     def service_initialized(self):
@@ -111,6 +118,70 @@ class Configuration(models.Model):
                 hour = hour,
                 minute = minute
             )
+
+    def __make_suggestion_time_task_category(self, category):
+        return 'ws-%s' % (category)
+
+    def __make_suggestion_time_task_name(self, category):
+        return 'create-walking-suggestion-%s-%s' % (
+            category,
+            self.user.username
+        )
+
+    def __get_suggestion_time_task_arguments(self):
+        return {
+            'username': self.user.username
+        }
+
+    def __get_suggestion_time_task(self):
+        return 'walking_suggestions.tasks.create_walking_suggestion'
+
+    def get_suggestion_time_task(self, category):
+        try:
+            daily_task = DailyTask.objects.get(
+                user = self.user,
+                category = self.__make_suggestion_time_task_category(category)
+            )
+        except DailyTask.DoesNotExist:
+            daily_task = self.__create_suggestion_time_task(category)
+        return daily_task
+
+    def __create_suggestion_time_task(self, category):
+        suggestion_time = SuggestionTime.objects.get(
+            user = self.user,
+            category = category
+        )
+
+        daily_task = DailyTask.create_daily_task(
+            user = self.user,
+            category = self.__make_suggestion_time_task_category(category),
+            task = self.__get_suggestion_time_task(),
+            name = self.__make_suggestion_time_task_name(category),
+            arguments = self.__get_suggestion_time_task_arguments(),
+            hour = suggestion_time.hour,
+            minute = suggestion_time.minute
+        )
+        return daily_task
+
+    def update_walking_suggestion_tasks(self):
+        for suggestion_time in self.suggestion_times:
+            daily_task = self.get_suggestion_time_task(
+                category = suggestion_time.category
+            )
+            daily_task.update_task(
+                task = self.__get_suggestion_time_task(),
+                name = self.__make_suggestion_time_task_name(suggestion_time.category),
+                arguments = self.__get_suggestion_time_task_arguments()
+            )
+            daily_task.set_time(
+                hour = suggestion_time.hour,
+                minute = suggestion_time.minute
+            )
+            if self.enabled:
+                daily_task.enable()
+            else:
+                daily_task.disable()
+        
 
 class WalkingSuggestionMessageTemplate(MessageTemplate):
     pass
