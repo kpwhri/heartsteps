@@ -92,35 +92,45 @@ class ServiceTestCase(TestCase):
         )
 
     def create_default_suggestion_times(self):
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MORNING,
-            hour = 8,
-            minute = 0
+            defaults = {
+                'hour': 8,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.LUNCH,
-            hour = 12,
-            minute = 0
+            defaults = {
+                'hour': 12,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,
-            hour = 14,
-            minute = 0
+            defaults = {
+                'hour': 14,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.EVENING,
-            hour = 18,
-            minute = 0
+            defaults = {
+                'hour': 18,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.POSTDINNER,
-            hour = 20,
-            minute = 0
+            defaults = {
+                'hour': 20,
+                'minute': 0
+            }
         )
     
     def create_walking_suggestion_decision(self, category, available=True, treated=False, treatment_probability=0.2, location=None, temperature=None, pre_steps=100, post_steps=100):
@@ -581,23 +591,29 @@ class StepCountTests(ServiceTestCase):
             account = account
         )
 
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.LUNCH,
-            hour = 12,
-            minute = 30
+            defaults = {
+                'hour': 12,
+                'minute': 30
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,
-            hour = 15,
-            minute = 00
+            defaults = {
+                'hour':15,
+                'minute':00
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.EVENING,
-            hour = 17,
-            minute = 30
+            defaults = {
+                'hour':17,
+                'minute':30
+            }
         )
 
         decision = WalkingSuggestionDecision.objects.create(
