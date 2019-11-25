@@ -134,7 +134,7 @@ class Configuration(models.Model):
         }
 
     def __get_suggestion_time_task(self):
-        return 'walking_suggestions.tasks.create_walking_suggestion'
+        return 'walking_suggestions.tasks.queue_walking_suggestion'
 
     def get_suggestion_time_task(self, category):
         try:
