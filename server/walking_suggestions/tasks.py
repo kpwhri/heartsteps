@@ -28,7 +28,10 @@ def queue_walking_suggestion(username):
     category = service.suggestion_time_category_at(timezone.now())
     random_minutes = random.randint(15,30)
     create_walking_suggestion.apply_async(
-        countdown = random_minutes * 60
+        countdown = random_minutes * 60,
+        kwargs = {
+            'username': username
+        }
     )
 
 @shared_task
