@@ -726,7 +726,11 @@ class DecisionAvailabilityTest(TestCase):
         self.configuration = Configuration.objects.create(
             user = self.user,
             enabled = True
-        )      
+        )
+
+        ws_patch = patch.object(WalkingSuggestionDecisionService, 'send_message')
+        ws_patch.start()
+        self.addCleanup(ws_patch.stop)
 
     def create_step_count(self, steps, minutes_ago):
         WatchStepCount.objects.create(
@@ -752,7 +756,7 @@ class DecisionAvailabilityTest(TestCase):
         self.assertFalse(decision.available)
         self.assertTrue(decision.unavailable_disabled)
 
-    def test_no_step_counts(self):
+    def test_available_with_no_step_counts(self):
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
@@ -763,8 +767,8 @@ class DecisionAvailabilityTest(TestCase):
 
         self.assertFalse(available)
         decision = WalkingSuggestionDecision.objects.get()
-        self.assertFalse(decision.available)
-        self.assertTrue(decision.unavailable_no_step_count_data)
+        self.assertTrue(decision.available)
+        self.assertFalse(decision.unavailable_no_step_count_data)
 
     def test_step_count_over_limit(self):
         self.create_step_count(10, 5)
@@ -850,6 +854,7 @@ class DecisionAvailabilityTest(TestCase):
             self.fail('Should not have made second walking suggestion decision')
         except WalkingSuggestionDecisionService.RandomizationUnavailable:
             pass
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 

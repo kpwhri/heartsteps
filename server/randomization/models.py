@@ -132,12 +132,15 @@ class Decision(models.Model):
             else:
                 self.sedentary = True
         except WatchAppStepCountService.NoStepCountRecorded:
-            self.add_unavailable_reason(UnavailableReason.NO_STEP_COUNT_DATA)
-            self.sedentary = False
+            self.handle_no_step_count()
         if self.is_recently_active():
             self.add_unavailable_reason(UnavailableReason.RECENTLY_ACTIVE)
         self.available = self.is_available()
         self.save()
+    
+    def handle_no_step_count(self):
+        self.add_unavailable_reason(UnavailableReason.NO_STEP_COUNT_DATA)
+        self.sedentary = False
 
     def is_notification_recently_sent(self):
         return self.__is_message_recently_sent()

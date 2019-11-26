@@ -204,6 +204,9 @@ class WalkingSuggestionDecision(Decision):
             return int(settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES)
         return self.SEDENTARY_DURATION_MINUTES
 
+    def handle_no_step_count(self):
+        pass
+
     @property
     def category(self):
         for tag in self.tags.all():
