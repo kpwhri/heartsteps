@@ -171,10 +171,10 @@ def get_M(global_params,user_id,user_study_day,history):
 
     return np.array(M)
 
-def get_RT(y,X,sigma_theta,x_dim):
+def get_RT(y,X,mu_theta,x_dim):
     
-    to_return = [y[i]-np.dot(X[i][0:x_dim],sigma_theta) for i in range(len(X))]
-    return np.array([i[0] for i in to_return])
+    to_return = [y[i]-np.dot(X[i][0:x_dim],mu_theta) for i in range(len(X))]
+    return np.array([i for i in to_return])
 
 
 
@@ -284,6 +284,7 @@ def calculate_posterior_faster(global_params,user_id,user_study_day,X,users,y):
     ##change this to be mu_theta
     ##is it updated?  the current mu_theta?
     adjusted_rewards =get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
+    #print(adjusted_rewards)
     #print('current global cov')
     #print(global_params.cov)
     #.reshape(X.shape[0],X.shape[0])
@@ -303,9 +304,11 @@ def calculate_posterior_current(global_params,user_id,user_study_day,X,users,y):
     H = create_H_four(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
     
     M = get_M_faster_four(global_params,user_id,user_study_day,X,users,sigma_u)
+    print(M.shape)
     ##change this to be mu_theta
     ##is it updated?  the current mu_theta?
     adjusted_rewards =get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
+    print(adjusted_rewards)
     #print('current global cov')
     #print(global_params.cov)
     #.reshape(X.shape[0],X.shape[0])

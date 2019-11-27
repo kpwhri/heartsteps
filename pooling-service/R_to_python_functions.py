@@ -5,6 +5,7 @@ import pyreadr
 from sklearn import preprocessing
 import numpy as np
 import os
+import simple_bandits
 
 
 def get_user_ids():
@@ -27,7 +28,7 @@ def process_data(rdata,baseline_features,user_id):
         #dosages = [v[b][0]   for b in baseline_features if b=='dosage' ]
         #print(dosages)
         #maxdosage = max(dosages)
-        feat_vec = [v[b] if b!='dosage' else v[b]/10 for b in baseline_features ]
+        feat_vec = [v[b] if b!='dosage' else v[b]/20 for b in baseline_features ]
         
         if ~np.isnan(feat_vec).any(axis=0):
             availabilities.append(v['availability'])
@@ -46,7 +47,7 @@ def process_data(rdata,baseline_features,user_id):
 def get_standard_x(X):
     return preprocessing.StandardScaler().fit_transform(X)
 
-def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
+def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices,global_params):
     ##returns users, transformed data, and transformed rewards
     to_return = []
     
@@ -66,19 +67,11 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
             users.append(all_dict['users'][i])
             #print(all_dict['users'][i])
             ys.append(all_dict['reward'][i])
-    to_adjust = [np.array(all_dict['reward']).mean()]+[0]*(len(to_return[0])-1)
 
-
-
-
-#print(len(to_return))
-#print(len(all_dict['avail']))
-    #to_adjust = np.ones(len(to_return[0]))
-    #print(np.array(ys).std())
-    #y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
-    #y.tolist()
-    #print(np.array(y).std())
-    return to_return,ys,ys,users
+    centered_y = simple_bandits.get_RT(ys,to_return,global_params.mu_theta,18)
+    
+    
+    return to_return,centered_y,ys,users
 
 def get_one_user(data_path,user_id):
     result = pyreadr.read_r(data_path)
@@ -98,7 +91,7 @@ def get_one_user(data_path,user_id):
 
 
 
-def combine_users(data_path,user_list):
+def combine_users(data_path,user_list,global_params):
     #data_path  = '../../../walking-suggestion-service/data'
     #user_list = ["10215", "10313", "10062", "10374", "10355", "10271", "10041", "10237", "10075", "10195"]
     user_files = [directory for directory in os.listdir(data_path) if directory.strip('user') in user_list]
@@ -152,9 +145,9 @@ def combine_users(data_path,user_list):
 }
     #if train:
     #print(temp_X)
-    x,y,ys,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
+    x,ycentered,y,user =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices,global_params)
 
-    return  user, x,y,ys
+    return  user, x,ycentered,y
 
 
 

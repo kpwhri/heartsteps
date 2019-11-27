@@ -15,59 +15,6 @@ from gpytorch.constraints import constraints
 import pooling_params as gtp
 import simple_bandits
 
-def initialize_policy_params_TS(standardize=False,baseline_features=None,psi_features=None,\
-                                responsivity_keys=None):
-    #,'location_1','location_2','location_3'
-    #'continuous_temp',
-    global_p =gtp.TS_global_params(18,baseline_features=baseline_features,psi_features=psi_features, responsivity_keys= responsivity_keys)
-    #personal_p = pp.TS_personal_params()
-    #global_p =gtp.TS_global_params(10,context_dimension)
-    
-    
-    
-    #global_p.mu_dimension = 64
-    
-    global_p.kdim =18
-    #194
-    global_p.baseline_indices = [i for i in range(3+ len(baseline_features)+2*len(responsivity_keys))]
-    
-    #[i for i in range(192)]
-    #[0,1,2,3,4,5,6]
-    #print(global_p.baseline_indices )
-    global_p.psi_indices = [0,1+len(baseline_features)]
-    #[0,64]
-    global_p.user_id_index =0
-    
-    global_p.psi_features =psi_features
-    #[0,64]
-    
-  
-    
-    #global_p.update_period = update_period
-    
-    global_p.standardize = standardize
-    global_p.lr = 1.1
-    
-    initial_context = [0 for i in range(global_p.theta_dim)]
-    
-    global_p.mus0= global_p.get_mu0(initial_context)
-    #global_p.get_mu0(initial_context)
-    global_p.mus1= global_p.get_mu1(global_p.num_baseline_features)
-    global_p.mus2= global_p.get_mu2(global_p.num_responsivity_features)
-    #np.array([.120,3.3,-.11])
-    #global_p.get_mu2(global_p.num_responsivity_features)
-    
-    #global_p.sigmas0= global_p.get_asigma(len( personal_p.mus0[person]))
-    global_p.sigmas1= global_p.get_asigma(global_p.num_baseline_features+1)
-    global_p.sigmas2= global_p.get_asigma( global_p.num_responsivity_features+1)
-    
-    
-    global_p.mu2_knot = np.array([0]+[0 for i in range(global_p.num_responsivity_features)])
-    global_p.mu1_knot = np.zeros(global_p.num_baseline_features+1)
-    global_p.sigma1_knot = np.eye(global_p.num_baseline_features+1)
-    global_p.sigma2_knot = np.eye(global_p.num_responsivity_features+1)
-    
-    return global_p
 
 
 def get_users(users,userstwo):
@@ -109,7 +56,7 @@ class MyKernel(Kernel):
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
-        #print(self.psi_indices)
+        print(self.psi_indices)
         self.g_indices = [i for i in range(8)]
         self.action_indices_one = [i for i in range(8,8+5)]
         self.action_indices_two = [i for i in range(8+5,18)]
@@ -287,20 +234,21 @@ class GPRegressionModel(gpytorch.models.ExactGP):
 
 
 
+def simple_random_effects(X):
+    ##just for trial
+    to_return =[]
+    for i in range(len(X)):
+        feat_vec = X[i]
+        r_one = feat_vec[0]
+        r_two = feat_vec[8]+feat_vec[8+5]
+        to_return.append([r_one,r_two])
+    return np.array(to_return)
 
 
-
-
-def real_run(X,users,y,ytwo):
+def real_run(X,users,ycentered,y,global_params):
     
-    #print('here 1')
-        baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
-                         'dosage', 'engagement',  'other.location', 'variation']
-        responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
-
-        global_params = initialize_policy_params_TS(standardize=False,baseline_features=[i for i in range(len(baseline_features))],psi_features=[],responsivity_keys=[i for i in range(3,len(baseline_features))])
         
-        hyper = get_hyper(np.array(X),users,np.array(y),global_params)
+        hyper = get_hyper(np.array(X),users,np.array(ycentered),global_params)
         with open('data/ran_new_model.txt','w+') as f:
                 f.write('{}'.format('ran'))
                 f.write('\n')
@@ -309,8 +257,12 @@ def real_run(X,users,y,ytwo):
                 #hyper['sigma_u']=np.array([[.09,.008],[.008,.001]])
         global_params.sigma_u =hyper['sigma_u']
         #cov = simple_bandits.get_covar_simple(np.array(X),users,global_params)
-        random_effects = np.array(X)[:,global_params.psi_indices]
+        #random_effects = np.array(X)[:,global_params.psi_indices]
+        random_effects = simple_random_effects(X)
         print(random_effects[0])
+
+        
+        
         cov = simple_bandits.other_cov_notime(np.array(X),global_params.sigma_theta,random_effects,global_params.sigma_u,get_users(users,users))
         hyper['cov2']=hyper['cov']
         hyper['cov']=cov
@@ -324,9 +276,10 @@ def real_run(X,users,y,ytwo):
             #pickle.dump({'X':X,'y':y,'users':users,'gp':global_params},f)
 #print(global_params.sigma_u)
         global_params.inv_term=inv_term
+        ##uncentered y
         to_return = {i:simple_bandits.calculate_posterior_faster(global_params,\
                                                              i,0,\
-                                                             np.array(X), users,np.array([[j] for j in y]) ) for i in set(users)}
+                                                             np.array(X), users,np.array(y) ) for i in set(users)}
 
         return to_return
 
