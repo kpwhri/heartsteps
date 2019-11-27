@@ -24,6 +24,30 @@
                 >
                 Edit participant information
             </a>
+            <h3>Configurations</h3>
+            <ul>
+            {% for configuration in configurations %}
+                <li>
+                {{configuration.title}}
+                {% if configuration.enabled %}
+                (Enabled)
+                {% else %}
+                (Disabled)
+                {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+            {% if participant.is_enabled %}
+            <form action="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}" method="POST">
+                {% csrf_token %}
+                <input type="submit" value="Disable participant" />
+            </form>
+            {% else %}
+            <form action="{% url 'dashboard-cohort-participant-enable' cohort.id participant.heartsteps_id %}" method="POST">
+                {% csrf_token %}
+                <input type="submit" value="Enable participant" />
+            </form>
+            {% endif %}
         </div>
         <div class="col-sm">
             <nav>

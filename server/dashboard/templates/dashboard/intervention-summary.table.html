@@ -1,42 +1,28 @@
 <table class="table">
-    <thead>
-        <tr>
-            <th>Time range</th>
-            <th>Anti-Sedentary Suggestions</th>
-            <th>Walking Suggestions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for range in intervention_summaries %}
-        <tr>
-            <th>{{range.title}}</th>
-            <td>
-                {{range.anti_sedentary_messages}} messages sent.
-                <br />
-                {{ range.anti_sedentary_availability | floatformat:2 }} availablity for {{range.anti_sedentary_decisions}} decisions.
-                <br />
-                <ul>
-                {% for unavailable_reason in range.anti_sedentary_unavailable_reasons %}
-                    <li>
-                        {{unavailable_reason.name}}: {{unavailable_reason.count}} <em>({{unavailable_reason.percentage | floatformat:2}})</em>
-                    </li>
-                {% endfor %}
-                </ul>
-            </td>
-            <td>
-                {{ range.walking_suggestion_messages }} messages sent.
-                <br />
-                {{ range.walking_suggestion_availability | floatformat:2 }} of {{range.walking_suggestion_decisions}} decisions.
-                <br />
-                <ul>
-                {% for unavailable_reason in range.walking_suggestion_unavailable_reasons %}
-                    <li>
-                        {{unavailable_reason.name}}: {{unavailable_reason.count}} <em>({{unavailable_reason.percentage | floatformat:2}})</em>
-                    </li>
-                {% endfor %}
-                </ul>
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        <thead>
+            <tr>
+                <th>Time range</th>
+                <th>Availability</th>
+                <th>Anti-Sedentary Suggestions</th>
+                <th>Walking Suggestions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for range in time_ranges %}
+            <tr>
+                <td>
+                    {{range.title}}
+                </td>
+                <td>
+                    {{range.watch_app_availability_summary.hours_available | floatformat:2}} hours ({{range.watch_app_availability_summary.availability | floatformat:2 }})
+                </td>
+                <td>
+                    {% include 'dashboard/intervention-summary.html' with summary=range.anti_sedentary_suggestion_summary %}
+                </td>
+                <td>
+                    {% include 'dashboard/intervention-summary.html' with summary=range.walking_suggestion_summary %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>

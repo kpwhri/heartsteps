@@ -251,8 +251,8 @@ if(is.null(output)){
         Sigma <- data.policy$Sigma.beta
         gamma <- data.policy$gamma;
         eta <- data.policy$eta.fn;
-        pi_max <- data.policy$pi_max;
-        pi_min <- data.policy$pi_min;  
+        pi_max <- 0.8;
+        pi_min <- 0.2;  
         
         # create the feature (standardization ocurrs here)
         feat <- c(1, std.dosage(current.dosage), engagement.indc, other.loc, variation.indc) 

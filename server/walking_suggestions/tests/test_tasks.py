@@ -34,18 +34,18 @@ class CreateDecisionTest(TestCase):
         self.process_decision = process_decision_patch.start()
         self.addCleanup(process_decision_patch.stop)
 
-    def testDoesNotMakeDecisionIfNotConfigured(self):
-        self.configuration.enabled = False
-        self.configuration.save()
+    # def testDoesNotMakeDecisionIfNotConfigured(self):
+    #     self.configuration.enabled = False
+    #     self.configuration.save()
 
-        try:
-            WalkingSuggestionDecisionService.make_decision_now(username='test')
-            self.fail('Should have thrown exception')
-        except WalkingSuggestionDecisionService.RandomizationUnavailable:
-            pass
+    #     try:
+    #         WalkingSuggestionDecisionService.make_decision_now(username='test')
+    #         self.fail('Should have thrown exception')
+    #     except WalkingSuggestionDecisionService.RandomizationUnavailable:
+    #         pass
 
-        self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
-        self.process_decision.assert_not_called()
+    #     self.assertEqual(WalkingSuggestionDecision.objects.count(), 0)
+    #     self.process_decision.assert_not_called()
 
     @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='5')
     def testDoesNotCreateDecisionIfNotCorrectTime(self):

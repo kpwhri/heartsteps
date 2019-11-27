@@ -92,35 +92,45 @@ class ServiceTestCase(TestCase):
         )
 
     def create_default_suggestion_times(self):
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MORNING,
-            hour = 8,
-            minute = 0
+            defaults = {
+                'hour': 8,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.LUNCH,
-            hour = 12,
-            minute = 0
+            defaults = {
+                'hour': 12,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,
-            hour = 14,
-            minute = 0
+            defaults = {
+                'hour': 14,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.EVENING,
-            hour = 18,
-            minute = 0
+            defaults = {
+                'hour': 18,
+                'minute': 0
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.POSTDINNER,
-            hour = 20,
-            minute = 0
+            defaults = {
+                'hour': 20,
+                'minute': 0
+            }
         )
     
     def create_walking_suggestion_decision(self, category, available=True, treated=False, treatment_probability=0.2, location=None, temperature=None, pre_steps=100, post_steps=100):
@@ -581,23 +591,29 @@ class StepCountTests(ServiceTestCase):
             account = account
         )
 
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.LUNCH,
-            hour = 12,
-            minute = 30
+            defaults = {
+                'hour': 12,
+                'minute': 30
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,
-            hour = 15,
-            minute = 00
+            defaults = {
+                'hour':15,
+                'minute':00
+            }
         )
-        SuggestionTime.objects.create(
+        SuggestionTime.objects.update_or_create(
             user = self.user,
             category = SuggestionTime.EVENING,
-            hour = 17,
-            minute = 30
+            defaults = {
+                'hour':17,
+                'minute':30
+            }
         )
 
         decision = WalkingSuggestionDecision.objects.create(
@@ -710,7 +726,11 @@ class DecisionAvailabilityTest(TestCase):
         self.configuration = Configuration.objects.create(
             user = self.user,
             enabled = True
-        )      
+        )
+
+        ws_patch = patch.object(WalkingSuggestionDecisionService, 'send_message')
+        ws_patch.start()
+        self.addCleanup(ws_patch.stop)
 
     def create_step_count(self, steps, minutes_ago):
         WatchStepCount.objects.create(
@@ -736,7 +756,7 @@ class DecisionAvailabilityTest(TestCase):
         self.assertFalse(decision.available)
         self.assertTrue(decision.unavailable_disabled)
 
-    def test_no_step_counts(self):
+    def test_available_with_no_step_counts(self):
         decision = WalkingSuggestionDecision.objects.create(
             user = self.user,
             time = timezone.now()
@@ -747,8 +767,8 @@ class DecisionAvailabilityTest(TestCase):
 
         self.assertFalse(available)
         decision = WalkingSuggestionDecision.objects.get()
-        self.assertFalse(decision.available)
-        self.assertTrue(decision.unavailable_no_step_count_data)
+        self.assertTrue(decision.available)
+        self.assertFalse(decision.unavailable_no_step_count_data)
 
     def test_step_count_over_limit(self):
         self.create_step_count(10, 5)
@@ -834,6 +854,7 @@ class DecisionAvailabilityTest(TestCase):
             self.fail('Should not have made second walking suggestion decision')
         except WalkingSuggestionDecisionService.RandomizationUnavailable:
             pass
+        self.assertEqual(WalkingSuggestionDecision.objects.count(), 1)
 
 class TestLastWalkingSuggestion(ServiceTestCase):
 

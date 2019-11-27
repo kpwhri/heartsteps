@@ -119,27 +119,29 @@ class ParticipantService:
             return False
 
     def enable(self):
-        AntiSedentaryConfiguration.objects.update_or_create(
+        adherence_message_configuration, _ = AdherenceMessageConfiguration.objects.update_or_create(
             user = self.participant.user
         )
-        MorningMessagesConfiguration.objects.update_or_create(
-            user=self.participant.user
-        )
-        WalkingSuggestionConfiguration.objects.update_or_create(
-            user=self.participant.user
-        )
-        AdherenceMessageConfiguration.objects.update_or_create(
-            user = self.participant.user,
-            defaults = {
-                'enabled': True
-            }
-        )
-        try:
-            sms_contact = SMSContact.objects.get(user = self.user)
-            sms_contact.enabled = True
-            sms_contact.save()
-        except SMSContact.DoesNotExist:
-            pass
+        adherence_message_configuration.enabled = True
+        adherence_message_configuration.save()
+        if self.is_baseline_complete():
+            anti_sedentary_configuration, _ = AntiSedentaryConfiguration.objects.update_or_create(
+                user = self.participant.user
+            )
+            anti_sedentary_configuration.enabled = True
+            anti_sedentary_configuration.save()
+
+            morning_message_configuration, _ = MorningMessagesConfiguration.objects.update_or_create(
+                user=self.participant.user
+            )
+            morning_message_configuration.enabled = True
+            morning_message_configuration.save()
+
+            walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
+                user=self.participant.user
+            )
+            walking_suggestion_configuration.enabled = True
+            walking_suggestion_configuration.save()
     
     def disable(self):
         AntiSedentaryConfiguration.objects.filter(user = self.participant.user).update(enabled = False)

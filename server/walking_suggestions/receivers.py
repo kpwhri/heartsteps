@@ -1,4 +1,5 @@
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 
 from walking_suggestion_times.signals import suggestion_times_updated

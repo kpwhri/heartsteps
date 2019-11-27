@@ -1,0 +1,11 @@
+{{ summary.messages_sent }} messages sent.
+<br />
+{{ summary.availability | floatformat:2 }} availability for {{summary.decisions }} decisions.
+<br />
+<ul>
+{% for unavailable_reason in summary.unavailable_reasons %}
+    <li>
+        {{unavailable_reason.name}}: {{unavailable_reason.count}} <em>({{unavailable_reason.percentage | floatformat:2}})</em>
+    </li>
+{% endfor %}
+</ul>

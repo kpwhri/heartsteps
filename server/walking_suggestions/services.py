@@ -73,10 +73,13 @@ class WalkingSuggestionTimeService:
         else:
             return category
 
-    def suggestion_time_category_at(self, time):
+    def __get_decision_window_minutes(self):
         if not hasattr(settings,'WALKING_SUGGESTION_DECISION_WINDOW_MINUTES'):
             raise ImproperlyConfigured("Walking suggestion decision window minutes Unset")
         decision_window_minutes = int(settings.WALKING_SUGGESTION_DECISION_WINDOW_MINUTES)
+        return decision_window_minutes
+
+    def suggestion_time_category_at(self, time):
 
         for suggestion_time in self.__configuration.suggestion_times:
             suggestion_time_today = suggestion_time.get_datetime_on(time)
@@ -88,10 +91,10 @@ class WalkingSuggestionTimeService:
                 difference = suggestion_time_today_utc - time_utc
             else:
                 difference = time_utc - suggestion_time_today_utc
-            if difference.seconds is not None and difference.seconds < decision_window_minutes*60:
+            decision_window_seconds = self.__get_decision_window_minutes() * 60
+            if difference.seconds is not None and difference.seconds < decision_window_seconds:
                 return suggestion_time.category
         return None
-
 
 class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageService):
 
@@ -177,6 +180,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
 
         if not self.enabled:
             self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_DISABLED)
+            self.decision.available = False
             self.decision.save()
 
     def get_step_counts(self):
@@ -213,6 +217,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.decision.treated = False
             self.decision.treatment_probability = 0
             self.decision.add_unavailable_reason(self.decision.UNAVAILABLE_SERVICE_ERROR)
+            self.decision.available = False
             self.decision.save()
         return self.decision.treated
 

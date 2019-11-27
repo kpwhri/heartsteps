@@ -1,5 +1,6 @@
 import pytz
 import json
+import random
 from celery import shared_task
 from datetime import timedelta, datetime, date
 
@@ -20,6 +21,25 @@ from .models import PoolingServiceRequest
 from .services import WalkingSuggestionService
 from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
+
+@shared_task
+def queue_walking_suggestion(username):
+    service = WalkingSuggestionTimeService(username=username)
+    category = service.suggestion_time_category_at(timezone.now())
+    random_minutes = random.randint(15,30)
+    create_walking_suggestion.apply_async(
+        countdown = random_minutes * 60,
+        kwargs = {
+            'username': username
+        }
+    )
+
+@shared_task
+def create_walking_suggestion(username):
+    try:
+        WalkingSuggestionDecisionService.make_decision_now(username=username)
+    except WalkingSuggestionDecisionService.RandomizationUnavailable:
+        pass
 
 @shared_task
 def nightly_update(username, day_string):

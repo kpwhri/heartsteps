@@ -21,6 +21,11 @@ class InitializeTask(TestCase):
             user = self.user
         )
 
+        baseline_complete_patch = patch.object(ParticipantService, 'is_baseline_complete')
+        self.baseline_complete = baseline_complete_patch.start()
+        self.baseline_complete.return_value=True
+        self.addCleanup(baseline_complete_patch.stop)
+
     def test_starts_nightly_update_task(self):
         service = ParticipantService(username="test")
         service.initialize()
