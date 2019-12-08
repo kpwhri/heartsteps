@@ -59,7 +59,7 @@
                     <dd>First update {{ participant.fitbit_first_updated|date }}</dd>
                     {% endif %}
                     {% if participant.fitbit_last_updated %}
-                    <dd>Last update {{participant.last_updated}}</dd>
+                    <dd>Last update {{participant.fitbit_last_updated}}</dd>
                     {% endif %}
                     <dt>Days worn</dt>
                     <dd>{{participant.days_wore_fitbit}}</dd>
