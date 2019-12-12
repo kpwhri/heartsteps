@@ -19,13 +19,14 @@ from sms_messages.models import (Contact, Message)
 from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
 
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from morning_messages.models import MorningMessage
 from morning_messages.models import MorningMessageSurvey
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
-from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
-from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 
+from push_messages.models import Message as PushMessage
 
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):
 
@@ -242,9 +243,24 @@ class WatchAppSummaryManager(models.Manager):
             total_seconds = total_seconds
         )
 
+class NotificationsQuerySet(models.QuerySet):
+
+    def get_notifications(self, start, end):
+        participants = self.exclude(user=None).all()
+        users = [participant.user for participant in participants]
+
+        query = PushMessage.objects.filter(
+            recipient__in = users,
+            message_type = PushMessage.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        )
+        return query.all()
+
 
 class DashboardParticipant(Participant):
 
+    notifications = NotificationsQuerySet.as_manager()
     summaries = InterventionSummaryManager()
     watch_app_step_counts = WatchAppSummaryManager()
 

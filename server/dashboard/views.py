@@ -383,6 +383,16 @@ class ParticipantCreateView(CohortView):
 
 class ParticipantNotificationsView(ParticipantView):
 
+    template_name = 'dashboard/participant-notifications.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notifications'] = DashboardParticipant.notifications.filter(user=self.participant.user).get_notifications(
+            timezone.now() - timedelta(days=7),
+            timezone.now()
+        )
+        return context
+
     def post(self, request, *args, **kwargs):
 
         if 'message' in request.POST and request.POST['message'] is not '':
