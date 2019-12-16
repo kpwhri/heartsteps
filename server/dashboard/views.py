@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import timedelta
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from adherence_messages.models import AdherenceMetric
 from anti_sedentary.models import AntiSedentaryDecision
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
@@ -492,3 +494,32 @@ class ParticipantEnableView(ParticipantView):
             )
         )        
 
+class ParticipantAdherenceView(ParticipantView):
+
+    template_name = 'dashboard/participant-adherence.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        adherence_summaries = self.participant.get_adherence_during(
+            start = date.today() - timedelta(days=14),
+            end = date.today()
+        )
+        metric_names = []
+        metric_categories = []
+        for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
+            metric_names.append(title)
+            metric_categories.append(category)
+
+        for summary in adherence_summaries:
+            ordered_metrics = []
+            for category in metric_categories:
+                if category in summary['metrics']:
+                    ordered_metrics.append(summary['metrics'][category])
+                else:
+                    ordered_metrics.append(False)
+            summary['ordered_metrics'] = ordered_metrics
+        
+        context['metric_names'] = metric_names
+        context['adherence_summaries'] = adherence_summaries
+        return context

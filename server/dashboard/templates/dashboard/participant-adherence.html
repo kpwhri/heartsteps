@@ -1,0 +1,50 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-adherence' cohort.id participant.heartsteps_id %}" class="nav-link active">Adherence Details</a>
+{% endblock %}
+
+{% block content %}
+
+<h2>Adherence Details for {{participant.heartsteps_id}}</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            {% for name in metric_names %}
+            <th>{{name}}</th>
+            {% endfor %}
+            <th>Message Sent</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for summary in adherence_summaries %}
+        <tr>
+            <td>{{summary.date}}</td>
+            {% for metric in summary.ordered_metrics %}
+            <td>{{metric}}</td>
+            {% endfor %}
+            <td>
+                {% if summary.messages %}
+                <ul>
+                    {% for message in summary.messages %}
+                    <li>
+                        <span>{{message.body}}</span>
+                        <em>{{message.category}}</em>
+                    </li>                
+                    {% endfor %}
+                </ul>
+
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

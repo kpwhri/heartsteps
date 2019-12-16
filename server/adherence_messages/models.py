@@ -132,7 +132,7 @@ class AdherenceMetric(AdherenceBase):
     )
 
     def __str__(self):
-        return '%s: %s on %s' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'))
+        return '%s: %s on %s (%b)' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'), self.value)
 
 class AdherenceMessage(AdherenceBase):
 

@@ -3,6 +3,8 @@ from datetime import timedelta
 
 from django.db import models
 
+from adherence_messages.models import AdherenceMetric
+from adherence_messages.models import AdherenceMessage
 from adherence_messages.services import (
     AdherenceAppInstallMessageService,
     AdherenceFitbitUpdatedService
@@ -248,6 +250,53 @@ class DashboardParticipant(Participant):
 
     class Meta:
         proxy = True
+
+    def get_adherence_during(self, start, end):
+        if not self.user:
+            return []
+        metrics = {}
+        adherence_metrics = AdherenceMetric.objects.filter(
+            user = self.user,
+            date__range = [start, end]
+        ).all()
+        for metric in adherence_metrics:
+            if metric.date not in metrics:
+                 metrics[metric.date] = {}
+            metrics[metric.date][metric.category] = metric.value
+
+        messages = {}
+        day_service = DayService(user=self.user)
+        adherence_messages = AdherenceMessage.objects.filter(
+            user = self.user,
+            created__range = [
+                day_service.get_start_of_day(start),
+                day_service.get_end_of_day(end)
+            ]
+        ).all()
+        for message in adherence_messages:
+            message_date = day_service.get_date(message.created)
+            if message_date not in messages:
+                messages[message_date] = []
+            messages[message_date].append({
+                'category': message.category,
+                'body': message.body
+            })
+        
+        summaries = []
+        _dates = [end - timedelta(days=offset) for offset in range((end-start).days + 1)]
+        for _date in _dates:
+            _metrics = {}
+            if _date in metrics:
+                _metrics = metrics[_date]
+            _messages = []
+            if _date in messages:
+                _messages = messages[_date]
+            summaries.append({
+                'date': _date,
+                'metrics': _metrics,
+                'messages': _messages
+            })
+        return summaries
 
     def is_enabled(self):
         if not self.user:
