@@ -9,6 +9,35 @@ from import_export.fields import Field
 from import_export.admin import ExportMixin
 
 from behavioral_messages.admin import MessageTemplateAdmin
+
+# This needs to be changed, but if this filter is in participants admin
+# It causes a dependency loop
+from participants.models import Cohort
+from participants.models import Participant
+class ParticipantCohortFilter(admin.SimpleListFilter):
+    title = 'Participant Cohort Filters'
+    parameter_name = 'cohort'
+
+    def lookups(self, request, model_admin):
+        lookups = []
+        for cohort in Cohort.objects.all():
+            lookups.append((cohort.id, cohort.name))
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value():
+            users = []
+            query = Participant.objects.filter(
+                cohort__id = self.value()
+            )
+            for participant in query.all():
+                if participant.user:
+                    users.append(participant.user)
+            return queryset.filter(user__in=users)
+        else:
+            return queryset
+
+
 from randomization.admin import DecisionAdmin
 from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
@@ -31,7 +60,6 @@ class WalkingSuggestionDecisionResource(DecisionResource):
         model = WalkingSuggestionDecision
         fields = DecisionResource.FIELDS
         export_order = DecisionResource.FIELDS
-
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
@@ -88,20 +116,22 @@ def initialize_walking_suggestion_service(modeladmin, request, queryset):
         messages.add_message(request, messages.INFO, 'Queued initialization for %s' % (configuration.user.username))
 
 class ConfigurationAdmin(admin.ModelAdmin):
+
+    actions = [
+        send_walking_suggestion,
+        initialize_walking_suggestion_service
+    ]
+    exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
     list_display = [
         'user',
         'enabled',
         'service_initialized_date',
         'fitbit_days_worn'
     ]
-    exclude = ['day_start_hour', 'day_start_minute', 'day_end_hour', 'day_end_minute']
+    list_filter = [ParticipantCohortFilter]
     readonly_fields = [
         'service_initialized_date',
         'walking_suggestion_times'
-    ]
-    actions = [
-        send_walking_suggestion,
-        initialize_walking_suggestion_service
     ]
 
     def fitbit_days_worn(self, configuration):
