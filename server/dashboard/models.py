@@ -5,14 +5,16 @@ from django.db import models
 
 from adherence_messages.models import AdherenceMetric
 from adherence_messages.models import AdherenceMessage
-from adherence_messages.services import (
-    AdherenceAppInstallMessageService,
-    AdherenceFitbitUpdatedService
-)
+from adherence_messages.services import AdherenceAppInstallMessageService
+from adherence_messages.services import AdherenceFitbitUpdatedService
 from anti_sedentary.models import AntiSedentaryDecision
+from contact.models import ContactInformation
 from days.services import DayService
-from fitbit_api.models import (FitbitAccount, FitbitAccountUser)
+from fitbit_activities.services import FitbitActivityService
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
+from page_views.models import PageView
 from participants.models import Participant
 from randomization.models import UnavailableReason
 from sms_messages.models import (Contact, Message)
@@ -257,7 +259,6 @@ class NotificationsQuerySet(models.QuerySet):
         )
         return query.all()
 
-
 class DashboardParticipant(Participant):
 
     notifications = NotificationsQuerySet.as_manager()
@@ -266,6 +267,43 @@ class DashboardParticipant(Participant):
 
     class Meta:
         proxy = True
+
+    @property
+    def phone_number(self):
+        try:
+            information = ContactInformation.objects.get(user=self.user)
+            return information.phone
+        except ContactInformation.DoesNotExist:
+            return None
+    
+    @property
+    def fitbit_days_worn(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitActivityService(user=self.user)
+            return service.get_days_worn()
+        except FitbitActivityService.NoAccount:
+            return None
+
+    @property
+    def first_page_view(self):
+        if not self.user:
+            return None
+        page_view = PageView.objects.filter(user=self.user).order_by('time').first()
+        if page_view:
+            return page_view.time
+        return None
+
+    @property
+    def walking_suggestion_service_initialized_date(self):
+        if not self.user:
+            return None
+        try:
+            configuration = WalkingSuggestionConfiguration.objects.get(user=self.user)
+            return configuration.service_initialized_date
+        except WalkingSuggestionConfiguration.DoesNotExist:
+            return None
 
     def get_adherence_during(self, start, end):
         if not self.user:

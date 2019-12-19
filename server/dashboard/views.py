@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.views.generic import TemplateView
 
 from adherence_messages.models import AdherenceMetric
+from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
@@ -117,49 +118,20 @@ class DashboardListView(CohortView):
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
-        context['from_number'] = settings.TWILIO_PHONE_NUMBER
-        context['sms_form'] = SendSMSForm
-
         participants = []
         for participant in self.query_participants():
-
-            adherence_app_install = AdherenceAppInstallDashboard(
-                                    user=participant.user)
-            try:
-                phone_number = participant.user.contactinformation.phone_e164
-            except (AttributeError, ObjectDoesNotExist):
-                phone_number = None
-
-            try:
-                first_page_view = participant.user.pageview_set.all() \
-                    .aggregate(models.Min('time'))['time__min']
-            except AttributeError:
-                first_page_view = None
-
-            walking_suggestion_service_initialized_date = None
-            try:
-                if participant.user:
-                    configuration = WalkingSuggestionConfiguration.objects.get(
-                        user=participant.user)
-                    if configuration.service_initialized_date:
-                        walking_suggestion_service_initialized_date = \
-                            configuration.service_initialized_date.strftime(
-                                '%Y-%m-%d')
-            except WalkingSuggestionConfiguration.DoesNotExist:
-                pass
-
             participants.append({
                 'heartsteps_id': participant.heartsteps_id,
                 'enrollment_token': participant.enrollment_token,
                 'birth_year': participant.birth_year,
-                'phone_number': phone_number,
-                'days_wore_fitbit': adherence_app_install.days_wore_fitbit,
+                'phone_number': participant.phone_number,
+                'days_wore_fitbit': participant.fitbit_days_worn,
                 'fitbit_first_updated': participant.fitbit_first_updated,
                 'fitbit_last_updated': participant.fitbit_last_updated,
                 'fitbit_authorized': participant.fitbit_authorized,
                 'is_active': participant.is_active,
                 'date_joined': participant.date_joined,
-                'first_page_view': first_page_view,
+                'first_page_view': participant.first_page_view,
                 'last_page_view': participant.last_page_view,
                 'morning_messages_enabled': participant.morning_messages_enabled,
                 'last_morning_message_survey_completed': participant.date_last_morning_message_survey_completed,
@@ -170,7 +142,7 @@ class DashboardListView(CohortView):
                 'last_anti_sedentary_suggestion_datetime': participant.last_anti_sedentary_suggestion_datetime,
                 'walking_suggestions_enabled': participant.walking_suggestions_enabled,
                 'last_walking_suggestion_datetime': participant.last_walking_suggestion_datetime,
-                'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
+                'walking_suggestion_service_initialized_date': participant.walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
         return context
