@@ -2,6 +2,7 @@ from datetime import date
 from datetime import timedelta
 
 from django.db import models
+from django.utils import timezone
 
 from adherence_messages.models import AdherenceMetric
 from adherence_messages.models import AdherenceMessage
@@ -304,6 +305,31 @@ class DashboardParticipant(Participant):
             return configuration.service_initialized_date
         except WalkingSuggestionConfiguration.DoesNotExist:
             return None
+
+    def adherence_status(self):
+        statuses = []
+        for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
+            metric = AdherenceMetric.objects.order_by('date').filter(
+                user = self.user,
+                category = category,
+                value = True
+            ).last()
+            number_days = None
+            if metric:
+                diff = date.today() - metric.date
+                number_days = diff.days
+            statuses.append({
+                'title': title,
+                'days': number_days
+            })
+        return statuses
+
+    def recent_adherence_messages(self):
+        message_count = AdherenceMessage.objects.filter(
+            user = self.user,
+            created__gte = timezone.now() - timedelta(days=7)
+        ).count()
+        return message_count
 
     def get_adherence_during(self, start, end):
         if not self.user:

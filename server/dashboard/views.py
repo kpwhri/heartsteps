@@ -121,6 +121,8 @@ class DashboardListView(CohortView):
         participants = []
         for participant in self.query_participants():
             participants.append({
+                'adherence_status': participant.adherence_status(),
+                'adherence_messages': participant.recent_adherence_messages,
                 'heartsteps_id': participant.heartsteps_id,
                 'enrollment_token': participant.enrollment_token,
                 'birth_year': participant.birth_year,
