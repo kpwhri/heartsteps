@@ -21,6 +21,7 @@ from randomization.models import UnavailableReason
 from sms_messages.models import (Contact, Message)
 from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
+from watch_app.models import WatchInstall
 
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
@@ -288,6 +289,37 @@ class DashboardParticipant(Participant):
             return None
 
     @property
+    def fitbit_authorized(self):
+        if not self.user:
+            return False
+        try:
+            service = FitbitService(user=self.user)
+            return service.is_authorized()
+        except FitbitService.NoAccount:
+            return False
+
+    @property
+    def fitbit_first_updated(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitService(user=self.user)
+            return service.first_updated_on()
+        except FitbitService.NoAccount:
+            return None
+
+    @property
+    def fitbit_last_updated(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitService(user=self.user)
+            return service.last_updated_on()
+        except FitbitService.NoAccount:
+            return None
+
+
+    @property
     def first_page_view(self):
         if not self.user:
             return None
@@ -484,6 +516,24 @@ class DashboardParticipant(Participant):
             )
             return morning_message.date
         return None
+
+    def watch_app_installed_date(self):
+        install = WatchInstall.objects.filter(
+            user = self.user
+        ).order_by('created').last()
+        if install:
+            return install.created
+        else:
+            return None
+
+    def last_watch_app_data(self):
+        last_step_count = WatchAppStepCount.objects.filter(
+            user = self.user
+        ).order_by('start').last()
+        if last_step_count:
+            return last_step_count.created
+        else:
+            return None
 
 
 class FitbitServiceDashboard(FitbitService):

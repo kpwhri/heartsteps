@@ -76,6 +76,22 @@ class FitbitAccount(models.Model):
             return subscription_update.created
         return None
 
+    def was_updated_between(self, start, end):
+        subscription_updates = FitbitSubscriptionUpdate.objects.filter(
+            subscription__fitbit_account = self,
+            created__gte = start,
+            created__lte = end
+        ).count()
+        account_updates = FitbitAccountUpdate.objects.filter(
+            fitbit_account = self,
+            created__gte = start,
+            created__lte = end
+        ).count()
+        if subscription_updates > 0 or account_updates > 0:
+            return True
+        else:
+            return False
+
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)
     account = models.ForeignKey(FitbitAccount)

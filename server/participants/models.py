@@ -10,14 +10,8 @@ from django.contrib.auth.models import User
 from daily_tasks.models import DailyTask
 from days.models import Day
 from days.services import DayService
-from fitbit_activities.models import FitbitDay
-from fitbit_api.models import FitbitAccount
-from fitbit_api.models import FitbitAccountUser
-from fitbit_api.models import FitbitSubscription
-from fitbit_api.models import FitbitSubscriptionUpdate
 from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
-from watch_app.models import StepCount, WatchInstall
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
@@ -103,78 +97,6 @@ class Participant(models.Model):
         else:
             return None
 
-    @property
-    def fitbit_account(self):
-        if hasattr(self, '_fitbit_account'):
-            return self._fitbit_account
-        if not self.user:
-            return None
-        try:
-            account_user = FitbitAccountUser.objects.get(user=self.user)
-            self._fitbit_account = account_user.account
-            return self._fitbit_account
-        except FitbitAccountUser.DoesNotExist:
-            return None
-
-    @property
-    # A little different from FitbitAccount.authorized
-    # FA looks if any of access_token, refresh_token, expires_at are None
-    # We now want 3 values for this:
-    #   (1) never authorized (no records in FitbitAccount)
-    #   (2) currently authorized (valid values in FitbitAccount)
-    #   (3) previously authorized (invalid value in extant FitbitAccount record)
-    def fitbit_authorized(self):
-        if self.fitbit_account:
-            if self.fitbit_account.authorized:
-                return 'current'
-            else:
-                return 'prior'
-        else:
-            return 'never'
-
-    # Changing definitions of first & last updated
-    # Had relied on self.fitbit_account.first_updated
-    # which in turn depends on FitbitSubscriptionUpdate
-    # which isn't behaving as expected
-    @property
-    def fitbit_first_updated(self):
-        if not self._is_enrolled:
-            return None
-        u = self.user
-        if u:
-            try:
-                min_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).aggregate(mindt=models.Min('date'))
-                if min_dt:
-                    return min_dt['mindt']
-                else:
-                    return None
-            except (FitbitAccountUser.DoesNotExist,
-                    FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
-                return None
-        else:
-            return None
-
-    @property
-    def fitbit_last_updated(self):
-        if not self._is_enrolled:
-            return None
-        u = self.user
-        if u:
-            try:
-                max_dt = u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).aggregate(
-                         maxdt=models.Max('date'))
-                if max_dt:
-                    return max_dt['maxdt']
-                else:
-                    return None
-            except (FitbitAccountUser.DoesNotExist,
-                    FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
-                return None
-        else:
-            return None
-
     def _is_active(self):
         try:
             daily_task = self.__get_daily_task()
@@ -193,58 +115,6 @@ class Participant(models.Model):
     def enrolled(self):
         return self._is_enrolled()
 
-    def _wore_fitbit_days(self):
-        if not self._is_enrolled:
-            return 0
-
-        u = self.user
-        if u:
-            try:
-                return u.fitbitaccountuser.account.fitbitday_set.filter(
-                    wore_fitbit=True).count()
-            except (FitbitAccountUser.DoesNotExist,
-                    FitbitAccount.DoesNotExist, FitbitDay.DoesNotExist) as e:
-                return 0
-        else:
-            return 0
-
-    @property
-    def wore_fitbit_days(self):
-        return self._wore_fitbit_days()
-
-    def _watch_app_installed_date(self):
-        u = self.user
-        if u:
-            return u.watchinstall_set.all() \
-                  .aggregate(models.Max('created'))['created__max']
-        else:
-            return None
-
-    @property
-    def watch_app_installed_date(self):
-        return self._watch_app_installed_date
-
-    def _watch_app_installed(self):
-        return self._watch_app_installed_date() is not None
-    _watch_app_installed.boolean = True
-
-    @property
-    def watch_app_installed(self):
-        return self._watch_app_installed
-
-    def _fitbit_authorized(self):
-        return self.fitbit_authorized_date() is not None
-    _fitbit_authorized.boolean = True
-
-    # Deprecated.  last_fitbit_sync() no longer exists, always returning 0
-    def _last_fitbit_sync_elapsed_hours(self):
-        warn("_last_fitbit_sync_elapsed_hours is not expected to work any more")
-        if self._last_fitbit_sync() == 0 or self.last_fitbit_sync() is None:
-            return 0
-        else:
-            elapsed = pytz.utc.localize(datetime.now()) - self._last_fitbit_sync()
-            return elapsed.total_seconds() // 3600
-
     def _last_page_view(self):
         if not self._is_enrolled:
             return None
@@ -259,44 +129,6 @@ class Participant(models.Model):
     @property
     def last_page_view(self):
         return self._last_page_view
-
-    def _last_watch_app_data(self):
-        u = self.user
-        if u:
-            return u.stepcount_set.all() \
-                    .aggregate(models.Max('end'))['end__max']
-
-    @property
-    def last_watch_app_data(self):
-        return self._last_watch_app_data
-
-    def _adherence_install_app(self):
-        if self._last_page_view() is None:
-            if self._wore_fitbit_days() >= 7:
-                return True
-            else:
-                return False
-        else:
-            return False
-    _adherence_install_app.boolean = True
-
-    @property
-    def adherence_install_app(self):
-        return self._adherence_install_app
-
-    def _adherence_no_fitbit_data(self):
-        if self._last_fitbit_sync_elapsed_hours() > (24*7):
-            return 24*7
-        elif self._last_fitbit_sync_elapsed_hours() > (24*3):
-            return 72
-        elif self._last_fitbit_sync_elapsed_hours() > (24*2):
-            return 48
-        else:
-            return 0
-
-    @property
-    def adherence_no_fitbit_data(self):
-        return self._adherence_no_fitbit_data
 
     def _adherence_app_use(self):
         if self._last_page_view() is None:

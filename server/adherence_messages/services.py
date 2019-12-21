@@ -312,20 +312,23 @@ class AdherenceFitbitWornService(AdherenceServiceBase):
         return False
 
     def last_fitbit_wear_time(self):
-        fitbit_service = FitbitService(user = self._user)
-        last_heart_rate = FitbitMinuteHeartRate.objects.order_by('time').filter(
-            account = fitbit_service.account,
-            heart_rate__gt = 0
-        ).last()
-        if last_heart_rate:
-            return last_heart_rate.time
-        else:
-            return self._user.date_joined
-
-    def send_fitbit_not_worn_message(self):
         try:
             fitbit_service = FitbitService(user = self._user)
+            last_heart_rate = FitbitMinuteHeartRate.objects.order_by('time').filter(
+                account = fitbit_service.account,
+                heart_rate__gt = 0
+            ).last()
+            if last_heart_rate:
+                return last_heart_rate.time
+            else:
+                return None
+        except FitbitService.NoAccount:
+            return None
+
+    def send_fitbit_not_worn_message(self):
             last_wear_time = self.last_fitbit_wear_time()
+            if last_wear_time is None:
+                last_wear_time = self._user.date_joined
             difference = timezone.now() - last_wear_time
             if difference.days >= 2:
                 previous_messages_query = AdherenceMessage.objects.filter(
@@ -349,8 +352,6 @@ class AdherenceFitbitWornService(AdherenceServiceBase):
                         body = message_text,
                         category = AdherenceMessage.FITBIT_WORN
                     )
-        except FitbitService.NoAccount:
-            pass
 
 class AdherenceService(
         AdherenceAppInstalled,
