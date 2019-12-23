@@ -180,7 +180,8 @@ Shown below is an example of json input for user `1` at decision time `2` on day
  	 "availability": true,
  	 "priorAnti": false,
  	 "lastActivity": false,
- 	 "location": 1
+ 	 "location": 1,
+	 "watch": true
 }
 ~~~
 
