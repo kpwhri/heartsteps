@@ -61,7 +61,7 @@ class Configuration(models.Model):
                 self.minute = None
 
     def update_daily_task(self):
-        task = 'adherence_messages.tasks.send_adherence_message',
+        task = 'adherence_messages.tasks.send_adherence_message'
         task_name = 'Adherence update for %s' % (self.user.username)
         task_arguments = {
             'username': self.user.username
