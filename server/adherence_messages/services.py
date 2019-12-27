@@ -251,7 +251,7 @@ class AdherenceFitbitUpdatedService(AdherenceServiceBase):
             fitbit_service = FitbitService(user = self._user)
             return fitbit_service.last_updated_on()
         except (FitbitService.NoAccount, FitbitService.AccountNeverUpdated):
-            return self._user.date_joined
+            return None
 
     def fitbit_updated_recently(self):
         last_update_time = self.last_fitbit_update_time()
@@ -263,6 +263,8 @@ class AdherenceFitbitUpdatedService(AdherenceServiceBase):
 
     def send_fitbit_not_updated_message(self):
         last_update_time = self.last_fitbit_update_time()
+        if not last_update_time:
+            last_update_time = self._user.date_joined
         difference = timezone.now() - last_update_time
         if difference.days >= 2: 
             messages_query = AdherenceMessage.objects.filter(

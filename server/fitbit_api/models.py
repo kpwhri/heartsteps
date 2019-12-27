@@ -83,7 +83,7 @@ class FitbitAccount(models.Model):
             created__lte = end
         ).count()
         account_updates = FitbitAccountUpdate.objects.filter(
-            fitbit_account = self,
+            account = self,
             created__gte = start,
             created__lte = end
         ).count()
