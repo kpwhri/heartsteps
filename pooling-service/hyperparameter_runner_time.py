@@ -1,4 +1,4 @@
-`
+
 import sys
 from datetime import date
 import pickle
@@ -12,13 +12,25 @@ import gpytorch
 from gpytorch.kernels import Kernel
 from gpytorch.lazy import MatmulLazyTensor, RootLazyTensor
 from gpytorch.constraints import constraints
-import pooling_params as gtp
+import pooling_params_time as gtp
 import simple_bandits
+import R_to_python_functions_time as rpy
+softplus = torch.functional.F.softplus
 
+#from LBFGS import FullBatchLBFGS
+
+def get_users_new(users,userstwo):
+    to_return = []
+    for i in range(len(users)):
+        temp = []
+        for j in range(len(userstwo)):
+            #if users[i]==userstwo[j]:
+            temp.append(int(users[i]==userstwo[j]))
+        to_return.append(temp)
+    return to_return
 
 
 def get_users(users,userstwo):
-    
     xx,yy = np.meshgrid(users,userstwo,sparse=True)
     #.99999999999
     return (xx==yy).astype('float')
@@ -32,6 +44,18 @@ def get_first_mat(sigma_theta,data,baseline_indices):
     results = np.dot(result,new_data_two.T)
     return results
 
+def dist(one,two):
+    return np.exp(-(one-two)**2/1)
+
+def get_distance(days):
+    to_return = []
+    for i in range(len(days)):
+        temp = []
+        
+        temp=[dist(days[i],days[j]) for j in range(len(days))]
+        to_return.append(temp)
+    return np.array(to_return)
+
 def inv_softplus(val):
     
     return np.log(np.exp(val)-1)
@@ -39,6 +63,9 @@ def inv_softplus(val):
 def get_sigma_u(u1,u2,rho):
     off_diagaonal_term = u1**.5*u2**.5*(rho-1)
     return np.array([[u1,off_diagaonal_term],[off_diagaonal_term,u2]])
+
+def get_sigma_v(s1,s3):
+    return np.diag([s1,s3])
 
 def get_sigma_u_soft(u1,u2,rho):
     off_diagaonal_term = inv_softplus(u1**.5*u2**.5*(rho-1))
@@ -48,15 +75,16 @@ def get_sigma_u_soft(u1,u2,rho):
 class MyKernel(Kernel):
     
     
-    def __init__(self, num_dimensions,user_mat, first_mat,gparams, variance_prior=None, offset_prior=None, active_dims=None):
+    def __init__(self, num_dimensions,user_mat, first_mat,time_mat,gparams, variance_prior=None, offset_prior=None, active_dims=None):
         super(MyKernel, self).__init__(active_dims=active_dims)
         self.user_mat = user_mat
         self.first_mat = first_mat
+        self.time_mat = time_mat
         self.action_indices = [8,13]
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
-        print(self.psi_indices)
+        #print(self.psi_indices)
         self.g_indices = [i for i in range(8)]
         self.action_indices_one = [i for i in range(8,8+5)]
         self.action_indices_two = [i for i in range(8+5,18)]
@@ -65,10 +93,12 @@ class MyKernel(Kernel):
         
         self.init_u2 = gparams.sigma_u[1][1]
         
+
         
+   
         
         self.register_parameter(name="raw_u1", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
-        self.register_parameter(name="test", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
+        #self.register_parameter(name="test", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
         
         
         self.register_parameter(name="raw_u2", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
@@ -83,33 +113,37 @@ class MyKernel(Kernel):
         self.register_constraint("raw_u2",constraint= constraints.Positive())
             
         self.register_constraint("raw_rho",constraint= constraints.Interval(0.0,2.0))
+        
+        self.register_parameter(name="raw_s1", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
+     
+        self.register_constraint("raw_s1",constraint= constraints.Positive())
+        
+        self.register_parameter(name="raw_s3", parameter=torch.nn.Parameter(1.0*torch.tensor(1.0)))
+    
+        self.register_constraint("raw_s3",constraint= constraints.Positive())
+        
+                
+        
         self.u1 = self.init_u1
         self.u2 = self.init_u2
-        self.rho = self.r
-      
-    #self.test = 1.0
+        self.rho = 0
+        #print(self.rho)
+        self.s1 = 1.0
+   
+        self.s3 = 1.0
     
-                                                                           #self.u2=1
-                                                                           #self.init_u2;
-                                                                           #self.u1=1
-        #self.init_u1;
-        #self.rho=1
-    #self.r;
+  
     def forward(self, x1, x2, batch_dims=None, **params):
         action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)\
 +torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
-#combine into new feature vector
-#print('one')
+
         baseline_vector =torch.stack([torch.Tensor(x1)[:,i] for  i in [self.g_indices]],dim=1)
-        #print('two')
-        #print(baseline_vector.size())
-        #print(action_vector.size())
+        #print(action_vector)
         fake_vector_one = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
-#x1=[]  print()
-#print('three')
+
         action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)\
 +torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
-    #combine into new feature vector
+    
         baseline_vector =torch.stack([torch.Tensor(x2)[:,i] for  i in [self.g_indices]],dim=1)
         fake_vector_two = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
     #x1=[]
@@ -119,9 +153,9 @@ class MyKernel(Kernel):
         x1_ = torch.stack([ fake_vector_one[:,i] for  i in self.psi_indices],dim=1)
         
         x2_ =    torch.stack([fake_vector_two[:,i] for  i in self.psi_indices],dim=1)
-        #print(x1_.shape)
-        #print(x2_.shape)
-        #print(x2_[:4,:])
+        
+        #print(x1_)
+        
         if batch_dims == (0, 2):
             print('batch bims here')
         
@@ -150,16 +184,52 @@ class MyKernel(Kernel):
         #print(random_effects)
         
         final = random_effects*self.user_mat
-        #temp = prod*self.test
-        #temp = temp*self.user_mat
-        #print('here 4')
+
+        prod = MatmulLazyTensor(x1_[:,0:1], x2_[:,0:1].transpose(-1, -2))
+        ttimeone = prod * (self.s1)
+
+    
+        prod = MatmulLazyTensor(x1_[:,1:2], x2_[:,1:2].transpose(-1, -2))
+    
+        ttimetwo = prod * (self.s3)
         
+        
+        time_effects = ttimeone+ttimetwo
+        time_effects = time_effects*self.time_mat
+        final = final + time_effects
         
         final = final+self.first_mat
         
         return final
 
-
+    @property
+    def s1(self):
+        return self.raw_s1_constraint.transform(self.raw_s1)
+    
+    @s1.setter
+    def s1(self, value):
+        self._set_s1(value)
+    
+    def _set_s1(self, value):
+        if not torch.is_tensor(value):
+            value = torch.as_tensor(value).to(self.raw_s1)
+        self.initialize(raw_s1=self.raw_s1_constraint.inverse_transform(value))
+    
+    
+ 
+    @property
+    def s3(self):
+        return self.raw_s3_constraint.transform(self.raw_s3)
+    
+    @s3.setter
+    def s3(self, value):
+        self._set_s3(value)
+    
+    def _set_s3(self, value):
+        if not torch.is_tensor(value):
+            value = torch.as_tensor(value).to(self.raw_s3)
+        self.initialize(raw_s3=self.raw_s3_constraint.inverse_transform(value))
+    
     
     @property
     def u2(self):
@@ -216,23 +286,19 @@ class MyKernel(Kernel):
 
 
 class GPRegressionModel(gpytorch.models.ExactGP):
-    def __init__(self, train_x, train_y, likelihood,user_mat,first_mat,gparams):
+    def __init__(self, train_x, train_y, likelihood,user_mat,first_mat,time_mat,gparams):
         super(GPRegressionModel, self).__init__(train_x, train_y, likelihood)
         
         
         
         self.mean_module = gpytorch.means.ZeroMean()
-        #self.mean_module =gpytorch.means.ConstantMean()
-        #self.mean_module.requires_grad=True
-        #self.mean_module.constant.requires_grad=False
-        self.covar_module =  MyKernel(len(gparams.baseline_indices),user_mat,first_mat,gparams)
+  
+        self.covar_module =  MyKernel(len(gparams.baseline_indices),user_mat,first_mat,time_mat,gparams)
     
     def forward(self, x):
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-
-
 
 
 def simple_random_effects(X):
@@ -246,31 +312,30 @@ def simple_random_effects(X):
     return np.array(to_return)
 
 
-def real_run(X,users,ycentered,y,global_params):
+def real_run(X,users,ycentered,y,days,global_params):
     
-        
-        hyper = get_hyper(np.array(X),users,np.array(ycentered),global_params)
-        with open('data/ran_new_model.txt','w+') as f:
-                f.write('{}'.format('ran'))
-                f.write('\n')
-        with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
-            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise']},f)
-                #hyper['sigma_u']=np.array([[.09,.008],[.008,.001]])
+    #_lbfgs
+        hyper = get_hyper(np.array(X),users,np.array(ycentered),days,global_params)
+        with open('data/pooled_time_hyper/pooled_init_time_params.pkl','wb') as f:
+            pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise']},f)
         global_params.sigma_u =hyper['sigma_u']
-        #cov = simple_bandits.get_covar_simple(np.array(X),users,global_params)
-        #random_effects = np.array(X)[:,global_params.psi_indices]
+        global_params.sigma_v =hyper['sigma_v']
+        global_params.noise_term = hyper['noise']
+   
+    
         random_effects = simple_random_effects(X)
-        print(random_effects[0])
+        #print(random_effects[0])
 
         
         
-        cov = simple_bandits.other_cov_notime(np.array(X),global_params.sigma_theta,random_effects,global_params.sigma_u,get_users(users,users))
-        hyper['cov2']=hyper['cov']
+        cov = simple_bandits.other_cov_time(np.array(X),global_params.sigma_theta,random_effects,global_params.sigma_u,get_users(users,users),global_params.sigma_v,get_distance(days))
+        #return cov
+        
         hyper['cov']=cov
         #hyper['noise']=1e10
       
-        with open('data/pooled_hyper/pooled_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
-            pickle.dump({'sigma_u':hyper['sigma_u'],'noise_term':hyper['noise'],'cov2':hyper['cov2'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
+        with open('data/pooled_time_hyper/pooled_time_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
+            pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
         inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
         global_params.update_params(hyper)
             #with open('../../data_to_test.pkl','wb') as f:
@@ -278,59 +343,38 @@ def real_run(X,users,ycentered,y,global_params):
 #print(global_params.sigma_u)
         global_params.inv_term=inv_term
         ##uncentered y
-        to_return = {i:simple_bandits.calculate_posterior_faster(global_params,\
-                                                             i,0,\
-                                                             np.array(X), users,np.array(y) ) for i in set(users)}
+        to_return = {i:simple_bandits.calculate_posterior_faster_time(global_params,\
+                                                             i,rpy.get_current_day(i),\
+                                                             np.array(X), users,days,np.array(y) ) for i in set(users)}
 
         return to_return
 
 
 
-def get_hyper(X,users,y,global_params):
+def get_hyper(X,users,y,days,global_params):
     torch.manual_seed(10)
 
-    #print('here 2')
-    #torch.manual_seed(111)
-    
+
     user_mat= get_users(users,users)
-    #print(global_params.baseline_indices)
-    #print(X.shape)
+    time_mat =get_distance(days)
+    
     first_mat = get_first_mat(np.eye(len(global_params.baseline_indices)),X,global_params.baseline_indices)
-    #print('here 3')
-    #print(user_mat)
-    #print(users)
-    #print(first_mat.shape)
-    #print(X[0])
-    #with open('data/X_peek.pkl','wb') as f:
-    #pickle.dump(X,f)
 
-        #gpytorch.settings.fast_computations(log_prob=False, solves=False):
-        
-       
+   
 
-        
-#X=X[:10,]
-#y=y[:10]
-    #first_mat=first_mat[0:10,:10]
-#user_mat=user_mat[0:10,:10]
 
     X = torch.from_numpy(np.array(X)).float()
-#X =torch.from_numpy(np.array([i*np.ones(18) for i in range(10)])).float()
+
     y = torch.from_numpy(y).float()
-    #y = torch.from_numpy(np.array([10 for i in range(1000)]+[100 for i in range(554)])).float()
-        #print(y)
+  
     first_mat = torch.from_numpy(first_mat).float()
     user_mat = torch.from_numpy(user_mat).float()
-#user_mat = torch.from_numpy(np.ones((10,10))).float()
-#first_mat = torch.from_numpy(np.ones((10,10))).float()
-# print(X.shape)
-#print(user_mat.shape)
-#print(y.shape)
-#print(first_mat.shape)
+    time_mat = torch.from_numpy(time_mat).float()
+
     likelihood = gpytorch.likelihoods.GaussianLikelihood()
     #(global_params.noise_term)
     likelihood.noise_covar.initialize(noise=(global_params.noise_term)*torch.ones(1))
-    model = GPRegressionModel(X, y, likelihood,user_mat,first_mat,global_params)
+    model = GPRegressionModel(X, y, likelihood,user_mat,first_mat,time_mat,global_params)
         
 
     sigma_u=None
@@ -340,11 +384,11 @@ def get_hyper(X,users,y,global_params):
     likelihood.train()
     optimizer = torch.optim.Adam([
                                       {'params': model.parameters()},  # Includes GaussianLikelihood parameters
-                                      ], lr=0.01)
+                                      ], lr=0.1)
                                       #global_params.lr
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
-    num_iter=5
+    num_iter=50
 #print(X)
     losses = []
     Failure=False
@@ -365,21 +409,24 @@ def get_hyper(X,users,y,global_params):
                     #print('Iter %d/%d - Loss: %.3f like: %.3f' % (i + 1, i, loss.item(),likelihood.noise_covar.noise.item()))
                                                   
                     optimizer.step()
+                    
                     #print(model.covar_module.u1.item())
                                                   
                     sigma_temp = get_sigma_u(model.covar_module.u1.item(),model.covar_module.u2.item(),model.covar_module.rho.item())
-                    
+                    sigma_vtemp = get_sigma_v(model.covar_module.s1.item(),model.covar_module.s3.item())
                     eigs = np.linalg.eig(sigma_temp)
-                    print(sigma_temp)
-                    print(eigs)
+                    #print(sigma_vtemp)
+                    #print(eigs)
                     f_preds = model(X)
                     f_covar = f_preds.covariance_matrix
                     covtemp = f_covar.detach().numpy()
                     #print(eigs)
                     #and eigs[0][0]>0.0001 and eigs[0][1]>0.0001
-                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() :
+                    if np.isreal(sigma_temp).all() and not np.isnan(covtemp).all() and \
+                        np.isreal(sigma_vtemp).all():
                                                           
                         sigma_u = sigma_temp
+                        sigma_v=sigma_vtemp
                         cov=covtemp
                                                                   
                         noise = likelihood.noise_covar.noise.item()
@@ -389,8 +436,9 @@ def get_hyper(X,users,y,global_params):
                         break
                                                                               
                 except Exception as e:
+                    print(e)
                     Failure=True
-                    with open('data/error_within_gpy.txt','w+') as f:
+                    with open('data/error_within_gpy_time.txt','w+') as f:
                         f.write('{}'.format(e))
                         f.write('\n')
                     print(e)
@@ -403,21 +451,25 @@ def get_hyper(X,users,y,global_params):
     if one_test or Failure:
                 print('here')
                 sigma_u = get_sigma_u(model.covar_module.u1.item(),model.covar_module.u2.item(),model.covar_module.rho.item())
+                sigma_v =get_sigma_v(model.covar_module.s1.item(),model.covar_module.s3.item())
+
                 f_preds = model(X)
                 f_covar = f_preds.covariance_matrix
                 covtemp = f_covar.detach().numpy()
                 cov=covtemp
                 noise = likelihood.noise_covar.noise.item()
-    #print(sigma_u)
-#print(model.covar_module.u1.item())
-#print(model.covar_module.test.item())
-#print(noise)
-#print(cov)
-    with open('data/training_losses_{}.pkl'.format(str(date.today())),'wb') as f:
-        pickle.dump(losses,f)
-    #print(sigma_temp.all()==sigma_u.all())
-    #print(global_params.psi_indices)
 
-    return {'sigma_u':sigma_u,'cov':cov,'noise':noise,'like':0,'iters':i}
+    return {'sigma_u':sigma_u,'cov':cov,'noise':noise,'like':0,'iters':i,'sigma_v':sigma_v}
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -23,6 +23,7 @@ WORKDIR /pooling-service
 
 RUN chmod -R 777 ./
 RUN pip install -r requirements.txt
+RUN Rscript install.r
 
 ENV googleStorageBucket walking-suggestions-data
 RUN chmod +x update.sh

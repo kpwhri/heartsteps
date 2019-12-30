@@ -446,3 +446,147 @@ def get_post_sigma(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term
 
 
     return last
+
+def get_post_sigma_time_effects(H,cov,sigma_u,sigma_v,noise_term,M,x_dim,sigma_theta,inv_term):
+    
+    first_term = np.add(sigma_u,sigma_v)
+    
+    first_term = np.dot(H,first_term)
+    
+    first_term = np.dot(first_term,H.T)
+    
+    middle_term = np.dot(M.T,inv_term)
+    
+    middle_term = np.dot(middle_term,M)
+    
+    last = np.add(sigma_theta,first_term)
+    last = np.subtract(last,middle_term)
+    
+    return last
+
+def get_M_time(global_params,user_id,user_study_day,history):
+    
+    
+    day_id =user_study_day
+    #print(history)
+    M = [[] for i in range(history.shape[0])]
+    
+    H = create_H(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
+    #inv_term = global_params.inv_term
+    for x_old_i in range(history.shape[0]):
+        x_old = history[x_old_i]
+        old_user_id = x_old[global_params.user_id_index]
+        old_day_id = x_old[global_params.user_day_index]
+        
+        ##these indices all need to be parameters
+        phi = np.array([x_old[i] for i in global_params.baseline_indices])
+        
+        t_one = np.dot(np.transpose(phi),global_params.sigma_theta)
+        #first_terms.append(t_one)
+        
+        temp = np.dot(H,global_params.sigma_u)
+        temp = np.dot(temp,H.T)
+        temp = np.dot(np.transpose(phi),temp)
+        temp = float(old_user_id==user_id)*temp
+        t_two = temp
+        #middle_terms.append(t_two)
+        temp = np.dot(H,global_params.sigma_v.reshape(2,2))
+        temp = np.dot(temp,H.T)
+        temp = np.dot(np.transpose(phi),temp)
+        temp = rbf_custom_np(user_study_day,old_day_id)*temp
+        t_three = temp
+        #print(user_study_day)
+        
+        #last_terms.append(t_three)
+        term = np.add(t_one,t_two)
+        
+        term = np.add(term,t_three)
+        #print(term.shape)
+        #print(term)
+        M[x_old_i]=term
+    
+    return np.array(M)
+
+def other_cov_time(data,sigma_theta,random_effects,sigma_u,user_matrix,sigma_v,time_matrix):
+    #K0 <- phi.mat %*% Sigma.theta %*% t(phi.mat)
+    #K1 <- (psi.mat %*% Sigma.u %*% t(psi.mat)) * id.mat
+    # K2 <- (psi.mat %*% Sigma.v %*% t(psi.mat)) * rho.mat
+    one = np.dot(data,sigma_theta)
+    one = np.dot(one,data.T)
+
+    two = np.dot(random_effects,sigma_u)
+    two = np.dot(two,random_effects.T)
+    two = np.multiply(user_matrix,two)
+
+    three = np.dot(random_effects,sigma_v)
+    three = np.dot(three,random_effects.T)
+    three = np.multiply(time_matrix,three)
+   
+    return one+two+three
+
+def calculate_posterior_faster_time(global_params,user_id,user_study_day,X,users,days,y):
+    sigma_u =global_params.sigma_u
+    sigma_v =global_params.sigma_v
+    H = create_H(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
+    #print(H)
+    
+    M = get_M_faster_time(global_params,user_id,user_study_day,X,users,days,sigma_u,sigma_v)
+    
+    adjusted_rewards =get_RT(y,X,global_params.mu_theta,global_params.theta_dim)
+    
+    #print(adjusted_rewards)
+    mu = get_middle_term(X.shape[0],global_params.cov,global_params.noise_term,M,adjusted_rewards,global_params.mu_theta,global_params.inv_term)
+    
+    #
+    sigma = get_post_sigma_time_effects(H,global_params.cov,sigma_u,sigma_v,global_params.noise_term,M,X.shape[0],global_params.sigma_theta,global_params.inv_term)
+    
+    return mu[-(global_params.num_responsivity_features+1):],[j[-(global_params.num_responsivity_features+1):] for j in sigma[-(global_params.num_responsivity_features+1):]]
+
+
+def get_M_faster_time(global_params,user_id,day_id,history,users,days,sigma_u,sigma_v):
+    
+    
+    #print(history)
+    M = [[] for i in range(history.shape[0])]
+    
+    H = create_H(global_params.num_baseline_features,global_params.num_responsivity_features,global_params.psi_indices)
+    
+    phi = history[:,global_params.baseline_indices]
+    
+    t_one = np.dot(phi,global_params.sigma_theta)
+    
+    temp = np.dot(H,global_params.sigma_u)
+    
+    temp = np.dot(temp,H.T)
+    temp = np.dot(phi,temp)
+    
+    user_ids =np.array(users)
+    
+    
+    my_days = [int(user_ids[i]==user_id) for i in range(len(user_ids))]
+    
+    my_days = np.ma.masked_where(user_ids==user_id, user_ids).mask.astype(float)
+    
+    if type(my_days)!=np.ndarray:
+        my_days = np.zeros(history.shape[0])
+        print('problem {}'.format(user_id))
+    user_matrix = np.diag(my_days)
+
+    t_two = np.matmul(user_matrix,temp)
+
+    term = np.add(t_one,t_two)
+    rho_diag = np.diag([dist(d,day_id) for d in days])
+
+
+
+    temp = np.dot(H,sigma_v)
+    temp = np.dot(temp,H.T)
+    temp = np.dot(phi,temp)
+
+    t_three = np.matmul(rho_diag,temp)
+
+    ##time effects
+    term = np.add(term,t_three)
+    
+    return term
+    

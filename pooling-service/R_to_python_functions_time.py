@@ -5,21 +5,48 @@ import pyreadr
 from sklearn import preprocessing
 import numpy as np
 import os
+import simple_bandits
+import pandas as pd
+import datetime
 
 
 def get_user_ids():
+    joins = join_dates()
+    start = datetime.datetime.strptime('12/2/2019','%m/%d/%Y')
+    users  =[k for k, v in sorted(joins.items(),\
+            key=lambda item: item[1]) if v>=start]
+    return {str(users[i]):i for i in range(len(users)) if i<20}
 
-    return {'10237':0,'10271':1,'10041':2,'10355':3,'10062':4,'10374':5,'10215':6,'10313':7,'10395':8,'10152':9,'10194':10,'10259':11,'10339':12,'10360':13,'10269':14,'10234':15,'10365':16,'10352':17,'10336':18,'10304':19}
+def join_dates():
+    dates = pd.DataFrame.from_csv('join_dates.csv')
+    return {i:pd.to_datetime(r) for i,r in dates['join_date'].iteritems() }
+
+def join_dates_reversed():
+    dates = pd.DataFrame.from_csv('join_dates.csv')
+    lookup = get_user_ids()
+    return {lookup[str(i)]:pd.to_datetime(r) for i,r in
+            dates['join_date'].iteritems() if str(i) in lookup}
+
+
+def get_current_day(user_id):
+    #print(user_id)
+    join = join_dates_reversed()
+    
+    join_date = join[int(user_id)]
+    current_day = (datetime.datetime.today()-join_date).days
+    #current_day = (pd.to_datetime('12/8/2019')-join_date).days
+    #print(current_day)
+    return current_day
 
 def process_data(rdata,baseline_features,user_id):
-    
+    jdates = join_dates()
     availabilities = []
     probabilities = []
     actions = []
     data = []
     users = []
     y = []
-    day = []
+    days =[]
     #users_to_ids= {}
     
     users_to_ids = get_user_ids()
@@ -28,35 +55,35 @@ def process_data(rdata,baseline_features,user_id):
         #dosages = [v[b][0]   for b in baseline_features if b=='dosage' ]
         #print(dosages)
         #maxdosage = max(dosages)
-        feat_vec = [v[b] if b!='dosage' else v[b]/10 for b in baseline_features ]
+        feat_vec = [v[b] if b!='dosage' else v[b]/20 for b in baseline_features ]
         
         if ~np.isnan(feat_vec).any(axis=0):
-            availabilities.append(v['availability'])
-            probabilities.append(v['probability'])
-            actions.append(v['action'])
+            #if jdates[int(user_id)]+datetime.timedelta(days=v['day'])\
+            #<pd.Timestamp('2019-09-09'):
+                availabilities.append(v['availability'])
+                probabilities.append(v['probability'])
+                actions.append(v['action'])
             #if v['user'] not in users_to_ids:
             # user_count = user_count+1
             #users_to_ids[v['user']]=user_count
-            users.append(users_to_ids[user_id])
-            y.append(v['reward'])
-            data.append(feat_vec)
-            day.append(v['day'])
+                users.append(users_to_ids[user_id])
+                y.append(v['reward'])
+                data.append(feat_vec)
+                days.append(v['day'])
     return {'avail':availabilities,'prob':probabilities,'reward':y,'users':users,\
-        'user_lookup':users_to_ids,'data':data,'actions':actions,'days':day}
+        'user_lookup':users_to_ids,'data':data,'actions':actions,'days':days}
 
 
 def get_standard_x(X):
     return preprocessing.StandardScaler().fit_transform(X)
 
-def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
+def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices,global_params):
     ##returns users, transformed data, and transformed rewards
     to_return = []
-    actions = []
+    
     users = []
     ys = []
-    locs = []
-    print('avail test')
-    print(len([i for i in all_dict['avail'] if i])/len(all_dict['avail']))
+    days = []
     for i in range(len(standard_x)):
         if all_dict['avail'][i]:
             #print(all_dict['actions'][i]-all_dict['prob'][i])
@@ -71,14 +98,12 @@ def get_phi(standard_x,all_dict,baseline_indices,responsivity_indices):
             users.append(all_dict['users'][i])
             #print(all_dict['users'][i])
             ys.append(all_dict['reward'][i])
-            locs.append(raw_data[-2])
-            actions.append(all_dict['actions'][i])
-    to_adjust = [np.array(all_dict['reward']).mean()]+[0]*(len(to_return[0])-1)
+            days.append(all_dict['days'][i])
 
-    return to_return,ys,ys,users,locs,actions
-
-
-
+    centered_y = simple_bandits.get_RT(ys,to_return,global_params.mu_theta,18)
+    
+    
+    return to_return,centered_y,ys,users,days
 
 def get_one_user(data_path,user_id):
     result = pyreadr.read_r(data_path)
@@ -98,18 +123,16 @@ def get_one_user(data_path,user_id):
 
 
 
-def combine_users(data_path,user_list):
+def combine_users(data_path,user_list,global_params):
     #data_path  = '../../../walking-suggestion-service/data'
-    #user_list = ["10215", "10313", "10062", "10374", "10355", "10271", "10041", "10237", "10075", "10195"]
     user_files = [directory for directory in os.listdir(data_path) if directory.strip('user') in user_list]
-    #print(user_files)
-    #print()
     big_user_list = []
     big_data_list = []
     big_reward_list = []
     big_action_list = []
     big_avail_list = []
     big_prob_list = []
+    big_day_list = []
     
     baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
                          'dosage', 'engagement',  'other.location', 'variation']
@@ -129,9 +152,8 @@ def combine_users(data_path,user_list):
         #print('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'))
         if os.path.exists('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata')):
             data =  get_one_user('{}{}{}'.format(data_path,'/{}'.format(f),'/train.Rdata'),user_id)
-                #print(user_id)
-                #print(set(data['avail']))
- 
+            with open('data/log_data/user_{}_{}.pkl'.format(user_id,str(date.today())),'wb') as f:
+                pickle.dump(data,f)
             print(len(data['data']))
         #x,y,user = get_phi(data['data'],data,baseline_indices,responsivity_indices)
             if user_id in get_user_ids():
@@ -143,60 +165,18 @@ def combine_users(data_path,user_list):
         
     
                 big_reward_list = big_reward_list+data['reward']
+                big_day_list = big_day_list+data['days']
     
     #temp_X = get_standard_x(big_data_list)
     temp_X = big_data_list
     temp_data = {'avail':big_avail_list,'actions': big_action_list,'prob':big_prob_list,\
-'users':big_user_list,'reward':big_reward_list
+'users':big_user_list,'reward':big_reward_list,'days':big_day_list
 }
     #if train:
     #print(temp_X)
-    x,y,ys,user,locs,actions =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices)
+    x,ycentered,y,user,days =get_phi(temp_X,temp_data,baseline_indices,responsivity_indices,global_params)
 
-    return  user, x,y,ys,locs,actions
-
-def get_phi_days(standard_x,all_dict,baseline_indices,responsivity_indices):
-   
-    to_return = []
-    
- 
-    ys = []
-    locs = []
-    days = []
-    probs = []
-    actions = []
-    for i in range(len(standard_x)):
-        if all_dict['avail'][i]:
-            #print(all_dict['actions'][i]-all_dict['prob'][i])
-            raw_data = standard_x[i]
-            temp = [1]
-            temp.extend([raw_data[i] for i in baseline_indices])
-            temp_two  = [1]
-            temp_two.extend([raw_data[i] for i in responsivity_indices])
-            temp.extend([all_dict['prob'][i]*d for d in temp_two])
-            temp.extend([(all_dict['actions'][i]-all_dict['prob'][i])*d for d in temp_two])
-            to_return.append(temp)
-
-            #print(all_dict['users'][i])
-            ys.append(all_dict['reward'][i])
-            days.append(all_dict['days'][i])
-            locs.append(raw_data[-2])
-            probs.append(all_dict['prob'][i])
-            actions.append(all_dict['actions'][i])
-    return to_return,ys,locs,days,probs,actions
-
-def get_all_for_one_user(data_path,userid):
-    baseline_features = ['temperature', 'logpresteps', 'sqrt.totalsteps',\
-                         'dosage', 'engagement',  'other.location', 'variation']
-    responsivity_features = ['dosage', 'engagement',  'other.location', 'variation']
-                         #print(responsivity_features)
-    baseline_indices = [i for i in range(len(baseline_features))]
-    responsivity_indices = [i for i in range(len(baseline_features)) if baseline_features[i] in set(responsivity_features)]
-                         
-                         
-    
-    data =  get_one_user('{}{}{}'.format(data_path,'/user{}'.format(userid),'/train.Rdata'),userid)
+    return  user, x,ycentered,y,days
 
 
-    x,y,locs,days,probs,actions =get_phi_days(data['data'],data,baseline_indices,responsivity_indices)
-    return x,y,locs,days,probs,actions
+

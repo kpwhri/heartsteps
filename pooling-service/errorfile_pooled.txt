@@ -16,3 +16,21 @@ savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
 
 savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
 
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
+savineError in readChar(con, 5L, useBytes = TRUE): cannot open the connection
+
