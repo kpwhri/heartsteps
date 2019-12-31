@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured
 import requests
 
 from days.services import DayService
+from participants.models import Participant
 
 from .models import SuggestionTime
 from .models import Configuration
@@ -84,16 +85,26 @@ def initialize_and_update(username):
 
 @shared_task
 def update_pooling_service():
-    if not hasattr(settings, 'POOLING_SERVICE_URL'):
+    if not hasattr(settings, 'POOLING_SERVICE_URL') or not settings.POOLING_SERVICE_URL:
         return False
     url = settings.POOLING_SERVICE_URL
     
-    users = []
-    for configuration in PoolingServiceConfiguration.objects.all():
-        users.append(configuration.user.username)
+    users = [configuration.user for configuration in PoolingServiceConfiguration.objects.all()]
+    
+    participants = {}
+    for user in users:
+        participants[user.username] = {'username':user.username}
+
+    for participant in Participant.objects.filter(user__in=users).all():
+        username = participant.user.username
+        participants[username]['cohort'] = participant.cohort.name
+        participants[username]['study'] = participant.cohort.study.name
+    for configuration in Configuration.objects.filter(user__in=users).all():
+        username = configuration.user.username
+        participants[username]['start'] = configuration.service_initialized_date.strftime('%Y-%m-%d')
 
     data = {
-        'users': users
+        'participants': [participants[x] for x in participants.keys()]
     }
 
     request_record = PoolingServiceRequest.objects.create(
