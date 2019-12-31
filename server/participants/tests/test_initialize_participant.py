@@ -6,6 +6,7 @@ from adherence_messages.models import Configuration as AdherenceMessageConfigura
 from daily_tasks.models import DailyTask
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from morning_messages.models import Configuration as MorningMessageConfiguration
+from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
 from participants.models import Participant, User, TASK_CATEGORY
@@ -75,3 +76,24 @@ class InitializeTask(TestCase):
         configuration = AdherenceMessageConfiguration.objects.get()
         self.assertEqual(configuration.user.username, "test")
         self.assertTrue(configuration.enabled)
+
+    def test_creates_default_walking_suggestion_times(self):
+        service = ParticipantService(username="test")
+        service.initialize()
+
+        suggestion_times = SuggestionTime.objects.filter(user=self.user).all()
+        self.assertEqual(len(suggestion_times), 5)
+
+    def test_does_not_change_existing_walking_suggestion_times(self):
+        SuggestionTime.objects.create(
+            user = self.user,
+            category = SuggestionTime.MORNING,
+            hour = 1,
+            minute = 0
+        )
+
+        service = ParticipantService(username="test")
+        service.initialize()
+
+        suggestion_times = SuggestionTime.objects.filter(user=self.user).all()
+        self.assertEqual(len(suggestion_times), 1)
