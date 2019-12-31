@@ -250,7 +250,7 @@ def real_run(X,users,ycentered,y,global_params):
     
         
         hyper = get_hyper(np.array(X),users,np.array(ycentered),global_params)
-        with open('data/ran_new_model.txt','w+') as f:
+        with open('data/ran_new_model_two.txt','w+') as f:
                 f.write('{}'.format('ran'))
                 f.write('\n')
         with open('data/pooled_hyper/pooled_init_params.pkl','wb') as f:
