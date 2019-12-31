@@ -79,25 +79,16 @@ class FitbitService:
             return False
 
     def was_updated_on(self, date):
-        day_service = DayService(user = self.__user)
-        updates = FitbitSubscriptionUpdate.objects.filter(
-            subscription__fitbit_account = self.__account,
-            created__gte = day_service.get_start_of_day(date),
-            created__lte = day_service.get_end_of_day(date)
-        ).count()
-        if updates > 0:
-            return True
-        else:
-            return False
+        day_service = DayService(user=self.__user)
+        start = day_service.get_start_of_day(date)
+        end = day_service.get_end_of_day(date)
+        return self.account.was_updated_between(start, end)
+
+    def first_updated_on(self):
+        return self.__account.get_first_update()
 
     def last_updated_on(self):
-        last_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
-            subscription__fitbit_account = self.__account
-        ).last()
-        if last_update:
-            return last_update.created
-        else:
-            raise FitbitService.AccountNeverUpdated('Account never updated')
+        return self.__account.get_last_update()
 
 
 def create_fitbit(**kwargs):

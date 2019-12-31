@@ -273,7 +273,7 @@ if(is.null(output)){
         prob <- tranprob(pit0)
         
         
-        # output type (1: bandit, 0: MRT)
+        # output type (1: bandit, 0: MRT, 2: no watch app)
         type <- 1
         
         # MRT period
@@ -282,6 +282,13 @@ if(is.null(output)){
           
           prob <- 0.25
           type <- 0
+          
+        }
+        
+        if(input$watch == FALSE){
+          
+          prob <- 0.2
+          type <- 2
           
         }
         

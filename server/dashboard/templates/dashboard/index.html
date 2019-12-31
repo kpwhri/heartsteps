@@ -7,6 +7,7 @@
     <thead class="thead-dark">
         <tr>
             <th>Participant</th>
+            <th>Adherence</th>
             <th>Text Messages</th>
             <th>Fitbit</th>
             <th>Mobile App</th>
@@ -35,6 +36,28 @@
             </td>
             <td>
                 <dl>
+                    <dt>Status</dt>
+                    {% for status in participant.adherence_status %}
+                    <dd>
+                    {% if status.days is not None %}
+                    {{status.title}}: {{status.days}} days ago
+                    {% else %}
+                    {{status.title}}: Never updated
+                    {% endif %}
+                    </dd>
+                    {% endfor %}
+                    <dt>Sent recently</dt>
+                    <dd>
+                    {% if participant.adherence_messages %}
+                    {{participant.adherence_messages}} messages
+                    {% else %}
+                    No messages sent
+                    {% endif %}
+                    </dd>
+                </dl>
+            </td>
+            <td>
+                <dl>
                     <dt>Phone</dt>
                     {% if participant.phone_number %}
                     <dd>{{participant.phone_number }}</dd>
@@ -59,7 +82,7 @@
                     <dd>First update {{ participant.fitbit_first_updated|date }}</dd>
                     {% endif %}
                     {% if participant.fitbit_last_updated %}
-                    <dd>Last update {{participant.last_updated}}</dd>
+                    <dd>Last update {{participant.fitbit_last_updated}}</dd>
                     {% endif %}
                     <dt>Days worn</dt>
                     <dd>{{participant.days_wore_fitbit}}</dd>

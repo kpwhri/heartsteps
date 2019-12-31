@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import timedelta
 
 from django.conf import settings
@@ -14,6 +15,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from adherence_messages.models import AdherenceMetric
+from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
@@ -115,49 +118,22 @@ class DashboardListView(CohortView):
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
-        context['from_number'] = settings.TWILIO_PHONE_NUMBER
-        context['sms_form'] = SendSMSForm
-
         participants = []
         for participant in self.query_participants():
-
-            adherence_app_install = AdherenceAppInstallDashboard(
-                                    user=participant.user)
-            try:
-                phone_number = participant.user.contactinformation.phone_e164
-            except (AttributeError, ObjectDoesNotExist):
-                phone_number = None
-
-            try:
-                first_page_view = participant.user.pageview_set.all() \
-                    .aggregate(models.Min('time'))['time__min']
-            except AttributeError:
-                first_page_view = None
-
-            walking_suggestion_service_initialized_date = None
-            try:
-                if participant.user:
-                    configuration = WalkingSuggestionConfiguration.objects.get(
-                        user=participant.user)
-                    if configuration.service_initialized_date:
-                        walking_suggestion_service_initialized_date = \
-                            configuration.service_initialized_date.strftime(
-                                '%Y-%m-%d')
-            except WalkingSuggestionConfiguration.DoesNotExist:
-                pass
-
             participants.append({
+                'adherence_status': participant.adherence_status(),
+                'adherence_messages': participant.recent_adherence_messages,
                 'heartsteps_id': participant.heartsteps_id,
                 'enrollment_token': participant.enrollment_token,
                 'birth_year': participant.birth_year,
-                'phone_number': phone_number,
-                'days_wore_fitbit': adherence_app_install.days_wore_fitbit,
+                'phone_number': participant.phone_number,
+                'days_wore_fitbit': participant.fitbit_days_worn,
                 'fitbit_first_updated': participant.fitbit_first_updated,
                 'fitbit_last_updated': participant.fitbit_last_updated,
                 'fitbit_authorized': participant.fitbit_authorized,
                 'is_active': participant.is_active,
                 'date_joined': participant.date_joined,
-                'first_page_view': first_page_view,
+                'first_page_view': participant.first_page_view,
                 'last_page_view': participant.last_page_view,
                 'morning_messages_enabled': participant.morning_messages_enabled,
                 'last_morning_message_survey_completed': participant.date_last_morning_message_survey_completed,
@@ -168,7 +144,7 @@ class DashboardListView(CohortView):
                 'last_anti_sedentary_suggestion_datetime': participant.last_anti_sedentary_suggestion_datetime,
                 'walking_suggestions_enabled': participant.walking_suggestions_enabled,
                 'last_walking_suggestion_datetime': participant.last_walking_suggestion_datetime,
-                'walking_suggestion_service_initialized_date': walking_suggestion_service_initialized_date
+                'walking_suggestion_service_initialized_date': participant.walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
         return context
@@ -381,6 +357,16 @@ class ParticipantCreateView(CohortView):
 
 class ParticipantNotificationsView(ParticipantView):
 
+    template_name = 'dashboard/participant-notifications.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notifications'] = DashboardParticipant.notifications.filter(user=self.participant.user).get_notifications(
+            timezone.now() - timedelta(days=7),
+            timezone.now()
+        )
+        return context
+
     def post(self, request, *args, **kwargs):
 
         if 'message' in request.POST and request.POST['message'] is not '':
@@ -492,3 +478,32 @@ class ParticipantEnableView(ParticipantView):
             )
         )        
 
+class ParticipantAdherenceView(ParticipantView):
+
+    template_name = 'dashboard/participant-adherence.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        adherence_summaries = self.participant.get_adherence_during(
+            start = date.today() - timedelta(days=14),
+            end = date.today()
+        )
+        metric_names = []
+        metric_categories = []
+        for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
+            metric_names.append(title)
+            metric_categories.append(category)
+
+        for summary in adherence_summaries:
+            ordered_metrics = []
+            for category in metric_categories:
+                if category in summary['metrics']:
+                    ordered_metrics.append(summary['metrics'][category])
+                else:
+                    ordered_metrics.append(False)
+            summary['ordered_metrics'] = ordered_metrics
+        
+        context['metric_names'] = metric_names
+        context['adherence_summaries'] = adherence_summaries
+        return context

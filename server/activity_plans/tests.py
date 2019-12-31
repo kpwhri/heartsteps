@@ -93,7 +93,7 @@ class ActivityPlanViewTest(TestBase):
         self.plan = ActivityPlan.objects.create(
             user = self.user,
             type = ActivityType.objects.create(name="walk"),
-            date = timezone.now().today(),
+            date = date.today(),
             timeOfDay = SuggestionTime.MORNING,
             duration = 15
         )
@@ -109,7 +109,7 @@ class ActivityPlanViewTest(TestBase):
         plan = ActivityPlan.objects.create(
             user = other_user,
             type = ActivityType.objects.create(name="run"),
-            date = timezone.now().today(),
+            date = date.today(),
             timeOfDay = SuggestionTime.LUNCH,
             duration = 7
         )

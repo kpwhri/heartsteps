@@ -165,7 +165,7 @@ The *decision* service outputs a json file (see below for an example of the outp
 3. `send`, the indicator of whether to send the activity message
 4. `inTrial `, indicating the type of user:  `0` means if this is test user, `1` if user is formally in the trial, and `2` if the user is in the pooled bandit group of 10 people. 
 5. `type`, indiciating how the probability is calculated: `0` means we are using the fixed randomization 
-probability (e.g. 0.4 if available), `1` means the probabilility is calculated based on person specific bandit algorithm
+probability (e.g. 0.25 if available), `1` means the probabilility is calculated based on person specific bandit algorithm
  if available, `2` means the probabilility is calculated based on pooled bandit algorithm if available.  
 
 
@@ -180,7 +180,8 @@ Shown below is an example of json input for user `1` at decision time `2` on day
  	 "availability": true,
  	 "priorAnti": false,
  	 "lastActivity": false,
- 	 "location": 1
+ 	 "location": 1,
+	 "watch": true
 }
 ~~~
 
@@ -211,8 +212,11 @@ Shown below is an example of json input for user `1` at decision time `2` on day
 
 7. `location`
 	- The classification of user's current location: `2` if currently at home, `1` if currently  at work, `0` otherwise.
-	- If the current location is unknown, set to `0`. 
-
+	- If the current location is unknown, set to `0`.  (**Peng: confirm the latest definition of location **)
+8. `watch`
+	- Indicator for whether or not we have the watch-app data for the decision time. Suppose the decision time is at 12 noon. The value is `false` if the server does not have watch-app data from 11am to a randomly chosen time between 12:15 to 12:30pm. 
+	- If the value is `false`, we randomize with probability 0.2 (currenlty this only occurs after MRT week, during MRT week, randomize with 0.25 whenever available). Otherwise, we use the probability calculated by the RL algorithm (after MRT week)
+	
 
 ### CONDITION CHECKING
 
@@ -247,7 +251,6 @@ The exact time at which the *nightly* service is called needs to satisfy:
 - after the end of the day specified in the anti-sedentary message scheduling. That is, there cannot be any anti-sedentary message sent
  after the *nightly* service is called. 
 
-**(Ask Nick: if there is any chance that the walking suggestion service is unable to be reached out at the nightly update time?)**
 
 ### INPUT-OUTPUT
 The *nightly* service has no output except for a message indicating successful update.  Below is an example of json input for user `1` finishing day `2`. 

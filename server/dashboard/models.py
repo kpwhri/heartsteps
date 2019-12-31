@@ -2,28 +2,35 @@ from datetime import date
 from datetime import timedelta
 
 from django.db import models
+from django.utils import timezone
 
-from adherence_messages.services import (
-    AdherenceAppInstallMessageService,
-    AdherenceFitbitUpdatedService
-)
+from adherence_messages.models import AdherenceMetric
+from adherence_messages.models import AdherenceMessage
+from adherence_messages.services import AdherenceAppInstallMessageService
+from adherence_messages.services import AdherenceFitbitUpdatedService
 from anti_sedentary.models import AntiSedentaryDecision
+from contact.models import ContactInformation
 from days.services import DayService
-from fitbit_api.models import (FitbitAccount, FitbitAccountUser)
+from fitbit_activities.services import FitbitActivityService
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
+from page_views.models import PageView
 from participants.models import Participant
 from randomization.models import UnavailableReason
 from sms_messages.models import (Contact, Message)
 from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
+from watch_app.models import WatchInstall
 
+from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from morning_messages.models import MorningMessage
 from morning_messages.models import MorningMessageSurvey
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
-from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
-from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 
+from push_messages.models import Message as PushMessage
 
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):
 
@@ -240,14 +247,168 @@ class WatchAppSummaryManager(models.Manager):
             total_seconds = total_seconds
         )
 
+class NotificationsQuerySet(models.QuerySet):
+
+    def get_notifications(self, start, end):
+        participants = self.exclude(user=None).all()
+        users = [participant.user for participant in participants]
+
+        query = PushMessage.objects.filter(
+            recipient__in = users,
+            message_type = PushMessage.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        )
+        return query.all()
 
 class DashboardParticipant(Participant):
 
+    notifications = NotificationsQuerySet.as_manager()
     summaries = InterventionSummaryManager()
     watch_app_step_counts = WatchAppSummaryManager()
 
     class Meta:
         proxy = True
+
+    @property
+    def phone_number(self):
+        try:
+            information = ContactInformation.objects.get(user=self.user)
+            return information.phone
+        except ContactInformation.DoesNotExist:
+            return None
+    
+    @property
+    def fitbit_days_worn(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitActivityService(user=self.user)
+            return service.get_days_worn()
+        except FitbitActivityService.NoAccount:
+            return None
+
+    @property
+    def fitbit_authorized(self):
+        if not self.user:
+            return False
+        try:
+            service = FitbitService(user=self.user)
+            return service.is_authorized()
+        except FitbitService.NoAccount:
+            return False
+
+    @property
+    def fitbit_first_updated(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitService(user=self.user)
+            return service.first_updated_on()
+        except FitbitService.NoAccount:
+            return None
+
+    @property
+    def fitbit_last_updated(self):
+        if not self.user:
+            return None
+        try:
+            service = FitbitService(user=self.user)
+            return service.last_updated_on()
+        except FitbitService.NoAccount:
+            return None
+
+
+    @property
+    def first_page_view(self):
+        if not self.user:
+            return None
+        page_view = PageView.objects.filter(user=self.user).order_by('time').first()
+        if page_view:
+            return page_view.time
+        return None
+
+    @property
+    def walking_suggestion_service_initialized_date(self):
+        if not self.user:
+            return None
+        try:
+            configuration = WalkingSuggestionConfiguration.objects.get(user=self.user)
+            return configuration.service_initialized_date
+        except WalkingSuggestionConfiguration.DoesNotExist:
+            return None
+
+    def adherence_status(self):
+        statuses = []
+        for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
+            metric = AdherenceMetric.objects.order_by('date').filter(
+                user = self.user,
+                category = category,
+                value = True
+            ).last()
+            number_days = None
+            if metric:
+                diff = date.today() - metric.date
+                number_days = diff.days
+            statuses.append({
+                'title': title,
+                'days': number_days
+            })
+        return statuses
+
+    def recent_adherence_messages(self):
+        message_count = AdherenceMessage.objects.filter(
+            user = self.user,
+            created__gte = timezone.now() - timedelta(days=7)
+        ).count()
+        return message_count
+
+    def get_adherence_during(self, start, end):
+        if not self.user:
+            return []
+        metrics = {}
+        adherence_metrics = AdherenceMetric.objects.filter(
+            user = self.user,
+            date__range = [start, end]
+        ).all()
+        for metric in adherence_metrics:
+            if metric.date not in metrics:
+                 metrics[metric.date] = {}
+            metrics[metric.date][metric.category] = metric.value
+
+        messages = {}
+        day_service = DayService(user=self.user)
+        adherence_messages = AdherenceMessage.objects.filter(
+            user = self.user,
+            created__range = [
+                day_service.get_start_of_day(start),
+                day_service.get_end_of_day(end)
+            ]
+        ).all()
+        for message in adherence_messages:
+            message_date = day_service.get_date(message.created)
+            if message_date not in messages:
+                messages[message_date] = []
+            messages[message_date].append({
+                'category': message.category,
+                'body': message.body
+            })
+        
+        summaries = []
+        _dates = [end - timedelta(days=offset) for offset in range((end-start).days + 1)]
+        for _date in _dates:
+            _metrics = {}
+            if _date in metrics:
+                _metrics = metrics[_date]
+            _messages = []
+            if _date in messages:
+                _messages = messages[_date]
+            summaries.append({
+                'date': _date,
+                'metrics': _metrics,
+                'messages': _messages
+            })
+        return summaries
 
     def is_enabled(self):
         if not self.user:
@@ -355,6 +516,24 @@ class DashboardParticipant(Participant):
             )
             return morning_message.date
         return None
+
+    def watch_app_installed_date(self):
+        install = WatchInstall.objects.filter(
+            user = self.user
+        ).order_by('created').last()
+        if install:
+            return install.created
+        else:
+            return None
+
+    def last_watch_app_data(self):
+        last_step_count = WatchAppStepCount.objects.filter(
+            user = self.user
+        ).order_by('start').last()
+        if last_step_count:
+            return last_step_count.created
+        else:
+            return None
 
 
 class FitbitServiceDashboard(FitbitService):

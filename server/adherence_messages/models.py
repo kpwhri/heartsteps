@@ -61,7 +61,7 @@ class Configuration(models.Model):
                 self.minute = None
 
     def update_daily_task(self):
-        task = 'adherence_messages.tasks.send_adherence_message',
+        task = 'adherence_messages.tasks.send_adherence_message'
         task_name = 'Adherence update for %s' % (self.user.username)
         task_arguments = {
             'username': self.user.username
@@ -132,7 +132,7 @@ class AdherenceMetric(AdherenceBase):
     )
 
     def __str__(self):
-        return '%s: %s on %s' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'))
+        return '%s: %s on %s (%b)' % (self.user.username, self.category, self.date.strftime('%Y-%m-%d'), self.value)
 
 class AdherenceMessage(AdherenceBase):
 

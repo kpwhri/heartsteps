@@ -49,10 +49,34 @@ def make_add_to_cohort(cohort):
     add_participants_to_cohort.__name__ = 'add_participants_to_cohort_%s' % cohort.id
     return add_participants_to_cohort
 
+class ParticipantCohortFilter(admin.SimpleListFilter):
+    title = 'Participant Cohort Filters'
+    parameter_name = 'cohort'
+
+    def lookups(self, request, model_admin):
+        lookups = []
+        for cohort in Cohort.objects.all():
+            lookups.append((cohort.id, cohort.name))
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value():
+            users = []
+            query = Participant.objects.filter(
+                cohort__id = self.value()
+            )
+            for participant in query.all():
+                if participant.user:
+                    users.append(participant.user)
+            return queryset.filter(user__in=users)
+        else:
+            return queryset
+
 class ParticipantAdmin(admin.ModelAdmin):
     readonly_fields = ['daily_update']
 
     list_display = ['__str__', '_is_enrolled', '_is_active']
+    list_filter = [ParticipantCohortFilter]
 
     actions = [
         initialize_participant,

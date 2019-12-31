@@ -390,7 +390,8 @@ class WalkingSuggestionService():
             'lastActivityArray': self.offset_received_messages(date),
             'locationArray': self.get_locations(date),
             'actionArray': self.get_actions(date),
-            'probArray': self.get_probabilities(date)
+            'probArray': self.get_probabilities(date),
+            'watchArray': self.get_watch_app_step_count_booleans(date)
         }
         response = self.make_request('nightly',
             data = data
@@ -419,7 +420,8 @@ class WalkingSuggestionService():
                 'priorAnti': self.anti_sedentary_treated_since_previous_decision(decision),
                 'lastActivity': self.previous_decision_was_received(decision),
                 'location': self.get_location_type(decision),
-                'pooling': pooling
+                'pooling': pooling,
+                'watch': self.has_watch_app_step_count(decision)
             }
         )
         decision.treated = response['send']
@@ -747,3 +749,12 @@ class WalkingSuggestionService():
         treatments = self.get_previous_anti_sedentary_treatments(date)
         treatments.append(self.get_end_of_day_anti_sedentary_treatment(date))
         return treatments
+
+    def has_watch_app_step_count(self, decision):
+        if decision.sedentary is None and decision.imputed is False:
+            return False
+        else:
+            return True
+
+    def get_watch_app_step_count_booleans(self, date):
+        return [self.has_watch_app_step_count(decision) for decision in self.get_decision_list_for(date)]

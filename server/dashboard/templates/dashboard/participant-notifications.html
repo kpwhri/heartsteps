@@ -1,0 +1,30 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}" class="nav-link active">Notifications</a>
+{% endblock %}
+
+{% block content %}
+
+<h2>Notifications for {{participant.heartsteps_id}}</h2>
+<ul class="list-unstyled">
+{% for notification in notifications %}
+    <li>
+        <em>{{notification.title}}</em>
+        {{notification.body}}
+        <dl>
+            <dt>Category</dt>
+            <dd>{{notification.collapse_subject}}</dd>
+            <dt>Received</dt>
+            <dd>{{notification.received}}</dd>
+            <dt>Opened</dt>
+            <dd>{{notification.opened}}</dd>
+        </dl>        
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}
