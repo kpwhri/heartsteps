@@ -53,7 +53,7 @@ def get_aim3_from_request():
     return [u for u in get_participants_from_request() if u['cohort'].upper() == 'AIM 3']
 
 def write_join_date_file(users):
-    with open('join_dates.csv', 'w', newline='') as csvfile:
+    with open('data/join_dates.csv', 'w', newline='') as csvfile:
         fieldnames = ['user_id', 'join_date']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
