@@ -1,4 +1,6 @@
+import json
 import pytz
+import requests
 from unittest.mock import patch
 from datetime import datetime, date, timedelta
 
@@ -15,6 +17,72 @@ from walking_suggestions.models import SuggestionTime, Configuration, WalkingSug
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update
 from walking_suggestions.tasks import initialize_and_update
+
+from walking_suggestions.models import PoolingServiceConfiguration
+from walking_suggestions.models import PoolingServiceRequest
+from walking_suggestions.tasks import update_pooling_service
+from participants.models import Participant, Cohort, Study
+
+class MockResponse:
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+
+class UpdatePoolingService(TestCase):
+
+    def setUp(self):
+        requests_post_patch = patch.object(requests, 'post')
+        self.addCleanup(requests_post_patch.stop)
+        self.requests_post = requests_post_patch.start()
+        self.requests_post.return_value = MockResponse(200, json.dumps({
+            'success': 1 
+        }))
+
+    @override_settings(POOLING_SERVICE_URL=None)
+    def test_pooling_service_needs_url_configured(self):
+        update_pooling_service()
+        self.requests_post.assert_not_called()
+
+    @override_settings(POOLING_SERVICE_URL='poolingservice')
+    def test_updates_pooling_service_with_configured_users(self):
+        study = Study.objects.create(
+            name = 'foo study'
+        )
+        cohort = Cohort.objects.create(
+            name = 'foo cohort',
+            study = study
+        )
+        user = User.objects.create(username="test")
+        Participant.objects.create(
+            heartsteps_id = 'foo',
+            user = user,
+            cohort = cohort
+        )
+        Configuration.objects.create(
+            user = user,
+            enabled = True,
+            service_initialized_date = date(2019, 12, 30)
+        )
+        PoolingServiceConfiguration.objects.create(
+            user = user
+        )
+
+        update_pooling_service()
+
+        posted_json = self.requests_post.call_args[1]['json']
+        self.assertEqual(posted_json['participants'][0]['username'], 'test')
+        self.assertEqual(posted_json['participants'][0]['cohort'], 'foo cohort')
+        self.assertEqual(posted_json['participants'][0]['study'], 'foo study')
+        self.assertEqual(posted_json['participants'][0]['start'], '2019-12-30')
+    
+    @override_settings(POOLING_SERVICE_URL='poolingservice')
+    def test_saves_request_and_response_of_pooling_service(self):
+        update_pooling_service()
+
+        request = PoolingServiceRequest.objects.get()
+        self.assertEqual(request.url, 'poolingservice')
+        self.assertEqual(request.request_data, json.dumps({'participants':[]}))
+
 
 @override_settings(WALKING_SUGGESTION_DECISION_WINDOW_MINUTES='10')
 class CreateDecisionTest(TestCase):
