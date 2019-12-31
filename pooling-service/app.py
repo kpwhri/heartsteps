@@ -26,9 +26,19 @@ def update():
         return 'running'
     return 'Not running', 400
 
-@app.route('/update-aim3', methods=['POST'])
+@app.route('/update/aim3', methods=['POST'])
 def update_aim3():
-    return 'hi'
+    aim3 = get_aim3_from_request()
+    if aim3:
+        write_join_date_file(aim3)
+        subprocess.Popen(
+            "/pooling-service/update_aim_three_testing.sh",
+            shell=True,
+            universal_newlines=True
+        )
+        return 'running'
+    return 'Not running', 400
+
 
 def get_participants_from_request():
     if request.json and request.json['participants'] and isinstance(request.json['participants'], list):
