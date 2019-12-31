@@ -24,11 +24,11 @@ conda deactivate
 sleep 2
 Rscript merge.r
 #start service two
-sleep 2
-Rscript merge_time.r
-conda init bash > /dev/null
-source ~/.bashrc
-conda activate py36
-python run_time.py
-sleep 2
-Rscript merge_time.r
+#sleep 2
+#Rscript merge_time.r
+#conda init bash > /dev/null
+#source ~/.bashrc
+#conda activate py36
+#python run_time.py
+#sleep 2
+#Rscript merge_time.r
