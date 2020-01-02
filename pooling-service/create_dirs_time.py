@@ -12,8 +12,8 @@ if __name__=="__main__":
     try:
         
         users = [f for f in os.listdir('data') if 'user' in f and (f[4:] in RPYtime.get_user_ids()) and '_pooled' not in f]
-        print(users)
-        print('to make')
+        #print(users)
+        #print('to make')
         newdir = [f+'_pooled_params' for f in users ]
         to_delete = [f for f in os.listdir('data') if 'pooled_params_pooled_params' in f  ]
         for f in to_delete:
