@@ -37,7 +37,7 @@
                 </li>
             {% endfor %}
             </ul>
-            {% if participant.is_enabled %}
+            {% if participant.active %}
             <form action="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}" method="POST">
                 {% csrf_token %}
                 <input type="submit" value="Disable participant" />

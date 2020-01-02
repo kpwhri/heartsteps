@@ -121,6 +121,9 @@ class ParticipantService:
             return False
 
     def enable(self):
+        self.participant.active = True
+        self.participant.save()
+
         adherence_message_configuration, _ = AdherenceMessageConfiguration.objects.update_or_create(
             user = self.participant.user
         )
@@ -146,6 +149,8 @@ class ParticipantService:
             walking_suggestion_configuration.save()
     
     def disable(self):
+        self.participant.active = False
+        self.participant.save()
         AntiSedentaryConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         MorningMessagesConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         WalkingSuggestionConfiguration.objects.filter(user = self.participant.user).update(enabled = False)

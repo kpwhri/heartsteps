@@ -83,7 +83,7 @@ class ParticipantInformationView(APIView):
         return Response({
             'heartstepsId': service.get_heartsteps_id(),
             'staff': request.user.is_staff,
-            'date_enrolled': service.participant.date_enrolled.strftime('%Y-%m-%d'),
+            'date_enrolled': service.participant.date_joined.strftime('%Y-%m-%d'),
             'studyContactName': service.get_study_contact_name(),
             'studyContactNumber': service.get_study_contact_number(),
             'baselinePeriod': service.get_baseline_period()
