@@ -15,27 +15,31 @@ def get_user_ids():
     start = datetime.datetime.strptime('12/2/2019','%m/%d/%Y')
     users  =[k for k, v in sorted(joins.items(),\
             key=lambda item: item[1]) if v>=start]
+            #print(joins)
+            #print(sorted(joins.items(),\key=lambda item: item[1]))
     return {str(users[i]):i for i in range(len(users)) if i<20}
 
 def join_dates():
     dates = pd.read_csv('data/join_dates.csv')
-    return {i:pd.to_datetime(r) for i,r in dates['join_date'].iteritems() }
+    #print()
+    return {r['user_id']:pd.to_datetime(r['join_date']) for i,r in dates.iterrows() }
 
 def join_dates_reversed():
-    dates = pd.DataFrame.from_csv('data/join_dates.csv')
+    dates = pd.read_csv('data/join_dates.csv')
     lookup = get_user_ids()
-    return {lookup[str(i)]:pd.to_datetime(r) for i,r in
-            dates['join_date'].iteritems() if str(i) in lookup}
+    #if str(i) in lookup
+    return {lookup[str(r['user_id'])]:pd.to_datetime(r['join_date']) for i,r in
+            dates.iterrows()}
 
 
 def get_current_day(user_id):
-    #print(user_id)
-    join = join_dates_reversed()
     
+    join = join_dates_reversed()
+    print(join)
     join_date = join[int(user_id)]
     current_day = (datetime.datetime.today()-join_date).days
     #current_day = (pd.to_datetime('12/8/2019')-join_date).days
-    #print(current_day)
+    
     return current_day
 
 def process_data(rdata,baseline_features,user_id):

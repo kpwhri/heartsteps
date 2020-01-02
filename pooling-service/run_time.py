@@ -79,7 +79,7 @@ def run_updates(data_path,users):
     users, X,ycentered,y,days= RPY.combine_users(data_path,users,global_params)
     #y = np.array([ys[i]-np.dot(to_return[i],to_adjust) for i in range(len(to_return))])
     
-    print('got users')
+    
     g = hyperparameter_runner_time.real_run(X,users,ycentered,y,days,global_params)
     return g
 
@@ -129,7 +129,7 @@ if __name__=="__main__":
     #print(os.listdir('data'))
     try:
         users = RPY.get_user_ids().keys()
-        print(users)
+        
         #users =set( ["10470","10332","10451"])
         x = run_updates(data_path,users)
         

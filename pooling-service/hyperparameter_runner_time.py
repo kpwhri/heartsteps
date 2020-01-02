@@ -316,6 +316,7 @@ def real_run(X,users,ycentered,y,days,global_params):
     
     #_lbfgs
         hyper = get_hyper(np.array(X),users,np.array(ycentered),days,global_params)
+        print('got hyper')
         with open('data/pooled_time_hyper/pooled_init_time_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise']},f)
         global_params.sigma_u =hyper['sigma_u']
@@ -346,7 +347,7 @@ def real_run(X,users,ycentered,y,days,global_params):
         to_return = {i:simple_bandits.calculate_posterior_faster_time(global_params,\
                                                              i,rpy.get_current_day(i),\
                                                              np.array(X), users,days,np.array(y) ) for i in set(users)}
-
+        print('worked')
         return to_return
 
 
@@ -356,11 +357,12 @@ def get_hyper(X,users,y,days,global_params):
 
 
     user_mat= get_users(users,users)
+   
     time_mat =get_distance(days)
-    
+    print(X.shape)
     first_mat = get_first_mat(np.eye(len(global_params.baseline_indices)),X,global_params.baseline_indices)
 
-   
+    print('first mat')
 
 
     X = torch.from_numpy(np.array(X)).float()
