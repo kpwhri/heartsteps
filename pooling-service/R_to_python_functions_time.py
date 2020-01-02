@@ -22,7 +22,7 @@ def join_dates():
     return {i:pd.to_datetime(r) for i,r in dates['join_date'].iteritems() }
 
 def join_dates_reversed():
-    dates = pd.DataFrame.from_csv('join_dates.csv')
+    dates = pd.DataFrame.from_csv('data/join_dates.csv')
     lookup = get_user_ids()
     return {lookup[str(i)]:pd.to_datetime(r) for i,r in
             dates['join_date'].iteritems() if str(i) in lookup}

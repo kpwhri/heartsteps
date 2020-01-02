@@ -4,6 +4,7 @@
 #participants = c("10339","10259","10194","10360","10269","10234","10365","10352","10336","10304")
 library(lubridate)
 
+
 return_immediately<-function(id){
     tryCatch({
       print(id)
@@ -48,7 +49,7 @@ return_immediately<-function(id){
     
 }
 call_all<-function(){
-    someusers <- read.csv(file = 'join_dates.csv')
+    someusers <- read.csv(file = 'data/join_dates.csv')
   
     someusers$join_date = lubridate::mdy(someusers$join_date)
     print(someusers)
