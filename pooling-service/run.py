@@ -124,6 +124,7 @@ def update_params(users,g,lookup):
 
 if __name__=="__main__":
     np.random.seed(10)
+    print(sys.argv)
     user_string = sys.argv[1]
     to_return =  user_string
     #print(user_string)

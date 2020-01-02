@@ -8,7 +8,7 @@ shift # past argument=value
 ;;
 esac
 done
-echo $USERS
+#echo $USERS
 conda init bash > /dev/null
 source ~/.bashrc
 conda activate py36

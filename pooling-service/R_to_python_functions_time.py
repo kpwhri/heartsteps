@@ -18,7 +18,7 @@ def get_user_ids():
     return {str(users[i]):i for i in range(len(users)) if i<20}
 
 def join_dates():
-    dates = pd.DataFrame.from_csv('join_dates.csv')
+    dates = pd.read_csv('data/join_dates.csv')
     return {i:pd.to_datetime(r) for i,r in dates['join_date'].iteritems() }
 
 def join_dates_reversed():

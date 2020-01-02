@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 conda init bash > /dev/null
 source ~/.bashrc
 conda activate py36
