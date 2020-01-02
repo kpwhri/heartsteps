@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import validate_slug
 
 from participants.models import Participant
 from sms_messages.models import Message
@@ -11,6 +12,12 @@ class ParticipantCreateForm(forms.ModelForm):
     class Meta:
         model = Participant
         fields = ['heartsteps_id', 'enrollment_token', 'birth_year']
+
+    def clean_heartsteps_id(self):
+        heartsteps_id = self.cleaned_data['heartsteps_id']
+        validate_slug(heartsteps_id)
+        return heartsteps_id
+
 
 class ParticipantEditForm(forms.ModelForm):
 

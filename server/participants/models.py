@@ -52,7 +52,11 @@ class Participant(models.Model):
 
     When the participant is enrolled, a user is created.
     """
-    heartsteps_id = models.CharField(primary_key=True, unique=True, max_length=25)
+    heartsteps_id = models.CharField(
+        primary_key=True,
+        unique=True,
+        max_length=25
+    )
     enrollment_token = models.CharField(max_length=10, unique=True)
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 

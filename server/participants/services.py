@@ -11,6 +11,7 @@ from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from sms_messages.models import Contact as SMSContact
+from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
@@ -103,6 +104,7 @@ class ParticipantService:
     def initialize(self):
         self.participant.enroll()
         self.participant.set_daily_task()
+        self.create_default_suggestion_times()
         self.enable()
 
     def is_enabled(self):
@@ -148,6 +150,26 @@ class ParticipantService:
         MorningMessagesConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         WalkingSuggestionConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         AdherenceMessageConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
+
+    def create_default_suggestion_times(self):
+        existing_suggestion_times = SuggestionTime.objects.filter(
+            user=self.participant.user
+        ).count()
+        if not existing_suggestion_times:
+            default_times = [
+                (SuggestionTime.MORNING, 8, 0),
+                (SuggestionTime.LUNCH, 12, 0),
+                (SuggestionTime.MIDAFTERNOON, 14, 0),
+                (SuggestionTime.EVENING, 5, 0),
+                (SuggestionTime.POSTDINNER, 20, 0)
+            ]
+            for category, hour, minute in default_times:
+                SuggestionTime.objects.create(
+                    user = self.participant.user,
+                    category = category,
+                    hour = hour,
+                    minute = minute
+                )
     
     def update(self, date):        
         self.update_fitbit(date)
