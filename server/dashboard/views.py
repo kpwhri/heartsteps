@@ -111,7 +111,10 @@ class DashboardListView(CohortView):
 
     def query_participants(self):
         return DashboardParticipant.objects\
-            .filter(cohort = self.cohort)\
+            .filter(
+                archived = False,
+                cohort = self.cohort,
+            )\
             .order_by('heartsteps_id')\
             .prefetch_related('user')
 
@@ -473,7 +476,29 @@ class ParticipantEnableView(ParticipantView):
                     'cohort_id':self.cohort.id
                 }
             )
-        )        
+        )
+
+class ParticipantArchiveView(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+
+        if self.participant.archived:
+            self.participant.archived = False
+            self.participant.save()
+            messages.add_message(request, messages.SUCCESS, 'Unarchived %s' % (self.participant.heartsteps_id))
+        else:
+            self.participant.archived = True
+            self.participant.save()
+            messages.add_message(request, messages.SUCCESS, 'Archived %s' % (self.participant.heartsteps_id))
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'participant_id': self.participant.heartsteps_id,
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )
 
 class ParticipantAdherenceView(ParticipantView):
 

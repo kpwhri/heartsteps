@@ -13,6 +13,7 @@ from .views import ParticipantNotificationsView
 from .views import ParticipantInterventionSummaryView
 from .views import ParticipantEnableView
 from .views import ParticipantDisableView
+from .views import ParticipantArchiveView
 
 urlpatterns = [
     url(
@@ -27,6 +28,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/create', ParticipantCreateView.as_view(), name='dashboard-cohort-participant-create'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/enable', ParticipantEnableView.as_view(), name='dashboard-cohort-participant-enable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/disable', ParticipantDisableView.as_view(), name='dashboard-cohort-participant-disable'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/archive', ParticipantArchiveView.as_view(), name='dashboard-cohort-participant-archive'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence', ParticipantAdherenceView.as_view(), name='dashboard-cohort-participant-adherence'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/intervention-summary', ParticipantInterventionSummaryView.as_view(), name='dashboard-cohort-participant-intervention-summary'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications', ParticipantNotificationsView.as_view(), name='dashboard-cohort-participant-notifications'),
