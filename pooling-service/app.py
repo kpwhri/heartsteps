@@ -18,8 +18,6 @@ def update():
         write_join_date_file(aim3)
 
         aim2_usernames = [u['username'] for u in aim2]
-        #print('app')
-        #print(aim2_usernames)
         subprocess.Popen(
             "/pooling-service/update.sh --users='%s'" % (','.join(aim2_usernames)),
             shell=True,
