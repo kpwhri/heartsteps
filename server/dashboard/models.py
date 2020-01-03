@@ -18,7 +18,7 @@ from fitbit_api.services import FitbitService
 from page_views.models import PageView
 from participants.models import Participant
 from randomization.models import UnavailableReason
-from sms_messages.models import Contact
+from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import WalkingSuggestionDecision
 from watch_app.models import StepCount as WatchAppStepCount
@@ -547,11 +547,15 @@ class DashboardParticipant(Participant):
 
     @property
     def last_text_sent(self):
-        if self.user:
-            sms_message = SMSMessage.objects.filter(recipient__user=self.user).order_by('created').last()
-            if sms_message:
-                return sms_message.created
-        return None
+        try:
+            if self.user:
+                contact = SMSContact.objects.get(user=self.user)
+                sms_message = SMSMessage.objects.filter(recipient=contact.number).order_by('created').last()
+                if sms_message:
+                    return sms_message.created
+            return None
+        except SMSContact.DoesNotExist:
+            return None
 
 class FitbitServiceDashboard(FitbitService):
 
