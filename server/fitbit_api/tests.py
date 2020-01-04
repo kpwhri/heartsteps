@@ -1,8 +1,10 @@
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
@@ -28,6 +30,46 @@ def make_fitbit_account(username='test'):
         account = account
     )
     return account
+
+class FitbitClientTests(TestCase):
+
+    def setUp(self):
+        self.account = make_fitbit_account()
+        self.client = FitbitClient(account = self.account)
+
+        make_request_patch = patch.object(FitbitClient, 'make_request')
+        self.make_request = make_request_patch.start()
+        self.addCleanup(make_request_patch.stop)
+
+        timezone_patch = patch.object(FitbitClient, 'get_timezone')
+        self.timezone = timezone_patch.start()
+        self.timezone.return_value = pytz.UTC
+        self.addCleanup(timezone_patch.stop)
+
+    def test_get_devices(self):
+        sync_time = timezone.now() - timedelta(minutes=15)
+        formatted_sync_time = self.client.format_datetime(sync_time)
+        self.make_request.return_value = [
+            {
+                'batteryLevel': 98, 
+                'deviceVersion': 'Versa 2',
+                'id': '12345678',
+                'lastSyncTime': formatted_sync_time,
+                'mac': 'EXAMPLE-MAC-ADDRESS',
+                'type': 'SCALE'
+                
+            }
+        ]
+
+        devices = self.client.get_devices()
+
+        self.assertEqual(devices[0]['id'], '12345678')
+        self.assertEqual(devices[0]['battery_level'], 98)
+        self.assertEqual(devices[0]['device_version'], 'Versa 2')
+        self.assertEqual(devices[0]['last_sync_time'], sync_time)
+        self.assertEqual(devices[0]['type'], 'SCALE')
+        self.assertEqual(devices[0]['mac'], 'EXAMPLE-MAC-ADDRESS')
+
 
 class FitbitApiSubscriptionTest(TestCase):
 

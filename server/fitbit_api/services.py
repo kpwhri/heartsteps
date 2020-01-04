@@ -262,6 +262,13 @@ class FitbitClient():
 
     def parse_date(self, date):
         return parse_fitbit_date(date)
+    
+    def format_datetime(self, dt):
+        return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
+    
+    def parse_datetime(self, string):
+        dt = datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%f')
+        return dt.replace(tzinfo = self.get_timezone())
 
     def get_intraday_activity(self, activity_type, date):
         response = self.make_request('user/-/activities/{activity_type}/date/{date}/1d/1min.json'.format(
@@ -294,21 +301,12 @@ class FitbitClient():
         response = self.make_request('user/-/devices.json')
         devices = []
         for device in response:
-            return {
-                'battery_level': response['batteryLevel'],
-                'id': response['id'],
-                'lastSyncTime': datetime.strptime(response['lastSyncTime']).astimezone(pytz.UTC),
-                'mac': response['mac'],
-                'type': response['type'],
-                'device_version': response['deviceVersion']
-            }
+            devices.append({
+                'battery_level': device['batteryLevel'],
+                'id': device['id'],
+                'last_sync_time': self.parse_datetime(device['lastSyncTime']),
+                'mac': device['mac'],
+                'type': device['type'],
+                'device_version': device['deviceVersion']
+            })
         return devices
-
-    def get_last_tracker_sync_datetime(self):
-        most_recent_sync_time = None
-        for device in self.client.get_devices():
-            if device['type'] is not 'TRACKER':
-                continue
-            if not most_recent_time or device.lastSyncTime > most_recent_sync_time:
-                most_recent_sync_time = device.lastSyncTime
-        return most_recent_time 

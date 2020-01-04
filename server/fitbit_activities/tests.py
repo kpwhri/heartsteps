@@ -7,10 +7,13 @@ from datetime import timedelta
 from django.test import TestCase
 from django.test import override_settings
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from fitbit import Fitbit
 
-from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitDevice
 from fitbit_api.services import FitbitClient
 from fitbit_api.signals import update_date as fitbit_update_date
 
@@ -65,6 +68,12 @@ class FitbitDayUpdates(TestBase):
         self.addCleanup(distance_patch.stop)
         self.get_distance = distance_patch.start()
         self.get_distance.return_value = []
+
+        devices_patch = patch.object(FitbitClient, 'get_devices')
+        self.addCleanup(devices_patch.stop)
+        self.get_devices = devices_patch.start()
+        self.get_devices.return_value = []
+
 
     def testUpdateTaskCreatesDay(self):
         self.timezone.return_value = pytz.timezone('Poland')
@@ -123,6 +132,40 @@ class FitbitDayUpdates(TestBase):
 
         fitbit_day = FitbitDay.objects.get(account=self.account)
         self.assertFalse(fitbit_day.wore_fitbit)
+
+    def test_updates_devices(self):
+        now = timezone.now()
+        self.get_devices.return_value = [
+            {
+                'battery_level': 98, 
+                'device_version': 'example scale updated',
+                'id': '12345678',
+                'last_sync_time': now - timedelta(minutes=90),
+                'mac': 'EXAMPLE-MAC-ADDRESS',
+                'type': 'SCALE'            
+            }, {
+                'battery_level': 70, 
+                'device_version': 'Versa 2',
+                'id': '23456789',
+                'last_sync_time': now - timedelta(minutes=20),
+                'mac': 'EXAMPLE-MAC-ADDRESS',
+                'type': 'TRACKER'
+            }
+        ]
+        FitbitDevice.objects.create(
+            account = self.account,
+            device_type = 'SCALE',
+            device_version = 'example scale',
+            fitbit_id = '12345678',
+            mac = 'EXAMPLE-MAC-ADDRESS'
+        )
+
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2019-02-14")
+
+        devices = FitbitDevice.objects.filter(account=self.account).order_by('device_type').all()
+        self.assertEqual(len(devices), 2)
+        self.assertEqual([device.device_version for device in devices], ['example scale updated','Versa 2'])
+        self.assertEqual(self.account.get_last_tracker_sync_time(), now - timedelta(minutes=20))
 
 class FitbitStepUpdates(TestBase):
 
