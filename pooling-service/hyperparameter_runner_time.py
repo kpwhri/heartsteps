@@ -45,7 +45,7 @@ def get_first_mat(sigma_theta,data,baseline_indices):
     return results
 
 def dist(one,two):
-    return np.exp(-(one-two)**2/1)
+    return np.exp(-(one-two)**2/4.6**2)
 
 def get_distance(days):
     to_return = []
@@ -81,13 +81,20 @@ class MyKernel(Kernel):
         self.first_mat = first_mat
         self.time_mat = time_mat
         self.action_indices = [8,13]
+        #self.action_indices=[7]
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
         #print(self.psi_indices)
         self.g_indices = [i for i in range(8)]
+        #self.g_indices = [i for i in range(7)]
+        
         self.action_indices_one = [i for i in range(8,8+5)]
         self.action_indices_two = [i for i in range(8+5,18)]
+
+        #self.action_indices_one = [i for i in range(7,7+4)]
+        
+        
         self.init_u1 = gparams.sigma_u[0][0]
         
         
@@ -135,14 +142,20 @@ class MyKernel(Kernel):
   
     def forward(self, x1, x2, batch_dims=None, **params):
         action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)\
-+torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
+        +torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
 
+#action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)
+
+    
+    
         baseline_vector =torch.stack([torch.Tensor(x1)[:,i] for  i in [self.g_indices]],dim=1)
         #print(action_vector)
         fake_vector_one = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
 
         action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)\
-+torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
+        +torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
+#action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)
+
     
         baseline_vector =torch.stack([torch.Tensor(x2)[:,i] for  i in [self.g_indices]],dim=1)
         fake_vector_two = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
@@ -317,6 +330,11 @@ def real_run(X,users,ycentered,y,days,global_params):
     #_lbfgs
         hyper = get_hyper(np.array(X),users,np.array(ycentered),days,global_params)
         print('got hyper')
+        global_params.sigma_u =hyper['sigma_u']
+        global_params.sigma_v =hyper['sigma_v']
+        global_params.noise_term = hyper['noise']
+        #return
+
         with open('data/pooled_time_hyper/pooled_init_time_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise']},f)
         global_params.sigma_u =hyper['sigma_u']
@@ -334,7 +352,7 @@ def real_run(X,users,ycentered,y,days,global_params):
         
         hyper['cov']=cov
         #hyper['noise']=1e10
-      
+
         with open('data/pooled_time_hyper/pooled_time_init_params_{}.pkl'.format(str(date.today())),'wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise'],'cov':hyper['cov'],'iters':hyper['iters'],'gp':global_params.psi_indices},f)
         inv_term = simple_bandits.get_inv_term(hyper['cov'],np.array(X).shape[0],hyper['noise'])
@@ -360,10 +378,12 @@ def get_hyper(X,users,y,days,global_params):
    
     time_mat =get_distance(days)
     print(X.shape)
-    first_mat = get_first_mat(np.eye(len(global_params.baseline_indices)),X,global_params.baseline_indices)
+    first_mat = get_first_mat(global_params.sigma_theta,X,global_params.baseline_indices)
 
     print('first mat')
-
+    print(first_mat.shape)
+    print(time_mat.shape)
+    print(user_mat.shape)
 
     X = torch.from_numpy(np.array(X)).float()
 
