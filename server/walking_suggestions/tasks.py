@@ -120,3 +120,4 @@ def update_pooling_service():
     request_record.response_data = response.text
     request_record.response_time = timezone.now()
     request_record.save()
+    

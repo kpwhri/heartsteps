@@ -289,3 +289,26 @@ class FitbitClient():
         )
         response = self.make_request(url)
         return response['activities-heart-intraday']['dataset']
+
+    def get_devices(self):
+        response = self.make_request('user/-/devices.json')
+        devices = []
+        for device in response:
+            return {
+                'battery_level': response['batteryLevel'],
+                'id': response['id'],
+                'lastSyncTime': datetime.strptime(response['lastSyncTime']).astimezone(pytz.UTC),
+                'mac': response['mac'],
+                'type': response['type'],
+                'device_version': response['deviceVersion']
+            }
+        return devices
+
+    def get_last_tracker_sync_datetime(self):
+        most_recent_sync_time = None
+        for device in self.client.get_devices():
+            if device['type'] is not 'TRACKER':
+                continue
+            if not most_recent_time or device.lastSyncTime > most_recent_sync_time:
+                most_recent_sync_time = device.lastSyncTime
+        return most_recent_time 

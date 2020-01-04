@@ -188,12 +188,11 @@ class ParticipantService:
 
     def update_fitbit(self, date):
         try:
-            fitbit_day = FitbitDayService(
-                user = self.participant.user,
-                date = date
+            service = FitbitActivityService(
+                user = self.participant.user
             )
-            fitbit_day.update()
-        except FitbitDayService.NoAccount:
+            service.update(date)
+        except FitbitActivityService.NoAccount:
             pass
 
     def update_adherence(self, date):
