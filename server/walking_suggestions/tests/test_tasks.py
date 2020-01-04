@@ -12,6 +12,7 @@ from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
+from fitbit_activities.services import FitbitActivityService
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
@@ -282,10 +283,22 @@ class NightlyUpdateTask(TestCase):
         self.user = User.objects.create(
             username = 'test'
         )
+        self.account = FitbitAccount.objects.create(
+            fitbit_user = 'test'
+        )
+        FitbitAccountUser.objects.create(
+            account = self.account,
+            user = self.user
+        )
         self.configuration = Configuration.objects.create(
             user = self.user,
             enabled = True
         )
+
+        last_device_sync_patch = patch.object(FitbitActivityService, 'get_last_tracker_sync_datetime')
+        self.last_device_sync = last_device_sync_patch.start()
+        self.last_device_sync.return_value = timezone.now()
+        self.addCleanup(last_device_sync_patch.stop)
 
     @patch.object(WalkingSuggestionService, 'initialize')
     def testInitializeWalkingSuggestionService(self, initialize):
@@ -303,6 +316,8 @@ class NightlyUpdateTask(TestCase):
     def testUpdateWalkingSuggestionService(self, update):
         self.configuration.service_initialized_date = date.today() - timedelta(days=1)
         self.configuration.save()
+        day_service = DayService(user=self.user)
+        self.last_device_sync.return_value = day_service.get_end_of_day(date.today())
 
         nightly_update(
             username = self.user.username,
@@ -318,7 +333,22 @@ class NightlyUpdateTask(TestCase):
         self.assertTrue(nightly_update_object.updated)
 
     @patch.object(WalkingSuggestionService, 'update')
-    def testUpdateUnupdatedDays(self, update):
+    def test_does_not_update_if_device_sync_not_updated(self, update):
+        self.configuration.service_initialized_date = date.today() - timedelta(days=1)
+        self.configuration.save()
+        day_service = DayService(user=self.user)
+        self.last_device_sync.return_value = day_service.get_end_of_day(date.today()) - timedelta(minutes=5)
+
+        nightly_update(
+            username = self.user.username,
+            day_string = date.today().strftime('%Y-%m-%d')
+        )
+
+        update.assert_not_called()
+        self.assertEqual(NightlyUpdate.objects.count(), 0)
+
+    @patch.object(WalkingSuggestionService, 'update')
+    def test_updates_days_not_updated(self, update):
         self.configuration.service_initialized_date = date.today() - timedelta(days=4)
         self.configuration.save()
         NightlyUpdate.objects.create(
@@ -332,9 +362,10 @@ class NightlyUpdateTask(TestCase):
             day_string = date.today().strftime('%Y-%m-%d')
         )
 
-        self.assertEqual(update.call_count, 3)
-        for day in [date.today() - timedelta(days=offset) for offset in range(3)]:
-            update.assert_any_call(date=day)
+        self.assertEqual(update.call_count, 2)
+
+        called_dates = [call[1]['date'] for call in update.call_args_list]
+        self.assertEqual(called_dates, [date(2020, 1, 2), date(2020, 1, 3)])
 
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
 @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)

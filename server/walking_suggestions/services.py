@@ -17,6 +17,7 @@ from fitbit_api.services import FitbitService
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
+from fitbit_activities.services import FitbitActivityService
 from locations.models import Place
 from page_views.models import PageView
 from push_messages.models import MessageReceipt, Message
@@ -264,27 +265,37 @@ class WalkingSuggestionService():
         if not self.is_initialized():
             NightlyUpdate.objects.filter(user = self.__user).delete()
             self.initialize(date=date)
-        else:
-            last_update_query = NightlyUpdate.objects.filter(
-                user = self.__user,
-                updated = True,
-                day__gt = self.__configuration.service_initialized_date
-            )
-            if last_update_query.count() > 0:
-                last_updated_day = last_update_query.last().day
-            else:
-                last_updated_day = self.__configuration.service_initialized_date
-            last_updated_day = last_updated_day + timedelta(days=1)
-            while last_updated_day <= date:
-                self.update(date=last_updated_day)
+        else:            
+            day_service = DayService(user=self.__user)
+            fitbit_service = FitbitActivityService(user = self.__user)
+            last_fitbit_device_sync = fitbit_service.get_last_tracker_sync_datetime()
+            
+            last_updated_date = self.get_last_nightly_update_date()
+            update_date = last_updated_date + timedelta(days=1)
+            while update_date <= date:
+                update_date_end = day_service.get_end_of_day(update_date)
+                if update_date_end > last_fitbit_device_sync:
+                    break
+                self.update(date=update_date)
                 NightlyUpdate.objects.update_or_create(
                     user = self.__user,
-                    day = last_updated_day,
+                    day = update_date,
                     defaults = {
                         'updated': True
                     }
                 )
-                last_updated_day = last_updated_day + timedelta(days=1)
+                update_date = update_date + timedelta(days=1)
+    
+    def get_last_nightly_update_date(self):
+        last_nightly_update = NightlyUpdate.objects.filter(
+            user = self.__user,
+            updated = True,
+            day__gt = self.__configuration.service_initialized_date
+        ).last()
+        if last_nightly_update:
+            return last_nightly_update.date
+        else:
+            return self.__configuration.service_initialized_date
 
     def make_request(self, uri, data, attempt=1):
         url = urljoin(self.__base_url, uri)

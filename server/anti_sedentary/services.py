@@ -87,7 +87,7 @@ class AntiSedentaryService:
             imputed = True,
             treated = False
         )
-        decision.sedentary = decision.is_sedentary()
+        decision.update()
         decision.save()
         return decision
 

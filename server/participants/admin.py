@@ -75,7 +75,7 @@ class ParticipantCohortFilter(admin.SimpleListFilter):
 class ParticipantAdmin(admin.ModelAdmin):
     readonly_fields = ['daily_update']
 
-    list_display = ['__str__', '_is_enrolled', '_is_active']
+    list_display = ['__str__', 'enrolled', 'active']
     list_filter = [ParticipantCohortFilter]
 
     actions = [

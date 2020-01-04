@@ -12,11 +12,6 @@ from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitDailyUnprocessedData
 
-class FitbitActivityService(FitbitService):
-
-    def get_days_worn(self):
-        return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
-
 class FitbitDayService(FitbitService):
 
     def __init__(self, date=None, account=None, user=None, username=None, fitbit_day=None, fitbit_user=None):
@@ -217,4 +212,27 @@ class FitbitStepCountService:
             start = time - timedelta(minutes=5),
             end = time
         )
+
+
+class FitbitActivityService(FitbitService):
+
+    def __init__(self, account=None, user=None, username=None, fitbit_user=None):
+        super().__init__(account, user, username, fitbit_user)
+        self.__client = FitbitClient(
+            account = self.account
+        )
+
+    def get_days_worn(self):
+        return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
+
+    def update(self, date):
+        day_service = FitbitDayService(
+            date = date,
+            account = self.account
+        )
+        day_service.update()
+
+    def get_last_tracker_sync_datetime(self):
+        return self.__client.get_last_tracker_sync_datetime()
+
 

@@ -67,6 +67,9 @@ class Participant(models.Model):
         on_delete = models.SET_NULL
     )
 
+    active = models.BooleanField(default=True)
+    archived = models.BooleanField(default=False)
+
     class NotEnrolled(RuntimeError):
         pass
 
@@ -83,16 +86,12 @@ class Participant(models.Model):
         self.user = user
         self.save()
 
-    def _is_enrolled(self):
+    @property
+    def enrolled(self):
         if self.user:
             return True
         else:
             return False
-    _is_enrolled.boolean = True
-
-    @property
-    def enrollment_date(self):
-        return self.date_joined
 
     @property
     def date_joined(self):
@@ -101,94 +100,9 @@ class Participant(models.Model):
         else:
             return None
 
-    def _is_active(self):
-        try:
-            daily_task = self.__get_daily_task()
-            if daily_task.enabled:
-                return True
-        except DailyTask.DoesNotExist:
-            pass
-        return False
-    _is_active.boolean = True
-
     @property
     def is_active(self):
-        return self._is_active
-
-    @property
-    def enrolled(self):
-        return self._is_enrolled()
-
-    def _last_page_view(self):
-        if not self._is_enrolled:
-            return None
-
-        u = self.user
-        if u:
-            return u.pageview_set.all() \
-                    .aggregate(models.Max('time'))['time__max']
-        else:
-            return None
-
-    @property
-    def last_page_view(self):
-        return self._last_page_view
-
-    def _adherence_app_use(self):
-        if self._last_page_view() is None:
-            return 0
-        else:
-            elapsed = pytz.utc.localize(datetime.now()) - self._last_page_view()
-            elapsed_hours = elapsed.total_seconds() // 3600
-            if elapsed_hours > (24*7):
-                return 24*7
-            elif elapsed_hours > 96:
-                return 96
-            else:
-                return 0
-
-    @property
-    def adherence_app_use(self):
-        return self._adherence_app_use
-
-    def _last_text_sent(self):
-        u = self.user
-        if u:
-            participant_number = Contact.objects.get(user=u.id).number
-            last_text_sent = Message.objects.filter(
-                recipient__exact=participant_number).latest('created').created
-            return last_text_sent
-        else:
-            return None
-
-    @property
-    def last_text_sent(self):
-        return self._last_text_sent
-
-    def _text_message_history(self):
-        u = self.user
-        if u:
-            participant_number = Contact.objects.get(user=u.id).number
-            if participant_number:
-                return Message.objects.filter(
-                    recipient__exact=participant_number
-                    ).only('created', 'body').order_by('-created')
-            else:
-                return None
-        else:
-            return None
-
-    @property
-    def text_message_history(self):
-        return self._text_message_history
-
-    @property
-    def date_enrolled(self):
-        if self.user:
-            day_service = DayService(user=self.user)
-            return day_service.get_date_at(self.user.date_joined)
-        else:
-            raise self.NotEnrolled('Not enrolled')
+        return self.active
 
     @property
     def daily_task_name(self):
@@ -197,7 +111,10 @@ class Participant(models.Model):
     @property
     def daily_task(self):
         try:
-            return self.__get_daily_task()
+            return DailyTask.objects.get(
+                user = self.user,
+                category = TASK_CATEGORY
+            )
         except DailyTask.DoesNotExist:
             return None
 
@@ -205,17 +122,9 @@ class Participant(models.Model):
         if not hasattr(settings, 'PARTICIPANT_NIGHTLY_UPDATE_TIME'):
             raise ImproperlyConfigured('Participant nightly update time not configured')
         hour, minute = settings.PARTICIPANT_NIGHTLY_UPDATE_TIME.split(':')
-        try:
-            daily_task = self.__get_daily_task()
-        except DailyTask.DoesNotExist:
-            daily_task = self.__create_daily_task()
-        daily_task.set_time(int(hour), int(minute))
-
-    def __get_daily_task(self):
-        return DailyTask.objects.get(
-            user = self.user,
-            category = TASK_CATEGORY
-        )
+        if not self.daily_task:
+            self.__create_daily_task()
+        self.daily_task.set_time(int(hour), int(minute))
 
     def __create_daily_task(self):
         task = DailyTask.objects.create(

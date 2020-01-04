@@ -111,7 +111,10 @@ class DashboardListView(CohortView):
 
     def query_participants(self):
         return DashboardParticipant.objects\
-            .filter(cohort = self.cohort)\
+            .filter(
+                archived = False,
+                cohort = self.cohort,
+            )\
             .order_by('heartsteps_id')\
             .prefetch_related('user')
 
@@ -124,14 +127,11 @@ class DashboardListView(CohortView):
                 'adherence_status': participant.adherence_status(),
                 'adherence_messages': participant.recent_adherence_messages,
                 'heartsteps_id': participant.heartsteps_id,
-                'enrollment_token': participant.enrollment_token,
-                'birth_year': participant.birth_year,
                 'phone_number': participant.phone_number,
                 'days_wore_fitbit': participant.fitbit_days_worn,
                 'fitbit_first_updated': participant.fitbit_first_updated,
                 'fitbit_last_updated': participant.fitbit_last_updated,
                 'fitbit_authorized': participant.fitbit_authorized,
-                'is_active': participant.is_active,
                 'date_joined': participant.date_joined,
                 'first_page_view': participant.first_page_view,
                 'last_page_view': participant.last_page_view,
@@ -476,7 +476,29 @@ class ParticipantEnableView(ParticipantView):
                     'cohort_id':self.cohort.id
                 }
             )
-        )        
+        )
+
+class ParticipantArchiveView(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+
+        if self.participant.archived:
+            self.participant.archived = False
+            self.participant.save()
+            messages.add_message(request, messages.SUCCESS, 'Unarchived %s' % (self.participant.heartsteps_id))
+        else:
+            self.participant.archived = True
+            self.participant.save()
+            messages.add_message(request, messages.SUCCESS, 'Archived %s' % (self.participant.heartsteps_id))
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'participant_id': self.participant.heartsteps_id,
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )
 
 class ParticipantAdherenceView(ParticipantView):
 

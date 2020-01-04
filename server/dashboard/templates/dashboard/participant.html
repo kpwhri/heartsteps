@@ -37,7 +37,7 @@
                 </li>
             {% endfor %}
             </ul>
-            {% if participant.is_enabled %}
+            {% if participant.active %}
             <form action="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}" method="POST">
                 {% csrf_token %}
                 <input type="submit" value="Disable participant" />
@@ -48,6 +48,14 @@
                 <input type="submit" value="Enable participant" />
             </form>
             {% endif %}
+            <form action="{% url 'dashboard-cohort-participant-archive' cohort.id participant.heartsteps_id %}" method="POST">
+                {% csrf_token %}
+                {% if participant.archived %}
+                <input type="submit" value="Unarchive participant" />
+                {% else %}
+                <input type="submit" value="Archive participant" />
+                {% endif %}
+            </form>
         </div>
         <div class="col-sm">
             <nav>
