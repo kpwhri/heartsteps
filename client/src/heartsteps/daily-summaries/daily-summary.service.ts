@@ -138,7 +138,13 @@ export class DailySummaryService {
 
     public updateCurrentWeek(): Promise<Array<DailySummary>> {
         const currentWeek = this.dateFactory.getCurrentWeek();
-        return this.loadRange(currentWeek[0], currentWeek[currentWeek.length - 1]);
+        return this.loadRange(currentWeek[0], currentWeek[currentWeek.length - 1])
+        .then((summaries) => {
+            summaries.forEach((summary) => {
+                this.updated.emit(summary);
+            });
+            return summaries;
+        });
     }
 
     public watch(date: Date): Subscribable<DailySummary> {
