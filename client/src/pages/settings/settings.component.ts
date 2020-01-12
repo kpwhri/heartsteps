@@ -204,14 +204,6 @@ export class SettingsComponent {
         }]);
     }
 
-    public editNotifications() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings', 'notifications'].join('/')
-            }
-        }])
-    }
-
     public testBaselineWeekPage() {
         this.router.navigate(['baseline'])
     }
