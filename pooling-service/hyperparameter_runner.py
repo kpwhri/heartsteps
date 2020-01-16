@@ -340,11 +340,11 @@ def get_hyper(X,users,y,global_params):
     likelihood.train()
     optimizer = torch.optim.Adam([
                                       {'params': model.parameters()},  # Includes GaussianLikelihood parameters
-                                      ], lr=0.01)
+                                      ], lr=0.1)
                                       #global_params.lr
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
-    num_iter=5
+    num_iter=15
 #print(X)
     losses = []
     Failure=False

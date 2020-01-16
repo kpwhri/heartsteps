@@ -80,19 +80,19 @@ class MyKernel(Kernel):
         self.user_mat = user_mat
         self.first_mat = first_mat
         self.time_mat = time_mat
-        self.action_indices = [8,13]
-        #self.action_indices=[7]
+        #self.action_indices = [8,13]
+        self.action_indices=[7]
         self.psi_dim_one = gparams.psi_indices[0]
         self.psi_dim_two = gparams.psi_indices[1]
         self.psi_indices =gparams.psi_indices
         #print(self.psi_indices)
         self.g_indices = [i for i in range(8)]
-        #self.g_indices = [i for i in range(7)]
+        self.g_indices = [i for i in range(7)]
         
         self.action_indices_one = [i for i in range(8,8+5)]
         self.action_indices_two = [i for i in range(8+5,18)]
 
-        #self.action_indices_one = [i for i in range(7,7+4)]
+        self.action_indices_one = [i for i in range(7,7+4)]
         
         
         self.init_u1 = gparams.sigma_u[0][0]
@@ -100,7 +100,10 @@ class MyKernel(Kernel):
         
         self.init_u2 = gparams.sigma_u[1][1]
         
-
+        self.init_s1 = gparams.sigma_v[0][0]
+        
+        
+        self.init_s3 = gparams.sigma_v[1][1]
         
    
         
@@ -133,18 +136,18 @@ class MyKernel(Kernel):
         
         self.u1 = self.init_u1
         self.u2 = self.init_u2
-        self.rho = 0
+        self.rho = self.r
         #print(self.rho)
-        self.s1 = 1.0
+        self.s1 = self.init_s1
    
-        self.s3 = 1.0
+        self.s3 = self.init_s3
     
   
     def forward(self, x1, x2, batch_dims=None, **params):
-        action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)\
-        +torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
+        #action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)\
+        #+torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_two]],dim=1)
 
-#action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)
+        action_vector = torch.stack([torch.Tensor(x1)[:,i] for  i in [self.action_indices_one]],dim=1)
 
     
     
@@ -152,9 +155,9 @@ class MyKernel(Kernel):
         #print(action_vector)
         fake_vector_one = torch.cat((baseline_vector.squeeze(),action_vector.squeeze()),1)
 
-        action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)\
-        +torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
-#action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)
+        #action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)\
+        #+torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_two]],dim=1)
+        action_vector = torch.stack([torch.Tensor(x2)[:,i] for  i in [self.action_indices_one]],dim=1)
 
     
         baseline_vector =torch.stack([torch.Tensor(x2)[:,i] for  i in [self.g_indices]],dim=1)
@@ -333,7 +336,7 @@ def real_run(X,users,ycentered,y,days,global_params):
         global_params.sigma_u =hyper['sigma_u']
         global_params.sigma_v =hyper['sigma_v']
         global_params.noise_term = hyper['noise']
-        #return
+        return
 
         with open('data/pooled_time_hyper/pooled_init_time_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise']},f)
@@ -410,7 +413,7 @@ def get_hyper(X,users,y,days,global_params):
                                       #global_params.lr
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
-    num_iter=50
+    num_iter=40
 #print(X)
     losses = []
     Failure=False
@@ -428,7 +431,7 @@ def get_hyper(X,users,y,days,global_params):
                     #print('here 5')
                     loss.backward()
                     losses.append(loss.item())
-                    #print('Iter %d/%d - Loss: %.3f like: %.3f' % (i + 1, i, loss.item(),likelihood.noise_covar.noise.item()))
+                    print('Iter %d/%d - Loss: %.3f like: %.3f' % (i + 1, i, loss.item(),likelihood.noise_covar.noise.item()))
                                                   
                     optimizer.step()
                     
