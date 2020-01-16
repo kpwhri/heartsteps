@@ -295,11 +295,6 @@ class NightlyUpdateTask(TestCase):
             enabled = True
         )
 
-        last_device_sync_patch = patch.object(FitbitActivityService, 'get_last_tracker_sync_datetime')
-        self.last_device_sync = last_device_sync_patch.start()
-        self.last_device_sync.return_value = timezone.now()
-        self.addCleanup(last_device_sync_patch.stop)
-
     @patch.object(WalkingSuggestionService, 'initialize')
     def testInitializeWalkingSuggestionService(self, initialize):
         self.configuration.service_initialized_date = None
@@ -313,23 +308,27 @@ class NightlyUpdateTask(TestCase):
         initialize.assert_called_with(date=date.today())
 
     @patch.object(WalkingSuggestionService, 'update')
-    def testUpdateWalkingSuggestionService(self, update):
-        self.configuration.service_initialized_date = date.today() - timedelta(days=1)
+    def test_update_walking_suggestion_service(self, update):
+        self.configuration.service_initialized_date = date.today() - timedelta(days=2)
         self.configuration.save()
         day_service = DayService(user=self.user)
-        self.last_device_sync.return_value = day_service.get_end_of_day(date.today())
-
+        for _date in [date.today() - timedelta(days=offset) for offset in range(2)]:
+            FitbitDay.objects.create(
+                account = self.account,
+                date = _date
+            )
         nightly_update(
             username = self.user.username,
             day_string = date.today().strftime('%Y-%m-%d')
         )
 
+        yesterday = date.today() - timedelta(days=1)
         update.assert_called_with(
-            date = date.today()
+            date = yesterday
         )
         update.assert_called_once()
         nightly_update_object = NightlyUpdate.objects.get()
-        self.assertEqual(nightly_update_object.day, date.today())
+        self.assertEqual(nightly_update_object.day, yesterday)
         self.assertTrue(nightly_update_object.updated)
 
     @patch.object(WalkingSuggestionService, 'update')
@@ -337,7 +336,6 @@ class NightlyUpdateTask(TestCase):
         self.configuration.service_initialized_date = date.today() - timedelta(days=1)
         self.configuration.save()
         day_service = DayService(user=self.user)
-        self.last_device_sync.return_value = day_service.get_end_of_day(date.today()) - timedelta(minutes=5)
 
         nightly_update(
             username = self.user.username,
@@ -351,6 +349,11 @@ class NightlyUpdateTask(TestCase):
     def test_updates_days_not_updated(self, update):
         self.configuration.service_initialized_date = date.today() - timedelta(days=4)
         self.configuration.save()
+        for _date in [date.today() - timedelta(days=offset) for offset in range(4)]:
+            FitbitDay.objects.create(
+                account = self.account,
+                date = _date
+            )
         NightlyUpdate.objects.create(
             user = self.user,
             day = date.today() - timedelta(days=3),

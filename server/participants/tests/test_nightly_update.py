@@ -35,6 +35,11 @@ class NightlyUpdateTest(TestCase):
         fitbit_client_timezone = fitbit_client_timezone_patch.start()
         fitbit_client_timezone.return_value = pytz.UTC
         self.addCleanup(fitbit_client_timezone_patch.stop)
+
+        fitbit_client_devices_patch = patch.object(FitbitClient, 'get_devices')
+        fitbit_client_devices = fitbit_client_devices_patch.start()
+        fitbit_client_devices.return_value = []
+        self.addCleanup(fitbit_client_devices_patch.stop)
     
     @patch.object(FitbitDayService, 'update')
     def testFitbitDayUpdate(self, fitbit_day_update):

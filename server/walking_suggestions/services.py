@@ -266,25 +266,31 @@ class WalkingSuggestionService():
             NightlyUpdate.objects.filter(user = self.__user).delete()
             self.initialize(date=date)
         else:            
-            day_service = DayService(user=self.__user)
             fitbit_service = FitbitActivityService(user = self.__user)
-            last_fitbit_device_sync = fitbit_service.get_last_tracker_sync_datetime()
             
             last_updated_date = self.get_last_nightly_update_date()
             update_date = last_updated_date + timedelta(days=1)
             while update_date <= date:
-                update_date_end = day_service.get_end_of_day(update_date)
-                if update_date_end > last_fitbit_device_sync:
+                try:
+                    day = FitbitDay.objects.get(
+                        account = fitbit_service.account,
+                        date = update_date
+                    )
+                    day_end_datetime = day.get_end_datetime()
+                    if day.updated < day_end_datetime:
+                        break
+                    self.update(date=update_date)
+                    NightlyUpdate.objects.update_or_create(
+                        user = self.__user,
+                        day = update_date,
+                        defaults = {
+                            'updated': True
+                        }
+                    )
+                    update_date = update_date + timedelta(days=1)
+                except FitbitDay.DoesNotExist:
                     break
-                self.update(date=update_date)
-                NightlyUpdate.objects.update_or_create(
-                    user = self.__user,
-                    day = update_date,
-                    defaults = {
-                        'updated': True
-                    }
-                )
-                update_date = update_date + timedelta(days=1)
+
     
     def get_last_nightly_update_date(self):
         last_nightly_update = NightlyUpdate.objects.filter(

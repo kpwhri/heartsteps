@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytz
 from dateutil import parser as dateutil_parser
 
+from fitbit_api.models import FitbitDevice
 from fitbit_api.services import FitbitClient, FitbitService, parse_fitbit_date, format_fitbit_date
 
 from fitbit_activities.models import FitbitDay
@@ -225,14 +226,29 @@ class FitbitActivityService(FitbitService):
     def get_days_worn(self):
         return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
 
+    def update_devices(self):
+        for device in self.__client.get_devices():
+            fitbit_device, _ = FitbitDevice.objects.update_or_create(
+                account = self.account,
+                fitbit_id = device['id'],
+                defaults = {
+                    'device_type': device['type'],
+                    'device_version': device['device_version'],
+                    'mac': device['mac']
+                }
+            )
+            fitbit_device.add_update(
+                time = device['last_sync_time'],
+                battery_level = device['battery_level']
+            )
+
     def update(self, date):
+        self.update_devices()
         day_service = FitbitDayService(
             date = date,
             account = self.account
         )
         day_service.update()
 
-    def get_last_tracker_sync_datetime(self):
-        return self.__client.get_last_tracker_sync_datetime()
-
-
+    def parse_date(self, date):
+        return self.__client.parse_date(date)

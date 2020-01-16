@@ -93,19 +93,25 @@ def reset_test_participants(date_joined=None, number_of_days=9):
         latitude = 47.6129,
         longitude = -122.327
     )
-
-    ws_configuration = WalkingSuggestionConfiguration.objects.get(
-        user=user
+    ws_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
+        user=user,
+        defaults = {
+            'enabled': True
+        }
     )
     ws_configuration.set_default_walking_suggestion_times()
-
-    ReflectionTime.objects.create(
+    ReflectionTime.objects.update_or_create(
         user = user,
-        day = 'sunday',
-        time = '19:00'
+        defaults = {
+            'day': 'sunday',
+            'time': '19:00'
+        }
     )
 
-    
+    # Clear and re-create activity data
+    Day.objects.filter(user=user).all().delete()
+    FitbitDay.objects.filter(account=fitbit_account).all().delete()
+
     location_service = LocationService(user = user)
     tz = location_service.get_home_timezone()
     current_dt = location_service.get_home_current_datetime()
@@ -115,14 +121,12 @@ def reset_test_participants(date_joined=None, number_of_days=9):
     else:
         user.date_joined = current_dt - timedelta(days=number_of_days)
     user.save()
-
     date_joined = date(
         user.date_joined.year,
         user.date_joined.month,
         user.date_joined.day
     )
-    Day.objects.filter(user=user).all().delete()
-    FitbitDay.objects.filter(account=fitbit_account).all().delete()
+
     dates_to_create = [date_joined + timedelta(days=offset) for offset in range(number_of_days)]
     dates_to_create.append(date(current_dt.year, current_dt.month, current_dt.day))
     for _date in dates_to_create:

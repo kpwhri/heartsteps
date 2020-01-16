@@ -92,6 +92,16 @@ class FitbitAccount(models.Model):
         else:
             return False
 
+    def get_last_tracker_sync_time(self):
+        last_update = FitbitDeviceUpdate.objects\
+            .filter(fitbit_device__account=self)\
+            .order_by('time')\
+            .last()
+        if last_update:
+            return last_update.time
+        else:
+            return None
+
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)
     account = models.ForeignKey(FitbitAccount)
@@ -150,3 +160,44 @@ class FitbitSubscriptionUpdate(models.Model):
 
     def __str__(self):
         return 'Updated %s at %s' % (str(self.subscription), self.created)
+
+
+class FitbitDevice(models.Model):
+
+    TRACKER = 'TRACKER'
+
+    account = models.ForeignKey(
+        FitbitAccount,
+        on_delete = models.CASCADE,
+        related_name = '+'
+        )
+    fitbit_id = models.CharField(max_length=125)
+    mac = models.CharField(max_length=125)
+    device_type = models.CharField(max_length=125)
+    device_version = models.CharField(max_length=125)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def add_update(self, time, battery_level):
+        FitbitDeviceUpdate.objects.update_or_create(
+            fitbit_device = self,
+            time = time,
+            defaults = {
+                'battery_level': battery_level
+            }
+        )
+
+    @property
+    def last_updated(self):
+        return FitbitDeviceUpdate.objects.filter(device=self).order_by('time').last()
+
+class FitbitDeviceUpdate(models.Model):
+    fitbit_device = models.ForeignKey(FitbitDevice)
+    
+    time = models.DateTimeField()
+    battery_level = models.IntegerField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
