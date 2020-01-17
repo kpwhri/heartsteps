@@ -21,7 +21,7 @@ def get_user_ids():
 
 def join_dates():
     dates = pd.read_csv('data/join_dates.csv')
-    #print()
+    print(join_dates)
     return {r['user_id']:pd.to_datetime(r['join_date']) for i,r in dates.iterrows() }
 
 def join_dates_reversed():

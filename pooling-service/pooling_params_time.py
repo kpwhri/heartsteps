@@ -17,10 +17,10 @@ class TS_global_params:
                 init_params = pickle.load(f)
         except:
             init_params = {'sigma_u':\
-                    np.array([[0.17661005, 0.04090745]],\
+                    np.array([[0.17661005, 0.04090745],\
                           [0.04090745, 0.0580623]]),\
-                'noise_term':6.164424419403076,\
-                'sigma_v':np.diag([0.01989118, 0.03313226]])}
+                    'noise_term':6.164424419403076,\
+                        'sigma_v':np.diag([0.01989118, 0.03313226])}
 
         self.nums = set([np.float64,int,float])
         self.pi_max = 0.8

@@ -336,7 +336,7 @@ def real_run(X,users,ycentered,y,days,global_params):
         global_params.sigma_u =hyper['sigma_u']
         global_params.sigma_v =hyper['sigma_v']
         global_params.noise_term = hyper['noise']
-        return
+        
 
         with open('data/pooled_time_hyper/pooled_init_time_params.pkl','wb') as f:
             pickle.dump({'sigma_u':hyper['sigma_u'],'sigma_v':hyper['sigma_v'],'noise_term':hyper['noise']},f)
