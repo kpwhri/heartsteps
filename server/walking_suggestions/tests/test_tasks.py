@@ -368,7 +368,7 @@ class NightlyUpdateTask(TestCase):
         self.assertEqual(update.call_count, 2)
 
         called_dates = [call[1]['date'] for call in update.call_args_list]
-        self.assertEqual(called_dates, [date(2020, 1, 2), date(2020, 1, 3)])
+        self.assertEqual(called_dates, [date.today()-timedelta(days=2), date.today()-timedelta(days=1)])
 
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
 @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
