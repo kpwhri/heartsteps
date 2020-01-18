@@ -75,11 +75,9 @@ export class ProfileService {
             return this.loadDailySummaries();
         })
         .then(() => {
-            console.log('success?')
             return Promise.resolve(true);
         })
         .catch(() => {
-            console.log('crap, participant didnt load?')
             return Promise.reject("Complete participant did not load");
         });
     }

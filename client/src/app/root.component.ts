@@ -9,7 +9,6 @@ export class RootComponent {
     constructor(
         private participantService: ParticipantService
     ) {
-        console.log('ROOT COMPONENT!');
         this.participantService.update();
     }
 }

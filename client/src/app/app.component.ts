@@ -27,6 +27,7 @@ export class MyApp {
     ) {
         platform.ready()
         .then(() => {
+            console.log('App component', 'platform ready');
             return this.analyticsService.setup();
         })
         .then(() => {
@@ -40,6 +41,7 @@ export class MyApp {
                     console.log('There was an error');
                 })
                 .then(() => {
+                    console.log('App component', 'update roote');
                     this.updateRoute(participant);
                 });
             });

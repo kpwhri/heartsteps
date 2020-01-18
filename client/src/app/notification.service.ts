@@ -27,6 +27,7 @@ export class NotificationService {
 
         return this.messageService.setup()
         .then(() => {
+            console.log('AppNotificationService:', 'setup complete');
             return undefined;
         });
     }

@@ -64,6 +64,18 @@ export class PushNotificationService {
         }
     }
 
+    public checkNotifications(): Promise<boolean> {
+        console.log('PushNotificationService:', 'checking notifications...');
+        return new Promise((resolve) => {
+            console.log('PushNotificationService:', 'Wait for 3 seconds');
+            setTimeout(resolve, 3000);
+        })
+        .then(() => {
+            console.log('PushNotificationService:', 'No notificaitons');
+            return false;
+        });
+    }
+
     private isReady(): Promise<boolean> {
         return new Promise((resolve) => {
             this.ready

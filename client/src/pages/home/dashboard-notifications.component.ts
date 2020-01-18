@@ -24,14 +24,19 @@ export class DashboardNotificationComponent {
             this.weeklySurvey = survey
         })
         .catch(() => {
-            console.log('Weekly survey unavailable');
-        })
+            this.weeklySurvey = undefined;
+        });
 
         this.morningMessageService.get()
         .then((morningMessage) => {
             if(!morningMessage.isComplete()) {
                 this.morningMessage = morningMessage;
+            } else {
+                this.morningMessage = undefined;
             }
+        })
+        .catch(() => {
+            this.morningMessage = undefined;
         })
     }
 

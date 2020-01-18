@@ -53,7 +53,8 @@ const routes: Routes = [
     RouterModule.forRoot(
       routes,
       {
-        useHash: true
+        useHash: true,
+        enableTracing: true
       }
     )
   ],

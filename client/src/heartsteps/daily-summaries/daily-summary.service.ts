@@ -46,23 +46,17 @@ export class DailySummaryService {
             ])
         })
         .then((results) => {
-            console.log('setup')
             const datesToStore: Array<Date> = results[0];
             const storedIds: Array<String> = results[1];
-            console.log(datesToStore);
-            console.log(storedIds);
             const datesToUpdate = datesToStore.filter((date) => {
                 const serializedDate = this.serializer.formatDate(date);
-                console.log(serializedDate);
                 if (storedIds.indexOf(serializedDate) === -1) {
                     return true;
                 } else {
                     return false;
                 }
             });
-            console.log(datesToUpdate);
             if(datesToUpdate.length >= 3) {
-                console.log('reloading?')
                 return this.reload();
             } else {
                 return this.loadDates(datesToUpdate);
