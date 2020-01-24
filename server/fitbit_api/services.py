@@ -302,11 +302,11 @@ class FitbitClient():
         devices = []
         for device in response:
             devices.append({
-                'battery_level': device['batteryLevel'],
-                'id': device['id'],
-                'last_sync_time': self.parse_datetime(device['lastSyncTime']),
-                'mac': device['mac'],
-                'type': device['type'],
-                'device_version': device['deviceVersion']
+                'battery_level': device.get('batteryLevel'),
+                'id': device.get('id'),
+                'last_sync_time': self.parse_datetime(device.get('lastSyncTime')),
+                'mac': device.get('mac'),
+                'type': device.get('type'),
+                'device_version': device.get('deviceVersion')
             })
         return devices
