@@ -91,14 +91,18 @@ class AdherenceTaskTestBase(TestCase):
             number = 'my-phone-number'
         )
 
-    def create_adherence_message(self, category, created):
-        message = AdherenceMessage.objects.create(
+    def create_adherence_message(self, category=None, created=None, body='foo'):
+
+        message = AdherenceMessage(
             user = self.user,
-            category = category,
-            body = 'foo'
+            body = body
         )
-        message.created = created
+        if category:
+            message.category = category
         message.save()
+        if created:
+            message.created = created
+            message.save()
         return message
 
     def patch_adherence_service(self, method):
@@ -189,13 +193,12 @@ class AdherenceServiceMessagesTests(AdherenceTaskTestBase):
 
         self.assertEqual(AdherenceMessage.objects.count(), 1)
 
-    @override_settings(ADHERENCE_MESSAGE_BUFFER_HOURS=2)
     def test_will_send_if_no_message_recently_sent(self):
         message = AdherenceMessage.objects.create(
             user = self.user,
             body = 'Previously sent message'
         )
-        message.created = timezone.now() - timedelta(hours=3)
+        message.created = timezone.now() - timedelta(days=1)
         message.save()
 
         service = AdherenceService(configuration = self.configuration)
@@ -205,6 +208,42 @@ class AdherenceServiceMessagesTests(AdherenceTaskTestBase):
         )
 
         self.assertEqual(AdherenceMessage.objects.count(), 2)
+
+    def test_will_not_send_if_more_than_two_messages_in_4_days(self):
+        self.create_adherence_message(
+            created = timezone.now() - timedelta(days=3)
+        )
+        self.create_adherence_message(
+            created = timezone.now() - timedelta(days=1)
+        )
+
+        try:
+            service = AdherenceService(configuration = self.configuration)
+            service.create_adherence_message(
+                body = 'Example message',
+                category = AdherenceMessage.APP_USED    
+            )
+            self.fail('Should not have sent message')
+        except AdherenceService.AdherenceMessageRecentlySent:
+            pass
+
+        self.assertEqual(AdherenceMessage.objects.count(), 2)
+    
+    def test_will_send_thrid_message_after_fourth_day(self):
+        self.create_adherence_message(
+            created = timezone.now() - timedelta(days=4)
+        )
+        self.create_adherence_message(
+            created = timezone.now() - timedelta(days=3)
+        )
+
+        service = AdherenceService(configuration = self.configuration)
+        service.create_adherence_message(
+            body = 'Example message',
+            category = AdherenceMetric.APP_USED
+        )
+
+        self.assertEqual(AdherenceMessage.objects.count(), 3)
 
 
 class AdherenceTaskTests(AdherenceTaskTestBase):
@@ -504,11 +543,11 @@ class AppInstallationAdherenceTests(AdherenceTaskTestBase):
             )
         self.create_adherence_message(
             category = AdherenceMessage.APP_INSTALLED,
-            created = timezone.now() - timedelta(days=2)
+            created = timezone.now() - timedelta(days=4)
         )
         self.create_adherence_message(
             category = AdherenceMessage.APP_INSTALLED,
-            created = timezone.now() - timedelta(days=1)
+            created = timezone.now() - timedelta(days=3)
         )
 
         service = AdherenceService(user = self.user)
