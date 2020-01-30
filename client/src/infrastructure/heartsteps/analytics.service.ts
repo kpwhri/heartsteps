@@ -28,8 +28,11 @@ export class AnalyticsService {
         this.version = process.env.BUILD_VERSION;
     }
 
-    public setup() {
-        this.setupRouter();
+    public setup(): Promise<void> {
+        return this.setupRouter()
+        .then(() => {
+            return undefined;
+        });
     }
 
     private setupRouter():Promise<boolean> {

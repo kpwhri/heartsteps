@@ -48,10 +48,6 @@ export class MessageService {
 
             return this.pushNotificationService.setup()
             .then(() => {
-                return this.pushNotificationService.checkNotifications();
-            })
-            .then(() => {
-                console.log('AppNotificationService:', 'setup complete');
                 return undefined;
             });
         }

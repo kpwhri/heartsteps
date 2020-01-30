@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
+import { resolve } from "url";
 
 declare var window: {
     plugins: {
@@ -32,6 +33,7 @@ export class PushNotificationService {
     public notifications: Subject<any> = new Subject();
 
     private ready: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
+    private initialized: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
 
     constructor(
         private platform: Platform,
@@ -44,6 +46,7 @@ export class PushNotificationService {
     }
 
     public setup():Promise<boolean> {
+        console.log('set up');
         if(this.platform.is('ios') || this.platform.is('android')) {
             this.ready.next(true);
             return this.hasPermission()
@@ -53,6 +56,9 @@ export class PushNotificationService {
                     this.device.next(device);
                     return true;
                 });
+            })
+            .then(() => {
+                return this.isInitialized();
             })
             .catch(() => {
                 return Promise.resolve(true);
@@ -64,21 +70,20 @@ export class PushNotificationService {
         }
     }
 
-    public checkNotifications(): Promise<boolean> {
-        console.log('PushNotificationService:', 'checking notifications...');
-        return new Promise((resolve) => {
-            console.log('PushNotificationService:', 'Wait for 3 seconds');
-            setTimeout(resolve, 3000);
-        })
-        .then(() => {
-            console.log('PushNotificationService:', 'No notificaitons');
-            return false;
-        });
-    }
-
     private isReady(): Promise<boolean> {
         return new Promise((resolve) => {
             this.ready
+            .filter(value => value === true)
+            .first()
+            .subscribe(() => {
+                resolve(true);
+            });
+        });
+    }
+
+    private isInitialized(): Promise<boolean> {
+        return new Promise((resolve) => {
+            this.initialized
             .filter(value => value === true)
             .first()
             .subscribe(() => {
@@ -219,9 +224,7 @@ export class PushNotificationService {
                     this.handleOneSignalSubscription();
                 });
             });
-            console.log('initialize OneSignal');
             window.plugins.OneSignal.setRequiresUserPrivacyConsent(true);
-
             window.plugins.OneSignal.startInit(process.env.ONESIGNAL_APP_ID)
             .iOSSettings({
                 'kOSSettingsKeyAutoPrompt': false,
@@ -234,7 +237,10 @@ export class PushNotificationService {
                 });
             })
             .endInit();
-            console.log('END initialize OneSignal');
+            this.initialized.next(true);
+        } else {
+            this.initialized.next(true);
+            console.log('Initialized!');
         }
     }
 

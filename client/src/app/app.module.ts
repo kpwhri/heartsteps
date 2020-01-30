@@ -23,11 +23,16 @@ import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 import { SetupPageModule } from '@pages/setup/setup.module';
 import { BaselineWeekModule } from '@pages/baseline-week/baseline-week.module';
 import { RootComponent } from './root.component';
+import { AppService } from './app.service';
+import { AppReadyResolver } from './app.resolver';
 
 const routes: Routes = [
   {
     path: '',
-    component: RootComponent
+    component: RootComponent,
+    resolve: {
+      ready: AppReadyResolver
+    }
   }
 ]
 
@@ -67,7 +72,9 @@ const routes: Routes = [
     SplashScreen,
     NotificationService,
     AuthorizationService,
-    AnalyticsService
+    AnalyticsService,
+    AppService,
+    AppReadyResolver
   ]
 })
 export class AppModule {}
