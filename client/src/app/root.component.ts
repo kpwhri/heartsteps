@@ -1,8 +1,13 @@
 import { Component } from "@angular/core";
+import { ParticipantService } from "@heartsteps/participants/participant.service";
 
 @Component({
-    template: 'this is the root component'
+    template: ''
 })
 export class RootComponent {
-    constructor() {}
+    constructor(
+        private participantService: ParticipantService
+    ) {
+        this.participantService.update();
+    }
 }
