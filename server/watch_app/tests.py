@@ -1,6 +1,7 @@
 import json
 import time
 from unittest.mock import patch
+from datetime import timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -111,3 +112,60 @@ class LoginViewTests(APITestCase):
 
         install = WatchInstall.objects.get()
         self.assertEqual(install.user.username, "test")
+
+class StatusViewTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="test")
+        self.client.force_authenticate(user=self.user)
+
+
+    def test_get_status_not_installed(self):
+
+        response = self.client.get(
+            reverse('watch-app-status')
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['installed'], None)
+        self.assertEqual(response.data['lastUpdated'], None)
+
+
+    def test_get_status_installed_no_step_counts(self):
+        install = WatchInstall.objects.create(
+            user = self.user
+        )
+
+        response = self.client.get(
+            reverse('watch-app-status')
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['installed'], install.updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+        self.assertEqual(response.data['lastUpdated'], None)
+
+    def test_get_status_installed_with_step_counts(self):
+        install = WatchInstall.objects.create(
+            user = self.user
+        )
+
+        StepCount.objects.create(
+            user = self.user,
+            steps = 100,
+            start = timezone.now() - timedelta(minutes=15),
+            end = timezone.now() - timedelta(minutes=10)
+        )
+        step_count = StepCount.objects.create(
+            user = self.user,
+            steps = 12,
+            start = timezone.now() - timedelta(minutes=10),
+            end = timezone.now() - timedelta(minutes=5)
+        )
+
+        response = self.client.get(
+            reverse('watch-app-status')
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['installed'], install.updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+        self.assertEqual(response.data['lastUpdated'], step_count.end.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))

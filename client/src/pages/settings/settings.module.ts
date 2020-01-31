@@ -19,6 +19,7 @@ import { SettingsComponent } from './settings.component';
 import { FitbitAuthorizationPage } from './fitbit-authorization.page';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { FitbitWatchPage } from './fitbit-watch.page';
+import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 
 const settingsRoutes: Routes = [
     {
@@ -85,6 +86,7 @@ const settingsRoutes: Routes = [
         AntiSedentaryModule,
         BrowserModule,
         ContactInformationModule,
+        FitbitWatchModule,
         HeartstepsComponentsModule,
         PlacesModule,
         FitbitModule,

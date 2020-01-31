@@ -3,6 +3,17 @@
     (onDismiss)="goBack()"
     >
     <p>HeartSteps requires the HeartSteps clock face to be setup to send real-time activity suggestions.</p>
-    <p>To install the HeartSteps clock face, click the button below and follow the steps on the clock face to authenticate with HeartSteps.</p>
-    <button (click)="openFitbitPage()" class="heartsteps-primary-button">Install Clock Face</button>
+    <div *ngIf="installedDate">
+        <p>The HeartSteps Clockface is installed.</p>
+        <dl>
+            <dt>Installed on:</dt>
+            <dd>{{format_date(installedDate)}}</dd>
+            <dt *ngIf="lastUpdated">Last updated:</dt>
+            <dd *ngIf="lastUpdated">{{format_date(lastUpdated)}}</dd>
+        </dl>
+    </div>
+    <div *ngIf="!installedDate">
+        <p>To install the HeartSteps clock face, click the button below and follow the steps on the clock face to authenticate with HeartSteps.</p>
+        <button (click)="openFitbitPage()" class="heartsteps-primary-button">Install Clock Face</button>
+    </div>
 </app-modal>
