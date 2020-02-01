@@ -3,12 +3,14 @@ import { StorageService } from "@infrastructure/storage.service";
 import { BrowserService } from "@infrastructure/browser.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ReplaySubject } from "rxjs";
+import moment from "moment";
 
 const storageKey = 'watch-app-installed'
 
 export class FitbitWatch {
     public installed: Date;
     public lastUpdated: Date;
+    public lastChecked: Date;
 
     public isInstalled(): boolean {
         if(this.installed) {
@@ -29,30 +31,68 @@ export class FitbitWatchService {
         private storageService: StorageService,
         private browserService: BrowserService
     ) {
-        this.loadStatus();
+        this.getStatus()
+        .then((watch)=>{
+            this.watch.next(watch);
+        })
+        .catch(() => {
+            
+        });
     }
 
     private loadStatus(): Promise<FitbitWatch> {
-        return this.udpateStatus()
-        .then(this.saveStatus)
+        return this.getStatus()
+        .then((watch) => {
+            this.watch.next(watch);
+            return watch;
+        })
+        .catch(()=>{
+            return this.updateStatus();
+        });
+    }
+
+    private getStatus(): Promise<FitbitWatch> {
+        return Promise.reject('not implemented');
+    }
+
+    private saveStatus(watch: FitbitWatch): Promise<FitbitWatch> {
+        return this.storageService.set('fitbit-watch-status', this.serialize(watch))
+        .then(() => {
+            return watch;
+        });
+    }
+
+    public updateStatus(): Promise<FitbitWatch> {
+        return this.heartstepsServer.get('watch-app/status')
+        .then((data) => {
+            const watch = this.deserialize(data);
+            watch.lastChecked = new Date();
+            return this.saveStatus(watch);
+        })
         .then((watch) => {
             this.watch.next(watch);
             return watch;
         });
     }
 
-    private saveStatus(watch: FitbitWatch): Promise<FitbitWatch> {
-        return Promise.resolve(watch);
+    private deserialize(data: any): FitbitWatch {
+        const watch = new FitbitWatch();
+        if (data.installed) {
+            watch.installed = moment(data.installed).toDate();
+        }
+        if (data.lastUpdated) {
+            watch.lastUpdated = moment(data.lastUpdated).toDate();
+        }
+        watch.lastChecked = data.lastChecked;
+        return watch;
     }
 
-    public udpateStatus(): Promise<FitbitWatch> {
-        return this.heartstepsServer.get('watch-app/status')
-        .then((data) => {
-            const watch = new FitbitWatch();
-            watch.installed = data.installed;
-            watch.lastUpdated = data.lastUpdated;
-            return watch;
-        });
+    private serialize(watch: FitbitWatch): any {
+        return {
+            installed: watch.installed,
+            lastUpdated: watch.lastUpdated,
+            lastChecked: watch.lastChecked
+        };
     }
 
     public openWatchInstallPage() {

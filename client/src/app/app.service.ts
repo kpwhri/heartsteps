@@ -1,12 +1,8 @@
-import { Component, Injectable } from '@angular/core';
-import { Platform } from 'ionic-angular';
-import { StatusBar } from '@ionic-native/status-bar';
-import { SplashScreen } from '@ionic-native/splash-screen';
-import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
+import { Injectable } from '@angular/core';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { NotificationService } from './notification.service';
 import { AuthorizationService } from './authorization.service';
 import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
-import { Router } from '@angular/router';
 import { ReplaySubject } from 'rxjs';
 
 @Injectable()
