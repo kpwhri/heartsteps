@@ -1,10 +1,11 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
-import { ActivityType, ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
+import { ActivityType } from "@heartsteps/activity-types/activity-type.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
+import { Subscription } from "rxjs";
 
 
 @Component({
@@ -45,8 +46,8 @@ export class ActivityLogFormComponent {
         private dateFactory: DateFactory,
         private activityLogService: CachedActivityLogService
     ) {
-        this.activityLogService.getActivityTypes()
-        .then((activityTypes) => {
+        this.activityLogService.watchActivityTypes()
+        .subscribe((activityTypes) => {
             this.activityTypes = activityTypes;
         });
     }

@@ -1,4 +1,4 @@
-import { Component, forwardRef, ElementRef, Renderer2, ViewChild } from "@angular/core";
+import { Component, forwardRef, ElementRef, Renderer2, ViewChild, OnDestroy } from "@angular/core";
 import { AbstractField } from "@infrastructure/form/abstract-field";
 import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirective, FormGroupName } from "@angular/forms";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
@@ -29,6 +29,7 @@ export class ActivityPlanField extends AbstractField {
     private activityPlan: ActivityPlan;
     private planFormSubscription:Subscription;
     private planFormStatusSubscription: Subscription;
+    private activityTypeSubscription: Subscription;
 
     public isFormField: boolean = false;
 
@@ -49,8 +50,8 @@ export class ActivityPlanField extends AbstractField {
                 value: dailyTime.key
             });
         });
-        this.activityPlanService.getActivityTypes()
-        .then((activityTypes) => {
+        this.activityPlanService.watchActivityTypes()
+        .subscribe((activityTypes) => {
             this.activityTypes = activityTypes;
         });
     }
@@ -143,6 +144,9 @@ export class ActivityPlanField extends AbstractField {
         }
         if(this.planFormStatusSubscription) {
             this.planFormStatusSubscription.unsubscribe();
+        }
+        if (this.activityTypeSubscription) {
+            this.activityTypeSubscription.unsubscribe();
         }
     }
 

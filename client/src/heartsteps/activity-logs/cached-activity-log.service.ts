@@ -64,10 +64,9 @@ export class CachedActivityLogService {
         return daySubject.asObservable();
     }
 
-    public getActivityTypes(): Promise<Array<ActivityType>> {
+    public watchActivityTypes(): Subscribable<Array<ActivityType>> {
         return this.activityTypeService.activityTypes
-        .first()
-        .toPromise().then((activityTypes) => {
+        .map((activityTypes) => {
             const activityLogTypes = {};
             this.activityLogs.value.forEach((plan) => {
                 if(activityLogTypes[plan.type]) {

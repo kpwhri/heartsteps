@@ -7,7 +7,7 @@ import { DocumentStorageService, DocumentStorage } from "@infrastructure/documen
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { ActivityTypeService, ActivityType } from "@heartsteps/activity-types/activity-type.service";
-import { p, a, b } from "@angular/core/src/render3";
+import { Subscribable } from "rxjs/Observable";
 
 @Injectable()
 export class ActivityPlanService {
@@ -29,10 +29,9 @@ export class ActivityPlanService {
         });
     }
 
-    public getActivityTypes(): Promise<Array<ActivityType>> {
+    public watchActivityTypes(): Subscribable<Array<ActivityType>> {
         return this.activityTypeService.activityTypes
-        .first()
-        .toPromise().then((activityTypes) => {
+        .map((activityTypes) => {
             const activityPlanCounts = {};
             this.plans.value.forEach((plan) => {
                 if(activityPlanCounts[plan.type]) {
