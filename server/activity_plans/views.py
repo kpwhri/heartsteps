@@ -10,6 +10,19 @@ from activity_logs.serializers import TimeRangeSerializer
 from activity_plans.serializers import ActivityPlanSerializer
 from activity_plans.models import ActivityPlan
 
+class ActivityPlanSummaryView(APIView):
+
+    def get(self, request):
+        activity_types = {}
+        for plan in ActivityPlan.objects.filter(user=request.user):
+            activity_type_name = plan.type.name
+            if activity_type_name not in activity_types:
+                activity_types[activity_type_name] = 1
+            else:
+                activity_types[activity_type_name] += 1
+        return Response({
+            'activityTypes': activity_types
+        })
 
 class ActivityPlansList(APIView):
     """

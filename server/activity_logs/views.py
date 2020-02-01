@@ -9,6 +9,20 @@ from rest_framework.response import Response
 from .serializers import ActivityLogSerializer, TimeRangeSerializer
 from .models import ActivityLog, ActivityType
 
+class ActivityLogSummaryView(APIView):
+
+    def get(self, request):
+        activity_types = {}
+        for log in ActivityLog.objects.filter(user=request.user):
+            activity_type_name = log.type.name
+            if activity_type_name not in activity_types:
+                activity_types[activity_type_name] = 1
+            else:
+                activity_types[activity_type_name] += 1
+        return Response({
+            'activityTypes': activity_types
+        })
+
 class ActivityLogsDetail(APIView):
     permissions_classes = (permissions.IsAuthenticated,)
 

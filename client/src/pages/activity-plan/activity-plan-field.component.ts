@@ -6,6 +6,7 @@ import { Subscription } from "rxjs";
 import { DateFactory } from "@infrastructure/date.factory";
 import { DailyTimeService, DailyTime } from "@heartsteps/daily-times/daily-times.service";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
+import { ActivityTypeService, ActivityType } from "@heartsteps/activity-types/activity-type.service";
 
 @Component({
     selector: 'activity-plan-field',
@@ -22,6 +23,7 @@ export class ActivityPlanField extends AbstractField {
     public planForm: FormGroup;
     public availableDates: Array<Date>;
     public dailyTimes: Array<SelectOption>;
+    public activityTypes: Array<ActivityType>;
 
     private activityPlan: ActivityPlan;
     private planFormSubscription:Subscription;
@@ -34,7 +36,8 @@ export class ActivityPlanField extends AbstractField {
         element: ElementRef,
         renderer: Renderer2,
         private dateFactory: DateFactory,
-        private dailyTimeService: DailyTimeService
+        private dailyTimeService: DailyTimeService,
+        private activityTypeService: ActivityTypeService
     ) {
         super(formGroup, element, renderer)
 
@@ -45,6 +48,12 @@ export class ActivityPlanField extends AbstractField {
                 value: dailyTime.key
             });
         });
+        this.activityTypeService.activityTypes.subscribe(() => {
+            this.activityTypeService.getActivityPlanTypesByMostUsed()
+            .then((activityTypes) => {
+                this.activityTypes = activityTypes;
+            })
+        })
     }
 
     public writeValue(activityPlan:ActivityPlan) {

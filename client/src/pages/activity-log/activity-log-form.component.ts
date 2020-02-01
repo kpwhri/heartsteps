@@ -3,6 +3,7 @@ import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
+import { ActivityType, ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 
 
 @Component({
@@ -34,13 +35,20 @@ export class ActivityLogFormComponent {
             name: "Maximum effort",
             value: 1
         }
-    ]
+    ];
+    public activityTypes: Array<ActivityType>;
 
     @Output('onSubmit') submitted: EventEmitter<ActivityLog> = new EventEmitter();
 
     constructor(
-        private dateFactory: DateFactory
-    ) {}
+        private dateFactory: DateFactory,
+        private activityTypeService: ActivityTypeService
+    ) {
+        this.activityTypeService.getActivityLogTypesByMostUsed()
+        .then((activityTypes) => {
+            this.activityTypes = activityTypes;
+        })
+    }
 
     @Input('activityLog')
     set setActivityLog(activityLog: ActivityLog) {
