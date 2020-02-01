@@ -16,6 +16,8 @@ from fitbit_api.models import FitbitUpdate
 from fitbit_api.models import FitbitSubscription
 from fitbit_api.models import FitbitAccountUpdate
 
+from .serializers import FitbitAccountSerializer
+
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def fitbit_account(request):
@@ -25,10 +27,8 @@ def fitbit_account(request):
         response = Response({}, status=status.HTTP_404_NOT_FOUND)
         response['Cache-Control'] = 'no-cache'
         return response
-    return Response({
-        'fitbit': service.fitbit_user,
-        'isAuthorized': service.is_authorized()
-    }, status=status.HTTP_200_OK)
+    serializer = FitbitAccountSerializer(service.account)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def fitbit_subscription(request):

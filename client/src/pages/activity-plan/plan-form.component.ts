@@ -28,19 +28,16 @@ export class PlanFormComponent implements OnInit {
 
     constructor(
         private activityPlanService:ActivityPlanService,
-        private activityTypeService:ActivityTypeService,
         private dateFactory: DateFactory,
         private loadingService: LoadingService
     ) {}
 
     ngOnInit() {
         this.availableDates = this.dateFactory.getCurrentWeek();
-        this.activityTypeService.activityTypes.subscribe(() => {
-            this.activityTypeService.getActivityLogTypesByMostUsed()
-            .then((types) => {
-                this.activityTypes = types;
-            });
-        })
+        this.activityPlanService.watchActivityTypes()
+        .subscribe((activityTypes)=> {
+            this.activityTypes = activityTypes;
+        });
     }
 
     @Input('plan')
