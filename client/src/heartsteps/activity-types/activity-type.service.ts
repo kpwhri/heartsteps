@@ -41,127 +41,12 @@ export class ActivityTypeService {
             return this.storage.set(storageKey, response);
         })
         .then(() => {
-            return this.loadActivityLogCounts();
-        })
-        .then(() => {
-            return this.loadActivityPlanCounts();
-        })
-        .then(() => {
             return this.update();
         });
     }
 
     public getActivityTypesByName(): Promise<Array<ActivityType>> {
         return this.getActivityTypes();
-    }
-
-    public getActivityLogTypesByMostUsed(): Promise<Array<ActivityType>> {
-        return this.getActivityLogOrder()
-        .then((activityLogOrder) => {
-            return this.getActivityTypes()
-            .then((activityTypes) => {
-                const reordered = [...activityTypes].sort((a, b) => {
-                    const apos = activityLogOrder.indexOf(a.name);
-                    const bpos = activityLogOrder.indexOf(b.name);
-                    if(apos < bpos) return 1;
-                    if(apos > bpos) return -1;
-                    return 0;
-                });
-                return reordered;
-            });
-        })
-        .catch(() => {
-            return this.getActivityTypes();
-        });
-    }
-
-    public getActivityPlanTypesByMostUsed(): Promise<Array<ActivityType>> {
-        return this.getActivityPlanOrder()
-        .then((activityPlanOrder) => {
-            return this.getActivityTypes()
-            .then((activityTypes) => {
-                const reordered = [...activityTypes].sort((a, b) => {
-                    const apos = activityPlanOrder.indexOf(a.name);
-                    const bpos = activityPlanOrder.indexOf(b.name);
-                    if(apos < bpos) return 1;
-                    if(apos > bpos) return -1;
-                    return 0;
-                });
-                return reordered;
-            });   
-        })
-        .catch(() => {
-            return this.getActivityTypes();
-        });
-    }
-
-    private getActivityLogOrder(): Promise<Array<string>> {
-        return this.storage.get('activity-log-type-counts')
-        .then((counts) => {
-            if(counts) {
-                const keys = Object.keys(counts).sort((a, b) => {
-                    if(counts[a] > counts[b]) return 1;
-                    if(counts[a] < counts[b]) return -1;
-                    if(a > b) return -1;
-                    if(a < b) return 1;
-                    return 0;
-                });
-                return keys;
-            } else {
-                return [];
-            }
-        });
-    }
-
-    private loadActivityLogCounts(): Promise<void> {
-        return this.heartstepsServer.get('activity/logs/summary')
-        .then((data) => {
-            if (data['activityTypes']) {
-                return this.storage.set('activity-log-type-counts', data['activityTypes']);
-            } else {
-                return this.storage.set('activity-log-type-counts', {});
-            }
-            
-        })
-        .then(() => {
-            return undefined;
-        });
-    }
-
-    private getActivityPlanOrder(): Promise<Array<String>> {
-        return this.storage.get('activity-plan-type-counts')
-        .then((counts) => {
-            if(counts) {
-                const keys = Object.keys(counts).sort((a, b) => {
-                    if(counts[a] > counts[b]) return 1;
-                    if(counts[a] < counts[b]) return -1;
-                    if(a > b) return -1;
-                    if(a < b) return 1;
-                    return 0;
-                });
-                return keys;
-            } else {
-                return [];
-            }
-        })
-        .catch(() => {
-            return [];
-        });
-    }
-
-    private loadActivityPlanCounts(): Promise<void> {
-        return this.heartstepsServer.get('activity/plans/summary')
-        .then((data) => {
-            if (data['activityTypes']) {
-                return this.storage.set('activity-plan-type-counts', data['activityTypes']);
-            } else {
-                return this.storage.set('activity-plan-type-counts', {});
-            }
-            
-        })
-        .then(() => {
-            return undefined;
-        });
     }
 
 
