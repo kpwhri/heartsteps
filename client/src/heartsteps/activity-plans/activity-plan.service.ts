@@ -6,6 +6,8 @@ import { Observable, BehaviorSubject } from "rxjs";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
+import { ActivityTypeService, ActivityType } from "@heartsteps/activity-types/activity-type.service";
+import { p, a, b } from "@angular/core/src/render3";
 
 @Injectable()
 export class ActivityPlanService {
@@ -15,7 +17,8 @@ export class ActivityPlanService {
     constructor(
         private heartstepsServer:HeartstepsServer,
         private activityLogService: ActivityLogService,
-        private documentStorage: DocumentStorageService
+        private documentStorage: DocumentStorageService,
+        private activityTypeService: ActivityTypeService
     ) {}
 
     public setup(): Promise<boolean> {
@@ -23,6 +26,31 @@ export class ActivityPlanService {
         return this.loadPlans()
         .then(() => {
             return true;
+        });
+    }
+
+    public getActivityTypes(): Promise<Array<ActivityType>> {
+        return this.activityTypeService.activityTypes
+        .first()
+        .toPromise().then((activityTypes) => {
+            const activityPlanCounts = {};
+            this.plans.value.forEach((plan) => {
+                if(activityPlanCounts[plan.type]) {
+                    activityPlanCounts[plan.type] += 1;
+                } else {
+                    activityPlanCounts[plan.type] = 1;
+                }
+            })
+            activityTypes.sort((a , b) => {
+                let aCount = activityPlanCounts[a.name] || 0;
+                let bCount = activityPlanCounts[b.name] || 0;
+                if (aCount > bCount) return -1;
+                if (aCount < bCount) return 1;
+                if (a.title > b.title) return 1;
+                if (a.title < b.title) return -1;
+                return 0;
+            })
+            return activityTypes;
         });
     }
 

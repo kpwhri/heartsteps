@@ -4,9 +4,10 @@ import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirecti
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
 import { Subscription } from "rxjs";
 import { DateFactory } from "@infrastructure/date.factory";
-import { DailyTimeService, DailyTime } from "@heartsteps/daily-times/daily-times.service";
+import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
-import { ActivityTypeService, ActivityType } from "@heartsteps/activity-types/activity-type.service";
+import { ActivityType } from "@heartsteps/activity-types/activity-type.service";
+import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 
 @Component({
     selector: 'activity-plan-field',
@@ -37,7 +38,7 @@ export class ActivityPlanField extends AbstractField {
         renderer: Renderer2,
         private dateFactory: DateFactory,
         private dailyTimeService: DailyTimeService,
-        private activityTypeService: ActivityTypeService
+        private activityPlanService: ActivityPlanService
     ) {
         super(formGroup, element, renderer)
 
@@ -48,12 +49,10 @@ export class ActivityPlanField extends AbstractField {
                 value: dailyTime.key
             });
         });
-        this.activityTypeService.activityTypes.subscribe(() => {
-            this.activityTypeService.getActivityPlanTypesByMostUsed()
-            .then((activityTypes) => {
-                this.activityTypes = activityTypes;
-            })
-        })
+        this.activityPlanService.getActivityTypes()
+        .then((activityTypes) => {
+            this.activityTypes = activityTypes;
+        });
     }
 
     public writeValue(activityPlan:ActivityPlan) {

@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 import { ActivityType, ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 
 
 @Component({
@@ -42,12 +43,12 @@ export class ActivityLogFormComponent {
 
     constructor(
         private dateFactory: DateFactory,
-        private activityTypeService: ActivityTypeService
+        private activityLogService: CachedActivityLogService
     ) {
-        this.activityTypeService.getActivityLogTypesByMostUsed()
+        this.activityLogService.getActivityTypes()
         .then((activityTypes) => {
             this.activityTypes = activityTypes;
-        })
+        });
     }
 
     @Input('activityLog')
