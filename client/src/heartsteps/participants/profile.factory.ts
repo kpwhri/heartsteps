@@ -285,6 +285,9 @@ export class ProfileService {
     private setupActivityTypeService() :Promise<boolean> {
         return this.activityTypeService.setup()
         .then(() => {
+            return this.activityTypeService.load();
+        })
+        .then(() => {
             return true;
         })
         .catch(() => {
