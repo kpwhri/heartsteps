@@ -30,20 +30,18 @@ export class EnrollmentPage {
 
     public enroll() {
         this.error = undefined;
-        this.loadingService.show('Authenticating');
-
         const token = this.form.value.entryToken;
         const birthYear = this.form.value.birthYear;
 
+        this.loadingService.show('Authenticating');
         return this.enrollmentService.enroll(token, birthYear)
         .then(() => {
+            this.loadingService.dismiss();
             return this.router.navigate(['setup'])
         })
         .catch((error) => {
-            this.error = error;
-        })
-        .then(() => {
             this.loadingService.dismiss();
+            this.error = error;
         });
     }
 

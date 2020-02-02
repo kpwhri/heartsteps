@@ -1,17 +1,12 @@
 heartsteps-activity-daily-update {
 
     > button {
-        @extend .heartsteps-minor-button;
-        margin-bottom: 0.5em;
-    }
-
-    > button.is-loading {
-        margin-bottom: 1.75em;
-    }
-
-    > p {
-        margin: 0em;
-        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        > span {
+            display: block;
+            margin-top: 0.25em;
+        }
     }
     
 }

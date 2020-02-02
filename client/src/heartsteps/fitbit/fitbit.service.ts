@@ -104,12 +104,7 @@ export class FitbitService {
     }
 
     public updateAuthorization(): Promise<FitbitAccount> {
-        return this.heartstepsServer.get('fitbit/account')
-        .then(() => {
-            return this.updateFitbitAccount();
-        }).catch((error) => {
-            return Promise.reject(error);
-        });
+        return this.updateFitbitAccount();
     }
 
     private getAccount(): Promise<FitbitAccount> {
@@ -168,6 +163,7 @@ export class FitbitService {
         .then((data) => {
             const account = this.deserializeAccount({
                 id: data['id'],
+                isAuthorized: data['isAuthorized'],
                 firstUpdated: data['firstUpdated'],
                 lastUpdated: data['lastUpdated'],
                 lastDeviceUpdate: data['lastDeviceUpdate']
