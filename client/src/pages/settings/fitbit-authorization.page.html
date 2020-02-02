@@ -17,10 +17,5 @@
             <dd *ngIf="lastDeviceUpdate">{{format_date(account.lastDeviceUpdate)}}</dd>
         </dl>
     </div>
-    <button (click)="updateFitbitAccount()">Check Fitbit Account</button>
-    <button *ngIf="account"
-        class="heartsteps-danger-button"
-        (click)="removeFitbitAccount()"
-        >
-        Remove Fitbit Account</button>
+    <button (click)="refreshData()">Refresh Account Data</button>
 </app-modal>

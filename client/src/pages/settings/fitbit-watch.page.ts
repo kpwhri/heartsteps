@@ -24,6 +24,7 @@ export class FitbitWatchPage {
             this.lastUpdated = watch.lastUpdated;
             this.lastChecked = watch.lastChecked;
         });
+        this.updateStatus();
     }
 
     public format_date(date: Date): string {

@@ -30,6 +30,7 @@ export class FitbitAuthorizationPage {
                 this.lastUpdated = account.lastUpdated;
             }
         });
+        this.refreshData();
     }
 
     public removeFitbitAccount() {
@@ -41,8 +42,8 @@ export class FitbitAuthorizationPage {
         });
     }
 
-    public updateFitbitAccount() {
-        this.loadingService.show('Updating Fitbit Account')
+    public refreshData() {
+        this.loadingService.show('Refreshing Fitbit account data')
         this.fitbitService.updateFitbitAccount()
         .catch(() => {})
         .then(() => {
