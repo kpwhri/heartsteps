@@ -40,19 +40,26 @@ export class FitbitWatchService {
         });
     }
 
-    private loadStatus(): Promise<FitbitWatch> {
+    public isInstalled(): Promise<boolean> {
         return this.getStatus()
-        .then((watch) => {
-            this.watch.next(watch);
-            return watch;
+        .catch(() => {
+            return this.updateStatus()
         })
-        .catch(()=>{
-            return this.updateStatus();
+        .then((watch) => {
+            if(watch.isInstalled()) {
+                return Promise.resolve(true);
+            } else {
+                return Promise.reject('Not installed');
+            }
         });
     }
 
     private getStatus(): Promise<FitbitWatch> {
-        return Promise.reject('not implemented');
+        return this.storageService.get('fitbit-watch-status')
+        .then((data) => {
+            const status = this.deserialize(data);
+            return status;
+        });
     }
 
     private saveStatus(watch: FitbitWatch): Promise<FitbitWatch> {
@@ -98,25 +105,6 @@ export class FitbitWatchService {
     public openWatchInstallPage() {
         const url = 'https://gam.fitbit.com/gallery/clock/0bd06f9e-2adc-4391-ab05-d177dda1a167';
         this.browserService.open_external(url);
-    }
-
-    public isInstalled(): Promise<boolean> {
-        return this.wasMarkedInstalled()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return Promise.reject('Fitbit watch not setup');
-        });
-    }
-
-    // This is being used to keep track if participants 
-    // installed the app before completing baseline
-    public wasMarkedInstalled(): Promise<void> {
-        return this.storageService.get('fitbit-watch')
-        .then(() => {
-            return undefined;
-        });
     }
 
 }

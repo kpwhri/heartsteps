@@ -87,38 +87,32 @@ export class ParticipantService {
     }
 
     private getBaselineComplete(): Promise<boolean> {
-        return this.fitbitWatchService.wasMarkedInstalled()
-        .then(() => {
-            return true;
+        return this.getStaffStatus()
+        .then((isStaff) => {
+            if (isStaff) {
+                return true;
+            } else {
+                return this.dailySummaryService.getAll()
+                .then((summaries) => {
+                    return this.participantInformationService.getBaselinePeriod()
+                    .then((baselineDays) => {
+                        let days_worn = 0;
+                        summaries.forEach((summary) => {
+                            if(summary.wore_fitbit) {
+                                days_worn += 1;
+                            }
+                        });
+                        if (days_worn >= baselineDays) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })
+                });                    
+            }
         })
         .catch(() => {
-            return this.getStaffStatus()
-            .then((isStaff) => {
-                if (isStaff) {
-                    return true;
-                } else {
-                    return this.dailySummaryService.getAll()
-                    .then((summaries) => {
-                        return this.participantInformationService.getBaselinePeriod()
-                        .then((baselineDays) => {
-                            let days_worn = 0;
-                            summaries.forEach((summary) => {
-                                if(summary.wore_fitbit) {
-                                    days_worn += 1;
-                                }
-                            });
-                            if (days_worn >= baselineDays) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        })
-                    });                    
-                }
-            })
-            .catch(() => {
-                return Promise.resolve(false);
-            });
+            return Promise.resolve(false);
         });
     }
 

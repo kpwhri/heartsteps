@@ -47,7 +47,7 @@ export class PushNotificationService {
 
     public setup():Promise<boolean> {
         console.log('set up');
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.platform.is('cordova')) {
             this.ready.next(true);
             return this.hasPermission()
             .then(() => {
@@ -140,7 +140,7 @@ export class PushNotificationService {
     }
 
     private isPhone(): Promise<void> {
-        if(this.platform.is('cordova') || this.platform.is('cordova')) {
+        if(this.platform.is('cordova')) {
             return Promise.resolve(undefined);
         } else {
             return Promise.reject('Not a phone');
@@ -218,7 +218,7 @@ export class PushNotificationService {
     }
 
     private initialize() {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.platform.is('cordova')) {
             window.plugins.OneSignal.addSubscriptionObserver(() => {
                 this.zone.run(() => {
                     this.handleOneSignalSubscription();
