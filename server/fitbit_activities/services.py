@@ -232,15 +232,16 @@ class FitbitActivityService(FitbitService):
                 account = self.account,
                 fitbit_id = device['id'],
                 defaults = {
-                    'device_type': device['type'],
-                    'device_version': device['device_version'],
-                    'mac': device['mac']
+                    'device_type': device.get('type', None),
+                    'device_version': device.get('device_version', None),
+                    'mac': device.get('mac', None)
                 }
             )
-            fitbit_device.add_update(
-                time = device['last_sync_time'],
-                battery_level = device['battery_level']
-            )
+            if 'last_sync_time' in device:
+                fitbit_device.add_update(
+                    time = device['last_sync_time'],
+                    battery_level = device.get('battery_level', None)
+                )
 
     def update(self, date):
         self.update_devices()

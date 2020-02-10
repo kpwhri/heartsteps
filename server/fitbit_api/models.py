@@ -179,9 +179,9 @@ class FitbitDevice(models.Model):
         related_name = '+'
         )
     fitbit_id = models.CharField(max_length=125)
-    mac = models.CharField(max_length=125)
-    device_type = models.CharField(max_length=125)
-    device_version = models.CharField(max_length=125)
+    mac = models.CharField(max_length=125, null=True)
+    device_type = models.CharField(max_length=125, null=True)
+    device_version = models.CharField(max_length=125, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -203,7 +203,7 @@ class FitbitDeviceUpdate(models.Model):
     fitbit_device = models.ForeignKey(FitbitDevice)
     
     time = models.DateTimeField()
-    battery_level = models.IntegerField()
+    battery_level = models.IntegerField(null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

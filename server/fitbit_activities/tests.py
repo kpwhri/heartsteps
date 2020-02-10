@@ -135,6 +135,7 @@ class FitbitDayUpdates(TestBase):
 
     def test_updates_devices(self):
         now = timezone.now()
+        last_update_time = timezone.now() - timedelta(minutes=20)
         self.get_devices.return_value = [
             {
                 'battery_level': 98, 
@@ -147,9 +148,13 @@ class FitbitDayUpdates(TestBase):
                 'battery_level': 70, 
                 'device_version': 'Versa 2',
                 'id': '23456789',
-                'last_sync_time': now - timedelta(minutes=20),
+                'last_sync_time': last_update_time,
                 'mac': 'EXAMPLE-MAC-ADDRESS',
                 'type': 'TRACKER'
+            }, {
+                'battery_level': 0,
+                'id': 'old-broken-device',
+                'last_sync_time': now - timedelta(days=1000)
             }
         ]
         FitbitDevice.objects.create(
@@ -162,10 +167,10 @@ class FitbitDayUpdates(TestBase):
 
         update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2019-02-14")
 
-        devices = FitbitDevice.objects.filter(account=self.account).order_by('device_type').all()
-        self.assertEqual(len(devices), 2)
-        self.assertEqual([device.device_version for device in devices], ['example scale updated','Versa 2'])
-        self.assertEqual(self.account.get_last_tracker_sync_time(), now - timedelta(minutes=20))
+        devices = FitbitDevice.objects.filter(account=self.account).order_by('id').all()
+        self.assertEqual(len(devices), 3)
+        self.assertEqual([device.device_version for device in devices], ['example scale updated','Versa 2',None])
+        self.assertEqual(self.account.get_last_tracker_sync_time(), last_update_time)
 
 class FitbitStepUpdates(TestBase):
 
