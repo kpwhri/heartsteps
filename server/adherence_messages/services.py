@@ -383,5 +383,5 @@ class AdherenceService(
     def send_adherence_message(self):
         self.send_app_install_message()
         self.send_app_use_adherence_message()
-        self.send_fitbit_not_updated_message()
-        self.send_fitbit_not_worn_message()
+        # self.send_fitbit_not_updated_message()
+        # self.send_fitbit_not_worn_message()

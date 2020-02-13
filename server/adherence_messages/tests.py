@@ -293,41 +293,41 @@ class FitbitUpdatedTests(AdherenceTaskTestBase):
         self.assertTrue(metric.value) 
         self.assertEqual(metric.date, date.today())
 
-    @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
-    @patch('adherence_messages.services.render_to_string', return_value='Example text')
-    def test_send_adherence_message_after_2_days(self, render_to_string):
-        self.fitbit_last_update_time.return_value = timezone.now() - timedelta(days=2)
+    # @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
+    # @patch('adherence_messages.services.render_to_string', return_value='Example text')
+    # def test_send_adherence_message_after_2_days(self, render_to_string):
+    #     self.fitbit_last_update_time.return_value = timezone.now() - timedelta(days=2)
 
-        service = AdherenceService(user = self.user)
-        service.send_adherence_message()
+    #     service = AdherenceService(user = self.user)
+    #     service.send_adherence_message()
 
-        message = AdherenceMessage.objects.get(
-            user = self.user,
-            category = AdherenceMessage.FITBIT_UPDATED
-        )
-        self.assertEqual(message.body, 'Example text')
-        render_to_string.assert_called_with(
-            template_name = 'adherence_messages/fitbit-not-updated.txt',
-            context = {
-                'study_phone_number': '(555) 555-5555'
-            }
-        )
+    #     message = AdherenceMessage.objects.get(
+    #         user = self.user,
+    #         category = AdherenceMessage.FITBIT_UPDATED
+    #     )
+    #     self.assertEqual(message.body, 'Example text')
+    #     render_to_string.assert_called_with(
+    #         template_name = 'adherence_messages/fitbit-not-updated.txt',
+    #         context = {
+    #             'study_phone_number': '(555) 555-5555'
+    #         }
+    #     )
 
-    def test_sends_second_adherence_message(self):
-        self.fitbit_last_update_time.return_value = timezone.now() - timedelta(days=3)
-        self.create_adherence_message(
-            category = AdherenceMessage.FITBIT_UPDATED,
-            created = timezone.now() - timedelta(days=1)
-        )
+    # def test_sends_second_adherence_message(self):
+    #     self.fitbit_last_update_time.return_value = timezone.now() - timedelta(days=3)
+    #     self.create_adherence_message(
+    #         category = AdherenceMessage.FITBIT_UPDATED,
+    #         created = timezone.now() - timedelta(days=1)
+    #     )
 
-        service = AdherenceService(user = self.user)
-        service.send_adherence_message()
+    #     service = AdherenceService(user = self.user)
+    #     service.send_adherence_message()
 
-        message_query = AdherenceMessage.objects.filter(
-            user = self.user,
-            category = AdherenceMessage.FITBIT_UPDATED
-        )
-        self.assertEqual(message_query.count(), 2)
+    #     message_query = AdherenceMessage.objects.filter(
+    #         user = self.user,
+    #         category = AdherenceMessage.FITBIT_UPDATED
+    #     )
+    #     self.assertEqual(message_query.count(), 2)
 
     def test_does_not_send_more_than_2_messages(self):
         self.fitbit_last_update_time.return_value = timezone.now() - timedelta(days=4)
@@ -372,55 +372,55 @@ class FitbitWornTests(AdherenceTaskTestBase):
         self.assertTrue(metric.value)
         self.assertEqual(metric.date, date.today())
 
-    @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
-    @patch('adherence_messages.services.render_to_string', return_value='Example text')
-    def test_send_adherence_message_after_2_days(self, render_to_string):
-        # Add previous message, which will be ignored
-        self.create_adherence_message(
-            category = AdherenceMessage.FITBIT_WORN,
-            created = timezone.now() - timedelta(days=3)
-        )
-        heart_rate = FitbitMinuteHeartRate.objects.create(
-            account = self.account,
-            heart_rate = 20,
-            time = timezone.now() - timedelta(days=2)
-        )
+    # @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
+    # @patch('adherence_messages.services.render_to_string', return_value='Example text')
+    # def test_send_adherence_message_after_2_days(self, render_to_string):
+    #     # Add previous message, which will be ignored
+    #     self.create_adherence_message(
+    #         category = AdherenceMessage.FITBIT_WORN,
+    #         created = timezone.now() - timedelta(days=3)
+    #     )
+    #     heart_rate = FitbitMinuteHeartRate.objects.create(
+    #         account = self.account,
+    #         heart_rate = 20,
+    #         time = timezone.now() - timedelta(days=2)
+    #     )
 
-        service = AdherenceService(user = self.user)
-        service.send_adherence_message()
+    #     service = AdherenceService(user = self.user)
+    #     service.send_adherence_message()
 
-        message = AdherenceMessage.objects.get(
-            user = self.user,
-            category = AdherenceMessage.FITBIT_WORN,
-            created__gt = heart_rate.time
-        )
-        self.assertEqual(message.body, 'Example text')
-        render_to_string.assert_called_with(
-            template_name = 'adherence_messages/fitbit-not-worn.txt',
-            context = {
-                'study_phone_number': '(555) 555-5555'
-            }
-        )
+    #     message = AdherenceMessage.objects.get(
+    #         user = self.user,
+    #         category = AdherenceMessage.FITBIT_WORN,
+    #         created__gt = heart_rate.time
+    #     )
+    #     self.assertEqual(message.body, 'Example text')
+    #     render_to_string.assert_called_with(
+    #         template_name = 'adherence_messages/fitbit-not-worn.txt',
+    #         context = {
+    #             'study_phone_number': '(555) 555-5555'
+    #         }
+    #     )
 
-    def test_sends_second_message_after_4_days(self):
-        FitbitMinuteHeartRate.objects.create(
-            account = self.account,
-            heart_rate = 20,
-            time = timezone.now() - timedelta(days=4)
-        )
-        self.create_adherence_message(
-            category = AdherenceMessage.FITBIT_WORN,
-            created = timezone.now() - timedelta(days=2)
-        )
+    # def test_sends_second_message_after_4_days(self):
+    #     FitbitMinuteHeartRate.objects.create(
+    #         account = self.account,
+    #         heart_rate = 20,
+    #         time = timezone.now() - timedelta(days=4)
+    #     )
+    #     self.create_adherence_message(
+    #         category = AdherenceMessage.FITBIT_WORN,
+    #         created = timezone.now() - timedelta(days=2)
+    #     )
 
-        service = AdherenceService(user = self.user)
-        service.send_adherence_message()
+    #     service = AdherenceService(user = self.user)
+    #     service.send_adherence_message()
 
-        messages = AdherenceMessage.objects.filter(
-            user = self.user,
-            category = AdherenceMessage.FITBIT_WORN
-        ).all()
-        self.assertEqual(len(messages), 2)
+    #     messages = AdherenceMessage.objects.filter(
+    #         user = self.user,
+    #         category = AdherenceMessage.FITBIT_WORN
+    #     ).all()
+    #     self.assertEqual(len(messages), 2)
 
     def test_does_not_send_second_message_until_2_days_after_first_message(self):
         FitbitMinuteHeartRate.objects.create(
