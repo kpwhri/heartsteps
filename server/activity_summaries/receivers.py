@@ -16,18 +16,14 @@ def activity_log_updates_day(sender, instance, *args, **kwargs):
     local_timezone = day_service.get_timezone_at(activity_log.start)
     local_time = activity_log.start.astimezone(local_timezone)
 
-    try:
-        day = Day.objects.get(
-            user = activity_log.user,
-            date__year = local_time.year,
-            date__month = local_time.month,
-            date__day = local_time.day
+    day, _ = Day.objects.get_or_create(
+        user = activity_log.user,
+        date = date(
+            local_time.year,
+            local_time.month,
+            local_time.day
         )
-    except Day.DoesNotExist:
-        day = Day.objects.create(
-            user = activity_log.user,
-            date = date(local_time.year, local_time.month, local_time.day)
-        )
+    )
     day.update_from_activities()
 
 post_save.connect(activity_log_updates_day, sender=ActivityLog)
@@ -39,16 +35,8 @@ def fitbit_day_updates_day(sender, instance, *args, **kwargs):
     fitbit_day = instance
     fitbit_service = FitbitService(account=instance.account)
     for user in fitbit_service.get_users():
-        try:
-            day = Day.objects.get(
-                user = user,
-                date__year = fitbit_day.date.year,
-                date__month = fitbit_day.date.month,
-                date__day = fitbit_day.date.day
-            )
-        except Day.DoesNotExist:
-            day = Day.objects.create(
-                user = user,
-                date = fitbit_day.date
-            )
+        day, _ = Day.objects.get_or_create(
+            user = user,
+            date = fitbit_day.date
+        )
         day.update_from_fitbit()
