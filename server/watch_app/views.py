@@ -52,3 +52,43 @@ class LoginView(ParticipantLoginView):
     def authentication_successful(self):
         install, _ = WatchInstall.objects.update_or_create(user = self.participant.user)
 
+
+class WatchAppStatus(object):
+    def __init__(self, installed, lastUpdated):
+        self.installed = installed
+        self.lastUpdated = lastUpdated
+
+class WatchAppStatusSerializer(serializers.Serializer):
+    installed = serializers.DateTimeField()
+    lastUpdated = serializers.DateTimeField()
+
+class WatchAppStatusView(APIView):
+    """
+    Return the current status of the user's watch app
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+
+        installed = False
+        lastUpdated = None
+
+        try:
+            watch_install = WatchInstall.objects.get(user=request.user)
+            installed = watch_install.updated
+        except WatchInstall.DoesNotExist:
+            pass
+
+        last_step_count = StepCount.objects.filter(user = request.user).last()
+        if last_step_count:
+            lastUpdated = last_step_count.end
+
+        serializer = WatchAppStatusSerializer(
+            WatchAppStatus(
+                installed = installed,
+                lastUpdated = lastUpdated
+            )
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
+import { resolve } from "url";
 
 declare var window: {
     plugins: {
@@ -32,6 +33,7 @@ export class PushNotificationService {
     public notifications: Subject<any> = new Subject();
 
     private ready: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
+    private initialized: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
 
     constructor(
         private platform: Platform,
@@ -44,7 +46,8 @@ export class PushNotificationService {
     }
 
     public setup():Promise<boolean> {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        console.log('set up');
+        if(this.platform.is('cordova')) {
             this.ready.next(true);
             return this.hasPermission()
             .then(() => {
@@ -53,6 +56,9 @@ export class PushNotificationService {
                     this.device.next(device);
                     return true;
                 });
+            })
+            .then(() => {
+                return this.isInitialized();
             })
             .catch(() => {
                 return Promise.resolve(true);
@@ -67,6 +73,17 @@ export class PushNotificationService {
     private isReady(): Promise<boolean> {
         return new Promise((resolve) => {
             this.ready
+            .filter(value => value === true)
+            .first()
+            .subscribe(() => {
+                resolve(true);
+            });
+        });
+    }
+
+    private isInitialized(): Promise<boolean> {
+        return new Promise((resolve) => {
+            this.initialized
             .filter(value => value === true)
             .first()
             .subscribe(() => {
@@ -123,7 +140,7 @@ export class PushNotificationService {
     }
 
     private isPhone(): Promise<void> {
-        if(this.platform.is('cordova') || this.platform.is('cordova')) {
+        if(this.platform.is('cordova')) {
             return Promise.resolve(undefined);
         } else {
             return Promise.reject('Not a phone');
@@ -201,15 +218,13 @@ export class PushNotificationService {
     }
 
     private initialize() {
-        if(this.platform.is('ios') || this.platform.is('android')) {
+        if(this.platform.is('cordova')) {
             window.plugins.OneSignal.addSubscriptionObserver(() => {
                 this.zone.run(() => {
                     this.handleOneSignalSubscription();
                 });
             });
-            console.log('initialize OneSignal');
             window.plugins.OneSignal.setRequiresUserPrivacyConsent(true);
-
             window.plugins.OneSignal.startInit(process.env.ONESIGNAL_APP_ID)
             .iOSSettings({
                 'kOSSettingsKeyAutoPrompt': false,
@@ -222,7 +237,10 @@ export class PushNotificationService {
                 });
             })
             .endInit();
-            console.log('END initialize OneSignal');
+            this.initialized.next(true);
+        } else {
+            this.initialized.next(true);
+            console.log('Initialized!');
         }
     }
 

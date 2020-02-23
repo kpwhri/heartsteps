@@ -1,6 +1,20 @@
 <p style="color: #AA0000; font-weight:bold;">PLEASE DO NOT SKIP THIS STEP</p>
 <p>The HeartSteps study clock face <strong>must be installed</strong> on your Fitbit to send real-time activity suggestions. It is important for our research for you to install and keep the HeartSteps clock face on your Fitbit while you are in the study.</p>
 <p>Please install by clicking the button below. Follow the steps in your guide to fully activate the clock face. Your Fitbit needs to be close to your phone when you complete this step.</p>
-<button (click)="openFitbitPage()" class="heartsteps-primary-button">Install Clock Face</button>
-<p>When you have setup your watch, click done below.</p>
-<button (click)="markDone()">Done</button>
+<button (click)="openFitbitPage()"
+    >
+    Install Clock Face
+</button>
+<p><strong>After installing and authenticating</strong> the HeartSteps study clock face, press the installation complete button below.</p>
+<button
+    (click)="checkComplete()"
+    class="heartsteps-primary-button"
+    >
+    Installation Complete
+</button>
+<br />
+<button (click)="skip()"
+    class="heartsteps-minor-button"    
+    >
+    Skip
+</button>

@@ -45,6 +45,11 @@ export class ActivityTypeService {
         });
     }
 
+    public getActivityTypesByName(): Promise<Array<ActivityType>> {
+        return this.getActivityTypes();
+    }
+
+
     public get(type:string):Promise<ActivityType> {
         const activityTypes = this.activityTypes.value;
         const activityType = activityTypes.find((activityType) => {

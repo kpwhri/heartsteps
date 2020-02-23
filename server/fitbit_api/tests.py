@@ -70,6 +70,25 @@ class FitbitClientTests(TestCase):
         self.assertEqual(devices[0]['type'], 'SCALE')
         self.assertEqual(devices[0]['mac'], 'EXAMPLE-MAC-ADDRESS')
 
+    def test_get_device_with_errors(self):
+        # Fitbit API didn't return MAC address for SCALE in production
+        # Only tracking devices with an ID value, all other values are optional
+        self.make_request.return_value = [
+            {
+                'id': '12345678'
+            }
+        ]
+
+        devices = self.client.get_devices()
+
+        self.assertEqual(devices[0]['id'], '12345678')
+        self.assertEqual(devices[0]['battery_level'], None)
+        self.assertEqual(devices[0]['device_version'], None)
+        self.assertEqual(devices[0]['last_sync_time'], None)
+        self.assertEqual(devices[0]['type'], None)
+        self.assertEqual(devices[0]['mac'], None)
+
+
 
 class FitbitApiSubscriptionTest(TestCase):
 

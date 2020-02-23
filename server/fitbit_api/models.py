@@ -55,7 +55,7 @@ class FitbitAccount(models.Model):
             return self._last_updated
         last_update = self.get_last_update()
         if last_update:
-            self._last_updated = last_update.created
+            self._last_updated = last_update
             return self._last_updated
         else:
             return None
@@ -91,6 +91,13 @@ class FitbitAccount(models.Model):
             return True
         else:
             return False
+
+    @property
+    def last_device_update(self):
+        if hasattr(self, '_last_device_update'):
+            return self._last_device_update
+        self._last_device_update = self.get_last_tracker_sync_time()
+        return self._last_device_update
 
     def get_last_tracker_sync_time(self):
         last_update = FitbitDeviceUpdate.objects\
@@ -172,9 +179,9 @@ class FitbitDevice(models.Model):
         related_name = '+'
         )
     fitbit_id = models.CharField(max_length=125)
-    mac = models.CharField(max_length=125)
-    device_type = models.CharField(max_length=125)
-    device_version = models.CharField(max_length=125)
+    mac = models.CharField(max_length=125, null=True)
+    device_type = models.CharField(max_length=125, null=True)
+    device_version = models.CharField(max_length=125, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -196,7 +203,7 @@ class FitbitDeviceUpdate(models.Model):
     fitbit_device = models.ForeignKey(FitbitDevice)
     
     time = models.DateTimeField()
-    battery_level = models.IntegerField()
+    battery_level = models.IntegerField(null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

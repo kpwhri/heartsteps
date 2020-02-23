@@ -65,6 +65,7 @@ export class ProfileService {
             this.loadReflectionTime(),
             this.loadContactInformation(),
             this.loadFitbit(),
+            this.loadFitbitWatchStatus(),
             this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
             this.setupActivityPlanService(),
@@ -75,11 +76,9 @@ export class ProfileService {
             return this.loadDailySummaries();
         })
         .then(() => {
-            console.log('success?')
             return Promise.resolve(true);
         })
         .catch(() => {
-            console.log('crap, participant didnt load?')
             return Promise.reject("Complete participant did not load");
         });
     }
@@ -286,6 +285,9 @@ export class ProfileService {
     private setupActivityTypeService() :Promise<boolean> {
         return this.activityTypeService.setup()
         .then(() => {
+            return this.activityTypeService.load();
+        })
+        .then(() => {
             return true;
         })
         .catch(() => {
@@ -324,5 +326,15 @@ export class ProfileService {
         .catch(() => {
             return false;
         })
+    }
+
+    private loadFitbitWatchStatus(): Promise<boolean> {
+        return this.fitbitWatchService.updateStatus()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
     }
 }

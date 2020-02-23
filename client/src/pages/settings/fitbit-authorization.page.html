@@ -2,5 +2,20 @@
     title="Fitbit Authorization"
     (onDismiss)="goBack()"
     >
-    <heartsteps-fitbit-auth (saved)="goBack()"></heartsteps-fitbit-auth>
+    <heartsteps-fitbit-auth *ngIf="!account" (saved)="goBack()"></heartsteps-fitbit-auth>
+    <div *ngIf="account">
+        <p *ngIf="account.isAuthorized">Account is authorized</p>
+        <p *ngIf="!account.isAuthorized">Account is not authorized</p>
+        <dl>
+            <dt>Account Id</dt>
+            <dd>{{account.id}}</dd>
+            <dt *ngIf="firstUpdated">First updated</dt>
+            <dd *ngIf="firstUpdated">{{format_date(account.firstUpdated)}}</dd>
+            <dt *ngIf="lastUpdated">Last updated</dt>
+            <dd *ngIf="lastUpdated">{{format_date(account.lastUpdated)}}</dd>
+            <dt *ngIf="lastDeviceUpdate">Device last updated</dt>
+            <dd *ngIf="lastDeviceUpdate">{{format_date(account.lastDeviceUpdate)}}</dd>
+        </dl>
+    </div>
+    <button (click)="refreshData()">Refresh Account Data</button>
 </app-modal>

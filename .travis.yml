@@ -17,13 +17,13 @@ before_script:
 - docker-compose build service-template > /dev/null
 - docker-compose build walking-suggestion-service anti-sedentary-service nginx > /dev/null
 - docker-compose build server > /dev/null
-- docker-compose run server python manage.py migrate
-- docker-compose build client > /dev/null
+- docker-compose run server python manage.py migrate > /dev/null
+# - docker-compose build client > /dev/null
 
 script:
 - docker-compose run server python manage.py test
-- docker-compose run client npm test
-- docker-compose run client npm run build:app --prod
+# - docker-compose run client npm test
+# - docker-compose run client npm run build:app --prod
 
 after_success:
 - chmod +x deploy.sh deploy-pooling-service.sh

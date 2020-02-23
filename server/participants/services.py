@@ -65,7 +65,7 @@ class ParticipantService:
         if study:
             return study.baseline_period
         else:
-            return None
+            return 0
 
     def get_participant(token, birth_year):
         try:
@@ -176,7 +176,31 @@ class ParticipantService:
                     minute = minute
                 )
     
-    def update(self, date):        
+    def update(self, date):
+        if self.is_baseline_complete():
+            try:
+                AntiSedentaryConfiguration.objects.get(user = self.participant.user)
+            except AntiSedentaryConfiguration.DoesNotExist:
+                AntiSedentaryConfiguration.objects.create(
+                    user = self.participant.user,
+                    enabled = True
+                )
+            try:
+                MorningMessagesConfiguration.objects.get(user = self.participant.user)
+            except MorningMessagesConfiguration.DoesNotExist:
+                MorningMessagesConfiguration.objects.create(
+                    user = self.participant.user,
+                    enabled = True
+                )
+            try:
+                WalkingSuggestionConfiguration.objects.get(user = self.participant.user)
+            except WalkingSuggestionConfiguration.DoesNotExist:
+                WalkingSuggestionConfiguration.objects.create(
+                    user = self.participant.user,
+                    enabled = True
+                )
+            
+
         self.update_fitbit(date)
         self.update_adherence(date)
         self.update_weather_forecasts(date)
@@ -221,7 +245,7 @@ class ParticipantService:
             if self.is_enabled() and self.is_baseline_complete():
                 walking_suggestion_service.enable()
             walking_suggestion_service.nightly_update(date)
-        except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.RequestError) as e:
+        except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.UnableToInitialize, WalkingSuggestionService.RequestError) as e:
             pass
 
     def update_weather_forecasts(self, date):

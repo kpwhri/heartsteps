@@ -32,12 +32,16 @@ export class ActivityTypeFieldComponent extends ChoiceFieldComponent {
         private activityTypeModalController: ActivityTypeModalController
     ) {
         super(formGroup, element, renderer, selectDialog);
-        this.activityTypeService.activityTypes
-        .filter((activityTypes) => activityTypes !== undefined)
-        .subscribe((activityTypes) => {
+    }
+
+    @Input('activityTypes')
+    set setActivityTypes(activityTypes: Array<ActivityType>) {
+        if (activityTypes) {
             this.activityTypes = activityTypes;
-            this.updateActivityTypeOptions();
-        });
+        } else {
+            this.activityTypes = [];
+        }
+        this.updateActivityTypeOptions();
     }
 
     private getActivityType(name:string):Promise<ActivityType> {

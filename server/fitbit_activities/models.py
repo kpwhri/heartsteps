@@ -110,8 +110,8 @@ class FitbitDay(models.Model):
 
     def get_minutes_worn(self):
         day_start = self.get_start_datetime()
-        active_day_start = day_start.replace(hour=8)
-        active_day_end = day_start.replace(hour=20)
+        active_day_start = day_start.replace(hour=6)
+        active_day_end = day_start.replace(hour=23)
 
         total_heart_rates = FitbitMinuteHeartRate.objects.filter(
             account = self.account,

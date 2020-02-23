@@ -86,23 +86,32 @@ class AdherenceServiceBase:
         service = DayService(user = self._user)
         return service.get_date_at(self._user.date_joined)
 
-    def get_message_buffer_time(self):
-        if hasattr(settings, 'ADHERENCE_MESSAGE_BUFFER_HOURS'):
-            buffer_hours = settings.ADHERENCE_MESSAGE_BUFFER_HOURS
-            return timezone.now() - timedelta(hours=int(buffer_hours))
-        else:
-            raise AdherenceAlert.AdherenceMessageBufferNotSet('Message buffer not set')
+    def get_throttling_rules(self):
+        return [
+            {
+                'message_limit': 1,
+                'offset_hours': 24
+            },
+            {
+                'message_limit': 2,
+                'offset_hours': 24*4
+            }
+        ]
     
     def create_adherence_message(self, body, category=None):
         if not self._configuration.enabled:
             raise AdherenceServiceBase.AdherenceMessageDisabled('Unable to send messages if disabled')
         
-        recently_sent_message_count = AdherenceMessage.objects.filter(
-            user = self._user,
-            created__gte = self.get_message_buffer_time()
-        ).count()
-        if recently_sent_message_count > 0:
-            raise AdherenceServiceBase.AdherenceMessageRecentlySent('Unable to create message')
+        for rule in self.get_throttling_rules():
+            limit = rule['message_limit']
+            offset_hours = rule['offset_hours']
+
+            count = AdherenceMessage.objects.filter(
+                user = self._user,
+                created__gte = timezone.now() - timedelta(hours=offset_hours)
+            ).count()
+            if count >= limit :
+                raise AdherenceServiceBase.AdherenceMessageRecentlySent('Unable to create message')
         
         message = AdherenceMessage.objects.create(
             user = self._user,
@@ -374,5 +383,5 @@ class AdherenceService(
     def send_adherence_message(self):
         self.send_app_install_message()
         self.send_app_use_adherence_message()
-        self.send_fitbit_not_updated_message()
-        self.send_fitbit_not_worn_message()
+        # self.send_fitbit_not_updated_message()
+        # self.send_fitbit_not_worn_message()

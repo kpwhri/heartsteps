@@ -45,11 +45,16 @@ class PushMessageService():
             return ClientBase(self.device)
 
     def get_device_for_user(self, user):
-        try:
-            device = Device.objects.get(user=user, active=True)
-        except Device.DoesNotExist:
+        device = Device.objects.filter(
+            user = user,
+            active = True
+        ) \
+        .order_by('-created') \
+        .first()
+        if device:
+            return device
+        else:
             raise DeviceMissingError()
-        return device
 
     def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}):
         message = Message.objects.create(

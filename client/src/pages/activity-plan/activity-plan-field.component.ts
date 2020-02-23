@@ -1,11 +1,13 @@
-import { Component, forwardRef, ElementRef, Renderer2, ViewChild } from "@angular/core";
+import { Component, forwardRef, ElementRef, Renderer2, ViewChild, OnDestroy } from "@angular/core";
 import { AbstractField } from "@infrastructure/form/abstract-field";
 import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirective, FormGroupName } from "@angular/forms";
 import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
 import { Subscription } from "rxjs";
 import { DateFactory } from "@infrastructure/date.factory";
-import { DailyTimeService, DailyTime } from "@heartsteps/daily-times/daily-times.service";
+import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
+import { ActivityType } from "@heartsteps/activity-types/activity-type.service";
+import { ActivityPlanService } from "@heartsteps/activity-plans/activity-plan.service";
 
 @Component({
     selector: 'activity-plan-field',
@@ -22,10 +24,12 @@ export class ActivityPlanField extends AbstractField {
     public planForm: FormGroup;
     public availableDates: Array<Date>;
     public dailyTimes: Array<SelectOption>;
+    public activityTypes: Array<ActivityType>;
 
     private activityPlan: ActivityPlan;
     private planFormSubscription:Subscription;
     private planFormStatusSubscription: Subscription;
+    private activityTypeSubscription: Subscription;
 
     public isFormField: boolean = false;
 
@@ -34,7 +38,8 @@ export class ActivityPlanField extends AbstractField {
         element: ElementRef,
         renderer: Renderer2,
         private dateFactory: DateFactory,
-        private dailyTimeService: DailyTimeService
+        private dailyTimeService: DailyTimeService,
+        private activityPlanService: ActivityPlanService
     ) {
         super(formGroup, element, renderer)
 
@@ -44,6 +49,10 @@ export class ActivityPlanField extends AbstractField {
                 name: dailyTime.name,
                 value: dailyTime.key
             });
+        });
+        this.activityPlanService.watchActivityTypes()
+        .subscribe((activityTypes) => {
+            this.activityTypes = activityTypes;
         });
     }
 
@@ -135,6 +144,9 @@ export class ActivityPlanField extends AbstractField {
         }
         if(this.planFormStatusSubscription) {
             this.planFormStatusSubscription.unsubscribe();
+        }
+        if (this.activityTypeSubscription) {
+            this.activityTypeSubscription.unsubscribe();
         }
     }
 

@@ -1,6 +1,33 @@
 var path = require('path');
 var webpack = require('webpack');
 var webpackConfig = require('@ionic/app-scripts/config/webpack.config');
+var xml2js = require('xml2js');
+var fs = require('fs');
+var moment = require('moment');
+
+var BUILD_NUMBER = '2.0.0';
+var BUILD_VERSION = '123';
+var BUILD_DATE = moment().format('MMMM Do, YYYY');
+
+if (process.env.BUILD_NUMBER && process.env.BUILD_VERSION) {
+    console.log('* Setting config.xml build number and version');
+    BUILD_NUMBER = process.env.BUILD_NUMBER;
+    BUILD_VERSION = process.env.BUILD_VERSION;
+    fs.readFile('./config.xml', 'utf8', function(err, data) {
+        var parser = new xml2js.Parser();
+        parser.parseString(data, function(err, obj) {
+            obj['widget']['$']['android-versionCode'] = process.env.BUILD_NUMBER;
+            obj['widget']['$']['osx-CFBundleVersion'] = process.env.BUILD_NUMBER;
+            obj['widget']['$']['version'] = process.env.BUILD_VERSION;
+
+            var builder = new xml2js.Builder();
+            xml = builder.buildObject(obj);
+            fs.writeFile('./config.xml', xml, function() {
+                console.log('* Updated config.xml');
+            });
+        });
+    });
+}
 
 const env = process.env.IONIC_ENV;
 
@@ -26,13 +53,15 @@ var envs = new webpack.EnvironmentPlugin({
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',
     BUILD_PLATFORM: 'website',
-    BUILD_VERSION: '2.0.0',
-    BUILD_NUMBER: '12345',
-    BUILD_DATE: '2019-04-22'
+    BUILD_VERSION: BUILD_VERSION,
+    BUILD_NUMBER: BUILD_NUMBER,
+    BUILD_DATE: BUILD_DATE
 });
 
 webpackConfig.dev.plugins.push(envs);
 webpackConfig.prod.plugins.push(envs);
+
+
 
 module.exports = function() {
     return webpackConfig;   

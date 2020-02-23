@@ -26,9 +26,9 @@ export class MessageService {
         private documentStorageService: DocumentStorageService
     ) {}
 
-    public setup():Promise<boolean> {
+    public setup():Promise<void> {
         if(this.isSetup) {
-            return Promise.resolve(true);
+            return Promise.resolve(undefined);
         } else {
             this.isSetup = true;
 
@@ -48,7 +48,7 @@ export class MessageService {
 
             return this.pushNotificationService.setup()
             .then(() => {
-                return true;
+                return undefined;
             });
         }
     }

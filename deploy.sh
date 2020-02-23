@@ -6,17 +6,17 @@ gcloud config set project heartsteps-kpwhri
 gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
 
 cp .env-production server/.env
-cp .env-production client/.env
+# cp .env-production client/.env
 
 docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
 docker-compose build server > dev/null
-docker-compose build client > /dev/null
+# docker-compose build client > /dev/null
 
-docker-compose run client npm run build:app --prod
-gsutil -m rsync -dr client/www gs://heartsteps-assets/app
+# docker-compose run client npm run build:app --prod
+# gsutil -m rsync -dr client/www gs://heartsteps-assets/app
 
-docker-compose run -e BUILD_NUMBER=$TRAVIS_BUILD_NUMBER client npm run build:website --prod
-gsutil -m rsync -dr client/www gs://heartsteps-assets/website
+# docker-compose run -e BUILD_NUMBER=$TRAVIS_BUILD_NUMBER client npm run build:website --prod
+# gsutil -m rsync -dr client/www gs://heartsteps-assets/website
 
 docker-compose run server python manage.py collectstatic
 gsutil -m rsync -dr server/static gs://heartsteps-assets/static

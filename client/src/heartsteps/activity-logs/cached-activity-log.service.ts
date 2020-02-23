@@ -7,6 +7,7 @@ import { DateFactory } from "@infrastructure/date.factory";
 import * as moment from 'moment';
 import { Subscribable } from "rxjs/Observable";
 import { ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
+import { ActivityType, ActivityTypeService } from "@heartsteps/activity-types/activity-type.service";
 
 @Injectable()
 export class CachedActivityLogService {
@@ -19,7 +20,8 @@ export class CachedActivityLogService {
         private documentStorageService: DocumentStorageService,
         private activityLogService: ActivityLogService,
         private dateFactory: DateFactory,
-        private participantInformationService: ParticipantInformationService
+        private participantInformationService: ParticipantInformationService,
+        private activityTypeService: ActivityTypeService
     ) {}
 
     public setup():Promise<boolean> {
@@ -61,6 +63,31 @@ export class CachedActivityLogService {
 
         return daySubject.asObservable();
     }
+
+    public watchActivityTypes(): Subscribable<Array<ActivityType>> {
+        return this.activityTypeService.activityTypes
+        .map((activityTypes) => {
+            const activityLogTypes = {};
+            this.activityLogs.value.forEach((plan) => {
+                if(activityLogTypes[plan.type]) {
+                    activityLogTypes[plan.type] += 1;
+                } else {
+                    activityLogTypes[plan.type] = 1;
+                }
+            })
+            activityTypes.sort((a , b) => {
+                let aCount = activityLogTypes[a.name] || 0;
+                let bCount = activityLogTypes[b.name] || 0;
+                if (aCount > bCount) return -1;
+                if (aCount < bCount) return 1;
+                if (a.title > b.title) return 1;
+                if (a.title < b.title) return -1;
+                return 0;
+            })
+            return activityTypes;
+        });
+    }
+
 
     public load(start: Date, end: Date): Promise<Array<ActivityLog>> {
         return Promise.resolve([]);

@@ -4,25 +4,24 @@ import {
     TestBed
 } from '@angular/core/testing';
 import { MyApp } from './app.component';
-import { IonicModule } from 'ionic-angular';
+import { IonicModule, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { AuthorizationService } from '@app/authorization.service';
-import { NotificationService } from '@app/notification.service.ts';
+import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
 import { RouterModule, Router } from '@angular/router';
 import { HomePageModule } from '@pages/home/home.module';
-import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
+import { AppService } from './app.service';
+import { BehaviorSubject } from 'rxjs';
 
 class ParticipantServiceMock {
+    public participant: BehaviorSubject<Participant> = new BehaviorSubject(undefined);
+}
+
+class AppServiceMock {
 
 }
 
-class AuthorizationServiceMock {
-
-}
-
-class BackgroundServiceMock {
+class RouterMock {
 
 }
 
@@ -41,11 +40,9 @@ describe('MyApp', () => {
             providers: [
                 StatusBar,
                 SplashScreen,
-                { provide: Router, useClass: BackgroundServiceMock },
+                { provide: Router, useClass: RouterMock },
                 { provide: ParticipantService, useClass: ParticipantServiceMock },
-                { provide: AuthorizationService, useClass: AuthorizationServiceMock },
-                { provide: NotificationService, useClass: BackgroundServiceMock },
-                { provide: AnalyticsService, useClass: BackgroundServiceMock }
+                { provide: AppService, useClass: AppServiceMock },
             ]
         });
         fixture = TestBed.createComponent(MyApp);

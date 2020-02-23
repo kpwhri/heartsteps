@@ -818,6 +818,8 @@ class DecisionAvailabilityTest(TestCase):
     def test_step_count_before_walking_suggestion_time(self):
         now = timezone.now()
         suggestion_time = now + timedelta(minutes=10)
+        # Destroy default suggestion times, so test logic will work
+        SuggestionTime.objects.all().delete()
         SuggestionTime.objects.create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,

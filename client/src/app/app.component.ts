@@ -1,51 +1,36 @@
 import { Component } from '@angular/core';
+import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
+import { Router } from '@angular/router';
+import { AppService } from './app.service';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
-import { NotificationService } from './notification.service';
-import { AuthorizationService } from './authorization.service';
-import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
-import { Router } from '@angular/router';
 
 @Component({
     templateUrl: 'app.html'
 })
 export class MyApp {
 
-    showDashboard: boolean = false;
-
     constructor(
         platform: Platform,
         statusBar: StatusBar,
         splashScreen: SplashScreen,
         private participantService:ParticipantService,
-        private notificationService: NotificationService,
-        private authorizationService: AuthorizationService,
-        private analyticsService: AnalyticsService,
+        private appService: AppService,
         private router: Router
     ) {
+        console.log('AppComponent', 'starting...')
+        this.participantService.participant.subscribe((participant) => {
+            console.log('AppComponent', 'got participant', participant);
+            this.updateRoute(participant);
+        });
+        
         platform.ready()
         .then(() => {
-            return this.analyticsService.setup();
+            return this.appService.setup()
         })
         .then(() => {
-            this.participantService.participant.subscribe((participant) => {
-                console.log('App component', 'got participant', participant);
-                Promise.all([
-                    this.setupAuthorization(participant),
-                    this.setupNotifications(participant)
-                ])
-                .catch(() => {
-                    console.log('There was an error');
-                })
-                .then(() => {
-                    this.updateRoute(participant);
-                });
-            });
-            return this.participantService.update();
-        })
-        .then(() => {
+            console.log('AppComponent', 'setup');
             statusBar.styleDefault();
             splashScreen.hide();
         });
@@ -65,19 +50,4 @@ export class MyApp {
         }
     }
 
-    private setupAuthorization(participant:any) {
-        if(participant) {
-            return this.authorizationService.setup();
-        } else {
-            return this.authorizationService.reset();
-        }
-    }
-
-    private setupNotifications(participant:any): Promise<void> {
-        if(participant) {
-            return this.notificationService.setup();
-        } else {
-            return Promise.resolve();
-        }
-    }
 }

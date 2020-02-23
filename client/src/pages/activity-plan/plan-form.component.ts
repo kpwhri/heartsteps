@@ -6,6 +6,7 @@ import { ActivityPlan } from '@heartsteps/activity-plans/activity-plan.model';
 import { DateFactory } from '@infrastructure/date.factory';
 import { FormComponent } from '@infrastructure/form/form.component';
 import { LoadingService } from '@infrastructure/loading.service';
+import { ActivityTypeService, ActivityType } from '@heartsteps/activity-types/activity-type.service';
 
 @Component({
     selector: 'activity-plan-form',
@@ -18,6 +19,7 @@ export class PlanFormComponent implements OnInit {
 
     public activityPlan:ActivityPlan;
     public availableDates:Array<Date>;
+    public activityTypes: Array<ActivityType> = [];
 
     public planForm:FormGroup;
     public error:string;
@@ -32,6 +34,10 @@ export class PlanFormComponent implements OnInit {
 
     ngOnInit() {
         this.availableDates = this.dateFactory.getCurrentWeek();
+        this.activityPlanService.watchActivityTypes()
+        .subscribe((activityTypes)=> {
+            this.activityTypes = activityTypes;
+        });
     }
 
     @Input('plan')

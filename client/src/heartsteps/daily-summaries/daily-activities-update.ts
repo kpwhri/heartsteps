@@ -4,6 +4,7 @@ import { DailySummaryService } from "./daily-summary.service";
 import * as moment from 'moment';
 import { DailySummary } from "./daily-summary.model";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
+import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({
     selector: 'heartsteps-activity-daily-update',
@@ -19,7 +20,8 @@ export class DailyActivitiesUpdateComponent {
 
     constructor(
         private dailySummaryService: DailySummaryService,
-        private alertDialog: AlertDialogController
+        private alertDialog: AlertDialogController,
+        private loadingService: LoadingService
     ) {}
 
     @Input('summary')
@@ -57,16 +59,15 @@ export class DailyActivitiesUpdateComponent {
     }
 
     public refresh() {
-        this.loading = true;
+        this.loadingService.show('Requesting data from Fitbit');
         this.dailySummaryService.updateFromFitbit(this.summary.date)
         .then((summary) => {
             this.update(summary);
+            this.loadingService.dismiss();
         })
         .catch(() => {
+            this.loadingService.dismiss();
             this.alertDialog.show('Update failed');
-        })
-        .then(() => {
-            this.loading = false;
         });
     }
 }

@@ -5,11 +5,9 @@ import { ParticipantService } from "@heartsteps/participants/participant.service
     template: ''
 })
 export class RootComponent {
-
     constructor(
         private participantService: ParticipantService
     ) {
-        console.log('ROOT COMPONENT!');
         this.participantService.update();
     }
 }

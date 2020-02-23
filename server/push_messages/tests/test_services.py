@@ -16,7 +16,7 @@ class TestPushMessageService(TestCase):
         Device.objects.create(
             user = user,
             token = 'example-token',
-            type = 'android',
+            type = Device.ANDROID,
             active = True
         )
         return user
@@ -38,6 +38,27 @@ class TestPushMessageService(TestCase):
         push_message_service = PushMessageService(user)
 
         self.assertIsNotNone(push_message_service.device)
+
+    def test_gets_most_recent_active_device(self):
+        user = self.make_user()
+
+        Device.objects.create(
+            user = user,
+            token = 'newer-device-token',
+            type = Device.ANDROID,
+            active = True
+        )
+        Device.objects.create(
+            user = user,
+            token = 'newer-deactivated-device-token',
+            type = Device.ANDROID,
+            active = False
+        )
+
+        push_message_service = PushMessageService(user)
+
+        self.assertIsNotNone(push_message_service.device)
+        self.assertEqual(push_message_service.device.token, 'newer-device-token')
 
     @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_notification(self, send):

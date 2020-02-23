@@ -301,12 +301,16 @@ class FitbitClient():
         response = self.make_request('user/-/devices.json')
         devices = []
         for device in response:
-            devices.append({
-                'battery_level': device['batteryLevel'],
-                'id': device['id'],
-                'last_sync_time': self.parse_datetime(device['lastSyncTime']),
-                'mac': device['mac'],
-                'type': device['type'],
-                'device_version': device['deviceVersion']
-            })
+            if 'id' in device:
+                last_sync_time = None
+                if 'lastSyncTime' in device:
+                    last_sync_time = self.parse_datetime(device.get('lastSyncTime'))
+                devices.append({
+                    'battery_level': device.get('batteryLevel', None),
+                    'id': device.get('id'),
+                    'last_sync_time': last_sync_time,
+                    'mac': device.get('mac', None),
+                    'type': device.get('type', None),
+                    'device_version': device.get('deviceVersion', None)
+                })
         return devices

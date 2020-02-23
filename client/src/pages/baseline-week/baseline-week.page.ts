@@ -5,6 +5,7 @@ import moment from 'moment';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { Router } from '@angular/router';
 import { ParticipantInformationService } from '@heartsteps/participants/participant-information.service';
+import { promises } from 'fs';
 
 class Day {
     public date: Date;
@@ -67,10 +68,21 @@ export class BaselineWeekPage {
         return day;
     }
 
-    private setDays(): Promise<void> {
+    private setBaselinePeriod(): Promise<void> {
         return this.participantInformationService.getBaselinePeriod()
         .then((baselinePeriod) => {
             this.baselinePeriod = baselinePeriod;
+            return undefined
+        })
+        .catch(() => {
+            this.baselinePeriod = 7;
+            return Promise.resolve(undefined);
+        })
+    }
+
+    private setDays(): Promise<void> {
+        return this.setBaselinePeriod()
+        .then(() => {
             return this.dailySummaryService.getAll()
         })
         .then((dailySummaries) => {

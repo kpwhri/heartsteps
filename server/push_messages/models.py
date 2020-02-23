@@ -6,6 +6,11 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 
 class Device(models.Model):
+
+    ANDROID = 'android'
+    IOS = 'ios'
+    ONESIGNAL = 'onesignal'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User)
 

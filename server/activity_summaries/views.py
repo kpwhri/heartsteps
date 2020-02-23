@@ -15,21 +15,14 @@ from .models import Day
 from .serializers import DaySerializer
 
 def get_summary(user, date):
-    try:
-        return Day.objects.get(
-            user = user,
-            date__year = date.year,
-            date__month = date.month,
-            date__day = date.day
-        )
-    except Day.DoesNotExist:
-        day = Day.objects.create(
-            user = user,
-            date = date
-        )
-        day.update_from_fitbit()
+    day, created = Day.objects.get_or_create(
+        user = user,
+        date = date
+    )
+    if created:
         day.update_from_activities()
-        return day
+        day.update_from_fitbit()
+    return day
 
 
 class DaySummaryView(DayView):

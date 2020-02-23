@@ -1,8 +1,11 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DateFactory } from "@infrastructure/date.factory";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
+import { ActivityType } from "@heartsteps/activity-types/activity-type.service";
+import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
+import { Subscription } from "rxjs";
 
 
 @Component({
@@ -34,13 +37,20 @@ export class ActivityLogFormComponent {
             name: "Maximum effort",
             value: 1
         }
-    ]
+    ];
+    public activityTypes: Array<ActivityType>;
 
     @Output('onSubmit') submitted: EventEmitter<ActivityLog> = new EventEmitter();
 
     constructor(
-        private dateFactory: DateFactory
-    ) {}
+        private dateFactory: DateFactory,
+        private activityLogService: CachedActivityLogService
+    ) {
+        this.activityLogService.watchActivityTypes()
+        .subscribe((activityTypes) => {
+            this.activityTypes = activityTypes;
+        });
+    }
 
     @Input('activityLog')
     set setActivityLog(activityLog: ActivityLog) {
