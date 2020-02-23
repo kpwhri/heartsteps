@@ -10,8 +10,8 @@ from sklearn import preprocessing
 import os
 import random
 
-def dist(x,x2):
-    return math.exp(-((x-x2)**2)/1.0)
+def dist(one,two):
+    return np.exp(-(one-two)**2/4.6**2)
 
 def get_distance(days):
     to_return = []
