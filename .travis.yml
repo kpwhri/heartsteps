@@ -12,7 +12,8 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 
 before_script:
-- docker rm -f $(docker ps -aq) && docker volume prune -f
+- docker system prune -a
+- docker volume prune -f
 - cp .env-production server/.env
 - cp .env-production client/.env
 - docker-compose build service-template > /dev/null
