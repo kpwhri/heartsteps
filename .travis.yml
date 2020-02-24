@@ -12,12 +12,13 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 
 before_script:
+- docker rm -f $(docker ps -aq) && docker volume prune -f
 - cp .env-production server/.env
 - cp .env-production client/.env
 - docker-compose build service-template > /dev/null
 - docker-compose build walking-suggestion-service anti-sedentary-service nginx > /dev/null
 - docker-compose build server > /dev/null
-- docker-compose run server python manage.py migrate > /dev/null
+- docker-compose run server python manage.py migrate > /dev/null/
 # - docker-compose build client > /dev/null
 
 script:
