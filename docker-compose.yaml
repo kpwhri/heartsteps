@@ -36,7 +36,9 @@ services:
       - cloudsql:/cloudsql
       - ./credentials:/credentials
   db:
-    image: postgres
+    environment: 
+      - POSTGRES_PASSWORD=password
+    image: postgres:10
     volumes:
       - pgdata:/var/lib/postgresql/data
   heartsteps-app:
@@ -112,7 +114,7 @@ services:
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
-      - DATABASE_URL=psql://postgres@db:5432/postgres
+      - DATABASE_URL=psql://postgres:password@db:5432/postgres
     command: ["honcho", "start", "dev"]
     volumes:
       - ./server:/server
