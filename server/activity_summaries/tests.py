@@ -178,6 +178,37 @@ class FitbitDayUpdatesDay(TestCase):
         day = Day.objects.get()
         self.assertEqual(day.steps, 900)
 
+    def test_updating_fitbit_with_multiple_day_summaries(self):
+        """
+        This test is a quick fix for issue #122 on github
+        https://github.com/kpwhri/heartsteps/issues/122
+
+        We want to make sure having multiple day entries, which is a bug
+        don't cause updating fitbit information to break.
+        Note: We don't know why multiple day entries are being created.
+        """
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 1 ,6)
+        )
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 1 ,6)
+        )
+
+        self.fitbit_day.step_count = 600
+        self.fitbit_day.distance = 1.234
+        self.fitbit_day.save()
+
+        days = Day.objects.filter(
+            user=self.user,
+            date=date(2019,1,6)
+        ) \
+        .all()
+        for day in days:
+            self.assertEqual(day.steps, 600)
+        self.assertEqual(len(days), 3)
+
 class ActivitLogUpdateDay(TestCase):
     
     def setUp(self):
@@ -234,3 +265,34 @@ class ActivitLogUpdateDay(TestCase):
         day = Day.objects.get()
         self.assertEqual(day.activities_completed, 2)
         self.assertEqual(day.total_minutes, 20)
+
+    def test_updates_multiple_activity_summaries_if_exists(self):
+        """
+        This test is a quick fix for issue #122 on github
+        https://github.com/kpwhri/heartsteps/issues/122
+
+        We want to make sure having multiple day entries, which is a bug
+        don't cause updating fitbit information to break.
+        Note: We don't know why multiple day entries are being created.
+        """
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 1 ,6)
+        )
+        Day.objects.create(
+            user = self.user,
+            date = date(2019, 1 ,6)
+        )
+
+        self.create_log_for_date(date(2019, 1, 6))
+
+        days = Day.objects.filter(
+            user=self.user,
+            date=date(2019,1,6)
+        ) \
+        .all()
+        for day in days:
+            self.assertEqual(day.activities_completed, 1)
+            self.assertEqual(day.moderate_minutes, 10)
+        self.assertEqual(len(days), 2)
+
