@@ -451,6 +451,11 @@ if(is.null(check)){
   # update the history 
   data.history <- rbind(data.history, day.history)
   
+  # for the skipped decision times set the availability to FALSE
+  data.history$availability[is.na(data.history$random.number)] <- 0
+  
+  
+  
   # ================ Update the policy using the updated history ================ 
   
   # 1. Create the training dataset: winsoration, standarization (using the whole dataset)
