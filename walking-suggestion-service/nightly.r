@@ -451,7 +451,9 @@ if(is.null(check)){
   # update the history 
   data.history <- rbind(data.history, day.history)
   
-  # for the skipped decision times set the availability to FALSE
+  # for the skipped decision times set the availability to FALSE 
+  # This is for the learning algorithm; 
+  # and we should figure out what happens for these decision times in the after-study analysis 
   data.history$availability[is.na(data.history$random.number)] <- 0
   
   
