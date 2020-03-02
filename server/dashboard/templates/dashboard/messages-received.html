@@ -1,0 +1,52 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load tz %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link active">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-messages-received' cohort.id %}" class="nav-link">Messages Received</a>
+{% endblock %}
+
+
+{% block body %}
+<h2>Messages Received for {{cohort.name}}</h2>
+<table class="table">
+    <thead>
+        <td>Date</td>
+        <td>Time</td>
+        <td>Participant</td>
+        <td>Message</td>
+    </thead>
+    <tbody>
+        {% timezone 'US/Pacific' %}
+        {% for message in sms_messages %}
+        <tr>
+            <td>{{message.created | date:"SHORT_DATE_FORMAT"}}</td>
+            <td>{{message.created | date:"SHORT_DATE_FORMAT"}}</td>
+            <td>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id message.heartsteps_id %}">
+                    {{message.heartsteps_id}}
+                </a>
+            </td>
+            <td>
+                {{message.body}}
+                <br />
+                <a href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id message.heartsteps_id %}">
+                    {{message.heartsteps_id}} text messages history
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endtimezone %}
+    </tbody>
+</table>
+
+{% if prev_page %}
+<a href="?page={{prev_page}}">Previous Page</a>
+{% endif %}
+{% if next_page %}
+<a href="?page={{next_page}}">Next Page</a>
+{% endif %}
+
+{% endblock %}

@@ -14,6 +14,9 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
+from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage as PaginatorEmptyPage
+from django.core.paginator import PageNotAnInteger as PatinatorPageNotAnInteger
 
 from adherence_messages.models import AdherenceMetric
 from adherence_messages.services import AdherenceService
@@ -28,6 +31,8 @@ from participants.services import ParticipantService
 from push_messages.services import PushMessageService
 from randomization.models import UnavailableReason
 from sms_messages.services import SMSService
+from sms_messages.models import Contact as SMSContact
+from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.models import WalkingSuggestionDecision
 
@@ -197,6 +202,56 @@ class InterventionSummaryView(CohortView):
         context['time_ranges'] = time_ranges
 
         return context
+
+class MessagesReceivedView(CohortView):
+    template_name = 'dashboard/messages-received.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        participants = self.query_participants()
+        users = [p.user for p in participants if p.user]
+        contacts = SMSContact.objects.filter(
+            user__in=users
+        ).all()
+        numbers = [c.number for c in contacts if c.number]
+
+        messages = []
+        sms_messages_list = SMSMessage.objects.filter(
+            sender__in = numbers
+        ) \
+        .order_by('-created') \
+        .all()
+
+        paginator = Paginator(sms_messages_list, 50)
+        page = int(self.request.GET.get('page', 1))
+        try:
+            sms_messages = paginator.page(page)
+        except PaginatorEmptyPage:
+            page = paginator.num_pages
+            sms_messages = paginator.page(paginator.page)
+        if page + 1 < paginator.num_pages:
+            context['next_page'] = page + 1
+        if page > 1:
+            context['prev_page'] = page - 1
+
+        for sms_message in sms_messages:
+            heartsteps_id = None
+            for c in contacts:
+                if c.number == sms_message.sender:
+                    for p in participants:
+                        if p.user == c.user:
+                            heartsteps_id = p.heartsteps_id
+            if heartsteps_id and '@' in heartsteps_id:
+                continue
+            messages.append({
+                'created': sms_message.created,
+                'body': sms_message.body,
+                'heartsteps_id': heartsteps_id
+            })
+
+        context['sms_messages'] = messages
+        return context
+        
 
 class ParticipantView(CohortView):
     template_name = 'dashboard/participant.html'
