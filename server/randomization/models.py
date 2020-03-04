@@ -72,7 +72,11 @@ class Decision(models.Model):
     UNAVAILABLE_SERVICE_ERROR = UnavailableReason.SERVICE_ERROR
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
 
     test = models.BooleanField(default=False)
     imputed = models.BooleanField(default=False)
