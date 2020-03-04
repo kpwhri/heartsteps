@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     'sms_service',
     'sms_messages',
     'adherence_messages',
+    'activity_surveys',
     'heartsteps_data_download',
     'heartsteps_messages'
 ]
