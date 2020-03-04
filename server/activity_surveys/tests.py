@@ -1,3 +1,10 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+class ActivitySurveyRandomizationTests(TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_randomize_when_fitbit_activity_created(self):
+        pass
