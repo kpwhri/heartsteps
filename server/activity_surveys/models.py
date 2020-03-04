@@ -13,5 +13,8 @@ class Configuration(models.Model):
     )
     enabled = models.BooleanField(default = True)
 
+class ActivitySurveyQuestion(Question):
+    pass
+
 class ActivitySurvey(Survey):
     pass
