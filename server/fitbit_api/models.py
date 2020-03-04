@@ -109,6 +109,14 @@ class FitbitAccount(models.Model):
         else:
             return None
 
+    def get_users(self):
+        account_users = FitbitAccountUser.objects.filter(
+            account = self
+        ) \
+        .prefetch_related('user') \
+        .all()
+        return [au.user for au in account_users]
+
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)
     account = models.ForeignKey(FitbitAccount)
