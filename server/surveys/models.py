@@ -12,6 +12,8 @@ class Question(models.Model):
     label = models.CharField(max_length=250)
     description = models.CharField(max_length=250, null=True, blank=True)
 
+    order = models.IntegerField(null=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -92,6 +94,13 @@ class Survey(models.Model):
         )
         for answer in question.answers:
             survey_question.add_option(answer)
+
+    def reset_questions(self):
+        SurveyQuestion.objects.filter(survey=self).delete()
+
+        question_query = self.QUESTION_MODEL.objects.order_by('-order', 'id')
+        for question in question_query.all():
+            self.add_question(question.name)
 
     def randomize_questions(self):
         SurveyQuestion.objects.filter(survey=self).delete()
