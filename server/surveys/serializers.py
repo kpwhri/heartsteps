@@ -18,9 +18,12 @@ class SurveySerializer(serializers.ModelSerializer):
                 'description': question.description,
                 'options': [{'label': option.label, 'value': option.value } for option in question.options]
             })
-        representation['questions'] = questions
-
+        
+        representation['id'] = str(instance.uuid)
         representation['completed'] = instance.answered
+        representation['questions'] = questions
+        
+        # might need to download responses here.
 
         return representation
 

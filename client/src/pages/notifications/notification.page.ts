@@ -16,6 +16,7 @@ export class NotificationPage implements OnInit {
     public title: string;
     public body: string;
 
+    public surveyId: string;
     public form: FormGroup;
     public questions: Array<any>;
 
@@ -79,7 +80,7 @@ export class NotificationPage implements OnInit {
                 });
                 form.addControl(question.name, new FormControl(response[question.name]));
             });
-
+            this.surveyId = survey.id;
             this.form = form;
             this.questions = questions;
         } else {
@@ -115,6 +116,24 @@ export class NotificationPage implements OnInit {
             .then(() => {
                 this.dismiss();
             })
+        } else {
+            this.dismiss();
+        }
+    }
+
+    public saveSurvey() {
+        if(this.surveyId && this.form) {
+            if(this.form.valid) {
+                this.heartstepsServer.post('surveys/'+this.surveyId+'/response', this.form.value)
+                .then(() => {
+                    this.dismiss()
+                })
+                .catch(() => {
+                    console.log('failed to save?')
+                });
+            } else {
+
+            }
         } else {
             this.dismiss();
         }

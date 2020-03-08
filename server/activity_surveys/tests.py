@@ -177,6 +177,10 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         )
 
         self.send_notification.assert_called()
+        data = self.send_notification.call_args[1]['data']
+        survey = ActivitySurvey.objects.get()
+        self.assertEqual(data['survey']['id'], str(survey.uuid))
+
 
     def test_does_not_send_message_if_activity_ended_more_than_an_hour_ago(self):
         fitbit_activity = self.create_fitbit_activity()

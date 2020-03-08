@@ -9,7 +9,6 @@
         submitLabel = "Complete"
         (onSubmit) = "saveSurvey()"
         >
-        <p>Hi survey!</p>
         <app-range-field *ngFor="let question of questions"
             [formControlName]="question.name"
             [label]="question.label"

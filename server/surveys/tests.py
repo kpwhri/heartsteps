@@ -126,6 +126,7 @@ class SurveySerializerTest(TestCase):
         serialized = SurveySerializer(survey)
         data = serialized.data
 
+        self.assertEqual(data['id'], str(survey.uuid))
         self.assertEqual(len(data['questions']), 2)
         question = data['questions'][0]
         self.assertEqual(question['name'], 'sample question')
