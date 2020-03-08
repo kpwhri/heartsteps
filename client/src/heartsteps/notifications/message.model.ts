@@ -8,6 +8,8 @@ export class Message {
     public title: string;
     public body: string;
 
+    public survey: any;
+
     public context: any = {};
 
     constructor(

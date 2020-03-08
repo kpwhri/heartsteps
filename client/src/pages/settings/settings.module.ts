@@ -20,6 +20,7 @@ import { FitbitAuthorizationPage } from './fitbit-authorization.page';
 import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { FitbitWatchPage } from './fitbit-watch.page';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
+import { ActivitySurveysModule } from '@heartsteps/activity-surveys/activity-surveys.module';
 
 const settingsRoutes: Routes = [
     {
@@ -83,6 +84,7 @@ const settingsRoutes: Routes = [
         RouterModule
     ],
     imports: [
+        ActivitySurveysModule,
         AntiSedentaryModule,
         BrowserModule,
         ContactInformationModule,

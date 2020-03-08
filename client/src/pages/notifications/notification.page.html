@@ -4,7 +4,19 @@
         >
         <p>{{body}}</p>
     </div>
-    <app-form *ngIf="ratingForm && !loading"
+    <app-form *ngIf="form && !loading"
+        [formGroup] = "form"
+        submitLabel = "Complete"
+        (onSubmit) = "saveSurvey()"
+        >
+        <p>Hi survey!</p>
+        <app-range-field *ngFor="let question of questions"
+            [formControlName]="question.name"
+            [label]="question.label"
+            [options]="question.options"
+        ></app-range-field>
+    </app-form>
+    <app-form *ngIf="ratingForm && !form && !loading"
         [formGroup] = "ratingForm"
         submitLabel = "Complete"
         (onSubmit) = "saveRating()"
@@ -44,5 +56,5 @@
             >
         </app-text-field>
     </app-form>
-    <button *ngIf="!ratingForm && !loading" (click)="dismiss()">Close</button>
+    <button *ngIf="!form && !ratingForm && !loading" (click)="dismiss()">Close</button>
 </app-page>

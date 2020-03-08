@@ -10,6 +10,7 @@ import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.
 import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Message } from "@heartsteps/notifications/message.model";
+import { ActivitySurveyService } from "@heartsteps/activity-surveys/activity-survey.service";
 
 declare var process: {
     env: {
@@ -37,7 +38,8 @@ export class SettingsPage {
         private morningMessageService: MorningMessageService,
         private antiSedentaryService: AntiSedentaryService,
         private participantService: ParticipantService,
-        private platform: Platform
+        private platform: Platform,
+        private activitySurveyService: ActivitySurveyService
     ) {
         this.participantService.participant
         .filter(participant => participant !== undefined)
@@ -213,5 +215,19 @@ export class SettingsPage {
 
     public testBaselineWeekPage() {
         this.router.navigate(['baseline'])
+    }
+
+    public testActivitySurvey() {
+        this.loadingService.show("Requesting activity survey");
+        this.activitySurveyService.sendTestActivitySurvey()
+        .then((message) => {
+            this.loadingService.dismiss();
+            if(!this.platform.is('cordova')) {
+                return this.openMessage(message);
+            }
+        })
+        .catch((error) => {
+            this.alertDialog.show(error);
+        });
     }
 } 

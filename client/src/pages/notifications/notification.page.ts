@@ -16,6 +16,9 @@ export class NotificationPage implements OnInit {
     public title: string;
     public body: string;
 
+    public form: FormGroup;
+    public questions: Array<any>;
+
     public loading: boolean;
     public ratingForm: FormGroup;
     public isStaff: boolean;
@@ -39,6 +42,10 @@ export class NotificationPage implements OnInit {
                 this.title = this.notification.title;
                 this.body = this.notification.body;
 
+                if(this.notification.context.survey) {
+                    this.updateSurvey(this.notification.context.survey);
+                }
+
                 if(this.notification.context.randomizationId) {
                     this.setupRatingForm();
                     this.updateStaffStatus();
@@ -46,15 +53,39 @@ export class NotificationPage implements OnInit {
                     this.ratingForm = null;
                 }
             }) 
-            this.messageService.getMessage(notificationId)
-            .then((notification) => {
-            });
         });
     }
 
     public dismiss() {
         this.notification.engaged();
         this.router.navigate(['']);
+    }
+
+    private updateSurvey(survey: any) {
+        if (survey.questions) {
+            const form = new FormGroup({});
+            const questions = [];
+            const response = {};
+            survey.questions.forEach((question) => {
+                questions.push({
+                    name: question.name,
+                    label: question.label,
+                    options: question.options.map((option) => {
+                        return {
+                            name: option.label,
+                            value: option.value
+                        };
+                    })
+                });
+                form.addControl(question.name, new FormControl(response[question.name]));
+            });
+
+            this.form = form;
+            this.questions = questions;
+        } else {
+            this.form = undefined;
+            this.questions = [];
+        }
     }
 
     private updateStaffStatus() {
