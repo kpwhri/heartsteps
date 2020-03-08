@@ -3,8 +3,11 @@ FROM openjdk:8
 # enables live reload for windows
 ENV CHOKIDAR_USEPOLLING 1
 
+
 # # Install gradle
-RUN apt-get update && apt-get install -y gradle
+RUN apt-get update && \ 
+    apt-get install -y gradle && \
+    apt-get install build-essential -y --no-install-recommends
 
 # # Install Android SDK
 # ENV ANDROID_HOME /usr/local/android-sdk
@@ -16,7 +19,7 @@ RUN apt-get update && apt-get install -y gradle
 # ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 # Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get update && \ 
     apt-get install -y nodejs
 
