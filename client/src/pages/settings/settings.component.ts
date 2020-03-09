@@ -88,13 +88,15 @@ export class SettingsComponent {
         this.loadingService.show("Requesting anti-sedentary message");
         this.antiSedentaryService.sendTestMessage()
         .then((message) => {
-            this.loadingService.dismiss();
             if(!this.platform.is('cordova')) {
                 return this.openMessage(message);
             }
         })
         .catch(() => {
             this.alertDialog.show('Error sending anti-sedentary message');
+        })
+        .then(() => {
+            this.loadingService.dismiss();
         });
     }
 

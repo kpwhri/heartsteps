@@ -1,5 +1,5 @@
 <app-page class="start-screen">
-    <div *ngIf="!loading"
+    <div *ngIf="!loading && !form"
         class="headline"
         >
         <p>{{body}}</p>
@@ -9,6 +9,7 @@
         submitLabel = "Complete"
         (onSubmit) = "saveSurvey()"
         >
+        <p>{{body}}</p>
         <app-range-field *ngFor="let question of questions"
             [formControlName]="question.name"
             [label]="question.label"
