@@ -208,7 +208,7 @@ class ParticipantService:
         self.update_anti_sedentary(date)
         self.update_walking_suggestions(date)
 
-        self.queue_data_export()
+        # self.queue_data_export()
 
     def update_fitbit(self, date):
         try:
