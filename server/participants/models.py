@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from daily_tasks.models import DailyTask
 from days.models import Day
 from days.services import DayService
+from days.services import TimezoneService
 from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
 
@@ -42,6 +43,18 @@ class Cohort(models.Model):
         null = True,
         on_delete = models.CASCADE
     )
+
+    def get_daily_timezones(self, start, end):
+        participants = Participant.objects.filter(cohort=self) \
+            .exclude(
+                archived = True,
+                user = None
+            ).all()
+        return TimezoneService.get_timezones(
+            users = [p.user for p in participants if p.user],
+            start = start,
+            end = end
+        )
 
     def __str__(self):
         return self.name

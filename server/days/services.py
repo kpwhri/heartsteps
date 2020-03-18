@@ -9,6 +9,22 @@ from locations.services import LocationService
 from .models import Day
 from .models import User
 
+class TimezoneService:
+
+    def get_timezones(users, start, end):
+        days = Day.objects.filter(
+            user__in = users,
+            date__gte = start,
+            date__lte = end
+        ).all()
+        timezones = {}
+        for day in days:
+            if day.user.username not in timezones:
+                timezones[day.user.username] = {}
+            timezones[day.user.username][day.date] = day.get_timezone()
+        return timezones
+
+
 class DayService:
 
     class NoUser(ImproperlyConfigured):
