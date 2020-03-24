@@ -10,11 +10,18 @@
         (onSubmit) = "saveSurvey()"
         >
         <p>{{body}}</p>
-        <app-range-field *ngFor="let question of questions"
-            [formControlName]="question.name"
-            [label]="question.label"
-            [options]="question.options"
-        ></app-range-field>
+        <div *ngFor="let question of questions">
+            <app-choice-field *ngIf="question.kind=='select-one'"
+                [formControlName]="question.name"
+                [label]="question.label"
+                [options]="question.options"
+            ></app-choice-field>
+            <app-range-field *ngIf="question.kind=='likert'"
+                [formControlName]="question.name"
+                [label]="question.label"
+                [options]="question.options"
+            ></app-range-field>
+        </div>
     </app-form>
     <app-form *ngIf="ratingForm && !form && !loading"
         [formGroup] = "ratingForm"

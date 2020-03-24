@@ -116,7 +116,7 @@ class Survey(models.Model):
     def reset_questions(self):
         SurveyQuestion.objects.filter(survey=self).delete()
 
-        question_query = self.QUESTION_MODEL.objects.order_by('-order', 'id')
+        question_query = self.QUESTION_MODEL.objects.order_by('order', 'created')
         for question in question_query.all():
             self.add_question(question.name)
 

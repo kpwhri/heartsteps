@@ -71,6 +71,7 @@ export class NotificationPage implements OnInit {
                 questions.push({
                     name: question.name,
                     label: question.label,
+                    kind: question.kind,
                     options: question.options.map((option) => {
                         return {
                             name: option.label,
