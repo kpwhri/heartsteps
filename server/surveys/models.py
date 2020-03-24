@@ -8,9 +8,26 @@ from django.utils import timezone
 User = get_user_model()
 
 class Question(models.Model):
+
+    LIKERT = 'likert'
+    SELECT_ONE = 'select-one'
+
     name = models.CharField(max_length=100, unique=True)
     label = models.CharField(max_length=250)
-    description = models.CharField(max_length=250, null=True, blank=True)
+    description = models.CharField(
+        max_length=250,
+        null=True,
+        blank=True
+    )
+
+    kind = models.CharField(
+        choices = [
+            (LIKERT, 'Likert question'),
+            (SELECT_ONE, 'Select one question'),
+        ],
+        default = LIKERT,
+        max_length=25
+    )
 
     order = models.IntegerField(null=True)
 
@@ -90,6 +107,7 @@ class Survey(models.Model):
             name = question.name,
             label = question.label,
             description = question.description,
+            kind = question.kind,
             order = SurveyQuestion.objects.filter(survey=self).count() + 1
         )
         for answer in question.answers:
@@ -195,6 +213,10 @@ class SurveyQuestion(models.Model):
     name = models.CharField(max_length=100)
     label = models.CharField(max_length=250)
     description = models.CharField(max_length=250, null=True, blank=True)
+    kind = models.CharField(
+        max_length=25,
+        null = True
+    )
 
     class OptionDoesNotExist(RuntimeError):
         pass

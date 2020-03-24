@@ -112,8 +112,9 @@ class SurveySerializerTest(TestCase):
             value = 'other'
         )
         Question.objects.create(
-            name = 'foobar',
-            label = 'Foo bar'
+            name = 'selectone',
+            label = 'Select one',
+            kind = Question.SELECT_ONE
         )
 
     def testSerialize(self):
@@ -121,7 +122,7 @@ class SurveySerializerTest(TestCase):
             user = self.user
         )
         survey.add_question('sample question')
-        survey.add_question('foobar')
+        survey.add_question('selectone')
         
         serialized = SurveySerializer(survey)
         data = serialized.data
@@ -132,9 +133,11 @@ class SurveySerializerTest(TestCase):
         self.assertEqual(question['name'], 'sample question')
         self.assertEqual(question['label'], 'Sample Question')
         self.assertEqual(question['description'], 'Sample description')
+        self.assertEqual(question['kind'], Question.LIKERT)
         self.assertEqual(len(question['options']), 2)
         option = question['options'][0]
         self.assertEqual(option['label'], 'Test')
         self.assertEqual(option['value'], 'test')
 
         self.assertEqual(len(data['questions'][1]['options']), 0)
+        self.assertEqual(data['questions'][1]['kind'], Question.SELECT_ONE)

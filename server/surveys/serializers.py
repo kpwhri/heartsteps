@@ -15,6 +15,7 @@ class SurveySerializer(serializers.ModelSerializer):
             questions.append({
                 'name': question.name,
                 'label': question.label,
+                'kind': question.kind,
                 'description': question.description,
                 'options': [{'label': option.label, 'value': option.value } for option in question.options]
             })
