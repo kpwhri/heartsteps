@@ -3,6 +3,7 @@ from surveys.serializers import SurveySerializer
 
 from .models import ActivitySurvey
 from .models import Configuration
+from .models import Decision
 from .models import User
 
 class ActivitySurveyService:
@@ -11,6 +12,9 @@ class ActivitySurveyService:
         pass
     
     class NotificationSendError(RuntimeError):
+        pass
+    
+    class SurveyNotRandomized(RuntimeError):
         pass
 
     def __init__(self, configuration=None, user=None, username=None):
@@ -23,13 +27,25 @@ class ActivitySurveyService:
             pass
         if configuration:
             self.configuration = configuration
+            self.user = configuration.user
         else:
             raise ActivitySurveyService.NotConfigured('No configuration')
-        
+
+    def randomize_survey(self, fitbit_activity=None, treatment_probability=None):
+        decision = Decision.objects.create(
+            user = self.user,
+            treatment_probability = treatment_probability
+        )
+        if decision.treated:
+            survey = self.create_survey(
+                fitbit_activity = fitbit_activity
+            )
+            self.send_notification(survey)   
 
     def create_survey(self, fitbit_activity=None):
         activity_survey = ActivitySurvey.objects.create(
-            user = self.configuration.user
+            user = self.configuration.user,
+            fitbit_activity = fitbit_activity
         )
         activity_survey.reset_questions()
         return activity_survey

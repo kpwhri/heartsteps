@@ -1,4 +1,5 @@
 from datetime import timedelta
+import random
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -127,6 +128,11 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         self.addCleanup(send_notification_patch.stop)
         self.send_notification = send_notification_patch.start()
 
+        randomize_patch = patch.object(random, 'random')
+        self.addCleanup(randomize_patch.stop)
+        self.random = randomize_patch.start()
+        self.random.return_value = 0
+
     def test_creates_survey_for_fitbit_activity(self):
         fitbit_activity = self.create_fitbit_activity()
 
@@ -187,6 +193,17 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         fitbit_activity.start_time = timezone.now() - timedelta(minutes=120)
         fitbit_activity.end_time = timezone.now() - timedelta(minutes=90)
         fitbit_activity.save()    
+
+        randomize_activity_survey(
+            fitbit_activity_id = fitbit_activity.id,
+            username = 'test'
+        )
+
+        self.send_notification.assert_not_called()
+
+    def test_does_not_create_survey_if_not_randomized(self):
+        self.random.return_value = 1
+        fitbit_activity = self.create_fitbit_activity()
 
         randomize_activity_survey(
             fitbit_activity_id = fitbit_activity.id,

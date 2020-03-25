@@ -9,6 +9,7 @@ from surveys.serializers import SurveySerializer
 from .models import Configuration
 from .models import ActivitySurvey
 from .models import FitbitActivity
+from .services import ActivitySurveyService 
 
 @shared_task
 def randomize_activity_survey(fitbit_activity_id, username):
@@ -36,21 +37,7 @@ def randomize_activity_survey(fitbit_activity_id, username):
     if existing_activity_survey_count:
         return 'Activity survey already created for fitbit activity %d' % (fitbit_activity.id)
     else:
-        survey = ActivitySurvey.objects.create(
-            user = configuration.user,
+        service = ActivitySurveyService(configuration = configuration)
+        service.randomize_survey(
             fitbit_activity = fitbit_activity
         )
-        survey.reset_questions()
-        serialized_survey = SurveySerializer(survey)
-        try:
-            service = PushMessageService(user = configuration.user)
-            message = service.send_notification(
-                body = 'Tell us about the activity you just completed.',
-                title = 'Activity Survey',
-                collapse_subject = 'activity_survey',
-                data = {
-                    'survey':serialized_survey.data
-                }
-            )
-        except (PushMessageService.MessageSendError, PushMessageService.DeviceMissingError) as e:
-            return 'Could not send message'
