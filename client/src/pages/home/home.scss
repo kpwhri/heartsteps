@@ -4,6 +4,15 @@ page-home {
     padding: 0px;
     overflow: hidden;
 
+    > header {
+        .loading {
+            display: block;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+    }
+
     > *,
     &:before,
     &:after {

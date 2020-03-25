@@ -1,5 +1,10 @@
 <header>
     <h2>{{pageTitle}}</h2>
+    <span *ngIf="updatingParticipant"
+        class="loading"
+        >
+        Updating participant
+    </span>
 </header>
 <div id="home-content" class="content">
     <router-outlet></router-outlet>

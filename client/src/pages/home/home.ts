@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 class Tab {
     name:string;
@@ -17,6 +18,9 @@ export class HomePage implements OnInit, OnDestroy {
     public pageTitle: string;
     public activeTab: string;
     public backButton: boolean;
+
+    public updatingParticipant: boolean;
+    public updatingParticipantSubscription: Subscription;
 
     private routerSubscription: Subscription;
      
@@ -36,7 +40,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     constructor(
         private router: Router,
-        private element: ElementRef
+        private element: ElementRef,
+        private participantService: ParticipantService
     ) {}
 
     ngOnInit() {
@@ -46,10 +51,14 @@ export class HomePage implements OnInit, OnDestroy {
         .subscribe((event:RouterEvent) => {
             this.updateFromUrl(event.url);
         });
+        this.updatingParticipantSubscription = this.participantService.updatingParticipant.subscribe((isUpdating) => {
+            this.updatingParticipant = isUpdating;
+        });
     }
 
     ngOnDestroy() {
         this.routerSubscription.unsubscribe();
+        this.updatingParticipantSubscription.unsubscribe();
     }
 
     private updateFromUrl(url:string) {

@@ -3,7 +3,7 @@ import { ProfileService } from "./profile.factory";
 import { StorageService } from "@infrastructure/storage.service";
 import { ParticipantInformationService } from "./participant-information.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
-import { ReplaySubject } from "rxjs";
+import { ReplaySubject, BehaviorSubject } from "rxjs";
 import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 
@@ -21,6 +21,7 @@ const storageKey = 'heartsteps-id'
 export class ParticipantService {
 
     public participant:ReplaySubject<Participant> = new ReplaySubject(1);
+    public updatingParticipant:BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
         private storage:StorageService,
@@ -43,7 +44,8 @@ export class ParticipantService {
         return this.profileService.get();
     }
 
-    public update():Promise<boolean> {
+    public update():Promise<void> {
+        this.updatingParticipant.next(true);
         return this.isEnrolled()
         .then(() => {
             return this.profileService.load()
@@ -53,11 +55,13 @@ export class ParticipantService {
         })
         .then((participant) => {
             this.participant.next(participant);
-            return true;
         })
         .catch(() => {
-            this.participant.next(null)
-            return true;
+            this.participant.next(null);
+        })
+        .then(() => {
+            this.updatingParticipant.next(false);
+            return undefined;
         })
     }
 
@@ -160,6 +164,9 @@ export class ParticipantService {
         return this.storage.set(storageKey, heartstepsId)
         .then(() => {
             return this.update();
+        })
+        .then(() => {
+            return true;
         });
     }
 

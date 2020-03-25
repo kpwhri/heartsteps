@@ -35,7 +35,6 @@ export class AppService {
         })
         .then(() => {
             this.ready.next(true);
-            this.participantService.update();
             return undefined;
         });
     }

@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { CurrentWeekService } from '@heartsteps/current-week/current-week.service';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 @Component({
     templateUrl: 'dashboard.page.html'
@@ -26,29 +27,33 @@ export class DashboardPage implements OnDestroy {
         private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService,
         private activatedRoute: ActivatedRoute,
+        private participantService: ParticipantService,
         private platform: Platform
     ) {
         this.today = new Date();
         this.formattedDate = moment().format("dddd, M/D");
 
+        this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
+
         this.dailySummaryService.watch(this.today)
         .subscribe((summary) => {
             this.summary = summary;
         });
-
         this.currentWeekService.week
         .filter(week => week !== undefined)
         .subscribe((week) => {
             this.weeklyGoal = week.goal;
         });
-
-        this.dailySummaryService.updateCurrentWeek();
         this.resumeSubscription = this.platform.resume.subscribe(() => {
-            this.dailySummaryService.updateCurrentWeek();
+            this.update();
         });
 
-        this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
+        this.update();
+    }
 
+    public update() {
+        this.participantService.update();
+        this.dailySummaryService.updateCurrentWeek();
     }
 
     ngOnDestroy() {
