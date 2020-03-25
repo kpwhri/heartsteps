@@ -31,6 +31,14 @@ export class ParticipantService {
         private fitbitWatchService: FitbitWatchService
     ) {}
 
+    public get():Promise<Participant> {
+        return this.getParticipant()
+        .then((participant) => {
+            this.participant.next(participant);
+            return participant;
+        });
+    }
+
     public getProfile():Promise<any> {
         return this.profileService.get();
     }

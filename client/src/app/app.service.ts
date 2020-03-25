@@ -31,10 +31,11 @@ export class AppService {
     public setup(): Promise<void> {
         return this.analyticsService.setup()
         .then(() => {
-            return this.participantService.update();
+            return this.participantService.get();
         })
         .then(() => {
             this.ready.next(true);
+            this.participantService.update();
             return undefined;
         });
     }
