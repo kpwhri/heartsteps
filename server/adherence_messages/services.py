@@ -95,6 +95,10 @@ class AdherenceServiceBase:
             {
                 'message_limit': 2,
                 'offset_hours': 24*4
+            },
+            {
+                'message_limit': 4,
+                'offset_hours': 24*10
             }
         ]
     
