@@ -55,6 +55,8 @@ class FitbitDay(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    completely_updated = models.BooleanField(default=False)
+
     class Meta:
         ordering = ["date"]
         unique_together = ('account', 'date')

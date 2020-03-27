@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit import Fitbit
+from fitbit.exceptions import HTTPTooManyRequests
 from fitbit.exceptions import HTTPUnauthorized
 
 from days.services import DayService
@@ -119,6 +120,9 @@ class FitbitClient():
 
     class Unauthorized(ClientError):
         pass
+    
+    class TooManyRequests(ClientError):
+        pass
 
     def __init__(self, user=None, account=None):
         if account:
@@ -154,6 +158,8 @@ class FitbitClient():
             return self.client.make_request(formatted_url)
         except HTTPUnauthorized:
             raise FitbitClient.Unauthorized('Fitbit unauthorized')
+        except HTTPTooManyRequests:
+            raise FitbitClient.TooManyRequests('Too many requests')
         except Exception as e:
             raise FitbitClient.ClientError('Unknown error')
 

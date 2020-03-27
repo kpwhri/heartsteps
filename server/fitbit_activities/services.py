@@ -3,6 +3,8 @@ from decimal import Decimal
 import pytz
 from dateutil import parser as dateutil_parser
 
+from django.utils import timezone
+
 from fitbit_api.models import FitbitDevice
 from fitbit_api.services import FitbitClient, FitbitService, parse_fitbit_date, format_fitbit_date
 
@@ -51,6 +53,12 @@ class FitbitDayService(FitbitService):
         self.day._distance = self.update_distance()
         self.update_heart_rate() 
         self.update_activities()
+
+        last_tracker_update = self.account.get_last_tracker_sync_time()
+        if last_tracker_update and last_tracker_update > self.day.get_end_datetime():
+            self.day.completely_updated = True
+        else:
+            self.day.completely_updated = False
         
         self.day.save()
 
@@ -244,7 +252,6 @@ class FitbitActivityService(FitbitService):
                 )
 
     def update(self, date):
-        self.update_devices()
         day_service = FitbitDayService(
             date = date,
             account = self.account

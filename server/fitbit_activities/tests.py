@@ -172,6 +172,28 @@ class FitbitDayUpdates(TestBase):
         self.assertEqual([device.device_version for device in devices], ['example scale updated','Versa 2',None])
         self.assertEqual(self.account.get_last_tracker_sync_time(), last_update_time)
 
+    def test_updated_completely_accurately_marked(self):
+        
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2019-02-14")
+
+        fitbit_day = FitbitDay.objects.get(account=self.account)
+        self.assertFalse(fitbit_day.completely_updated)
+
+        self.get_devices.return_value = [
+            {
+                'battery_level': 70, 
+                'device_version': 'Versa 2',
+                'id': '12345',
+                'last_sync_time': timezone.now(),
+                'mac': 'EXAMPLE-MAC-ADDRESS',
+                'type': 'TRACKER'
+            }
+        ]
+        update_fitbit_data(fitbit_user=self.account.fitbit_user, date_string="2019-02-14")
+
+        fitbit_day = FitbitDay.objects.get(account=self.account)
+        self.assertTrue(fitbit_day.completely_updated)
+
 class FitbitStepUpdates(TestBase):
 
     def setUp(self):
