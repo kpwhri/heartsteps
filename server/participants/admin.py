@@ -9,6 +9,9 @@ from rest_framework.authtoken.models import Token
 from django_celery_results.models import TaskResult
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, SolarSchedule
 
+from fitbit_activities.tasks import update_all_fitbit_data
+from fitbit_api.services import FitbitService
+
 from .models import Cohort
 from .models import Participant
 from .models import Study
@@ -31,6 +34,17 @@ def update_participant(modeladmin, request, queryset):
         service = ParticipantService(participant)
         service.update()
         messages.add_message(request, messages.SUCCESS, 'Ran update for %s' % (participant.heartsteps_id))
+
+def reload_fitbit_data(modeladmin, request, queryset):
+    for participant in queryset.all():
+        try:
+            account = FitbitService.get_account(user=participant.user)
+            update_all_fitbit_data.apply_async(kwargs={
+                'fitbit_user': account.fitbit_user
+            })
+            messages.add_message(request, messages.SUCCESS, 'Update fitbit account %s for %s' % (account.fitbit_user, participant.heartsteps_id))
+        except FitbitService.NoAccount:
+            messages.add_message(request, messages.ERROR, '%s has no fitbit account' % (participant.heartsteps_id))
 
 def make_add_to_cohort(cohort):
     def add_participants_to_cohort(modeladmin, request, queryset):
@@ -81,7 +95,8 @@ class ParticipantAdmin(admin.ModelAdmin):
     actions = [
         initialize_participant,
         deactivate_participant,
-        update_participant
+        update_participant,
+        reload_fitbit_data
     ]
 
     def get_actions(self, request):
