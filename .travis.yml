@@ -12,6 +12,8 @@ install:
 - sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 
 before_script:
+- openssl aes-256-cbc -K $encrypted_e27565264197_key -iv $encrypted_e27565264197_iv -in credentials.tar.enc -out credentials.tar -d
+- tar xvf credentials.tar
 - docker system prune -af
 - docker volume prune -f
 - cp .env-production server/.env

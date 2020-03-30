@@ -5,12 +5,13 @@ build/
 __pycache__/
 .vscode/
 
+credentials
+
 .sourcemaps
 node_modules
 resources/android
 resources/ios
 www
-
 server/static
 server/app
 
@@ -64,9 +65,6 @@ data/
 pooling_service_time/
 *.feather
 *.RData
-
-# this is to cover up a dirty hack...
-server/credentials
 
 # Ignore fitbit build components
 fitbit/build
