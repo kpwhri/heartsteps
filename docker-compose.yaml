@@ -127,7 +127,7 @@ services:
   server-gcloud:
     command: honcho start dev
     env_file:
-      - .env-production
+      - credentials/.env-production
     environment:
       - ALLOWED_HOSTS=localhost
       - DEBUG=True
