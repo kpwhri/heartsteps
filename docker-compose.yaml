@@ -13,7 +13,7 @@ services:
   client:
     build: ./client
     env_file:
-      - .env-development
+      - credentials/.env-development
     command: ionic serve
     volumes:
       - ./client:/client
@@ -46,7 +46,7 @@ services:
     depends_on:
       - server
     env_file:
-      - .env-development
+      - credentials/.env-development
     image: heartsteps_client
     ports:
       - "8200:8100"
@@ -63,7 +63,7 @@ services:
     depends_on:
       - server
     env_file:
-      - .env-development
+      - credentials/.env-development
     image: heartsteps_client
     ports:
       - "8300:8100"
@@ -110,7 +110,7 @@ services:
   server:
     build: ./server
     env_file:
-      - .env-development
+      - credentials/.env-development
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
@@ -167,7 +167,7 @@ services:
       - rabbitmq
       - server
     env_file:
-      - .env-development
+      - credentials/.env-development
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
@@ -179,7 +179,7 @@ services:
       - rabbitmq
       - server
     env_file:
-      - .env-development
+      - credentials/.env-development
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
@@ -191,7 +191,7 @@ services:
       - rabbitmq
       - server
     env_file:
-      - .env-development
+      - credentials/.env-development
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True

@@ -6,6 +6,7 @@ __pycache__/
 .vscode/
 
 credentials
+credentials.tar
 
 .sourcemaps
 node_modules
