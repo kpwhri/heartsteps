@@ -9,7 +9,7 @@ cp credentials/.env-production server/.env
 cp credentials/.env-production client/.env
 
 docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
-docker-compose build server > dev/null
+docker-compose build server > /dev/null
 docker-compose build client > /dev/null
 
 docker-compose run client npm run build:app --prod
