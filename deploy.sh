@@ -5,12 +5,12 @@ gcloud auth configure-docker -q
 gcloud config set project heartsteps-kpwhri
 gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
 
-cp .env-production server/.env
-# cp .env-production client/.env
+cp credentials/.env-production server/.env
+cp credentials/.env-production client/.env
 
 docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
 docker-compose build server > dev/null
-# docker-compose build client > /dev/null
+docker-compose build client > /dev/null
 
 # docker-compose run client npm run build:app --prod
 # gsutil -m rsync -dr client/www gs://heartsteps-assets/app
