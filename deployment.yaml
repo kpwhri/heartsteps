@@ -177,8 +177,6 @@ spec:
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
-          - name: SECRET_KEY
-            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
@@ -209,8 +207,6 @@ spec:
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
-          - name: SECRET_KEY
-            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
@@ -241,8 +237,6 @@ spec:
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
-          - name: SECRET_KEY
-            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
@@ -275,8 +269,6 @@ spec:
             value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
             value: '35.186.201.20,heartsteps.net,heartsteps-service'
-          - name: SECRET_KEY
-            value: 'ka6p=i&71njyh)hw%amk)p1)(a=u$#gpck-8!%^^51f^7g7b8o'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
           - name: ANTI_SEDENTARY_SERVICE_URL
