@@ -14,6 +14,7 @@ install:
 before_script:
 - openssl aes-256-cbc -K $encrypted_54891cbed47a_key -iv $encrypted_54891cbed47a_iv -in credentials.tar.enc -out credentials.tar -d
 - tar xvf credentials.tar
+- ls -la credentials
 - docker system prune -af
 - docker volume prune -f
 - docker-compose build service-template > /dev/null
