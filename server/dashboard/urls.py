@@ -17,13 +17,13 @@ from .views import ParticipantDisableView
 from .views import ParticipantArchiveView
 
 urlpatterns = [
+    url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
+    url('^password-reset/$', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    url('^password-reset/done/$', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     url(
-        r'^login/$',
-        auth_views.login,
-        {
-            'template_name': 'dashboard/login.html'
-        },
-        name='dashboard-login'
+        '^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        auth_views.PasswordResetConfirmView.as_view(success_url='dashboard-login'),
+        name='password_reset_confirm'
     ),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/enable', ParticipantEnableView.as_view(), name='dashboard-cohort-participant-enable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/disable', ParticipantDisableView.as_view(), name='dashboard-cohort-participant-disable'),
