@@ -6,10 +6,10 @@
     },
     "android": {
         "release": {
-            "keystore": "/credentials/android.keystore",
-            "storePassword": "password",
-            "alias": "heartsteps-kpw-app",
-            "password": "password",
+            "keystore": "/credentials/androidplay.keystore",
+            "storePassword": "heartsteps",
+            "alias": "heartsteps-app",
+            "password": "heartsteps",
             "keystoreType": ""
         }
     }
