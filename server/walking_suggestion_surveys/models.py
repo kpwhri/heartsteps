@@ -9,6 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from surveys.models import Question
 from surveys.models import Survey
+from surveys.serializers import SurveySerializer
 from walking_suggestion_times.models import SuggestionTime
 
 User = get_user_model()
@@ -19,6 +20,23 @@ class Configuration(models.Model):
         related_name = '+'
     )
     enabled = models.BooleanField(default = True)
+
+    def randomize_survey(self):
+        decision = Decision.objects.create(
+            user = self.user
+        )
+        if decision.treated:
+            return self.create_survey()
+        else:
+            return None
+    
+    def create_survey(self):
+        survey = WalkingSuggestionSurvey.objects.create(
+            user = self.user
+        )
+        survey.reset_questions()
+        return survey
+
 
 class Decision(models.Model):
     user = models.ForeignKey(
@@ -69,3 +87,22 @@ class WalkingSuggestionSurveyQuestion(Question):
 class WalkingSuggestionSurvey(Survey):
     
     QUESTION_MODEL = WalkingSuggestionSurveyQuestion
+
+    class NotificationSendError(RuntimeError):
+        pass
+
+    def send_notification(self):
+        serialized_survey = SurveySerializer(self)
+        try:
+            service = PushMessageService(user = self.user)
+            message = service.send_notification(
+                body = 'Can you answer a couple of questions?',
+                title = 'Walking Suggestion Survey',
+                collapse_subject = 'walking_suggestion_survey',
+                data = {
+                    'survey':serialized_survey.data
+                }
+            )
+            return message
+        except (PushMessageService.MessageSendError, PushMessageService.DeviceMissingError) as e:
+            raise WalkingSuggestionSurvey.NotificationSendError('Unable to send notification')  
