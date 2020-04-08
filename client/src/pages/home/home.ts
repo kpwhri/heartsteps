@@ -23,7 +23,7 @@ export class HomePage implements OnInit, OnDestroy {
     public updatingParticipantSubscription: Subscription;
 
     private routerSubscription: Subscription;
-     
+    
     public tabs:Array<Tab> = [{
         name:'Dashboard',
         key: 'dashboard'

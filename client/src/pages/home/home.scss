@@ -10,6 +10,11 @@ page-home {
             position: absolute;
             top: 0px;
             right: 0px;
+            text-indent: -1000px;
+            width: 2em;
+            height: 2em;
+            overflow: hidden;
+
         }
     }
 
@@ -85,6 +90,26 @@ page-home {
         .settings:before {
             mask-image: url('../assets/settings.svg');
         }
+    }
+    
+    @keyframes spinner {
+        to {transform: rotate(360deg);}
+    }
+
+    .loading:before {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    border-radius: 50%;
+    border: 2px solid $color-gray-light;
+    border-top-color: $color-primary;
+    animation: spinner .6s linear infinite;
     }
 
 }
