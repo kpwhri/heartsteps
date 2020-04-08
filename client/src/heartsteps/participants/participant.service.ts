@@ -37,6 +37,10 @@ export class ParticipantService {
         .then((participant) => {
             this.participant.next(participant);
             return participant;
+        })
+        .catch((error) => {
+            this.participant.next(undefined);
+            return Promise.reject(error);
         });
     }
 
