@@ -18,7 +18,6 @@ before_script:
 - docker system prune -af
 - docker volume prune -f
 - docker-compose build service-template > /dev/null
-- docker-compose build walking-suggestion-service anti-sedentary-service nginx > /dev/null
 - docker-compose build server > /dev/null
 - docker-compose run server python manage.py migrate > /dev/null
 # - docker-compose build client > /dev/null

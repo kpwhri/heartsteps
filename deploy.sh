@@ -8,7 +8,9 @@ gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
 cp credentials/.env-production server/.env
 cp credentials/.env-production client/.env
 
-docker-compose build service-template walking-suggestion-service anti-sedentary-service nginx > /dev/null
+docker-compose build service-template > /dev/null
+docker-compose -f docker-compose.activity-suggestions.yaml build walking-suggestion-service anti-sedentary-service > /dev/null
+docker-compose -f docker-compose.gcloud.yaml build nginx > /dev/null
 docker-compose build server > /dev/null
 docker-compose build client > /dev/null
 

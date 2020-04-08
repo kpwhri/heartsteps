@@ -1,0 +1,37 @@
+version: '2'
+services:
+    cloudsql:
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/gce.json
+        volumes:
+            - cloudsql:/cloudsql
+            - ./credentials:/credentials
+    nginx:
+        build: ./nginx
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - "8000:8000"
+        depends_on:
+            - server
+    rabbitmq:
+        extends:
+            file: docker-compose.yaml
+            service: rabbitmq
+    server:
+        build: ./server
+        env_file:
+          - credentials/.env-production
+        environment:
+            - ALLOWED_HOSTS=localhost
+            - DEBUG=True
+            - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw
+        depends_on:
+            - cloudsql
+            - rabbitmq
+        volumes:
+            - ./server:/server-gcloud
+            - cloudsql:/cloudsql
+        working_dir: /server-gcloud
+volumes: 
+    cloudsql:
