@@ -33,6 +33,9 @@ export class AppService {
         .then(() => {
             return this.participantService.get();
         })
+        .catch(() => {
+            console.log('AppService', 'No participant');
+        })
         .then(() => {
             this.ready.next(true);
             return undefined;
