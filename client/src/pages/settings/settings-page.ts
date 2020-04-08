@@ -11,6 +11,8 @@ import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { ActivitySurveyService } from "@heartsteps/activity-surveys/activity-survey.service";
+import { MessageService } from "@heartsteps/notifications/message.service";
+import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
 declare var process: {
     env: {
@@ -29,6 +31,8 @@ export class SettingsPage {
     public buildDate: string = process.env.BUILD_DATE;
 
     constructor(
+        private heartstepsServer: HeartstepsServer,
+        private messageService: MessageService,
         private walkingSuggestionService:WalkingSuggestionService,
         private enrollmentService:EnrollmentService,
         private router:Router,
@@ -228,6 +232,30 @@ export class SettingsPage {
         })
         .catch((error) => {
             this.alertDialog.show(error);
+        });
+    }
+
+    public testWalkingSuggestionSurvey() {
+        this.loadingService.show("Requesting walking suggestion survey");
+        this.heartstepsServer.post('/walking-suggestion-survey/test', {})
+        .then((data) => {
+            return this.loadMessage(data.notificationId);
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        })
+        .catch((error) => {
+            this.loadingService.dismiss();
+            this.alertDialog.show(error);
+        });
+    }
+
+    private loadMessage(notificationId): Promise<void> {
+        return this.messageService.loadMessage(notificationId)
+        .then((message) => {
+            if(!this.platform.is('cordova')) {
+                return this.openMessage(message);
+            }
         });
     }
 } 

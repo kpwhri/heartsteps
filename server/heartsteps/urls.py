@@ -7,6 +7,7 @@ from sms_messages.views import TwilioReplyView
 urlpatterns = [
     url(r'^api/walking-suggestions/times/', include('walking_suggestion_times.urls')),
     url(r'^api/walking-suggestions/', include('walking_suggestions.urls')),
+    url(r'^api/walking-suggestion-survey/', include('walking_suggestion_surveys.urls')),
     url(r'^api/activity-survey/', include('activity_surveys.urls')),
     url(r'^api/anti-sedentary/', include('anti_sedentary.urls')),
     url(r'^api/activity-suggestions/', include('randomization.urls')),

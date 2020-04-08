@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
+from push_messages.services import PushMessageService
+
 from surveys.models import Question
 from surveys.models import Survey
 from surveys.serializers import SurveySerializer

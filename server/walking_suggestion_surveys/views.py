@@ -14,11 +14,11 @@ class WalkingSuggestionSurveyTestView(APIView):
     def post(self, request):
         try:
             configuration = Configuration.objects.get(
-                user = request.user
+                user = request.user,
                 enabled = True
             )
             survey = configuration.create_survey()
-            notification = survey.send_notification(activity_survey)
+            notification = survey.send_notification()
             return Response(
                 {
                     'notificationId': notification.uuid
