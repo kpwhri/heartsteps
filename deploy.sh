@@ -35,4 +35,4 @@ docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
 sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
 kubectl apply -f deployment.yaml
 # Migrate database
-docker-compose run server-gcloud python manage.py migrate
+docker-compose -f docker-compose.gcloud.yaml run server python manage.py migrate
