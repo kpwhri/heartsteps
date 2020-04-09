@@ -29,6 +29,8 @@ services:
         depends_on:
             - cloudsql
             - rabbitmq
+        ports:
+            - "8080:8080"
         volumes:
             - ./server:/server-gcloud
             - cloudsql:/cloudsql
