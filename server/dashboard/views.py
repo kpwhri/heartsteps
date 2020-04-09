@@ -487,6 +487,11 @@ class ParticipantSMSMessagesView(ParticipantView):
             context
         )
 
+class ParticipantToggleInterventionsView(ParticipantView):
+
+    template_name = 'dashboard/participant-intervention-toggle.html'
+
+
 class ParticipantDisableView(ParticipantView):
 
     def post(self, request, *args, **kwargs):

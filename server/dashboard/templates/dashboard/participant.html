@@ -24,38 +24,43 @@
                 >
                 Edit participant information
             </a>
-            <h3>Configurations</h3>
-            <ul>
+            <h3>Participant Status</h3>
+            <dl>
+                <dt>Active</dt>
+                <dd>{% if participant.active %}Active{% else %}Disabled{% endif %}</dd>
+                <dt>Fitbit Status</dt>
+                <dd>
+                    To be displayed!
+                    <a href="">Disable fitbit account</a>
+                </dd>
+                <dt>Archived</dt>
+                <dd>
+                    {% if participant.archived %}
+                    Archived
+                    <a href="">Unarchive Participant</a>
+                    {% else %}
+                    Not Archived
+                    <a href="">Archive Participant</a>
+                    {% endif %}
+                </dd>
+            </dl>
+            <h3>Interventions</h3>
+            <dl>
             {% for configuration in configurations %}
-                <li>
-                {{configuration.title}}
-                {% if configuration.enabled %}
-                (Enabled)
-                {% else %}
-                (Disabled)
-                {% endif %}
+                <dt>{{configuration.title}}</dt>
+                <dd>
+                    {% if configuration.enabled %}
+                    Enabled
+                    {% else %}
+                    Disabled
+                    {% endif %}
+                    {% if configuration.url %}
+                    <a href="{{configuration.url}}">Edit {{configuration.title}}</a>
+                    {% endif %}
+                </dd>
                 </li>
             {% endfor %}
-            </ul>
-            {% if participant.active %}
-            <form action="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}" method="POST">
-                {% csrf_token %}
-                <input type="submit" value="Disable participant" />
-            </form>
-            {% else %}
-            <form action="{% url 'dashboard-cohort-participant-enable' cohort.id participant.heartsteps_id %}" method="POST">
-                {% csrf_token %}
-                <input type="submit" value="Enable participant" />
-            </form>
-            {% endif %}
-            <form action="{% url 'dashboard-cohort-participant-archive' cohort.id participant.heartsteps_id %}" method="POST">
-                {% csrf_token %}
-                {% if participant.archived %}
-                <input type="submit" value="Unarchive participant" />
-                {% else %}
-                <input type="submit" value="Archive participant" />
-                {% endif %}
-            </form>
+            </dl>
         </div>
         <div class="col-sm">
             <nav>
