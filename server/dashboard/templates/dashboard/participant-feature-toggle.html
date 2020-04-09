@@ -1,0 +1,18 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}" class="nav-link active">Notifications</a>
+{% endblock %}
+
+{% block content %}
+
+<h2>{{title}}</h2>
+<form action="" method="post">
+    {% csrf_token %}
+    <button type="submit">{{action}}</button>
+</form>
+{% endblock %}
