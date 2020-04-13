@@ -46,10 +46,14 @@
                 <dd>
                     {% if participant.archived %}
                     Archived
-                    <a href="">Unarchive Participant</a>
+                    <a href="{% url 'dashboard-cohort-participant-unarchive' cohort.id participant.heartsteps_id %}">
+                        Unarchive Participant
+                    </a>
                     {% else %}
                     Not Archived
-                    <a href="">Archive Participant</a>
+                    <a href="{% url 'dashboard-cohort-participant-archive' cohort.id participant.heartsteps_id %}">
+                        Archive Participant
+                    </a>
                     {% endif %}
                 </dd>
             </dl>

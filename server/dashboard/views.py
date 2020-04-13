@@ -606,6 +606,34 @@ class ParticipantDisableFitbitAccountView(ParticipantFeatureToggleView):
         return self.redirect(request)
             
 
+class ParticipantArchiveView(ParticipantFeatureToggleView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Archive %s' % (self.participant.heartsteps_id)
+        context['action'] = 'Archive Participant'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.participant.archived = True
+        self.participant.save()
+        self.add_success_message(request, 'Participant archived')
+        return self.redirect(request)
+
+class ParticipantUnarchiveView(ParticipantFeatureToggleView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Unarchive %s' % (self.participant.heartsteps_id)
+        context['action'] = 'Unarchive Participant'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.participant.archived = False
+        self.participant.save()
+        self.add_success_message(request, 'Participant unarchived')
+        return self.redirect(request)
+
 
 class ParticipantDisableView(ParticipantView):
 
@@ -643,28 +671,6 @@ class ParticipantEnableView(ParticipantView):
             'Enabled %s' % (self.participant.user.username)
             )
 
-        return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs = {
-                    'participant_id': self.participant.heartsteps_id,
-                    'cohort_id':self.cohort.id
-                }
-            )
-        )
-
-class ParticipantArchiveView(ParticipantView):
-
-    def post(self, request, *args, **kwargs):
-
-        if self.participant.archived:
-            self.participant.archived = False
-            self.participant.save()
-            messages.add_message(request, messages.SUCCESS, 'Unarchived %s' % (self.participant.heartsteps_id))
-        else:
-            self.participant.archived = True
-            self.participant.save()
-            messages.add_message(request, messages.SUCCESS, 'Archived %s' % (self.participant.heartsteps_id))
         return HttpResponseRedirect(
             reverse(
                 'dashboard-cohort-participant',
