@@ -14,3 +14,9 @@ def subscribe_to_fitbit(username):
     except FitbitService.NoAccount:
         return False
         
+@shared_task
+def unauthorize_fitbit_account(username):
+    service = FitbitService(username=username)
+    client = FitbitClient(account=service.account)
+    client.unsubscribe()
+    service.remove_credentials()

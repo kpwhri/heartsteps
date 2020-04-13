@@ -116,6 +116,12 @@ class FitbitAccount(models.Model):
         .prefetch_related('user') \
         .all()
         return [au.user for au in account_users]
+    
+    def remove_credentials(self):
+        self.access_token = None
+        self.refresh_token = None
+        self.expires_at = None
+        self.save()
 
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, unique=True)

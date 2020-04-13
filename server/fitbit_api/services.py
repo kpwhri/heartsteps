@@ -91,6 +91,9 @@ class FitbitService:
     def last_updated_on(self):
         return self.__account.get_last_update()
 
+    def remove_credentials(self):
+        self.account.remove_credentials()
+
 
 def create_fitbit(**kwargs):
     consumer_key = None
@@ -149,13 +152,17 @@ class FitbitClient():
         self.account.expires_at = token['expires_at']
         self.account.save()
 
-    def make_request(self, url):
+    def make_request(self, url, data=None, method=None):
         formatted_url = '{0}/{1}/{url}'.format(
             *self.client._get_common_args(),
             url = url
         )
         try:
-            return self.client.make_request(formatted_url)
+            return self.client.make_request(
+                url = formatted_url,
+                data = data,
+                method = method
+            )
         except HTTPUnauthorized:
             raise FitbitClient.Unauthorized('Fitbit unauthorized')
         except HTTPTooManyRequests:
@@ -212,6 +219,14 @@ class FitbitClient():
             return True
         except:
             return False
+
+    def unsubscribe(self):
+        subscription_ids = self.list_subscriptions()
+        for sid in subscription_ids:
+            self.make_request(
+                url = 'user/-/apiSubscriptions/%s.json' % (sid),
+                method = 'DELETE'
+            )
 
     def verify_subscription_code(code):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_VERIFICATION_CODE'):
