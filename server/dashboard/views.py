@@ -635,51 +635,40 @@ class ParticipantUnarchiveView(ParticipantFeatureToggleView):
         return self.redirect(request)
 
 
-class ParticipantDisableView(ParticipantView):
+class ParticipantDisableView(ParticipantFeatureToggleView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Disable %s' % (self.participant.heartsteps_id)
+        context['action'] = 'Disable Participant'
+        return context
 
     def post(self, request, *args, **kwargs):
         service = ParticipantService(
             participant=self.participant
         )
         service.disable()
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Disabled %s' % (self.participant.user.username)
-            )
+        self.add_success_message(request, 'Disabled %s' % (self.participant.user.username))
+        return self.redirect(request)
 
-        return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs = {
-                    'participant_id': self.participant.heartsteps_id,
-                    'cohort_id':self.cohort.id
-                }
-            )
-        )
+class ParticipantEnableView(ParticipantFeatureToggleView):
 
-class ParticipantEnableView(ParticipantView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Enable %s' % (self.participant.heartsteps_id)
+        context['action'] = 'Enable Participant'
+        return context
 
     def post(self, request, *args, **kwargs):
         service = ParticipantService(
             participant=self.participant
         )
         service.enable()
-        messages.add_message(
+        self.add_success_message(
             request,
-            messages.SUCCESS,
             'Enabled %s' % (self.participant.user.username)
             )
-
-        return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs = {
-                    'participant_id': self.participant.heartsteps_id,
-                    'cohort_id':self.cohort.id
-                }
-            )
-        )
+        return self.redirect(request)
 
 class ParticipantAdherenceView(ParticipantView):
 
