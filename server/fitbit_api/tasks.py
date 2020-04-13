@@ -19,4 +19,5 @@ def unauthorize_fitbit_account(username):
     service = FitbitService(username=username)
     client = FitbitClient(account=service.account)
     client.unsubscribe()
+    client.subscriptions_update()
     service.remove_credentials()

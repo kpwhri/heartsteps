@@ -25,6 +25,7 @@ from anti_sedentary.models import AntiSedentaryDecision
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_api.tasks import unauthorize_fitbit_account
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
@@ -281,6 +282,9 @@ class ParticipantView(CohortView):
             user = self.participant.user,
             enabled = True
         ).count()
+
+        context['fitbit_authorized'] = self.participant.fitbit_authorized
+        context['fitbit_last_updated'] = self.participant.fitbit_last_updated
 
         context['configurations'] = [
             {
@@ -592,6 +596,15 @@ class ParticipantDisableFitbitAccountView(ParticipantFeatureToggleView):
         context['title'] = 'Disable Fitbit Account'
         context['action'] = 'Disable Fitbit'
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.participant.user:
+            unauthorize_fitbit_account(self.participant.user)
+            self.add_success_message(request, 'Unauthorized fitbit account')
+        else:
+            self.add_error_message(request, 'No enrolled participant')
+        return self.redirect(request)
+            
 
 
 class ParticipantDisableView(ParticipantView):

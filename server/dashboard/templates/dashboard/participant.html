@@ -30,9 +30,18 @@
                 <dd>{% if participant.active %}Active{% else %}Disabled{% endif %}</dd>
                 <dt>Fitbit Status</dt>
                 <dd>
-                    To be displayed!
+                    {% if fitbit_authorized %}
+                    Authorized
                     <a href="{% url 'dashboard-cohort-participant-fitbit-disable' cohort.id participant.heartsteps_id %}">Disable fitbit account</a>
+                    {% else %}
+                    Unauthorized
+                    {% endif %}
                 </dd>
+                {% if fitbit_last_updated %}
+                <dd>
+                    Fitbit last updated {{ fitbit_last_updated | date }}
+                </dd>
+                {% endif %}
                 <dt>Archived</dt>
                 <dd>
                     {% if participant.archived %}
