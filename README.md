@@ -136,7 +136,7 @@ $ gcloud init
 // (3) Make a directory to download the files to (since there a many files)
 $ mkdir nightly-data
 // (4) Download the files
-$ gsutil -m rsync gs://heartsteps-nightly-data ./nightly-data
+$ gsutil -m rsync gs://heartsteps_nightly_data ./nightly-data
 ```
 
 ### Anti-Sedentary and Walking-Suggestion Service Data
