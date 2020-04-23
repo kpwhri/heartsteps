@@ -128,8 +128,27 @@ class DashboardListView(CohortView):
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
+
+        all_participants = self.query_participants()
+        num_per_page = 10
+        context['num_per_page'] = 10
+        context['total_participants'] = len(all_participants)
+
+        paginator = Paginator(all_participants, 10)
+        page = int(self.request.GET.get('page', 1))
+        context['current_page'] = page
+        context['pages'] = [n+1 for n in range(paginator.num_pages)]
+        try:
+            paginated_participants = paginator.page(page)
+        except PaginatorEmptyPage:
+            page = paginator.num_pages
+            paginated_participants = paginator.page(paginator.page)
+        if page + 1 < paginator.num_pages:
+            context['next_page'] = page + 1
+        if page > 1:
+            context['prev_page'] = page - 1
         participants = []
-        for participant in self.query_participants():
+        for participant in paginated_participants:
             participants.append({
                 'adherence_status': participant.adherence_status(),
                 'adherence_messages': participant.recent_adherence_messages,

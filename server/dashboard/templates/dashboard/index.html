@@ -3,6 +3,19 @@
 {% load template_filters %}
 
 {% block body %}
+<div>
+    <p>{{total_participants}} participants. Showing {{participant_list|length}} participants.</p>
+    <nav>
+        <em>Pages:</em>
+    {% for page in pages %}
+        {% if page == current_page %}
+        <strong>{{page}}</strong>
+        {% else %}
+        <a href="?page={{page}}">{{page}}</a>
+        {% endif %}
+    {% endfor %}
+    </nav>
+</div>
 <table class='table table-striped table-bordered table-hover'>
     <thead class="thead-dark">
         <tr>
@@ -173,4 +186,14 @@
         {% endfor %}
     </tbody>
 </table>
+<nav>
+    <em>Pages:</em>
+    {% for page in pages %}
+        {% if page == current_page %}
+        <strong>{{page}}</strong>
+        {% else %}
+        <a href="?page={{page}}">{{page}}</a>
+        {% endif %}
+    {% endfor %}
+</nav>
 {% endblock %}
