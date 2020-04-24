@@ -50,6 +50,14 @@ services:
     depends_on:
       - db
       - rabbitmq
+  service-template:
+    extends:
+      file: docker-compose.activity-suggestions.yaml
+      service: service-template
+  walking-suggestion-service:
+    extends:
+      file: docker-compose.activity-suggestions.yaml
+      service: walking-suggestion-service
 volumes:
   client-platforms:
   client-node-modules:
