@@ -1,1 +1,1 @@
-{"userID":[10000],"decisionID":[12345],"studyDay":[2],"decisionTime":[2],"availability":[true],"priorAnti":[false],"lastActivity":[false],"location":[1]}
+{"availability":true,"date":"2020-02-22","decisionTime":2,"lastActivity":false,"location":0,"pooling":false,"priorAnti":false,"studyDay":2,"userID":"10000","watch":false}
