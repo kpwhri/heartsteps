@@ -15,7 +15,6 @@ import { DashboardPage } from './dashboard.page';
 import { CurrentWeekModule } from '@heartsteps/current-week/current-week.module';
 import { AnchorMessageModule } from '@heartsteps/anchor-message/anchor-message.module';
 import { DailySummaryModule } from '@heartsteps/daily-summaries/daily-summary.module';
-import { AnchorMessageResolver } from './anchor-message.resolver';
 import { ActivitiesPage } from './activities.page';
 import { DashboardNotificationComponent } from './dashboard-notifications.component';
 import { SettingsComponent } from '@pages/settings/settings.component';
@@ -29,10 +28,7 @@ const routes:Routes = [
         ],
         children: [{
             path: 'dashboard',
-            component: DashboardPage,
-            resolve: {
-                anchorMessage: AnchorMessageResolver
-            }
+            component: DashboardPage
         }, {
             path: 'activities',
             component: ActivitiesPage
@@ -65,7 +61,6 @@ const routes:Routes = [
         ActivitiesPage
     ],
     providers: [
-        AnchorMessageResolver,
         CurrentWeekResolver,
         HomeGuard
     ],
