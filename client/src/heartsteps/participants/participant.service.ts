@@ -5,7 +5,6 @@ import { ParticipantInformationService } from "./participant-information.service
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReplaySubject, BehaviorSubject } from "rxjs";
 import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
-import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 
 export class Participant{
     dateEnrolled: Date;
@@ -28,8 +27,7 @@ export class ParticipantService {
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
         private contactInformationService: ContactInformationService,
-        private dailySummaryService: DailySummaryService,
-        private fitbitWatchService: FitbitWatchService
+        private dailySummaryService: DailySummaryService
     ) {}
 
     public get():Promise<Participant> {
