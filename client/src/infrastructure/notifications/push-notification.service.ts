@@ -46,7 +46,6 @@ export class PushNotificationService {
     }
 
     public setup():Promise<boolean> {
-        console.log('set up');
         if(this.platform.is('cordova')) {
             this.ready.next(true);
             return this.hasPermission()
