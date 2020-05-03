@@ -1,5 +1,4 @@
 import { Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
 import * as moment from 'moment';
@@ -7,6 +6,7 @@ import { Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { CurrentWeekService } from '@heartsteps/current-week/current-week.service';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
+import { AnchorMessageService } from '@heartsteps/anchor-message/anchor-message.service';
 
 @Component({
     templateUrl: 'dashboard.page.html'
@@ -24,16 +24,14 @@ export class DashboardPage implements OnDestroy {
     private resumeSubscription: Subscription;
 
     constructor(
+        private anchorMessageService: AnchorMessageService,
         private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService,
-        private activatedRoute: ActivatedRoute,
         private participantService: ParticipantService,
         private platform: Platform
     ) {
         this.today = new Date();
         this.formattedDate = moment().format("dddd, M/D");
-
-        this.anchorMessage = this.activatedRoute.snapshot.data.anchorMessage;
 
         this.dailySummaryService.watch(this.today)
         .subscribe((summary) => {
@@ -52,8 +50,19 @@ export class DashboardPage implements OnDestroy {
     }
 
     public update() {
+        this.updateAnchorMessage();
         this.participantService.update();
         this.dailySummaryService.updateCurrentWeek();
+    }
+
+    private updateAnchorMessage() {
+        this.anchorMessageService.get()
+        .then((message) => {
+            this.anchorMessage = message;
+        })
+        .catch(() => {
+            this.anchorMessage = undefined;
+        });
     }
 
     ngOnDestroy() {
