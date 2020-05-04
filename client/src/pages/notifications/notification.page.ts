@@ -132,8 +132,6 @@ export class NotificationPage implements OnInit {
                 .catch(() => {
                     console.log('failed to save?')
                 });
-            } else {
-
             }
         } else {
             this.dismiss();
