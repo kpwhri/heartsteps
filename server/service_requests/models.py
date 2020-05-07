@@ -2,13 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class ServiceRequest(models.Model):
-    user = models.ForeignKey(User, null=True, editable=False)
+    user = models.ForeignKey(
+        User,
+        null = True,
+        editable = False,
+        db_index = True
+    )
 
     url = models.CharField(max_length=500, editable=False)
     name = models.CharField(max_length=150, editable=False)
 
     request_data = models.TextField(null=True, editable=False)
-    request_time = models.DateTimeField(auto_now=True, editable=False)
+    request_time = models.DateTimeField(
+        auto_now = True,
+        editable = False,
+        db_index = True
+    )
 
     response_code = models.IntegerField(null=True, editable=False)
     response_data = models.TextField(null=True, editable=False)
