@@ -14,7 +14,6 @@ class ServiceRequest(models.Model):
 
     request_data = models.TextField(null=True, editable=False)
     request_time = models.DateTimeField(
-        auto_now = True,
         editable = False,
         db_index = True
     )

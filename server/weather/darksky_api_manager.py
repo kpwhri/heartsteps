@@ -58,7 +58,8 @@ class DarkSkyApiManager:
         service_request = ServiceRequest.objects.create(
             name = name,
             url = url,
-            user = self.__user
+            user = self.__user,
+            request_time = timezone.now()
         )
 
         response = requests.get(url)
