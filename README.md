@@ -19,6 +19,22 @@ This will start all services in development mode, so any file changes will be re
 * Many development tasks need more complex commands to update database models
 * Running all services at once is a heavy load for a computer
 
+Here is how to start both the heartsteps-server and heartsteps-client in development mode.
+```
+# First create the database and load test data
+# (you can skip this if you've done this before)
+$ docker-compose run server python manage.py migrate
+$ docker-compose run server python manage.py loaddata test-data
+
+# Now run the heartsteps-client, which also starts the heartsteps-server
+$docker-compose run --serviceports client
+
+# The heartsteps-server will be running on localhost:8080
+# The heartsteps-client will be running on localhost:8100
+# The admin username and password is "admin" and "password1234"
+# The test user entry code and birth year are "test-test" and "1980"
+```
+
 ### HeartSteps Server
 
 ```
