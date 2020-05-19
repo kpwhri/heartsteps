@@ -7,7 +7,7 @@ RUN apt-get update && \
 ADD credentials /credentials
 
 # Install google cloud sdk and gcsfuse
-ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/gae-storage-service.json
+ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/google-storage-service.json
 ENV CLOUD_SDK_REPO cloud-sdk-jessie
 ENV GCSFUSE_REPO gcsfuse-jessie
 RUN echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \

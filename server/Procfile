@@ -3,4 +3,4 @@ web: gunicorn -b :8080 heartsteps.wsgi:application --log-level debug
 celery: celery worker -A heartsteps -l info -Q default,messages,fitbit
 celeryMessages: celery worker -A heartsteps -l info -Q messages
 beat: celery beat -A heartsteps -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-cloudsql: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/gce.json
+cloudsql: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/google-service-account.json

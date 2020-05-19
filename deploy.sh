@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcloud auth activate-service-account --key-file=credentials/gce.json
+gcloud auth activate-service-account --key-file=credentials/google-service-account.json
 gcloud auth configure-docker -q
 gcloud config set project heartsteps-kpwhri
 gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
