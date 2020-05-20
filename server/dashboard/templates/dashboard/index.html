@@ -20,14 +20,10 @@
     <thead class="thead-dark">
         <tr>
             <th>Participant</th>
-            <th>Adherence</th>
             <th>Text Messages</th>
             <th>Fitbit</th>
             <th>Mobile App</th>
             <th>Watch App</th>
-            <th>Morning Messages</th>
-            <th>Anti-sedentary suggestions</th>
-            <th>Walking suggestions</th>
         </tr>
     </thead>
     <tbody>
@@ -49,28 +45,6 @@
             </td>
             <td>
                 <dl>
-                    <dt>Status</dt>
-                    {% for status in participant.adherence_status %}
-                    <dd>
-                    {% if status.days is not None %}
-                    {{status.title}}: {{status.days}} days ago
-                    {% else %}
-                    {{status.title}}: Never updated
-                    {% endif %}
-                    </dd>
-                    {% endfor %}
-                    <dt>Sent recently</dt>
-                    <dd>
-                    {% if participant.adherence_messages %}
-                    {{participant.adherence_messages}} messages
-                    {% else %}
-                    No messages sent
-                    {% endif %}
-                    </dd>
-                </dl>
-            </td>
-            <td>
-                <dl>
                     <dt>Phone</dt>
                     {% if participant.phone_number %}
                     <dd>{{participant.phone_number }}</dd>
@@ -79,6 +53,14 @@
                     <dt>Last text sent</dt>
                     <dd>{{participant.last_text_sent}}</dd>
                     {% endif %}
+                    <dt>Recent Adherence Messages Sent</dt>
+                    <dd>
+                    {% if participant.adherence_messages %}
+                    {{participant.adherence_messages}} messages
+                    {% else %}
+                    No messages sent
+                    {% endif %}
+                    </dd>
                 </dl>
             </td>
             <td>
@@ -129,58 +111,6 @@
                     {% endif %}
                 </dl>
             </td>
-            <td>
-                <dl>
-                    <dt>Status</dt>
-                    {% if participant.morning_messages_enabled %}
-                    <dd class="success">Enabled</dd>
-                    {% else %}
-                    <dd class="error">Disabled</dd>
-                    {% endif %}
-                    {% if participant.last_morning_message_survey_completed %}
-                    <dt>Last completed survey</dt>
-                    <dd>{{participant.last_morning_message_survey_completed|date }}</dd>
-                    {% endif %}
-                </dl>
-            </td>
-            <td>
-                <dl>
-                    <dt>Status</dt>
-                    <dd>
-                    {% if participant.anti_sedentary_suggestions_enabled %}
-                        Enabled
-                    {% else %}
-                    Disabled
-                        {% endif %}
-                    </dd>
-                    {% if participant.last_anti_sedentary_suggestion_datetime %}
-                    <dt>Last suggestion</dt>
-                    <dd>{{participant.last_anti_sedentary_suggestion_datetime|date}}</dd>
-                    {% endif %}
-                </dl>
-            </td>
-            <td>
-                <dl>
-                    <dt>Status</dt>
-                    <dd>
-                    {% if participant.walking_suggestions_enabled %}
-                    Enabled
-                    {% else %}
-                    Disabled
-                    {% endif %}
-                    </dd>
-                    {% if participant.walking_suggestion_service_initialized_date %}
-                    <dd>Service initialized on {{participant.walking_suggestion_service_initialized_date}}</dd>
-                    {% else %}
-                    <dd>Service not initialized</dd>
-                    {% endif %}
-                    {% if participant.last_walking_suggestion_datetime %}
-                    <dt>Last decision</dt>
-                    <dd>{{ participant.last_walking_suggestion_datetime|date}}<dd>
-                    {% endif %}
-                </dl>
-            </td>
-
             {% endtimezone %}
         </tr>
         {% endfor %}

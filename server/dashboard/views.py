@@ -150,7 +150,6 @@ class DashboardListView(CohortView):
         participants = []
         for participant in paginated_participants:
             participants.append({
-                'adherence_status': participant.adherence_status(),
                 'adherence_messages': participant.recent_adherence_messages,
                 'heartsteps_id': participant.heartsteps_id,
                 'phone_number': participant.phone_number,
@@ -161,16 +160,9 @@ class DashboardListView(CohortView):
                 'date_joined': participant.date_joined,
                 'first_page_view': participant.first_page_view,
                 'last_page_view': participant.last_page_view,
-                'morning_messages_enabled': participant.morning_messages_enabled,
-                'last_morning_message_survey_completed': participant.date_last_morning_message_survey_completed,
                 'watch_app_installed_date': participant.watch_app_installed_date,
                 'last_watch_app_data': participant.last_watch_app_data,
                 'last_text_sent': participant.last_text_sent,
-                'anti_sedentary_suggestions_enabled': participant.anti_sedentary_suggestions_enabled,
-                'last_anti_sedentary_suggestion_datetime': participant.last_anti_sedentary_suggestion_datetime,
-                'walking_suggestions_enabled': participant.walking_suggestions_enabled,
-                'last_walking_suggestion_datetime': participant.last_walking_suggestion_datetime,
-                'walking_suggestion_service_initialized_date': participant.walking_suggestion_service_initialized_date
             })
         context['participant_list'] = participants
         return context
