@@ -13,9 +13,7 @@ To understand the application architecture, please see the [application architec
 The following outlines how to run the applications for local development, and then deploy the entire application.
 
 ## Development
-Please don't use docker-compose up, multiple services of the same type will be built and created.
-
-This will start all services in development mode, so any file changes will be reloaded and shown. *This is not recommended for working on a single service because:*
+Please don't use 'docker-compose up', multiple services of the same type will be built and created. This will start all services in development mode, so any file changes will be reloaded and shown. *This is not recommended for working on a single service because:*
 * Many development tasks need more complex commands to update database models
 * Running all services at once is a heavy load for a computer
 
@@ -27,7 +25,7 @@ $ docker-compose run server python manage.py migrate
 $ docker-compose run server python manage.py loaddata test-data
 
 # Now run the heartsteps-client, which also starts the heartsteps-server
-$docker-compose run --serviceports client
+$ docker-compose run --serviceports client
 
 # The heartsteps-server will be running on localhost:8080
 # The heartsteps-client will be running on localhost:8100
