@@ -28,11 +28,11 @@ urlpatterns = [
         auth_views.PasswordResetConfirmView.as_view(success_url='dashboard-login'),
         name='password_reset_confirm'
     ),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/fitbit/disable', ParticipantDisableFitbitAccountView.as_view(), name='dashboard-cohort-participant-fitbit-disable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/enable', ParticipantEnableView.as_view(), name='dashboard-cohort-participant-enable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/disable', ParticipantDisableView.as_view(), name='dashboard-cohort-participant-disable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/unarchive', ParticipantUnarchiveView.as_view(), name='dashboard-cohort-participant-unarchive'),
-    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/archive', ParticipantArchiveView.as_view(), name='dashboard-cohort-participant-archive'),
-    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/fitbit/disable', ParticipantDisableFitbitAccountView.as_view(), name='dashboard-cohort-participant-fitbit-disable'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/archive', ParticipantArchiveView.as_view(), name='dashboard-cohort-participant-archive'),    
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence-messages', ParticipantToggleAdherenceMessagesView.as_view(), name='dashboard-cohort-participant-adherence-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence', ParticipantAdherenceView.as_view(), name='dashboard-cohort-participant-adherence'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/intervention-summary', ParticipantInterventionSummaryView.as_view(), name='dashboard-cohort-participant-intervention-summary'),
