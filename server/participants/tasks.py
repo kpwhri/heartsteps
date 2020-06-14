@@ -17,6 +17,8 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from weekly_reflection.models import ReflectionTime
 
 from .services import ParticipantService
+from .models import Cohort
+from .models import Study
 from .models import Participant
 
 @shared_task
@@ -28,6 +30,13 @@ def daily_update(username):
 
 @shared_task
 def reset_test_participants(date_joined=None, number_of_days=9):
+    current_year = date.today().strftime('%Y')
+
+    study, _ = Study.objects.get_or_create(name='Test')
+    cohort, _ = Cohort.objects.get_or_create(
+        name = "test",
+        study = study
+    )
 
     try:
         participant = Participant.objects.get(heartsteps_id = 'test-new')
@@ -37,7 +46,8 @@ def reset_test_participants(date_joined=None, number_of_days=9):
     Participant.objects.create(
         heartsteps_id = 'test-new',
         enrollment_token = 'test-new1',
-        birth_year = 1980
+        birth_year = current_year,
+        cohort = cohort
     )
 
     try:
@@ -48,7 +58,8 @@ def reset_test_participants(date_joined=None, number_of_days=9):
     participant = Participant.objects.create(
         heartsteps_id = 'test',
         enrollment_token = 'test-test',
-        birth_year = 1980
+        birth_year = current_year,
+        cohort = cohort
     )
 
     participant_service = ParticipantService(participant=participant)
@@ -89,7 +100,7 @@ def reset_test_participants(date_joined=None, number_of_days=9):
     Place.objects.create(
         user = user,
         type = Place.WORK,
-        address = 'Minor Avenue, Seattle, Washington, United States of America',
+        address = '1730 Minor Avenue, Seattle, Washington, United States of America',
         latitude = 47.6129,
         longitude = -122.327
     )
