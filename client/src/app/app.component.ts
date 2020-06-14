@@ -28,10 +28,7 @@ export class MyApp {
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event: NavigationEnd) => {
             if (event.url == "/") {
-                this.participantService.participant.take(1)
-                .subscribe((participant) => {
-                    this.updateRoute(participant);
-                });
+                this.participantService.update();
             }
         })
         

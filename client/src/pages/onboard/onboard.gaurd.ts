@@ -22,7 +22,7 @@ export class OnboardGaurd implements CanActivate {
             return this.profileService.isComplete()
         })
         .then(() => {
-            this.router.navigate(['home']);
+            this.router.navigate(['/']);
             return false;
         })
         .catch(() => {

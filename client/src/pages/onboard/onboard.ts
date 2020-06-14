@@ -74,9 +74,6 @@ export class OnboardPage implements OnInit {
         this.participantService.markOnboardComplete()
         .then(() => {
             this.router.navigate(['/'])
-        })
-        .then(() => {
-            this.participantService.update();
         });
     }
 
