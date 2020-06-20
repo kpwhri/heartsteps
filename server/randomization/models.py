@@ -374,6 +374,7 @@ class Decision(models.Model):
 
     def get_forecast(self):
         if hasattr(self, '_forecast'):
+            print('reuse forecast')
             return self._forecast
         else:
             forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
@@ -383,7 +384,9 @@ class Decision(models.Model):
             ).last()
             if context:
                 self._forecast = context.content_object
+                print('got forecast')
                 return self._forecast
+        print('no forecast')
         return None
 
     @property

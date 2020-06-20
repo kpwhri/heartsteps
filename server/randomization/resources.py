@@ -207,3 +207,14 @@ class DecisionResource(resources.ModelResource):
             return False
         else:
             return True
+
+    def dehydrate_temperature(self, decision):
+        print('dehydtrate temp', decision.temperature)
+        return decision.temperature
+
+    def dehydrate_precipitation_type(self, decision):
+        return decision.precipitation_type
+
+    def dehydrate_precipitation_probability(self, decision):
+        return decision.precipitation_probability
+
