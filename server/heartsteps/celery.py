@@ -26,6 +26,10 @@ app.conf.beat_schedule = {
         'task': 'participants.tests.reset_test_participants',
         'schedule': crontab(hour='11', minute='0')
     }
+    'export-data': {
+        'task': 'heartsteps_data_download.tasks.download_data',
+        'schedule': crontab(hour='11', minute='0')
+    }
 }
 
 app.conf.task_default_queue = 'default'

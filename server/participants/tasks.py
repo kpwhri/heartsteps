@@ -173,7 +173,7 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
-def export_cohort_data(cohort_name, start=None, end=None):
+def export_cohort_data(cohort_name, directory, start=None, end=None):
     cohort = Cohort.objects.get(name=cohort_name)
     participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
     users = [p.user for p in participants]
@@ -186,13 +186,13 @@ def export_cohort_data(cohort_name, start=None, end=None):
         users = users,
         start_date = start,
         end_date = end,
-        filename = '%s-location_counts.csv' % (cohort.slug)
+        filename = '%s/%s-location_counts.csv' % (directory, cohort.slug)
     )
     export_step_count_records_csv(
         users = users,
         start_date = start,
         end_date = end,
-        filename = '%s-watch-app-step-count-records.csv' % (cohort.slug)
+        filename = '%s/%s-watch-app-step-count-records.csv' % (directory, cohort.slug)
     )
         
 

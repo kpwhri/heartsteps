@@ -18,6 +18,8 @@ from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
 from participants.models import Participant
+from participants.models import Cohort
+from participants.tasks import export_cohort_data
 from push_messages.models import Message
 from service_requests.admin import ServiceRequestResource
 from walking_suggestions.admin import WalkingSuggestionDecisionResource
@@ -437,7 +439,13 @@ def export_user_data(username):
 
 @shared_task
 def download_data():
-    for participant in Participant.objects.exclude(user=None).all():
-        export_user_data.apply_async(kwargs={
-            'username': participant.user.username
-        })
+    if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
+        print('Data download not configured')
+        return False
+    if not os.path.exists(EXPORT_DIRECTORY):
+        os.makedirs(EXPORT_DIRECTORY)
+    for cohort in Cohort.objects.all():
+        export_cohort_data(
+            cohort_name = cohort.name,
+            directory = EXPORT_DIRECTORY
+        )
