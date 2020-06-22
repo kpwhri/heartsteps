@@ -6,7 +6,6 @@ from adherence_messages.models import Configuration as AdherenceMessageConfigura
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
-from heartsteps_data_download.tasks import export_user_data
 from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
 from morning_messages.models import Configuration as MorningMessagesConfiguration
@@ -208,8 +207,6 @@ class ParticipantService:
         self.update_anti_sedentary(date)
         self.update_walking_suggestions(date)
 
-        # self.queue_data_export()
-
     def update_fitbit(self, date):
         try:
             service = FitbitActivityService(
@@ -255,8 +252,3 @@ class ParticipantService:
             weather_service.update_forecasts()
         except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
             pass
-    
-    def queue_data_export(self):
-        export_user_data.apply_async(kwargs={
-            'username': self.user.username
-        })
