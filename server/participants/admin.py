@@ -23,7 +23,7 @@ def queue_export_participant_data(modeladmin, request, queryset):
     queued_export_user_data.apply_async(kwargs={
         'usernames':usernames
     })
-    messages.add_message(request, message.SUCCESS, 'Export for %d participants is queued' % (len(usernames)))
+    messages.add_message(request, messages.SUCCESS, 'Export for %d participants is queued' % (len(usernames)))
 
 def initialize_participant(modeladmin, request, queryset):
     for participant in queryset.all():
