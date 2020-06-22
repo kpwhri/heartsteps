@@ -6,6 +6,7 @@ from warnings import warn
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from slugify import slugify
 
 from daily_tasks.models import DailyTask
 from days.models import Day
@@ -33,6 +34,10 @@ class Study(models.Model):
 
     admins = models.ManyToManyField(User)
 
+    @property
+    def slug(self):
+        return slugify(self.name)
+
     def __str__(self):
         return self.name
 
@@ -55,6 +60,10 @@ class Cohort(models.Model):
             start = start,
             end = end
         )
+    
+    @property
+    def slug(self):
+        return slugify(self.name)
 
     def __str__(self):
         return self.name

@@ -13,7 +13,9 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from locations.models import Place
 from locations.services import LocationService
+from locations.tasks import export_location_count_csv
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
+from watch_app.tasks import export_step_count_records_csv
 from weekly_reflection.models import ReflectionTime
 
 from .services import ParticipantService
@@ -171,5 +173,26 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
+def export_cohort_data(cohort_name, start=None, end=None):
+    cohort = Cohort.objects.get(name=cohort_name)
+    participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
+    users = [p.user for p in participants]
 
+    if not start or not end:
+        start = date.today() - timedelta(days=90)
+        end = date.today()
+
+    export_location_count_csv(
+        users = users,
+        start_date = start,
+        end_date = end,
+        filename = '%s-location_counts.csv' % (cohort.slug)
+    )
+    export_step_count_records_csv(
+        users = users,
+        start_date = start,
+        end_date = end,
+        filename = '%s-watch-app-step-count-records.csv' % (cohort.slug)
+    )
+        
 
