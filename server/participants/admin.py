@@ -11,11 +11,19 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSch
 
 from fitbit_activities.tasks import update_all_fitbit_data
 from fitbit_api.services import FitbitService
+from heartsteps_data_download.tasks import queued_export_user_data
 
 from .models import Cohort
 from .models import Participant
 from .models import Study
 from .services import ParticipantService
+
+def queue_export_participant_data(modeladmin, request, queryset):
+    usernames = [p.user.username for p in queryset.all() if p.user]
+    queued_export_user_data.apply_async(kwargs={
+        'usernames':usernames
+    })
+    messages.add_message(request, message.SUCCESS, 'Export for %d participants is queued' % (len(usernames)))
 
 def initialize_participant(modeladmin, request, queryset):
     for participant in queryset.all():
@@ -96,7 +104,8 @@ class ParticipantAdmin(admin.ModelAdmin):
         initialize_participant,
         deactivate_participant,
         update_participant,
-        reload_fitbit_data
+        reload_fitbit_data,
+        queue_export_participant_data
     ]
 
     def get_actions(self, request):

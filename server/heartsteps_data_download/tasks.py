@@ -436,7 +436,6 @@ def export_user_data(username):
         shell=True
     )
 
-
 @shared_task
 def download_data():
     if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
@@ -449,3 +448,19 @@ def download_data():
             cohort_name = cohort.name,
             directory = EXPORT_DIRECTORY
         )
+
+@shared_task
+def queued_export_user_data(usernames):
+    if len(usernames):
+        username = usernames.pop()
+        print('Exporting %s (%d remaining)' % (username,len(usernames)))
+        try:
+            export_user_data(username)
+        except:
+            print('Error exporting %s' % (username))
+        print('Export complete %s' % (username))
+        queued_export_user_data.apply_async(kwargs={
+            'usernames': usernames
+        })
+    else:
+        print('Done exporting')
