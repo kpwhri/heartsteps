@@ -38,7 +38,7 @@ python-dateutil==2.7.3
 python-http-client==3.2.7
 python-slugify==4.0.0
 pytz==2018.4
-PyYAML==3.13
+PyYAML==5.1
 requests==2.19.1
 requests-oauthlib==1.0.0
 requests-toolbelt==0.8.0
