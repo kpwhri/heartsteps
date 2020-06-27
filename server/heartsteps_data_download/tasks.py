@@ -444,9 +444,16 @@ def download_data():
     if not os.path.exists(EXPORT_DIRECTORY):
         os.makedirs(EXPORT_DIRECTORY)
     for cohort in Cohort.objects.all():
+        cohort_directory = os.path.join(EXPORT_DIRECTORY, 'cohort-'+cohort.slug)
+        if not os.path.exists(cohort_directory):
+            os.makedirs(cohort_directory)
         export_cohort_data(
             cohort_name = cohort.name,
-            directory = EXPORT_DIRECTORY
+            directory = cohort_directory
+        )
+        subprocess.call(
+            'gsutil -m rsync %s gs://%s' % (cohort_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
+            shell=True
         )
 
 @shared_task
