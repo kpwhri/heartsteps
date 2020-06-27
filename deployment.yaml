@@ -193,7 +193,7 @@ metadata:
   labels:
     app: heartsteps-worker-messages
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -204,6 +204,36 @@ spec:
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
         command: ['honcho', 'start', 'cloudsql', 'celeryMessages']
+        env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
+          - name: DATABASE_URL
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
+          - name: ANTI_SEDENTARY_SERVICE_URL
+            value: 'http://anti-sedentary:8080'
+          - name: WALKING_SUGGESTION_SERVICE_URL
+            value: 'http://walking-suggestion:8080'
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heartsteps-worker-export
+  labels:
+    app: heartsteps-worker-export
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: heartsteps-worker-export
+    spec:
+      containers:
+      - name: heartsteps-celery-worker-messages
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server
+        imagePullPolicy: Always
+        command: ['honcho', 'start', 'cloudsql', 'celeryExport']
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
