@@ -1,5 +1,22 @@
 version: '2'
 services:
+    client:
+        build: ./client
+        env_file:
+          - credentials/.env-production
+        command: npm run serve:app
+        volumes:
+          - ./client:/client
+          - ./credentials:/credentials
+          - client-node-modules:/client/node_modules
+        ports:
+          - "8100:8100"
+          - "35729:35729"
+          - "53703:53703"
+        depends_on:
+          - cloudsql
+          - rabbitmq
+          - server
     cloudsql:
         image: gcr.io/cloudsql-docker/gce-proxy:1.11
         command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/google-service-account.json
@@ -23,7 +40,7 @@ services:
         env_file:
           - credentials/.env-production
         environment:
-            - ALLOWED_HOSTS=localhost
+            - ALLOWED_HOSTS=localhost,server
             - DEBUG=True
             - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw
         depends_on:
@@ -37,3 +54,4 @@ services:
         working_dir: /server-gcloud
 volumes: 
     cloudsql:
+    client-node-modules:
