@@ -1,7 +1,11 @@
+import os
+import subprocess
 from datetime import date
 from datetime import timedelta
 
 from celery import shared_task
+from django.utils import timezone
+from django.conf import settings
 
 from days.models import Day
 from days.services import DayService
@@ -9,12 +13,15 @@ from contact.models import ContactInformation
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
+from fitbit_activities.tasks import export_fitbit_data
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from locations.models import Place
 from locations.services import LocationService
 from locations.tasks import export_location_count_csv
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
+from walking_suggestions.tasks import export_walking_suggestion_decisions
+from walking_suggestions.tasks import export_walking_suggestion_service_requests
 from watch_app.tasks import export_step_count_records_csv
 from weekly_reflection.models import ReflectionTime
 
@@ -22,13 +29,6 @@ from .services import ParticipantService
 from .models import Cohort
 from .models import Study
 from .models import Participant
-
-@shared_task
-def daily_update(username):
-    service = ParticipantService(username=username)
-    day_service = DayService(username=username)
-    yesterday = day_service.get_current_date() - timedelta(days=1)
-    service.update(yesterday)
 
 @shared_task
 def reset_test_participants(date_joined=None, number_of_days=9):
@@ -173,6 +173,41 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
+def print_timediff():
+    start = timezone.now()
+    def print_function(message):
+        diff = timezone.now() - start
+        print(diff.minutes, message)
+    return print_function
+
+@shared_task
+def export_user_data(username):
+    EXPORT_DIRECTORY = '/heartsteps-export'
+    if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
+        print('Data download not configured')
+        return False
+    if not os.path.exists(EXPORT_DIRECTORY):
+        os.makedirs(EXPORT_DIRECTORY)
+    user_directory = os.path.join(EXPORT_DIRECTORY, username)
+    if not os.path.exists(user_directory):
+        os.makedirs(user_directory)
+    print(username)
+    _print = print_timediff()
+    _print('Start walking suggestion decisions export')
+    export_walking_suggestion_decisions(username=username, directory=user_directory)
+    _print('Start walking suggestion service requests export')
+    export_walking_suggestion_service_requests(username=username, directory=user_directory)
+    _print('Start Fitbit data export')
+    export_fitbit_data(username=username, directory=user_directory)
+    _print('Start adherence metrics export')
+    export_adherence_metrics(username=username, directory=user_directory)
+    _print('Start gcloud sync')
+    subprocess.call(
+        'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
+        shell=True
+    )
+    _print('done')
+
 def export_cohort_data(cohort_name, directory, start=None, end=None):
     cohort = Cohort.objects.get(name=cohort_name)
     participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
@@ -194,5 +229,14 @@ def export_cohort_data(cohort_name, directory, start=None, end=None):
         end_date = end,
         filename = '%s/%s-watch-app-step-count-records.csv' % (directory, cohort.slug)
     )
-        
+
+@shared_task
+def daily_update(username):
+    service = ParticipantService(username=username)
+    day_service = DayService(username=username)
+    yesterday = day_service.get_current_date() - timedelta(days=1)
+    service.update(yesterday)
+    export_user_data.apply_async(kwargs={
+        'username':username
+    })
 

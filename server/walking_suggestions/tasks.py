@@ -1,17 +1,19 @@
+import os
 import pytz
 import json
 import random
 from celery import shared_task
 from datetime import timedelta, datetime, date
+import requests
 
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
-import requests
 
 from days.services import DayService
 from participants.models import Participant
+from service_requests.admin import ServiceRequestResource
 
 from .models import SuggestionTime
 from .models import Configuration
@@ -19,6 +21,7 @@ from .models import WalkingSuggestionDecision
 from .models import NightlyUpdate
 from .models import PoolingServiceConfiguration
 from .models import PoolingServiceRequest
+from .resources import WalkingSuggestionDecisionResource
 from .services import WalkingSuggestionService
 from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
@@ -121,3 +124,54 @@ def update_pooling_service():
     request_record.response_time = timezone.now()
     request_record.save()
     
+
+def export_walking_suggestion_decisions(username, directory):
+    try:
+        configuration = Configuration.objects.get(user__username = username)
+    except Configuration.DoesNotExist:
+        return False
+    if not configuration.service_initialized:
+        return False
+
+    day_service = DayService(user=configuration.user)
+    initialized_datetime = day_service.get_datetime_at(configuration.service_initialized_date)
+
+    queryset = WalkingSuggestionDecision.objects.filter(
+        user = configuration.user,
+        time__gt = initialized_datetime
+    )
+    total_rows = queryset.count()
+
+    filename = '%s.walking_suggestion_decisions.csv' % (username)
+    _file = open(os.path.join(directory, filename), 'w')
+    
+    start_index = 0
+    slice_size = 100
+    first = True
+    while start_index < total_rows:
+        end_index = start_index + slice_size
+        if end_index >= total_rows:
+            end_index = total_rows - 1
+        dataset = WalkingSuggestionDecisionResource().export(
+            queryset = queryset[start_index:end_index]
+        )
+        csv = dataset.csv
+        if first:
+            first = False
+        else:
+            csv_list = csv.split('\r\n')
+            csv = '\r\n'.join(csv_list[1:])
+        _file.write(csv)
+        start_index = start_index + slice_size
+    _file.close()
+
+def export_walking_suggestion_service_requests(username, directory):
+    dataset = ServiceRequestResource().export(
+        queryset = WalkingSuggestionServiceRequest.objects.filter(
+            user__username = username
+        )
+    )
+    filename = '%s.walking_suggestion_service_requests.csv' % (username)
+    _file = open(os.path.join(directory, filename), 'w')
+    _file.write(dataset.csv)
+    _file.close()

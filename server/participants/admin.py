@@ -11,12 +11,12 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSch
 
 from fitbit_activities.tasks import update_all_fitbit_data
 from fitbit_api.services import FitbitService
-from heartsteps_data_download.tasks import export_user_data
 
 from .models import Cohort
 from .models import Participant
 from .models import Study
 from .services import ParticipantService
+from .tasks import export_user_data
 
 def queue_export_participant_data(modeladmin, request, queryset):
     successes = 0

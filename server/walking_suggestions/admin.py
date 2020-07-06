@@ -39,7 +39,6 @@ class ParticipantCohortFilter(admin.SimpleListFilter):
 
 
 from randomization.admin import DecisionAdmin
-from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
 
 from walking_suggestion_times.models import SuggestionTime
@@ -50,16 +49,11 @@ from walking_suggestions.models import WalkingSuggestionMessageTemplate
 from walking_suggestions.models import WalkingSuggestionServiceRequest
 from walking_suggestions.models import PoolingServiceConfiguration
 from walking_suggestions.models import PoolingServiceRequest
+from walking_suggestions.resources import WalkingSuggestionDecisionResource
 from walking_suggestions.services import WalkingSuggestionDecisionService
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import initialize_and_update
 
-class WalkingSuggestionDecisionResource(DecisionResource):
-
-    class Meta:
-        model = WalkingSuggestionDecision
-        fields = DecisionResource.FIELDS
-        export_order = DecisionResource.FIELDS
 
 class WalkingSuggestionTimeFilters(admin.SimpleListFilter):
     title = 'Time Category'
