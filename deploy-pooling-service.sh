@@ -9,8 +9,8 @@ docker pull gcr.io/heartsteps-kpwhri/pooling-service
 docker tag gcr.io/heartsteps-kpwhri/pooling-service heartsteps_pooling-service
 
 docker-compose -f docker-compose.activity-suggesions.yaml build pooling-service
-docker tag heartsteps_pooling-service gcr.io/heartsteps-kpwhri/pooling-service:$TRAVIS_BUILD_NUMBER
-docker push gcr.io/heartsteps-kpwhri/pooling-service:$TRAVIS_BUILD_NUMBER
+docker tag heartsteps_pooling-service gcr.io/heartsteps-kpwhri/pooling-service:latest
+docker push gcr.io/heartsteps-kpwhri/pooling-service:latest
 
 gcloud compute instances update-container pooling-service --zone=us-west1-b \
-    --container-image gcr.io/heartsteps-kpwhri/pooling-service:$TRAVIS_BUILD_NUMBER
+    --container-image gcr.io/heartsteps-kpwhri/pooling-service:latest
