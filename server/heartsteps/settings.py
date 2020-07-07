@@ -129,7 +129,8 @@ INSTALLED_APPS = [
     'adherence_messages',
     'activity_surveys',
     'heartsteps_data_download',
-    'heartsteps_messages'
+    'heartsteps_messages',
+    'pin_gen'
 ]
 
 MIDDLEWARE = [
