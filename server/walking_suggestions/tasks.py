@@ -18,6 +18,7 @@ from service_requests.admin import ServiceRequestResource
 from .models import SuggestionTime
 from .models import Configuration
 from .models import WalkingSuggestionDecision
+from .models import WalkingSuggestionServiceRequest
 from .models import NightlyUpdate
 from .models import PoolingServiceConfiguration
 from .models import PoolingServiceRequest

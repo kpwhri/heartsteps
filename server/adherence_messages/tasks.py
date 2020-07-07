@@ -3,6 +3,7 @@ from import_export import resources
 from import_export.fields import Field
 
 from anti_sedentary.models import AntiSedentaryDecision
+from days.services import DayService
 from walking_suggestions.models import WalkingSuggestionDecision
 from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
@@ -256,8 +257,7 @@ def export_adherence_metrics(username, directory):
 
     
     dataset = DailyAdherenceResource().export(queryset=days)
-    write_csv_file(
-        directory = directory,
-        filename = '%s.adherence_metrics.csv' % (username),
-        content = dataset.csv
-    )
+    filename = '%s.adherence_metrics.csv' % (username)
+    _file = open(os.path.join(directory, filename), 'w')
+    _file.write(dataset.csv)
+    _file.close()

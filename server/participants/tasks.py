@@ -2,11 +2,15 @@ import os
 import subprocess
 from datetime import date
 from datetime import timedelta
+from math import floor
 
 from celery import shared_task
 from django.utils import timezone
 from django.conf import settings
 
+from adherence_messages.tasks import export_adherence_metrics
+from anti_sedentary.tasks import export_anti_sedentary_decisions
+from anti_sedentary.tasks import export_anti_sedentary_service_requests
 from days.models import Day
 from days.services import DayService
 from contact.models import ContactInformation
@@ -177,7 +181,8 @@ def print_timediff():
     start = timezone.now()
     def print_function(message):
         diff = timezone.now() - start
-        print(diff.minutes, message)
+        dur_string = '%d:%d' % (floor(diff.seconds/60), (diff.seconds - (floor(diff.seconds/60)*60)))
+        print(dur_string, message)
     return print_function
 
 @shared_task
@@ -193,14 +198,18 @@ def export_user_data(username):
         os.makedirs(user_directory)
     print(username)
     _print = print_timediff()
-    _print('Start walking suggestion decisions export')
-    export_walking_suggestion_decisions(username=username, directory=user_directory)
+    # _print('Start walking suggestion decisions export')
+    # export_walking_suggestion_decisions(username=username, directory=user_directory)
     _print('Start walking suggestion service requests export')
     export_walking_suggestion_service_requests(username=username, directory=user_directory)
+    # _print('Start anti-sedentary suggestion decisions export')
+    # export_anti_sedentary_decisions(username=username, directory=user_directory)
+    _print('Start Anti sedentary service requests export')
+    export_anti_sedentary_service_requests(username=username, directory=user_directory)
     _print('Start Fitbit data export')
     export_fitbit_data(username=username, directory=user_directory)
-    _print('Start adherence metrics export')
-    export_adherence_metrics(username=username, directory=user_directory)
+    # _print('Start adherence metrics export')
+    # export_adherence_metrics(username=username, directory=user_directory)
     _print('Start gcloud sync')
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
