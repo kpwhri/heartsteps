@@ -92,7 +92,7 @@ class ParticipantService:
     
     def get_authorization_token(self):
         token, _ = Token.objects.get_or_create(user=self.participant.user)
-        return token
+        return Token
 
     def destroy_authorization_token(self):
         Token.objects.filter(user = self.participant.user).delete()
