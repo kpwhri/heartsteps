@@ -5,7 +5,6 @@ from .models import *
 class pinAdmin(admin.ModelAdmin):
 	pass
 
-admin.site.register(Customer, pinAdmin)
 admin.site.register(Pin, pinAdmin)
 
 
