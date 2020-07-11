@@ -122,7 +122,6 @@ INSTALLED_APPS = [
     'anti_sedentary',
     'watch_app',
     'participants',
-    'data_export',
     'dashboard',
     'sms_service',
     'sms_messages',

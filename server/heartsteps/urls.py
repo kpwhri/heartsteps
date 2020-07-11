@@ -42,7 +42,6 @@ urlpatterns = [
         name = 'sms-messages-reply'
     ),
     url(r'^api-auth', include('rest_framework.urls')),
-    url(r'^export/', include('data_export.urls')),
     url(r'^dashboard/', include('dashboard.urls')),
     url(r'', include('privacy_policy.urls'))
 ]
