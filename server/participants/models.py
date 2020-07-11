@@ -164,3 +164,20 @@ class Participant(models.Model):
 
     def __str__(self):
         return self.heartsteps_id
+
+class DataExport(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+    )
+
+    filename = models.CharField(max_length=150)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+
+    error_message = models.TextField(
+        null = True
+    )
+
+    def __str__(self):
+        return self.filename

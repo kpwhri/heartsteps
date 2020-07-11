@@ -31,6 +31,7 @@ from weekly_reflection.models import ReflectionTime
 
 from .services import ParticipantService
 from .models import Cohort
+from .models import DataExport
 from .models import Study
 from .models import Participant
 
@@ -177,14 +178,6 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
-def print_timediff():
-    start = timezone.now()
-    def print_function(message):
-        diff = timezone.now() - start
-        dur_string = '%d:%d' % (floor(diff.seconds/60), (diff.seconds - (floor(diff.seconds/60)*60)))
-        print(dur_string, message)
-    return print_function
-
 @shared_task
 def export_user_data(username):
     EXPORT_DIRECTORY = '/heartsteps-export'
@@ -197,25 +190,28 @@ def export_user_data(username):
     if not os.path.exists(user_directory):
         os.makedirs(user_directory)
     print(username)
-    _print = print_timediff()
-    # _print('Start walking suggestion decisions export')
-    # export_walking_suggestion_decisions(username=username, directory=user_directory)
-    _print('Start walking suggestion service requests export')
+    participant = Participant.objects.get(user__username=username)
+    export = DataExport(
+        user = participant.user,
+        filename = '%s.walking_suggestion_decisions.csv' % (username),
+        start = timezone.now()
+    )
+    try:
+        export_walking_suggestion_decisions(username=username, directory=user_directory)
+    except Exception as e:
+        export.error_message = e
+    export.end = timezone.now()
+    export.save()
+    
     export_walking_suggestion_service_requests(username=username, directory=user_directory)
-    # _print('Start anti-sedentary suggestion decisions export')
     # export_anti_sedentary_decisions(username=username, directory=user_directory)
-    _print('Start Anti sedentary service requests export')
     export_anti_sedentary_service_requests(username=username, directory=user_directory)
-    _print('Start Fitbit data export')
     export_fitbit_data(username=username, directory=user_directory)
-    # _print('Start adherence metrics export')
     # export_adherence_metrics(username=username, directory=user_directory)
-    _print('Start gcloud sync')
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
         shell=True
     )
-    _print('done')
 
 def export_cohort_data(cohort_name, directory, start=None, end=None):
     cohort = Cohort.objects.get(name=cohort_name)
