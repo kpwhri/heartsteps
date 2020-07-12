@@ -26,40 +26,40 @@ class DecisionResource(resources.ModelResource):
         'unavailable_service_error',
         'treated',
         'treatment_probability',
-        'watch_step_count',
-        'fitbit_step_count',
-        'watch_step_count',
-        'watch_step_count_previous_30_minutes',
-        'watch_step_count_post_30_minutes',
-        'fitbit_step_count',
-        'fitbit_step_count_previous_30_minutes',
-        'fitbit_step_count_post_30_minutes',
-        'message',
-        'sent_time',
-        'received_time',
-        'opened_time',
-        'engaged_time',
-        'location_tag',
-        'location_imputed',
-        'temperature',
-        'precipitation_type',
-        'precipitation_probability'
+        # 'watch_step_count',
+        # 'fitbit_step_count',
+        # 'watch_step_count',
+        # 'watch_step_count_previous_30_minutes',
+        # 'watch_step_count_post_30_minutes',
+        # 'fitbit_step_count',
+        # 'fitbit_step_count_previous_30_minutes',
+        # 'fitbit_step_count_post_30_minutes',
+        # 'message',
+        # 'sent_time',
+        # 'received_time',
+        # 'opened_time',
+        # 'engaged_time',
+        # 'location_tag',
+        # 'location_imputed',
+        # 'temperature',
+        # 'precipitation_type',
+        # 'precipitation_probability'
     ]
 
     local_time = Field(column_name='time')
-    all_tags = Field(column_name='tags')
-    sent_time = Field()
-    received_time = Field()
-    opened_time = Field()
-    engaged_time = Field()
-    message = Field()
+    # all_tags = Field(column_name='tags')
+    # sent_time = Field()
+    # received_time = Field()
+    # opened_time = Field()
+    # engaged_time = Field()
+    # message = Field()
 
-    watch_step_count = Field()
-    watch_step_count_previous_30_minutes = Field()
-    watch_step_count_post_30_minutes = Field()
-    fitbit_step_count = Field()
-    fitbit_step_count_previous_30_minutes = Field()
-    fitbit_step_count_post_30_minutes = Field()
+    # watch_step_count = Field()
+    # watch_step_count_previous_30_minutes = Field()
+    # watch_step_count_post_30_minutes = Field()
+    # fitbit_step_count = Field()
+    # fitbit_step_count_previous_30_minutes = Field()
+    # fitbit_step_count_post_30_minutes = Field()
 
     unavailable_no_step_count_data = Field()
     unavailable_not_sedentary = Field()
@@ -69,12 +69,12 @@ class DecisionResource(resources.ModelResource):
     unavailable_disabled = Field()
     unavailable_service_error = Field()
 
-    location_tag = Field()
-    location_imputed = Field()
+    # location_tag = Field()
+    # location_imputed = Field()
 
-    temperature = Field()
-    precipitation_type = Field()
-    precipitation_probability = Field()
+    # temperature = Field()
+    # precipitation_type = Field()
+    # precipitation_probability = Field()
 
     def format_datetime(self, time):
         if time:

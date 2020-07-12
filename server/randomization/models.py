@@ -96,23 +96,25 @@ class Decision(models.Model):
     class Meta:
         ordering = ['-time']
 
+    @property
+    def unavailable_reasons(self):
+        if not hasattr(self,'_unavailable_reasons'):
+            unavailable_reasons = UnavailableReason.objects.filter(
+                decision = self
+            ).all()
+            self._unavailable_reasons = [_unavailable_reason.reason for _unavailable_reason in unavailable_reasons]
+        return self._unavailable_reasons
+
     def make_unavailable_property(property_reason):
         def get_reason(self):
-            try:
-                UnavailableReason.objects.get(
-                    decision = self,
-                    reason = property_reason
-                )
+            if property_reason in self.unavailable_reasons:
                 return True
-            except UnavailableReason.DoesNotExist:
+            else:
                 return False
         return property(get_reason)
     
     def is_available(self):
-        reasons = UnavailableReason.objects.filter(
-            decision = self
-        ).count()
-        if reasons > 0:
+        if len(self.unavailable_reasons) > 0:
             return False
         else:
             return True

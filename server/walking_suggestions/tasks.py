@@ -13,6 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from days.services import DayService
 from participants.models import Participant
+from randomization.models import UnavailableReason
 from service_requests.admin import ServiceRequestResource
 
 from .models import SuggestionTime
@@ -126,7 +127,10 @@ def update_pooling_service():
     request_record.save()
     
 
-def export_walking_suggestion_decisions(username, directory):
+def export_walking_suggestion_decisions(username, directory, filename=None):
+    if not filename:
+        filename = '%s.walking_suggestion_decisions.csv' % (username)
+
     try:
         configuration = Configuration.objects.get(user__username = username)
     except Configuration.DoesNotExist:
@@ -143,18 +147,33 @@ def export_walking_suggestion_decisions(username, directory):
     )
     total_rows = queryset.count()
 
-    filename = '%s.walking_suggestion_decisions.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     
     start_index = 0
     slice_size = 100
     first = True
+    start = timezone.now()
+    loop_time = timezone.now()
+    print('start export of %d decisions' % (total_rows))
     while start_index < total_rows:
         end_index = start_index + slice_size
         if end_index >= total_rows:
             end_index = total_rows - 1
+        decisions = queryset[start_index:end_index]
+        decision_ids = [_decision.id for _decision in decisions]
+        unavailable_reasons = {}
+        for _id in decision_ids:
+            unavailable_reasons[_id] = []
+        unavailable_reason_query = UnavailableReason.objects.filter(decision_id__in=decision_ids)
+        print('Unavailable reasons count: %d' % (unavailable_reason_query.count()))
+        for unavailable_reason in unavailable_reason_query.all():
+            unavailable_reasons[unavailable_reason.decision_id].append(unavailable_reason.reason)
+        new_decisions = []
+        for decision in decisions:
+            decision._unavailable_reasons = unavailable_reasons[decision.id]
+            new_decisions.append(decision)
         dataset = WalkingSuggestionDecisionResource().export(
-            queryset = queryset[start_index:end_index]
+            queryset = new_decisions
         )
         csv = dataset.csv
         if first:
@@ -163,8 +182,15 @@ def export_walking_suggestion_decisions(username, directory):
             csv_list = csv.split('\r\n')
             csv = '\r\n'.join(csv_list[1:])
         _file.write(csv)
+
+        diff = timezone.now() - loop_time
+        print('Exported %d to %d in %d seconds' % (start_index, end_index, diff.seconds))
+        loop_time = timezone.now()
+
         start_index = start_index + slice_size
     _file.close()
+    diff = timezone.now() - start
+    print('Total export time %d' % (diff.seconds))
 
 def export_walking_suggestion_service_requests(username, directory):
     dataset = ServiceRequestResource().export(
