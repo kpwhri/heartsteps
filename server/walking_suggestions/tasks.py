@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 
+from days.models import Day
 from days.services import DayService
 from participants.models import Participant
 from randomization.models import UnavailableReason
@@ -160,17 +161,32 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
         if end_index >= total_rows:
             end_index = total_rows - 1
         decisions = queryset[start_index:end_index]
+        earliest_decision_time = None
+        latest_decision_time = None
+        for _decision in decisions:
+            if not earliest_decision_time or _decision.time < earliest_decision_time:
+                earliest_decision_time = _decision.time
+            if not latest_decision_time or _decision.time > latest_decision_time:
+                latest_decision_time = _decision.time
+        days = Day.objects.filter(
+            start__lte = latest_decision_time,
+            end__gte = earliest_decision_time,
+            user = configuration.user
+        ).all()
         decision_ids = [_decision.id for _decision in decisions]
         unavailable_reasons = {}
         for _id in decision_ids:
             unavailable_reasons[_id] = []
         unavailable_reason_query = UnavailableReason.objects.filter(decision_id__in=decision_ids)
-        print('Unavailable reasons count: %d' % (unavailable_reason_query.count()))
         for unavailable_reason in unavailable_reason_query.all():
             unavailable_reasons[unavailable_reason.decision_id].append(unavailable_reason.reason)
         new_decisions = []
         for decision in decisions:
             decision._unavailable_reasons = unavailable_reasons[decision.id]
+            for _day in days:
+                if decision.time > _day.start and decision.time < _day.end:
+                    decision._timezone = _day.get_timezone()
+                    continue
             new_decisions.append(decision)
         dataset = WalkingSuggestionDecisionResource().export(
             queryset = new_decisions

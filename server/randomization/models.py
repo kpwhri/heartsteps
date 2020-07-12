@@ -325,6 +325,7 @@ class Decision(models.Model):
     def timezone(self):
         if hasattr(self, '_timezone'):
             return self._timezone
+        print('getting timezone')
         service = DayService(user = self.user)
         tz = service.get_timezone_at(self.time)
         self._timezone = tz

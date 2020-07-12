@@ -14,6 +14,7 @@ class DecisionResource(resources.ModelResource):
         'user__username',
         'test',
         'imputed',
+        'timezone',
         'local_time',
         'sedentary',
         'available',
@@ -46,6 +47,7 @@ class DecisionResource(resources.ModelResource):
         # 'precipitation_probability'
     ]
 
+    timezone = Field(column_name='Timezone')
     local_time = Field(column_name='time')
     # all_tags = Field(column_name='tags')
     # sent_time = Field()
@@ -98,6 +100,9 @@ class DecisionResource(resources.ModelResource):
             )
         except WatchAppStepCountService.NoStepCountRecorded:
             return None
+
+    def dehydrate_timezone(self, decision):
+        return decision.timezone.zone
 
     def dehydrate_local_time(self, decision):
         time = decision.get_local_datetime()
