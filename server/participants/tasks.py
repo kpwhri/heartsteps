@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from datetime import date
 from datetime import timedelta
@@ -212,11 +213,15 @@ def export_user_data(username):
     if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
         print('Data download not configured')
         return False
+    
     if not os.path.exists(EXPORT_DIRECTORY):
         os.makedirs(EXPORT_DIRECTORY)
     user_directory = os.path.join(EXPORT_DIRECTORY, username)
+    if os.path.exists(user_directory) and os.path.isdir(user_directory):
+        shutil.rmtree(user_directory)
     if not os.path.exists(user_directory):
         os.makedirs(user_directory)
+    
     participant = Participant.objects.get(user__username=username)    
     export_file(export_walking_suggestion_decisions,
         participant = participant,
