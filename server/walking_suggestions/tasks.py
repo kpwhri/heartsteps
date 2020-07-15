@@ -153,9 +153,6 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
     start_index = 0
     slice_size = 100
     first = True
-    start = timezone.now()
-    loop_time = timezone.now()
-    print('start export of %d decisions' % (total_rows))
     while start_index < total_rows:
         end_index = start_index + slice_size
         if end_index >= total_rows:
@@ -199,14 +196,8 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
             csv = '\r\n'.join(csv_list[1:])
         _file.write(csv)
 
-        diff = timezone.now() - loop_time
-        print('Exported %d to %d in %d seconds' % (start_index, end_index, diff.seconds))
-        loop_time = timezone.now()
-
         start_index = start_index + slice_size
     _file.close()
-    diff = timezone.now() - start
-    print('Total export time %d' % (diff.seconds))
 
 def export_walking_suggestion_service_requests(username, directory, filename=None):
     if not filename:
