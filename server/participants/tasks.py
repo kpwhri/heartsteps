@@ -178,6 +178,34 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
+def export_file(fn, participant, filename, directory):
+    filename = '{study}.{cohort}.{heartsteps_id}.{filename}'.format(
+        filename = filename,
+        heartsteps_id = participant.heartsteps_id,
+        cohort = participant.cohort.slug,
+        study = participant.cohort.study.slug
+    )
+    print('Export start: {}'.format(filename))
+    export = DataExport(
+        user = participant.user,
+        filename = filename,
+        start = timezone.now()
+    )
+    try:
+        fn(
+            username = participant.user.username,
+            filename = filename,
+            directory = directory
+        )
+    except Exception as e:
+        export.error_message = e
+    export.end = timezone.now()
+    export.save()
+    diff = export.end - export.start
+    minutes = floor(diff.seconds/60)
+    seconds = diff.seconds - (minutes*60)
+    print('Export end: {} ({} minutes {} seconds)'.format(filename, minutes, seconds))
+
 @shared_task
 def export_user_data(username):
     EXPORT_DIRECTORY = '/heartsteps-export'
@@ -189,25 +217,22 @@ def export_user_data(username):
     user_directory = os.path.join(EXPORT_DIRECTORY, username)
     if not os.path.exists(user_directory):
         os.makedirs(user_directory)
-    print(username)
-    participant = Participant.objects.get(user__username=username)
-    export = DataExport(
-        user = participant.user,
-        filename = '%s.walking_suggestion_decisions.csv' % (username),
-        start = timezone.now()
+    participant = Participant.objects.get(user__username=username)    
+    export_file(export_walking_suggestion_decisions,
+        participant = participant,
+        filename = 'walking-suggestion-decisions.csv',
+        directory = user_directory
     )
-    try:
-        export_walking_suggestion_decisions(username=username, directory=user_directory)
-    except Exception as e:
-        export.error_message = e
-    export.end = timezone.now()
-    export.save()
-    
-    export_walking_suggestion_service_requests(username=username, directory=user_directory)
-    # export_anti_sedentary_decisions(username=username, directory=user_directory)
-    export_anti_sedentary_service_requests(username=username, directory=user_directory)
-    export_fitbit_data(username=username, directory=user_directory)
-    # export_adherence_metrics(username=username, directory=user_directory)
+    export_file(export_walking_suggestion_service_requests,
+        participant = participant,
+        filename = 'walking-suggestion-service-requests.csv',
+        directory = user_directory
+    )
+    export_file(export_fitbit_data,
+        participant = participant,
+        filename = 'fitbit-data-per-minute.csv',
+        directory = user_directory
+    )
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
         shell=True

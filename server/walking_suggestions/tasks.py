@@ -208,13 +208,14 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
     diff = timezone.now() - start
     print('Total export time %d' % (diff.seconds))
 
-def export_walking_suggestion_service_requests(username, directory):
+def export_walking_suggestion_service_requests(username, directory, filename=None):
+    if not filename:
+        filename = '%s.walking_suggestion_service_requests.csv' % (username)
     dataset = ServiceRequestResource().export(
         queryset = WalkingSuggestionServiceRequest.objects.filter(
             user__username = username
         )
     )
-    filename = '%s.walking_suggestion_service_requests.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)
     _file.close()

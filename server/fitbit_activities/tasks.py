@@ -75,7 +75,9 @@ class FitbitMinuteDataResource(resources.Resource):
             'heart_rate'
         ]
 
-def export_fitbit_data(username, directory):
+def export_fitbit_data(username, directory, filename = None):
+    if not filename:
+        filename = '%s.fitbit_minutes.csv'
     fitbit_service = FitbitActivityService(username=username)
     fitbit_account = fitbit_service.account
 
