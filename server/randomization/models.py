@@ -58,25 +58,36 @@ class UnavailableReason(models.Model):
 
 class DecisionContextQuerySet(models.QuerySet):
 
-    _load_notifications = False
-    _load_notifications_done = False
+    _load_notification = False
+    _load_notification_done = False
 
-    def prefetch_notifications(self):
+    _load_unavailable_reasons = False
+    _load_unavailable_reasons_done = False
+
+    def prefetch_notification(self):
         self._load_notifications = True
+        return self
+
+    def prefetch_unavailable_reasons(self):
+        self._load_unavailable_reasons = True
         return self
     
     def _fetch_all(self):
         super()._fetch_all()
-        if self._load_notifications and not self._load_notifications_done:
-            self._fetch_notifications()
-            self._load_notifications_done = True
+        if self._load_notification and not self._load_notification_done:
+            self._fetch_notification()
+            self._load_notification_done = True
+        if self._load_unavailable_reasons and not self._load_unavailable_reasons_done:
+            self._fetch_unavailable_reasons()
+            self._load_unavailable_reasons_done = True
 
     def _clone(self, **kwargs):
         clone = super()._clone(**kwargs)
-        clone._load_notifications = self._load_notifications
+        clone._load_notification = self._load_notification
+        clone._load_unavailable_reasons = self._load_unavailable_reasons
         return clone
 
-    def _fetch_notifications(self):
+    def _fetch_notification(self):
         if self._result_cache:
             message_content_type = ContentType.objects.get_for_model(Message)
             decision_ids = [_decision.id for _decision in self._result_cache]
@@ -88,22 +99,24 @@ class DecisionContextQuerySet(models.QuerySet):
             for _context in context_objects:
                 message = _context.content_object
                 if message.message_type == Message.NOTIFICATION:
-                    print('Message', message.id)
                     notifications_by_id[str(_context.decision_id)] = message
             for _decision in self._result_cache:
                 if str(_decision.id) in notifications_by_id:
                     _decision._notification = notifications_by_id[str(_decision.id)]
-                    print('{decision} has message {message}'.format(
-                        decision = str(_decision.id),
-                        message = str(_decision.notification.id)
-                    ))
                 else:
                     _decision._notification = None
-                    print('{decision} has no messages ({message})'.format(
-                        decision = str(_decision.id),
-                        message = str(_decision.notification)
-                    ))
-                
+    
+    def _fetch_unavailable_reasons(self):
+        if self._result_cache:
+            decision_ids = [_decision.id for _decision in self._result_cache]
+            unavailable_reasons = {}
+            for _id in decision_ids:
+                unavailable_reasons[_id] = []
+            unavailable_reason_query = UnavailableReason.objects.filter(decision_id__in=decision_ids)
+            for _reason in unavailable_reason_query.all():
+                unavailable_reasons[_reason.decision_id].append(_reason.reason)
+            for _decision in self._result_cache:
+                _decision._unavailable_reasons = unavailable_reasons[_decision.id]
 
 class Decision(models.Model):
 
@@ -374,7 +387,6 @@ class Decision(models.Model):
     def timezone(self):
         if hasattr(self, '_timezone'):
             return self._timezone
-        print('getting timezone')
         service = DayService(user = self.user)
         tz = service.get_timezone_at(self.time)
         self._timezone = tz

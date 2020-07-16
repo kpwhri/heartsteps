@@ -139,13 +139,11 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
     if not configuration.service_initialized:
         return False
 
-    day_service = DayService(user=configuration.user)
-    initialized_datetime = day_service.get_datetime_at(configuration.service_initialized_date)
-
     queryset = WalkingSuggestionDecision.objects.filter(
         user = configuration.user,
-        time__gt = initialized_datetime
-    )
+        time__gt = configuration.service_initialized_date
+    ).prefetch_unavailable_reasons()
+
     total_rows = queryset.count()
 
     _file = open(os.path.join(directory, filename), 'w')
@@ -170,16 +168,8 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
             end__gte = earliest_decision_time,
             user = configuration.user
         ).all()
-        decision_ids = [_decision.id for _decision in decisions]
-        unavailable_reasons = {}
-        for _id in decision_ids:
-            unavailable_reasons[_id] = []
-        unavailable_reason_query = UnavailableReason.objects.filter(decision_id__in=decision_ids)
-        for unavailable_reason in unavailable_reason_query.all():
-            unavailable_reasons[unavailable_reason.decision_id].append(unavailable_reason.reason)
         new_decisions = []
         for decision in decisions:
-            decision._unavailable_reasons = unavailable_reasons[decision.id]
             for _day in days:
                 if decision.time > _day.start and decision.time < _day.end:
                     decision._timezone = _day.get_timezone()
