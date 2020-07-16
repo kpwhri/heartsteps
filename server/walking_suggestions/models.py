@@ -13,6 +13,7 @@ from days.services import DayService
 from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
 from randomization.models import Decision
+from randomization.models import DecisionContextQuerySet
 from service_requests.models import ServiceRequest
 from walking_suggestion_times.models import SuggestionTime
 
@@ -192,6 +193,8 @@ class WalkingSuggestionServiceRequest(ServiceRequest):
 class WalkingSuggestionDecision(Decision):
 
     MESSAGE_TEMPLATE_MODEL = WalkingSuggestionMessageTemplate
+
+    objects = DecisionContextQuerySet.as_manager()
 
     @property
     def sedentary_step_count(self):

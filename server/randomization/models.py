@@ -56,6 +56,55 @@ class UnavailableReason(models.Model):
     )
     reason = models.CharField(max_length=150, choices=CHOICES)
 
+class DecisionContextQuerySet(models.QuerySet):
+
+    _load_notifications = False
+    _load_notifications_done = False
+
+    def prefetch_notifications(self):
+        self._load_notifications = True
+        return self
+    
+    def _fetch_all(self):
+        super()._fetch_all()
+        if self._load_notifications and not self._load_notifications_done:
+            self._fetch_notifications()
+            self._load_notifications_done = True
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone._load_notifications = self._load_notifications
+        return clone
+
+    def _fetch_notifications(self):
+        if self._result_cache:
+            message_content_type = ContentType.objects.get_for_model(Message)
+            decision_ids = [_decision.id for _decision in self._result_cache]
+            context_objects = DecisionContext.objects.filter(
+                decision_id__in = decision_ids,
+                content_type = message_content_type
+            ).all()
+            notifications_by_id = {}
+            for _context in context_objects:
+                message = _context.content_object
+                if message.message_type == Message.NOTIFICATION:
+                    print('Message', message.id)
+                    notifications_by_id[str(_context.decision_id)] = message
+            for _decision in self._result_cache:
+                if str(_decision.id) in notifications_by_id:
+                    _decision._notification = notifications_by_id[str(_decision.id)]
+                    print('{decision} has message {message}'.format(
+                        decision = str(_decision.id),
+                        message = str(_decision.notification.id)
+                    ))
+                else:
+                    _decision._notification = None
+                    print('{decision} has no messages ({message})'.format(
+                        decision = str(_decision.id),
+                        message = str(_decision.notification)
+                    ))
+                
+
 class Decision(models.Model):
 
     MESSAGE_TEMPLATE_MODEL = MessageTemplate
