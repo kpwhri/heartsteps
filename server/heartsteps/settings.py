@@ -69,14 +69,15 @@ if 'TWILIO_PHONE_NUMBER' in os.environ:
     TWILIO_PHONE_NUMBER = env.str('TWILIO_PHONE_NUMBER')
 
 # SendGrid email settings
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
+if 'SENDGRID_API_KEY' in os.environ:
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+    EMAIL_BACKEND = "sgbackend.SendGridBackend"
 
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = 'apikey'
+    EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
 
 if 'STUDY_PHONE_NUMBER' in os.environ:
     STUDY_PHONE_NUMBER = env.str('STUDY_PHONE_NUMBER')
