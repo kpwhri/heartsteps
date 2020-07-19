@@ -1,8 +1,10 @@
 from django.conf.urls import url
 
-from . import views
+from .views import ClockFacePinView
+from .views import pinArray
 
 urlpatterns = [
-    url(r'^arr/', views.pinArray)
+    url(r'^arr/', pinArray),
+    url(r'pair/', ClockFacePinView.as_view(), name="pin-gen-pair")
 ]
 

@@ -7,4 +7,4 @@ class pinAdmin(admin.ModelAdmin):
 
 admin.site.register(Pin, pinAdmin)
 
-
+admin.site.register(ClockFacePin, pinAdmin)

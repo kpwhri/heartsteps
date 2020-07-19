@@ -1,0 +1,20 @@
+<app-modal
+    title="Fitbit Clock Face Pin"
+    (onDismiss)="goBack()"
+    >
+    <div *ngIf="pin">
+        <p>Pair with clock face with pin <strong>{{pin}}.</strong></p>
+    </div>
+    <app-form
+        [formGroup]="form"
+        submitLabel="Pair Clock Face"
+        (onSubmit)="submitForm()"
+        >
+        <p>Enter the pin from your watch face below</p>
+        <app-text-field
+            label="Enter pin"
+            formControlName="pin"
+            >
+        </app-text-field>
+    </app-form>
+</app-modal>

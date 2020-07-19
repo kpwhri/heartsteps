@@ -18,7 +18,14 @@
 </article>
 <article *ngIf="staffParticipant">
     <h3>Testing Area</h3>
-    <p>This area is only visible to testing participants.</p>
+    <p>This area is only visible to staff members, and is used to test functionality in the application.</p>
+    <nav>
+        <ul>
+            <li><button (click)="enterFitbitClockFacePin()">Fitbit Clock Face Pin</button></li>
+            <li><button (click)="testBaselineWeekPage()">View Baseline Week Page</button></li>
+        </ul>
+    </nav>
+    <h3>Notification Testing</h3>
     <ul>
         <li><button (click)="testActivitySurvey()">Send Activity Survey</button></li>
         <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>
@@ -26,7 +33,6 @@
         <li><button (click)="testWalkingSuggestion()">Send Walking Suggestion</button></li>
         <li><button (click)="testWalkingSuggestionSurvey()">Send Walking Suggestion Survey</button></li>
         <li><button (click)="testWeeklySurveyMessage()">Send Weekly Survey</button></li>
-        <li><button (click)="testBaselineWeekPage()">View Baseline Week Page</button></li>
     </ul>
 </article>
 <article>

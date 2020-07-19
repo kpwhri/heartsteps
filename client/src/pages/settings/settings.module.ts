@@ -21,6 +21,9 @@ import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
 import { FitbitWatchPage } from './fitbit-watch.page';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 import { ActivitySurveysModule } from '@heartsteps/activity-surveys/activity-surveys.module';
+import { FitbitClockFacePinPage } from './fitbit-clock-face-pin.page';
+import { FormModule } from '@infrastructure/form/form.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const settingsRoutes: Routes = [
     {
@@ -59,6 +62,11 @@ const settingsRoutes: Routes = [
         outlet: 'modal'
     },
     {
+        path: 'settings/fitbit-clock-face-pin',
+        component: FitbitClockFacePinPage,
+        outlet: 'modal'
+    },
+    {
         path: 'settings',
         component: SettingsPage
     }
@@ -75,7 +83,8 @@ const settingsRoutes: Routes = [
         NotificationsPage,
         GoalPage,
         FitbitAuthorizationPage,
-        FitbitWatchPage
+        FitbitWatchPage,
+        FitbitClockFacePinPage
     ],
     entryComponents: [
         SettingsPage
@@ -89,6 +98,8 @@ const settingsRoutes: Routes = [
         BrowserModule,
         ContactInformationModule,
         FitbitWatchModule,
+        FormModule,
+        ReactiveFormsModule,
         HeartstepsComponentsModule,
         PlacesModule,
         FitbitModule,

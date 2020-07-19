@@ -61,6 +61,14 @@ export class SettingsComponent {
         });
     }
 
+    public enterFitbitClockFacePin() {
+        this.router.navigate([{
+            outlets: {
+                modal: ['settings', 'fitbit-clock-face-pin'].join('/')
+            }
+        }])
+    }
+
     public testWalkingSuggestion() {
         this.loadingService.show('Requesting walking suggestion message');
         this.walkingSuggestionService.createTestDecision()
