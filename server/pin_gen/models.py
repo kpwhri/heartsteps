@@ -3,8 +3,8 @@ from random import choice
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Pin(models.Model):
+
     pin_digits = models.IntegerField(null=True)
     user = models.ForeignKey(
         User,
@@ -13,7 +13,7 @@ class Pin(models.Model):
     )
 
     def __str__(self):
-        return self.pin_digits
+        return str(self.pin_digits)
 
 class ClockFacePin(models.Model):
     pin = models.CharField(

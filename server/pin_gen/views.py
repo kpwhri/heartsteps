@@ -18,8 +18,6 @@ from .models import ClockFacePin
 @permission_classes([IsAuthenticated])
 def pinArray(request):
 	a = getArray()
-		
-
 	return JsonResponse({'pin': a, 'authenticated': request.user.is_authenticated}, status=200)
 
 
@@ -61,3 +59,36 @@ class ClockFacePinView(APIView):
 				return Response('Pin does not exist', status=status.HTTP_400_BAD_REQUEST)
 		else: 
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#MY CODE (without Token); extremely rough draft
+def pinA(self):
+	a = getArray()
+	return JsonResponse({'pin': a}, status=200)
+
+@api_view(['GET', 'POST'])
+def user(request):
+	p = request.data["pin"]
+	
+	d = 0
+	for i in p:
+		if (i.isnumeric()):
+			d += int(i)
+			d *= 10
+	d /= 10
+
+	try:
+		p = Pin.objects.get(pin_digits=d)
+	except Pin.DoesNotExist:
+		return JsonResponse({'pin': "", "Exist": False }, status=200)
+
+	try:
+		t = Token.objects.get(user=p.user)
+		print(t.key)
+		return JsonResponse({ "Token" : t.key, "Exist": True }, status=200)
+	except:
+		return JsonResponse({"Exist": False }, status=200)
+		
+
+
+
