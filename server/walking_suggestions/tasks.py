@@ -142,7 +142,10 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
     queryset = WalkingSuggestionDecision.objects.filter(
         user = configuration.user,
         time__gt = configuration.service_initialized_date
-    ).prefetch_unavailable_reasons()
+    ) \
+    .order_by('-created') \
+    .prefetch_notification() \
+    .prefetch_unavailable_reasons()
 
     total_rows = queryset.count()
 

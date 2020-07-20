@@ -13,9 +13,8 @@ class DecisionResource(resources.ModelResource):
         'id',
         'user__username',
         'test',
-        'imputed',
         'timezone',
-        'local_time',
+        'decision_time',
         'sedentary',
         'available',
         'unavailable_no_step_count_data',
@@ -36,24 +35,26 @@ class DecisionResource(resources.ModelResource):
         # 'fitbit_step_count_previous_30_minutes',
         # 'fitbit_step_count_post_30_minutes',
         # 'message',
-        # 'sent_time',
-        # 'received_time',
-        # 'opened_time',
-        # 'engaged_time',
+        'sent_time',
+        'received_time',
+        'opened_time',
+        'engaged_time',
         # 'location_tag',
         # 'location_imputed',
         # 'temperature',
         # 'precipitation_type',
-        # 'precipitation_probability'
+        # 'precipitation_probability',
+        'imputed',
+        'created_time'
     ]
 
     timezone = Field(column_name='Timezone')
-    local_time = Field(column_name='time')
+    decision_time = Field(column_name='Decision time')
     # all_tags = Field(column_name='tags')
-    # sent_time = Field()
-    # received_time = Field()
-    # opened_time = Field()
-    # engaged_time = Field()
+    sent_time = Field(column_name='Sent time')
+    received_time = Field(column_name='Received time')
+    opened_time = Field(column_name='Opened time')
+    engaged_time = Field(column_name='Engaged time')
     # message = Field()
 
     # watch_step_count = Field()
@@ -78,9 +79,11 @@ class DecisionResource(resources.ModelResource):
     # precipitation_type = Field()
     # precipitation_probability = Field()
 
-    def format_datetime(self, time):
-        if time:
-            return time.strftime('%Y-%m-%d %H:%M %z')
+    created_time = Field(column_name='Created time')
+
+    def format_datetime(self, dt):
+        if dt:
+            return dt.strftime('%Y-%m-%d %H:%M %z')
         else:
             return ''
 
@@ -104,42 +107,50 @@ class DecisionResource(resources.ModelResource):
     def dehydrate_timezone(self, decision):
         return decision.timezone.zone
 
-    def dehydrate_local_time(self, decision):
-        time = decision.get_local_datetime()
+    def dehydrate_decision_time(self, decision):
+        time = decision.time.astimezone(decision.timezone)
+        return self.format_datetime(time)
+
+    def dehydrate_created_time(self, decision):
+        time = decision.created.astimezone(decision.timezone)
         return self.format_datetime(time)
     
     def dehydrate_all_tags(self, decision):
         return ', '.join(decision.get_context())
 
     def dehydrate_sent_time(self, decision):
-        if decision.notification:
-            return self.format_datetime(decision.notification.sent)
+        if decision.notification and decision.notification.sent:
+            sent_time = decision.notification.sent.astimezone(decision.timezone)
+            return self.format_datetime(sent_time)
         else:
-            return ''
+            return None
 
     def dehydrate_received_time(self, decision):
-        if decision.notification:
-            return self.format_datetime(decision.notification.received)
+        if decision.notification and decision.notification.received:
+            received_time = decision.notification.received.astimezone(decision.timezone)
+            return self.format_datetime(received_time)
         else:
-            return ''
+            return None
 
     def dehydrate_opened_time(self, decision):
-        if decision.notification:
-            return self.format_datetime(decision.notification.opened)
+        if decision.notification and decision.notification.opened:
+            opened_time = decision.notification.opened.astimezone(decision.timezone)
+            return self.format_datetime(opened_time)
         else:
-            return ''
+            return None
 
     def dehydrate_engaged_time(self, decision):
-        if decision.notification:
-            return self.format_datetime(decision.notification.engaged)
+        if decision.notification and decision.notification.engaged:
+            engaged_time = decision.notification.engaged.astimezone(decision.timezone)
+            return self.format_datetime(engaged_time)
         else:
-            return ''
+            return None
 
     def dehydrate_message(self, decision):
         if decision.message_template:
             return decision.message_template.body
         else:
-            return ''
+            return None
 
     def dehydrate_watch_step_count(self, decision):
         return self.get_watch_app_step_count(
