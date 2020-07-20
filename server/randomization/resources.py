@@ -46,13 +46,12 @@ class DecisionResource(resources.ModelResource):
         'created_time'
     ]
 
-    timezone = Field(column_name='Timezone')
-    decision_time = Field(column_name='Decision time')
+    decision_time = Field(column_name='Decision Time')
     # all_tags = Field(column_name='tags')
-    sent_time = Field(column_name='Sent time')
-    received_time = Field(column_name='Received time')
-    opened_time = Field(column_name='Opened time')
-    engaged_time = Field(column_name='Engaged time')
+    sent_time = Field(column_name='Sent Time')
+    received_time = Field(column_name='Received Time')
+    opened_time = Field(column_name='Opened Time')
+    engaged_time = Field(column_name='Engaged Time')
     # message = Field()
 
     # watch_step_count = Field()
@@ -62,13 +61,13 @@ class DecisionResource(resources.ModelResource):
     # fitbit_step_count_previous_30_minutes = Field()
     # fitbit_step_count_post_30_minutes = Field()
 
-    unavailable_no_step_count_data = Field()
-    unavailable_not_sedentary = Field()
-    unavailable_notification_recently_sent = Field()
-    unavailable_recently_active = Field()
-    unavailable_unreachable = Field()
-    unavailable_disabled = Field()
-    unavailable_service_error = Field()
+    unavailable_no_step_count_data = Field(column_name='Unavailable No Step Count Data')
+    unavailable_not_sedentary = Field(column_name='Unavailable Not Sedentary')
+    unavailable_notification_recently_sent = Field(column_name='Unavailabe Notification Recently Sent')
+    unavailable_recently_active = Field(column_name='Unavailable Recently Active')
+    unavailable_unreachable = Field(column_name='Unavailable Unreachable')
+    unavailable_disabled = Field(column_name='Unavailable Disabled')
+    unavailable_service_error = Field(column_name='Unavaiable Server Error')
 
     # location_tag = Field()
     # location_imputed = Field()
