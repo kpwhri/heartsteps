@@ -12,8 +12,6 @@ class DecisionResource(resources.ModelResource):
     FIELDS = [
         'id',
         'user__username',
-        'test',
-        'timezone',
         'decision_time',
         'sedentary',
         'available',

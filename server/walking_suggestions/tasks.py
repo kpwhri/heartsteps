@@ -141,7 +141,8 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
 
     queryset = WalkingSuggestionDecision.objects.filter(
         user = configuration.user,
-        time__gt = configuration.service_initialized_date
+        time__gt = configuration.service_initialized_date,
+        test = False
     ) \
     .order_by('-created') \
     .prefetch_notification() \
