@@ -24,6 +24,33 @@ class Device(models.Model):
     def __str__(self):
         return '%s (%s)' % (self.type, self.token)
 
+class MessageReceiptQuerySet(models.QuerySet):
+
+    _receipts_loaded = False
+
+    def _fetch_all(self):
+        super()._fetch_all()
+        if not self._receipts_loaded:
+            self._fetch_message_receipts()
+            self._receipts_loaded = True
+
+    def _fetch_message_receipts(self):
+        if self._result_cache:
+            message_receipts = {}
+            message_receipt_query = MessageReceipt.objects.filter(
+                message_id__in = [_message.id for _message in self._result_cache]
+            )
+            for _receipt in message_receipt_query.all():
+                if _receipt.message_id not in message_receipts:
+                    message_receipts[_receipt.message_id] = {}
+                message_receipts[_receipt.message_id][_receipt.type] = _receipt.time
+            for _message in self._result_cache:
+                if _message.id in message_receipts:
+                    _message._message_receipts = message_receipts[_message.id]
+                else:
+                    _message._message_receipts = {}
+
+
 class Message(models.Model):
 
     DATA = 'data'
@@ -49,14 +76,23 @@ class Message(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    objects = MessageReceiptQuerySet.as_manager()
+
     def __str__(self):
         return '%s (%s)' % (self.recipient.username, self.message_type)
 
-    def __get_receipt_time(self, type):
-        try:
-            receipt = MessageReceipt.objects.filter(message=self, type=type).last()
-            return receipt.time
-        except:
+    def __load_message_receipts(self):
+        message_receipts = {}
+        for _receipt in MessageReceipt.objects.filter(message=self):
+            message_receipts[_receipt.type] = _receipt.time
+        self._message_receipts = message_receipts
+
+    def __get_receipt_time(self, receipt_type):
+        if not hasattr(self, '_message_receipts'):
+            self.__load_message_receipts()
+        if receipt_type in self._message_receipts:
+            return self._message_receipts[receipt_type]
+        else:
             return None
 
     @property
