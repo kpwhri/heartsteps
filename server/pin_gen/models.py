@@ -17,7 +17,7 @@ class Pin(models.Model):
 
 class ClockFacePin(models.Model):
     pin = models.CharField(
-        max_length = 10,
+        max_length = 50,
         unique = True
     )
     user = models.ForeignKey(
