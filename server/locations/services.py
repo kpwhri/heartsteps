@@ -43,10 +43,17 @@ class LocationService:
             return location
         else:
             raise self.UnknownLocation()
+
+    def get_places(self):
+        if not hasattr(self, '_places'):
+            self._places = Place.objects.filter(
+                user = self.__user
+            ).all()
+        return self._places
     
     def categorize_location(self, latitude, longitude):
         near_by_places = []
-        for place in Place.objects.filter(user=self.__user):
+        for place in self.get_places():
             if place.is_near(latitude, longitude):
                 near_by_places.append(place)
         nearest_place = False

@@ -64,12 +64,19 @@ class DecisionContextQuerySet(models.QuerySet):
     _load_unavailable_reasons = False
     _load_unavailable_reasons_done = False
 
+    _load_location = False
+    _load_location_done = False
+
     def prefetch_notification(self):
         self._load_notification = True
         return self
 
     def prefetch_unavailable_reasons(self):
         self._load_unavailable_reasons = True
+        return self
+
+    def prefetch_location(self):
+        self._load_location = True
         return self
     
     def _fetch_all(self):
@@ -80,12 +87,45 @@ class DecisionContextQuerySet(models.QuerySet):
         if self._load_unavailable_reasons and not self._load_unavailable_reasons_done and self._result_cache:
             self._fetch_unavailable_reasons()
             self._load_unavailable_reasons_done = True
+        if self._load_location and not self._load_location_done and self._result_cache:
+            self._fetch_location()
+            self._load_location_done = True
 
     def _clone(self, **kwargs):
         clone = super()._clone(**kwargs)
         clone._load_notification = self._load_notification
         clone._load_unavailable_reasons = self._load_unavailable_reasons
+        clone._load_location = self._load_location
         return clone
+
+    def _fetch_location(self):
+        print('fetching location')
+        location_content_type = ContentType.objects.get_for_model(Location)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        context_objects = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = location_content_type
+        ).all()
+        location_id_to_decision_id = {}
+        for _context in context_objects:
+            location_id_to_decision_id[_context.object_id] = str(_context.decision_id)
+        locations = Location.objects.filter(
+            id__in = location_id_to_decision_id.keys()
+        ).all()
+        locations_by_decision_id = {}
+        for _location in locations:
+            decision_id = location_id_to_decision_id[_location.id]
+            locations_by_decision_id[decision_id] = _location
+        print('{locations} locations for {decisions} decisions'.format(
+            locations = len(locations),
+            decisions = len(self._result_cache)
+        ))
+        for _decision in self._result_cache:
+            decision_id = str(_decision.id)
+            if decision_id in locations_by_decision_id:
+                _decision._location = locations_by_decision_id[decision_id]
+            else:
+                _decision._location = None
 
     def _fetch_notification(self):
         message_content_type = ContentType.objects.get_for_model(Message)
@@ -405,9 +445,9 @@ class Decision(models.Model):
         ).all()
         if len(existing_decision_locations) > 0:
             self._location = existing_decision_locations[0].content_object
-            return self._location
         else:
-            return None
+            self._location = None
+        return self._location
 
     def update_location(self):
         location_content_type = ContentType.objects.get_for_model(Location)

@@ -38,7 +38,7 @@ class DecisionResource(resources.ModelResource):
         'opened_time',
         'engaged_time',
         # 'location_tag',
-        # 'location_imputed',
+        'location_imputed',
         # 'temperature',
         # 'precipitation_type',
         # 'precipitation_probability',
