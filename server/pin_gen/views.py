@@ -65,7 +65,7 @@ class ClockFacePinView(APIView):
 def pinA(self):
 	pin = ClockFacePin()
 	pin.pin = pin.get_unique_pin()
-	pin.save()
+	#pin.save()
 	return JsonResponse({ 'pin': pin.pin }, status=200)
 
 @api_view(['GET', 'POST'])
