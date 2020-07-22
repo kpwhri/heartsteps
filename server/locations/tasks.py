@@ -7,7 +7,9 @@ from .models import Location
 from .services import LocationService
 
 def update_location_categories(username):
-    service = LocationService(username)
+    service = LocationService(
+        username=username
+    )
     locations = Location.objects.filter(
         user__username = username,
         category = None

@@ -466,13 +466,9 @@ class Decision(models.Model):
     def get_location_type(self):
         location = self.get_location()
         if location:
-            location_service = LocationService(self.user)
-            return location_service.categorize_location(
-                latitude = location.latitude,
-                longitude = location.longitude
-            )
+            return location.category
         else:
-            return Place.OTHER
+            return None
 
     def get_forecast(self):
         if hasattr(self, '_forecast'):

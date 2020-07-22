@@ -37,8 +37,7 @@ class DecisionResource(resources.ModelResource):
         'received_time',
         'opened_time',
         'engaged_time',
-        # 'location_tag',
-        'location_imputed',
+        'location',
         # 'temperature',
         # 'precipitation_type',
         # 'precipitation_probability',
@@ -69,8 +68,7 @@ class DecisionResource(resources.ModelResource):
     unavailable_disabled = Field(column_name='Unavailable Disabled')
     unavailable_service_error = Field(column_name='Unavaiable Server Error')
 
-    # location_tag = Field()
-    # location_imputed = Field()
+    location = Field(column_name='Location')
 
     # temperature = Field()
     # precipitation_type = Field()
@@ -212,14 +210,8 @@ class DecisionResource(resources.ModelResource):
     def dehydrate_unavailable_service_error(self, decision):
         return decision.unavailable_service_error
 
-    def dehydrate_location_tag(self, decision):
+    def dehydrate_location(self, decision):
         return decision.get_location_type()
-
-    def dehydrate_location_imputed(self, decision):
-        if decision.get_location():
-            return False
-        else:
-            return True
 
     def dehydrate_temperature(self, decision):
         return decision.temperature

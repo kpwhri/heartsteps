@@ -29,6 +29,10 @@ class LocationService:
             location = Location(**serialized_location.validated_data)
             location.user = self.__user
             location.time = timezone.now()
+            location.category = self.categorize_location(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
             location.save()
             return location
         else:
