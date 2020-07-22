@@ -99,7 +99,6 @@ class DecisionContextQuerySet(models.QuerySet):
         return clone
 
     def _fetch_location(self):
-        print('fetching location')
         location_content_type = ContentType.objects.get_for_model(Location)
         decision_ids = [_decision.id for _decision in self._result_cache]
         context_objects = DecisionContext.objects.filter(
@@ -116,10 +115,6 @@ class DecisionContextQuerySet(models.QuerySet):
         for _location in locations:
             decision_id = location_id_to_decision_id[_location.id]
             locations_by_decision_id[decision_id] = _location
-        print('{locations} locations for {decisions} decisions'.format(
-            locations = len(locations),
-            decisions = len(self._result_cache)
-        ))
         for _decision in self._result_cache:
             decision_id = str(_decision.id)
             if decision_id in locations_by_decision_id:
