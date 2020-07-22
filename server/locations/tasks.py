@@ -2,10 +2,12 @@ import csv
 from datetime import datetime
 from datetime import timedelta
 import pytz
+from celery import shared_task
 
 from .models import Location
 from .services import LocationService
 
+@shared_task
 def update_location_categories(username):
     service = LocationService(
         username=username
@@ -20,7 +22,6 @@ def update_location_categories(username):
             longitude = location.longitude
         )
         location.save()
-        print('Set location to %s' % (location.category))
 
 def export_location_count_csv(users, filename, start_date, end_date, ignore_null_island=True):
     dates_diff = end_date - start_date
