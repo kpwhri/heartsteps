@@ -38,9 +38,9 @@ class DecisionResource(resources.ModelResource):
         'opened_time',
         'engaged_time',
         'location',
-        # 'temperature',
-        # 'precipitation_type',
-        # 'precipitation_probability',
+        'temperature',
+        'precipitation_type',
+        'precipitation_probability',
         'imputed',
         'created_time'
     ]
@@ -70,9 +70,9 @@ class DecisionResource(resources.ModelResource):
 
     location = Field(column_name='Location')
 
-    # temperature = Field()
-    # precipitation_type = Field()
-    # precipitation_probability = Field()
+    temperature = Field(column_name='Temperature')
+    precipitation_type = Field(column_name='Precipitation Type')
+    precipitation_probability = Field(column_name='Precipitation Probability')
 
     created_time = Field(column_name='Created time')
 

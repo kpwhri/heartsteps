@@ -67,6 +67,13 @@ class DecisionContextQuerySet(models.QuerySet):
     _load_location = False
     _load_location_done = False
 
+    _load_weather_forecast = False
+    _load_weather_forecast_done = False
+
+    def prefetch_weather_forecast(self):
+        self._load_weather_forecast = True
+        return self
+
     def prefetch_notification(self):
         self._load_notification = True
         return self
@@ -90,13 +97,41 @@ class DecisionContextQuerySet(models.QuerySet):
         if self._load_location and not self._load_location_done and self._result_cache:
             self._fetch_location()
             self._load_location_done = True
+        if self._load_weather_forecast and not self._load_weather_forecast_done and self._result_cache:
+            self._fetch_weather_forecast()
+            self._load_weather_forecast_done = True
 
     def _clone(self, **kwargs):
         clone = super()._clone(**kwargs)
         clone._load_notification = self._load_notification
         clone._load_unavailable_reasons = self._load_unavailable_reasons
         clone._load_location = self._load_location
+        clone._load_weather_forecast = self._load_weather_forecast
         return clone
+
+    def _fetch_weather_forecast(self):
+        weather_forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        context_objects = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = weather_forecast_content_type
+        ).all()
+        weather_forecast_id_to_decision_id = {}
+        for _context in context_objects:
+            weather_forecast_id_to_decision_id[_context.object_id] = str(_context.decision_id)
+        weather_forecasts = WeatherForecast.objects.filter(
+            id__in = weather_forecast_id_to_decision_id.keys()
+        ).all()
+        weather_forecast_by_decision_id = {}
+        for _forecast in weather_forecasts:
+            decision_id = weather_forecast_id_to_decision_id[_forecast.id]
+            weather_forecast_by_decision_id[decision_id] = _forecast
+        for _decision in self._result_cache:
+            decision_id = str(_decision.id)
+            if decision_id in weather_forecast_by_decision_id:
+                _decision._forecast = weather_forecast_by_decision_id[decision_id]
+            else:
+                _decision._forecast = None
 
     def _fetch_location(self):
         location_content_type = ContentType.objects.get_for_model(Location)
@@ -481,8 +516,9 @@ class Decision(models.Model):
             ).last()
             if context:
                 self._forecast = context.content_object
-                return self._forecast
-        return None
+            else:
+                self._forecast = None
+            return self._forecast
 
     @property
     def precipitation_type(self):
