@@ -24,15 +24,9 @@ class DecisionResource(resources.ModelResource):
         'unavailable_service_error',
         'treated',
         'treatment_probability',
-        # 'watch_step_count',
-        # 'fitbit_step_count',
-        # 'watch_step_count',
-        # 'watch_step_count_previous_30_minutes',
-        # 'watch_step_count_post_30_minutes',
-        # 'fitbit_step_count',
-        # 'fitbit_step_count_previous_30_minutes',
-        # 'fitbit_step_count_post_30_minutes',
-        # 'message',
+        'notification_template_id',
+        'notification_title',
+        'notification_message',
         'sent_time',
         'received_time',
         'opened_time',
@@ -46,19 +40,15 @@ class DecisionResource(resources.ModelResource):
     ]
 
     decision_time = Field(column_name='Decision Time')
-    # all_tags = Field(column_name='tags')
+
     sent_time = Field(column_name='Sent Time')
     received_time = Field(column_name='Received Time')
     opened_time = Field(column_name='Opened Time')
     engaged_time = Field(column_name='Engaged Time')
-    # message = Field()
 
-    # watch_step_count = Field()
-    # watch_step_count_previous_30_minutes = Field()
-    # watch_step_count_post_30_minutes = Field()
-    # fitbit_step_count = Field()
-    # fitbit_step_count_previous_30_minutes = Field()
-    # fitbit_step_count_post_30_minutes = Field()
+    notification_template_id = Field(column_name='Notificaiton Template ID')
+    notification_title = Field(column_name='Notification Title')
+    notification_message = Field(column_name='Notification Message')
 
     unavailable_no_step_count_data = Field(column_name='Unavailable No Step Count Data')
     unavailable_not_sedentary = Field(column_name='Unavailable Not Sedentary')
@@ -141,9 +131,21 @@ class DecisionResource(resources.ModelResource):
         else:
             return None
 
-    def dehydrate_message(self, decision):
+    def dehydrate_notification_template_id(self, decision):
         if decision.message_template:
-            return decision.message_template.body
+            return decision.message_template.id
+        else:
+            return None
+
+    def dehydrate_notification_title(self, decision):
+        if decision.notification:
+            return decision.notification.title
+        else:
+            return None
+
+    def dehydrate_notification_message(self, decision):
+        if decision.notification:
+            return decision.notification.body
         else:
             return None
 

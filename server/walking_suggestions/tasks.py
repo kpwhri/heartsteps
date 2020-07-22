@@ -148,7 +148,8 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
     .prefetch_weather_forecast() \
     .prefetch_location() \
     .prefetch_notification() \
-    .prefetch_unavailable_reasons()
+    .prefetch_unavailable_reasons() \
+    .prefetch_message_template(WalkingSuggestionDecision.MESSAGE_TEMPLATE_MODEL)
 
     total_rows = queryset.count()
 
