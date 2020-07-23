@@ -24,42 +24,31 @@ class DecisionResource(resources.ModelResource):
         'unavailable_service_error',
         'treated',
         'treatment_probability',
-        # 'watch_step_count',
-        # 'fitbit_step_count',
-        # 'watch_step_count',
-        # 'watch_step_count_previous_30_minutes',
-        # 'watch_step_count_post_30_minutes',
-        # 'fitbit_step_count',
-        # 'fitbit_step_count_previous_30_minutes',
-        # 'fitbit_step_count_post_30_minutes',
-        # 'message',
+        'notification_template_id',
+        'notification_title',
+        'notification_message',
         'sent_time',
         'received_time',
         'opened_time',
         'engaged_time',
-        # 'location_tag',
-        # 'location_imputed',
-        # 'temperature',
-        # 'precipitation_type',
-        # 'precipitation_probability',
+        'location',
+        'temperature',
+        'precipitation_type',
+        'precipitation_probability',
         'imputed',
         'created_time'
     ]
 
     decision_time = Field(column_name='Decision Time')
-    # all_tags = Field(column_name='tags')
+
     sent_time = Field(column_name='Sent Time')
     received_time = Field(column_name='Received Time')
     opened_time = Field(column_name='Opened Time')
     engaged_time = Field(column_name='Engaged Time')
-    # message = Field()
 
-    # watch_step_count = Field()
-    # watch_step_count_previous_30_minutes = Field()
-    # watch_step_count_post_30_minutes = Field()
-    # fitbit_step_count = Field()
-    # fitbit_step_count_previous_30_minutes = Field()
-    # fitbit_step_count_post_30_minutes = Field()
+    notification_template_id = Field(column_name='Notificaiton Template ID')
+    notification_title = Field(column_name='Notification Title')
+    notification_message = Field(column_name='Notification Message')
 
     unavailable_no_step_count_data = Field(column_name='Unavailable No Step Count Data')
     unavailable_not_sedentary = Field(column_name='Unavailable Not Sedentary')
@@ -69,12 +58,11 @@ class DecisionResource(resources.ModelResource):
     unavailable_disabled = Field(column_name='Unavailable Disabled')
     unavailable_service_error = Field(column_name='Unavaiable Server Error')
 
-    # location_tag = Field()
-    # location_imputed = Field()
+    location = Field(column_name='Location')
 
-    # temperature = Field()
-    # precipitation_type = Field()
-    # precipitation_probability = Field()
+    temperature = Field(column_name='Temperature')
+    precipitation_type = Field(column_name='Precipitation Type')
+    precipitation_probability = Field(column_name='Precipitation Probability')
 
     created_time = Field(column_name='Created time')
 
@@ -143,9 +131,21 @@ class DecisionResource(resources.ModelResource):
         else:
             return None
 
-    def dehydrate_message(self, decision):
+    def dehydrate_notification_template_id(self, decision):
         if decision.message_template:
-            return decision.message_template.body
+            return decision.message_template.id
+        else:
+            return None
+
+    def dehydrate_notification_title(self, decision):
+        if decision.notification:
+            return decision.notification.title
+        else:
+            return None
+
+    def dehydrate_notification_message(self, decision):
+        if decision.notification:
+            return decision.notification.body
         else:
             return None
 
@@ -212,14 +212,8 @@ class DecisionResource(resources.ModelResource):
     def dehydrate_unavailable_service_error(self, decision):
         return decision.unavailable_service_error
 
-    def dehydrate_location_tag(self, decision):
+    def dehydrate_location(self, decision):
         return decision.get_location_type()
-
-    def dehydrate_location_imputed(self, decision):
-        if decision.get_location():
-            return False
-        else:
-            return True
 
     def dehydrate_temperature(self, decision):
         return decision.temperature

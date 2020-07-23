@@ -28,7 +28,7 @@ class ClockFacePin(models.Model):
 
     def get_unique_pin(self):
         pin_choices = [str(_i) for _i in [0,1,2,3,4,5,6,7,8,9]]
-        pin = [choice(pin_choices) for _ in range(5)]
+        pin = ''.join([choice(pin_choices) for _ in range(5)])
         exists = ClockFacePin.objects.filter(pin = pin).count()
         if exists:
             return self.get_unique_pin()

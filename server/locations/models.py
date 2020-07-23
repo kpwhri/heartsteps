@@ -6,20 +6,6 @@ from django.contrib.auth.models import User
 
 DISTANCE_RADIUS = settings.HEARTSTEPS_LOCATIONS_NEAR_DISTANCE
 
-class Location(models.Model):
-    user = models.ForeignKey(User)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-
-    time = models.DateTimeField()
-    source = models.CharField(max_length=50, null=True, blank=True)
-
-    class Meta:
-        ordering = ['-time', 'user']
-
-    def __str__(self):
-        return "%s @ %s" % (self.user, self.time)
-
 class Place(models.Model):
     HOME = 'home'
     WORK = 'work'
@@ -56,3 +42,23 @@ class Place(models.Model):
 
     def __str__(self):
         return "%s (%s)" % (self.user, self.type)
+
+class Location(models.Model):
+    user = models.ForeignKey(User)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    time = models.DateTimeField()
+    source = models.CharField(max_length=50, null=True, blank=True)
+
+    category = models.CharField(
+        max_length = 20,
+        choices = Place.CATEGORIES,
+        null = True
+    )
+
+    class Meta:
+        ordering = ['-time', 'user']
+
+    def __str__(self):
+        return "%s @ %s" % (self.user, self.time)

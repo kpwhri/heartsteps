@@ -64,15 +64,39 @@ class DecisionContextQuerySet(models.QuerySet):
     _load_unavailable_reasons = False
     _load_unavailable_reasons_done = False
 
+    _load_location = False
+    _load_location_done = False
+
+    _load_weather_forecast = False
+    _load_weather_forecast_done = False
+
+    _load_message_template = False
+    _load_message_template_done = False
+    _message_template_model = None
+
+    def prefetch_weather_forecast(self):
+        self._load_weather_forecast = True
+        return self
+
     def prefetch_notification(self):
         self._load_notification = True
+        return self
+
+    def prefetch_message_template(self, message_template_model):
+        self._load_message_template = True
+        self._message_template_model = message_template_model
         return self
 
     def prefetch_unavailable_reasons(self):
         self._load_unavailable_reasons = True
         return self
+
+    def prefetch_location(self):
+        self._load_location = True
+        return self
     
     def _fetch_all(self):
+        now = datetime.now()
         super()._fetch_all()
         if self._load_notification and not self._load_notification_done and self._result_cache:
             self._fetch_notification()
@@ -80,12 +104,101 @@ class DecisionContextQuerySet(models.QuerySet):
         if self._load_unavailable_reasons and not self._load_unavailable_reasons_done and self._result_cache:
             self._fetch_unavailable_reasons()
             self._load_unavailable_reasons_done = True
+        if self._load_location and not self._load_location_done and self._result_cache:
+            self._fetch_location()
+            self._load_location_done = True
+        if self._load_weather_forecast and not self._load_weather_forecast_done and self._result_cache:
+            self._fetch_weather_forecast()
+            self._load_weather_forecast_done = True
+        if self._load_message_template and not self._load_message_template_done and self._result_cache:
+            self._fetch_message_template()
+            self._load_message_template_done = True
+        diff = datetime.now() - now
 
     def _clone(self, **kwargs):
         clone = super()._clone(**kwargs)
         clone._load_notification = self._load_notification
         clone._load_unavailable_reasons = self._load_unavailable_reasons
+        clone._load_location = self._load_location
+        clone._load_weather_forecast = self._load_weather_forecast
+        clone._load_message_template = self._load_message_template
+        clone._message_template_model = self._message_template_model
         return clone
+
+    def _fetch_message_template(self):
+        if self._message_template_model:
+            message_template_model = self._message_template_model
+        else:
+            message_template_model = MessageTemplate
+        message_template_content_type = ContentType.objects.get_for_model(message_template_model)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        context_objects = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = message_template_content_type
+        ).all()
+        obj_id_to_decision_id = {}
+        for _context in context_objects:
+            obj_id_to_decision_id[_context.object_id] = str(_context.decision_id)
+        message_templates = message_template_model.objects.filter(
+            id__in = obj_id_to_decision_id.keys()
+        ).all()
+        message_template_by_decision_id = {}
+        for _mt in message_templates:
+            decision_id = obj_id_to_decision_id[_mt.id]
+            message_template_by_decision_id[decision_id] = _mt
+        for _decision in self._result_cache:
+            if str(_decision.id) in message_template_by_decision_id:
+                _decision._message_template = message_template_by_decision_id[str(_decision.id)]
+            else:
+                _decision._message_template = None
+
+    def _fetch_weather_forecast(self):
+        weather_forecast_content_type = ContentType.objects.get_for_model(WeatherForecast)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        context_objects = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = weather_forecast_content_type
+        ).all()
+        weather_forecast_id_to_decision_id = {}
+        for _context in context_objects:
+            weather_forecast_id_to_decision_id[_context.object_id] = str(_context.decision_id)
+        weather_forecasts = WeatherForecast.objects.filter(
+            id__in = weather_forecast_id_to_decision_id.keys()
+        ).all()
+        weather_forecast_by_decision_id = {}
+        for _forecast in weather_forecasts:
+            decision_id = weather_forecast_id_to_decision_id[_forecast.id]
+            weather_forecast_by_decision_id[decision_id] = _forecast
+        for _decision in self._result_cache:
+            decision_id = str(_decision.id)
+            if decision_id in weather_forecast_by_decision_id:
+                _decision._forecast = weather_forecast_by_decision_id[decision_id]
+            else:
+                _decision._forecast = None
+
+    def _fetch_location(self):
+        location_content_type = ContentType.objects.get_for_model(Location)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        context_objects = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = location_content_type
+        ).all()
+        location_id_to_decision_id = {}
+        for _context in context_objects:
+            location_id_to_decision_id[_context.object_id] = str(_context.decision_id)
+        locations = Location.objects.filter(
+            id__in = location_id_to_decision_id.keys()
+        ).all()
+        locations_by_decision_id = {}
+        for _location in locations:
+            decision_id = location_id_to_decision_id[_location.id]
+            locations_by_decision_id[decision_id] = _location
+        for _decision in self._result_cache:
+            decision_id = str(_decision.id)
+            if decision_id in locations_by_decision_id:
+                _decision._location = locations_by_decision_id[decision_id]
+            else:
+                _decision._location = None
 
     def _fetch_notification(self):
         message_content_type = ContentType.objects.get_for_model(Message)
@@ -351,15 +464,19 @@ class Decision(models.Model):
 
     @property
     def message_template(self):
-        try:
-            context_object = DecisionContext.objects.get(
-                decision = self,
-                content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
-            )
-            message_template = context_object.content_object
-            return message_template
-        except DecisionContext.DoesNotExist:
-            return None
+        if hasattr(self, '_message_template'):
+            return self._message_template
+        else:
+            try:
+                context_object = DecisionContext.objects.get(
+                    decision = self,
+                    content_type = ContentType.objects.get_for_model(self.MESSAGE_TEMPLATE_MODEL)
+                )
+                message_template = context_object.content_object
+                self._message_template = message_template
+            except DecisionContext.DoesNotExist:
+                self._message_template = None
+            return self._message_template
 
     def add_context_object(self, object):
         DecisionContext.objects.create(
@@ -405,9 +522,9 @@ class Decision(models.Model):
         ).all()
         if len(existing_decision_locations) > 0:
             self._location = existing_decision_locations[0].content_object
-            return self._location
         else:
-            return None
+            self._location = None
+        return self._location
 
     def update_location(self):
         location_content_type = ContentType.objects.get_for_model(Location)
@@ -431,13 +548,9 @@ class Decision(models.Model):
     def get_location_type(self):
         location = self.get_location()
         if location:
-            location_service = LocationService(self.user)
-            return location_service.categorize_location(
-                latitude = location.latitude,
-                longitude = location.longitude
-            )
+            return location.category
         else:
-            return Place.OTHER
+            return None
 
     def get_forecast(self):
         if hasattr(self, '_forecast'):
@@ -450,8 +563,9 @@ class Decision(models.Model):
             ).last()
             if context:
                 self._forecast = context.content_object
-                return self._forecast
-        return None
+            else:
+                self._forecast = None
+            return self._forecast
 
     @property
     def precipitation_type(self):
