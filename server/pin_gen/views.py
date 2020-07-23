@@ -48,8 +48,10 @@ class ClockFacePinView(APIView):
 		serializer = PinSerializer(data=request.data)
 		if serializer.is_valid():
 			pin = serializer.validated_data['pin']
+			char_pin = [str(_i) for _i in p if _i.isnumeric()]
+			print(char_pin)
 			try:
-				pin = ClockFacePin.objects.get(pin = pin)
+				pin = ClockFacePin.objects.get(pin = char_pin)
 				pin.user = request.user
 				pin.save()
 				return Response({
@@ -61,11 +63,11 @@ class ClockFacePinView(APIView):
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#MY CODE (without Token); kinda rough draft
+# code for the watchface
 def pinA(self):
 	pin = ClockFacePin()
 	pin.pin = pin.get_unique_pin()
-	#pin.save()
+	pin.save()
 	return JsonResponse({ 'pin': pin.pin }, status=200)
 
 @api_view(['GET', 'POST'])
