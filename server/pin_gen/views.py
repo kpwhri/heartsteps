@@ -65,7 +65,7 @@ class ClockFacePinView(APIView):
 def pinA(self):
 	pin = ClockFacePin()
 	pin.pin = pin.get_unique_pin()
-	#pin.save()
+	pin.save()
 	return JsonResponse({ 'pin': pin.pin }, status=200)
 
 @api_view(['GET', 'POST'])
@@ -73,21 +73,11 @@ def user(request):
 	serializer = PinSerializer(data=request.data)
 	if serializer.is_valid():
 		p = serializer.validated_data['pin']
-		# need to convert to char array for some reason
-		char_pin = [str(_i) for _i in p if _i.isnumeric()]
-		
 		try:
-			cpin = ClockFacePin.objects.get(pin=char_pin)
-		except ClockFacePin.DoesNotExist:
-			return JsonResponse({'authenticated': False }, status=200)
-
-		try:
+			cpin = ClockFacePin.objects.get(pin=p)
 			t = Token.objects.get(user=cpin.user)
-			return JsonResponse({ 'token' : t.key, 'authenticated': True }, status=200)
-		except:
-			return JsonResponse({'authenticated': False }, status=200)
-			
-
-
-
-
+			return JsonResponse({ 'token' : t.key, 'authenticated': True }, status=status.HTTP_200_OK)
+		except (ClockFacePin.DoesNotExist, Token.DoesNotExist):
+			return JsonResponse({'authenticated': False }, status=status.HTTP_200_OK)
+	else:
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
