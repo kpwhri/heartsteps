@@ -29,6 +29,7 @@ let statsCycle = document.getElementById("stats-cycle");
 let statsCycleItems = statsCycle.getElementsByClassName("cycle-item");
 let txtWarning = document.getElementById("txtWarning");
 let lower = document.getElementById("#lower");
+let pin = document.getElementById("pin");
 
 /* --------- CLOCK ---------- */
 function clockCallback(data) {
@@ -147,3 +148,13 @@ function stepCountToPhone(){
 setInterval(function() {
   stepCountToPhone();
 }, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+
+/*--- When watch receives message from phone to input pin ---*/
+messaging.peerSocket.onmessage = function(evt) {
+  // Output the message to the console
+  let p = JSON.stringify(evt.data);
+  console.log(p);
+  console.log(p.replace(/\"/g, ""));
+  let o = p.replace(/\"/g, "");
+  pin.text = o;
+}

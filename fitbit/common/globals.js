@@ -22,6 +22,12 @@ export const ID_INVALID = "heartsteps id invalid";
 export const INITIALIZE_ENROLLMENT = "initialize enrollment";
 export const UNKNOWN_INVALID = "unknown error";
 
+// pin
+export const AUTHORIZATION_PIN = "authorizationPin";
+export const PIN_STATE = "pinState";
+export const NO_PIN = "noPin";
+export const HAVE_PIN = "havePin";
+
 export function isNotNull(val) {
   return (typeof val !== "undefined"
       &&  val != ""

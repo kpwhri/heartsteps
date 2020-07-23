@@ -124,3 +124,68 @@ messaging.peerSocket.onmessage = function(evt) {
     return {};
   }
 }
+
+/*--- ClockFacePin authentication process ---*/
+/*--- sends request for pin ---*/
+function getPin() {
+  const url = `${global.BASE_URL}/api/pin_gen/myarr`;
+	return fetch(url)
+	.then(response => response.json())
+	.then(data => {
+		console.log("victory! pin is: " + data["pin"]);
+		var p = data["pin"];
+		return p;
+	 })
+	.then(function(pin) {
+		settingsStorage.setItem(global.AUTHORIZATION_PIN, pin);
+		settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);  
+		if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+			console.log("sending pin");
+			messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
+		}
+	});
+}
+
+/*--- checks if pin is connected to user ---*/
+function getUser() {
+  const url = `${global.BASE_URL}/api/pin_gen/user`;
+	let p = {"pin": settingsStorage.getItem(global.AUTHORIZATION_PIN)};
+	return fetch(url, {
+		method: "POST",
+	    body: JSON.stringify(p),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	})
+	.then(response => response.json())
+	.then(function(data) {
+		if (!data["authenticated"]) {
+			console.log("Pin not associated with user");
+			console.log("Please enter this pin into your device: " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
+			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+        console.log("sending pin");
+				messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
+			}
+		} else {
+			console.log("The token " + data["token"] + " is associated with the pin " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
+			settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["Token"]);
+			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+				messaging.peerSocket.send("Authenticated");
+			}
+		}
+	});
+}
+
+function sendPinAuthToPhone() {
+  let pauth = settingsStorage.getItem(global.AUTHORIZATION_PIN);
+ 	let pstat = settingsStorage.getItem(global.PIN_STATE);
+  if (!pauth || pstat !== global.HAVE_PIN || !pstat) {
+    getPin();
+  } else  { 
+    getUser();
+  } 
+}
+
+setInterval(function() {
+  sendPinAuthToPhone();
+}, 5000);
