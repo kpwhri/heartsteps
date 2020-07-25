@@ -66,9 +66,6 @@ def get_fitbit_step_count(decision):
 
 class AntiSedentaryDecisionResouce(DecisionResource):
 
-    step_count = Field()
-    fitbit_step_count = Field()
-
     class Meta:
         model = AntiSedentaryDecision
 

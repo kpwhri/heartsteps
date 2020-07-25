@@ -174,6 +174,7 @@ class DecisionContextQuerySet(models.QuerySet):
         for _mt in message_templates:
             decision_id = obj_id_to_decision_id[_mt.id]
             message_template_by_decision_id[decision_id] = _mt
+
         for _decision in self._result_cache:
             if str(_decision.id) in message_template_by_decision_id:
                 _decision._message_template = message_template_by_decision_id[str(_decision.id)]
@@ -197,6 +198,7 @@ class DecisionContextQuerySet(models.QuerySet):
         for _forecast in weather_forecasts:
             decision_id = weather_forecast_id_to_decision_id[_forecast.id]
             weather_forecast_by_decision_id[decision_id] = _forecast
+
         for _decision in self._result_cache:
             decision_id = str(_decision.id)
             if decision_id in weather_forecast_by_decision_id:
@@ -218,6 +220,7 @@ class DecisionContextQuerySet(models.QuerySet):
             id__in = location_id_to_decision_id.keys()
         ).all()
         locations_by_decision_id = {}
+
         for _location in locations:
             decision_id = location_id_to_decision_id[_location.id]
             locations_by_decision_id[decision_id] = _location
@@ -248,6 +251,7 @@ class DecisionContextQuerySet(models.QuerySet):
             if message.message_type == Message.NOTIFICATION:
                 decision_id = message_id_to_decision_id[message.id]
                 notifications_by_decision_id[decision_id] = message
+
         for _decision in self._result_cache:
             if str(_decision.id) in notifications_by_decision_id:
                 _decision._notification = notifications_by_decision_id[str(_decision.id)]
