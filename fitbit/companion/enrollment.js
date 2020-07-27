@@ -47,6 +47,8 @@ export function enrollParticipant(entry_code, birth_year) {
     "enrollmentToken": entry_code,
     "birthYear": birth_year
   };
+  console.log("entry code: " + entry_code);
+  console.log("birth year: " + birth_year);
   fetch(url, {
     method: "POST",
     body: JSON.stringify(authData),

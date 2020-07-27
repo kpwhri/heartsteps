@@ -56,7 +56,11 @@ if (me.launchReasons.settingsChanged) {
 ***************************************/
 const PLACE_SOURCE = "watch";
 function sendLocation(lat, long, place) {
+  console.log("lat: " + lat);
+  console.log("long: " + long);
   let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+  // debugging:
+  console.log("this is token: ", token);
   if (token) {
     const url = `${global.BASE_URL}/api/locations/`;
     let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
@@ -125,10 +129,11 @@ messaging.peerSocket.onmessage = function(evt) {
   }
 }
 
+
 /*--- ClockFacePin authentication process ---*/
 /*--- sends request for pin ---*/
 function getPin() {
-  const url = `${global.BASE_URL}/api/pin_gen/myarr`;
+  const url = `${global.BASE_URL}/api/pin_gen/myarr/`;
 	return fetch(url)
 	.then(response => response.json())
 	.then(data => {
@@ -138,7 +143,7 @@ function getPin() {
 	 })
 	.then(function(pin) {
 		settingsStorage.setItem(global.AUTHORIZATION_PIN, pin);
-		settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);  
+		//settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);  
 		if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
 			console.log("sending pin");
 			messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
@@ -148,7 +153,7 @@ function getPin() {
 
 /*--- checks if pin is connected to user ---*/
 function getUser() {
-  const url = `${global.BASE_URL}/api/pin_gen/user`;
+  const url = `${global.BASE_URL}/api/pin_gen/user/`;
 	let p = {"pin": settingsStorage.getItem(global.AUTHORIZATION_PIN)};
 	return fetch(url, {
 		method: "POST",
@@ -168,7 +173,7 @@ function getUser() {
 			}
 		} else {
 			console.log("The token " + data["token"] + " is associated with the pin " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
-			settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["Token"]);
+			//settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["Token"]);
 			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
 				messaging.peerSocket.send("Authenticated");
 			}
@@ -178,8 +183,7 @@ function getUser() {
 
 function sendPinAuthToPhone() {
   let pauth = settingsStorage.getItem(global.AUTHORIZATION_PIN);
- 	let pstat = settingsStorage.getItem(global.PIN_STATE);
-  if (!pauth || pstat !== global.HAVE_PIN || !pstat) {
+  if (!pauth) {
     getPin();
   } else  { 
     getUser();
@@ -189,3 +193,7 @@ function sendPinAuthToPhone() {
 setInterval(function() {
   sendPinAuthToPhone();
 }, 5000);
+
+settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "140bf9639d911c195b78e58777245cf0c52cec92");
+settingsStorage.setItem(global.AUTHORIZATION_PIN, "14118");
+// settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);

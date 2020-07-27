@@ -120,6 +120,8 @@ function sendStepMessage(recentSteps, time){
       value: recentSteps,
       time: time
     }
+    console.log(data['value']);
+    console.log(data['time']);
     messaging.peerSocket.send(data);
   } else {
     console.log("ERROR: peerSocket not open");
@@ -145,9 +147,10 @@ function stepCountToPhone(){
   }
 }
 
+//REMINDER: CHANGE CLOCK INTERVAL!!!
 setInterval(function() {
   stepCountToPhone();
-}, WAKE_INTERVAL*MILLISECONDS_PER_MINUTE);
+}, 5000);
 
 /*--- When watch receives message from phone to input pin ---*/
 messaging.peerSocket.onmessage = function(evt) {
