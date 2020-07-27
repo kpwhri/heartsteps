@@ -145,6 +145,7 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
         test = False
     ) \
     .order_by('-created') \
+    .prefetch_rating() \
     .prefetch_weather_forecast() \
     .prefetch_location() \
     .prefetch_notification() \

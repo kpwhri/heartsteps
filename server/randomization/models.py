@@ -74,6 +74,13 @@ class DecisionContextQuerySet(models.QuerySet):
     _load_message_template_done = False
     _message_template_model = None
 
+    _load_rating = False
+    _load_rating_done = False
+
+    def prefetch_rating(self):
+        self._load_rating = True
+        return self
+
     def prefetch_weather_forecast(self):
         self._load_weather_forecast = True
         return self
@@ -113,6 +120,9 @@ class DecisionContextQuerySet(models.QuerySet):
         if self._load_message_template and not self._load_message_template_done and self._result_cache:
             self._fetch_message_template()
             self._load_message_template_done = True
+        if self._load_rating and not self._load_rating_done and self._result_cache:
+            self._fetch_rating()
+            self._load_rating_done = True
         diff = datetime.now() - now
 
     def _clone(self, **kwargs):
@@ -123,19 +133,37 @@ class DecisionContextQuerySet(models.QuerySet):
         clone._load_weather_forecast = self._load_weather_forecast
         clone._load_message_template = self._load_message_template
         clone._message_template_model = self._message_template_model
+        clone._load_rating = self._load_rating
         return clone
+
+    def _get_context_objects(self, model):
+        message_template_content_type = ContentType.objects.get_for_model(model)
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        return DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = message_template_content_type
+        ).all()        
+
+    def _fetch_rating(self):
+        decision_ids = [_decision.id for _decision in self._result_cache]
+        rating_query = DecisionRating.objects.filter(
+            decision_id__in = decision_ids
+        )
+        rating_by_decision_id = {}
+        for rating in rating_query.all():
+            rating_by_decision_id[rating.decision_id] = rating
+        for _decision in self._result_cache:
+            if _decision.id in rating_by_decision_id:
+                _decision._rating = rating_by_decision_id[_decision.id]
+            else:
+                _decision._rating = None
 
     def _fetch_message_template(self):
         if self._message_template_model:
             message_template_model = self._message_template_model
         else:
             message_template_model = MessageTemplate
-        message_template_content_type = ContentType.objects.get_for_model(message_template_model)
-        decision_ids = [_decision.id for _decision in self._result_cache]
-        context_objects = DecisionContext.objects.filter(
-            decision_id__in = decision_ids,
-            content_type = message_template_content_type
-        ).all()
+        context_objects = self._get_context_objects(message_template_model)
         obj_id_to_decision_id = {}
         for _context in context_objects:
             obj_id_to_decision_id[_context.object_id] = str(_context.decision_id)
@@ -146,6 +174,7 @@ class DecisionContextQuerySet(models.QuerySet):
         for _mt in message_templates:
             decision_id = obj_id_to_decision_id[_mt.id]
             message_template_by_decision_id[decision_id] = _mt
+
         for _decision in self._result_cache:
             if str(_decision.id) in message_template_by_decision_id:
                 _decision._message_template = message_template_by_decision_id[str(_decision.id)]
@@ -169,6 +198,7 @@ class DecisionContextQuerySet(models.QuerySet):
         for _forecast in weather_forecasts:
             decision_id = weather_forecast_id_to_decision_id[_forecast.id]
             weather_forecast_by_decision_id[decision_id] = _forecast
+
         for _decision in self._result_cache:
             decision_id = str(_decision.id)
             if decision_id in weather_forecast_by_decision_id:
@@ -190,6 +220,7 @@ class DecisionContextQuerySet(models.QuerySet):
             id__in = location_id_to_decision_id.keys()
         ).all()
         locations_by_decision_id = {}
+
         for _location in locations:
             decision_id = location_id_to_decision_id[_location.id]
             locations_by_decision_id[decision_id] = _location
@@ -220,6 +251,7 @@ class DecisionContextQuerySet(models.QuerySet):
             if message.message_type == Message.NOTIFICATION:
                 decision_id = message_id_to_decision_id[message.id]
                 notifications_by_decision_id[decision_id] = message
+
         for _decision in self._result_cache:
             if str(_decision.id) in notifications_by_decision_id:
                 _decision._notification = notifications_by_decision_id[str(_decision.id)]
@@ -568,6 +600,18 @@ class Decision(models.Model):
             return self._forecast
 
     @property
+    def rating(self):
+        if not hasattr(self, '_rating'):
+            try:
+                rating = DecisionRating.objects.get(
+                    decision = self
+                )
+                self._rating = rating
+            except DecisionRating.DoesNotExist:
+                self._rating = None
+        return self._rating
+
+    @property
     def precipitation_type(self):
         forecast = self.get_forecast()
         if forecast:
@@ -610,7 +654,7 @@ class DecisionRating(models.Model):
     decision = models.OneToOneField(
         Decision,
         on_delete = models.CASCADE,
-        related_name = 'rating'
+        related_name = '+'
     )
     liked = models.NullBooleanField()
     comments = models.CharField(

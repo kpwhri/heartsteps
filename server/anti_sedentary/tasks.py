@@ -1,8 +1,10 @@
 import csv
 import os
+from datetime import datetime
 from import_export import resources
 from import_export.fields import Field
 
+from days.models import Day
 from service_requests.admin import ServiceRequestResource
 
 from .admin import AntiSedentaryDecisionResouce
@@ -10,10 +12,23 @@ from .models import AntiSedentaryDecision
 from .models import AntiSedentaryServiceRequest
 
 
-def export_anti_sedentary_decisions(username, directory):
-    queryset = AntiSedentaryDecision.objects.filter(user__username=username)
+def export_anti_sedentary_decisions(username, directory, filename=None):
+    if not filename:
+        filename = '%s.anti_sedentary_decisions.csv' % (username)
+    
+    queryset = AntiSedentaryDecision.objects.filter(
+        user__username=username,
+        test = False
+    ) \
+    .order_by('-created') \
+    .prefetch_rating() \
+    .prefetch_weather_forecast() \
+    .prefetch_location() \
+    .prefetch_notification() \
+    .prefetch_unavailable_reasons() \
+    .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
+    
     total_rows = queryset.count()
-    filename = '%s.anti_sedentary_decisions.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     start_index = 0
     slice_size = 100
@@ -22,8 +37,30 @@ def export_anti_sedentary_decisions(username, directory):
         end_index = start_index + slice_size
         if end_index >= total_rows:
             end_index = total_rows - 1
+
+        decisions = queryset[start_index:end_index]
+        earliest_decision_time = None
+        latest_decision_time = None
+        for _decision in decisions:
+            if not earliest_decision_time or _decision.time < earliest_decision_time:
+                earliest_decision_time = _decision.time
+            if not latest_decision_time or _decision.time > latest_decision_time:
+                latest_decision_time = _decision.time
+        days = Day.objects.filter(
+            start__lte = latest_decision_time,
+            end__gte = earliest_decision_time,
+            user__username = username
+        ).all()
+        new_decisions = []
+        for decision in decisions:
+            for _day in days:
+                if decision.time > _day.start and decision.time < _day.end:
+                    decision._timezone = _day.get_timezone()
+                    continue
+            new_decisions.append(decision)
+
         dataset = AntiSedentaryDecisionResouce().export(
-            queryset = queryset[start_index:end_index]
+            queryset = new_decisions
         )
         csv = dataset.csv
         if first:

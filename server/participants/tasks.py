@@ -24,6 +24,7 @@ from fitbit_api.models import FitbitAccountUser
 from locations.models import Place
 from locations.services import LocationService
 from locations.tasks import export_location_count_csv
+from locations.tasks import update_location_categories
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
@@ -271,6 +272,8 @@ def daily_update(username):
     day_service = DayService(username=username)
     yesterday = day_service.get_current_date() - timedelta(days=1)
     service.update(yesterday)
+    # Might want to incorperate data cleanup as part of nightly update?
+    update_location_categories(username)
     export_user_data.apply_async(kwargs={
         'username':username
     })

@@ -35,6 +35,7 @@ class DecisionResource(resources.ModelResource):
         'temperature',
         'precipitation_type',
         'precipitation_probability',
+        'liked',
         'imputed',
         'created_time'
     ]
@@ -64,6 +65,8 @@ class DecisionResource(resources.ModelResource):
     precipitation_type = Field(column_name='Precipitation Type')
     precipitation_probability = Field(column_name='Precipitation Probability')
 
+    liked = Field(column_name='Liked')
+
     created_time = Field(column_name='Created time')
 
     def format_datetime(self, dt):
@@ -91,6 +94,12 @@ class DecisionResource(resources.ModelResource):
 
     def dehydrate_timezone(self, decision):
         return decision.timezone.zone
+
+    def dehydrate_liked(self, decision):
+        if decision.rating:
+            return decision.rating.liked
+        else:
+            return None
 
     def dehydrate_decision_time(self, decision):
         time = decision.time.astimezone(decision.timezone)

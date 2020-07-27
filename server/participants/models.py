@@ -1,6 +1,7 @@
 import json
 import pytz
 from datetime import datetime
+from datetime import timedelta
 from warnings import warn
 
 from django.db import models
@@ -47,6 +48,10 @@ class Cohort(models.Model):
         Study,
         null = True,
         on_delete = models.CASCADE
+    )
+
+    study_length = models.PositiveIntegerField(
+        null = True
     )
 
     def get_daily_timezones(self, start, end):
@@ -121,6 +126,29 @@ class Participant(models.Model):
             return self.user.date_joined
         else:
             return None
+
+    @property
+    def study_start(self):
+        if self.user:
+            service = DayService(user = self.user)
+            return service.get_start_of_day(self.date_joined)
+        else:
+            return None
+
+    @property
+    def study_end(self):
+        if self.user:
+            service = DayService(user = self.user)
+            end_date = self.date_joined + timedelta(days=self.study_length)
+            return service.get_end_of_day(end_date)
+        return self.date_joined
+
+    @property
+    def study_length(self):
+        if self.cohort and self.cohort.study_length:
+            return self.cohort.study_length
+        else:
+            return 30
 
     @property
     def is_active(self):

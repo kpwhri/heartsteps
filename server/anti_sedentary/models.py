@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 from behavioral_messages.models import MessageTemplate
 from randomization.models import Decision
+from randomization.models import DecisionContextQuerySet
 from service_requests.models import ServiceRequest
 
 User = get_user_model()
@@ -25,6 +26,8 @@ class AntiSedentaryServiceRequest(ServiceRequest):
 
 class AntiSedentaryDecision(Decision):
     MESSAGE_TEMPLATE_MODEL = AntiSedentaryMessageTemplate
+
+    objects = DecisionContextQuerySet.as_manager()
 
     def get_treatment_probability(self):
         return 0.15
