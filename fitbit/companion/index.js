@@ -59,9 +59,9 @@ function sendLocation(lat, long, place) {
   console.log("lat: " + lat);
   console.log("long: " + long);
   let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
-  // debugging:
-  console.log("this is token: ", token);
   if (token) {
+    // debugging
+    console.log("token: ", token);
     const url = `${global.BASE_URL}/api/locations/`;
     let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
     fetch(url, {
@@ -172,8 +172,8 @@ function getUser() {
 				messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
 			}
 		} else {
-			console.log("The token " + data["token"] + " is associated with the pin " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
-			//settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["Token"]);
+			console.log("The token " + settingsStorage.getItem(global.AUTHORIZATION_TOKEN) + " is associated with the pin " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
+			settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["token"]);
 			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
 				messaging.peerSocket.send("Authenticated");
 			}
@@ -183,17 +183,21 @@ function getUser() {
 
 function sendPinAuthToPhone() {
   let pauth = settingsStorage.getItem(global.AUTHORIZATION_PIN);
+  let tauth = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+
   if (!pauth) {
     getPin();
-  } else  { 
+  } else {
     getUser();
-  } 
+  }
 }
 
 setInterval(function() {
   sendPinAuthToPhone();
 }, 5000);
 
-settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "140bf9639d911c195b78e58777245cf0c52cec92");
-settingsStorage.setItem(global.AUTHORIZATION_PIN, "14118");
+settingsStorage.clear();
+// settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "");
+// settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "140bf9639d911c195b78e58777245cf0c52cec92");
+//settingsStorage.setItem(global.AUTHORIZATION_PIN, "24680");
 // settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);
