@@ -257,13 +257,13 @@ def export_cohort_data(cohort_name, directory, start=None, end=None):
         users = users,
         start_date = start,
         end_date = end,
-        filename = '%s/%s-location_counts.csv' % (directory, cohort.slug)
+        filename = '%s/%s.location_counts.csv' % (directory, cohort.slug)
     )
     export_step_count_records_csv(
         users = users,
         start_date = start,
         end_date = end,
-        filename = '%s/%s-watch-app-step-count-records.csv' % (directory, cohort.slug)
+        filename = '%s/%s.watch-app-step-count-records.csv' % (directory, cohort.slug)
     )
 
 @shared_task

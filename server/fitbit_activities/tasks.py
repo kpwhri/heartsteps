@@ -109,8 +109,6 @@ def export_fitbit_data(username, directory, filename = None):
     
     dataset = FitbitMinuteDataResource().export(minute_level_data)
 
-    filename = '%s.fitbit_minutes.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)
     _file.close()
-
