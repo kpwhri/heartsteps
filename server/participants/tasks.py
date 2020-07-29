@@ -265,6 +265,15 @@ def export_user_data(username):
         filename = 'walking-suggestion-service-requests.csv',
         directory = user_directory
     )
+    export_file(export_anti_sedentary_decisions,
+        participant = participant,
+        filename = 'anti-sedentary-decisions.csv',
+        directory = user_directory
+    )
+    export_file(export_anti_sedentary_service_requests,
+        participant = participant,
+        filename = 'anti-sedentary-service-requests.csv'
+    )
     export_file(export_fitbit_data,
         participant = participant,
         filename = 'fitbit-data-per-minute.csv',
