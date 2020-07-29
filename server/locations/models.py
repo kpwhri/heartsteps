@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from geopy.distance import distance as geopy_distance
+import pytz
+from timezonefinder import TimezoneFinder
 
 from django.contrib.auth.models import User
 
@@ -49,7 +51,8 @@ class Location(models.Model):
     longitude = models.FloatField()
 
     time = models.DateTimeField()
-    source = models.CharField(max_length=50, null=True, blank=True)
+
+    source = models.CharField(max_length=50, null=True)
 
     category = models.CharField(
         max_length = 20,
@@ -62,3 +65,22 @@ class Location(models.Model):
 
     def __str__(self):
         return "%s @ %s" % (self.user, self.time)
+
+    def calculate_timezone(self):
+        timezone_finder = TimezoneFinder()
+        timezone = timezone_finder.timezone_at(
+            lng = self.longitude,
+            lat = self.latitude
+        )
+        if timezone:
+            return pytz.timezone(timezone)
+        else:
+            return pytz.UTC
+
+    @property
+    def timezone(self):
+        return self.calculate_timezone()
+    
+    @property
+    def local_time(self):
+        return self.time.astimezone(self.timezone)

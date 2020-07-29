@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import csv
 from datetime import date
 from datetime import timedelta
 from math import floor
@@ -21,6 +22,7 @@ from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.tasks import export_fitbit_data
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
+from locations.models import Location
 from locations.models import Place
 from locations.services import LocationService
 from locations.tasks import export_location_count_csv
@@ -179,6 +181,35 @@ def reset_test_participants(date_joined=None, number_of_days=9):
                 'timezone': tz.zone
             }
         )
+def export_user_locations(username, directory=None, filename=None):
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.locations.csv' % (username)
+
+    locations = []
+    for _location in Location.objects.filter(user__username=username).order_by('time').all():
+        locations.append([
+            _location.id,
+            user.username,
+            _location.local_time.strftime('%Y-%m-%d %H:%M:%S'),
+            _location.timezone.zone,
+            _location.source,
+            _location.category
+        ])
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [[
+            'ID',
+            'HeartSteps ID',
+            'Time',
+            'Timezone',
+            'Location Source',
+            'Location Category'
+        ]] + locations
+    )
+
 
 def export_file(fn, participant, filename, directory):
     filename = '{study}.{cohort}.{heartsteps_id}.{filename}'.format(
@@ -237,6 +268,11 @@ def export_user_data(username):
     export_file(export_fitbit_data,
         participant = participant,
         filename = 'fitbit-data-per-minute.csv',
+        directory = user_directory
+    )
+    export_file(export_user_locations,
+        participant = participant,
+        filename = 'locations.csv',
         directory = user_directory
     )
     subprocess.call(
