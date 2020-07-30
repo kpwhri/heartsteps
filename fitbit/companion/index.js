@@ -56,12 +56,8 @@ if (me.launchReasons.settingsChanged) {
 ***************************************/
 const PLACE_SOURCE = "watch";
 function sendLocation(lat, long, place) {
-  console.log("lat: " + lat);
-  console.log("long: " + long);
   let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
   if (token) {
-    // debugging
-    console.log("token: ", token);
     const url = `${global.BASE_URL}/api/locations/`;
     let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
     fetch(url, {
@@ -118,43 +114,31 @@ function sendSteps(step_count, step_dtm) {
   }
 }
 
-/*--- When phone receives step data message from watch ---*/
-/*--- forward Step & Location data to server           ---*/
-messaging.peerSocket.onmessage = function(evt) {
-  if (evt.data.key == global.RECENT_STEPS) {
-    sendLatLong();
-    sendSteps(evt.data.value, evt.data.time);
-  } else {
-    return {};
-  }
-}
-
-
 /*--- ClockFacePin authentication process ---*/
 /*--- sends request for pin ---*/
 function getPin() {
   const url = `${global.BASE_URL}/api/pin_gen/myarr/`;
 	return fetch(url)
-	.then(response => response.json())
-	.then(data => {
-		console.log("victory! pin is: " + data["pin"]);
-		var p = data["pin"];
-		return p;
-	 })
-	.then(function(pin) {
-		settingsStorage.setItem(global.AUTHORIZATION_PIN, pin);
-		//settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);  
+  .then(response => response.json())
+	.then(function(data) {
+    settingsStorage.setItem(global.AUTHORIZATION_PIN, data['pin']);
+    settingsStorage.setItem(global.PIN_UUID, data['uniid']);
 		if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-			console.log("sending pin");
-			messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
+      messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
 		}
-	});
+	})
+  .catch(error => console.error('Error in getPin: ', error));
 }
 
 /*--- checks if pin is connected to user ---*/
 function getUser() {
   const url = `${global.BASE_URL}/api/pin_gen/user/`;
-	let p = {"pin": settingsStorage.getItem(global.AUTHORIZATION_PIN)};
+  console.log("pin: ", settingsStorage.getItem(global.AUTHORIZATION_PIN));
+  console.log("uniid: ", settingsStorage.getItem(global.PIN_UUID));
+  let p = {
+    "pin": settingsStorage.getItem(global.AUTHORIZATION_PIN),
+    "uniid": settingsStorage.getItem(global.PIN_UUID)
+  };
 	return fetch(url, {
 		method: "POST",
 	    body: JSON.stringify(p),
@@ -162,42 +146,53 @@ function getUser() {
 	      'Content-Type': 'application/json'
 	    }
 	})
-	.then(response => response.json())
+  .then(response => response.json())
 	.then(function(data) {
-		if (!data["authenticated"]) {
-			console.log("Pin not associated with user");
-			console.log("Please enter this pin into your device: " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
+    if (!data["authenticated"]) {
+      console.log("ERROR: Pin not associated with user");
 			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-        console.log("sending pin");
-				messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
+        messaging.peerSocket.send(settingsStorage.getItem(global.AUTHORIZATION_PIN));
 			}
 		} else {
-			console.log("The token " + settingsStorage.getItem(global.AUTHORIZATION_TOKEN) + " is associated with the pin " + settingsStorage.getItem(global.AUTHORIZATION_PIN));
-			settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["token"]);
+      settingsStorage.setItem(global.AUTHORIZATION_TOKEN, data["token"]);
 			if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-				messaging.peerSocket.send("Authenticated");
+        messaging.peerSocket.send("Authenticated");
 			}
 		}
-	});
+	})
+  .catch(error => console.error('Error in getUser: ', error));
 }
 
 function sendPinAuthToPhone() {
   let pauth = settingsStorage.getItem(global.AUTHORIZATION_PIN);
   let tauth = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
 
+  // if no pin, get pin
   if (!pauth) {
     getPin();
-  } else {
+  } else if (!tauth) { // have pin, no token
     getUser();
+  } else { // has pin & token; user already authenticated
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      messaging.peerSocket.send("Authenticated");
+    }
   }
 }
 
-setInterval(function() {
-  sendPinAuthToPhone();
-}, 5000);
+// on init, check for pin & auth token
+sendPinAuthToPhone();
+
+/*--- When phone receives step data message from watch ---*/
+/*--- forward Step & Location data to server           ---*/
+messaging.peerSocket.onmessage = function(evt) {
+  if (evt.data.key == global.RECENT_STEPS) {
+    sendLatLong();
+    sendSteps(evt.data.value, evt.data.time);
+  } else if (evt.data.key == global.CHECK_AUTH) {
+    getUser();
+  } else {
+    return {};
+  }
+}
 
 settingsStorage.clear();
-// settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "");
-// settingsStorage.setItem(global.AUTHORIZATION_TOKEN, "140bf9639d911c195b78e58777245cf0c52cec92");
-//settingsStorage.setItem(global.AUTHORIZATION_PIN, "24680");
-// settingsStorage.setItem(global.PIN_STATE, global.HAVE_PIN);

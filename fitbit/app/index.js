@@ -147,10 +147,9 @@ function stepCountToPhone(){
   }
 }
 
-//REMINDER: CHANGE CLOCK INTERVAL!!!
 setInterval(function() {
   stepCountToPhone();
-}, 5000);
+}, WAKE_INTERVAL * MILLISECONDS_PER_MINUTE);
 
 /*--- When watch receives message from phone to input pin ---*/
 messaging.peerSocket.onmessage = function(evt) {
@@ -160,4 +159,15 @@ messaging.peerSocket.onmessage = function(evt) {
   console.log(p.replace(/\"/g, ""));
   let o = p.replace(/\"/g, "");
   pin.text = o;
+}
+
+/*--- Button for when user wants to check if pin is connected to user ---*/
+pin.onclick = function(evt) {
+  console.log("clicked");
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    let data = {
+      key: "checkAuthorization"
+    }
+    messaging.peerSocket.send(data);
+  } 
 }

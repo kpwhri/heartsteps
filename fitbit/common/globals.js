@@ -1,6 +1,6 @@
 export const ANTI_SEDENTARY_MESSAGE = "sendAntisedentaryMessage";
 export const AUTHORIZATION_TOKEN = "authorizationToken";
-//export const BASE_URL = "https://heartsteps.net";
+// export const BASE_URL = "https://heartsteps.net";
 export const BASE_URL = "http://localhost:8080";
 export const BIRTH_YEAR = "birthYear";
 export const ENTRY_CODE = "entryCode";
@@ -24,9 +24,8 @@ export const UNKNOWN_INVALID = "unknown error";
 
 // pin
 export const AUTHORIZATION_PIN = "authorizationPin";
-// export const PIN_STATE = "pinState";
-// export const NO_PIN = "noPin";
-// export const HAVE_PIN = "havePin";
+export const CHECK_AUTH = "checkAuthorization";
+export const PIN_UUID = "pinuuid";
 
 export function isNotNull(val) {
   return (typeof val !== "undefined"

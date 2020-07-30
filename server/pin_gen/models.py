@@ -1,4 +1,5 @@
 from random import choice
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -17,9 +18,16 @@ class Pin(models.Model):
 
 class ClockFacePin(models.Model):
     pin = models.CharField(
-        max_length = 50,
+        max_length = 10,
         unique = True
     )
+
+    uniid = models.CharField(
+        max_length = 50,
+        null = True,
+        unique = True
+    )
+
     user = models.ForeignKey(
         User,
         null = True,
@@ -34,6 +42,14 @@ class ClockFacePin(models.Model):
             return self.get_unique_pin()
         else:
             return pin
+
+    def get_unique_uniid(self):
+        temp = str(uuid.uuid4())
+        exists = ClockFacePin.objects.filter(uniid = temp).count()
+        if exists:
+            return self.get_unique_uniid
+        else:
+            return temp
 
     def save(self, *args, **kwargs):
         if not self.pin:

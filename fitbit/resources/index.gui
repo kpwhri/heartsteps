@@ -1,7 +1,7 @@
 <svg>
   <rect id="background" />
   <text id="txtTime" class="clock-text">13:37</text>
-  <text id="pin" text-anchor="middle" x="50%" y="50%" fill="deepskyblue" font-size="20" text-length="15"></text>
+  <text id="pin" text-anchor="middle" x="50%" y="50%" fill="deepskyblue" font-size="20" text-length="15" pointer-events="visible"></text>
   <textarea id="txtWarning" class="warning">Welcome! Please set up HeartSteps on your phone!</textarea>
   <svg id='lower'>
     <rect class="divider divider-top" />

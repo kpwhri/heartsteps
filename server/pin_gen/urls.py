@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^pair/', ClockFacePinView.as_view(), name="pin-gen-pair"),
     url(r'^myarr/', views.pinA),
     url(r'^user/', views.user)
+
 ]
 
