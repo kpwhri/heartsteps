@@ -12,7 +12,10 @@ import * as simpleClock from "./simple/clock";
 import * as simpleHRM from "./simple/hrm";
 import * as simpleSettings from "./simple/device-settings";
 
+import * as global from "../common/globals"
+
 import { StepCountHandler, StepReading } from "./step-count.js";
+
 
 // Watch notifies phone of step count & location
 const WAKE_INTERVAL = 5;
@@ -120,6 +123,7 @@ function sendStepMessage(recentSteps, time){
       value: recentSteps,
       time: time
     }
+    
     console.log(data['value']);
     console.log(data['time']);
     messaging.peerSocket.send(data);
@@ -154,19 +158,27 @@ setInterval(function() {
 /*--- When watch receives message from phone to input pin ---*/
 messaging.peerSocket.onmessage = function(evt) {
   // Output the message to the console
-  let p = JSON.stringify(evt.data);
-  console.log(p);
-  console.log(p.replace(/\"/g, ""));
-  let o = p.replace(/\"/g, "");
-  pin.text = o;
+  if (evt.data.key == global.AUTH_STATUS) {
+    if (evt.data.value == "Authenticated") {
+      console.log("User Authenticated");
+      //pin.text = "Authenticated";
+      pin.style.display = "none";
+    } else {
+      let p = JSON.stringify(evt.data.value);
+      console.log(p);
+      console.log(p.replace(/\"/g, ""));
+      let o = p.replace(/\"/g, "");
+      pin.text = o;
+    }
+  }
 }
 
 /*--- Button for when user wants to check if pin is connected to user ---*/
 pin.onclick = function(evt) {
-  console.log("clicked");
+  // console.log("clicked");
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     let data = {
-      key: "checkAuthorization"
+      key: global.CHECK_AUTH
     }
     messaging.peerSocket.send(data);
   } 
