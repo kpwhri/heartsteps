@@ -24,8 +24,8 @@ class ClockFacePin(models.Model):
 
     uniid = models.CharField(
         max_length = 50,
-        null = True,
-        unique = True
+        unique = True,
+        default = uuid.uuid4
     )
 
     user = models.ForeignKey(
