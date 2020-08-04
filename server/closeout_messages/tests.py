@@ -21,6 +21,8 @@ class CloseoutMessageConfigurationTests(TestCase):
             user = self.user,
             closeout_date = date.today()
         )
+        self.configuration.enable()
+
         contact = Contact.objects.create(
             user = self.user,
             number = 5555555555
@@ -35,25 +37,33 @@ class CloseoutMessageConfigurationTests(TestCase):
         )
 
     def test_configuration_active_with_daily_task(self):
-        self.assertFalse(self.configuration.enabled)
-
+        
         self.configuration.enable()
 
-        self.assertTrue(self.configuration.enabled)
-        self.assertTrue(self.configuration.daily_task.enabled)
-        self.assertEqual(self.configuration.daily_task.hour, 19)
+        configuration = Configuration.objects.get(user = self.user)
+        self.assertTrue(configuration.enabled)
+        self.assertTrue(configuration.daily_task.enabled)
+        self.assertEqual(configuration.daily_task.hour, 19)
+
+    def test_configuration_can_disable_daily_task(self):
+        
+        self.configuration.disable()
+
+        configuration = Configuration.objects.get(user = self.user)
+        self.assertFalse(configuration.enabled)
+        self.assertFalse(configuration.daily_task.enabled)
 
     def test_sending_message_disables_daily_task(self):
-        self.configuration.enable()
 
         self.configuration.send_message()
 
         self.assertEqual(self.configuration.message.body, CLOSEOUT_MESSAGE)
-        self.assertFalse(self.configuration.enabled)
         self.sms_message_service_send.assert_called_with(CLOSEOUT_MESSAGE)
+        self.assertFalse(self.configuration.enabled)
 
-    def test_will_not_send_message_if_disabled(self):
+    def test_will_not_send_message_if_task_disabled(self):
         
+        self.configuration.disable()
         try:
             self.configuration.send_message()
             self.fail('Should not have passed')
@@ -85,5 +95,16 @@ class CloseoutMessageConfigurationTests(TestCase):
             self.configuration.send_message()
             self.fail('Should have failed')
         except Configuration.BeforeCloseoutDate:
+            pass
+        self.sms_message_service_send.assert_not_called()
+
+    def test_will_not_send_if_configuration_user_is_disabled(self):
+        self.user.is_active = False
+        self.user.save()
+
+        try:
+            self.configuration.send_message()
+            self.fail('Should have failed')
+        except Configuration.ConfigurationDisabled:
             pass
         self.sms_message_service_send.assert_not_called()

@@ -75,8 +75,10 @@ class Configuration(models.Model):
             self.daily_task.disable()
 
     def send_message(self):
+        if not self.user.is_active:
+            raise Configuration.ConfigurationDisabled('Configuration user disabled')
         if not self.enabled:
-            raise Configuration.ConfigurationDisabled('Configuration disable, will not send message')
+            raise Configuration.ConfigurationDisabled('Configuration task disabled')
         if self.message:
             raise Configuration.MessageAlreadySent('Will not send message twice')
         day_service = DayService(user = self.user)
@@ -87,7 +89,6 @@ class Configuration(models.Model):
         self.message = sms_service.send(CLOSEOUT_MESSAGE)
         self.save()
         self.disable()
-
 
     def __str__(self):
         return "{date} ({user_id})".format(
