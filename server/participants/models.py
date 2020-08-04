@@ -13,6 +13,7 @@ from daily_tasks.models import DailyTask
 from days.models import Day
 from days.services import DayService
 from days.services import TimezoneService
+from fitbit_api.models import FitbitAccountUser
 from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
 
@@ -94,6 +95,10 @@ class Participant(models.Model):
         on_delete = models.SET_NULL
     )
 
+    study_start_date = models.DateField(
+        null = True
+    )
+
     active = models.BooleanField(default=True)
     archived = models.BooleanField(default=False)
 
@@ -128,12 +133,43 @@ class Participant(models.Model):
             return None
 
     @property
-    def study_start(self):
-        if self.user:
-            service = DayService(user = self.user)
-            return service.get_start_of_day(self.date_joined)
+    def fitbit_account(self):
+        if not hasattr(self, '_fitbit_account'):
+            if self.user:
+                try:
+                    fitbit_account_user = FitbitAccountUser.objects.prefetch_related('account').get(user = self.user)
+                    self._fitbit_account = fitbit_account_user.account
+                except FitbitAccountUser.DoesNotExist:
+                    self._fitbit_account = None
+            else:
+                self._fitbit_account = None
+        return self._fitbit_account
+
+    def get_study_start_datetime(self):
+        if self.fitbit_account and self.fitbit_account.first_updated:
+            return self.fitbit_account.first_updated
         else:
             return None
+    
+    def get_study_start_date(self):
+        study_start_datetime = self.get_study_start_datetime()
+        if study_start_datetime:
+            day_service = DayService(user = self.user)
+            return day_service.get_date_at(study_start_datetime)
+        else:
+            return None
+
+    @property
+    def study_start(self):
+        if self.user:            
+            day_service = DayService(user = self.user)
+            if self.study_start_date:
+                return service.get_start_of_day(self.study_start_date)
+            else:
+                study_start_datetime = self.get_study_start_datetime()
+                if study_start_datetime:
+                    return day_service.get_start_of_day(study_start_datetime)
+        return None
 
     @property
     def study_end(self):

@@ -170,7 +170,7 @@ class FitbitAccountUpdate(models.Model):
         ordering = ['created']
 
     def __str__(self):
-        return 'Fitbit account %s updated at %s' % (self.account.fitbit_user, self.completed)
+        return 'Fitbit account %s updated at %s' % (self.account.fitbit_user, self.created)
 
 class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)

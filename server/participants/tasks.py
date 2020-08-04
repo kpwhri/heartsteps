@@ -317,7 +317,9 @@ def daily_update(username):
     day_service = DayService(username=username)
     yesterday = day_service.get_current_date() - timedelta(days=1)
     service.update(yesterday)
-    # Might want to incorperate data cleanup as part of nightly update?
+    if not service.participant.study_start_date:
+        service.participant.study_start_date = service.participant.get_study_start_date()
+        service.participant.save()
     update_location_categories(username)
     export_user_data.apply_async(kwargs={
         'username':username
