@@ -2,13 +2,13 @@ from django.conf.urls import url
 
 from .views import ClockFacePinView
 from .views import pinArray
-from . import views
+from .views import pinA, user
 
 urlpatterns = [
-    url(r'^arr/', pinArray),
+    url(r'^arr/', pinArray, name="pin-gen-arr"),
     url(r'^pair/', ClockFacePinView.as_view(), name="pin-gen-pair"),
-    url(r'^myarr/', views.pinA),
-    url(r'^user/', views.user)
+    url(r'^myarr/', pinA, name="pin-gen-myarr"),
+    url(r'^user/', user, name="pin-gen-user")
 
 ]
 

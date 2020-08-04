@@ -29,7 +29,12 @@ def getArray():
 		a[i] = index
 	return a
 
+# just for the phone (no uuid)
 class PinSerializer(serializers.Serializer):
+	pin = serializers.CharField()
+
+# add this for FB bc we need uuid too
+class FitbitPinSerializer(serializers.Serializer):
 	pin = serializers.CharField()
 	uniid = serializers.CharField()
 
@@ -63,6 +68,7 @@ class ClockFacePinView(APIView):
 
 
 # code for the watchface
+@api_view(['GET', 'POST'])
 def pinA(self):
 	pin = ClockFacePin()
 	pin.pin = pin.get_unique_pin()
@@ -72,7 +78,7 @@ def pinA(self):
 
 @api_view(['GET', 'POST'])
 def user(request):
-	serializer = PinSerializer(data=request.data)
+	serializer = FitbitPinSerializer(data=request.data)
 	if serializer.is_valid():
 		p = serializer.validated_data['pin']
 		u = serializer.validated_data['uniid']
