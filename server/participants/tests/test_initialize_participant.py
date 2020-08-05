@@ -12,6 +12,40 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from participants.models import Participant, User, TASK_CATEGORY
 from participants.services import ParticipantService
 
+class ParticipantConfiguration(TestCase):
+
+    def setUp(self):
+        self.participant = Participant.objects.create(
+            heartsteps_id = 'test'
+        )
+
+    def test_enroll_participant_creates_user(self):
+        self.assertEqual(self.participant.user, None)
+
+        self.participant.enroll()
+
+        self.assertEqual(self.participant.user.username, 'test')
+        self.assertTrue(self.participant.user.is_active)
+
+    def test_disabling_participant_updates_user(self):
+        self.participant.enroll()
+
+        self.participant.disable()
+
+        self.assertFalse(self.participant.enabled)
+        self.assertFalse(self.participant.active)
+        self.assertFalse(self.participant.user.is_active)
+
+    def test_disabled_participant_can_be_enabled(self):
+        self.participant.enroll()
+        self.participant.disable()
+
+        self.participant.enable()
+
+        self.assertTrue(self.participant.enabled)
+        self.assertTrue(self.participant.active)
+        self.assertTrue(self.participant.user.is_active)
+
 @override_settings(PARTICIPANT_NIGHTLY_UPDATE_TIME='4:15')
 class InitializeTask(TestCase):
 

@@ -191,6 +191,26 @@ class Participant(models.Model):
         return self.active
 
     @property
+    def enabled(self):
+        return self.active
+
+    def enable(self):
+        if not self.user:
+            self.enroll()
+        else:
+            self.user.is_active = True
+            self.user.save()
+        self.active = True
+        self.save()
+    
+    def disable(self):
+        if self.user:
+            self.user.is_active = False
+            self.user.save()
+        self.active = False
+        self.save()
+
+    @property
     def daily_task_name(self):
         return '%s daily update' % (self.user.username)
 
