@@ -18,6 +18,7 @@ from .views import ParticipantArchiveView
 from .views import ParticipantUnarchiveView
 from .views import ParticipantToggleAdherenceMessagesView
 from .views import ParticipantDisableFitbitAccountView
+from .views import CloseoutSummaryView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -39,6 +40,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications', ParticipantNotificationsView.as_view(), name='dashboard-cohort-participant-notifications'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/messages', ParticipantSMSMessagesView.as_view(), name='dashboard-cohort-participant-sms-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
+    url('(?P<cohort_id>[\d]+)/closeout-summary', CloseoutSummaryView.as_view(), name='dashboard-cohort-closeout-summary'),
     url('(?P<cohort_id>[\d]+)/messages-received', MessagesReceivedView.as_view(), name='dashboard-cohort-messages-received'),
     url('(?P<cohort_id>[\d]+)/intervention-summary', InterventionSummaryView.as_view(), name='dashboard-cohort-intervention-summary'),
     url('(?P<cohort_id>[\d]+)/create', ParticipantCreateView.as_view(), name='dashboard-cohort-participant-create'),

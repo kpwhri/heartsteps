@@ -17,11 +17,13 @@ from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage as PaginatorEmptyPage
 from django.core.paginator import PageNotAnInteger as PatinatorPageNotAnInteger
+import pytz
 
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from adherence_messages.models import AdherenceMetric
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
+from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
@@ -214,6 +216,64 @@ class InterventionSummaryView(CohortView):
 
         context['time_ranges'] = time_ranges
 
+        return context
+
+class CloseoutSummaryView(CohortView):
+    template_name = 'dashboard/closeout-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = self.query_participants() \
+        .exclude(user=None) \
+        .all()
+        participants_by_username = {}
+        for _participant in participants:
+            participants_by_username[_participant.user.username] = _participant
+
+        users = [_p.user for _p in participants if _p.user]
+        configurations = CloseoutConfiguration.objects \
+        .prefetch_related('user') \
+        .prefetch_related('message') \
+        .filter(user__in = users) \
+        .order_by('closeout_date') \
+        .all()
+
+        contacts = SMSContact.objects.filter(user__in=users).prefetch_related('user').all()
+        contact_number_by_username = {}
+        username_by_contact_number = {}
+        for _contact in contacts:
+            contact_number_by_username[_contact.user.username] = _contact.number
+            username_by_contact_number[_contact.number] = _contact.user.username
+        sms_message_query = None
+        for _configuration in [_c for _c in configurations if _c.message]:
+            if _configuration.user.username in contact_number_by_username:
+                number = contact_number_by_username[_configuration.user.username]
+                if not sms_message_query:
+                    sms_message_query = models.Q(sender=number, created__gt=_configuration.message.created)
+                else:
+                    sms_message_query = sms_message_query | models.Q(sender=number, created__gt=_configuration.message.created)
+        usernames_that_responded = []
+        if sms_message_query:
+            for _sms_message in SMSMessage.objects.filter(sms_message_query).all():
+                username = username_by_contact_number[_sms_message.sender]
+                if username not in usernames_that_responded:
+                    usernames_that_responded.append(username) 
+        
+        list_items = []
+        for _configuration in configurations.all():
+            _participant = participants_by_username[_configuration.user.username]
+            end_date = _configuration.closeout_date
+            message_sent_date = False
+            if _configuration.message:
+                message_sent_date = _configuration.message.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%Y-%m-%d')
+            list_items.append({
+                'heartsteps_id': _participant.heartsteps_id,
+                'study_start': _participant.study_start_date,
+                'study_end': end_date.strftime('%Y-%m-%d'),
+                'message_sent_date': message_sent_date,
+                'participant_responded': _configuration.user.username in usernames_that_responded
+            })
+        context['participants'] = list_items
         return context
 
 class MessagesReceivedView(CohortView):

@@ -1,0 +1,64 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load tz %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-closeout-summary' cohort.id %}" class="nav-link active">Closeout Summary</a>
+{% endblock %}
+
+
+{% block body %}
+<h2>Closeout Summary for {{cohort.name}}</h2>
+<table class="table">
+    <thead>
+        <td>Participant</td>
+        <td>Study End</td>
+        <td>Closeout Message</td>
+    </thead>
+    <tbody>
+        {% timezone 'US/Pacific' %}
+        {% for participant in participants %}
+        <tr>
+            <td>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}"
+                    >
+                    {{participant.heartsteps_id}}
+                </a>
+                <dl>
+                    <dt>Study Start</dt>
+                    <dd>{{participant.study_start}}</dd>
+                </dl>
+            </td>
+            <td>{{participant.study_end}}</td>
+            <td>
+                {% if participant.message_sent_date %}
+                <p>{{participant.message_sent_date}}</p>
+                {% else %}
+                <p>Message not sent</p>
+                {% endif %}
+                <a href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
+                    >
+                    {{participant.heartsteps_id}} text messages
+                </a>
+                {% if participant.participant_responded %}
+                <p>Participant responded</p>
+                {% else %}
+                <p>No response</p>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        {% endtimezone %}
+    </tbody>
+</table>
+
+{% if prev_page %}
+<a href="?page={{prev_page}}">Previous Page</a>
+{% endif %}
+{% if next_page %}
+<a href="?page={{next_page}}">Next Page</a>
+{% endif %}
+
+{% endblock %}
