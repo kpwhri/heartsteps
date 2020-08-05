@@ -44,31 +44,6 @@ class ParticipantInformationTestCase(TestCase):
         self.assertEqual(participant.study_start, None)
         self.assertEqual(participant.study_end, None)
 
-    def test_start_date_is_start_of_user_date_joined(self):
-        two_days_ago = datetime.date.today() - datetime.timedelta(days=2)
-        study_start_datetime = datetime.datetime(
-            two_days_ago.year,
-            two_days_ago.month,
-            two_days_ago.day
-        )
-        tz = pytz.timezone('America/Los_Angeles')
-        study_start_datetime = tz.localize(study_start_datetime)
-        
-        self.assertEqual(self.participant.study_start, study_start_datetime)
-
-    def test_study_end_date_is_30_days_after_date_joined(self):
-        end_datetime = self.participant.study_start + datetime.timedelta(days=31)
-
-        self.assertEqual(self.participant.study_end, end_datetime)
-
-    def test_study_end_date_calculated_from_cohort_date(self):
-        self.cohort.study_length = 77
-        self.cohort.save()
-        end_datetime = self.participant.study_start + datetime.timedelta(days=78)
-
-        self.assertEqual(self.participant.study_end, end_datetime)
-        
-
 class ParticipantInformationViewTests(APITestCase):
 
     def test_401_if_not_authenticated(self):

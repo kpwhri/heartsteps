@@ -164,7 +164,7 @@ class Participant(models.Model):
         if self.user:            
             day_service = DayService(user = self.user)
             if self.study_start_date:
-                return service.get_start_of_day(self.study_start_date)
+                return day_service.get_start_of_day(self.study_start_date)
             else:
                 study_start_datetime = self.get_study_start_datetime()
                 if study_start_datetime:
@@ -173,18 +173,19 @@ class Participant(models.Model):
 
     @property
     def study_end(self):
-        if self.user:
+        if self.user and self.study_length:
             service = DayService(user = self.user)
             end_date = self.date_joined + timedelta(days=self.study_length)
             return service.get_end_of_day(end_date)
-        return self.date_joined
+        else:
+            return None
 
     @property
     def study_length(self):
         if self.cohort and self.cohort.study_length:
             return self.cohort.study_length
         else:
-            return 30
+            return None
 
     @property
     def is_active(self):

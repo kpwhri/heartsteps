@@ -1,22 +1,32 @@
+from datetime import timedelta
+from django.test import TestCase, override_settings
+from django.utils import timezone
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
 
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from daily_tasks.models import DailyTask
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from fitbit_api.models import FitbitAccount
+from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitAccountUpdate
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
+from participants.models import Cohort
 from participants.models import Participant, User, TASK_CATEGORY
 from participants.services import ParticipantService
 
 class ParticipantConfiguration(TestCase):
 
     def setUp(self):
+        self.cohort = Cohort.objects.create(
+            name='test'
+        )
         self.participant = Participant.objects.create(
-            heartsteps_id = 'test'
+            heartsteps_id = 'test',
+            cohort = self.cohort
         )
 
     def test_enroll_participant_creates_user(self):
@@ -45,6 +55,56 @@ class ParticipantConfiguration(TestCase):
         self.assertTrue(self.participant.enabled)
         self.assertTrue(self.participant.active)
         self.assertTrue(self.participant.user.is_active)
+
+    def test_study_start_is_none_by_default(self):
+        self.assertEqual(self.participant.study_start, None)
+
+    def test_study_start_is_first_fitbit_account_update(self):
+        self.participant.enroll()
+        fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            account=fitbit_account,
+            user=self.participant.user
+        )
+        account_update = FitbitAccountUpdate.objects.create(account = fitbit_account)
+        account_update.created = timezone.now() - timedelta(days=2)
+        account_update.save()
+        
+        diff_study_start = timezone.now() - self.participant.study_start
+        self.assertEqual(diff_study_start.days, 2)
+
+    def test_study_end_date_is_none_by_default(self):
+        self.participant.enroll()
+        fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            account=fitbit_account,
+            user=self.participant.user
+        )
+        account_update = FitbitAccountUpdate.objects.create(account = fitbit_account)
+
+        start_of_account_update_day = account_update.created.replace(
+            hour = 0,
+            minute = 0,
+            second = 0,
+            microsecond = 0
+        )
+        self.assertEqual(self.participant.study_start, start_of_account_update_day)
+        self.assertIsNone(self.participant.study_end)
+
+    def test_study_end_date_calculated_from_cohort_date(self):
+        self.participant.enroll()
+        fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
+        FitbitAccountUser.objects.create(
+            account=fitbit_account,
+            user=self.participant.user
+        )
+        account_update = FitbitAccountUpdate.objects.create(account = fitbit_account)
+        self.cohort.study_length = 77
+        self.cohort.save()
+        
+        diff = self.participant.study_end - timezone.now()
+        self.assertEqual(diff.days, self.cohort.study_length)
+        
 
 @override_settings(PARTICIPANT_NIGHTLY_UPDATE_TIME='4:15')
 class InitializeTask(TestCase):
