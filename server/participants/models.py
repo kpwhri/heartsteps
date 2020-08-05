@@ -173,9 +173,9 @@ class Participant(models.Model):
 
     @property
     def study_end(self):
-        if self.user and self.study_length:
+        if self.user and self.study_start and self.study_length:
             service = DayService(user = self.user)
-            end_date = self.date_joined + timedelta(days=self.study_length)
+            end_date = self.study_start + timedelta(days=self.study_length)
             return service.get_end_of_day(end_date)
         else:
             return None
