@@ -266,9 +266,13 @@ class CloseoutSummaryView(CohortView):
             message_sent_date = False
             if _configuration.message:
                 message_sent_date = _configuration.message.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%Y-%m-%d')
+            status = "Disabled"
+            if _participant.enabled:
+                status = "Active"
             list_items.append({
                 'heartsteps_id': _participant.heartsteps_id,
-                'study_start': _participant.study_start_date,
+                'status': status,
+                'study_start': _participant.study_start_date.strftime('%Y-%m-%d'),
                 'study_end': end_date.strftime('%Y-%m-%d'),
                 'message_sent_date': message_sent_date,
                 'participant_responded': _configuration.user.username in usernames_that_responded
