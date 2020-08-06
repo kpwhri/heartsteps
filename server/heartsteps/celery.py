@@ -43,6 +43,9 @@ app.conf.task_routes = {
     'anti_sedentary.tasks.*': {
         'queue': 'messages'
     },
+    'closeout_messages.tasks.*': {
+        'queue': 'messages'
+    },
     'heartsteps_messages.tasks.*': {
         'queue': 'messages'
     },
