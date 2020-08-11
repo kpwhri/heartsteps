@@ -38,4 +38,4 @@ ENV googleStorageBucket walking-suggestions-data
 
 # Mount GCSFuse Run the server
 RUN mkdir -p ./data
-CMD gcsfuse --implicit-dirs walking-suggestions-data ./data && gunicorn -b 0.0.0.0:8080 wsgi --log-level debug
+CMD gcsfuse --implicit-dirs walking-suggestions-data ./data && gunicorn -b 0.0.0.0:8080 wsgi --timeout=900 --log-level debug
