@@ -8,6 +8,7 @@ from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
 from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
+from fitbit_activities.models import FitbitDay
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from sms_messages.models import Contact as SMSContact
 from walking_suggestion_times.models import SuggestionTime
@@ -212,7 +213,16 @@ class ParticipantService:
             service = FitbitActivityService(
                 user = self.participant.user
             )
+            unupdated_fitbit_days = FitbitDay.objects.filter(
+                account = service.account,
+                date__lt = date,
+                completely_updated = False
+            ).all()
+            for fitbit_day in unupdated_fitbit_days:
+                service.update(fitbit_day.date)
             service.update(date)
+        except FitbitActivityService.TooManyRequests:
+            pass
         except FitbitActivityService.NoAccount:
             pass
 

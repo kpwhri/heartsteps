@@ -53,13 +53,11 @@ class FitbitDayService(FitbitService):
         self.day._distance = self.update_distance()
         self.update_heart_rate() 
         self.update_activities()
-
         last_tracker_update = self.account.get_last_tracker_sync_time()
         if last_tracker_update and last_tracker_update > self.day.get_end_datetime():
             self.day.completely_updated = True
         else:
-            self.day.completely_updated = False
-        
+            self.day.completely_updated = False        
         self.day.save()
 
     def update_activities(self):
@@ -225,6 +223,9 @@ class FitbitStepCountService:
 
 class FitbitActivityService(FitbitService):
 
+    class TooManyRequests(RuntimeError):
+        pass
+
     def __init__(self, account=None, user=None, username=None, fitbit_user=None):
         super().__init__(account, user, username, fitbit_user)
         self.__client = FitbitClient(
@@ -256,7 +257,10 @@ class FitbitActivityService(FitbitService):
             date = date,
             account = self.account
         )
-        day_service.update()
+        try:
+            day_service.update()
+        except FitbitClient.TooManyRequests as e:
+            raise FitbitActivityService.TooManyRequests(e)
 
     def parse_date(self, date):
         return self.__client.parse_date(date)
