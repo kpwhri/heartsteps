@@ -1,0 +1,65 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load tz %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-data-summary' cohort.id %}" class="nav-link active">Data Summary</a>
+{% endblock %}
+
+
+{% block body %}
+<h2>Data Summary for {{cohort.name}}</h2>
+<table class="table">
+    <thead>
+        <td>Participant</td>
+        <td>Fitbit</td>
+        <td>Walking Suggestions</td>
+    </thead>
+    <tbody>
+        {% timezone 'US/Pacific' %}
+        {% for participant in participants %}
+        <tr>
+            <td>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}"
+                    >
+                    {{participant.heartsteps_id}}
+                </a>
+                <dl>
+                    <dt>Status</dt>
+                    <dd>{{participant.status}}</dd>
+                    <dt>Study Start</dt>
+                    <dd>{{participant.study_start}}</dd>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>Total Days</dt>
+                    <dd>{{participant.fitbit_days_total}}</dd>
+                    <dt>Days Worn</dt>
+                    <dd>{{participant.fitbit_days_worn}}</dd>
+                    <dt>Days Complete Data</dt>
+                    <dd>{{participant.fitbit_days_complete}}</dd>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>Last Updated</dt>
+                    <dd>{{participant.last_walking_suggestion_update}}</dd>
+                </dl>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endtimezone %}
+    </tbody>
+</table>
+
+{% if prev_page %}
+<a href="?page={{prev_page}}">Previous Page</a>
+{% endif %}
+{% if next_page %}
+<a href="?page={{next_page}}">Next Page</a>
+{% endif %}
+
+{% endblock %}

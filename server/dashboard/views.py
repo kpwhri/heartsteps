@@ -39,6 +39,7 @@ from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.models import WalkingSuggestionDecision
+from walking_suggestions.models import NightlyUpdate as WalkingSuggestionNightlyUpdate
 
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
@@ -216,6 +217,74 @@ class InterventionSummaryView(CohortView):
 
         context['time_ranges'] = time_ranges
 
+        return context
+
+class DataSummaryView(CohortView):
+    template_name = 'dashboard/data-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = self.query_participants().exclude(user=None).all()
+        users = [p.user for p in participants]
+        fitbit_data_by_username = {}
+        account_users = FitbitAccountUser.objects.filter(
+            user__in = users
+        ).prefetch_related('user').prefetch_related('account').all()
+        username_by_fitbit_account = {}
+        for au in account_users:
+            username_by_fitbit_account[au.account.fitbit_user] = au.user.username
+        fitbit_days = FitbitDay.objects.filter(
+            account__fitbit_user__in = username_by_fitbit_account.keys()
+        ).prefetch_related('account').all()
+        for _day in fitbit_days:
+            _username = username_by_fitbit_account[_day.account.fitbit_user]
+            if _username not in fitbit_data_by_username:
+                fitbit_data_by_username[_username] = {
+                    'total_days': 0,
+                    'total_days_worn': 0,
+                    'total_days_complete': 0
+                }
+            fitbit_data_by_username[_username]['total_days'] += 1
+            if _day.wore_fitbit:
+                fitbit_data_by_username[_username]['total_days_worn'] += 1
+            if _day.completely_updated:
+                fitbit_data_by_username[_username]['total_days_complete'] += 1
+        walking_suggestion_last_updated_by_username = {}
+        nightly_updates = WalkingSuggestionNightlyUpdate.objects.filter(user__in=users).prefetch_related('user').all()
+        for _update in nightly_updates:
+            _username = _update.user.username
+            walking_suggestion_last_updated_by_username[_username] = _update.day
+
+        serialized_participants = []
+        for _participant in participants:
+            username = _participant.user.username
+            status = "Disabled"
+            if _participant.enabled:
+                status = "Active"
+            study_start = "Not started"
+            if _participant.study_start_date:
+                study_start_date = _participant.study_start_date.strftime('%Y-%m-%d')
+            fitbit_total_days = 0
+            fitbit_days_worn = 0
+            fitbit_days_complete = 0
+            if username in fitbit_data_by_username:
+                fitbit_days_total = fitbit_data_by_username[username]['total_days']
+                fitbit_days_worn = fitbit_data_by_username[username]['total_days_worn']
+                fitbit_days_complete = fitbit_data_by_username[username]['total_days_complete']
+            last_walking_suggestion_update = "None"
+            if username in walking_suggestion_last_updated_by_username:
+                last_walking_suggestion_update = walking_suggestion_last_updated_by_username[username].strftime('%Y-%m-%d')
+            serialized_participants.append({
+                'heartsteps_id': _participant.heartsteps_id,
+                'status':status,
+                'study_start': study_start_date,
+                'fitbit_days_total': fitbit_days_total,
+                'fitbit_days_worn': fitbit_days_worn,
+                'fitbit_days_complete': fitbit_days_complete,
+                'last_walking_suggestion_update': last_walking_suggestion_update
+            })
+
+        context['participants'] = serialized_participants
         return context
 
 class CloseoutSummaryView(CohortView):
