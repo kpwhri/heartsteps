@@ -32,7 +32,7 @@ def update_incomplete_days(fitbit_user):
             completely_updated = False
         ).order_by('date')
         for day in query.all():
-            day.update(day.date)
+            service.update(day.date)
     except FitbitClient.Unauthorized:
         pass
     except FitbitClient.TooManyRequests:
