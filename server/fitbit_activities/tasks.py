@@ -33,6 +33,8 @@ def update_incomplete_days(fitbit_user):
         ).order_by('date')
         for day in query.all():
             day.update(day.date)
+    except FitbitClient.Unauthorized:
+        pass
     except FitbitClient.TooManyRequests:
         update_incomplete_days.apply_async(
             eta = timezone.now() + timedelta(minutes=90),
