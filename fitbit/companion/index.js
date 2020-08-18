@@ -52,70 +52,8 @@ if (me.launchReasons.settingsChanged) {
 }
 
 /***************************************
-  Send location data to the server
+  Send pin to the server
 ***************************************/
-const PLACE_SOURCE = "watch";
-function sendLocation(lat, long, place) {
-  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
-  if (token) {
-    const url = `${global.BASE_URL}/api/locations/`;
-    let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`
-      }
-    }).then(function(response) {
-      if (response.status != 201) {
-        console.log("ERROR: sendLocation completed with status "+ response.status);
-      }
-    }).catch(error => console.error('Error in sendLocation: ', error))
-  } else {
-    console.log("ERROR in sendLocation: user not authenticated");
-  }
-}
-
-// Get location
-function sendLatLong() {
-  let geo = {};
-  geolocation.getCurrentPosition(
-    (position) => {
-      sendLocation(position.coords.latitude, position.coords.longitude, PLACE_SOURCE);
-    },
-    (error) => {
-      sendLocation(0, 0, PLACE_SOURCE);
-    },
-    { "enableHighAccuracy" : true }
-  );
-  }
-
-// Send step data to server
-function sendSteps(step_count, step_dtm) {
-  const url = `${global.BASE_URL}/api/watch-app/steps`;
-  let data = {"step_number": step_count, "step_dtm": step_dtm};
-  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
-  if (token) {
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`
-      }
-    }).then(function(response) {
-      if (response.status != 201) {
-        console.log("ERROR: sendSteps completed with status "+ response.status);
-      }
-    }).catch(error => console.error('Error in sendSteps: ', error))
-  } else {
-    console.log("ERROR in sendSteps: user not authenticated");
-  }
-}
-
-/*--- ClockFacePin authentication process ---*/
-/*--- sends request for pin ---*/
 function getPin() {
   const url = `${global.BASE_URL}/api/pin_gen/myarr/`;
 	return fetch(url)
@@ -143,12 +81,9 @@ function getPin() {
   });
 }
 
-/*--- checks if pin is connected to user ---*/
 function getUser() {
   const url = `${global.BASE_URL}/api/pin_gen/user/`;
-  // console.log("pin: ", settingsStorage.getItem(global.AUTHORIZATION_PIN));
-  // console.log("uniid: ", settingsStorage.getItem(global.PIN_UUID));
-  let p = {
+    let p = {
     "pin": settingsStorage.getItem(global.AUTHORIZATION_PIN),
     "uniid": settingsStorage.getItem(global.PIN_UUID)
   };
@@ -197,8 +132,7 @@ function sendPinAuthToPhone() {
   let pauth = settingsStorage.getItem(global.AUTHORIZATION_PIN);
   let tauth = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
 
-  // if no pin, get pin
-  if (!pauth || typeof pauth == 'undefined') {
+  if (!pauth || typeof pauth == 'undefined') {   // if no pin, get pin
     getPin();
   } else if (!tauth || typeof tauth == 'undefined') { // have pin, no token
     getUser();
@@ -213,18 +147,133 @@ function sendPinAuthToPhone() {
   }
 }
 
+/***************************************
+  Send location data to the server
+***************************************/
+const PLACE_SOURCE = "watch";
+function sendLocation(lat, long, place) {
+  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+  if (token) {
+    const url = `${global.BASE_URL}/api/locations/`;
+    let data = {"latitude": lat, "longitude": long, source: PLACE_SOURCE};
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(function(response) {
+      if (response.status != 201) {
+        console.log("ERROR: sendLocation completed with status "+ response.status);
+        let currTime = new Date().getTime();
+        if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+          let data = {
+            key: global.PHONE_ERRORS,
+            time: currTime
+          }
+          messaging.peerSocket.send(data);
+        }
+      }
+    }).catch(error => console.error('Error in sendLocation: ', error))
+  } else {
+    console.log("ERROR in sendLocation: user not authenticated");
+    sendPinAuthToPhone();
+    let currTime = new Date().getTime();
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      let data = {
+        key: global.PHONE_ERRORS,
+        time: currTime
+      }
+      messaging.peerSocket.send(data);
+    }
+  }
+}
+
+// Get location
+function sendLatLong() {
+  let geo = {};
+  geolocation.getCurrentPosition(
+    (position) => {
+      sendLocation(position.coords.latitude, position.coords.longitude, PLACE_SOURCE);
+    },
+    (error) => {
+      sendLocation(0, 0, PLACE_SOURCE);
+    },
+    { "enableHighAccuracy" : true }
+  );
+  }
+
+// Send step data to server
+function sendSteps(step_count, step_dtm) {
+  const url = `${global.BASE_URL}/api/watch-app/steps`;
+  let data = {"step_number": step_count, "step_dtm": step_dtm};
+  let token = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+  if (token) {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(function(response) {
+      if (response.status != 201) {
+        console.log("ERROR: sendSteps completed with status "+ response.status);
+        let currTime = new Date().getTime();
+        if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+          let data = {
+            key: global.PHONE_ERRORS,
+            time: currTime
+          }
+          messaging.peerSocket.send(data);
+        }
+      }
+    }).catch(error => console.error('Error in sendSteps: ', error))
+  } else {
+    console.log("ERROR in sendSteps: user not authenticated");
+    sendPinAuthToPhone();
+    let currTime = new Date().getTime();
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      let data = {
+        key: global.PHONE_ERRORS,
+        time: currTime
+      }
+      messaging.peerSocket.send(data);
+    }
+  }
+}
+
 /*--- on init, check for pin & auth token ---*/
 sendPinAuthToPhone();
 
 /*--- When phone receives step data message from watch ---*/
 /*--- forward Step & Location data to server           ---*/
+/*--- or check for pin authorization on click ---*/
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.key == global.RECENT_STEPS) {
     sendLatLong();
     sendSteps(evt.data.value, evt.data.time);
   } else if (evt.data.key == global.CHECK_AUTH) {
     sendPinAuthToPhone();
+  } else if (evt.data.key == "getToken") {
+    let pauth = settingsStorage.getItem(global.AUTHORIZATION_TOKEN);
+    let pval;
+    if (!pauth || typeof pauth == 'undefined') {
+      pval = "No";
+    } else {
+      pval = pauth;
+    }
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      let data = {
+        key: "getToken",
+        value: pval
+      }
+      messaging.peerSocket.send(data);
+    }
+
   } else {
     return {};
   }
 }
+

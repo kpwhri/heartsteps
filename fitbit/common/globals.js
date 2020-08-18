@@ -1,7 +1,7 @@
 export const ANTI_SEDENTARY_MESSAGE = "sendAntisedentaryMessage";
 export const AUTHORIZATION_TOKEN = "authorizationToken";
 export const BASE_URL = "https://heartsteps.net";
-// export const BASE_URL = "http://localhost:8080";
+//export const BASE_URL = "http://localhost:8080";
 export const BIRTH_YEAR = "birthYear";
 export const ENTRY_CODE = "entryCode";
 export const HEARTSTEPS_ID = "heartstepsId";
@@ -27,6 +27,9 @@ export const AUTHORIZATION_PIN = "authorizationPin";
 export const AUTH_STATUS = "authStatus";
 export const CHECK_AUTH = "checkAuthorization";
 export const PIN_UUID = "pinuuid";
+
+// phone errors
+export const PHONE_ERRORS = "phoneErrors";
 
 export function isNotNull(val) {
   return (typeof val !== "undefined"

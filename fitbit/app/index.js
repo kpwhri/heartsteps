@@ -11,6 +11,8 @@ import * as simpleActivity from "./simple/activity";
 import * as simpleClock from "./simple/clock";
 import * as simpleHRM from "./simple/hrm";
 import * as simpleSettings from "./simple/device-settings";
+import * as simpleFailSendWatch from "./simple/fail-send-watch";
+import * as simpleFailSendPhone from "./simple/fail-send-phone";
 
 import * as global from "../common/globals"
 
@@ -20,6 +22,7 @@ import { StepCountHandler, StepReading } from "./step-count.js";
 // Watch notifies phone of step count & location
 const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
+const MINUTES_PER_DAY = 1440;
 
 let background = document.getElementById("background");
 let dividers = document.getElementsByClassName("divider");
@@ -33,6 +36,21 @@ let statsCycleItems = statsCycle.getElementsByClassName("cycle-item");
 let txtWarning = document.getElementById("txtWarning");
 let lower = document.getElementById("#lower");
 let pin = document.getElementById("pin");
+let watchFailSend = document.getElementById("watchFailSend");
+let phoneFailSend = document.getElementById("phoneFailSend");
+let token = document.getElementById("token");
+
+/* --- WATCH FAIL SEND ------- */
+function watchfailSendCallBack(data) {
+  watchFailSend.text = `Watch Failed Updates: ${data.numErr}`;
+}
+simpleFailSendWatch.initialize(watchfailSendCallBack);
+
+/* --- PHONE FAIL SEND ------- */
+function phonefailSendCallBack(data) {
+  phoneFailSend.text = `Phone Failed Updates: ${data.numErr}`;
+}
+simpleFailSendWatch.initialize(phonefailSendCallBack);
 
 /* --------- CLOCK ---------- */
 function clockCallback(data) {
@@ -117,18 +135,18 @@ simpleSettings.initialize(settingsCallback);
 
 /* ------- Send step data to the phone ---------*/
 function sendStepMessage(recentSteps, time){
+
+  // OMG MAKE SURE YOU CHANGED THIS
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     let data = {
       key: "recentSteps",
       value: recentSteps,
       time: time
     }
-    
-    console.log(data['value']);
-    console.log(data['time']);
     messaging.peerSocket.send(data);
   } else {
     console.log("ERROR: peerSocket not open");
+    simpleFailSendWatch.update(watchfailSendCallBack);
   }
 }
 
@@ -155,21 +173,30 @@ setInterval(function() {
   stepCountToPhone();
 }, WAKE_INTERVAL * MILLISECONDS_PER_MINUTE);
 
+setInterval(function() {
+  simpleFailSendPhone.refresh(phonefailSendCallBack);
+  simpleFailSendWatch.refresh(watchfailSendCallBack);
+}, 2 * MILLISECONDS_PER_MINUTE * MINUTES_PER_DAY);
+
 /*--- When watch receives message from phone to input pin ---*/
 messaging.peerSocket.onmessage = function(evt) {
   // Output the message to the console
-  if (evt.data.key == global.AUTH_STATUS) {
-    if (evt.data.value == "Authenticated") {
+  if (evt.data.key === global.AUTH_STATUS) {
+    if (evt.data.value === "Authenticated") {
       console.log("User Authenticated");
-      //pin.text = "Authenticated";
-      pin.style.display = "none";
+      pin.text = "Authenticated";
+      // pin.style.display = "none";
     } else {
       let p = JSON.stringify(evt.data.value);
       console.log(p);
-      console.log(p.replace(/\"/g, ""));
       let o = p.replace(/\"/g, "");
       pin.text = o;
     }
+  } else if (evt.data.key === global.PHONE_ERRORS) {
+    simpleFailSendPhone.update(evt.data.time, phonefailSendCallBack);
+  } else if (evt.data.key === "getToken") {
+    console.log("this is pval: " + evt.data.value);
+    token.text = evt.data.value;
   }
 }
 
@@ -179,6 +206,16 @@ pin.onclick = function(evt) {
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     let data = {
       key: global.CHECK_AUTH
+    }
+    messaging.peerSocket.send(data);
+  } 
+}
+
+txtTime.onclick = function(evt) {
+  console.log("date clicked");
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    let data = {
+      key: "getToken"
     }
     messaging.peerSocket.send(data);
   } 
