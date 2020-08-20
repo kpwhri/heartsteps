@@ -20,6 +20,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.tasks import export_fitbit_data
+from fitbit_activities.tasks import export_missing_fitbit_data
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from locations.models import Location
@@ -181,6 +182,8 @@ def reset_test_participants(date_joined=None, number_of_days=9):
                 'timezone': tz.zone
             }
         )
+
+
 def export_user_locations(username, directory=None, filename=None):
     if not directory:
         directory = './'
@@ -309,6 +312,11 @@ def export_cohort_data(cohort_name, directory, start=None, end=None):
         start_date = start,
         end_date = end,
         filename = '%s/%s.watch-app-step-count-records.csv' % (directory, cohort.slug)
+    )
+    export_missing_fitbit_data(
+        users = users,
+        filename = '%s.missing_fitbit_data.csv' % (cohort.slug),
+        directory = directory
     )
 
 @shared_task

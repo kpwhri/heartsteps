@@ -1,11 +1,13 @@
 import os
 from celery import shared_task
+import csv
 from datetime import timedelta
 from django.utils import timezone
 from import_export import resources
 from import_export.fields import Field
 
 from fitbit_api.services import FitbitClient
+from fitbit_api.models import FitbitAccountUser
 
 from .models import FitbitAccount
 from .models import FitbitDay
@@ -113,4 +115,56 @@ def export_fitbit_data(username, directory, filename = None):
 
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)
+    _file.close()
+
+def export_missing_fitbit_data(users, filename=None, directory=None):
+    if not filename:
+        filename = 'incomplete_fitbit_data.csv'
+    if not directory:
+        directory = './'
+    usernames = [u.username for u in users]
+    account_user_query = FitbitAccountUser.objects.filter(
+        user__username__in=usernames
+    ).prefetch_related('user').prefetch_related('account')
+    accounts = []
+    username_by_fitbit_account = {}
+    account_id_by_username = {}        
+    for au in account_user_query.all():
+        username_by_fitbit_account[au.account.fitbit_user] = au.user.username
+        account_id_by_username[au.user.username] = au.account.fitbit_user
+        if au.account not in accounts:
+            accounts.append(au.account)
+    account_ids = [account.fitbit_user for account in accounts]
+    complete_data_dates = {}
+    days = FitbitDay.objects.filter(account__fitbit_user__in=account_ids).prefetch_related('account').all()
+    all_dates = []
+    for _day in days:
+        account_id = _day.account.fitbit_user
+        if account_id not in complete_data_dates:
+            complete_data_dates[account_id] = {}
+        complete_data_dates[account_id][_day.date] = _day.completely_updated
+        if _day.date not in all_dates:
+            all_dates.append(_day.date)
+    sorted_usernames = sorted(usernames)
+    sorted_dates = sorted(all_dates)
+    rows = []
+    header = [''] + [_d.strftime('%Y-%m-%d') for _d in sorted_dates]
+    rows.append(header)
+    for username in sorted_usernames:
+        _row = [username]
+        if username in account_id_by_username:
+            account_id = account_id_by_username[username]
+            if account_id in complete_data_dates:
+                for _date in sorted_dates:
+                    if _date in complete_data_dates[account_id]:
+                        if complete_data_dates[account_id][_date]:
+                            _row.append(1)
+                        else:
+                            _row.append(0)
+                    else:
+                        _row.append('')
+        rows.append(_row)
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(rows)
     _file.close()
