@@ -211,7 +211,8 @@ class FitbitDevice(models.Model):
 
     @property
     def last_updated(self):
-        return FitbitDeviceUpdate.objects.filter(device=self).order_by('time').last()
+        update = FitbitDeviceUpdate.objects.filter(fitbit_device=self).order_by('time').last()
+        return update.time
 
 class FitbitDeviceUpdate(models.Model):
     fitbit_device = models.ForeignKey(FitbitDevice)

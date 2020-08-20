@@ -28,6 +28,7 @@ from contact.models import ContactInformation
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_api.tasks import unauthorize_fitbit_account
+from fitbit_api.models import FitbitDevice
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
@@ -224,7 +225,7 @@ class DataSummaryView(CohortView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        participants = self.query_participants().exclude(user=None).all()
+        participants = self.query_participants().filter(active=True).exclude(user=None).all()
         users = [p.user for p in participants]
         fitbit_data_by_username = {}
         account_users = FitbitAccountUser.objects.filter(
@@ -249,11 +250,26 @@ class DataSummaryView(CohortView):
                 fitbit_data_by_username[_username]['total_days_worn'] += 1
             if _day.completely_updated:
                 fitbit_data_by_username[_username]['total_days_complete'] += 1
+        fitbit_devices = FitbitDevice.objects.filter(
+            account__fitbit_user__in = username_by_fitbit_account.keys()
+        ).prefetch_related('account').all()
+        for _fitbit_device in fitbit_devices:
+            _username = username_by_fitbit_account[_fitbit_device.account.fitbit_user]
+            last_updated = _fitbit_device.last_updated
+            if 'last_device_update' in fitbit_data_by_username[_username]:
+                if last_updated > fitbit_data_by_username[_username]['last_device_update']:
+                    fitbit_data_by_username[_username]['last_device_update'] = last_updated
+            else:
+                fitbit_data_by_username[_username]['last_device_update'] = last_updated
         walking_suggestion_last_updated_by_username = {}
         nightly_updates = WalkingSuggestionNightlyUpdate.objects.filter(user__in=users).prefetch_related('user').all()
         for _update in nightly_updates:
             _username = _update.user.username
             walking_suggestion_last_updated_by_username[_username] = _update.day
+
+        recently_updated_date = date.today() - timedelta(days=4)
+        recently_updated_walking_suggestions_count = 0
+        recently_updated_fitbit_data = 0
 
         serialized_participants = []
         for _participant in participants:
@@ -274,6 +290,16 @@ class DataSummaryView(CohortView):
             last_walking_suggestion_update = "None"
             if username in walking_suggestion_last_updated_by_username:
                 last_walking_suggestion_update = walking_suggestion_last_updated_by_username[username].strftime('%Y-%m-%d')
+            if username in walking_suggestion_last_updated_by_username:
+                if recently_updated_date <= walking_suggestion_last_updated_by_username[username]:
+                    recently_updated_walking_suggestions_count += 1
+            fitbit_last_updated = None
+            if username in fitbit_data_by_username and 'last_device_update' in fitbit_data_by_username[username]:
+                last_update = fitbit_data_by_username[username]['last_device_update']
+                _last_fitbit_update_date = date(last_update.year, last_update.month, last_updated.day)
+                fitbit_last_updated = _last_fitbit_update_date.strftime('%Y-%m-%d')
+                if recently_updated_date <= _last_fitbit_update_date:
+                    recently_updated_fitbit_data += 1
             serialized_participants.append({
                 'heartsteps_id': _participant.heartsteps_id,
                 'status':status,
@@ -281,10 +307,14 @@ class DataSummaryView(CohortView):
                 'fitbit_days_total': fitbit_days_total,
                 'fitbit_days_worn': fitbit_days_worn,
                 'fitbit_days_complete': fitbit_days_complete,
-                'last_walking_suggestion_update': last_walking_suggestion_update
+                'last_walking_suggestion_update': last_walking_suggestion_update,
+                'fitbit_last_updated': fitbit_last_updated
             })
 
         context['participants'] = serialized_participants
+        context['total_participants'] = len(serialized_participants)
+        context['recently_updated_fitbit'] = recently_updated_fitbit_data
+        context['recently_updated_walking_suggestion_service'] = recently_updated_walking_suggestions_count
         return context
 
 class CloseoutSummaryView(CohortView):

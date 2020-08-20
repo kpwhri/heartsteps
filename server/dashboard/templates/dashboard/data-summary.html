@@ -11,6 +11,11 @@
 
 {% block body %}
 <h2>Data Summary for {{cohort.name}}</h2>
+<p>
+    {{total_participants}} participants total.
+    {{recently_updated_fitbit}} have a recent fitbit device update.
+    {{recently_updated_walking_suggestion_service}} have recently updated the walking suggestion service.
+</p>
 <table class="table">
     <thead>
         <td>Participant</td>
@@ -41,6 +46,8 @@
                     <dd>{{participant.fitbit_days_worn}}</dd>
                     <dt>Days Complete Data</dt>
                     <dd>{{participant.fitbit_days_complete}}</dd>
+                    <dt>Last Fitbit Update</dt>
+                    <dd>{{participant.fitbit_last_updated}}</dd>
                 </dl>
             </td>
             <td>
