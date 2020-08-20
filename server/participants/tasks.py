@@ -275,7 +275,8 @@ def export_user_data(username):
     )
     export_file(export_anti_sedentary_service_requests,
         participant = participant,
-        filename = 'anti-sedentary-service-requests.csv'
+        filename = 'anti-sedentary-service-requests.csv',
+        directory = user_directory
     )
     export_file(export_fitbit_data,
         participant = participant,
