@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
 class ActivityType(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=150)
 
     user = models.ForeignKey(User, null=True, blank=True)
