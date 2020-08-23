@@ -250,6 +250,25 @@ class Participant(models.Model):
     def __str__(self):
         return self.heartsteps_id
 
+class NightlyUpdateRecord(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+    date = models.DateField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+
+    error = models.TextField(
+        null = True
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'date'])
+        ]
+
 class DataExport(models.Model):
     user = models.ForeignKey(
         User,

@@ -194,7 +194,7 @@ def export_user_locations(username, directory=None, filename=None):
     for _location in Location.objects.filter(user__username=username).order_by('time').all():
         locations.append([
             _location.id,
-            user.username,
+            username,
             _location.local_time.strftime('%Y-%m-%d %H:%M:%S'),
             _location.timezone.zone,
             _location.source,
