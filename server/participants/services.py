@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, date
 
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
@@ -214,14 +215,18 @@ class ParticipantService:
             service = FitbitActivityService(
                 user = self.participant.user
             )
-            service.update(date)
+            incomplete_dates = [_d.date for _d in FitbitDay.objects.filter(account=service.account, completely_updated=False).all()]
+            if date not in incomplete_dates:
+                incomplete_dates.append(date)
+            for _date in sorted(incomplete_dates):
+                service.update(_date)
+        except FitbitActivityService.TooManyRequests:
             update_incomplete_days.apply_async(
+                eta = timezone.now() + timedelta(minutes=90),
                 kwargs = {
                     'fitbit_user': service.account.fitbit_user
                 }
             )
-        except FitbitActivityService.TooManyRequests:
-            pass
         except FitbitActivityService.NoAccount:
             pass
 
