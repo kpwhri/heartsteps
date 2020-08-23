@@ -20,6 +20,7 @@ from walking_suggestions.tasks import nightly_update as walking_suggestions_nigh
 from weather.services import WeatherService
 
 from .models import Participant, User
+from .models import NightlyUpdateRecord
 
 class ParticipantService:
 
@@ -179,36 +180,46 @@ class ParticipantService:
                 )
     
     def update(self, date):
-        if self.is_baseline_complete():
-            try:
-                AntiSedentaryConfiguration.objects.get(user = self.participant.user)
-            except AntiSedentaryConfiguration.DoesNotExist:
-                AntiSedentaryConfiguration.objects.create(
-                    user = self.participant.user,
-                    enabled = True
-                )
-            try:
-                MorningMessagesConfiguration.objects.get(user = self.participant.user)
-            except MorningMessagesConfiguration.DoesNotExist:
-                MorningMessagesConfiguration.objects.create(
-                    user = self.participant.user,
-                    enabled = True
-                )
-            try:
-                WalkingSuggestionConfiguration.objects.get(user = self.participant.user)
-            except WalkingSuggestionConfiguration.DoesNotExist:
-                WalkingSuggestionConfiguration.objects.create(
-                    user = self.participant.user,
-                    enabled = True
-                )
-            
+        update_record = NightlyUpdateRecord(
+            user = self.participant.user,
+            date = date,
+            start = timezone.now()
+        )
+        try:
+            if self.is_baseline_complete():
+                try:
+                    AntiSedentaryConfiguration.objects.get(user = self.participant.user)
+                except AntiSedentaryConfiguration.DoesNotExist:
+                    AntiSedentaryConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                try:
+                    MorningMessagesConfiguration.objects.get(user = self.participant.user)
+                except MorningMessagesConfiguration.DoesNotExist:
+                    MorningMessagesConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                try:
+                    WalkingSuggestionConfiguration.objects.get(user = self.participant.user)
+                except WalkingSuggestionConfiguration.DoesNotExist:
+                    WalkingSuggestionConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                
 
-        self.update_fitbit(date)
-        self.update_adherence(date)
-        self.update_weather_forecasts(date)
+            self.update_fitbit(date)
+            self.update_adherence(date)
+            self.update_weather_forecasts(date)
 
-        self.update_anti_sedentary(date)
-        self.update_walking_suggestions(date)
+            self.update_anti_sedentary(date)
+            self.update_walking_suggestions(date)
+        except Exception as e:
+            update_record.error = e
+        update_record.end = timezone.now()
+        update_record.save()
 
     def update_fitbit(self, date):
         try:
