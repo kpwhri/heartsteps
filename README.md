@@ -19,6 +19,9 @@ Please don't use 'docker-compose up', multiple services of the same type will be
 
 Here is how to start both the heartsteps-server and heartsteps-client in development mode.
 ```
+# You'll need to build the service-template
+$ docker-compose build service-template
+
 # First create the database and load test data
 # (you can skip this if you've done this before)
 $ docker-compose run server python manage.py migrate
@@ -139,19 +142,23 @@ $ docker-compose run --service-ports cloudsql
 ```
 
 **Nightly Data Exports**
-The heartsteps-server exports CSV files for each participant after their nightly update once a day. These files are meant to be used to analyze the efficacy of message randomization. This data is then sync'd to a Google Storage Bucket called "heartsteps_nightly_data"
+The heartsteps-server exports CSV files for each participant after their nightly update once a day. These files are meant to be used to analyze the efficacy of message randomization. This data is then sync'd to a Google Storage Bucket called "heartsteps-data-exports"
+
+You will need to have a Google Account that has permissions to access the "heartsteps-data-exports" storage bucket.
 
 To download all the files at once (recommended), you will need to:
 ```
 // (1) Download gcloud-utils
 $ curl https://sdk.cloud.google.com | bash
-// (2) Login with google
+// (2) Login with your google account that has access to the heartsteps-data-exports storage bucket
 $ gcloud init
 // (3) Make a directory to download the files to (since there a many files)
 $ mkdir nightly-data
 // (4) Download the files
-$ gsutil -m rsync gs://heartsteps_nightly_data ./nightly-data
+$ gsutil -m rsync gs://heartsteps-data-exports ./nightly-data
 ```
+
+*Note:* It's possible to access files individually in your web browser, [access the heartsteps-data-exports storage bucket here.](https://console.cloud.google.com/storage/browser/heartsteps-data-exports)
 
 ### Anti-Sedentary and Walking-Suggestion Service Data
 Both the anti-sedentary and walking-suggestion services store data to a remote file system, which is a Google Storage Bucket. These buckets are read and written to by the services in the production environment.
