@@ -135,13 +135,15 @@ Here is a list of the environment variables that are used by HeartSteps. All doc
 ## Data Storage and Export Instructions
 
 ### HeartSteps Server Database
-The heartsteps-server uses a postgres database in Google Cloud's SQL Database. This database can be accessed directly by running:
+The heartsteps-server uses a postgres database in Google Cloud's SQL Database. To access the database, you will need a credentials file with access permisisons.
+
+This database can be accessed directly by running:
 ```
-$ docker-compose run --service-ports cloudsql
+$ docker-compose -f docker-compose.gcloud.yaml run --service-ports cloudsql
 // The postgres server is now available at psql://heartsteps:heartsteps@localhost:5432
 ```
 
-**Nightly Data Exports**
+### Nightly Data Exports
 The heartsteps-server exports CSV files for each participant after their nightly update once a day. These files are meant to be used to analyze the efficacy of message randomization. This data is then sync'd to a Google Storage Bucket called "heartsteps-data-exports"
 
 You will need to have a Google Account that has permissions to access the "heartsteps-data-exports" storage bucket.
