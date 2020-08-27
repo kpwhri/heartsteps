@@ -1,0 +1,61 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load tz %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-download' cohort.id %}" class="nav-link active">Download</a>
+{% endblock %}
+
+
+{% block body %}
+<h2>Export Status for {{cohort.name}}</h2>
+<table class="table">
+    <thead>
+        <td>Participant</td>
+        <td>Exported Files</td>
+    </thead>
+    <tbody>
+        {% timezone 'US/Pacific' %}
+        {% for participant in participants %}
+        <tr>
+            <td>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}"
+                    >
+                    {{participant.heartsteps_id}}
+                </a>
+                <dl>
+                    <dt>Status</dt>
+                    <dd>{{participant.status}}</dd>
+                    <dt>Study Start</dt>
+                    <dd>{{participant.study_start}}</dd>
+                    <dt>Study End</dt>
+                    <dd>{{participant.study_end}}</dd>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    {% for export in participant.exports %}
+                    <dt>{{export.filename}}</dt>
+                    <dd>Last update {{export.updated_date}}</dd>
+                    {% if export.error %}
+                    <dd>Error on last export</dd>
+                    {% endif %}
+                    {% endfor %}
+                </dl>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endtimezone %}
+    </tbody>
+</table>
+
+{% if prev_page %}
+<a href="?page={{prev_page}}">Previous Page</a>
+{% endif %}
+{% if next_page %}
+<a href="?page={{next_page}}">Next Page</a>
+{% endif %}
+
+{% endblock %}

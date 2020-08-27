@@ -19,6 +19,7 @@ from .views import ParticipantUnarchiveView
 from .views import ParticipantToggleAdherenceMessagesView
 from .views import ParticipantDisableFitbitAccountView
 from .views import CloseoutSummaryView
+from .views import DownloadView
 from .views import DataSummaryView
 
 urlpatterns = [
@@ -41,6 +42,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications', ParticipantNotificationsView.as_view(), name='dashboard-cohort-participant-notifications'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/messages', ParticipantSMSMessagesView.as_view(), name='dashboard-cohort-participant-sms-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
+    url('(?P<cohort_id>[\d]+)/download', DownloadView.as_view(), name='dashboard-cohort-download'),
     url('(?P<cohort_id>[\d]+)/data-summary', DataSummaryView.as_view(), name='dashboard-cohort-data-summary'),
     url('(?P<cohort_id>[\d]+)/closeout-summary', CloseoutSummaryView.as_view(), name='dashboard-cohort-closeout-summary'),
     url('(?P<cohort_id>[\d]+)/messages-received', MessagesReceivedView.as_view(), name='dashboard-cohort-messages-received'),

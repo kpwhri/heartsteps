@@ -32,6 +32,7 @@ from fitbit_api.models import FitbitDevice
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
+from participants.models import DataExport
 from participants.services import ParticipantService
 from push_messages.services import PushMessageService
 from randomization.models import UnavailableReason
@@ -217,6 +218,59 @@ class InterventionSummaryView(CohortView):
             })
 
         context['time_ranges'] = time_ranges
+
+        return context
+
+class DownloadView(CohortView):
+    template_name = 'dashboard/download.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = self.query_participants().prefetch_related('user').all()
+        users = [p.user for p in participants if p.user]
+        exports_by_username = {}
+        data_exports = DataExport.objects.filter(user__in=users).prefetch_related('user').order_by('start').all()
+        for export in data_exports:
+            username = export.user.username
+            if username not in exports_by_username:
+                exports_by_username[username] = {}
+            exports_by_username[username][export.filename] = {
+                'updated_date': export.end.strftime('%Y-%m-%d'),
+                'filename': export.filename,
+                'error': export.error_message
+            }
+        total_participants = 0
+        total_files = 0
+        total_errors = 0
+        context['participants'] = []
+        for _participant in participants:
+            total_participants += 1
+            exports = []
+            if _participant.user and _participant.user.username in exports_by_username:
+                _exports = exports_by_username[_participant.user.username]
+                for _key in sorted(_exports.keys()):
+                    _export = _exports[_key]
+                    exports.append(_export)
+                    total_files += 1
+                    if _export['error']:
+                        total_errors += 1
+                
+            status = "Disabled"
+            if _participant.enabled:
+                status = "Active"
+            study_start = "Not started"
+            if _participant.study_start_date:
+                study_start = _participant.study_start_date.strftime('%Y-%m-%d')
+            study_end = "No end defined"
+            if _participant.study_end:
+                study_end = _participant.study_end.strftime('%Y-%m-%d')
+            context['participants'].append({
+                'heartsteps_id': _participant.heartsteps_id,
+                'status': status,
+                'study_start': study_start,
+                'study_end': study_end,
+                'exports': exports
+            })
 
         return context
 
