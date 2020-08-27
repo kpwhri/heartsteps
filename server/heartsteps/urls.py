@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api/', include('morning_messages.urls')),
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/', include('weather.urls')),
+    url('accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(
         r'^login/$',
