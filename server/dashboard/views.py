@@ -271,7 +271,9 @@ class DownloadView(CohortView):
                 'study_end': study_end,
                 'exports': exports
             })
-
+        context['total_participants'] = total_participants
+        context['total_files'] = total_files
+        context['total_errors'] = total_errors
         return context
 
 class DataSummaryView(CohortView):
