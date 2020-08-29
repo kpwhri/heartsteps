@@ -223,7 +223,10 @@ class FitbitStepCountService:
 
 class FitbitActivityService(FitbitService):
 
-    class TooManyRequests(RuntimeError):
+    class Unauthorized(FitbitClient.Unauthorized):
+        pass
+
+    class TooManyRequests(FitbitClient.TooManyRequests):
         pass
 
     def __init__(self, account=None, user=None, username=None, fitbit_user=None):
@@ -257,10 +260,7 @@ class FitbitActivityService(FitbitService):
             date = date,
             account = self.account
         )
-        try:
-            day_service.update()
-        except FitbitClient.TooManyRequests as e:
-            raise FitbitActivityService.TooManyRequests(e)
+        day_service.update()
 
     def parse_date(self, date):
         return self.__client.parse_date(date)

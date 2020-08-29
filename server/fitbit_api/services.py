@@ -164,6 +164,7 @@ class FitbitClient():
                 method = method
             )
         except HTTPUnauthorized:
+            self.account.remove_credentials()
             raise FitbitClient.Unauthorized('Fitbit unauthorized')
         except HTTPTooManyRequests:
             raise FitbitClient.TooManyRequests('Too many requests')

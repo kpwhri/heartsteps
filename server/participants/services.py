@@ -238,6 +238,8 @@ class ParticipantService:
                     'fitbit_user': service.account.fitbit_user
                 }
             )
+        except FitbitActivityService.Unauthorized:
+            pass
         except FitbitActivityService.NoAccount:
             pass
 
