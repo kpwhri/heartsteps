@@ -72,13 +72,16 @@ def export_anti_sedentary_decisions(username, directory, filename=None):
         start_index = start_index + slice_size
     _file.close()
 
-def export_anti_sedentary_service_requests(username, directory):
+def export_anti_sedentary_service_requests(username, directory=None, filename=None):
+    if not filename:
+        filename = '%s.anti_sedentary_service_requests.csv' % (username)
+    if not directory:
+        directory = './' 
     dataset = ServiceRequestResource().export(
         queryset = AntiSedentaryServiceRequest.objects.filter(
             user__username = username
         )
     )
-    filename = '%s.anti_sedentary_service_requests.csv' % (username)
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)
     _file.close()
