@@ -256,11 +256,16 @@ class FitbitActivityService(FitbitService):
                 )
 
     def update(self, date):
-        day_service = FitbitDayService(
-            date = date,
-            account = self.account
-        )
-        day_service.update()
+        try:
+            day_service = FitbitDayService(
+                date = date,
+                account = self.account
+            )
+            day_service.update()
+        except FitbitClient.Unauthorized as e:
+            raise FitbitActivityService.Unauthorized(e)
+        except FitbitClient.TooManyRequests as e:
+            raise FitbitActivityService.TooManyRequests(e)
 
     def parse_date(self, date):
         return self.__client.parse_date(date)
