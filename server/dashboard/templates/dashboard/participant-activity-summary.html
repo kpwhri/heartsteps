@@ -1,0 +1,27 @@
+{% extends 'dashboard/participant.html'%}
+
+{% block content %}
+<ul class="list-unstyled">
+    {% for day in days %}
+    <li>
+        <em>{{day.date}}</em>
+        <dl>
+            <dt>Fitbit Completely Updated</dt>
+            <dd>{{day.completely_updated}}</dd>
+            <dt>Fitbit Step Count</dt>
+            <dd>{{day.step_count}}</dd>
+            <dt>Wore Fitbit</dt>
+            {% if day.wore_fitbit %}
+            <dd>Wore fitbit</dd>
+            {% else %}
+            <dd>Not woren</dd>
+            {% endif %}
+            <dt>Number of Step Count Records</dt>
+            <dd>{{day.watch_app_step_counts}}</dd>
+            <dt>Number of Fitbit Account Updates</dt>
+            <dd>{{day.fitbit_account_updates}}</dd>
+        </dl>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

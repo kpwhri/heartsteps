@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 
 from django.conf import settings
@@ -25,8 +26,9 @@ from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
 from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
+from days.models import Day
 from fitbit_activities.models import FitbitActivity, FitbitDay
-from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpdate
 from fitbit_api.tasks import unauthorize_fitbit_account
 from fitbit_api.models import FitbitDevice
 from participants.models import Cohort
@@ -42,6 +44,7 @@ from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import NightlyUpdate as WalkingSuggestionNightlyUpdate
+from watch_app.models import StepCount as WatchAppStepCount
 
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
@@ -542,6 +545,74 @@ class ParticipantView(CohortView):
             }
         ]
 
+        return context
+
+class ParticipantActivitySummaryView(ParticipantView):
+    template_name = 'dashboard/participant-activity-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = [date.today() - timedelta(days=offset) for offset in range(14)]
+        dates.sort()
+        account = None
+        try:
+            au = FitbitAccountUser.objects.prefetch_related('account').get(user = self.participant.user)
+            account = au.account
+        except FitbitAccountUser.DoesNotExist:
+            pass
+        fitbit_activity_by_date = {}
+        if account:
+            fitbit_days = FitbitDay.objects.filter(
+                account = account,
+                date__in = dates
+            ).all()
+            for _fitbit_day in fitbit_days:
+                fitbit_activity_by_date[_fitbit_day.date] = {
+                    'wore_fitbit': _fitbit_day.wore_fitbit,
+                    'step_count': _fitbit_day.step_count,
+                    'completely_updated': _fitbit_day.completely_updated
+                }
+        watch_app_updates_by_date = {}
+        watch_app_step_counts = WatchAppStepCount.objects.filter(
+            user = self.participant.user,
+            created__gte = timezone.now() - timedelta(days=14)
+        ).order_by('created').all()
+        watch_app_step_counts = list(watch_app_step_counts)
+        if account:
+            fitbit_account_updates = FitbitAccountUpdate.objects.filter(
+                account = account,
+                created__gte = timezone.now() - timedelta(days=14)
+            ).order_by('created').all()
+            fitbit_account_updates = list(fitbit_account_updates)
+        else:
+            fitbit_account_updates = []
+        fitbit_account_updates_by_date = {}
+        for _date in dates:
+            watch_app_record_count = 0
+            end_datetime = datetime(_date.year,_date.month,_date.day,tzinfo=pytz.UTC) + timedelta(days=1)
+            while len(watch_app_step_counts) and watch_app_step_counts[0].created < end_datetime:
+                watch_app_record_count += 1
+                _step_count = watch_app_step_counts.pop(0)
+            watch_app_updates_by_date[_date] = watch_app_record_count
+            fitbit_update_count = 0
+            while len(fitbit_account_updates) and fitbit_account_updates[0].created < end_datetime:
+                fitbit_update_count += 1
+                fitbit_account_updates.pop(0)
+            fitbit_account_updates_by_date[_date] = fitbit_update_count
+        serialized_days = []
+        for _date in sorted(dates):
+            _serialized = {
+                'date': _date.strftime('%Y-%m-%d')
+            }
+            if _date in fitbit_activity_by_date:
+                _serialized.update(fitbit_activity_by_date[_date])
+            if _date in watch_app_updates_by_date:
+                _serialized['watch_app_step_counts'] = watch_app_updates_by_date[_date]
+            if _date in fitbit_account_updates_by_date:
+                _serialized['fitbit_account_updates'] = fitbit_account_updates_by_date[_date]
+            serialized_days.append(_serialized)
+        serialized_days.reverse()
+        context['days'] = serialized_days
         return context
 
 class ParticipantInterventionSummaryView(ParticipantView):

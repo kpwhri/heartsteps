@@ -98,6 +98,13 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
+                            href="{% url 'dashboard-cohort-participant-activity-summary' cohort.id participant.heartsteps_id %}"
+                            >
+                            Activity Summary
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
                             href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
                             >
                             Text Messages
