@@ -288,6 +288,11 @@ def export_user_data(username):
         filename = 'locations.csv',
         directory = user_directory
     )
+    export_file(export_adherence_metrics,
+        participant = participant,
+        filename = 'daily-metrics.csv',
+        directory = user_directory
+    )
     subprocess.call(
         'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
         shell=True
