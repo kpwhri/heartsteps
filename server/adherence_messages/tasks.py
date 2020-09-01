@@ -35,8 +35,9 @@ def update_adherence(username):
     service.update_adherence()
 
 class DailyAdherence:
-    date = None
-    app_page_views = 0
+
+    def __init__(self, _date):
+        self.date = _date
 
 class DailyAdherenceResource(resources.Resource):
     date = Field(column_name='Date')
@@ -49,7 +50,10 @@ class DailyAdherenceResource(resources.Resource):
         attribute = 'app_page_views',
         column_name = 'App Page Views'
     )
-
+    fitbit_step_count = Field(
+        attribute = 'fitbit_step_count',
+        column_name = 'Fitbit Step Count'
+    )
     fitbit_worn = Field(
         attribute = 'fitbit-worn',
         column_name = 'Fitbit Worn'
@@ -58,14 +62,40 @@ class DailyAdherenceResource(resources.Resource):
         attribute = 'fitbit-updated',
         column_name = 'Fitbit Updated'
     )
+    fitbit_updated_completely = Field(
+        attribute = 'fitbit-updated-completely',
+        column_name = 'Fitbit Updated Completely'
+    )
+    messages_sent = Field(
+        attribute = 'messages-sent',
+        column_name = 'Messages Sent'
+    )
+    messages_received = Field(
+        attribute = 'messages-received',
+        column_name = 'Messages Received'
+    )
+    messages_opened = Field(
+        attribute = 'messages-opened',
+        column_name = 'Messages Opened'
+    )
+    messages_engaged = Field(
+        attribute = 'messages-engaged',
+        column_name = 'Messages Engaged'
+    )
 
     class Meta:
         export_order = [
             'date',
             'app_page_views',
             'app_used',
+            'fitbit_step_count',
             'fitbit_updated',
-            'fitbit_worn'
+            'fitbit_updated_completely',
+            'fitbit_worn',
+            'messages_sent',
+            'messages_received',
+            'messages_opened',
+            'messages_engaged'
         ]
     
     def dehydrate_date(self, instance):
@@ -73,19 +103,7 @@ class DailyAdherenceResource(resources.Resource):
             return instance.date.strftime('%Y-%m-%d')
         return None
 
-def make_timezone_list(days):
-    timezone_list = []
-    _timezone = None
-    for _day in days:
-        if _day.timezone != _timezone:
-            _timezone = _day.timezone
-            timezone_list.append({
-                'timezone': _day.get_timezone(),
-                'start_datetime': _day.start
-            })
-    return timezone_list
-
-def export_adherence_metrics(username, directory=None, filename=None):
+def export_adherence_metrics(username, directory=None, filename=None, start_date=None, end_date=None):
     if not filename:
         filename = '%s.adherence_metrics.csv' % (username)
     if not directory:
@@ -94,39 +112,71 @@ def export_adherence_metrics(username, directory=None, filename=None):
         adherence_service = AdherenceService(username = username)
     except AdherenceService.NoConfiguration:
         return False
-
     days = Day.objects.filter(user__username=username).all()
+    if not start_date:
+        start_date = days[0].date
+    if not end_date:
+        end_date = days[len(days)-1].date
 
-    
     page_views_by_date = {}
     page_views = PageView.objects.filter(
         user__username = username
-    ).all()
-    timezone_list = make_timezone_list(days)
-    _timezone = pytz.UTC
-    if len(timezone_list):
-        _timezone = timezone_list.pop(0)['timezone']
-    for _page_view in page_views:
-        if len(timezone_list):
-            next_timezone_start = timezone_list[0]['start_datetime']
-            while _page_view.time <= next_timezone_start and len(timezone_list):
-                _tz = timezone_list.pop(0)
-                next_timezone_start = _tz['start_datetime']
-                _timezone = _tz['timezone']
-        page_view_datetime = _page_view.time.astimezone(_timezone)
-        page_view_date = date(page_view_datetime.year,page_view_datetime.month, page_view_datetime.day)
-        if page_view_date not in page_views_by_date:
-            page_views_by_date[page_view_date] = 1
-        else:
-            page_views_by_date[page_view_date] += 1
-    print(page_views_by_date.values())
+    ).order_by('time').all()
+    page_views = list(page_views)
+    for _day in days:
+        page_view_count = 0
+        while page_views and page_views[0].time < _day.end:
+            page_view_count += 1
+            page_views.pop(0)
+        page_views_by_date[_day.date] = page_view_count
+
+    messages_by_date = {}
+    messages = Message.objects.filter(
+        recipient__username = username
+    ).order_by('created').all()
+    messages = list(messages)
+    for _day in days:
+        messages_sent_count = 0
+        messages_received_count = 0
+        messages_opened_count = 0
+        messages_engaged_count = 0
+        while messages and messages[0].created < _day.end:
+            _message = messages.pop(0)
+            if _message.sent:
+                messages_sent_count += 1
+            if _message.received:
+                messages_received_count += 1
+            if _message.opened:
+                messages_opened_count += 1
+            if _message.engaged:
+                messages_engaged_count += 1
+        messages_by_date[_day.date] = {
+            'sent': messages_sent_count,
+            'received': messages_received_count,
+            'opened': messages_opened_count,
+            'engaged': messages_engaged_count
+        }
+
+    fitbit_activity_by_date = {}
+    try:
+        fitbit_service = FitbitService(username=username)
+        fitbit_account = fitbit_service.account
+        fitbit_days = FitbitDay.objects.filter(
+            account = fitbit_account
+        ).all()
+        for _fitbit_day in fitbit_days:
+            fitbit_activity_by_date[_fitbit_day.date] = {
+                'step_count': _fitbit_day.step_count,
+                'completely_updated': _fitbit_day.completely_updated
+            }
+    except FitbitService.NoAccount:
+        pass
 
     daily_adherence_by_date = {}
     for metric in AdherenceMetric.objects.order_by('date').filter(user__username=username).all():
         if metric.date not in daily_adherence_by_date:
-            daily_adherence_by_date[metric.date] = DailyAdherence()
-            daily_adherence_by_date[metric.date].date = metric.date
-        setattr(daily_adherence_by_date[metric.date], metric.category, metric.value)
+            daily_adherence_by_date[metric.date] = {}
+        daily_adherence_by_date[metric.date][metric.category] = metric.value
     
     first_day = days[0]
     last_day = days[len(days) - 1]
@@ -135,14 +185,19 @@ def export_adherence_metrics(username, directory=None, filename=None):
     
     days = []
     for _date in all_dates:
-        daily_adherence = None
+        daily_adherence = DailyAdherence(_date)
+        daily_adherence.date = _date
         if _date in daily_adherence_by_date:
-            daily_adherence = daily_adherence_by_date[_date]
-        else:
-            daily_adherence = DailyAdherence()
-            daily_adherence.date = _date
+            for _key, _value in daily_adherence_by_date[_date].items():
+                setattr(daily_adherence, _key, _value)
         if _date in page_views_by_date:
             daily_adherence.app_page_views = page_views_by_date[_date]
+        if _date in messages_by_date:
+            for _key, _value in messages_by_date[_date].items():
+                setattr(daily_adherence, 'messages-%s' % (_key), _value)
+        if _date in fitbit_activity_by_date:
+            setattr(daily_adherence, 'fitbit_step_count', fitbit_activity_by_date[_date]['step_count'])
+            setattr(daily_adherence, 'fitbit-updated-completely', fitbit_activity_by_date[_date]['completely_updated'])
         days.append(daily_adherence)
 
     dataset = DailyAdherenceResource().export(queryset=days)
