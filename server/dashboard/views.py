@@ -284,17 +284,20 @@ class DataSummaryView(CohortView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        participants = self.query_participants().filter(active=True).exclude(user=None).all()
-        users = [p.user for p in participants]
+        participants = self.query_participants().all()
+        users = [p.user for p in participants if p.user]
         fitbit_data_by_username = {}
+        fitbit_authorized_by_username = {}
         account_users = FitbitAccountUser.objects.filter(
             user__in = users
         ).prefetch_related('user').prefetch_related('account').all()
         username_by_fitbit_account = {}
         for au in account_users:
             username_by_fitbit_account[au.account.fitbit_user] = au.user.username
+            fitbit_authorized_by_username[au.user.username] = au.account.authorized
         fitbit_days = FitbitDay.objects.filter(
-            account__fitbit_user__in = username_by_fitbit_account.keys()
+            account__fitbit_user__in = username_by_fitbit_account.keys(),
+            date__lte = date.today()
         ).prefetch_related('account').all()
         for _day in fitbit_days:
             _username = username_by_fitbit_account[_day.account.fitbit_user]
@@ -332,7 +335,9 @@ class DataSummaryView(CohortView):
 
         serialized_participants = []
         for _participant in participants:
-            username = _participant.user.username
+            username = None
+            if _participant.user:
+                username = _participant.user.username
             status = "Disabled"
             if _participant.enabled:
                 status = "Active"
@@ -342,23 +347,32 @@ class DataSummaryView(CohortView):
             fitbit_total_days = 0
             fitbit_days_worn = 0
             fitbit_days_complete = 0
-            if username in fitbit_data_by_username:
+            if username and username in fitbit_data_by_username:
                 fitbit_days_total = fitbit_data_by_username[username]['total_days']
                 fitbit_days_worn = fitbit_data_by_username[username]['total_days_worn']
                 fitbit_days_complete = fitbit_data_by_username[username]['total_days_complete']
             last_walking_suggestion_update = "None"
-            if username in walking_suggestion_last_updated_by_username:
+            if username and username in walking_suggestion_last_updated_by_username:
                 last_walking_suggestion_update = walking_suggestion_last_updated_by_username[username].strftime('%Y-%m-%d')
-            if username in walking_suggestion_last_updated_by_username:
+            if username and username in walking_suggestion_last_updated_by_username:
                 if recently_updated_date <= walking_suggestion_last_updated_by_username[username]:
                     recently_updated_walking_suggestions_count += 1
             fitbit_last_updated = None
-            if username in fitbit_data_by_username and 'last_device_update' in fitbit_data_by_username[username]:
+            if username and username in fitbit_data_by_username and 'last_device_update' in fitbit_data_by_username[username]:
                 last_update = fitbit_data_by_username[username]['last_device_update']
-                _last_fitbit_update_date = date(last_update.year, last_update.month, last_updated.day)
-                fitbit_last_updated = _last_fitbit_update_date.strftime('%Y-%m-%d')
-                if recently_updated_date <= _last_fitbit_update_date:
-                    recently_updated_fitbit_data += 1
+                try:
+                    _last_fitbit_update_date = date(last_update.year, last_update.month, last_update.day)
+                    fitbit_last_updated = _last_fitbit_update_date.strftime('%Y-%m-%d')
+                    if recently_updated_date <= _last_fitbit_update_date:
+                        recently_updated_fitbit_data += 1
+                except ValueError as e:
+                    print(e, last_update)
+            fitbit_authorized = 'No account'
+            if username and username in fitbit_authorized_by_username:
+                if fitbit_authorized_by_username[username]:
+                    fitbit_authorized = 'Authorized'
+                else:
+                    fitbit_authorized = 'Unauthorized'
             serialized_participants.append({
                 'heartsteps_id': _participant.heartsteps_id,
                 'status':status,
@@ -367,7 +381,8 @@ class DataSummaryView(CohortView):
                 'fitbit_days_worn': fitbit_days_worn,
                 'fitbit_days_complete': fitbit_days_complete,
                 'last_walking_suggestion_update': last_walking_suggestion_update,
-                'fitbit_last_updated': fitbit_last_updated
+                'fitbit_last_updated': fitbit_last_updated,
+                'fitbit_authorized': fitbit_authorized
             })
 
         context['participants'] = serialized_participants
