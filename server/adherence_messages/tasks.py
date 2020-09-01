@@ -54,6 +54,10 @@ class DailyAdherenceResource(resources.Resource):
         attribute = 'fitbit_step_count',
         column_name = 'Fitbit Step Count'
     )
+    fitbit_minutes_worn = Field(
+        attribute = 'fitbit_minutes_worn',
+        column_name = 'Fitbit Minutes Worn'
+    )
     fitbit_worn = Field(
         attribute = 'fitbit-worn',
         column_name = 'Fitbit Worn'
@@ -88,6 +92,7 @@ class DailyAdherenceResource(resources.Resource):
             'date',
             'app_page_views',
             'app_used',
+            'fitbit_minutes_worn',
             'fitbit_step_count',
             'fitbit_updated',
             'fitbit_updated_completely',
@@ -167,7 +172,8 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
         for _fitbit_day in fitbit_days:
             fitbit_activity_by_date[_fitbit_day.date] = {
                 'step_count': _fitbit_day.step_count,
-                'completely_updated': _fitbit_day.completely_updated
+                'completely_updated': _fitbit_day.completely_updated,
+                'minutes_worn': _fitbit_day.minutes_worn
             }
     except FitbitService.NoAccount:
         pass
@@ -196,6 +202,7 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
             for _key, _value in messages_by_date[_date].items():
                 setattr(daily_adherence, 'messages-%s' % (_key), _value)
         if _date in fitbit_activity_by_date:
+            setattr(daily_adherence, 'fitbit_minutes_worn', fitbit_activity_by_date[_date]['minutes_worn'])
             setattr(daily_adherence, 'fitbit_step_count', fitbit_activity_by_date[_date]['step_count'])
             setattr(daily_adherence, 'fitbit-updated-completely', fitbit_activity_by_date[_date]['completely_updated'])
         days.append(daily_adherence)

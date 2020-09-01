@@ -50,7 +50,11 @@ class FitbitDay(models.Model):
     step_count = models.PositiveIntegerField(default=0)
     _distance = models.DecimalField(default=0, max_digits=9, decimal_places=3)
     average_heart_rate = models.PositiveIntegerField(default=0)
+    minutes_worn = models.PositiveIntegerField(
+        null = True
+    )
     wore_fitbit = models.BooleanField(default=False)
+
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -62,6 +66,7 @@ class FitbitDay(models.Model):
         unique_together = ('account', 'date')
 
     def save(self, *args, **kwargs):
+        self.minutes_worn = self.get_minutes_worn()
         self.wore_fitbit = self.get_wore_fitbit()
         super().save(*args, **kwargs)
 
@@ -129,7 +134,9 @@ class FitbitDay(models.Model):
         if not hasattr(settings, 'FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES'):
             raise ImproperlyConfigured('No FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES')
         minimum_wear_minutes = settings.FITBIT_ACTIVITY_DAY_MINIMUM_WEAR_DURATION_MINUTES
-        minutes_worn = self.get_minutes_worn()
+        minutes_worn = self.minutes_worn
+        if not minutes_worn:
+            minutes_worn = self.get_minutes_worn()
         if minutes_worn >= minimum_wear_minutes:
             return True
         else:
