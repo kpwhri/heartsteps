@@ -111,7 +111,7 @@ class ParticipantService:
         self.enable()
 
     def is_enabled(self):
-        return self.participant.enrolled
+        return self.participant.active
 
     def is_baseline_complete(self):
         try:
