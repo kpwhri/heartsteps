@@ -30,7 +30,7 @@ def export_anti_sedentary_decisions(username, directory=None, filename=None):
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
     
-    total_rows = 500
+    total_rows = queryset.count()
     _file = open(os.path.join(directory, filename), 'w')
     start_index = 0
     slice_size = 100
@@ -70,7 +70,7 @@ def export_anti_sedentary_decisions(username, directory=None, filename=None):
         else:
             csv_list = csv.split('\r\n')
             csv = '\r\n'.join(csv_list[1:])
-        _file.write(dataset.csv)
+        _file.write(csv)
         start_index = start_index + slice_size
     _file.close()
 
