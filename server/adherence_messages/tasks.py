@@ -9,6 +9,7 @@ import pytz
 from anti_sedentary.models import AntiSedentaryDecision
 from days.models import Day
 from days.services import DayService
+from locations.models import Location
 from walking_suggestions.models import WalkingSuggestionDecision
 from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
@@ -70,6 +71,10 @@ class DailyAdherenceResource(resources.Resource):
         attribute = 'fitbit-updated-completely',
         column_name = 'Fitbit Updated Completely'
     )
+    location_count = Field(
+        attribute = 'location_count',
+        column_name = 'Number of Location Records'
+    )
     messages_sent = Field(
         attribute = 'messages-sent',
         column_name = 'Messages Sent'
@@ -97,6 +102,7 @@ class DailyAdherenceResource(resources.Resource):
             'fitbit_updated',
             'fitbit_updated_completely',
             'fitbit_worn',
+            'location_count',
             'messages_sent',
             'messages_received',
             'messages_opened',
@@ -130,10 +136,26 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
     page_views = list(page_views)
     for _day in days:
         page_view_count = 0
+        while page_views and page_views[0].time < _day.start:
+            page_views.pop(0)
         while page_views and page_views[0].time < _day.end:
             page_view_count += 1
             page_views.pop(0)
         page_views_by_date[_day.date] = page_view_count
+
+    locations_by_date = {}
+    locations = Locations.objects.filter(
+        user__username = username
+    ).order_by('time').all()
+    locations = list(locations)
+    for _day in days:
+        locations_count = 0
+        while locations and locations[0].time < _day.start:
+            locations.pop(0)
+        while locations and locations[0].time < _day.end:
+            locations.pop(0)
+            locations_count += 1
+        locations_by_date[_day.date] = locations_count
 
     messages_by_date = {}
     messages = Message.objects.filter(
@@ -198,6 +220,8 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
                 setattr(daily_adherence, _key, _value)
         if _date in page_views_by_date:
             daily_adherence.app_page_views = page_views_by_date[_date]
+        if _date in locations_by_date:
+            daily_adherence.location_count = locations_by_date[_date]
         if _date in messages_by_date:
             for _key, _value in messages_by_date[_date].items():
                 setattr(daily_adherence, 'messages-%s' % (_key), _value)
