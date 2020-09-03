@@ -226,6 +226,15 @@ class ParticipantService:
             service = FitbitActivityService(
                 user = self.participant.user
             )
+
+            #temporary to update minutes worn
+            days_with_no_minutes_worn = FitbitDay.objects.filter(
+                account=service.account,
+                minutes_worn = None
+            ).prefetch_related('account').all()
+            for _day in days_with_no_minutes_worn:
+                _day.save()
+
             incomplete_dates = [_d.date for _d in FitbitDay.objects.filter(account=service.account, completely_updated=False).all()]
             if date not in incomplete_dates:
                 incomplete_dates.append(date)
