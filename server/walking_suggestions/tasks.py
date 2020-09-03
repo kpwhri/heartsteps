@@ -13,6 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from days.models import Day
 from days.services import DayService
+from locations.models import Location
 from participants.models import Participant
 from randomization.models import UnavailableReason
 from service_requests.admin import ServiceRequestResource
@@ -128,9 +129,11 @@ def update_pooling_service():
     request_record.save()
     
 
-def export_walking_suggestion_decisions(username, directory, filename=None):
+def export_walking_suggestion_decisions(username, directory=None, filename=None):
     if not filename:
         filename = '%s.walking_suggestion_decisions.csv' % (username)
+    if not directory:
+        directory = './'
 
     try:
         configuration = Configuration.objects.get(user__username = username)
@@ -144,7 +147,7 @@ def export_walking_suggestion_decisions(username, directory, filename=None):
         time__gt = configuration.service_initialized_date,
         test = False
     ) \
-    .order_by('-created') \
+    .order_by('time') \
     .prefetch_rating() \
     .prefetch_weather_forecast() \
     .prefetch_location() \

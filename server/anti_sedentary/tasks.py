@@ -12,15 +12,17 @@ from .models import AntiSedentaryDecision
 from .models import AntiSedentaryServiceRequest
 
 
-def export_anti_sedentary_decisions(username, directory, filename=None):
+def export_anti_sedentary_decisions(username, directory=None, filename=None):
     if not filename:
         filename = '%s.anti_sedentary_decisions.csv' % (username)
+    if not directory:
+        directory = './'
     
     queryset = AntiSedentaryDecision.objects.filter(
         user__username=username,
         test = False
     ) \
-    .order_by('-created') \
+    .order_by('time') \
     .prefetch_rating() \
     .prefetch_weather_forecast() \
     .prefetch_location() \
@@ -28,7 +30,7 @@ def export_anti_sedentary_decisions(username, directory, filename=None):
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
     
-    total_rows = queryset.count()
+    total_rows = 500
     _file = open(os.path.join(directory, filename), 'w')
     start_index = 0
     slice_size = 100

@@ -112,7 +112,7 @@ class DecisionContextQuerySet(models.QuerySet):
             self._fetch_unavailable_reasons()
             self._load_unavailable_reasons_done = True
         if self._load_location and not self._load_location_done and self._result_cache:
-            self._fetch_location()
+            self._fetch_fresh_locations()
             self._load_location_done = True
         if self._load_weather_forecast and not self._load_weather_forecast_done and self._result_cache:
             self._fetch_weather_forecast()
@@ -230,6 +230,50 @@ class DecisionContextQuerySet(models.QuerySet):
                 _decision._location = locations_by_decision_id[decision_id]
             else:
                 _decision._location = None
+    
+    def _fetch_fresh_locations(self):
+        earliest_decision_time = None
+        latest_decision_time = None
+        user_ids = []
+        for _decision in self._result_cache:
+            if not earliest_decision_time or _decision.time < earliest_decision_time:
+                earliest_decision_time = _decision.time
+            if not latest_decision_time or _decision.time > latest_decision_time:
+                latest_decision_time = _decision.time
+            if _decision.user_id not in user_ids:
+                user_ids.append(_decision.user_id)
+        locations = Location.objects.filter(
+            user_id__in = user_ids,
+            time__gte = earliest_decision_time,
+            time__lte = latest_decision_time
+        ).order_by('time').all()
+        locations = list(locations)
+        locations_by_user_id = {}
+        for _location in locations:
+            if _location.user_id not in locations_by_user_id:
+                locations_by_user_id[_location.user_id] = []
+            locations_by_user_id[_location.user_id].append(_location)
+        for _decision in sorted(self._result_cache, key=lambda x: x.time):
+            locations = []
+            if _decision.user_id in locations_by_user_id:
+                locations = locations_by_user_id[_decision.user_id]
+            decision_location = None
+            while locations:
+                _location = locations[0]
+                if _location.time > _decision.time:
+                    break
+                _diff = _decision.time - _location.time
+                if _diff.seconds > 60*60:
+                    locations.pop(0)
+                    continue
+                if len(locations) > 1:
+                    next_location = locations[1]
+                    if next_location.time > _location.time and next_location.time <= _decision.time:
+                        locations.pop(0)
+                        continue
+                decision_location = _location
+                break
+            _decision._location = decision_location
 
     def _fetch_notification(self):
         message_content_type = ContentType.objects.get_for_model(Message)
