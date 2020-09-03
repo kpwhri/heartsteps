@@ -176,7 +176,7 @@ class DecisionContextTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test")
 
-        get_last_location_patch = patch.object(LocationService, 'get_last_location')
+        get_last_location_patch = patch.object(LocationService, 'get_location_near')
         self.addCleanup(get_last_location_patch.stop)
         self.get_last_location = get_last_location_patch.start()
         self.get_last_location.return_value = Location.objects.create(
@@ -282,7 +282,7 @@ class DecisionContextTest(TestCase):
         """
         Decision service imputes weather when no location is found
         """
-        def unknown_location():
+        def unknown_location(dt):
             raise LocationService.UnknownLocation()
         self.get_last_location.side_effect = unknown_location
         fake_weather_object = User.objects.create(username="totally_fake")

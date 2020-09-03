@@ -118,7 +118,7 @@ class DecisionContextService(DecisionService):
             return self.location
         try:
             location_service = LocationService(self.user)
-            location = location_service.get_last_location()
+            location = location_service.get_location_near(self.decision.time)
             DecisionContext.objects.create(
                 decision = self.decision,
                 content_object = location

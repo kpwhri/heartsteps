@@ -1,5 +1,5 @@
 import pytz
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from django.utils import timezone
 
@@ -48,6 +48,19 @@ class LocationService:
         else:
             raise self.UnknownLocation()
 
+    def get_recent_location(self):
+        return self.get_location_near(timezone.now())
+
+    def get_location_near(self, time):
+        location = Location.objects.filter(
+            user = self.__user,
+            time__lte = time,
+            time__gte = time - timedelta(minutes=60)
+        ).first()
+        if location:
+            return location
+        else:
+            raise self.UnknownLocation()
     def get_places(self):
         if not hasattr(self, '_places'):
             self._places = Place.objects.filter(
