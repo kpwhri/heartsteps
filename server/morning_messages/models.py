@@ -1,3 +1,4 @@
+from datetime import datetime
 import random
 
 from django.db import models
@@ -104,6 +105,28 @@ class MorningMessageDecision(Decision):
             self.add_context('sedentary')
         return framing
 
+    def __test_framing(self, frames):
+        if self.framing in frames:
+            return True
+        else:
+            return False
+
+    @property
+    def is_loss_framed(self):
+        return self.__test_framing([self.FRAME_LOSS_ACTIVE, self.FRAME_LOSS_SEDENTARY])
+    
+    @property
+    def is_gain_framed(self):
+        return self.__test_framing([self.FRAME_GAIN_ACTIVE, self.FRAME_GAIN_SEDENTARY])
+
+    @property
+    def is_sedentary_framed(self):
+        return self.__test_framing([self.FRAME_LOSS_SEDENTARY, self.FRAME_GAIN_SEDENTARY])
+
+    @property
+    def is_active_framed(self):
+        return self.__test_framing([self.FRAME_LOSS_ACTIVE, self.FRAME_GAIN_ACTIVE])
+
 class MorningMessageQuestion(Question):
     pass
 
@@ -162,7 +185,69 @@ class MorningMessageSurvey(Survey):
         else:
             return super().get_answer_label(question_name, answer_value)
 
+class MorningMessageQuerySet(models.QuerySet):
+
+    NOTIFICATIONS = 'notifications'
+
+    prefetch_methods = {}
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone.prefetch_methods = self.prefetch_methods
+        return clone
+
+    def _fetch_all(self):
+        super()._fetch_all()
+        while self._result_cache and self.prefetch_methods.keys():
+            now = datetime.now()
+            keys = self.prefetch_methods.keys()
+            _key = list(keys).pop()
+            method_name = self.prefetch_methods[_key]
+            del self.prefetch_methods[_key]
+            if hasattr(self, method_name):
+                getattr(self, method_name)()
+            diff = datetime.now() - now
+            print('%s in %d seconds' % (_key, diff.seconds))
+
+    def prefetch_decision(self):
+        return self.prefetch_related('message_decision')
+
+    def prefetch_survey(self):
+        return self.prefetch_related('survey')
+
+    def prefetch_message(self):
+        self.prefetch_methods['message'] = 'fetch_messages'
+        return self
+
+    def fetch_messages(self):
+        morning_message_ids = [_mm.id for _mm in self._result_cache]
+        message_by_morning_message_id = {}
+        morning_message_id_by_message_id = {}
+        message_contexts = MorningMessageContextObject.objects.filter(
+            morning_message_id__in = morning_message_ids,
+            content_type = ContentType.objects.get_for_model(PushMessage)
+        ).all()
+        for _message_context in message_contexts:
+            message_id = _message_context.object_id
+            morning_message_id = _message_context.morning_message_id
+            morning_message_id_by_message_id[message_id] = morning_message_id
+        messages = PushMessage.objects.filter(
+            id__in = morning_message_id_by_message_id.keys()
+        ).all()
+        for _message in messages:
+            morning_message_id = morning_message_id_by_message_id[_message.id]
+            message_by_morning_message_id[morning_message_id] = _message
+
+        for _morning_message in self._result_cache:
+            if _morning_message.id in message_by_morning_message_id:
+                message = message_by_morning_message_id[_morning_message.id]
+                _morning_message._message = message
+
+
 class MorningMessage(models.Model):
+
+    objects = MorningMessageQuerySet.as_manager()
+
     user = models.ForeignKey(User)
     date = models.DateField()
     randomized = models.BooleanField(default=True)
@@ -177,6 +262,30 @@ class MorningMessage(models.Model):
 
     class ContextDoesNotExist(RuntimeError):
         pass
+
+    @property
+    def message(self):
+        if hasattr(self, '_message'):
+            return self._message
+        else:
+            self._message = self.get_notification()
+            return self._message
+
+    @property
+    def is_gain_framed(self):
+        return self.message_decision.is_gain_framed
+
+    @property
+    def is_loss_framed(self):
+        return self.message_decision.is_loss_framed
+
+    @property
+    def is_sedentary_framed(self):
+        return self.message_decision.is_sedentary_framed
+
+    @property
+    def is_active_framed(self):
+        return self.message_decision.is_active_framed
 
     def get_notification(self):
         context = MorningMessageContextObject.objects.filter(

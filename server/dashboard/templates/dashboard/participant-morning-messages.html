@@ -1,0 +1,51 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id %}" class="nav-link active">Morning Messages</a>
+{% endblock %}
+
+{% block content %}
+
+<h2>Morning Messages for {{participant.heartsteps_id}}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Morning</th>
+            <th>Message</th>
+            <th>Survey</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for morning_message in morning_messages %}
+        <tr>
+            <td>
+                <dl>
+                    <dt>Date</dt>
+                    <dd>{{morning_message.date}}</dd>
+                    <dt>Sent:</dt>
+                    <dd>{{morning_message.sent}}</dd>
+                    <dt>Opened:</dt>
+                    <dd>{{morning_message.opened}}</dd>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>Notification</dt>
+                    <dd>{{morning_message.notification}}</dd>
+                    <dt>Message Framing</dt>
+                    <dd>{{morning_message.message_frame}}</dd>
+                </dl>
+            </td>
+            <td></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

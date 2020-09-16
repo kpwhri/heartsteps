@@ -31,6 +31,7 @@ from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpdate
 from fitbit_api.tasks import unauthorize_fitbit_account
 from fitbit_api.models import FitbitDevice
+from morning_messages.models import MorningMessage
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
@@ -1014,4 +1015,58 @@ class ParticipantAdherenceView(ParticipantView):
         
         context['metric_names'] = metric_names
         context['adherence_summaries'] = adherence_summaries
+        return context
+
+class ParticipantMorningMessagesView(ParticipantView):
+
+    template_name = 'dashboard/participant-morning-messages.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        if self.participant.user:
+            morning_messages = MorningMessage.objects \
+            .filter(
+                user = self.participant.user
+            ) \
+            .order_by('-date') \
+            .prefetch_decision() \
+            .prefetch_message() \
+            .prefetch_survey() \
+            .all()
+        else:
+            morning_messages = []
+        
+        serialized_morning_messages = []
+        for _morning_message in morning_messages:
+            opened = 'Not Opened'
+            sent = 'Not Sent'
+            if _morning_message.message:
+                if _morning_message.message.opened:
+                    opened = _morning_message.message.opened
+                if _morning_message.message.sent:
+                    sent = _morning_message.message.sent
+            message_frames = []
+            if _morning_message.is_loss_framed:
+                message_frames.append('Loss')
+            if _morning_message.is_gain_framed:
+                message_frames.append('Gain')
+            if _morning_message.is_sedentary_framed:
+                message_frames.append('Sedentary')
+            if _morning_message.is_active_framed:
+                message_frames.append('Active')
+            if message_frames:
+                message_frame = ','.join(sorted(message_frames))
+            else:
+                message_frame = 'Not framed'
+            serialized_morning_messages.append({
+                'date': _morning_message.date.strftime('%Y-%m-%d'),
+                'notification': _morning_message.notification,
+                'anchor': _morning_message.anchor,
+                'sent': sent,
+                'opened': opened,
+                'message_frame': message_frame
+            })
+            
+        context['morning_messages'] = serialized_morning_messages
         return context

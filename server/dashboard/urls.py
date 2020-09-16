@@ -22,6 +22,7 @@ from .views import CloseoutSummaryView
 from .views import DownloadView
 from .views import DataSummaryView
 from .views import ParticipantActivitySummaryView
+from .views import ParticipantMorningMessagesView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -32,6 +33,7 @@ urlpatterns = [
         auth_views.PasswordResetConfirmView.as_view(success_url='dashboard-login'),
         name='password_reset_confirm'
     ),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/morning-messages', ParticipantMorningMessagesView.as_view(), name='dashboard-cohort-participant-morning-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/fitbit/disable', ParticipantDisableFitbitAccountView.as_view(), name='dashboard-cohort-participant-fitbit-disable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/enable', ParticipantEnableView.as_view(), name='dashboard-cohort-participant-enable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/disable', ParticipantDisableView.as_view(), name='dashboard-cohort-participant-disable'),
