@@ -41,7 +41,22 @@
                     <dd>{{morning_message.message_frame}}</dd>
                 </dl>
             </td>
-            <td></td>
+            <td>
+                <dl>
+                    <dt>Survey Status</dt>
+                    <dd>{{morning_message.survey_status}}</dd>
+                    {% for question in morning_message.questions %}
+                        <dt>({{question.name}}) {{question.label}}</dt>
+                        {% if question.answer %}
+                        <dd>{{question.answer}}</dd>
+                        {% else %}
+                        <dd>Not Answered</dd>
+                        {% endif %}
+                    {% empty %}
+                        <dd>Questions missing</dd>
+                    {% endfor %}
+                </dl>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

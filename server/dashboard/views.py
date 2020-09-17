@@ -1059,13 +1059,33 @@ class ParticipantMorningMessagesView(ParticipantView):
                 message_frame = ','.join(sorted(message_frames))
             else:
                 message_frame = 'Not framed'
+            survey_status = 'Missing'
+            questions = []
+            if _morning_message.survey:
+                if _morning_message.survey.answered:
+                    survey_status = 'Answered'
+                else:
+                    survey_status = 'Unanswered'
+                if _morning_message.survey._questions:
+                    for _question in _morning_message.survey._questions:
+                        answer_value = None
+                        if hasattr(_morning_message.survey, '_answers') and _question.id in _morning_message.survey._answers:
+                            answer = _morning_message.survey._answers[_question.id]
+                            answer_value = answer.label
+                        questions.append({
+                            'answer': answer_value,
+                            'label': _question.label,
+                            'name': _question.name
+                        })
             serialized_morning_messages.append({
                 'date': _morning_message.date.strftime('%Y-%m-%d'),
                 'notification': _morning_message.notification,
                 'anchor': _morning_message.anchor,
                 'sent': sent,
                 'opened': opened,
-                'message_frame': message_frame
+                'message_frame': message_frame,
+                'survey_status': survey_status,
+                'questions': questions
             })
             
         context['morning_messages'] = serialized_morning_messages

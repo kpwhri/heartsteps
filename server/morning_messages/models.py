@@ -12,7 +12,7 @@ from behavioral_messages.models import MessageTemplate
 from days.services import DayService
 from randomization.models import Decision
 from push_messages.models import Message as PushMessage
-from surveys.models import Question, Survey
+from surveys.models import Question, Survey, SurveyQuestion, SurveyAnswer, SurveyResponse
 
 User = get_user_model()
 
@@ -213,7 +213,8 @@ class MorningMessageQuerySet(models.QuerySet):
         return self.prefetch_related('message_decision')
 
     def prefetch_survey(self):
-        return self.prefetch_related('survey')
+        self.prefetch_methods['survey'] = 'fetch_surveys'
+        return self
 
     def prefetch_message(self):
         self.prefetch_methods['message'] = 'fetch_messages'
@@ -242,6 +243,39 @@ class MorningMessageQuerySet(models.QuerySet):
             if _morning_message.id in message_by_morning_message_id:
                 message = message_by_morning_message_id[_morning_message.id]
                 _morning_message._message = message
+
+    def fetch_surveys(self):
+        survey_by_id = {}
+        surveys = MorningMessageSurvey.objects.filter(
+            uuid__in = [_mm.survey_id for _mm in self._result_cache]
+        ).all()
+        for survey in surveys:
+            survey_by_id[survey.id] = survey
+        questions = SurveyQuestion.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ).all()
+        for _question in questions:
+            survey = survey_by_id[_question.survey_id]
+            if not hasattr(survey, '_questions'):
+                setattr(survey,'_questions', [])
+            survey._questions.append(_question)
+        responses = SurveyResponse.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ) \
+        .exclude(answer = None) \
+        .prefetch_related('answer') \
+        .all()
+        for _response in responses:
+            survey = survey_by_id[_response.survey_id]
+            if not hasattr(survey, '_answers'):
+                setattr(survey,'_answers', {})
+            survey._answers[_response.question_id] = _response.answer
+        
+        for _morning_message in self._result_cache:
+            if _morning_message.survey_id in survey_by_id:
+                _morning_message.survey = survey_by_id[_morning_message.survey_id]
+            else:
+                _morning_message.survey = None
 
 
 class MorningMessage(models.Model):
