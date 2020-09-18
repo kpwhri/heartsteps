@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from daily_tasks.models import DailyTask
 
 from behavioral_messages.models import MessageTemplate
+from days.models import Day
 from days.services import DayService
 from randomization.models import Decision
 from push_messages.models import Message as PushMessage
@@ -220,6 +221,10 @@ class MorningMessageQuerySet(models.QuerySet):
         self.prefetch_methods['message'] = 'fetch_messages'
         return self
 
+    def prefetch_timezone(self):
+        self.prefetch_methods['timezone'] = 'fetch_timezones'
+        return self
+
     def fetch_messages(self):
         morning_message_ids = [_mm.id for _mm in self._result_cache]
         message_by_morning_message_id = {}
@@ -277,6 +282,36 @@ class MorningMessageQuerySet(models.QuerySet):
             else:
                 _morning_message.survey = None
 
+    def fetch_timezones(self):
+        timezones_by_user_id_then_date = {}
+        for _morning_message in self._result_cache:
+            if _morning_message.user_id not in timezones_by_user_id_then_date:
+                timezones_by_user_id_then_date[_morning_message.user_id] = {}
+            timezones_by_user_id_then_date[_morning_message.user_id][_morning_message.date] = None
+        filters = []
+        for user_id, date_dict in timezones_by_user_id_then_date.items():
+            dates = sorted(list(date_dict.keys()))
+            filters.append(models.Q(
+                user_id = user_id,
+                date__gte = dates[0],
+                date__lte = dates[len(dates)-1]
+            ))
+        days_query = None
+        for _filter in filters:
+            if not days_query:
+                days_query = Day.objects.filter(_filter)
+            else:
+                days_query = days_query.filter(_filter)
+        for _day in days_query.all():
+            if _day.user_id not in timezones_by_user_id_then_date:
+                timezones_by_user_id_then_date[_day.user_id] = {}
+            timezones_by_user_id_then_date[_day.user_id][_day.date] = _day.get_timezone()
+        for morning_message in self._result_cache:
+            _user_id = morning_message.user_id
+            _date = morning_message.date
+            if _user_id in timezones_by_user_id_then_date:
+                if _date in timezones_by_user_id_then_date[_user_id]:
+                    morning_message._timezone = timezones_by_user_id_then_date[_user_id][_date]
 
 class MorningMessage(models.Model):
 
@@ -358,6 +393,12 @@ class MorningMessage(models.Model):
     def get_timezone(self):
         service = DayService(user=self.user)
         return service.get_timezone_at(self.date)
+
+    @property
+    def timezone(self):
+        if not hasattr(self, '_timezone'):
+            self._timezone = self.get_timezone()            
+        return self._timezone
 
     def remove_context(self, obj):
         try:

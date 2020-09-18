@@ -1033,19 +1033,27 @@ class ParticipantMorningMessagesView(ParticipantView):
             .prefetch_decision() \
             .prefetch_message() \
             .prefetch_survey() \
+            .prefetch_timezone() \
             .all()
         else:
             morning_messages = []
         
         serialized_morning_messages = []
         for _morning_message in morning_messages:
+            completed = 'Not Completed'
             opened = 'Not Opened'
+            received = 'Not Received'
             sent = 'Not Sent'
             if _morning_message.message:
+                _timezone = _morning_message.timezone
+                if _morning_message.message.engaged:
+                    completed = _morning_message.message.engaged.astimezone(_timezone).strftime('%Y-%m-%d %H:%M:%S')
                 if _morning_message.message.opened:
-                    opened = _morning_message.message.opened
+                    opened = _morning_message.message.opened.astimezone(_timezone).strftime('%Y-%m-%d %H:%M:%S')
+                if _morning_message.message.received:
+                    received = _morning_message.message.received.astimezone(_timezone).strftime('%Y-%m-%d %H:%M:%S')
                 if _morning_message.message.sent:
-                    sent = _morning_message.message.sent
+                    sent = _morning_message.message.sent.astimezone(_timezone).strftime('%Y-%m-%d %H:%M:%S')
             message_frames = []
             if _morning_message.is_loss_framed:
                 message_frames.append('Loss')
@@ -1081,8 +1089,10 @@ class ParticipantMorningMessagesView(ParticipantView):
                 'date': _morning_message.date.strftime('%Y-%m-%d'),
                 'notification': _morning_message.notification,
                 'anchor': _morning_message.anchor,
+                'completed': completed,
                 'sent': sent,
                 'opened': opened,
+                'received': received,
                 'message_frame': message_frame,
                 'survey_status': survey_status,
                 'questions': questions

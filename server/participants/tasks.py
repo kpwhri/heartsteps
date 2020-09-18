@@ -28,6 +28,7 @@ from locations.models import Place
 from locations.services import LocationService
 from locations.tasks import export_location_count_csv
 from locations.tasks import update_location_categories
+from morning_messages.tasks import export_morning_messages
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
@@ -291,6 +292,12 @@ def export_user_data(username):
     export_file(export_adherence_metrics,
         participant = participant,
         filename = 'daily-metrics.csv',
+        directory = user_directory
+    )
+    export_file(
+        export_morning_messages,
+        participant = participant,
+        filename = 'morning-messages.csv',
         directory = user_directory
     )
     subprocess.call(
