@@ -17,7 +17,97 @@ def send_morning_message(username):
     except MorningMessageService.NotEnabled:
         pass
 
-@shared_task
+def export_morning_message_survey(username, filename=None, directory=None):
+    user = User.objects.get(username=username)
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.morning-survey.csv' % (username)
+
+    morning_messages = MorningMessage.objects \
+        .order_by('date') \
+        .filter(
+            user = user
+        ) \
+        .prefetch_decision() \
+        .prefetch_message() \
+        .prefetch_survey() \
+        .prefetch_timezone() \
+        .all()
+
+    question_names = []
+    serialized_morning_messages_by_date = {}
+    for morning_message in morning_messages:
+        time_sent = None
+        time_received = None
+        time_opened = None
+        time_completed = None
+        if morning_message.message:
+            _tz = morning_message.timezone
+            if morning_message.message.sent:
+                time_sent = morning_message.message.sent.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
+            if morning_message.message.received:
+                time_received = morning_message.message.received.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
+            if morning_message.message.opened:
+                time_opened = morning_message.message.opened.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
+            if morning_message.message.engaged:
+                time_completed = morning_message.message.engaged.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
+        _mm_serialized = {
+            'time_sent': time_sent,
+            'time_received': time_received,
+            'time_opened': time_opened,
+            'time_completed': time_completed
+        }
+        if morning_message.survey and morning_message.survey.answered and morning_message.survey._questions:
+            for question in morning_message.survey.questions:
+                if question.name not in question_names:
+                    question_names.append(question.name)
+                if question.id in morning_message.survey._answers:
+                    answer = morning_message.survey._answers[question.id]
+                    _mm_serialized[question.name] = answer.value
+        serialized_morning_messages_by_date[morning_message.date] = _mm_serialized
+
+    sorted_question_names = sorted(question_names)
+
+    rows = []
+    headers = [
+        'Date',
+        'Time Sent',
+        'Time Received',
+        'Time Opened',
+        'Time Completed',
+    ] + sorted_question_names
+    rows.append(headers)
+
+    start_date = morning_messages[0].date
+    end_date = morning_messages[len(morning_messages) - 1].date
+    date_diff = end_date - start_date
+    for _date in [start_date + timedelta(days=offset) for offset in range(date_diff.days)]:
+        if _date in serialized_morning_messages_by_date:
+            _mm = serialized_morning_messages_by_date[_date]
+            row = [
+                _date.strftime('%Y-%m-%d'),
+                _mm['time_sent'],
+                _mm['time_received'],
+                _mm['time_opened'],
+                _mm['time_completed']
+            ]
+            for name in sorted_question_names:
+                if name in _mm:
+                    row.append(_mm[name])
+                else:
+                    row.append(None)
+            rows.append(row)
+        else:
+            rows.append([
+                _date.strftime('%Y-%m-%d')
+            ])
+
+    _file = open(path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(rows)
+    _file.close()
+
 def export_morning_messages(username, filename=None, directory=None):
     user = User.objects.get(username=username)
     if not directory:
@@ -32,7 +122,6 @@ def export_morning_messages(username, filename=None, directory=None):
         ) \
         .prefetch_decision() \
         .prefetch_message() \
-        .prefetch_survey() \
         .prefetch_timezone() \
         .all()
     start_date = morning_messages[0].date
