@@ -149,9 +149,9 @@ class MorningMessageSurvey(Survey):
         'Energetic',
         'Fatigued',
         'Happy',
-        'Sad',
         'Relaxed',
         'Stressed',
+        'Sad',
         'Tense'
     ]
 

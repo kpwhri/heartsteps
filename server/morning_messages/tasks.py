@@ -65,6 +65,7 @@ def export_morning_message_survey(username, filename=None, directory=None):
                 if question.id in morning_message.survey._answers:
                     answer = morning_message.survey._answers[question.id]
                     _mm_serialized[question.name] = answer.value
+            _mm_serialized['mood'] = morning_message.survey.selected_word
         serialized_morning_messages_by_date[morning_message.date] = _mm_serialized
 
     sorted_question_names = sorted(question_names)
@@ -76,7 +77,9 @@ def export_morning_message_survey(username, filename=None, directory=None):
         'Time Received',
         'Time Opened',
         'Time Completed',
-    ] + sorted_question_names
+    ] + [_name.title() for _name in sorted_question_names] + [
+        'Mood'
+    ]
     rows.append(headers)
 
     start_date = morning_messages[0].date
@@ -97,6 +100,10 @@ def export_morning_message_survey(username, filename=None, directory=None):
                     row.append(_mm[name])
                 else:
                     row.append(None)
+            if 'mood' in _mm:
+                row.append(_mm['mood'])
+            else:
+                row.append(None)
             rows.append(row)
         else:
             rows.append([
