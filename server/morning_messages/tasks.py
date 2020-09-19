@@ -121,6 +121,7 @@ def export_morning_messages(username, filename=None, directory=None):
             user = user
         ) \
         .prefetch_decision() \
+        .prefetch_message_template() \
         .prefetch_message() \
         .prefetch_timezone() \
         .all()
@@ -167,7 +168,10 @@ def export_morning_messages(username, filename=None, directory=None):
                 if morning_message.message.opened:
                     time_opened = morning_message.message.opened.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
                 if morning_message.message.engaged:
-                    time_completed = morning_message.message.engaged.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')        
+                    time_completed = morning_message.message.engaged.astimezone(_tz).strftime('%Y-%m-%d %H:%M:%s')
+            morning_message_template_id = None
+            if morning_message.message_template:
+                morning_message_template_id = morning_message.message_template.id        
             rows.append([
                 morning_message.date.strftime('%Y-%m-%d'),
                 time_sent,
@@ -175,7 +179,7 @@ def export_morning_messages(username, filename=None, directory=None):
                 time_opened,
                 time_completed,
                 morning_message.notification,
-                '???',
+                morning_message_template_id,
                 morning_message.text,
                 morning_message.anchor,
                 morning_message.is_gain_framed,

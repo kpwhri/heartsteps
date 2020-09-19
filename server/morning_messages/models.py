@@ -12,6 +12,7 @@ from behavioral_messages.models import MessageTemplate
 from days.models import Day
 from days.services import DayService
 from randomization.models import Decision
+from randomization.models import DecisionContext
 from push_messages.models import Message as PushMessage
 from surveys.models import Question, Survey, SurveyQuestion, SurveyAnswer, SurveyResponse
 
@@ -128,6 +129,17 @@ class MorningMessageDecision(Decision):
     def is_active_framed(self):
         return self.__test_framing([self.FRAME_LOSS_ACTIVE, self.FRAME_GAIN_ACTIVE])
 
+    def get_message_template(self):
+        try:
+            context_object = DecisionContext.objects.get(
+                decision = self,
+                content_type = ContentType.objects.get_for_model(MorningMessageTemplate)
+            )
+            message_template = context_object.content_object
+            return message_template
+        except DecisionContext.DoesNotExist:
+            return None
+
 class MorningMessageQuestion(Question):
     pass
 
@@ -186,6 +198,7 @@ class MorningMessageSurvey(Survey):
         else:
             return super().get_answer_label(question_name, answer_value)
 
+
 class MorningMessageQuerySet(models.QuerySet):
 
     NOTIFICATIONS = 'notifications'
@@ -224,6 +237,31 @@ class MorningMessageQuerySet(models.QuerySet):
     def prefetch_timezone(self):
         self.prefetch_methods['timezone'] = 'fetch_timezones'
         return self
+
+    def prefetch_message_template(self):
+        self.prefetch_methods['message_template'] = 'fetch_message_template'
+        return self.prefetch_related('message_decision')
+
+    def fetch_message_template(self):
+        decision_ids = [_mm.message_decision_id for _mm in self._result_cache if _mm.message_decision_id]
+        message_template_id_by_decision_id = {}
+        message_template_ids = []
+        decision_contexts = DecisionContext.objects.filter(
+            decision_id__in = decision_ids,
+            content_type = ContentType.objects.get_for_model(MorningMessageTemplate)
+        ).all()
+        for _context in decision_contexts:
+            if _context.content_object_id not in message_template_ids:
+                message_template_ids = _context.content_object_id
+            message_template_id_by_decision_id[_context.decision_id] = _context.content_object_id
+        message_template_by_id = {}
+        for message_template in MorningMessageTemplate.objects.filter(id__in = message_template_ids).all():
+            message_template_by_id[message_template.id] = message_template
+        for morning_message in self._result_cache:
+            if morning_message.message_decision_id in message_template_id_by_decision_id:
+                message_template_id = message_template_id_by_decision_id[morning_message.message_decision_id]
+                if message_template_id in message_template_by_id:
+                    morning_message._message_template = message_template_by_id[message_template_id]
 
     def fetch_messages(self):
         morning_message_ids = [_mm.id for _mm in self._result_cache]
@@ -341,6 +379,14 @@ class MorningMessage(models.Model):
             return self._message
 
     @property
+    def message_template(self):
+        if hasattr(self, '_message_template'):
+            return self._message_template
+        else:
+            self._message_template = self.get_message_template()
+            return self._message_template
+
+    @property
     def is_gain_framed(self):
         return self.message_decision.is_gain_framed
 
@@ -364,6 +410,12 @@ class MorningMessage(models.Model):
         if context:
             return context.content_object
         return None
+
+    def get_message_template(self):
+        if self.message_decision:
+            return self.message_decision.get_message_template()
+        else:
+            return None
 
     def __get_context(self, obj):
         try:
