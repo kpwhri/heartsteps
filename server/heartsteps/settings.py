@@ -135,7 +135,8 @@ INSTALLED_APPS = [
     'heartsteps_data_download',
     'heartsteps_messages',
     'pin_gen',
-    'closeout_messages'
+    'closeout_messages',
+    'burst_periods'
 ]
 
 MIDDLEWARE = [
