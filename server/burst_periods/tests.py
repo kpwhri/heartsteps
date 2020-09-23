@@ -19,7 +19,7 @@ class TestBurstPeriodGeneration(TestCase):
         self.configuration.enabled = False
         self.configuration.save()
         start = date.today()
-        end = date.today() + timedelta(days=self.configuration.DAYS_PER_PERIOD)
+        end = date.today() + timedelta(days=self.configuration.interval_length)
 
         self.configuration.generate_schedule(start, end)
 
@@ -28,7 +28,7 @@ class TestBurstPeriodGeneration(TestCase):
 
     def test_generates_single_burst_period(self):
         start = date.today()
-        end = date.today() + timedelta(days=self.configuration.DAYS_PER_PERIOD)
+        end = date.today() + timedelta(days=self.configuration.interval_length)
 
         self.configuration.generate_schedule(start, end)
 
@@ -37,7 +37,7 @@ class TestBurstPeriodGeneration(TestCase):
 
     def test_generates_burst_periods(self):
         number_of_periods = 4
-        duration = self.configuration.DAYS_PER_PERIOD * number_of_periods
+        duration = self.configuration.interval_length * number_of_periods
         start = date.today()
         end = date.today() + timedelta(days=duration)
 
