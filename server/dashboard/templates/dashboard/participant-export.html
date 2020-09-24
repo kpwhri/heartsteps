@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-export' cohort.id participant.heartsteps_id %}" class="nav-link active">Data Export</a>
+{% endblock %}
+
+{% block content %}
+<h2>Data Export for {{participant.heartsteps_id}}</h2>
+
+{% for log in export_logs %}
+<dl>
+    <dt>Filename</dt>
+    <dd>{{log.filename}}</dd>
+    <dt>Time</dt>
+    <dd>{{log.time}}</dd>
+    <dt>Duration</dt>
+    <dd>{{log.duration}}</dd>
+    {% if log.error %}
+    <dt>Error</dt>
+    <dd>{{log.error}}</dd>
+    {% endif %}
+</dl>
+{% endfor %}
+
+{% endblock %}

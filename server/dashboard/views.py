@@ -1100,3 +1100,21 @@ class ParticipantMorningMessagesView(ParticipantView):
             
         context['morning_messages'] = serialized_morning_messages
         return context
+
+class ParticipantExportView(ParticipantView):
+
+    template_name = 'dashboard/participant-export.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        exports = DataExport.objects.filter(user=self.participant.user).order_by('-start')[:100]
+        serialized_exports = []
+        for _export in exports:
+            serialized_exports.append({
+                'error': _export.error_message,
+                'filename': _export.filename,
+                'time': _export.start.strftime('%Y-%m-%d %H:%M:%S'),
+                'duration': '%d seconds' % (_export.duration)
+            })
+        context['export_logs'] = serialized_exports
+        return context

@@ -285,3 +285,8 @@ class DataExport(models.Model):
 
     def __str__(self):
         return self.filename
+
+    @property
+    def duration(self):
+        diff = self.end - self.start
+        return diff.seconds
