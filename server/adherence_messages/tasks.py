@@ -144,7 +144,7 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
         page_views_by_date[_day.date] = page_view_count
 
     locations_by_date = {}
-    locations = Locations.objects.filter(
+    locations = Location.objects.filter(
         user__username = username
     ).order_by('time').all()
     locations = list(locations)
