@@ -11,11 +11,33 @@
 
 {% block body %}
 <h2>Export Status for {{cohort.name}}</h2>
-<p>{{total_files}} files exports with {{total_errors}} for {{total_participants}}</p>
+<p>{{total_files}} files exported for {{total_participants}} participants</p>
+
+<table class="table">
+    <thead>
+        <th>Type</th>
+        <th>Files</th>
+        <th>Recent</th>
+        <th>Errors</th>
+    </thead>
+    <tbody>
+        {% for export_type in export_types %}
+        <tr>
+            <td>{{export_type.name}}</td>
+            <td>{{export_type.count}}</td>
+            <td>{{export_type.recent}}</td>
+            <td>{{export_type.errors}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <table class="table">
     <thead>
         <td>Participant</td>
-        <td>Exported Files</td>
+        {% for filename in filenames %}
+        <td>{{filename}}</td>
+        {% endfor %}
     </thead>
     <tbody>
         {% timezone 'US/Pacific' %}
@@ -35,17 +57,20 @@
                     <dd>{{participant.study_end}}</dd>
                 </dl>
             </td>
+            {% for export in participant.exports %}
             <td>
+            {% if export %}
                 <dl>
-                    {% for export in participant.exports %}
                     <dt>{{export.filename}}</dt>
-                    <dd>Last update {{export.updated_date}}</dd>
+                    <dd>Last update {{export.date}}</dd>
                     {% if export.error %}
-                    <dd>Error on last export</dd>
+                    <dt>Error</dt>
+                    <dd>{{export.error}}</dd>
                     {% endif %}
-                    {% endfor %}
                 </dl>
+            {% endif %}
             </td>
+            {% endfor %}
         </tr>
         {% endfor %}
         {% endtimezone %}

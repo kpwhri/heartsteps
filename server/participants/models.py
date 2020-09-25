@@ -287,6 +287,14 @@ class DataExport(models.Model):
         return self.filename
 
     @property
+    def export_type(self):
+        split_filename = self.filename.split('.')
+        if len(split_filename) > 2:
+            return split_filename[-2]
+        else:
+            return 'Unknown'
+
+    @property
     def duration(self):
         diff = self.end - self.start
         return diff.seconds

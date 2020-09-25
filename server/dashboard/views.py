@@ -233,31 +233,52 @@ class DownloadView(CohortView):
         participants = self.query_participants().prefetch_related('user').all()
         users = [p.user for p in participants if p.user]
         exports_by_username = {}
+        filenames = []
         data_exports = DataExport.objects.filter(user__in=users).prefetch_related('user').order_by('start').all()
         for export in data_exports:
+            if export.export_type not in filenames:
+                filenames.append(export.export_type)
             username = export.user.username
             if username not in exports_by_username:
                 exports_by_username[username] = {}
-            exports_by_username[username][export.filename] = {
-                'updated_date': export.end.strftime('%Y-%m-%d'),
-                'filename': export.filename,
-                'error': export.error_message
-            }
+            exports_by_username[username][export.export_type] = export
+        filenames.sort()
         total_participants = 0
         total_files = 0
         total_errors = 0
+        export_types = {}
         context['participants'] = []
         for _participant in participants:
             total_participants += 1
             exports = []
-            if _participant.user and _participant.user.username in exports_by_username:
-                _exports = exports_by_username[_participant.user.username]
-                for _key in sorted(_exports.keys()):
-                    _export = _exports[_key]
-                    exports.append(_export)
-                    total_files += 1
-                    if _export['error']:
-                        total_errors += 1
+            for _filename in filenames:
+                if _participant.user:
+                    username = _participant.user.username                    
+                    if _filename in exports_by_username[username]:
+                        total_files += 1
+                        if export.error_message:
+                            total_errors += 1
+                        export = exports_by_username[username][_filename]
+                        exports.append({
+                            'filename': export.filename,
+                            'date': export.start.strftime('%Y-%m-%d'),
+                            'duration': export.duration,
+                            'error': export.error_message
+                        })
+                        if export.export_type not in export_types:
+                            export_types[export.export_type] = {
+                                'name': export.export_type,
+                                'count': 0,
+                                'errors': 0,
+                                'recent': 0
+                            }
+                        export_types[export.export_type]['count'] += 1
+                        if export.error_message:
+                            export_types[export.export_type]['errors'] += 1
+                        if export.start > timezone.now() - timedelta(days=3):
+                            export_types[export.export_type]['recent'] += 1
+                else:
+                    exports.append(None)
                 
             status = "Disabled"
             if _participant.enabled:
@@ -275,6 +296,8 @@ class DownloadView(CohortView):
                 'study_end': study_end,
                 'exports': exports
             })
+        context['filenames'] = filenames
+        context['export_types'] = [export_types[_f] for _f in filenames]
         context['total_participants'] = total_participants
         context['total_files'] = total_files
         context['total_errors'] = total_errors
