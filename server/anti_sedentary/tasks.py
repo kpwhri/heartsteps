@@ -12,7 +12,7 @@ from .models import AntiSedentaryDecision
 from .models import AntiSedentaryServiceRequest
 
 
-def export_anti_sedentary_decisions(username, directory=None, filename=None):
+def export_anti_sedentary_decisions(username, directory=None, filename=None, start=None, end=None):
     if not filename:
         filename = '%s.anti_sedentary_decisions.csv' % (username)
     if not directory:
@@ -29,6 +29,11 @@ def export_anti_sedentary_decisions(username, directory=None, filename=None):
     .prefetch_notification() \
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
+
+    if start:
+        queryset = queryset.filter(time__gte = start)
+    if end:
+        queryset = queryset.filter(time__lte = end)
     
     total_rows = queryset.count()
     _file = open(os.path.join(directory, filename), 'w')
@@ -75,15 +80,22 @@ def export_anti_sedentary_decisions(username, directory=None, filename=None):
         start_index = start_index + slice_size
     _file.close()
 
-def export_anti_sedentary_service_requests(username, directory=None, filename=None):
+def export_anti_sedentary_service_requests(username, directory=None, filename=None, start=None, end=None):
     if not filename:
         filename = '%s.anti_sedentary_service_requests.csv' % (username)
     if not directory:
-        directory = './' 
+        directory = './'
+
+    queryset = AntiSedentaryServiceRequest.objects.filter(
+        user__username = username
+    )
+    if start:
+        queryset = queryset.filter(request_time__gte=start)
+    if end:
+        queryset = queryset.filter(request_time__lte=end)
+
     dataset = ServiceRequestResource().export(
-        queryset = AntiSedentaryServiceRequest.objects.filter(
-            user__username = username
-        )
+        queryset = queryset
     )
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)

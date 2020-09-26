@@ -114,24 +114,27 @@ class DailyAdherenceResource(resources.Resource):
             return instance.date.strftime('%Y-%m-%d')
         return None
 
-def export_adherence_metrics(username, directory=None, filename=None, start_date=None, end_date=None):
+def export_daily_metrics(username, directory=None, filename=None, start=None, end=None):
     if not filename:
-        filename = '%s.adherence_metrics.csv' % (username)
+        filename = '%s.daily_metrics.csv' % (username)
     if not directory:
         directory = './'
-    try:
-        adherence_service = AdherenceService(username = username)
-    except AdherenceService.NoConfiguration:
-        return False
-    days = Day.objects.filter(user__username=username).all()
-    if not start_date:
-        start_date = days[0].date
-    if not end_date:
-        end_date = days[len(days)-1].date
+    
+    days_query = Day.objects.filter(user__username=username)
+    if start:
+        days_query = days_query.filter(start__gte=start)
+    if end:
+        days_query = days_query.filter(end__lte=end)
+    days = list(days_query.all())
+    
+    if not days:
+        raise RuntimeError('No days exist for user')
 
     page_views_by_date = {}
     page_views = PageView.objects.filter(
-        user__username = username
+        user__username = username,
+        time__gte = days[0].start,
+        time__lte = days[-1].end
     ).order_by('time').all()
     page_views = list(page_views)
     for _day in days:
@@ -145,7 +148,9 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
 
     locations_by_date = {}
     locations = Location.objects.filter(
-        user__username = username
+        user__username = username,
+        time__gte = days[0].start,
+        time__lte = days[-1].end
     ).order_by('time').all()
     locations = list(locations)
     for _day in days:
@@ -159,7 +164,9 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
 
     messages_by_date = {}
     messages = Message.objects.filter(
-        recipient__username = username
+        recipient__username = username,
+        created__gte = days[0].start,
+        created__lte = days[-1].end
     ).order_by('created').all()
     messages = list(messages)
     for _day in days:
@@ -189,7 +196,9 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
         fitbit_service = FitbitService(username=username)
         fitbit_account = fitbit_service.account
         fitbit_days = FitbitDay.objects.filter(
-            account = fitbit_account
+            account = fitbit_account,
+            date__gte = days[0].date,
+            date__lte = days[-1].date
         ).all()
         for _fitbit_day in fitbit_days:
             fitbit_activity_by_date[_fitbit_day.date] = {
@@ -201,15 +210,20 @@ def export_adherence_metrics(username, directory=None, filename=None, start_date
         pass
 
     daily_adherence_by_date = {}
-    for metric in AdherenceMetric.objects.order_by('date').filter(user__username=username).all():
+    adherence_metrics_query = AdherenceMetric.objects.filter(
+        user__username=username,
+        date__gte = days[0].date,
+        date__lte = days[-1].date
+    ).order_by('date')
+    for metric in adherence_metrics_query.all():
         if metric.date not in daily_adherence_by_date:
             daily_adherence_by_date[metric.date] = {}
         daily_adherence_by_date[metric.date][metric.category] = metric.value
     
-    first_day = days[0]
-    last_day = days[len(days) - 1]
-    date_range = (last_day.date - first_day.date).days
-    all_dates = [first_day.date + timedelta(days=offset) for offset in range(date_range)]
+    first_date = days[0].date
+    last_date = days[-1].date
+    date_range = (last_date - first_date).days
+    all_dates = [first_date + timedelta(days=offset) for offset in range(date_range)]
     
     days = []
     for _date in all_dates:

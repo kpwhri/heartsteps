@@ -10,7 +10,7 @@ from celery import shared_task
 from django.utils import timezone
 from django.conf import settings
 
-from adherence_messages.tasks import export_adherence_metrics
+from adherence_messages.tasks import export_daily_metrics
 from anti_sedentary.tasks import export_anti_sedentary_decisions
 from anti_sedentary.tasks import export_anti_sedentary_service_requests
 from days.models import Day
@@ -225,7 +225,7 @@ def export_user_locations(username, directory=None, filename=None, start=None, e
         ]] + locations
     )
 
-def setup_exports(participant, directory):
+def setup_exports(participant, directory, log_export=True):
     def export_file(fn, filename):
         filename = '{study}.{cohort}.{heartsteps_id}.{filename}'.format(
             filename = filename,
@@ -234,15 +234,34 @@ def setup_exports(participant, directory):
             study = participant.cohort.study.slug
         )
 
-                
+        if log_export:
+            print('Export start: {}'.format(filename))
+            export = DataExport(
+                user = participant.user,
+                filename = filename,
+                start = timezone.now()
+            )
+            try:
+                fn(
+                    username = participant.user.username,
+                    filename = filename,
+                    directory = directory,
+                    start = participant.study_start,
+                    end = participant.study_end
+                )
+            except Exception as e:
+                print('Error:', e)
+                export.error_message = e
+            export.end = timezone.now()
+            export.save()
 
-        print('Export start: {}'.format(filename))
-        export = DataExport(
-            user = participant.user,
-            filename = filename,
+            diff = export.end - export.start
+            minutes = floor(diff.seconds/60)
+            seconds = diff.seconds - (minutes*60)
+            print('Export end: {} ({} minutes {} seconds)'.format(filename, minutes, seconds))
+        else:
             start = timezone.now()
-        )
-        try:
+            print('Export start: {}'.format(filename))
             fn(
                 username = participant.user.username,
                 filename = filename,
@@ -250,34 +269,33 @@ def setup_exports(participant, directory):
                 start = participant.study_start,
                 end = participant.study_end
             )
-        except Exception as e:
-            export.error_message = e
-        export.end = timezone.now()
-        export.save()
-
-        diff = export.end - export.start
-        minutes = floor(diff.seconds/60)
-        seconds = diff.seconds - (minutes*60)
-        print('Export end: {} ({} minutes {} seconds)'.format(filename, minutes, seconds))
+            end = timezone.now()
+            diff = end - start
+            minutes = floor(diff.seconds/60)
+            seconds = diff.seconds - (minutes*60)
+            print('Export end: {} ({} minutes {} seconds)'.format(filename, minutes, seconds))
     return export_file
 
 @shared_task
-def export_user_data(username):
+def export_user_data(username, log_export=True):
     EXPORT_DIRECTORY = '/heartsteps-export'
     if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
         print('Data download not configured')
         return False
     
-    if not os.path.exists(EXPORT_DIRECTORY):
-        os.makedirs(EXPORT_DIRECTORY)
-    user_directory = os.path.join(EXPORT_DIRECTORY, username)
-    if os.path.exists(user_directory) and os.path.isdir(user_directory):
-        shutil.rmtree(user_directory)
-    if not os.path.exists(user_directory):
-        os.makedirs(user_directory)
+    if log_export:
+        if not os.path.exists(EXPORT_DIRECTORY):
+            os.makedirs(EXPORT_DIRECTORY)
+        directory = os.path.join(EXPORT_DIRECTORY, username)
+        if os.path.exists(directory) and os.path.isdir(directory):
+            shutil.rmtree(directory)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    else:
+        directory = './'
     
-    participant = Participant.objects.get(user__username=username)    
-    export_file = setup_exports(participants, user_directory)
+    participant = Participant.objects.get(user__username=username)  
+    export_file = setup_exports(participant, directory, log_export)
 
     export_file(export_anti_sedentary_decisions,
         filename = 'anti-sedentary-decisions.csv'
@@ -285,7 +303,7 @@ def export_user_data(username):
     export_file(export_anti_sedentary_service_requests,
         filename = 'anti-sedentary-service-requests.csv'
     )
-    export_file(export_adherence_metrics,
+    export_file(export_daily_metrics,
         filename = 'daily-metrics.csv'
     )
     export_file(export_fitbit_data,
@@ -309,10 +327,11 @@ def export_user_data(username):
         filename = 'walking-suggestion-service-requests.csv'
     )
 
-    subprocess.call(
-        'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
-        shell=True
-    )
+    if log_export:
+        subprocess.call(
+            'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
+            shell=True
+        )
 
 def export_cohort_data(cohort_name, directory, start=None, end=None):
     cohort = Cohort.objects.get(name=cohort_name)

@@ -251,9 +251,9 @@ class MorningMessageQuerySet(models.QuerySet):
             content_type = ContentType.objects.get_for_model(MorningMessageTemplate)
         ).all()
         for _context in decision_contexts:
-            if _context.content_object_id not in message_template_ids:
-                message_template_ids = _context.content_object_id
-            message_template_id_by_decision_id[_context.decision_id] = _context.content_object_id
+            if _context.object_id not in message_template_ids:
+                message_template_ids.append(_context.object_id)
+            message_template_id_by_decision_id[_context.decision_id] = _context.object_id
         message_template_by_id = {}
         for message_template in MorningMessageTemplate.objects.filter(id__in = message_template_ids).all():
             message_template_by_id[message_template.id] = message_template

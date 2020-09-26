@@ -2,6 +2,7 @@ import os
 from celery import shared_task
 import csv
 from datetime import timedelta
+from datetime import datetime
 from django.utils import timezone
 from import_export import resources
 from import_export.fields import Field
@@ -79,7 +80,7 @@ class FitbitMinuteDataResource(resources.Resource):
             'heart_rate'
         ]
 
-def export_fitbit_data(username, directory, filename = None):
+def export_fitbit_data(username, directory, filename = None, start=None, end=None):
     if not filename:
         filename = '%s.fitbit_minutes.csv'
     fitbit_service = FitbitActivityService(username=username)
@@ -91,25 +92,54 @@ def export_fitbit_data(username, directory, filename = None):
         username = None
         fitbit_account = None
         timezone = None
-        date = 'Date'
-        time = 'Time'
-        steps=0
-        heart_rate=0
+        date = None
+        time = None
+        steps = None
+        heart_rate = None
 
-    days = FitbitDay.objects.filter(account=fitbit_account).all()
-    for day in days:
-        for minute in day.get_minute_level_data():
-            _m = MinuteLevelData()
-            _m.username = username
-            _m.fitbit_account = fitbit_account.fitbit_user
-            _m.timezone = day._timezone
-            _m.date = minute['date']
-            _m.time = minute['time']
-            if 'steps' in minute:
-                _m.steps = minute['steps']
-            if 'heart_rate' in minute:
-                _m.heart_rate = minute['heart_rate']
-            minute_level_data.append(_m)
+    days_by_date = {}
+    for fitbit_day in FitbitDay.objects.filter(account=fitbit_account).all():
+        if start and start >= fitbit_day.get_end_datetime():
+            continue
+        if end and end <= fitbit_day.get_start_datetime():
+            continue
+        days_by_date[fitbit_day.date] = fitbit_day
+
+    if not days_by_date:
+        raise 'No fitbit days exist for user'
+
+    dates = sorted(list(days_by_date.keys()))
+    date_range = (dates[-1] - dates[0]).days
+    all_days = [dates[0] + timedelta(days=offset) for offset in range(date_range)]
+
+    for _date in all_days:
+        if _date in days_by_date:
+            day = days_by_date[_date]
+            for minute in day.get_minute_level_data():
+                _m = MinuteLevelData()
+                _m.username = username
+                _m.fitbit_account = fitbit_account.fitbit_user
+                _m.timezone = day._timezone
+                _m.date = minute['date']
+                _m.time = minute['time']
+                if 'steps' in minute:
+                    _m.steps = minute['steps']
+                if 'heart_rate' in minute:
+                    _m.heart_rate = minute['heart_rate']
+                minute_level_data.append(_m)
+        else:
+            start_datetime = datetime(date.year, date.month, date.day, 0, 0, 0)
+            end_datetime = start_datetime + timedelta(days=1)
+            current_minute = start_datetime
+            while current_minute < end_datetime:
+                _m = MinuteLevelData()
+                _m.username = username,
+                _m.fitbit_account = fitbit_account.fitbit_user,
+                _m.timezone = day._timezone,
+                _m.date = current_minute.strftime('%Y-%m-%d')
+                _m.time = current_minute.strftime('%H:%M:S')
+                minute_level_data.append(_m)
+                current_minute = current_minute + timedelta(minutes=1)
     
     dataset = FitbitMinuteDataResource().export(minute_level_data)
 
@@ -117,7 +147,7 @@ def export_fitbit_data(username, directory, filename = None):
     _file.write(dataset.csv)
     _file.close()
 
-def export_missing_fitbit_data(users, filename=None, directory=None):
+def export_missing_fitbit_data(users, filename=None, directory=None, start=None, end=None):
     if not filename:
         filename = 'incomplete_fitbit_data.csv'
     if not directory:
