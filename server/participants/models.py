@@ -145,40 +145,50 @@ class Participant(models.Model):
                 self._fitbit_account = None
         return self._fitbit_account
 
-    def get_study_start_datetime(self):
+    def get_fitbit_start_datetime(self):
         if self.fitbit_account and self.fitbit_account.first_updated:
             return self.fitbit_account.first_updated
         else:
             return None
     
     def get_study_start_date(self):
-        study_start_datetime = self.get_study_start_datetime()
+        study_start_datetime = self.get_fitbit_start_datetime()
         if study_start_datetime:
             day_service = DayService(user = self.user)
             return day_service.get_date_at(study_start_datetime)
         else:
             return None
 
-    @property
-    def study_start(self):
+    def get_study_start_datetime(self):
         if self.user:            
             day_service = DayService(user = self.user)
             if self.study_start_date:
                 return day_service.get_start_of_day(self.study_start_date)
             else:
-                study_start_datetime = self.get_study_start_datetime()
+                study_start_datetime = self.get_fitbit_start_datetime()
                 if study_start_datetime:
                     return day_service.get_start_of_day(study_start_datetime)
         return None
 
-    @property
-    def study_end(self):
+    def get_study_end_datetime(self):
         if self.user and self.study_start and self.study_length:
             service = DayService(user = self.user)
             end_date = self.study_start + timedelta(days=self.study_length)
             return service.get_end_of_day(end_date)
         else:
             return None
+
+    @property
+    def study_start(self):
+        if not hasattr(self, '_study_start'):
+            self._study_start = self.get_study_start_datetime()
+        return self._study_start
+
+    @property
+    def study_end(self):
+        if not hasattr(self, '_study_end'):
+            self._study_end = self.get_study_end_datetime()
+        return self._study_end
 
     @property
     def study_length(self):
