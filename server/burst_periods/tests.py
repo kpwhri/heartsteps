@@ -45,3 +45,20 @@ class TestBurstPeriodGeneration(TestCase):
 
         periods = BurstPeriod.objects.filter(user = self.user).all()
         self.assertEqual(len(periods), number_of_periods)
+
+class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test')
+        self.configuration = Configuration.objects.create(
+            user=self.user
+        )
+
+    # def test_disable_configuration_disables_burst_probability(self):
+    #     self.fail('not implemented')
+
+    # def test_sets_burst_probability_when_scheduled(self):
+    #     self.fail('not implemented')
+
+    # def test_stops_burst_probability_when_not_scheduled(self):
+    #     self.fail('not implemented')

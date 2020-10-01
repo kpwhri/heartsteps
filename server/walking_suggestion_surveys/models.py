@@ -22,6 +22,7 @@ class Configuration(models.Model):
         related_name = '+'
     )
     enabled = models.BooleanField(default = True)
+    treatment_probability = models.FloatField(null=True)
 
     def randomize_survey(self):
         decision = Decision.objects.create(

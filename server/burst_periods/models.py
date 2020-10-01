@@ -5,7 +5,9 @@ from random import choice
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from activity_surveys.models import Configuration as ActivitySurveyConfiguration
 from daily_tasks.models import DailyTask
+from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 
 User = get_user_model()
 
@@ -18,9 +20,42 @@ class Configuration(models.Model):
     )
     enabled = models.BooleanField(default=True)
 
+    daily_task = models.ForeignKey(
+        DailyTask,
+        null = True,
+        related_name = '+',
+        on_delete = models.SET_NULL
+    )
+
     period_length = models.PositiveIntegerField(default=7)
     interval_length = models.PositiveIntegerField(default=90)
     interval_variation = models.PositiveIntegerField(default=30)
+
+    def save(self, *args, **kwargs):
+        if not self.daily_task:
+            self.daily_task = self.create_daily_task()
+        super().save(*args, **kwargs)
+        if self.enabled:
+            self.daily_task.enable()
+        else:
+            self.daily_task.disable()
+
+    def update_randomization_probabilities(self, date):
+        pass
+
+    def create_daily_task(self):
+        daily_task = DailyTask.create_daily_task(
+            user = self.user,
+            category = None,
+            task = 'burst_periods.tasks.update_burst_probability',
+            name = 'Burst probability update for %s' % (self.user.username),
+            arguments = {
+                'username': self.user.username
+            },
+            hour = 3,
+            minute = 0
+        )
+        return daily_task
 
     def generate_schedule(self, start, end):
         if not self.enabled:

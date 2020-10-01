@@ -17,6 +17,7 @@ class Configuration(models.Model):
         related_name = '+'
     )
     enabled = models.BooleanField(default = True)
+    treatment_probability = models.FloatField(null=True)
 
 class Decision(models.Model):
     user = models.ForeignKey(
