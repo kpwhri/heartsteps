@@ -43,6 +43,12 @@ class Configuration(models.Model):
     def update_randomization_probabilities(self, date):
         pass
 
+    def enable_burst_probabilities(self):
+        pass
+
+    def disable_burst_probabilities(self):
+        pass
+
     def create_daily_task(self):
         daily_task = DailyTask.create_daily_task(
             user = self.user,
