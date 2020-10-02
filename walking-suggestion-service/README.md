@@ -147,6 +147,10 @@ The *decision* service is called for each participant at each of the decision ti
 It *must* be called at each of five decision times in a day (even if the participant is currently unavailable). 
 *(It is possible that a technical server failure would stop the decision service from being called, but we hope to avoid that situation)*
 
+### Randomization Schedule
+
+- During the first week (the study day < 8) after the initialization, the walking suggestion message is randomized with a fixed probability 0.25. 
+- Starting on day 8, the walking suggestion is randomized according to the learning algorithm
 
 ### INPUT-OUTPUT
 The *decision* service outputs a json file (see below for an example of the output)
@@ -165,7 +169,7 @@ The *decision* service outputs a json file (see below for an example of the outp
 3. `send`, the indicator of whether to send the activity message
 4. `inTrial `, indicating the type of user:  `0` means if this is test user, `1` if user is formally in the trial, and `2` if the user is in the pooled bandit group of 10 people. 
 5. `type`, indiciating how the probability is calculated: `0` means we are using the fixed randomization 
-probability (e.g. 0.25 if available), `1` means the probabilility is calculated based on person specific bandit algorithm
+probability, `1` means the probabilility is calculated based on person specific bandit algorithm
  if available, `2` means the probabilility is calculated based on pooled bandit algorithm if available.  
 
 
