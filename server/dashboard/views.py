@@ -37,6 +37,7 @@ from participants.models import Participant
 from participants.models import Study
 from participants.models import DataExport
 from participants.models import DataExportSummary
+from participants.models import DataExportQueue
 from participants.services import ParticipantService
 from push_messages.services import PushMessageService
 from randomization.models import UnavailableReason
@@ -314,6 +315,25 @@ class DownloadView(CohortView):
         context['total_files'] = total_files
         context['total_errors'] = total_errors
         return context
+
+    def post(self, request, *args, **kwargs):
+        participants = self.query_participants().prefetch_related('user').all()
+        users = [p.user for p in participants if p.user]
+        export_count = 0
+        for user in users:
+            DataExportQueue.objects.create(
+                user = user
+            )
+            export_count += 1
+        messages.add_message(request, messages.SUCCESS, 'Queued %d data exports' % (export_count))
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-download',
+                kwargs = {
+                    'cohort_id':self.cohort.id
+                }
+            )
+        )
 
 class DataSummaryView(CohortView):
     template_name = 'dashboard/data-summary.html'

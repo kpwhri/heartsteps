@@ -13,6 +13,11 @@
 <h2>Export Status for {{cohort.name}}</h2>
 <p>{{total_files}} files exported for {{total_participants}} participants</p>
 
+<form action="{% url 'dashboard-cohort-download' cohort.id %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Queue Data Export For Cohort" />
+</form>
+
 <table class="table">
     <thead>
         <th>Type</th>
