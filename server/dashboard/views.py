@@ -235,14 +235,17 @@ class DownloadView(CohortView):
         users = [p.user for p in participants if p.user]
         export_summaries_by_username = {}
         categories = []
-        data_export_summaries = DataExportSummary.objects.filter(user__in=users).prefetch_related('user').prefetch_related('last_data_export').order_by('start').all()
+        data_export_summaries = DataExportSummary.objects.filter(user__in=users) \
+        .prefetch_related('user') \
+        .prefetch_related('last_data_export') \
+        .all()
         for summary in data_export_summaries:
             if summary.category not in categories:
                 categories.append(summary.category)
-            username = export.user.username
+            username = summary.user.username
             if username not in export_summaries_by_username:
-                export_summaries[username] = {}
-            export_summaries[username][summary.category] = summary
+                export_summaries_by_username[username] = {}
+            export_summaries_by_username[username][summary.category] = summary
         categories.sort()
         total_participants = 0
         total_files = 0
@@ -254,11 +257,8 @@ class DownloadView(CohortView):
             exports = []
             for _filename in categories:
                 if _participant.user:
-                    username = _participant.user.username                    
-                    if _filename in export_summaries_by_username[username]:
-                        total_files += 1
-                        if export.error_message:
-                            total_errors += 1
+                    username = _participant.user.username               
+                    if username in export_summaries_by_username and _filename in export_summaries_by_username[username]:
                         summary = export_summaries_by_username[username][_filename]
                         last_updated = None
                         duration = None
@@ -276,14 +276,16 @@ class DownloadView(CohortView):
                         })
                         if summary.category not in export_types:
                             export_types[summary.category] = {
-                                'name': export.export_type,
+                                'name': summary.category,
                                 'count': 0,
                                 'errors': 0,
                                 'recent': 0
                             }
                         if export:
+                            total_files += 1
                             export_types[summary.category]['count'] += 1
                             if export.error_message:
+                                total_errors += 1
                                 export_types[export.export_type]['errors'] += 1
                             if export.start > timezone.now() - timedelta(days=3):
                                 export_types[export.export_type]['recent'] += 1
@@ -306,7 +308,7 @@ class DownloadView(CohortView):
                 'study_end': study_end,
                 'exports': exports
             })
-        context['filenames'] = filenames
+        context['filenames'] = categories
         context['export_types'] = [export_types[_f] for _f in categories]
         context['total_participants'] = total_participants
         context['total_files'] = total_files

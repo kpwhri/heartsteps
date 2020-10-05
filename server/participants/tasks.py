@@ -257,7 +257,7 @@ def setup_exports(participant, directory, log_export=True):
             export.end = timezone.now()
             export.save()
 
-            summary = DataExportSummary.objects.get_or_create(
+            summary, _ = DataExportSummary.objects.get_or_create(
                 user = participant.user,
                 category = export.category
             )
@@ -342,7 +342,7 @@ def export_user_data(username, log_export=True):
             shell=True
         )
 
-def export_cohort_data(cohort_name, directory, start=None, end=None):
+def export_cohort_data(cohort_name, directory):
     cohort = Cohort.objects.get(name=cohort_name)
     participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
     users = [p.user for p in participants]
@@ -369,7 +369,7 @@ def process_data_export_queue():
     ).all()
     for queued_export in queued_data_exports:
         export_user_data.apply_async(kwargs={
-            'username': user.username
+            'username': queued_export.user.username
         })
         queued_export.started = timezone.now()
         queued_export.save()
