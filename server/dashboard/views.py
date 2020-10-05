@@ -266,7 +266,7 @@ class DownloadView(CohortView):
                         error = None
                         export = summary.last_data_export
                         if export:
-                            last_udpated = export.start.strftime('%Y-%m-%d')
+                            last_updated = export.start.strftime('%Y-%m-%d')
                             duration = export.duration
                             error = export.error_message
                         exports.append({
