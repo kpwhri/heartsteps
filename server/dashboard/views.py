@@ -36,6 +36,7 @@ from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
 from participants.models import DataExport
+from participants.models import DataExportSummary
 from participants.services import ParticipantService
 from push_messages.services import PushMessageService
 from randomization.models import UnavailableReason
@@ -232,17 +233,17 @@ class DownloadView(CohortView):
         context = super().get_context_data(**kwargs)
         participants = self.query_participants().prefetch_related('user').all()
         users = [p.user for p in participants if p.user]
-        exports_by_username = {}
-        filenames = []
-        data_exports = DataExport.objects.filter(user__in=users).prefetch_related('user').order_by('start').all()
-        for export in data_exports:
-            if export.export_type not in filenames:
-                filenames.append(export.export_type)
+        export_summaries_by_username = {}
+        categories = []
+        data_export_summaries = DataExportSummary.objects.filter(user__in=users).prefetch_related('user').prefetch_related('last_data_export').order_by('start').all()
+        for summary in data_export_summaries:
+            if summary.category not in categories:
+                categories.append(summary.category)
             username = export.user.username
-            if username not in exports_by_username:
-                exports_by_username[username] = {}
-            exports_by_username[username][export.export_type] = export
-        filenames.sort()
+            if username not in export_summaries_by_username:
+                export_summaries[username] = {}
+            export_summaries[username][summary.category] = summary
+        categories.sort()
         total_participants = 0
         total_files = 0
         total_errors = 0
@@ -251,32 +252,41 @@ class DownloadView(CohortView):
         for _participant in participants:
             total_participants += 1
             exports = []
-            for _filename in filenames:
+            for _filename in categories:
                 if _participant.user:
                     username = _participant.user.username                    
-                    if _filename in exports_by_username[username]:
+                    if _filename in export_summaries_by_username[username]:
                         total_files += 1
                         if export.error_message:
                             total_errors += 1
-                        export = exports_by_username[username][_filename]
+                        summary = export_summaries_by_username[username][_filename]
+                        last_updated = None
+                        duration = None
+                        error = None
+                        export = summary.last_data_export
+                        if export:
+                            last_udpated = export.start.strftime('%Y-%m-%d')
+                            duration = export.duration
+                            error = export.error_message
                         exports.append({
-                            'filename': export.filename,
-                            'date': export.start.strftime('%Y-%m-%d'),
-                            'duration': export.duration,
-                            'error': export.error_message
+                            'filename': summary.category,
+                            'date': last_updated,
+                            'duration': duration,
+                            'error': error
                         })
-                        if export.export_type not in export_types:
-                            export_types[export.export_type] = {
+                        if summary.category not in export_types:
+                            export_types[summary.category] = {
                                 'name': export.export_type,
                                 'count': 0,
                                 'errors': 0,
                                 'recent': 0
                             }
-                        export_types[export.export_type]['count'] += 1
-                        if export.error_message:
-                            export_types[export.export_type]['errors'] += 1
-                        if export.start > timezone.now() - timedelta(days=3):
-                            export_types[export.export_type]['recent'] += 1
+                        if export:
+                            export_types[summary.category]['count'] += 1
+                            if export.error_message:
+                                export_types[export.export_type]['errors'] += 1
+                            if export.start > timezone.now() - timedelta(days=3):
+                                export_types[export.export_type]['recent'] += 1
                 else:
                     exports.append(None)
                 
@@ -297,7 +307,7 @@ class DownloadView(CohortView):
                 'exports': exports
             })
         context['filenames'] = filenames
-        context['export_types'] = [export_types[_f] for _f in filenames]
+        context['export_types'] = [export_types[_f] for _f in categories]
         context['total_participants'] = total_participants
         context['total_files'] = total_files
         context['total_errors'] = total_errors
