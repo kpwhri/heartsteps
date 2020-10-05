@@ -6,7 +6,7 @@ from warnings import warn
 
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from slugify import slugify
 
 from daily_tasks.models import DailyTask
@@ -18,6 +18,8 @@ from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
+
+User = get_user_model()
 
 class Study(models.Model):
     name = models.CharField(
@@ -305,6 +307,48 @@ class DataExport(models.Model):
             return 'Unknown'
 
     @property
+    def category(self):
+        return self.export_type
+
+    @property
     def duration(self):
         diff = self.end - self.start
         return diff.seconds
+
+class DataExportSummary(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+    category = models.CharField(
+        max_length = 150
+    )
+
+    last_data_export = models.ForeignKey(
+        DataExport,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+
+    updated = models.DateTimeField(
+        auto_now = True
+    )
+
+class DataExportQueue(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+
+    created = models.DateTimeField(
+        auto_now_add = True
+    )
+    started = models.DateTimeField(
+        null = True
+    )
+    completed = models.DateTimeField(
+        null = True
+    )

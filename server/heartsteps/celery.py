@@ -29,7 +29,12 @@ app.conf.beat_schedule = {
     'export-data': {
         'task': 'heartsteps_data_download.tasks.download_data',
         'schedule': crontab(hour='11', minute='0')
+    },
+    'data-export-queue': {
+        'task': 'participants.tasks.process_data_export_queue',
+        'schedule': crontab()
     }
+
 }
 
 app.conf.task_default_queue = 'default'

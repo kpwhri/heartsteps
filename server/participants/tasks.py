@@ -39,6 +39,8 @@ from weekly_reflection.models import ReflectionTime
 from .services import ParticipantService
 from .models import Cohort
 from .models import DataExport
+from .models import DataExportSummary
+from .models import DataExportQueue
 from .models import Study
 from .models import Participant
 
@@ -255,6 +257,13 @@ def setup_exports(participant, directory, log_export=True):
             export.end = timezone.now()
             export.save()
 
+            summary = DataExportSummary.objects.get_or_create(
+                user = participant.user,
+                category = export.category
+            )
+            summary.last_data_export = export
+            summary.save()
+
             diff = export.end - export.start
             minutes = floor(diff.seconds/60)
             seconds = diff.seconds - (minutes*60)
@@ -337,28 +346,10 @@ def export_cohort_data(cohort_name, directory, start=None, end=None):
     cohort = Cohort.objects.get(name=cohort_name)
     participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
     users = [p.user for p in participants]
-
-    if not start or not end:
-        start = date.today() - timedelta(days=90)
-        end = date.today()
-
-    export_location_count_csv(
-        users = users,
-        start_date = start,
-        end_date = end,
-        filename = '%s/%s.location_counts.csv' % (directory, cohort.slug)
-    )
-    export_step_count_records_csv(
-        users = users,
-        start_date = start,
-        end_date = end,
-        filename = '%s/%s.watch-app-step-count-records.csv' % (directory, cohort.slug)
-    )
-    export_missing_fitbit_data(
-        users = users,
-        filename = '%s.missing_fitbit_data.csv' % (cohort.slug),
-        directory = directory
-    )
+    for _user in users:
+        DataExportQueue.objects.create(
+            user = user
+        )
 
 @shared_task
 def daily_update(username):
@@ -370,7 +361,15 @@ def daily_update(username):
         service.participant.study_start_date = service.participant.get_study_start_date()
         service.participant.save()
     update_location_categories(username)
-    export_user_data.apply_async(kwargs={
-        'username':username
-    })
 
+@shared_task
+def process_data_export_queue():
+    queued_data_exports = DataExportQueue.objects.filter(
+        started = None
+    ).all()
+    for queued_export in queued_data_exports:
+        export_user_data.apply_async(kwargs={
+            'username': user.username
+        })
+        queued_export.started = timezone.now()
+        queued_export.save()
