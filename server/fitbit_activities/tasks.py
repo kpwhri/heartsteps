@@ -80,9 +80,13 @@ class FitbitMinuteDataResource(resources.Resource):
             'heart_rate'
         ]
 
-def export_fitbit_data(username, directory, filename = None, start=None, end=None):
+def export_fitbit_data(username, directory = None, filename = None, start=None, end=None):
+    if not directory:
+        directory = './'
     if not filename:
-        filename = '%s.fitbit_minutes.csv'
+        filename = '{username}.fitbit_minutes.csv'.format(
+            username = username
+        )
     fitbit_service = FitbitActivityService(username=username)
     fitbit_account = fitbit_service.account
 
@@ -128,7 +132,7 @@ def export_fitbit_data(username, directory, filename = None, start=None, end=Non
                     _m.heart_rate = minute['heart_rate']
                 minute_level_data.append(_m)
         else:
-            start_datetime = datetime(date.year, date.month, date.day, 0, 0, 0)
+            start_datetime = datetime(_date.year, _date.month, _date.day, 0, 0, 0)
             end_datetime = start_datetime + timedelta(days=1)
             current_minute = start_datetime
             while current_minute < end_datetime:
