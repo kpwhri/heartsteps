@@ -338,7 +338,7 @@ def export_user_data(username, log_export=True):
 
     if log_export:
         subprocess.call(
-            'gsutil -m rsync %s gs://%s' % (user_directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
+            'gsutil -m rsync %s gs://%s' % (directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
             shell=True
         )
 
