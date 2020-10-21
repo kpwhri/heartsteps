@@ -53,15 +53,56 @@ class Configuration(models.Model):
             self._burst_periods = self.get_burst_periods()
         return self._burst_periods
 
+    def update_intervention_configurations(self, date):
+        burst_period = BurstPeriod.objects.filter(
+            user = self.user,
+            start__lte = date,
+            end__gte = date
+        ).first()
+        if burst_period:
+            self.burst_intervention_configurations()
+        else:
+            self.normalize_intervention_configurations()
 
-    def update_randomization_probabilities(self, date):
-        pass
+    def burst_intervention_configurations(self):
+        self.burst_activity_surveys()
+        self.burst_walking_suggestion_surveys()
 
-    def enable_burst_probabilities(self):
-        pass
+    def normalize_intervention_configurations(self):
+        self.normalize_activity_surveys()
+        self.normalize_walking_suggestion_surveys()
 
-    def disable_burst_probabilities(self):
-        pass
+    def burst_activity_surveys(self):
+        self.update_activity_survey_probability(0.9)
+
+    def normalize_activity_surveys(self):
+        self.update_activity_survey_probability(0.2)
+
+    def burst_walking_suggestion_surveys(self):
+        self.update_walking_suggestion_survey_treatment_probability(0.9)
+
+    def normalize_walking_suggestion_surveys(self):
+        self.update_walking_suggestion_survey_treatment_probability(0.2)
+
+    def update_activity_survey_probability(self, treatment_probability):
+        try:
+            configuration = ActivitySurveyConfiguration.objects.get(
+                user = self.user
+            )
+            configuration.treatment_probability = treatment_probability
+            configuration.save()
+        except ActivitySurveyConfiguration.DoesNotExist:
+            pass
+
+    def update_walking_suggestion_survey_treatment_probability(self, treatment_probability):
+        try:
+            configuration = WalkingSuggestionSurveyConfiguration.objects.get(
+                user = self.user
+            )
+            configuration.treatment_probability = treatment_probability
+            configuration.save()
+        except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+            pass
 
     def create_daily_task(self):
         daily_task = DailyTask.create_daily_task(

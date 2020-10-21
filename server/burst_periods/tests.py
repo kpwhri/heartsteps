@@ -3,9 +3,11 @@ from datetime import timedelta
 
 from django.test import TestCase
 
-from .models import Configuration
+from .models import ActivitySurveyConfiguration
 from .models import BurstPeriod
+from .models import Configuration
 from .models import User
+from .models import WalkingSuggestionSurveyConfiguration
 
 class TestBurstPeriodGeneration(TestCase):
 
@@ -53,12 +55,49 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
         self.configuration = Configuration.objects.create(
             user=self.user
         )
+        ActivitySurveyConfiguration.objects.create(
+            user = self.user
+        )
+        WalkingSuggestionSurveyConfiguration.objects.create(
+            user = self.user
+        )
 
     # def test_disable_configuration_disables_burst_probability(self):
     #     self.fail('not implemented')
 
-    # def test_sets_burst_probability_when_scheduled(self):
-    #     self.fail('not implemented')
+    def test_sets_burst_probability_when_scheduled(self):
+        # Burst period is today, and the day after tomorrow until next week
+        BurstPeriod.objects.create(
+            user = self.user,
+            start = date.today(),
+            end = date.today()
+        )
+        BurstPeriod.objects.create(
+            user = self.user,
+            start = date.today() + timedelta(days=2),
+            end = date.today() + timedelta(days=7)
+        )
+
+        self.configuration.update_intervention_configurations(date.today())
+
+        activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
+        walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
+
+        self.configuration.update_intervention_configurations(date.today() + timedelta(days=1))
+
+        activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
+        walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 0.2)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.2)
+
+        self.configuration.update_intervention_configurations(date.today() + timedelta(days=4))
+
+        activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
+        walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
 
     # def test_stops_burst_probability_when_not_scheduled(self):
     #     self.fail('not implemented')
