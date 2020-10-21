@@ -181,6 +181,38 @@ class DashboardListView(CohortView):
         context['participant_list'] = participants
         return context
 
+class BurstPeriodSummaryView(CohortView):
+    template_name = 'dashboard/burst-period-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = DashboardParticipant.objects \
+        .filter(
+            archived = False,
+            cohort = self.cohort,
+        ) \
+        .order_by('heartsteps_id') \
+        .prefetch_related('user') \
+        .prefetch_burst_periods() \
+        .all()
+
+        current_burst_periods = []
+        upcoming_burst_periods = []
+        other_participants = []
+        for participant in participants:
+            if participant.current_burst_period:
+                current_burst_periods.append(participant)
+                continue
+            if participant.next_burst_period:
+                upcoming_burst_periods.append(participant)
+                continue
+            other_participants.append(participant)
+
+        context['participants'] = sorted(current_burst_periods, key= lambda p: p.current_burst_period.start ) \
+        + sorted(upcoming_burst_periods, key=lambda p: p.next_burst_period.start) \
+        + other_participants
+        return context
+
 class InterventionSummaryView(CohortView):
     template_name = 'dashboard/intervention-summary.page.html'
 

@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
 from .views import CohortListView
+from .views import BurstPeriodSummaryView
 from .views import DashboardListView
 from .views import InterventionSummaryView
 from .views import ParticipantCreateView
@@ -48,6 +49,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/activity', ParticipantActivitySummaryView.as_view(), name='dashboard-cohort-participant-activity-summary'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/export', ParticipantExportView.as_view(), name='dashboard-cohort-participant-export'),
+    url('(?P<cohort_id>[\d]+)/burst-periods', BurstPeriodSummaryView.as_view(), name='dashboard-cohort-burst-periods'),
     url('(?P<cohort_id>[\d]+)/download', DownloadView.as_view(), name='dashboard-cohort-download'),
     url('(?P<cohort_id>[\d]+)/data-summary', DataSummaryView.as_view(), name='dashboard-cohort-data-summary'),
     url('(?P<cohort_id>[\d]+)/closeout-summary', CloseoutSummaryView.as_view(), name='dashboard-cohort-closeout-summary'),

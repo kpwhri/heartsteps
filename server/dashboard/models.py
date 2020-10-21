@@ -9,6 +9,7 @@ from adherence_messages.models import AdherenceMessage
 from adherence_messages.services import AdherenceAppInstallMessageService
 from adherence_messages.services import AdherenceFitbitUpdatedService
 from anti_sedentary.models import AntiSedentaryDecision
+from burst_periods.models import Configuration as BurstPeriodConfiguration
 from contact.models import ContactInformation
 from days.services import DayService
 from fitbit_activities.services import FitbitActivityService
@@ -262,11 +263,18 @@ class NotificationsQuerySet(models.QuerySet):
         )
         return query.all()
 
+class DashboardParticipantQuerySet(models.QuerySet):
+
+    def prefetch_burst_periods(self):
+        return self
+
 class DashboardParticipant(Participant):
 
     notifications = NotificationsQuerySet.as_manager()
     summaries = InterventionSummaryManager()
     watch_app_step_counts = WatchAppSummaryManager()
+
+    objects = DashboardParticipantQuerySet.as_manager()
 
     class Meta:
         proxy = True
@@ -555,6 +563,71 @@ class DashboardParticipant(Participant):
                     return sms_message.created
             return None
         except SMSContact.DoesNotExist:
+            return None
+
+    @property
+    def burst_period_configured(self):
+        if self.burst_period_configuration is not None:
+            return True
+        else:
+            return False
+    
+    @property
+    def burst_period_enabled(self):
+        if self.burst_period_configuration is not None:
+            return self.burst_period_configuration.enabled
+        else:
+            return False
+
+    @property
+    def burst_period_configuration(self):
+        if not hasattr(self, '_burst_period_configuration'):
+            self._burst_period_configuration = self.get_burst_period_configuration()
+        return self._burst_period_configuration
+
+    @property
+    def burst_periods(self):
+        if self.burst_period_configuration:
+            return self.burst_period_configuration.burst_periods
+        else:
+            return []
+
+    @property
+    def next_burst_period(self):
+        if self.next_burst_periods:
+            return self.next_burst_periods[0]
+        else:
+            return None
+
+    @property
+    def next_burst_periods(self):
+        if self.burst_period_configuration:
+            return self.burst_period_configuration.next_burst_periods
+        else:
+            return []
+
+    @property
+    def previous_burst_periods(self):
+        if self.burst_period_configuration:
+            return self.burst_period_configuration.previous_burst_periods
+        else:
+            return []
+    
+    @property
+    def current_burst_period(self):
+        if self.burst_period_configuration:
+            return self.burst_period_configuration.current_burst_period
+        else:
+            return None
+    
+    def get_burst_period_configuration(self):
+        if not self.user:
+            return None
+        try:
+            return BurstPeriodConfiguration.objects.get(
+                user = self.user
+            )
+        except BurstPeriodConfiguration.DoesNotExist:
             return None
 
 class FitbitServiceDashboard(FitbitService):

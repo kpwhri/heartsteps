@@ -62,8 +62,22 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
             user = self.user
         )
 
-    # def test_disable_configuration_disables_burst_probability(self):
-    #     self.fail('not implemented')
+    def test_does_not_change_intervention_probability_when_disabled(self):
+        self.configuration.enabled = False
+        self.configuration.save()
+        BurstPeriod.objects.create(
+            user = self.user,
+            start = date.today(),
+            end = date.today()
+        )
+
+        self.configuration.update_intervention_configurations(date.today())
+
+        activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
+        walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
+
 
     def test_sets_burst_probability_when_scheduled(self):
         # Burst period is today, and the day after tomorrow until next week
@@ -98,6 +112,3 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
         walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
         self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
         self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
-
-    # def test_stops_burst_probability_when_not_scheduled(self):
-    #     self.fail('not implemented')

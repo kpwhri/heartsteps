@@ -1,0 +1,61 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-burst-periods' cohort.id %}" class="nav-link active">Burst Periods</a>
+{% endblock %}
+
+{% block content %}
+{{availability}}
+<h2>Burst Periods for {{cohort.name}}</h2>
+
+<table class="table">
+    <thead>
+        <th>Participant</th>
+        <th>Burst Period</th>
+    </thead>
+    <tbody>
+        {% for participant in participants %}
+        <tr>
+            <td>
+                <a href="">{{participant.heartsteps_id}}</a>
+                {% if participant.burst_period_configured %}
+                {% if participant.burst_period_enabled %}
+                <p>Enabled</p>
+                {% else %}
+                <p>Disabled</p>
+                {% endif %}                
+                {% else %}
+                <p>Not configured</p>
+                {% endif %}
+
+            </td>
+            <td>
+                <dl>
+                    {% if participant.previous_burst_periods %}
+                    <dt>Previous Burst Periods</dt>
+                    {% for burst_period in participant.previous_burst_periods %}
+                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
+                    {% endfor %}
+                    {% endif %}
+                    {% if participant.current_burst_period %}
+                    <dt>Current Burst Period</dt>
+                    <dd>{{participant.current_burst_period.start}} to {{participant.current_burst_period.end}}</dd>
+                    {% endif %}
+                    {% if participant.next_burst_periods %}
+                    <dt>Next Burst Period</dt>
+                    {% for burst_period in participant.next_burst_periods %}
+                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
+                    {% endfor %}
+                    {% endif %}
+                </dl>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

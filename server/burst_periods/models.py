@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 
 from activity_surveys.models import Configuration as ActivitySurveyConfiguration
 from daily_tasks.models import DailyTask
+from days.services import DayService
 from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 
 User = get_user_model()
@@ -52,6 +53,28 @@ class Configuration(models.Model):
         if not hasattr(self, '_burst_periods'):
             self._burst_periods = self.get_burst_periods()
         return self._burst_periods
+
+    @property
+    def current_burst_period(self):
+        for burst_period in self.burst_periods:
+            if burst_period.start <= self.current_date and burst_period.end >= self.current_date:
+                return burst_period
+        return None
+    
+    @property
+    def previous_burst_periods(self):
+        return [burst_period for burst_period in self.burst_periods if burst_period.end < self.current_date]
+
+    @property
+    def next_burst_periods(self):
+        return [burst_period for burst_period in self.burst_periods if burst_period.start > self.current_date]
+
+    @property
+    def current_date(self):
+        if not hasattr(self, '_current_date'):
+            service = DayService(self.user)
+            self._today = service.get_current_date()
+        return self._today
 
     def update_intervention_configurations(self, date):
         burst_period = BurstPeriod.objects.filter(
@@ -156,6 +179,9 @@ class BurstPeriod(models.Model):
     user = models.ForeignKey(User)
     start = models.DateField()
     end = models.DateField()
+
+    class Meta:
+        ordering = ['start', 'user']
 
     def __str__(self):
         return '{start} to {end}'.format(
