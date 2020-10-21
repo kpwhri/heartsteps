@@ -24,6 +24,7 @@ from adherence_messages.models import Configuration as AdherenceMessageConfigura
 from adherence_messages.models import AdherenceMetric
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
+from burst_periods.models import Configuration as BurstPeriodConfiguration
 from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
 from days.models import Day
@@ -64,21 +65,23 @@ class CohortListView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if not self.request.user or self.request.user.is_anonymous():
-            return False
-        admin_for_studies = Study.objects.filter(admins=self.request.user)
-        self.admin_for_studies = list(admin_for_studies)
-        if len(self.admin_for_studies):
-            return True
-        else:
-            return False
+        if self.request.user and not self.request.user.is_anonymous():
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['cohorts'] = []
         studies = []
-        for study in Study.objects.filter(admins=self.request.user).all():
+        if self.request.user.is_superuser:
+            study_query = Study.objects
+        else:
+            study_query = Study.objects.filter(admins=self.request.user)
+        for study in study_query.all():
             cohorts = []
             for cohort in study.cohort_set.all():
                 cohorts.append({
@@ -104,7 +107,7 @@ class CohortView(CohortListView):
             self.cohort = cohort
         except Cohort.DoesNotExist:
             raise Http404()
-        if self.cohort.study in self.admin_for_studies:
+        if self.request.user.is_superuser or self.cohort.study in self.admin_for_studies:
             return True
         else:
             return False
@@ -615,7 +618,15 @@ class ParticipantView(CohortView):
                 'enabled': self.participant.morning_messages_enabled
             }
         ]
-
+        try:
+            burst_configuration = BurstPeriodConfiguration.objects \
+            .prefetch_burst_periods() \
+            .get(
+                user = self.participant.user
+            )
+            context['burst_configuration'] = burst_configuration
+        except BurstPeriodConfiguration.DoesNotExist:
+            pass
         return context
 
 class ParticipantActivitySummaryView(ParticipantView):

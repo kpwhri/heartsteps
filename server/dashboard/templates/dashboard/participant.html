@@ -8,138 +8,144 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <h3>Participant Information</h3>
-            <dl>
-                <dt>HeartSteps ID</dt>
-                <dd>{{participant.heartsteps_id}}</dd>
-                <dt>Enrollment token</dt>
-                <dd>{{participant.enrollment_token}}</dd>
-                <dt>Birth year</dt>
-                <dd>{{participant.birth_year}}</dd>
-            </dl>
-            <a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
+<h3>Participant Information</h3>
+<dl>
+    <dt>HeartSteps ID</dt>
+    <dd>{{participant.heartsteps_id}}</dd>
+    <dt>Enrollment token</dt>
+    <dd>{{participant.enrollment_token}}</dd>
+    <dt>Birth year</dt>
+    <dd>{{participant.birth_year}}</dd>
+</dl>
+<a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
+    >
+    Edit participant information
+</a>
+<h3>Participant Status</h3>
+<dl>
+    <dt>Active</dt>
+    {% if participant.active %}
+    <dd>
+        Active
+        <a href="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}">
+            Disable Participant
+        </a>
+    </dd>
+    {% else %}
+    <dd>
+        Disabled
+        <a href="{% url 'dashboard-cohort-participant-enable' cohort.id participant.heartsteps_id %}">
+            Enable Participant
+        </a>                    
+    </dd>
+    {% endif %}
+    <dt>Fitbit Status</dt>
+    <dd>
+        {% if fitbit_authorized %}
+        Authorized
+        <a href="{% url 'dashboard-cohort-participant-fitbit-disable' cohort.id participant.heartsteps_id %}">Disable fitbit account</a>
+        {% else %}
+        Unauthorized
+        {% endif %}
+    </dd>
+    {% if fitbit_last_updated %}
+    <dd>
+        Fitbit last updated {{ fitbit_last_updated | date }}
+    </dd>
+    {% endif %}
+    <dt>Archived</dt>
+    <dd>
+        {% if participant.archived %}
+        Archived
+        <a href="{% url 'dashboard-cohort-participant-unarchive' cohort.id participant.heartsteps_id %}">
+            Unarchive Participant
+        </a>
+        {% else %}
+        Not Archived
+        <a href="{% url 'dashboard-cohort-participant-archive' cohort.id participant.heartsteps_id %}">
+            Archive Participant
+        </a>
+        {% endif %}
+    </dd>
+</dl>
+<h3>Interventions</h3>
+<dl>
+{% for configuration in configurations %}
+    <dt>{{configuration.title}}</dt>
+    <dd>
+        {% if configuration.enabled %}
+        Enabled
+        {% else %}
+        Disabled
+        {% endif %}
+    </dd>
+    </li>
+{% endfor %}
+</dl>
+<nav>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}"
                 >
-                Edit participant information
+                Intervention Summary
             </a>
-            <h3>Participant Status</h3>
-            <dl>
-                <dt>Active</dt>
-                {% if participant.active %}
-                <dd>
-                    Active
-                    <a href="{% url 'dashboard-cohort-participant-disable' cohort.id participant.heartsteps_id %}">
-                        Disable Participant
-                    </a>
-                </dd>
-                {% else %}
-                <dd>
-                    Disabled
-                    <a href="{% url 'dashboard-cohort-participant-enable' cohort.id participant.heartsteps_id %}">
-                        Enable Participant
-                    </a>                    
-                </dd>
-                {% endif %}
-                <dt>Fitbit Status</dt>
-                <dd>
-                    {% if fitbit_authorized %}
-                    Authorized
-                    <a href="{% url 'dashboard-cohort-participant-fitbit-disable' cohort.id participant.heartsteps_id %}">Disable fitbit account</a>
-                    {% else %}
-                    Unauthorized
-                    {% endif %}
-                </dd>
-                {% if fitbit_last_updated %}
-                <dd>
-                    Fitbit last updated {{ fitbit_last_updated | date }}
-                </dd>
-                {% endif %}
-                <dt>Archived</dt>
-                <dd>
-                    {% if participant.archived %}
-                    Archived
-                    <a href="{% url 'dashboard-cohort-participant-unarchive' cohort.id participant.heartsteps_id %}">
-                        Unarchive Participant
-                    </a>
-                    {% else %}
-                    Not Archived
-                    <a href="{% url 'dashboard-cohort-participant-archive' cohort.id participant.heartsteps_id %}">
-                        Archive Participant
-                    </a>
-                    {% endif %}
-                </dd>
-            </dl>
-            <h3>Interventions</h3>
-            <dl>
-            {% for configuration in configurations %}
-                <dt>{{configuration.title}}</dt>
-                <dd>
-                    {% if configuration.enabled %}
-                    Enabled
-                    {% else %}
-                    Disabled
-                    {% endif %}
-                </dd>
-                </li>
-            {% endfor %}
-            </dl>
-        </div>
-        <div class="col-sm">
-            <nav>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}"
-                            >
-                            Intervention Summary
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-activity-summary' cohort.id participant.heartsteps_id %}"
-                            >
-                            Activity Summary
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id %}"
-                            >
-                            Morning Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
-                            >
-                            Text Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}"
-                            >
-                            Notifications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="{% url 'dashboard-cohort-participant-export' cohort.id participant.heartsteps_id %}"
-                            >
-                            Data Exports
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="message" value="Hi, this is a test message." />
-                <input type="submit" value="Send test notification" />
-            </form>
-        </div>
-    </div>
-</div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-activity-summary' cohort.id participant.heartsteps_id %}"
+                >
+                Activity Summary
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id %}"
+                >
+                Morning Messages
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
+                >
+                Text Messages
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}"
+                >
+                Notifications
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-export' cohort.id participant.heartsteps_id %}"
+                >
+                Data Exports
+            </a>
+        </li>
+    </ul>
+</nav>
+<form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="message" value="Hi, this is a test message." />
+    <input type="submit" value="Send test notification" />
+</form>
+{% if burst_configuration %}
+<h4>Burst Configuration</h4>
+{% if burst_configuration.enabled %}
+<p>Enabled</p>
+{% else %}
+<p>Disabled</p>
+{% endif %}
+{% if burst_configuration.burst_periods %}
+<ul>
+{% for burst_period in burst_configuration.burst_periods %}
+    <li>{{burst_period.start}} to {{burst_period.end}}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endif %}
 {% endblock %}

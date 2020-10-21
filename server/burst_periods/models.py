@@ -11,6 +11,11 @@ from walking_suggestion_surveys.models import Configuration as WalkingSuggestion
 
 User = get_user_model()
 
+class ConfigurationQuerySet(models.QuerySet):
+
+    def prefetch_burst_periods(self):
+        return self
+
 class Configuration(models.Model):
 
     user = models.ForeignKey(
@@ -31,6 +36,8 @@ class Configuration(models.Model):
     interval_length = models.PositiveIntegerField(default=90)
     interval_variation = models.PositiveIntegerField(default=30)
 
+    objects = ConfigurationQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         if not self.daily_task:
             self.daily_task = self.create_daily_task()
@@ -39,6 +46,13 @@ class Configuration(models.Model):
             self.daily_task.enable()
         else:
             self.daily_task.disable()
+
+    @property
+    def burst_periods(self):
+        if not hasattr(self, '_burst_periods'):
+            self._burst_periods = self.get_burst_periods()
+        return self._burst_periods
+
 
     def update_randomization_probabilities(self, date):
         pass
@@ -90,6 +104,11 @@ class Configuration(models.Model):
                     end = random_start + timedelta(days=self.period_length)
                 )
             target_date = target_date + timedelta(days=self.interval_length)
+
+    def get_burst_periods(self):
+        return BurstPeriod.objects.filter(
+            user = self.user
+        ).all()
     
 
 class BurstPeriod(models.Model):
