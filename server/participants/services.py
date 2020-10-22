@@ -3,16 +3,19 @@ from datetime import datetime, timedelta, date
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
+from activity_surveys.models import Configuration as ActivitySurveyConfiguration
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
+from burst_periods.models import Configuration as BurstPeriodConfiguration
 from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.tasks import update_incomplete_days
 from morning_messages.models import Configuration as MorningMessagesConfiguration
 from sms_messages.models import Contact as SMSContact
+from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
@@ -132,6 +135,24 @@ class ParticipantService:
         )
         adherence_message_configuration.enabled = True
         adherence_message_configuration.save()
+
+        try:
+            burst_period_configuration = BurstPeriodConfiguration.objects.get(
+                user = self.participant.user
+            )
+            burst_period_configuration.enabled = True
+            burst_period_configuration.save()
+        except BurstPeriodConfiguration.DoesNotExist:
+            burst_period_configuration = BurstPeriodConfiguration.objects.create(
+                user = self.participant.user,
+                enabled = True
+            )
+            if self.participant.study_start and self.participant.study_end:
+                burst_period_configuration.generate_schedule(
+                    start = self.participant.study_start,
+                    end = self.participant.study_end
+                )
+
         if self.is_baseline_complete():
             anti_sedentary_configuration, _ = AntiSedentaryConfiguration.objects.update_or_create(
                 user = self.participant.user
@@ -150,10 +171,59 @@ class ParticipantService:
             )
             walking_suggestion_configuration.enabled = True
             walking_suggestion_configuration.save()
+
+            try:
+                activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
+                    user = self.participant.user
+                )
+                activity_survey_configuration.enabled = True
+                activity_survey_configuration.save()
+            except ActivitySurveyConfiguration.DoesNotExist:
+                ActivitySurveyConfiguration.objects.create(
+                    user = self.participant.user,
+                    enabled = True
+                )
+
+            try:
+                walking_suggestion_survey_configuration = WalkingSuggestionSurveyConfiguration.objects.get(
+                    user = self.participant.user
+                )
+                walking_suggestion_survey_configuration.enabled = True
+                walking_suggestion_survey_configuration.save()
+            except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+                WalkingSuggestionSurveyConfiguration.objects.create(
+                    user = self.participant.user,
+                    enabled = True
+                )
+
     
     def disable(self):
         self.participant.active = False
         self.participant.save()
+        try:
+            burst_period_configuration = BurstPeriodConfiguration.objects.get(
+                user = self.participant.user
+            )
+            burst_period_configuration.enabled = False
+            burst_period_configuration.save()
+        except BurstPeriodConfiguration.DoesNotExist:
+            pass
+        try:
+            activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
+                user = self.participant.user
+            )
+            activity_survey_configuration.enabled = False
+            activity_survey_configuration.save()
+        except ActivitySurveyConfiguration.DoesNotExist:
+            pass
+        try:
+            walking_suggestion_survey_configuration = WalkingSuggestionSurveyConfiguration.objects.get(
+                user = self.participant.user
+            )
+            walking_suggestion_survey_configuration.enabled = False
+            walking_suggestion_configuration.save()
+        except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+            pass
         AntiSedentaryConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         MorningMessagesConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
         WalkingSuggestionConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
@@ -205,6 +275,24 @@ class ParticipantService:
                     WalkingSuggestionConfiguration.objects.get(user = self.participant.user)
                 except WalkingSuggestionConfiguration.DoesNotExist:
                     WalkingSuggestionConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                try:
+                    ActivitySurveyConfiguration.objects.get(
+                        user = self.participant.user
+                    )
+                except ActivitySurveyConfiguration.DoesNotExist:
+                    ActivitySurveyConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                try:
+                    WalkingSuggestionSurveyConfiguration.objects.get(
+                        user = self.participant.user
+                    )
+                except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+                    WalkingSuggestionSurveyConfiguration.objects.create(
                         user = self.participant.user,
                         enabled = True
                     )
