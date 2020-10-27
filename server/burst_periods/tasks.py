@@ -10,9 +10,7 @@ def update_burst_probability(username):
         configuration = Configuration.objects.get(
             user__username = username
         )
-        service = DayService(username=username)
-        today = service.get_current_date()
-        configuration.update_randomization_probabilities(today)
+        configuration.set_current_intervention_configuration()
     except Configuration.DoesNotExist:
         pass
 

@@ -76,6 +76,11 @@ class Configuration(models.Model):
             self._today = service.get_current_date()
         return self._today
 
+    def set_current_intervention_configuration(self):
+        self.update_intervention_configurations(
+            date = self.current_date
+        )
+
     def update_intervention_configurations(self, date):
         burst_period = BurstPeriod.objects.filter(
             user = self.user,
