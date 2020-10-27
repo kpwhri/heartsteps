@@ -39,9 +39,6 @@ app.conf.beat_schedule = {
 
 app.conf.task_default_queue = 'default'
 app.conf.task_routes = {
-    'heartsteps_data_download.tasks.*': {
-        'queue': 'export'
-    },
     'participants.tasks.export_user_data': {
         'queue': 'export'
     },

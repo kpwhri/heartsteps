@@ -132,7 +132,6 @@ INSTALLED_APPS = [
     'sms_messages',
     'adherence_messages',
     'activity_surveys',
-    'heartsteps_data_download',
     'heartsteps_messages',
     'pin_gen',
     'closeout_messages',
