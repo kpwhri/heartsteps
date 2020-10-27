@@ -342,14 +342,17 @@ def export_user_data(username, log_export=True):
             shell=True
         )
 
-def export_cohort_data(cohort_name, directory):
-    cohort = Cohort.objects.get(name=cohort_name)
-    participants = Participant.objects.filter(cohort=cohort).exclude(user=None).all()
-    users = [p.user for p in participants]
-    for _user in users:
-        DataExportQueue.objects.create(
-            user = user
-        )
+@shared_task
+def export_cohort_data():
+    for cohort in Cohort.objects.filter(export_data = True).all():
+        participants = Participant.objects.filter(cohort=cohort) \
+        .prefetch_related('user') \
+        .all()
+        users = [p.user for p in participants if p.user]
+        for user in users:
+            DataExportQueue.objects.create(
+                user = user
+            )
 
 @shared_task
 def daily_update(username):

@@ -57,6 +57,8 @@ class Cohort(models.Model):
         null = True
     )
 
+    export_data = models.BooleanField(default=True)
+
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \
             .exclude(

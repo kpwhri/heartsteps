@@ -27,7 +27,7 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour='11', minute='0')
     },
     'export-data': {
-        'task': 'heartsteps_data_download.tasks.download_data',
+        'task': 'participants.tasks.export_cohort_data',
         'schedule': crontab(hour='11', minute='0')
     },
     'data-export-queue': {
