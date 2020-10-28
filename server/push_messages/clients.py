@@ -107,4 +107,4 @@ class OneSignalClient(ClientBase):
             })
             return message_id
         else:
-            raise self.MessageSendError('OneSignal response not 200')
+            raise self.MessageSendError(response.text)
