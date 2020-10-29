@@ -159,6 +159,7 @@ class OneSignalClientTests(TestCase):
                     _return_json = {'id':'example-message-id'}
                 class MockResponse:
                     status_code = _status_code
+                    text = 'mock text'
 
                     def json(self):
                         return _return_json
