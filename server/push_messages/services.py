@@ -77,7 +77,7 @@ class PushMessageService():
                 data = message.data
             )
         except self.__client.MessageSendError as error:
-            message.delete()
+            # message.delete()
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
             message = message,

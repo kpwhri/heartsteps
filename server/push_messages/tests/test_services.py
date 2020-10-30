@@ -127,8 +127,6 @@ class TestPushMessageService(TestCase):
         with self.assertRaises(push_message_service.MessageSendError):
             result = push_message_service.send_notification("Hello World")
 
-        self.assertEqual(Message.objects.count(), 0)
-
 class OneSignalClientTests(TestCase):
 
     def setUp(self):
