@@ -816,8 +816,11 @@ class DecisionAvailabilityTest(TestCase):
         self.assertTrue(decision.available)
 
     def test_step_count_before_walking_suggestion_time(self):
-        now = timezone.now()
-        suggestion_time = now + timedelta(minutes=10)
+        current_time = timezone.now().replace(
+            hour = 14,
+            minute = 0
+        )
+        suggestion_time = current_time + timedelta(minutes=10)
         # Destroy default suggestion times, so test logic will work
         SuggestionTime.objects.all().delete()
         SuggestionTime.objects.create(
@@ -828,7 +831,7 @@ class DecisionAvailabilityTest(TestCase):
         )
 
         WalkingSuggestionDecisionService.make_decision(
-            datetime = now,
+            datetime = current_time,
             user=self.user
         )
 
@@ -836,8 +839,11 @@ class DecisionAvailabilityTest(TestCase):
         self.assertEqual(decision.category, SuggestionTime.MIDAFTERNOON)
 
     def test_single_walking_suggestion_per_period(self):
-        now = timezone.now()
-        suggestion_time = now + timedelta(minutes=10)
+        current_time = timezone.now().replace(
+            hour = 14,
+            minute = 0
+        )
+        suggestion_time = current_time + timedelta(minutes=10)
         SuggestionTime.objects.create(
             user = self.user,
             category = SuggestionTime.MIDAFTERNOON,
@@ -845,7 +851,7 @@ class DecisionAvailabilityTest(TestCase):
             minute = suggestion_time.minute
         )
         WalkingSuggestionDecisionService.make_decision(
-            datetime = now - timedelta(minutes=5),
+            datetime = current_time - timedelta(minutes=5),
             user=self.user
         )
 
