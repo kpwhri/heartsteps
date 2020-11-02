@@ -70,11 +70,12 @@ class Decision(models.Model):
         
 
     def randomize(self, treatment_probability=None):
-        if treatment_probability is not None:
-            self.treatment_probability = treatment_probability
-        if self.treatment_probability is None:
-            self.treatment_probability = self.get_default_probability()
-        if random.random() < self.treatment_probability:
+        if treatment_probability is None:
+            if self.treatment_probability is not None:
+                treatment_probability = self.treatment_probability
+            else:
+                treatment_probability = self.get_default_probability()
+        if random.random() < treatment_probability:
             self.treated = True
         else:
             self.treated = False
