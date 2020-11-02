@@ -288,14 +288,15 @@ class ParticipantService:
                         enabled = True
                     )
                 try:
-                    WalkingSuggestionSurveyConfiguration.objects.get(
+                    wss_config = WalkingSuggestionSurveyConfiguration.objects.get(
                         user = self.participant.user
                     )
                 except WalkingSuggestionSurveyConfiguration.DoesNotExist:
-                    WalkingSuggestionSurveyConfiguration.objects.create(
+                    wss_config = WalkingSuggestionSurveyConfiguration.objects.create(
                         user = self.participant.user,
                         enabled = True
                     )
+                wss_config.update_survey_times()
                 
 
             self.update_fitbit(date)
