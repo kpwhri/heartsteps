@@ -1,0 +1,1 @@
+default_app_config = 'walking_suggestion_surveys.apps.WalkingSuggestionSurveysConfig'

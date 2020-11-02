@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
+from daily_tasks.models import DailyTask
 from push_messages.services import PushMessageService
 
 from surveys.models import Question
@@ -24,6 +25,12 @@ class Configuration(models.Model):
     enabled = models.BooleanField(default = True)
     treatment_probability = models.FloatField(null=True)
 
+    @property
+    def daily_tasks(self):
+        if not hasattr(self,'_daily_tasks'):
+            self._daily_tasks = self.get_daily_tasks()
+        return self._daily_tasks
+
     def randomize_survey(self):
         decision = Decision.objects.create(
             user = self.user
@@ -39,6 +46,55 @@ class Configuration(models.Model):
         )
         survey.reset_questions()
         return survey
+
+    def get_daily_tasks(self):
+        daily_tasks = DailyTask.objects.filter(
+            user=self.user,
+            category__contains='wss-'
+        ).all()
+        return list(daily_tasks)
+
+    def update_survey_times(self):
+        suggestion_times = SuggestionTime.objects.filter(user=self.user).all()
+        daily_tasks = self.get_daily_tasks()
+        for suggestion_time in suggestion_times:
+            suggestion_time_category = 'wss-' + suggestion_time.category
+            daily_task_categories = [daily_task.category for daily_task in daily_tasks]
+            try:
+                index = daily_task_categories.index(suggestion_time_category)
+                daily_task = daily_tasks.pop(index)
+                daily_task.update_task(
+                    task = 'walking_suggestion_surveys.tasks.randomize_walking_suggestion_survey',
+                    name = 'randomize-walking-suggestion-survey-{category}-{username}'.format(
+                        category = suggestion_time.category,
+                        username = self.user.username
+                    ),
+                    arguments = {
+                        'username': self.user.username
+                    } 
+                )
+                daily_task.set_time(
+                    hour = suggestion_time.hour,
+                    minute = suggestion_time.minute
+                )
+            except ValueError:
+                DailyTask.create_daily_task(
+                    user = self.user,
+                    category = suggestion_time_category,
+                    task = 'walking_suggestion_surveys.tasks.randomize_walking_suggestion_survey',
+                    name = 'randomize-walking-suggestion-survey-{category}-{username}'.format(
+                        category = suggestion_time.category,
+                        username = self.user.username
+                    ),
+                    arguments = {
+                        'username': self.user.username
+                    },
+                    hour = suggestion_time.hour,
+                    minute = suggestion_time.minute
+                )
+        for daily_task in daily_tasks:
+            daily_task.delete()
+        
 
 
 class Decision(models.Model):
