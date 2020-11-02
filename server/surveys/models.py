@@ -29,6 +29,7 @@ class Question(models.Model):
         max_length=25
     )
 
+    published = models.BooleanField(default=True)
     order = models.IntegerField(null=True)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -116,7 +117,9 @@ class Survey(models.Model):
     def reset_questions(self):
         SurveyQuestion.objects.filter(survey=self).delete()
 
-        question_query = self.QUESTION_MODEL.objects.order_by('order', 'created')
+        question_query = self.QUESTION_MODEL.objects.order_by('order', 'created') \
+        .filter(published = True) \
+        .all()
         for question in question_query.all():
             self.add_question(question.name)
 
