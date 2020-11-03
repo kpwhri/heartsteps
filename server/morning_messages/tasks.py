@@ -179,7 +179,7 @@ def export_morning_message_survey(username, filename=None, directory=None, start
             for question in morning_message.survey.questions:
                 if question.name not in question_names:
                     question_names.append(question.name)
-                if question.id in morning_message.survey._answers:
+                if hasattr(morning_message.survey, '_answers') and question.id in morning_message.survey._answers:
                     answer = morning_message.survey._answers[question.id]
                     _mm_serialized[question.name] = answer.value
             _mm_serialized['mood'] = morning_message.survey.selected_word
