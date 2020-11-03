@@ -48,10 +48,14 @@ def export_morning_messages(username, filename=None, directory=None, start=None,
         )
 
     morning_messages = morning_message_query.all()
-    start_date = morning_messages[0].date
-    end_date = morning_messages[len(morning_messages) - 1].date
-    date_diff = end_date - start_date
-    every_day = [start_date + timedelta(days=offset) for offset in range(date_diff.days)]
+
+    if morning_messages:
+        start_date = morning_messages[0].date
+        end_date = morning_messages[len(morning_messages) - 1].date
+        date_diff = end_date - start_date
+        every_day = [start_date + timedelta(days=offset) for offset in range(date_diff.days)]
+    else:
+        every_day = []
     
     rows = []
     headers = [
@@ -199,33 +203,34 @@ def export_morning_message_survey(username, filename=None, directory=None, start
     ]
     rows.append(headers)
 
-    start_date = morning_messages[0].date
-    end_date = morning_messages[len(morning_messages) - 1].date
-    date_diff = end_date - start_date
-    for _date in [start_date + timedelta(days=offset) for offset in range(date_diff.days)]:
-        if _date in serialized_morning_messages_by_date:
-            _mm = serialized_morning_messages_by_date[_date]
-            row = [
-                _date.strftime('%Y-%m-%d'),
-                _mm['time_sent'],
-                _mm['time_received'],
-                _mm['time_opened'],
-                _mm['time_completed']
-            ]
-            for name in sorted_question_names:
-                if name in _mm:
-                    row.append(_mm[name])
+    if morning_messages:
+        start_date = morning_messages[0].date
+        end_date = morning_messages[len(morning_messages) - 1].date
+        date_diff = end_date - start_date
+        for _date in [start_date + timedelta(days=offset) for offset in range(date_diff.days)]:
+            if _date in serialized_morning_messages_by_date:
+                _mm = serialized_morning_messages_by_date[_date]
+                row = [
+                    _date.strftime('%Y-%m-%d'),
+                    _mm['time_sent'],
+                    _mm['time_received'],
+                    _mm['time_opened'],
+                    _mm['time_completed']
+                ]
+                for name in sorted_question_names:
+                    if name in _mm:
+                        row.append(_mm[name])
+                    else:
+                        row.append(None)
+                if 'mood' in _mm:
+                    row.append(_mm['mood'])
                 else:
                     row.append(None)
-            if 'mood' in _mm:
-                row.append(_mm['mood'])
+                rows.append(row)
             else:
-                row.append(None)
-            rows.append(row)
-        else:
-            rows.append([
-                _date.strftime('%Y-%m-%d')
-            ])
+                rows.append([
+                    _date.strftime('%Y-%m-%d')
+                ])
 
     _file = open(path.join(directory, filename), 'w')
     writer = csv.writer(_file)
