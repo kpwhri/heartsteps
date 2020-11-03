@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
 from daily_tasks.models import DailyTask
+from days.services import DayService
 from push_messages.services import PushMessageService
 
 from surveys.models import Question
@@ -32,8 +33,11 @@ class Configuration(models.Model):
         return self._daily_tasks
 
     def randomize_survey(self):
+        day_service = DayService(user=self.user)
         decision = Decision.objects.create(
-            user = self.user
+            date = day_service.get_current_date(),
+            user = self.user,
+            treatment_probability = self.treatment_probability
         )
         if decision.treated:
             return self.create_survey()
