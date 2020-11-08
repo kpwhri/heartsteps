@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import datetime
 
 from django.db import models
@@ -52,4 +53,9 @@ class SuggestionTime(models.Model):
             self.hour,
             self.minute
         )
-        return tz.localize(dt) 
+        return tz.localize(dt)
+
+    def get_datetime_for_today(self):
+        service = DayService(user = self.user)
+        today = service.get_current_date()
+        return self.get_datetime_on(today)
