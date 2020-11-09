@@ -5,28 +5,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 
 from participants.models import Participant
-from sms_service.models import SendSMS
-from sms_service.utils import send_twilio_message
-
-
-def process_sms_message(to_number, body):
-    sms = SendSMS()
-    sms.to_number = to_number
-    sms.body = body
-    sms.from_number = settings.TWILIO_PHONE_NUMBER
-    sent = send_twilio_message(to_number, body)
-    sms.sms_sid = sent.sid
-    sms.account_sid = sent.account_sid
-    sms.status = sent.status
-    sms.sent_at = datetime.now()
-    sms.save()
-
-
-def send_survey_email(body):
-    send_mail('HeartSteps Study Notification', body,
-              settings.SURVEY_EMAIL_ADDRESS,
-              settings.STUDY_EMAIL_ADDRESS)
-
 
 @shared_task
 def send_adherence_messages():
