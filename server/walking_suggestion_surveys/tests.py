@@ -150,6 +150,7 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         self.random.return_value = 1
 
     def test_creates_walking_suggestion_survey_decision_lunch(self):
+        self.current_date.return_value = date(2020,11,8)
         self.current_datetime.return_value = datetime(2020,11,8,13).astimezone(pytz.UTC)
 
         randomize_walking_suggestion_survey(username=self.user.username)
@@ -159,6 +160,7 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         self.assertEqual(decision.suggestion_time_category, SuggestionTime.LUNCH)
 
     def test_creates_walking_suggestion_survey_decision_postdinner(self):
+        self.current_date.return_value = date(2020,11,8)
         self.current_datetime.return_value = datetime(2020,11,8,18,45).astimezone(pytz.UTC)
 
         randomize_walking_suggestion_survey(username=self.user.username)
@@ -168,6 +170,7 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         self.assertEqual(decision.suggestion_time_category, SuggestionTime.POSTDINNER)
 
     def test_does_not_create_walking_suggestion_survey(self):
+        self.current_date.return_value = date(2020,11,8)
         self.current_datetime.return_value = datetime(2020,11,8,6).astimezone(pytz.UTC)
 
         randomize_walking_suggestion_survey(username=self.user.username)
