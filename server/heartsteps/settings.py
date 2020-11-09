@@ -128,7 +128,6 @@ INSTALLED_APPS = [
     'watch_app',
     'participants',
     'dashboard',
-    'sms_service',
     'sms_messages',
     'adherence_messages',
     'activity_surveys',
