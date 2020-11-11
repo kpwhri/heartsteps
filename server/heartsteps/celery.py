@@ -60,6 +60,9 @@ app.conf.task_routes = {
     'push_messages.tasks.*': {
         'queue': 'messages'
     },
+    'walking_suggestion_surveys.tasks.*': {
+        'queue': 'messages'
+    },
     'walking_suggestions.tasks.*': {
         'queue': 'messages'
     },
