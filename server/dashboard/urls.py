@@ -25,6 +25,7 @@ from .views import DataSummaryView
 from .views import ParticipantActivitySummaryView
 from .views import ParticipantMorningMessagesView
 from .views import ParticipantExportView
+from .views import DailyTaskSummaryView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -49,6 +50,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/activity', ParticipantActivitySummaryView.as_view(), name='dashboard-cohort-participant-activity-summary'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/export', ParticipantExportView.as_view(), name='dashboard-cohort-participant-export'),
+    url('(?P<cohort_id>[\d]+)/daily-tasks', DailyTaskSummaryView.as_view(), name='dashboard-cohort-daily-tasks'),
     url('(?P<cohort_id>[\d]+)/burst-periods', BurstPeriodSummaryView.as_view(), name='dashboard-cohort-burst-periods'),
     url('(?P<cohort_id>[\d]+)/download', DownloadView.as_view(), name='dashboard-cohort-download'),
     url('(?P<cohort_id>[\d]+)/data-summary', DataSummaryView.as_view(), name='dashboard-cohort-data-summary'),

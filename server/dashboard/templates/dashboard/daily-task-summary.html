@@ -1,0 +1,50 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-daily-tasks' cohort.id %}" class="nav-link active">Daily Tasks</a>
+{% endblock %}
+
+{% block content %}
+{{availability}}
+<h2>Daily Tasks for {{cohort.name}}</h2>
+
+<table class="table">
+    <thead>
+        <th>Participant</th>
+        {% for name in task_names %}
+        <th>
+            {{name}}
+        </th>
+        {% endfor %}
+    </thead>
+    <tbody>
+        {% for participant in participants %}
+        <tr>
+            <td>
+                <a href="">{{participant.heartsteps_id}}</a>
+            </td>
+            {% for task in participant.tasks %}
+            <td>
+                <dl>
+                    {% if task.run_times %}
+                    <dt>Scheduled run time</dt>
+                    {% for run_time in task.run_times %}
+                    <dd>{{run_time}}</dd>
+                    {% endfor %}
+                    {% endif %}
+                    {% if task.last_run_at %}
+                    <dt>Last run at</dt>
+                    <dd>{{task.last_run_at}}</dd>
+                    {% endif %}
+                </dl>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -50,6 +50,9 @@ from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import NightlyUpdate as WalkingSuggestionNightlyUpdate
 from watch_app.models import StepCount as WatchAppStepCount
 
+from daily_tasks.models import DailyTask
+from django_celery_results.models import TaskResult
+
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
@@ -179,6 +182,79 @@ class DashboardListView(CohortView):
                 'last_text_sent': participant.last_text_sent,
             })
         context['participant_list'] = participants
+        return context
+
+class DailyTaskSummaryView(CohortView):
+    template_name = 'dashboard/daily-task-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = self.query_participants()
+        users = [p.user for p in participants if p.user]
+        
+        daily_tasks = DailyTask.objects.filter(
+            user__in = users
+        ).prefetch_related('task') \
+        .prefetch_related('user') \
+        .all()
+
+        daily_tasks_by_username_then_task_name = {}
+        for user in users:
+            daily_tasks_by_username_then_task_name[user.username] = {}
+
+
+        task_names = []
+        for dt in daily_tasks:
+            task_name = dt.task.task
+            if task_name not in task_names:
+                task_names.append(task_name)
+            if task_name not in daily_tasks_by_username_then_task_name[dt.user.username]:
+                daily_tasks_by_username_then_task_name[dt.user.username][task_name] = {
+                    'run_times': []
+                }
+            if dt.day:
+                run_time = '%s %d:%d' % (dt.day, dt.hour, dt.minute)
+            else:
+                run_time = '%d:%d' % (dt.hour, dt.minute)
+            daily_tasks_by_username_then_task_name[dt.user.username][task_name]['run_times'].append(run_time)
+
+            if dt.task.last_run_at:
+                task_last_run_at = dt.task.last_run_at.astimezone(pytz.timezone('US/Pacific'))
+                if 'last_run_at' in daily_tasks_by_username_then_task_name[dt.user.username][task_name]:
+                    last_run_at = daily_tasks_by_username_then_task_name[dt.user.username][task_name]['last_run_at']
+                    if last_run_at < task_last_run_at:
+                        daily_tasks_by_username_then_task_name[dt.user.username][task_name]['last_run_at'] = task_last_run_at
+                else:
+                    daily_tasks_by_username_then_task_name[dt.user.username][task_name]['last_run_at'] = task_last_run_at
+
+        task_names.sort()
+        context['task_names'] = [tn.replace('.tasks.', ' ').replace('_', ' ') for tn in task_names]
+        serialized_participants = []
+        for participant in participants:
+            serialized_tasks = []
+            for task in task_names:
+                if participant.user:
+                    username = participant.user.username
+                    if username in daily_tasks_by_username_then_task_name:
+                        if task in daily_tasks_by_username_then_task_name[username]:
+                            st = daily_tasks_by_username_then_task_name[participant.user.username][task]
+                            if 'last_run_at' in st:
+                                st['last_run_at'] = st['last_run_at'].strftime('%Y-%m-%d %H:%M;%S')
+                            serialized_tasks.append(st)
+                        else:
+                            serialized_tasks.append({})
+                    else:
+                        serialized_tasks.append({})
+                else:
+                    serialized_tasks.append({})
+
+            serialized_participants.append({
+                'heartsteps_id': participant.heartsteps_id,
+                'active': participant.active,
+                'archived': participant.archived,
+                'tasks': serialized_tasks
+            })
+        context['participants'] = serialized_participants
         return context
 
 class BurstPeriodSummaryView(CohortView):
