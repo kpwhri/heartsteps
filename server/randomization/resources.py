@@ -12,6 +12,7 @@ class DecisionResource(resources.ModelResource):
     FIELDS = [
         'id',
         'user__username',
+        'decision_date',
         'decision_time',
         'sedentary',
         'available',
@@ -37,10 +38,18 @@ class DecisionResource(resources.ModelResource):
         'precipitation_probability',
         'liked',
         'imputed',
+        'created_date',
         'created_time'
     ]
 
+    id = Field(column_name='ID')
+
+    heartsteps_id = Field(column_name='HeartSteps ID')
+
+    decision_date = Field(column_name='Decision Date')
     decision_time = Field(column_name='Decision Time')
+    sedentary = Field(column_name='Sedentary')
+    available = Field(column_name='Available')
 
     sent_time = Field(column_name='Sent Time')
     received_time = Field(column_name='Received Time')
@@ -65,9 +74,11 @@ class DecisionResource(resources.ModelResource):
     precipitation_type = Field(column_name='Precipitation Type')
     precipitation_probability = Field(column_name='Precipitation Probability')
 
+    imputed = Field(column_name='Imputed')
     liked = Field(column_name='Liked')
 
-    created_time = Field(column_name='Created time')
+    created_date = Field(column_name='Created Date')
+    created_time = Field(column_name='Created Time')
 
     def format_datetime(self, dt):
         if dt:
@@ -101,13 +112,21 @@ class DecisionResource(resources.ModelResource):
         else:
             return None
 
+    def dehydrate_decision_date(self, decision):
+        time = decision.time.astimezone(decision.timezone)
+        return time.strftime('%Y-%m-%d')
+
     def dehydrate_decision_time(self, decision):
         time = decision.time.astimezone(decision.timezone)
-        return self.format_datetime(time)
+        return time.strftime('%H:%M:%S')
+
+    def dehydrate_created_date(self, decision):
+        time = decision.created.astimezone(decision.timezone)
+        return time.strftime('%Y-%m-%d')
 
     def dehydrate_created_time(self, decision):
         time = decision.created.astimezone(decision.timezone)
-        return self.format_datetime(time)
+        return time.strftime('%H:%M:%S')
     
     def dehydrate_all_tags(self, decision):
         return ', '.join(decision.get_context())
@@ -232,4 +251,19 @@ class DecisionResource(resources.ModelResource):
 
     def dehydrate_precipitation_probability(self, decision):
         return decision.precipitation_probability
+
+    def dehydrate_available(self, decision):
+        return decision.is_available()
+
+    def dehydrate_sedentary(self, decision):
+        return decision.is_sedentary()
+
+    def dehydrate_treatment_probability(self, decision):
+        if decision.treatment_probability is None:
+            return 0
+        else:
+            return decision.treatment_probability
+
+    def dehydrate_heartsteps_id(self, decision):
+        return decision.user.username
 
