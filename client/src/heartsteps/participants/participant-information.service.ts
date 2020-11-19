@@ -24,7 +24,8 @@ export class ParticipantInformationService {
                 this.setDateEnrolled(data['date_enrolled']),
                 this.setStaff(data['staff']),
                 this.setBaselinePeriod(data['baselinePeriod']),
-                this.setStudyContactInformation(data['studyContactName'], data['studyContactNumber'])
+                this.setStudyContactInformation(data['studyContactName'], data['studyContactNumber']),
+                this.setBaselineComplete(data['baselineComplete'])
             ])
         })
         .then(() => {
@@ -115,6 +116,23 @@ export class ParticipantInformationService {
             contactInfo.number = info.number
             return contactInfo;
         })
+    }
+
+    private setBaselineComplete(isBaselineComplete: boolean): Promise<void> {
+        return this.storage.set('baselineComplete', isBaselineComplete)
+        .then(() => {
+            return undefined;
+        });
+    }
+
+    public getBaselineComplete():Promise<boolean> {
+        return this.storage.get('baselineComplete')
+        .then((baselineComplete) => {
+            return baselineComplete;
+        })
+        .catch(() => {
+            console.error('baseline complete not found');
+        });
     }
 
 }

@@ -86,7 +86,8 @@ class ParticipantInformationView(APIView):
             'date_enrolled': service.participant.date_joined.strftime('%Y-%m-%d'),
             'studyContactName': service.get_study_contact_name(),
             'studyContactNumber': service.get_study_contact_number(),
-            'baselinePeriod': service.get_baseline_period()
+            'baselinePeriod': service.get_baseline_period(),
+            'baselineComplete': service.is_baseline_complete()
         })
 
 

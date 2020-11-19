@@ -121,10 +121,11 @@ class ParticipantService:
             service = FitbitActivityService(user=self.user)
         except FitbitActivityService.NoAccount:
             return False
-        if self.user.is_staff or service.get_days_worn() >= self.get_baseline_period():
+        if self.user.is_staff:
             return True
-        else:
-            return False
+        if service.get_days_worn() >= self.get_baseline_period():
+            return True
+        return False
 
     def enable(self):
         self.participant.active = True
