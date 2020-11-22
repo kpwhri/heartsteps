@@ -39,9 +39,8 @@ export class MessageService {
             });
             this.pushNotificationService.notifications.subscribe((data: any) => {
                 console.log('MessageService: Got notification id=' + data.id );
-                const message = this.deserializeMessage(data);
-                this.saveMessage(message)
-                .then(() => {
+                this.loadMessage(data.id)
+                .then((message) => {
                     this.opened.next(message);
                 });
             });
