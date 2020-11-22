@@ -56,7 +56,7 @@ class PushMessageService():
         else:
             raise DeviceMissingError()
 
-    def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}):
+    def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}, send_message_id_only=False):
         message = Message.objects.create(
             recipient = self.user,
             device = self.device,
@@ -69,15 +69,20 @@ class PushMessageService():
         message.data = data
         message.save()
 
+        data_to_send = message.data
+        if send_message_id_only:
+            data_to_send = {
+                'messageId': message.uuid
+            }
+
         try:
             external_id = self.__client.send(
                 body = message.body,
                 title = message.title,
                 collapse_subject = message.collapse_subject,
-                data = message.data
+                data = data_to_send
             )
         except self.__client.MessageSendError as error:
-            # message.delete()
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
             message = message,
@@ -89,7 +94,7 @@ class PushMessageService():
             message.save()
         return message
 
-    def send_notification(self, body, title=None, collapse_subject=None, data={}):
+    def send_notification(self, body, title=None, collapse_subject=None, data={}, send_message_id_only=False):
         if title is None:
             title = "HeartSteps"        
         data['body'] = body
@@ -101,7 +106,8 @@ class PushMessageService():
             body = body,
             title = title,
             collapse_subject = collapse_subject,
-            data = data   
+            data = data,
+            send_message_id_only = send_message_id_only
         )
 
     def send_data(self, data):

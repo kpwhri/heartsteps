@@ -199,7 +199,8 @@ class WalkingSuggestionSurvey(Survey):
                 collapse_subject = 'walking_suggestion_survey',
                 data = {
                     'survey':serialized_survey.data
-                }
+                },
+                send_message_id_only = True
             )
             return message
         except (PushMessageService.MessageSendError, PushMessageService.DeviceMissingError) as e:
