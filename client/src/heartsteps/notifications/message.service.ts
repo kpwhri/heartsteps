@@ -205,9 +205,20 @@ export class MessageService {
         console.log('MessageService: loading message');
         return this.heartstepsServer.get('messages/' + messageId)
         .then((data) => {
+            if (data && data.context && data.context['type']) {
+                data.type = data.context['type']
+            }
             const message = this.deserializeMessage(data);
             return this.saveMessage(message);
         })
+    }
+
+    public openMessage(messageId: string): Promise<Message> {
+        return this.loadMessage(messageId)
+        .then((message) => {
+            this.opened.next(message);
+            return message;
+        });
     }
 
     public serializeMessage(message: Message):any {

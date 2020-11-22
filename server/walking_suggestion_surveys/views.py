@@ -21,7 +21,7 @@ class WalkingSuggestionSurveyTestView(APIView):
             notification = survey.send_notification()
             return Response(
                 {
-                    'notificationId': notification.uuid
+                    'notificationId': str(notification.uuid)
                 },
                 status = status.HTTP_201_CREATED
             )

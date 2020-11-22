@@ -45,8 +45,10 @@ class MorningMessageView(DayView):
         date = self.parse_date(day)
         self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(user = request.user)
-        morning_message_service.send_notification(date)
-        return Response({}, status=status.HTTP_201_CREATED)
+        notification = morning_message_service.send_notification(date)
+        return Response({
+            'notificationId': str(notification.uuid)
+        }, status=status.HTTP_201_CREATED)
 
 class MorningMessageSurveyView(DayView):
 

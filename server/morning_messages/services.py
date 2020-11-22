@@ -113,6 +113,7 @@ class MorningMessageService:
             collapse_subject = 'morning-message'
         )
         morning_message.add_context(message)
+        return message
 
 class MorningMessageDecisionService(DecisionMessageService):
 

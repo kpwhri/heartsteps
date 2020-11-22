@@ -83,11 +83,15 @@ export class MorningMessageService {
         return this.set(morningMessage);
     }
 
-    public requestNotification():Promise<boolean> {
+    public requestNotification():Promise<string> {
         const today:string = moment().format("YYYY-MM-DD");
         return this.heartstepsServer.post('morning-messages/' + today, {})
-        .then(() => {
-            return true;
+        .then((data) => {
+            if (data) {
+                return data['notificationId']
+            } else {
+                return Promise.reject('No notification id');   
+            }
         });
     }
 

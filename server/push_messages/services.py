@@ -72,7 +72,7 @@ class PushMessageService():
         data_to_send = message.data
         if send_message_id_only:
             data_to_send = {
-                'messageId': message.uuid
+                'messageId': data['messageId']
             }
 
         try:

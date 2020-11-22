@@ -145,35 +145,20 @@ export class SettingsComponent {
         });
     }
 
-    private requestMorningMessage() {
+    public testMorningMessage() {
         this.loadingService.show("Requesting morning message");
         this.morningMessageService.requestNotification()
+        .then((notificationId) => {
+            if(!this.platform.is('cordova')) {
+                this.messageService.openMessage(notificationId);
+            }
+        })
         .catch(() => {
             this.alertDialog.show("Error sending morning message");
         })
         .then(() => {
             this.loadingService.dismiss();
         });
-    }
-
-    private loadMorningMessage() {
-        this.loadingService.show('Loading morning message')
-        this.morningMessageService.load()
-        .catch(() => {
-            this.alertDialog.show("Error loading morning message");
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-            this.router.navigate(['morning-survey']);
-        });
-    }
-
-    public testMorningMessage() {
-        if(this.platform.is('cordova')) {
-            this.requestMorningMessage();
-        } else {
-            this.loadMorningMessage();
-        }
     }
 
     private requestWeeklySurvey() {
