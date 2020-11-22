@@ -6,9 +6,11 @@ services:
           - credentials/.env-production
         command: npm run serve:app
         volumes:
-          - ./client:/client
-          - ./credentials:/credentials
-          - client-node-modules:/client/node_modules
+            - ./client:/client
+            - ./credentials:/credentials
+            - client-platforms:/client/platforms
+            - client-node-modules:/client/node_modules
+            - client-gradle-cache:/root/.gradle/caches
         ports:
           - "8100:8100"
           - "35729:35729"
@@ -54,4 +56,6 @@ services:
         working_dir: /server-gcloud
 volumes: 
     cloudsql:
+    client-platforms:
     client-node-modules:
+    client-gradle-cache:
