@@ -235,8 +235,15 @@ class FitbitActivityService(FitbitService):
             account = self.account
         )
 
-    def get_days_worn(self):
-        return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
+    def get_days_worn(self, start_date=None):
+        if start_date:
+            return FitbitDay.objects.filter(
+                account = self.account,
+                date__gte = start_date,
+                wore_fitbit = True
+            ).count()
+        else:
+            return FitbitDay.objects.filter(account=self.account, wore_fitbit=True).count()
 
     def update_devices(self):
         for device in self.__client.get_devices():

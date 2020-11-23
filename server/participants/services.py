@@ -123,7 +123,12 @@ class ParticipantService:
             return False
         if self.user.is_staff:
             return True
-        if service.get_days_worn() >= self.get_baseline_period():
+        start_date = self.participant.get_study_start_date()
+        if start_date:
+            days_worn = service.get_days_worn(start_date)
+        else:
+            days_worn = service.get_days_worn()
+        if days_worn >= self.get_baseline_period():
             return True
         return False
 

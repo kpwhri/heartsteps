@@ -156,7 +156,10 @@ class Participant(models.Model):
             return None
     
     def get_study_start_date(self):
-        study_start_datetime = self.get_fitbit_start_datetime()
+        if self.user and self.user.date_joined:
+            study_start_datetime = self.user.date_joined
+        else:
+            study_start_datetime = self.get_fitbit_start_datetime()
         if study_start_datetime:
             day_service = DayService(user = self.user)
             return day_service.get_date_at(study_start_datetime)
@@ -164,20 +167,17 @@ class Participant(models.Model):
             return None
 
     def get_study_start_datetime(self):
-        if self.user:            
+        study_start_date = self.get_study_start_date()
+        if study_start_date:
             day_service = DayService(user = self.user)
-            if self.study_start_date:
-                return day_service.get_start_of_day(self.study_start_date)
-            else:
-                study_start_datetime = self.get_fitbit_start_datetime()
-                if study_start_datetime:
-                    return day_service.get_start_of_day(study_start_datetime)
+            return day_service.get_start_of_day(study_start_date)
         return None
 
     def get_study_end_datetime(self):
-        if self.user and self.study_start and self.study_length:
-            service = DayService(user = self.user)
+        study_start_date = self.get_study_start_date()
+        if study_start_date and self.study_length:
             end_date = self.study_start + timedelta(days=self.study_length)
+            service = DayService(user = self.user)
             return service.get_end_of_day(end_date)
         else:
             return None

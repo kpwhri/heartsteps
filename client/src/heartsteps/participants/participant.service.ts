@@ -101,14 +101,7 @@ export class ParticipantService {
     }
 
     private getBaselineComplete(): Promise<boolean> {
-        return this.getStaffStatus()
-        .then((isStaff) => {
-            if (isStaff) {
-                return true;
-            } else {
-                return this.participantInformationService.getBaselineComplete()
-            }
-        })
+        return this.participantInformationService.getBaselineComplete()
         .catch(() => {
             return Promise.resolve(false);
         });

@@ -6,6 +6,7 @@ import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { Router } from '@angular/router';
 import { ParticipantInformationService } from '@heartsteps/participants/participant-information.service';
 import { promises } from 'fs';
+import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 class Day {
     public date: Date;
@@ -32,6 +33,7 @@ export class BaselineWeekPage {
         private loadingService: LoadingService,
         private router: Router,
         private dailySummaryService: DailySummaryService,
+        private participantService: ParticipantService,
         private participantInformationService: ParticipantInformationService
     ) {
         this.dailySummaryService.watch(new Date())
@@ -48,7 +50,10 @@ export class BaselineWeekPage {
 
     public reload() {
         this.loadingService.show('Loading activity data');
-        this.dailySummaryService.reload()
+        this.participantService.update()
+        .then(() => {
+            return this.dailySummaryService.reload();
+        })
         .then(() => {
             return this.setDays();
         })
@@ -56,8 +61,14 @@ export class BaselineWeekPage {
             console.error(err);
         })
         .then(() => {
-            this.loadingService.dismiss();
+            return this.participantInformationService.getBaselineComplete()
         })
+        .then((isBaselineComplete) => {
+            this.loadingService.dismiss();
+            if (isBaselineComplete) {
+                this.router.navigate(['/']);
+            }
+        });
     }
 
     private dateToDay(date: Date, woreFitbit: boolean): Day {
