@@ -268,6 +268,74 @@ class DashboardParticipantQuerySet(models.QuerySet):
     def prefetch_burst_periods(self):
         return self
 
+    def _prefetch_related_objects(self):
+        lookup_functions = {
+            'contact_information': self._fetch_contact_information,
+            'page_views': self._fetch_page_views,
+            'fitbit_account': self._fetch_fitbit_account
+        }
+        updated_lookups = ()
+        secondary_lookups = ()
+        for lookup in self._prefetch_related_lookups:
+            if lookup in lookup_functions.keys():
+                secondary_lookups = secondary_lookups + (lookup, )
+                continue
+            updated_lookups = updated_lookups + (lookup, )
+        self._prefetch_related_lookups = updated_lookups
+        super()._prefetch_related_objects()
+        for lookup in secondary_lookups:
+            lookup_functions[lookup]()
+
+    def prefetch_contact_information(self):
+        return self.prefetch_related('contact_information')
+
+    def _fetch_contact_information(self):
+        user_ids = [p.user.id for p in self._result_cache if p.user]
+        contact_information_by_user_id = {}
+        contact_information_query = ContactInformation.objects.filter(
+            user_id__in = user_ids
+        ).all()
+        for contact_information in contact_information_query:
+            contact_information_by_user_id[contact_information.user_id] = contact_information
+        for _participant in self._result_cache:
+            if _participant.user and _participant.user.id in contact_information_by_user_id:
+                _participant._contact_information = contact_information_by_user_id[_participant.user.id]
+
+    def prefetch_page_views(self):
+        return self.prefetch_related('page_views')
+
+    def _fetch_page_views(self):
+        for participant in self._result_cache:
+            first_page_view = None
+            last_page_view = None
+            if participant.user:
+                page_view_query = PageView.objects.filter(user=participant.user) \
+                .order_by('time')
+
+                first_page_view = page_view_query.first()
+                last_page_view = page_view_query.last()
+            participant._first_page_view = first_page_view
+            participant._last_page_view = last_page_view
+
+    def prefetch_fitbit_account(self):
+        return self.prefetch_related('fitbit_account')
+    
+    def _fetch_fitbit_account(self):
+        user_ids = [p.user.id for p in self._result_cache if p.user]
+        fitbit_account_by_user_id = {}
+        fitbit_account_users = FitbitAccountUser.objects.filter(
+            user_id__in = user_ids
+        ).prefetch_related('account') \
+        .all()
+        for account_user in fitbit_account_users:
+            fitbit_account_by_user_id[account_user.user_id] = account_user.account
+        for participant in self._result_cache:
+            if participant.user and participant.user.id in fitbit_account_by_user_id:
+                participant._fitbit_account = fitbit_account_by_user_id[participant.user.id]
+            else:
+                participant._fitbit_account = None
+
+
 class DashboardParticipant(Participant):
 
     notifications = NotificationsQuerySet.as_manager()
@@ -280,70 +348,91 @@ class DashboardParticipant(Participant):
         proxy = True
 
     @property
-    def phone_number(self):
+    def contact_information(self):
+        if not hasattr(self, '_contact_information'):
+            self._contact_information = self.get_contact_information()
+        return self._contact_information
+
+    def get_contact_information(self):
         try:
-            information = ContactInformation.objects.get(user=self.user)
-            return information.phone
+            return ContactInformation.objects.get(user=self.user)
         except ContactInformation.DoesNotExist:
+            return None
+
+    @property
+    def phone_number(self):
+        if self.contact_information:
+            return self.contact_information.phone
+        else:
             return None
     
     @property
     def fitbit_days_worn(self):
-        if not self.user:
-            return None
-        try:
-            service = FitbitActivityService(user=self.user)
+        if self.fitbit_account:
+            service = FitbitActivityService(account=self.fitbit_account)
             return service.get_days_worn()
-        except FitbitActivityService.NoAccount:
-            return None
+        return None
+
+    @property
+    def fitbit_account(self):
+        if not hasattr(self, '_fitbit_account'):
+            self._fitbit_account = self.get_fitbit_account()
+        return self._fitbit_account
+
+    def get_fitbit_account(self):
+        if self.user:
+            try:
+                return FitbitAccountUser.objects.prefetch_related('account') \
+                .get(user=self.user) \
+                .account
+            except FitbitAccountUser.DoesNotExist:
+                pass
+        return None
 
     @property
     def fitbit_authorized(self):
-        if not self.user:
-            return False
-        try:
-            service = FitbitService(user=self.user)
+        if self.fitbit_account:
+            service = FitbitService(account=self.fitbit_account)
             return service.is_authorized()
-        except FitbitService.NoAccount:
-            return False
+        return False
 
     @property
     def fitbit_first_updated(self):
-        if not self.user:
-            return None
-        try:
-            service = FitbitService(user=self.user)
+        if self.fitbit_account:
+            service = FitbitService(account=self.fitbit_account)
             return service.first_updated_on()
-        except FitbitService.NoAccount:
-            return None
+        return None
 
     @property
     def fitbit_last_updated(self):
-        if not self.user:
-            return None
-        try:
-            service = FitbitService(user=self.user)
+        if self.fitbit_account:
+            service = FitbitService(account=self.fitbit_account)
             return service.last_updated_on()
-        except FitbitService.NoAccount:
-            return None
+        return None
 
 
     @property
     def first_page_view(self):
-        if not self.user:
-            return None
-        page_view = PageView.objects.filter(user=self.user).order_by('time').first()
-        if page_view:
-            return page_view.time
+        if hasattr(self, '_first_page_view') and self._first_page_view:
+            return self._first_page_view.time
         return None
 
     @property
     def last_page_view(self):
-        if not self.user:
-            return None
-        page_view = PageView.objects.filter(user=self.user).order_by('time').last()
-        if page_view:
-            return page_view.time
+        if hasattr(self, '_last_page_view') and self._last_page_view:
+            return self._last_page_view.time
+        return None
+
+    @property
+    def current_app_version(self):
+        if hasattr(self, '_last_page_view') and self._last_page_view:
+            return self._last_page_view.version
+        return None
+
+    @property
+    def current_app_platform(self):
+        if hasattr(self, '_last_page_view') and self._last_page_view:
+            return self._last_page_view.platform
         return None
 
     @property

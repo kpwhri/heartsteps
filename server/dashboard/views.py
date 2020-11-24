@@ -146,41 +146,11 @@ class DashboardListView(CohortView):
     def get_context_data(self, **kwargs):
         context = super(DashboardListView, self).get_context_data(**kwargs)
 
-        all_participants = self.query_participants()
-        num_per_page = 10
-        context['num_per_page'] = 10
-        context['total_participants'] = len(all_participants)
+        participants = self.query_participants() \
+        .prefetch_contact_information() \
+        .prefetch_fitbit_account() \
+        .prefetch_page_views()
 
-        paginator = Paginator(all_participants, 10)
-        page = int(self.request.GET.get('page', 1))
-        context['current_page'] = page
-        context['pages'] = [n+1 for n in range(paginator.num_pages)]
-        try:
-            paginated_participants = paginator.page(page)
-        except PaginatorEmptyPage:
-            page = paginator.num_pages
-            paginated_participants = paginator.page(paginator.page)
-        if page + 1 < paginator.num_pages:
-            context['next_page'] = page + 1
-        if page > 1:
-            context['prev_page'] = page - 1
-        participants = []
-        for participant in paginated_participants:
-            participants.append({
-                'adherence_messages': participant.recent_adherence_messages,
-                'heartsteps_id': participant.heartsteps_id,
-                'phone_number': participant.phone_number,
-                'days_wore_fitbit': participant.fitbit_days_worn,
-                'fitbit_first_updated': participant.fitbit_first_updated,
-                'fitbit_last_updated': participant.fitbit_last_updated,
-                'fitbit_authorized': participant.fitbit_authorized,
-                'date_joined': participant.date_joined,
-                'first_page_view': participant.first_page_view,
-                'last_page_view': participant.last_page_view,
-                'watch_app_installed_date': participant.watch_app_installed_date,
-                'last_watch_app_data': participant.last_watch_app_data,
-                'last_text_sent': participant.last_text_sent,
-            })
         context['participant_list'] = participants
         return context
 

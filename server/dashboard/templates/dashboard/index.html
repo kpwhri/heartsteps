@@ -5,16 +5,6 @@
 {% block body %}
 <div>
     <p>{{total_participants}} participants. Showing {{participant_list|length}} participants.</p>
-    <nav>
-        <em>Pages:</em>
-    {% for page in pages %}
-        {% if page == current_page %}
-        <strong>{{page}}</strong>
-        {% else %}
-        <a href="?page={{page}}">{{page}}</a>
-        {% endif %}
-    {% endfor %}
-    </nav>
 </div>
 <table class='table table-striped table-bordered table-hover'>
     <thead class="thead-dark">
@@ -37,9 +27,11 @@
                     {{participant.heartsteps_id}}
                 </a>
                 <dl>
-                    {% if participant.date_joined %}
-                    <dt>Joined date</dt>
-                    <dd>{{ participant.date_joined|date }}</dd>
+                    {% if participant.study_start %}
+                    <dt>Study Start</dt>
+                    <dd>{{ participant.study_start|date }}</dd>
+                    <dt>Study End</dt>
+                    <dd>{{ participant.study_end|date }}</dd>
                     {% endif %}
                 </dl>
             </td>
@@ -64,13 +56,12 @@
                 </dl>
             </td>
             <td>
+                {% if participant.fitbit_account %}
                 <dl>
                     <dt>Status</dt>
-                    {% if participant.fitbit_authorized == 'current' %}
-                     <dd class="success">Authorized</dd>
-                    {% elif participant.fitbit_authorized == 'never' %}
-                    <dd class="error">No account</dd>
-                    {% elif participant.fitbit_authorized == 'prior' %}
+                    {% if participant.fitbit_authorized %}
+                    <dd class="success">Authorized</dd>
+                    {% else %}
                     <dd class="error">Unauthorized</dd> 
                     {% endif %}
                     {% if participant.fitbit_first_updated %}
@@ -80,8 +71,9 @@
                     <dd>Last update {{participant.fitbit_last_updated}}</dd>
                     {% endif %}
                     <dt>Days worn</dt>
-                    <dd>{{participant.days_wore_fitbit}}</dd>
+                    <dd>{{participant.fitbit_days_worn}}</dd>
                 </dl>
+                {% endif %}
             </td>
             <td>
                 <dl>
@@ -90,6 +82,9 @@
                     <dd>{{ participant.first_page_view|date }}<dd>
                     {% else %}
                     <dd class="error">Not installed</dd>
+                    {% endif %}
+                    {% if participant.current_app_platform and participant.current_app_version %}
+                    <dd>{{participant.current_app_version}} ({{participant.current_app_platform}})</dd>
                     {% endif %}
                     {% if participant.last_page_view %}
                     <dt>Last page view</dt>
@@ -116,14 +111,4 @@
         {% endfor %}
     </tbody>
 </table>
-<nav>
-    <em>Pages:</em>
-    {% for page in pages %}
-        {% if page == current_page %}
-        <strong>{{page}}</strong>
-        {% else %}
-        <a href="?page={{page}}">{{page}}</a>
-        {% endif %}
-    {% endfor %}
-</nav>
 {% endblock %}
