@@ -69,6 +69,8 @@ class ParticipantConfiguration(TestCase):
         account_update = FitbitAccountUpdate.objects.create(account = fitbit_account)
         account_update.created = timezone.now() - timedelta(days=2)
         account_update.save()
+        self.participant.user.date_joined = self.participant.user.date_joined - timedelta(days=2)
+        self.participant.user.save()
         
         diff_study_start = timezone.now() - self.participant.study_start
         self.assertEqual(diff_study_start.days, 2)
