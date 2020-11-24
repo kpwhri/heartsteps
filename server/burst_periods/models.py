@@ -101,13 +101,13 @@ class Configuration(models.Model):
         self.normalize_walking_suggestion_surveys()
 
     def burst_activity_surveys(self):
-        self.update_activity_survey_probability(0.9)
+        self.update_activity_survey_probability(1)
 
     def normalize_activity_surveys(self):
         self.update_activity_survey_probability(0.2)
 
     def burst_walking_suggestion_surveys(self):
-        self.update_walking_suggestion_survey_treatment_probability(0.9)
+        self.update_walking_suggestion_survey_treatment_probability(1)
 
     def normalize_walking_suggestion_surveys(self):
         self.update_walking_suggestion_survey_treatment_probability(0.2)

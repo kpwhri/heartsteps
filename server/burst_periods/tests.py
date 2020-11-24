@@ -75,8 +75,8 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
 
         activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
         walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
-        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
-        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 1)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 1)
 
 
     def test_sets_burst_probability_when_scheduled(self):
@@ -96,8 +96,8 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
 
         activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
         walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
-        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
-        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 1)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 1)
 
         self.configuration.update_intervention_configurations(date.today() + timedelta(days=1))
 
@@ -110,5 +110,5 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
 
         activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
         walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
-        self.assertEqual(activity_survey_configuration.treatment_probability, 0.9)
-        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.9)
+        self.assertEqual(activity_survey_configuration.treatment_probability, 1)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 1)
