@@ -9,7 +9,9 @@
         submitLabel = "Complete"
         (onSubmit) = "saveSurvey()"
         >
-        <p>{{body}}</p>
+        <div class="headline">
+            <p>{{body}}</p>
+        </div>
         <div *ngFor="let question of questions">
             <app-choice-field *ngIf="question.kind=='select-one'"
                 [formControlName]="question.name"
