@@ -57,7 +57,11 @@ class Cohort(models.Model):
         null = True
     )
 
-    export_data = models.BooleanField(default=True)
+    export_data = models.BooleanField(default=False)
+    export_bucket_url = models.CharField(
+        max_length = 500,
+        null = True
+    )
 
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \

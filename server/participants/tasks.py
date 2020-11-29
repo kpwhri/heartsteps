@@ -287,11 +287,12 @@ def setup_exports(participant, directory, log_export=True):
 
 @shared_task
 def export_user_data(username, log_export=True):
-    EXPORT_DIRECTORY = '/heartsteps-export'
-    if not hasattr(settings, 'HEARTSTEPS_NIGHTLY_DATA_BUCKET') or not settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET:
-        print('Data download not configured')
+    participant = Participant.objects.get(user__username=username)
+    cohort = participant.cohort
+    if not cohort or not cohort.export_bucket_url:
         return False
-    
+
+    EXPORT_DIRECTORY = '/heartsteps-export'    
     if log_export:
         if not os.path.exists(EXPORT_DIRECTORY):
             os.makedirs(EXPORT_DIRECTORY)
@@ -303,7 +304,6 @@ def export_user_data(username, log_export=True):
     else:
         directory = './'
     
-    participant = Participant.objects.get(user__username=username)  
     export_file = setup_exports(participant, directory, log_export)
 
     export_file(export_anti_sedentary_decisions,
@@ -338,7 +338,7 @@ def export_user_data(username, log_export=True):
 
     if log_export:
         subprocess.call(
-            'gsutil -m rsync %s gs://%s' % (directory, settings.HEARTSTEPS_NIGHTLY_DATA_BUCKET),
+            'gsutil -m rsync %s gs://%s' % (directory, cohort.export_bucket_url),
             shell=True
         )
 
