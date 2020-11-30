@@ -1298,6 +1298,11 @@ class ParticipantBurstPeriodView(ParticipantView):
             burst_period.start = form.cleaned_data['start']
             burst_period.end = form.cleaned_data['end']
             burst_period.save()
+            try:
+                configuration = BurstPeriodConfiguration.objects.get(user=burst_period.user)
+                configuration.set_current_intervention_configuration()
+            except BurstPeriodConfiguration.DoesNotExist:
+                pass
             messages.add_message(request, messages.SUCCESS, 'Created burst period')
             return HttpResponseRedirect(
                 reverse(
@@ -1322,6 +1327,11 @@ class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
     def post(self, request, burst_period_id, **kwargs):
         burst_period = self.get_burst_period(burst_period_id)
         burst_period.delete()
+        try:
+            configuration = BurstPeriodConfiguration.objects.get(user=burst_period.user)
+            configuration.set_current_intervention_configuration()
+        except BurstPeriodConfiguration.DoesNotExist:
+            pass
         messages.add_message(request, messages.SUCCESS, 'Deleted burst period')
         return HttpResponseRedirect(
             reverse(
