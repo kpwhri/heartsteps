@@ -25,6 +25,7 @@ from adherence_messages.models import AdherenceMetric
 from adherence_messages.services import AdherenceService
 from anti_sedentary.models import AntiSedentaryDecision
 from burst_periods.models import Configuration as BurstPeriodConfiguration
+from burst_periods.models import BurstPeriod
 from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
 from days.models import Day
@@ -56,6 +57,7 @@ from django_celery_results.models import TaskResult
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
+from .forms import BurstPeriodForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
@@ -1262,3 +1264,71 @@ class ParticipantExportView(ParticipantView):
             })
         context['export_logs'] = serialized_exports
         return context
+
+class ParticipantBurstPeriodView(ParticipantView):
+
+    template_name = 'dashboard/participant-burst-period.html'
+
+    def get_burst_period(self, burst_period_id):
+        if burst_period_id is None:
+            return BurstPeriod()
+        try:
+            return BurstPeriod.objects.get(
+                id = burst_period_id,
+                user = self.participant.user
+            )
+        except BurstPeriod.DoesNotExist:
+            raise Http404('Not found')
+
+    def get_context_data(self, burst_period_id=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        burst_period = self.get_burst_period(burst_period_id)
+        context['burst_period'] = burst_period
+        context['form'] = BurstPeriodForm(initial={
+            'start': burst_period.start,
+            'end': burst_period.end
+        })
+        return context
+
+    def post(self, request, burst_period_id=None, **kwargs):
+        burst_period = self.get_burst_period(burst_period_id)
+        form = BurstPeriodForm(request.POST)
+        if form.is_valid():
+            burst_period.user = self.participant.user
+            burst_period.start = form.cleaned_data['start']
+            burst_period.end = form.cleaned_data['end']
+            burst_period.save()
+            messages.add_message(request, messages.SUCCESS, 'Created burst period')
+            return HttpResponseRedirect(
+                reverse(
+                    'dashboard-cohort-participant',
+                    kwargs = {
+                        'cohort_id':self.cohort.id,
+                        'participant_id': self.participant.heartsteps_id
+                    }
+                )
+            )
+        else:
+            context = self.get_context_data(**kwargs)
+            context['form'] = form
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context
+            )
+
+class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
+
+    def post(self, request, burst_period_id, **kwargs):
+        burst_period = self.get_burst_period(burst_period_id)
+        burst_period.delete()
+        messages.add_message(request, messages.SUCCESS, 'Deleted burst period')
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant',
+                kwargs = {
+                    'cohort_id':self.cohort.id,
+                    'participant_id': self.participant.heartsteps_id
+                }
+            )
+        )

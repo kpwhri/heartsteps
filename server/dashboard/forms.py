@@ -3,6 +3,7 @@ from django.core.validators import validate_slug
 
 from participants.models import Participant
 from sms_messages.models import Message
+from burst_periods.models import BurstPeriod
 
 class SendSMSForm(forms.Form):
     body = forms.CharField(widget=forms.Textarea())
@@ -24,4 +25,11 @@ class ParticipantEditForm(forms.ModelForm):
     class Meta:
         model = Participant
         fields = ['enrollment_token', 'birth_year']
+
+class BurstPeriodForm(forms.ModelForm):
+
+    class Meta:
+        model = BurstPeriod
+        fields = ['start', 'end']
+
 

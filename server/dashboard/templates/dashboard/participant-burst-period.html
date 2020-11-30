@@ -1,0 +1,22 @@
+{% extends 'dashboard/participants.html'%}
+
+{% block content %}
+{% url 'dashboard-cohort-participant-burst-period-delete' cohort.id participant.heartsteps_id burst_period.id as delete_url %}
+<form action="{{delete_url}}" method="POST" novalidate>
+    {% csrf_token %}
+    <input class="btn btn-danger" type="submit" value="Delete" />
+</form>
+<form action="" method="POST" novalidate>
+    {% csrf_token %}
+    <legend>Update burst period</legend>
+    <p>Date format is YYYY-MM-DD</p>
+    {% for field in form %}
+    <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+    </div>
+    {% endfor %}
+    <input type="submit" value="Update" />
+</form>
+{% endblock %}

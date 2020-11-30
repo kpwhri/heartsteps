@@ -26,6 +26,8 @@ from .views import ParticipantActivitySummaryView
 from .views import ParticipantMorningMessagesView
 from .views import ParticipantExportView
 from .views import DailyTaskSummaryView
+from .views import ParticipantBurstPeriodView
+from .views import ParticipantBurstPeriodDeleteView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -36,6 +38,9 @@ urlpatterns = [
         auth_views.PasswordResetConfirmView.as_view(success_url='dashboard-login'),
         name='password_reset_confirm'
     ),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)/delete', ParticipantBurstPeriodDeleteView.as_view(), name='dashboard-cohort-participant-burst-period-delete'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)', ParticipantBurstPeriodView.as_view(), name='dashboard-cohort-participant-burst-period'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/', ParticipantBurstPeriodView.as_view(), name='dashboard-cohort-participant-burst-period'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/morning-messages', ParticipantMorningMessagesView.as_view(), name='dashboard-cohort-participant-morning-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/fitbit/disable', ParticipantDisableFitbitAccountView.as_view(), name='dashboard-cohort-participant-fitbit-disable'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/enable', ParticipantEnableView.as_view(), name='dashboard-cohort-participant-enable'),
