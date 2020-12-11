@@ -236,6 +236,11 @@ def setup_exports(participant, directory, log_export=True):
             study = participant.cohort.study.slug
         )
 
+        start = participant.study_start
+        end = participant.study_end
+        if end > timezone.now():
+            end = timezone.now()
+
         if log_export:
             print('Export start: {}'.format(filename))
             export = DataExport(
@@ -248,8 +253,8 @@ def setup_exports(participant, directory, log_export=True):
                     username = participant.user.username,
                     filename = filename,
                     directory = directory,
-                    start = participant.study_start,
-                    end = participant.study_end
+                    start = start,
+                    end = end
                 )
             except Exception as e:
                 print('Error:', e)
@@ -275,8 +280,8 @@ def setup_exports(participant, directory, log_export=True):
                 username = participant.user.username,
                 filename = filename,
                 directory = directory,
-                start = participant.study_start,
-                end = participant.study_end
+                start = start,
+                end = end
             )
             end = timezone.now()
             diff = end - start
