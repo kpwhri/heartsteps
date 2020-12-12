@@ -1,6 +1,8 @@
 import pytz
 from datetime import datetime
 
+from django.utils import timezone
+
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -50,8 +52,18 @@ class StepCountUpdateView(APIView):
 class LoginView(ParticipantLoginView):
 
     def authentication_successful(self):
-        install, _ = WatchInstall.objects.update_or_create(user = self.participant.user)
-
+        install = WatchInstall.objects.filter(
+            user=self.participant.user
+        ) \
+        .order_by('-created') \
+        .first()
+        if install:
+            install.updated = timezone.now()
+            install.save()
+        else:
+            WatchInstall.objects.create(
+                user = self.participant.user
+            )
 
 class WatchAppStatus(object):
     def __init__(self, installed, lastUpdated):
