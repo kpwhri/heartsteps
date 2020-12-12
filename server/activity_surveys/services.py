@@ -32,19 +32,24 @@ class ActivitySurveyService:
             raise ActivitySurveyService.NotConfigured('No configuration')
 
     def randomize_survey(self, fitbit_activity=None, treatment_probability=None):
-        decision = Decision.objects.create(
+        if not treatment_probability:
+            treatment_probability = self.configuration.treatment_probability
+        decision = Decision(
             user = self.user,
             treatment_probability = treatment_probability
         )
+        decision.save()
         if decision.treated:
             survey = self.create_survey(
+                decision = decision,
                 fitbit_activity = fitbit_activity
             )
             self.send_notification(survey)   
 
-    def create_survey(self, fitbit_activity=None):
+    def create_survey(self, decision=None, fitbit_activity=None):
         activity_survey = ActivitySurvey.objects.create(
             user = self.configuration.user,
+            decision = decision,
             fitbit_activity = fitbit_activity
         )
         activity_survey.reset_questions()
