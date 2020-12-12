@@ -900,7 +900,7 @@ class ParticipantNotificationsView(ParticipantView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['notifications'] = DashboardParticipant.notifications.filter(user=self.participant.user).get_notifications(
+        context['notifications'] = self.participant.get_notifications(
             timezone.now() - timedelta(days=7),
             timezone.now()
         )

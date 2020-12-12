@@ -249,20 +249,6 @@ class WatchAppSummaryManager(models.Manager):
             total_seconds = total_seconds
         )
 
-class NotificationsQuerySet(models.QuerySet):
-
-    def get_notifications(self, start, end):
-        participants = self.exclude(user=None).all()
-        users = [participant.user for participant in participants]
-
-        query = PushMessage.objects.filter(
-            recipient__in = users,
-            message_type = PushMessage.NOTIFICATION,
-            created__gte = start,
-            created__lte = end
-        )
-        return query.all()
-
 class DashboardParticipantQuerySet(models.QuerySet):
 
     def prefetch_burst_periods(self):
@@ -338,7 +324,6 @@ class DashboardParticipantQuerySet(models.QuerySet):
 
 class DashboardParticipant(Participant):
 
-    notifications = NotificationsQuerySet.as_manager()
     summaries = InterventionSummaryManager()
     watch_app_step_counts = WatchAppSummaryManager()
 
@@ -718,6 +703,19 @@ class DashboardParticipant(Participant):
             )
         except BurstPeriodConfiguration.DoesNotExist:
             return None
+
+    def get_notifications(self, start, end):
+        if not self.user:
+            return []
+        notifications = PushMessage.objects.filter(
+            recipient = self.user,
+            message_type = PushMessage.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        ) \
+        .order_by('-created') \
+        .all()
+        return notifications
 
 class FitbitServiceDashboard(FitbitService):
 
