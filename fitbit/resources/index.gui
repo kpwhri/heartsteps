@@ -2,10 +2,7 @@
   <rect id="background" />
   <text id="txtTime" class="clock-text" pointer-events="visible">13:37</text>
   <text id="pin" text-anchor="middle" x="50%" y="48%" fill="forestgreen" font-size="30" text-length="15" pointer-events="visible"></text>
-  <text id="watchFailSend" text-anchor="middle" x="50%" y="05%" text-length="25" font-size="20" fill="forestgreen" />
-  <text id="phoneFailSend" text-anchor="middle" x="50%" y="13%" text-length="25" font-size="20" fill="forestgreen" />
   <text id="token" text-anchor="middle" x="50%" y="90%" text-length="50" font-size="10" fill="forestgreen" />
-  <textarea id="txtWarning" class="warning">Welcome! Please set up HeartSteps on your phone!</textarea>
   <svg id='lower'>
     <rect class="divider divider-top" />
     <text id="txtDate" class="date-text">MON JANUARY 01</text>

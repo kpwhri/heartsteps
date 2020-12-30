@@ -1,22 +1,15 @@
 import document from "document";
-
-// Get integrationStatus setting & update text in settings
 import * as messaging from "messaging";
-
-// On-body presence
 import { BodyPresenceSensor } from "body-presence";
 
 // Clock-specific imports
 import * as simpleActivity from "./simple/activity";
 import * as simpleClock from "./simple/clock";
 import * as simpleHRM from "./simple/hrm";
-import * as simpleSettings from "./simple/device-settings";
-import * as simpleFailSendWatch from "./simple/fail-send-watch";
-import * as simpleFailSendPhone from "./simple/fail-send-phone";
 
 import * as global from "../common/globals"
 
-import { StepCountHandler, StepReading } from "./step-count.js";
+import { StepCountHandler } from "./step-count.js";
 
 
 // Watch notifies phone of step count & location
@@ -24,8 +17,6 @@ const WAKE_INTERVAL = 5;
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
 const MINUTES_PER_DAY = 1440;
 
-let background = document.getElementById("background");
-let dividers = document.getElementsByClassName("divider");
 let txtTime = document.getElementById("txtTime");
 let txtDate = document.getElementById("txtDate");
 let txtHRM = document.getElementById("txtHRM");
@@ -33,24 +24,8 @@ let iconHRM = document.getElementById("iconHRM");
 let imgHRM = iconHRM.getElementById("icon");
 let statsCycle = document.getElementById("stats-cycle");
 let statsCycleItems = statsCycle.getElementsByClassName("cycle-item");
-let txtWarning = document.getElementById("txtWarning");
-let lower = document.getElementById("#lower");
 let pin = document.getElementById("pin");
-let watchFailSend = document.getElementById("watchFailSend");
-let phoneFailSend = document.getElementById("phoneFailSend");
 let token = document.getElementById("token");
-
-/* --- WATCH FAIL SEND ------- */
-function watchfailSendCallBack(data) {
-  watchFailSend.text = `Watch Failed Updates: ${data.numErr}`;
-}
-simpleFailSendWatch.initialize(watchfailSendCallBack);
-
-/* --- PHONE FAIL SEND ------- */
-function phonefailSendCallBack(data) {
-  phoneFailSend.text = `Phone Failed Updates: ${data.numErr}`;
-}
-simpleFailSendWatch.initialize(phonefailSendCallBack);
 
 /* --------- CLOCK ---------- */
 function clockCallback(data) {
@@ -84,51 +59,6 @@ function hrmCallback(data) {
   }
 }
 simpleHRM.initialize(hrmCallback);
-
-/* -------- SETTINGS -------- */
-function settingsCallback(data) {
-  if (!data) {
-    return;
-  }
-  if (data.integrationStatus) {
-    if (data.integrationStatus == "success") {
-      txtWarning.style.display = "none";
-      lower.style.opacity = 1.0;
-    } else {
-      txtWarning.style.display = "inline";
-      lower.style.opacity = 0.2;
-    }
-  }
-  if (data.colorBackground) {
-    background.style.fill = data.colorBackground;
-  }
-  if (data.colorDividers) {
-    dividers.forEach(item => {
-      item.style.fill = data.colorDividers;
-    });
-  }
-  if (data.colorTime) {
-    txtTime.style.fill = data.colorTime;
-  }
-  if (data.colorDate) {
-    txtDate.style.fill = data.colorDate;
-  }
-  if (data.colorActivity) {
-    statsCycleItems.forEach((item, index) => {
-      let img = item.firstChild;
-      let txt = img.nextSibling;
-      img.style.fill = data.colorActivity;
-      txt.style.fill = data.colorActivity;
-    });
-  }
-  if (data.colorHRM) {
-    txtHRM.style.fill = data.colorHRM;
-  }
-  if (data.colorImgHRM) {
-    imgHRM.style.fill = data.colorImgHRM;
-  }
-}
-simpleSettings.initialize(settingsCallback);
 
 /* -- On initialization, phone should send info on whether to display -- */
 /* -- help text or full stats depending on authentication status -- */

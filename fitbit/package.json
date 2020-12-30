@@ -4,7 +4,7 @@
   "private": true,
   "license": "UNLICENSED",
   "fitbit": {
-    "appUUID": "449d190e-fd35-4721-972f-a7c479c26349",
+    "appUUID": "805f9d8b-98bc-4d93-8107-9b36b31d138d",
     "appType": "clockface",
     "appDisplayName": "HeartSteps",
     "iconFile": "resources/icon.png",
