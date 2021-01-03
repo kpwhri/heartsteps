@@ -3,149 +3,58 @@ import * as messaging from "messaging";
 import { BodyPresenceSensor } from "body-presence";
 
 // Clock-specific imports
-import * as simpleActivity from "./simple/activity";
 import * as simpleClock from "./simple/clock";
-import * as simpleHRM from "./simple/hrm";
-
 import * as global from "../common/globals"
 
-import { StepCountHandler } from "./step-count.js";
+let timeElement = document.getElementById("txtTime");
+let dateElement = document.getElementById("txtDate");
 
+const statusElement = document.getElementById("status");
+const tokenElement = document.getElementById("token");
 
-// Watch notifies phone of step count & location
-const WAKE_INTERVAL = 5;
-const MILLISECONDS_PER_MINUTE = 1000 * 60;
-const MINUTES_PER_DAY = 1440;
-
-let txtTime = document.getElementById("txtTime");
-let txtDate = document.getElementById("txtDate");
-let txtHRM = document.getElementById("txtHRM");
-let iconHRM = document.getElementById("iconHRM");
-let imgHRM = iconHRM.getElementById("icon");
-let statsCycle = document.getElementById("stats-cycle");
-let statsCycleItems = statsCycle.getElementsByClassName("cycle-item");
-let pin = document.getElementById("pin");
-let token = document.getElementById("token");
-
-/* --------- CLOCK ---------- */
-function clockCallback(data) {
-  txtTime.text = data.time;
-  txtDate.text = data.date;
-}
-simpleClock.initialize("minutes", "heartStepsDate", clockCallback);
-
-/* ------- ACTIVITY --------- */
-function activityCallback(data) {
-  statsCycleItems.forEach((item, index) => {
-    let img = item.firstChild;
-    let txt = img.nextSibling;
-    txt.text = data[Object.keys(data)[index]].pretty;
-    // Reposition the activity icon to the left of the variable length text
-    img.x = txt.getBBox().x - txt.parent.getBBox().x - img.width - 7;
-  });
-}
-simpleActivity.initialize("seconds", activityCallback);
-
-/* -------- HRM ------------- */
-function hrmCallback(data) {
-  txtHRM.text = `${data.bpm}`;
-  if (data.zone === "out-of-range") {
-    imgHRM.href = "images/heart_open.png";
-  } else {
-    imgHRM.href = "images/heart_solid.png";
-  }
-  if (data.bpm !== "--") {
-    iconHRM.animate("highlight");
-  }
-}
-simpleHRM.initialize(hrmCallback);
-
-/* -- On initialization, phone should send info on whether to display -- */
-/* -- help text or full stats depending on authentication status -- */
-
-/* ------- Send step data to the phone ---------*/
-function sendStepMessage(recentSteps, time){
-
-  // OMG MAKE SURE YOU CHANGED THIS
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    let data = {
-      key: "recentSteps",
-      value: recentSteps,
-      time: time
-    }
-    messaging.peerSocket.send(data);
-  } else {
-    console.log("ERROR: peerSocket not open");
-    simpleFailSendWatch.update(watchfailSendCallBack);
-  }
-}
+simpleClock.initialize("minutes", "heartStepsDate", function(data) {
+  timeElement.text = data.time;
+  dateElement.text = data.date;
+});
 
 // Start sensor to detect if watch is being worn
 let bodyPresenceSensor = new BodyPresenceSensor();
 bodyPresenceSensor.start();
 
-// Process step data and send if watch being worn
-function stepCountToPhone(){
-  let stepCount = new StepCountHandler();
-  let oldStepData = stepCount.getData();
-  // console.log("original data: " + JSON.stringify(oldStepData));
-  let newStepData = stepCount.updateData(oldStepData);
-  // console.log("updated data: " + JSON.stringify(newStepData));
-  stepCount.saveFile(newStepData);
-  let readNewStepData = stepCount.calculateElapsedSteps(newStepData);
-  // console.log("new step array: " + JSON.stringify(readNewStepData));
+setInterval(function() {
   if (bodyPresenceSensor.present) {
-    sendStepMessage(readNewStepData, stepCount.currentTime);
+    console.log("Send steps??");
+  }
+}, 5 * 60 * 1000); // every 5 minutes
+
+messaging.peerSocket.onmessage = function(event) {
+  if (event.data.status) {
+    dateElement.style.opacity = 0;
+    statusElement.style.opacity = 1;
+    statusElement.text = event.data.status;
+  } else {
+    dateElement.style.opacity = 1;
+    statusElement.style.opacity = 0;
+  }
+
+  if (event.data.authorized) {
+    tokenElement.style.opacity = 0;
+  } else {
+    tokenElement.style.opacity = 1;
+  }
+
+  if (event.data.pin) {
+    tokenElement.text = event.data.pin;
+  } else {
+    tokenElement.text = "";
   }
 }
 
-setInterval(function() {
-  stepCountToPhone();
-}, WAKE_INTERVAL * MILLISECONDS_PER_MINUTE);
-
-setInterval(function() {
-  simpleFailSendPhone.refresh(phonefailSendCallBack);
-  simpleFailSendWatch.refresh(watchfailSendCallBack);
-}, 2 * MILLISECONDS_PER_MINUTE * MINUTES_PER_DAY);
-
-/*--- When watch receives message from phone to input pin ---*/
-messaging.peerSocket.onmessage = function(evt) {
-  // Output the message to the console
-  if (evt.data.key === global.AUTH_STATUS) {
-    if (evt.data.value === "Authenticated") {
-      console.log("User Authenticated");
-      pin.text = "Authenticated";
-      // pin.style.display = "none";
-    } else {
-      let p = JSON.stringify(evt.data.value);
-      console.log(p);
-      let o = p.replace(/\"/g, "");
-      pin.text = o;
-    }
-  } else if (evt.data.key === global.PHONE_ERRORS) {
-    simpleFailSendPhone.update(evt.data.time, phonefailSendCallBack);
-  } else if (evt.data.key === "getToken") {
-    console.log("this is pval: " + evt.data.value);
-    token.text = evt.data.value;
-  }
-}
-
-/*--- Button for when user wants to check if pin is connected to user ---*/
-pin.onclick = function(evt) {
-  // console.log("clicked");
+timeElement.onclick = function(evt) {
+  console.log("time clicked");
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     let data = {
       key: global.CHECK_AUTH
-    }
-    messaging.peerSocket.send(data);
-  } 
-}
-
-txtTime.onclick = function(evt) {
-  console.log("date clicked");
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    let data = {
-      key: "getToken"
     }
     messaging.peerSocket.send(data);
   } 

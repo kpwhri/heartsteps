@@ -1,37 +1,11 @@
 <svg>
   <rect id="background" />
   <text id="txtTime" class="clock-text" pointer-events="visible">13:37</text>
-  <text id="pin" text-anchor="middle" x="50%" y="48%" fill="forestgreen" font-size="30" text-length="15" pointer-events="visible"></text>
-  <text id="token" text-anchor="middle" x="50%" y="90%" text-length="50" font-size="10" fill="forestgreen" />
   <svg id='lower'>
     <rect class="divider divider-top" />
+    <text id="status" class="date-text">Loading</text>
     <text id="txtDate" class="date-text">MON JANUARY 01</text>
     <rect class="divider divider-btm" />
-    <svg class="stats">
-      <use id="iconHRM" href="#heart-beat" />
-      <text id="txtHRM" class="stat-left" />
-      <use id="stats-cycle" href="#cycleview">
-        <use href="#cycleview-item" class="cycle-item">
-          <image href="images/steps.png" class="image" />
-          <text class="stat-right" />
-        </use>
-        <use href="#cycleview-item" class="cycle-item">
-          <image href="images/calories.png" class="image" />
-          <text class="stat-right" />
-        </use>
-        <use href="#cycleview-item" class="cycle-item">
-          <image href="images/distance.png" class="image" />
-          <text class="stat-right" />
-        </use>
-        <use href="#cycleview-item" class="cycle-item">
-          <image href="images/floors.png" class="image" />
-          <text class="stat-right" />
-        </use>
-        <use href="#cycleview-item" class="cycle-item">
-          <image href="images/active_minutes.png" class="image" />
-          <text class="stat-right" />
-        </use>
-      </use>
-    </svg>
+    <text id="token" text-anchor="middle" x="50%" y="48%" fill="forestgreen" font-size="30" text-length="15" pointer-events="visible"></text>
   </svg>
 </svg>

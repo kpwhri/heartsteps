@@ -6,10 +6,6 @@
   fill: #000000;
 }
 
-svg#lower {
-  opacity: 0.2;
-}
-
 .warning {
   font-family: Seville-Book-Italic;
   font-size: 22;
@@ -71,14 +67,6 @@ svg#lower {
   fill: #2490DD;
 }
 
-#iconHRM {
-  width: 26;
-  height: 26;
-  y: 15;
-  x: 1;
-  fill: white;
-}
-
 .stat-left {
   x: 31;
 }
@@ -87,21 +75,6 @@ svg#lower {
   x: 100%;
   width: 100%;
   text-anchor: end;
-}
-
-#stats-cycle {
-  x: 40%;
-  y: 0;
-  width: 60%;
-  height: 100%;
-}
-
-.cycle-item image {
-  x: 50%;
-  y: 15;
-  fill: #FFFFFF;
-  width: 26;
-  height: 26;
 }
 
 .icon {
