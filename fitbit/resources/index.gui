@@ -1,11 +1,9 @@
 <svg>
   <rect id="background" />
   <text id="txtTime" class="clock-text" pointer-events="visible">13:37</text>
-  <svg id='lower'>
-    <rect class="divider divider-top" />
-    <text id="status" class="date-text">Loading</text>
-    <text id="txtDate" class="date-text">MON JANUARY 01</text>
-    <rect class="divider divider-btm" />
-    <text id="token" text-anchor="middle" x="50%" y="48%" fill="forestgreen" font-size="30" text-length="15" pointer-events="visible"></text>
-  </svg>
+  <rect class="divider divider-top" />
+  <text id="txtDate">MON JANUARY 01</text>
+  <rect class="divider divider-btm" />
+  <text id="status">Starting</text>
+  <text id="pin"></text>
 </svg>

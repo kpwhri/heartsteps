@@ -14,7 +14,7 @@
   fill: red;
 }
 
-.clock-text {
+#txtTime {
   font-family: Seville-Book;
   font-size: 90;
   text-anchor: middle;
@@ -26,7 +26,7 @@
   fill: #2490DD;
 }
 
-.date-text {
+#txtDate {
   font-family: Seville-Regular;
   font-size: 26;
   text-anchor: middle;
@@ -36,6 +36,30 @@
   width: 92%;
   height: 8%;
   fill: #FFFFFF;
+}
+
+#status {
+  font-family: Seville-Regular;
+  font-size: 24;
+  text-anchor: middle;
+  text-length: 30;
+  x: 50%;
+  y: 80%;
+  width: 92%;
+  height: 20%;
+  fill: #FFFFFF;
+}
+
+#pin {
+  font-family: Seville-Regular;
+  font-size: 24;
+  text-anchor: middle;
+  text-length: 30;
+  x: 50%;
+  y: 90%;
+  width: 92%;
+  height: 10%;
+  fill: #2490DD;
 }
 
 .divider {

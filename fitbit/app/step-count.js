@@ -1,27 +1,27 @@
 import { today as activity } from "user-activity";
 import * as fs from "fs";
 
-// Step count file is referenced by the STEP_COUNT_FILE variable.
-// This contains an array of step reading objects, each
-//   {"time": timestamp in milliseconds, "steps": elapsed steps}
-// Elapsed step count is number of steps in past {CUTOFF_MINS}
+import { BodyPresenceSensor } from "body-presence";
 
 const STEP_COUNT_FILE = "step_count.json";
 const FITBIT_FILE_NOT_FOUND = `Error: Couldn't find file: ${STEP_COUNT_FILE}`;
 const CUTOFF_MINS = 40;
 
-export class StepReading {
-  constructor() {
-    this.time = new Date().getTime();
-    this.steps = activity.adjusted.steps;
-  }
-}
+const bodyPresenceSensor = new BodyPresenceSensor();
+bodyPresenceSensor.start();
 
-export class StepCountHandler {
-  // Time stored as milliseconds since 1970.01.01 for easy maths
-  constructor() {
-    this.currentTime = new Date().getTime();
-    this.currentReading = new StepReading();
+export class StepCounter {
+  
+  constructor(interval_minutes) {
+
+  }
+
+  update() {
+    console.log("Updating");
+  }
+
+  getStepCounts() {
+    return this.getData()
   }
 
   deleteFile() {

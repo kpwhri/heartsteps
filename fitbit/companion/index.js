@@ -40,15 +40,25 @@ function checkPaired() {
 }
 
 function updateWatchStatus() {
-  const authorization_token = localStorage.getItem("AUTHORIZATION_TOKEN");
-  const pin = localStorage.getItem("PIN");
-  if (!pin || typeof pin == 'undefined') {
+  console.log('update  watch staus');
+  let authorization_token;
+  let pin;
+  try {
+    authorization_token = localStorage.getItem("AUTHORIZATION_TOKEN");
+  } catch(error) {
+    authorization_token = false;
+  }
+  try {
+    pin = localStorage.getItem("PIN");
+  } catch(error) {
+    pin = false;
+  }
+  if (!pin) {
     sendWatchStatus("Loading");
     getNewPin().then(function() {
       sendWatchStatus("Pairing");
     })
-  } else if (!authorization_token || typeof authorization_token == 'undefined') {
-    console.log('Checking pair')
+  } else if (!authorization_token) {
     sendWatchStatus("Loading");
     checkPaired().then((paired) => {
       if(paired) {
