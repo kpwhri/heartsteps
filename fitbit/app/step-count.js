@@ -1,100 +1,74 @@
 import { today as activity } from "user-activity";
 import * as fs from "fs";
+import * as messaging from "messaging";
 
 import { BodyPresenceSensor } from "body-presence";
-
-const STEP_COUNT_FILE = "step_count.json";
-const FITBIT_FILE_NOT_FOUND = `Error: Couldn't find file: ${STEP_COUNT_FILE}`;
-const CUTOFF_MINS = 40;
 
 const bodyPresenceSensor = new BodyPresenceSensor();
 bodyPresenceSensor.start();
 
 export class StepCounter {
-  
-  constructor(interval_minutes) {
 
+  constructor() {
+    this.step_count_file_name = "step_count.json"
+    this.interval_minutes = 5;
+    this.cutoff_minutes = 40;
   }
 
   update() {
-    console.log("Updating");
+    console.log("Updating Step Counter");
+    let step_counts = this.loadStepCounts();
+    step_counts.sort(function(a, b) {
+      return b.time - a.time;
+    });
+    const filtered_step_counts = [];
+    const cutoffTime = new Date().getTime() - this.cutoff_minutes * 60 * 1000;
+    step_counts.forEach(function(count) {
+      if (count.time > cutoffTime) {
+        filtered_step_counts.push(count);
+      }
+    });
+    step_counts = filtered_step_counts;
+    // filter old step counts
+    if(!step_counts.length) {
+      step_counts.push(this.makeStepCount());
+    } else {
+
+      const last_step_count = step_counts[0];
+      const timeDiff = new Date().getTime() - last_step_count.time;
+      const timeBuffer = this.interval_minutes * 60 * 1000;
+      if(timeDiff >= timeBuffer) {
+        console.log("Add step count");
+        step_counts.push(this.makeStepCount());
+      }
+    }
+
+    console.log(step_counts.length);
+    fs.writeFileSync(this.step_count_file_name, step_counts, "json");
+
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      messaging.peerSocket.send({
+        steps: step_counts
+      });
+    }
   }
 
-  getStepCounts() {
-    return this.getData()
+  makeStepCount() {
+    return {
+      time: new Date().getTime(),
+      stepCount: activity.adjusted.steps
+    }
   }
 
-  deleteFile() {
+  loadStepCounts() {
     try {
-      fs.unlinkSync(STEP_COUNT_FILE);
+      const stepData = fs.readFileSync(this.step_count_file_name, "json");
+      return stepData;
     } catch (err) {
+      const data = [];
+      fs.writeFileSync(this.step_count_file_name, data, "json");
+      return data;
     }
   }
 
-  // Get data from file system and convert to JSON array
-  getData() {
-    let stepData;
-    try {
-      stepData = fs.readFileSync(STEP_COUNT_FILE, "json");
-    } catch (err) {
-      // Fitbit's JS engine doesn't return err.code
-      // but the following text is used.
-      if(err == FITBIT_FILE_NOT_FOUND) {
-        stepData = '[{"time": 0, "steps": 0}]';
-      } else {
-        throw err;
-      }
-    }
-    return JSON.parse(stepData);
-  }
-
-  // Convert json array of elapsed steps for the day
-  // into a json array of elapsed steps between readings
-  calculateElapsedSteps(stepData) {
-    let newStepData = [];
-    let priorSteps = 0;
-    if (stepData[0]) {
-      priorSteps = stepData[0].steps;
-    }
-    let currSteps;
-    let n = 0;
-    for (let reading of stepData) {
-      // If new count is lower, reset the count for the new day
-      // Possible miss steps taken since last reading but before midnight
-      if (n == 0 || stepData[n].steps < priorSteps) {
-        currSteps = stepData[n].steps;
-      } else {
-        currSteps = stepData[n].steps - priorSteps;
-      }
-      priorSteps = stepData[n].steps;
-      newStepData.push({"time": stepData[n].time, "steps": currSteps});
-      n += 1;
-    }
-    return newStepData;
-  }
-
-  // Drop array members with datetimes before threshold
-  filterByTime(stepData, cutoffTime) {
-    let filtered = [];
-    for (let reading of stepData) {
-      if (reading.time >= cutoffTime) {
-        filtered.push(reading);
-      }
-    }
-    return filtered;
-  }
-
-  // Append new reading and drop older data
-  updateData(stepData) {
-    stepData.push(this.currentReading);
-    let cutoffTime = this.currentTime - (CUTOFF_MINS*60*1000);
-    // Select all readings since cutoffTime
-    let selectData = this.filterByTime(stepData, cutoffTime);
-    return selectData;
-  }
-
-  // Save the new step count array
-  saveFile(stepData) {
-    fs.writeFileSync(STEP_COUNT_FILE, JSON.stringify(stepData), "json");
-  }
 }

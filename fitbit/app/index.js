@@ -1,4 +1,5 @@
 import document from "document";
+import * as fs from "fs";
 import * as messaging from "messaging";
 
 // Clock-specific imports
@@ -18,63 +19,90 @@ simpleClock.initialize("minutes", "heartStepsDate", function(data) {
   dateElement.text = data.date;
 });
 
-function updateState(status, pin) {
-  statusElement.text = status;
-  pinElement.text = pin;
-}
+class AppState {
 
-function updateStatus(status) {
-  statusElement.text = status;
-}
+  stateFileName = 'watch-app-state.txt';
 
-let checkAuthorizationTimeout;
-function checkAuthorization() {
-  console.log("check authoriztion");
-  if (checkAuthorizationTimeout) {
-    clearTimeout(checkAuthorization);
-    checkAuthorizationTimeout = undefined;
+  constructor() {
+    this.load();    
   }
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    let data = {
-      key: global.CHECK_AUTH
+
+  update() {
+    const statusElement = document.getElementById("status");
+    if (this.loading) {
+      statusElement.text = "Loading";
+    } else if (this.authorized) {
+      statusElement.text = "Authorized"
+    } else {
+      statusElement.text = "Unauthorized"
     }
-    messaging.peerSocket.send(data);
-  } else {
-    updateStatus("Not Connected (Retrying)");
-    checkAuthorizationTimeout = setTimeout(function() {
-      checkAuthorization()
-    }, 1000);
+
+    const pinElement = document.getElementById("pin");
+    if (this.pin) {
+      pinElement.text = this.pin;
+    } else {
+      pinElement.text = "No Pin";
+    }
   }
+
+  getAuthorization() {
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      let data = {
+        key: global.CHECK_AUTH
+      }
+      messaging.peerSocket.send(data);
+    } else {
+      console.log("Debounce get authorization");
+      setTimeout(function() {
+        console.log("Debounce not implemented...");
+      }, 1000);
+    }
+  }
+
+  load() {
+    try {
+      const state = fs.readFileSync(this.stateFileName, "json");
+      this.authorized = state.authorized;
+      this.pin = state.pin;
+      this.loading = false;
+      this.update();
+    } catch(error) {
+      console.log("This is an error");
+      console.log(error);
+      this.authorized = false;
+      this.pin = undefined;
+      this.loading = true;
+      this.getAuthorization();
+    }
+  }
+
+  save(authorized, pin) {
+    const appState = {
+      "authorized": authorized,
+      "pin": pin
+    }
+    fs.writeFileSync(this.stateFileName, appState, "json");
+    this.load();
+  }
+
 }
 
-messaging.peerSocket.onmessage = function(event) {
-  updateState(
-    event.data.status,
+const stepCounter = new StepCounter();
+const app = new AppState();
+app.update();
+
+timeElement.onclick = function(evt) {
+  app.getAuthorization();
+  stepCounter.update();
+ }
+
+ setInterval(function() {
+   stepCounter.update()
+ }, 60 * 1000);
+
+ messaging.peerSocket.onmessage = function(event) {
+  app.save(
+    event.data.authorized,
     event.data.pin
   );
 }
-
-timeElement.onclick = function(evt) {
- checkAuthorization();
- sendStepCounts();
-}
-
-checkAuthorization();
-
-const stepCounter = new StepCounter();
-
-function sendStepCounts() {
-  console.log("Send step counts");
-  stepCounter.update();
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    let data = {
-      key: global.RECENT_STEPS,
-      steps: stepCounter.getStepCounts()
-    }
-    messaging.peerSocket.send(data);
-  }
-}
-
-dateElement.onclick = function() {
-  sendStepCounts();
-};
