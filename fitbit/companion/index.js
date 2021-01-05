@@ -4,40 +4,35 @@ import { localStorage } from "local-storage";
 import * as global from "../common/globals.js";
 
 function getNewPin() {
-  const url = `${global.BASE_URL}/api/pin_gen/myarr/`;
-	return fetch(url)
+  const url = `${global.BASE_URL}/api/clock-face/create`;
+	return fetch(url, {
+    method: "POST"
+  })
   .then(response => response.json())
 	.then(function(data) {
     console.log("Got new pin");
     console.log(data);
     localStorage.setItem("PIN", data['pin']);
-    localStorage.setItem("PIN_UNIID", data['uniid']);
+    localStorage.setItem("TOKEN", data['token']);
     return data['pin'];
 	});
 }
 
 function checkPaired() {
-  const url = `${global.BASE_URL}/api/pin_gen/user/`;
+  const url = `${global.BASE_URL}/api/clock-face/status`;
 	return fetch(url, {
-		method: "POST",
-	    body: JSON.stringify({
-        "pin": localStorage.getItem("PIN"),
-        "uniid": localStorage.getItem("PIN_UNIID")
-      }),
 	    headers: {
-	      'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'CLOCK_FACE_PIN': localStorage.getItem("PIN"),
+        'CLOCK_FACE_TOKEN': localStorage.getItem("TOKEN")
 	    }
 	})
   .then(function (response) {
     return response.json();
   })
 	.then(function(data) {
-    if (!data["authenticated"]) {
-      return false;
-		} else {
-      localStorage.setItem("AUTHORIZATION_TOKEN", data["token"]);
-      return true;
-		}
+    localStorage.setItem("PAIRED", data["paired"]);
+    localStorage.setItem("USERNAME", data["username"])
 	});
 }
 
@@ -91,23 +86,28 @@ function getPin() {
 
 function clear() {
   localStorage.removeItem("PIN");
-  localStorage.removeItem("PIN_UNIID");
-  localStorage.removeItem("AUTHORIZATION_TOKEN");
+  localStorage.removeItem("TOKEN");
+  localStorage.removeItem("PAIRED");
+  localStorage.removeItem("USERNAME");
+}
+
+function getItem(key) {
+  try {
+    localStorage.getItem(key);
+  } catch(error) {
+    return undefined;
+  }
 }
 
 function sendWatchStatus(statusMessage) {
-  const authorizationToken = getAuthorizationToken();
-  const pin = getPin();
-  let authorized = false;
-  if (authorizationToken) {
-    authorized = true;
-  }
+  const paired = getItem("PAIRED");
+  const pin = getItem("PIN");
 
   if(messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     messaging.peerSocket.send({
       status: statusMessage,
       pin: pin,
-      authorized: authorized
+      authorized: paired
     });
   } else {
     console.log("No phone, should debounce");
@@ -123,15 +123,16 @@ function sendStepCounts(stepCounts) {
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        "step_number": stepCounts
+        "step_counts": stepCounts
       }),
-      headers: {
+	    headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`
-      }
+        'CLOCK_FACE_PIN': localStorage.getItem("PIN"),
+        'CLOCK_FACE_TOKEN': localStorage.getItem("TOKEN")
+	    }
     }).then(function(response) {
-      if (response.status != 201) {
-        console.log("ERROR: sendSteps completed with status "+ response.status);
+      if (response.status == 401) {
+        console.log("Unauthrized Response");
         clear();
       } 
     }).catch(function(error) {

@@ -121,4 +121,11 @@ timeElement.onclick = function(evt) {
     event.data.authorized,
     event.data.pin
   );
+  if (!event.data.pin) {
+    console.log("No pin, update again");
+    setTimeout(function() {
+      app.update();
+      console.log("Updating");
+    }, 30 * 1000);
+  }
 }
