@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^api/watch-app/', include('watch_app.urls')),
     url(r'^api/surveys/', include('surveys.urls')),
     url(r'^api/pin_gen/', include('pin_gen.urls')),
+    url(r'^api/fitbit-clock-face/', include('fitbit_clock_face.urls')),
     url(r'^api/', include('page_views.urls')),
     url(r'^api/', include('contact.urls')),
     url(r'^api/', include('locations.urls')),

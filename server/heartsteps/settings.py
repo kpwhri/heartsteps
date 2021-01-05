@@ -131,7 +131,8 @@ INSTALLED_APPS = [
     'heartsteps_messages',
     'pin_gen',
     'closeout_messages',
-    'burst_periods'
+    'burst_periods',
+    'fitbit_clock_face'
 ]
 
 MIDDLEWARE = [
