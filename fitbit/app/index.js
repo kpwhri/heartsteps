@@ -117,6 +117,8 @@ timeElement.onclick = function(evt) {
 
 
  messaging.peerSocket.onmessage = function(event) {
+   console.log(event.data.pin)
+   console.log(event.data.authorized);
   app.save(
     event.data.authorized,
     event.data.pin
