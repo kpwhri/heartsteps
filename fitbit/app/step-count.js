@@ -40,6 +40,8 @@ export class StepCounter {
       if(timeDiff >= timeBuffer) {
         console.log("Add step count");
         step_counts.push(this.makeStepCount());
+      } else {
+        console.log(`Time difference is ${timeDiff}`);
       }
     }
 
@@ -56,7 +58,8 @@ export class StepCounter {
   makeStepCount() {
     return {
       time: new Date().getTime(),
-      stepCount: activity.adjusted.steps
+      steps: activity.adjusted.steps,
+      bodyPresence: bodyPresenceSensor.present
     }
   }
 

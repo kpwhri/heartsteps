@@ -28,16 +28,20 @@ class AppState {
   }
 
   update() {
-    const statusElement = document.getElementById("status");
     if (this.loading) {
+      dateElement.style.opacity = 0;
+      statusElement.style.opacity = 1;
       statusElement.text = "Loading";
     } else if (this.authorized) {
+      dateElement.style.opacity = 1;
+      statusElement.style.opacity = 0;
       statusElement.text = "Authorized"
     } else {
+      dateElement.style.opacity = 0;
+      statusElement.style.opacity = 1;
       statusElement.text = "Unauthorized"
     }
 
-    const pinElement = document.getElementById("pin");
     if (this.pin) {
       pinElement.text = this.pin;
     } else {
@@ -47,15 +51,13 @@ class AppState {
 
   getAuthorization() {
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      this.loading = true;
       let data = {
         key: global.CHECK_AUTH
       }
       messaging.peerSocket.send(data);
     } else {
-      console.log("Debounce get authorization");
-      setTimeout(function() {
-        console.log("Debounce not implemented...");
-      }, 1000);
+      this.loading = false;
     }
   }
 
@@ -71,7 +73,6 @@ class AppState {
       console.log(error);
       this.authorized = false;
       this.pin = undefined;
-      this.loading = true;
       this.getAuthorization();
     }
   }
@@ -89,7 +90,6 @@ class AppState {
 
 const stepCounter = new StepCounter();
 const app = new AppState();
-app.update();
 
 timeElement.onclick = function(evt) {
   app.getAuthorization();
@@ -99,6 +99,22 @@ timeElement.onclick = function(evt) {
  setInterval(function() {
    stepCounter.update()
  }, 60 * 1000);
+
+ messaging.peerSocket.addEventListener("open", function (event) {
+  console.log("messaging connected");
+  document.getElementById("status-icon").style.fill = "#00FF00";
+  app.update();
+ });
+
+ messaging.peerSocket.addEventListener("error", function (error) {
+   console.log("messaging disconnected");
+   console.log(error)
+   document.getElementById("status-icon").style.fill = "#FF0000";
+ });
+
+ document.getElementById("status-icon").style.fill = "#0000FF";
+
+
 
  messaging.peerSocket.onmessage = function(event) {
   app.save(

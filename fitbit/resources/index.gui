@@ -6,4 +6,5 @@
   <rect class="divider divider-btm" />
   <text id="status">Starting</text>
   <text id="pin"></text>
+  <circle id="status-icon" />
 </svg>

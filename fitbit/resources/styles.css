@@ -40,14 +40,33 @@
 
 #status {
   font-family: Seville-Regular;
-  font-size: 24;
+  font-size: 26;
   text-anchor: middle;
   text-length: 30;
   x: 50%;
-  y: 80%;
+  y: 64%;
   width: 92%;
-  height: 20%;
+  height: 8%;
   fill: #FFFFFF;
+}
+
+#status-icon {
+  cx: 10%;
+  cy: 90%;
+  r: 5%;
+  fill: #FFFFFF;
+}
+
+#status-icon.active {
+  fill: #0000FF;
+}
+
+#status-icon.connected {
+  fill: #00FF00;
+}
+
+#status-icon.error {
+  fill: #FF0000;
 }
 
 #pin {
