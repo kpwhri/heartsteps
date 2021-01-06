@@ -91,12 +91,36 @@ class ClockFacePair(APIView):
         else:
             return Response('Need pin', status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        try:
+            clock_face = ClockFace.objects.get(
+                user = request.user
+            )
+            clock_face.delete()
+            return Response('Deleted', status=HTTP_200_OK)
+        except ClockFace.DoesNotExist:
+            return Response('Not found', status=status.HTTP_404_NOT_FOUND)
+
 
 
 class ClockFaceStepCounts(APIView):
-    """
-    Save step count from Fitbit watch
-    """
+
+    def get(self, request):
+
+        if request.user.is_authenticated():
+            step_counts = []
+            for step_count in StepCount.objects.filter(user=request.user).order_by('-end')[:10]:
+                step_counts.append({
+                    'start': step_count.start.isoformat(),
+                    'end': step_count.end.isoformat(),
+                    'steps': step_count.steps
+                })
+            return Response({
+                'step_counts': step_counts
+            })
+
+        else:
+            return Response('Not authorized', status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request):
         if 'HTTP_CLOCK_FACE_PIN' in request.META and 'HTTP_CLOCK_FACE_TOKEN' in request.META:

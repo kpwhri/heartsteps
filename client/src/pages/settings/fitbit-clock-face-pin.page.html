@@ -4,8 +4,13 @@
     >
     <div *ngIf="pin">
         <p>Pair with clock face with pin <strong>{{pin}}.</strong></p>
+        <ul *ngIf="stepCounts">
+            <li *ngFor="let stepCount of stepCounts">
+                {{stepCount.steps}} steps {{stepCount.end}}
+            </li>
+        </ul>
     </div>
-    <app-form
+    <app-form *ngIf="!pin"
         [formGroup]="form"
         submitLabel="Pair Clock Face"
         (onSubmit)="submitForm()"
