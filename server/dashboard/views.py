@@ -1163,6 +1163,47 @@ class ParticipantAdherenceView(ParticipantView):
         context['adherence_summaries'] = adherence_summaries
         return context
 
+class CohortMorningMessagesView(CohortView):
+
+    template_name = 'dashboard/cohort-morning-messages.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        last_week = [date.today() - timedelta(days=offset) for offset in range(7)]
+
+        participants = self.query_participants().all()
+        users = [p.user for p in participants if p.user]
+        morning_messages = MorningMessage.objects.filter(user__in=users, date__in=last_week) \
+        .prefetch_message() \
+        .prefetch_survey() \
+        .all()
+
+        counts_by_date = {}
+        for _date in last_week:
+            counts_by_date[_date] = {
+                'sent': 0,
+                'opened': 0,
+                'answered': 0
+            }
+        for morning_message in morning_messages:
+            _date = morning_message.date
+            if not morning_message.message:
+                continue
+            if morning_message.message.sent:
+                counts_by_date[_date]['sent'] += 1
+            if morning_message.message.opened:
+                counts_by_date[_date]['opened'] += 1
+            if morning_message.survey.answered:
+                counts_by_date[_date]['answered'] += 1
+
+        context['dates'] = [_date.strftime('%Y-%m-%d') for _date in last_week]
+        context['sent_by_date'] = [counts_by_date[_date]['sent'] for _date in last_week]
+        context['opened_by_date'] = [counts_by_date[_date]['opened'] for _date in last_week]
+        context['answered_by_date'] = [counts_by_date[_date]['answered'] for _date in last_week]
+
+        return context
+
 class ParticipantMorningMessagesView(ParticipantView):
 
     template_name = 'dashboard/participant-morning-messages.html'

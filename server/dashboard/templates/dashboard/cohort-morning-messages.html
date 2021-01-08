@@ -1,0 +1,39 @@
+{% extends 'dashboard/base.html' %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-morning-messages' cohort.id %}" class="nav-link active">Download</a>
+{% endblock %}
+
+{% block body %}
+<table>
+    <thead>
+        <tr>
+            <td>Dates</td>
+            {% for date in dates %}
+            <td>{{date}}</td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Sent</th>
+            {% for sent in sent_by_date %}
+            <td>{{sent}}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Opened Notification</th>
+            {% for opened in opened_by_date %}
+            <td>{{opened}}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Answered</th>
+            {% for answered in answered_by_date %}
+            <td>{{answered}}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
