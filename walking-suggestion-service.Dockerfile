@@ -5,19 +5,13 @@ RUN echo "deb http://cran.us.r-project.org/bin/linux/debian buster-cran35/" | te
     apt-get update && \
     apt-get install -y r-base
 
-ADD credentials /credentials
-
 # Install google cloud sdk and gcsfuse
-ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/google-storage-service.json
 ENV CLOUD_SDK_REPO cloud-sdk-jessie
 ENV GCSFUSE_REPO gcsfuse-jessie
 RUN echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
     apt-get update && apt-get install -y gcsfuse google-cloud-sdk
-# Set up google cloud project
-RUN gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
-    gcloud config set project heartsteps-kpwhri
 
 ADD service-template/utils /utils 
 ENV PATH $PATH:/utils
@@ -35,7 +29,11 @@ RUN pip install setuptools==45 && \
 RUN Rscript install.r
 
 ENV googleStorageBucket walking-suggestions-data
+ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/google-storage-service.json
 
 # Mount GCSFuse Run the server
 RUN mkdir -p ./data
-CMD gcsfuse --implicit-dirs walking-suggestions-data ./data && gunicorn -b 0.0.0.0:8080 wsgi --timeout=900 --log-level debug
+CMD gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
+    gcloud config set project heartsteps-kpwhri && \
+    gcsfuse --implicit-dirs walking-suggestions-data ./data && \
+    gunicorn -b 0.0.0.0:8080 wsgi --timeout=900 --log-level debug

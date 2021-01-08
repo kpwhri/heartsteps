@@ -1,7 +1,9 @@
 version: '2'
 services:  
     anti-sedentary-service:
-        build: ./anti-sedentary-service
+        build:
+            context: ./
+            dockerfile: anti-sedentary-service.Dockerfile
         command: python app.py
         volumes:
             - ./anti-sedentary-service:/anti-sedentary-service
@@ -10,7 +12,9 @@ services:
         ports:
             - "5001:8000"
     pooling-service:
-        build: ./pooling-service
+        build: 
+            context: ./
+            dockerfile: pooling-service.Dockerfile
         command: python app.py
         volumes:
             - ./pooling-service:/pooling-service
@@ -18,16 +22,10 @@ services:
         ports:
             - "8888:8893"
             - "5002:8000"
-    service-template:
-        build:
-            context: ./
-            dockerfile: ./service-template/Dockerfile
-        volumes:
-            - ./service-template/utils:/utils
     walking-suggestion-service:
         build:
             context: ./
-            dockerfile: ./walking-suggestion-service/Dockerfile
+            dockerfile: walking-suggestion-service.Dockerfile
         command: python app.py
         volumes:
             - ./walking-suggestion-service:/walking-suggestion-service

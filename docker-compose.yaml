@@ -2,8 +2,6 @@ version: '2'
 services:
   client:
     build: ./client
-    env_file:
-      - credentials/.env-development
     command: npm run serve:app
     volumes:
       - ./client:/client
@@ -27,16 +25,10 @@ services:
       - pgdata:/var/lib/postgresql/data
   rabbitmq:
     image: rabbitmq:3.7
-  service-template:
-    build:
-      context: ./
-      dockerfile: ./service-template/Dockerfile
-    volumes:
-      - ./service-template/utils:/utils
   server:
-    build: ./server
-    env_file:
-      - credentials/.env-development
+    build: 
+      context: ./
+      dockerfile: server.Dockerfile
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
@@ -50,10 +42,6 @@ services:
     depends_on:
       - db
       - rabbitmq
-  service-template:
-    extends:
-      file: docker-compose.activity-suggestions.yaml
-      service: service-template
   walking-suggestion-service:
     extends:
       file: docker-compose.activity-suggestions.yaml
