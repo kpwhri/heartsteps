@@ -23,6 +23,14 @@ spec:
         env:
         - name: BUILD_NUMBER
           value: DEFAULT_BUILD_NUMBER
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -65,6 +73,14 @@ spec:
         env:
         - name: BUILD_NUMBER
           value: DEFAULT_BUILD_NUMBER
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -183,6 +199,14 @@ spec:
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -213,6 +237,14 @@ spec:
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -243,6 +275,14 @@ spec:
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -273,6 +313,14 @@ spec:
             value: 'http://anti-sedentary:8080'
           - name: WALKING_SUGGESTION_SERVICE_URL
             value: 'http://walking-suggestion:8080'
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 
@@ -324,6 +372,14 @@ spec:
                 value: heartsteps-service
           initialDelaySeconds: 30
           periodSeconds: 10
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: my-credentials
 
 ---
 

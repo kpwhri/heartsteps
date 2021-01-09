@@ -30,6 +30,8 @@ docker tag heartsteps_walking-suggestion-service gcr.io/heartsteps-kpwhri/walkin
 docker push gcr.io/heartsteps-kpwhri/walking-suggestion-service
 docker tag heartsteps_anti-sedentary-service gcr.io/heartsteps-kpwhri/anti-sedentary-service
 docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
+
+kubectl create secret generic credentials --from-file credentials
 # update kubernetes images...
 sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
 kubectl apply -f deployment.yaml
