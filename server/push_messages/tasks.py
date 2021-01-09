@@ -15,9 +15,9 @@ def onesignal_get_received(message_id):
     except Message.DoesNotExist:
         return False
 
-    if not settings.ONESIGNAL_API_KEY:
+    if not hasattr(settings, 'ONESIGNAL_API_KEY'):
         raise ImproperlyConfigured('No OneSignal API KEY')
-    if not settings.ONESIGNAL_APP_ID:
+    if not hasattr(settings, 'ONESIGNAL_APP_ID'):
         raise ImproperlyConfigured('No OneSignal APP ID')
     api_key = settings.ONESIGNAL_API_KEY
     app_id = settings.ONESIGNAL_APP_ID

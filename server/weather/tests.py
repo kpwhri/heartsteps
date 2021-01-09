@@ -7,6 +7,7 @@ import pytz
 import requests
 
 from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
@@ -19,6 +20,7 @@ from .models import WeatherForecast
 from .models import User
 from .services import WeatherService
 
+@override_settings(DARKSKY_API_KEY='1234')
 class DarkSkyApiTests(TestCase):
 
     def mock_response(self, status_code, data):
@@ -51,6 +53,8 @@ class DarkSkyApiTests(TestCase):
         self.addCleanup(requests_patch.stop)
         self.requests = requests_patch.start()
         self.requests.return_value = self.mock_response(200, self.weather_response)
+
+
 
     def test_get_forecast(self):
         darksky_api = DarkSkyApiManager()

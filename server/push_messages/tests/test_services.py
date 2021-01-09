@@ -1,5 +1,6 @@
 from unittest.mock import patch
 from django.test import TestCase
+from django.test import override_settings
 import requests
 
 from django.contrib.auth.models import User
@@ -127,6 +128,8 @@ class TestPushMessageService(TestCase):
         with self.assertRaises(push_message_service.MessageSendError):
             result = push_message_service.send_notification("Hello World")
 
+@override_settings(ONESIGNAL_API_KEY=1234)
+@override_settings(ONESIGNAL_APP_ID=1234)
 class OneSignalClientTests(TestCase):
 
     def setUp(self):

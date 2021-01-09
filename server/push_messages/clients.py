@@ -65,15 +65,18 @@ class OneSignalClient(ClientBase):
     def __init__(self, device):
         self.device = device
 
-        if not settings.ONESIGNAL_API_KEY:
-            raise ImproperlyConfigured('No OneSignal API KEY')
-        if not settings.ONESIGNAL_APP_ID:
-            raise ImproperlyConfigured('No OneSignal APP ID')
-        self.api_key = settings.ONESIGNAL_API_KEY
-        self.app_id = settings.ONESIGNAL_APP_ID
-
     def get_one_signal_notification_url(self):
         return 'https://onesignal.com/api/v1/notifications'
+
+    def get_api_key(self):
+        if not hasattr(settings, 'ONESIGNAL_API_KEY'):
+            raise ImproperlyConfigured('No OneSignal API KEY')
+        return settings.ONESIGNAL_API_KEY
+
+    def get_app_id(self):
+        if not hasattr(settings, 'ONESIGNAL_APP_ID'):
+            raise ImproperlyConfigured('No OneSignal APP ID')
+        return settings.ONESIGNAL_APP_ID
 
     def send(self, body=None, title=None, collapse_subject=None, data={}):
         
@@ -81,10 +84,10 @@ class OneSignalClient(ClientBase):
             self.get_one_signal_notification_url(),
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic %s' % (self.api_key)
+                'Authorization': 'Basic %s' % (self.get_api_key())
             },
             json = {
-                'app_id': self.app_id,
+                'app_id': self.get_app_id(),
                 'include_player_ids': [self.device.token],
                 'contents': {
                     'en': body

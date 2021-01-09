@@ -627,6 +627,7 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
         ).count()
         self.assertEqual(message_count, 1)
 
+    @override_settings(STUDY_PHONE_NUMBER='(555) 555-5555')
     def test_adherence_message_sent_if_newly_non_adherent(self):
         PageView.objects.create(
             user = self.user,

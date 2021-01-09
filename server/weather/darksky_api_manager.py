@@ -28,10 +28,11 @@ class DarkSkyApiManager:
     def __init__(self, user=None):
         self.__user = user
 
+    def get_api_key(self):
         if hasattr(settings, 'DARKSKY_API_KEY'):
-            self.__API_KEY = settings.DARKSKY_API_KEY
+            return settings.DARKSKY_API_KEY
         else:
-            raise NoAPIKey('No api key')
+            raise DarkSkyApiManager.NoAPIKey('No api key')
 
     def make_url(self, latitude, longitude, datetime=None, exclude=[]):
         if datetime:
@@ -48,7 +49,7 @@ class DarkSkyApiManager:
             params.append('exclude=' + ','.join(exclude))
         url += '?' + '&'.join(params)
         return url.format(
-            api_key = self.__API_KEY,
+            api_key = self.get_api_key(),
             latitude = latitude,
             longitude = longitude,
             time = time
