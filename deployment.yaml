@@ -30,7 +30,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -80,7 +80,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -206,7 +206,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -244,7 +244,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -282,7 +282,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -320,7 +320,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 
@@ -379,7 +379,7 @@ spec:
       volumes:
       - name: credentials
         secret: 
-          secretName: my-credentials
+          secretName: credentials
 
 ---
 

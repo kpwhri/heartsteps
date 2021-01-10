@@ -110,7 +110,7 @@ class Configuration(models.Model):
         self.update_walking_suggestion_survey_treatment_probability(1)
 
     def normalize_walking_suggestion_surveys(self):
-        self.update_walking_suggestion_survey_treatment_probability(0.2)
+        self.update_walking_suggestion_survey_treatment_probability(0)
 
     def update_activity_survey_probability(self, treatment_probability):
         try:

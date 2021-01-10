@@ -104,7 +104,7 @@ class TestUpdatesBurtProbabilityAccordingToSchedule(TestCase):
         activity_survey_configuration = ActivitySurveyConfiguration.objects.get(user = self.user)
         walking_suggestion_configuration = WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
         self.assertEqual(activity_survey_configuration.treatment_probability, 0.2)
-        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0.2)
+        self.assertEqual(walking_suggestion_configuration.treatment_probability, 0)
 
         self.configuration.update_intervention_configurations(date.today() + timedelta(days=4))
 
