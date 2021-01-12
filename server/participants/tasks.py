@@ -30,6 +30,7 @@ from locations.tasks import export_location_count_csv
 from locations.tasks import update_location_categories
 from morning_messages.tasks import export_morning_message_survey
 from morning_messages.tasks import export_morning_messages
+from push_messages.models import Message as PushMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
@@ -187,6 +188,75 @@ def reset_test_participants(date_joined=None, number_of_days=9):
             }
         )
 
+def format_datetime(dt, tz=None):
+    if dt:
+        if tz:
+            dt = dt.astimezone(tz)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return None
+
+def export_user_messages(username, directory=None, filename=None, start=None, end=None):
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.messages.csv' % (username)
+
+    push_messages_query = PushMessage.objects.filter(
+        recipient__username=username,
+        message_type = PushMessage.NOTIFICATION
+        ) \
+        .order_by('created')
+    if start:
+        push_messages_query = push_messages_query.filter(
+            created__gte = start
+        )
+    if end:
+        push_messages_query = push_messages_query.filter(
+            created__lte = end
+        )
+
+    messages = []
+
+    days = Day.objects.filter(user__username=username).order_by('date').all()
+    days = list(days)
+    current_day = None
+    if days:
+        current_day = days.pop(0)
+        for push_message in push_messages_query.all():
+            print(push_message.uuid, push_message.created)
+            while days and current_day and push_message.created > current_day.end:
+                current_day = days.pop(0)
+                print(current_day.date, current_day.timezone)
+            
+            messages.append([
+                username,
+                str(push_message.uuid),
+                push_message.collapse_subject,
+                push_message.title,
+                push_message.body,
+                format_datetime(push_message.sent, current_day.get_timezone()),
+                format_datetime(push_message.received, current_day.get_timezone()),
+                format_datetime(push_message.opened, current_day.get_timezone()),
+                format_datetime(push_message.engaged, current_day.get_timezone())
+            ])
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [[
+            'HeartSteps ID',
+            'Message ID',
+            'Message Type'
+            'Notification Title',
+            'Notification Text',
+            'Message Sent',
+            'Message Received',
+            'Message Opened',
+            'Message Engaged'
+        ]] + messages
+    )
+    _file.close()
+
 
 def export_user_locations(username, directory=None, filename=None, start=None, end=None):
     if not directory:
@@ -226,6 +296,7 @@ def export_user_locations(username, directory=None, filename=None, start=None, e
             'Location Category'
         ]] + locations
     )
+    _file.close()
 
 def setup_exports(participant, directory, log_export=True):
     def export_file(fn, filename):
@@ -339,6 +410,10 @@ def export_user_data(username, log_export=True):
     )
     export_file(export_walking_suggestion_service_requests,
         filename = 'walking-suggestion-service-requests.csv'
+    )
+
+    export_file(export_user_messages,
+        filename = 'messages.csv'
     )
 
     if log_export:
