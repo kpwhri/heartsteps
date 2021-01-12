@@ -475,7 +475,8 @@ def serialize_user_information(heartsteps_ids, filename='export.json'):
         if p.cohort.id not in [c.id for c in cohorts]:
             cohorts.append(p.cohort)
         if p.cohort.study and p.cohort.study.id not in [s.id for s in studies]:
-            p.cohort.study.admins = []
+            # Need to do something different to export all users, following line deletes them
+            # p.cohort.study.admins = []
             studies.append(p.cohort.study)
     users = [p.user for p in participants if p.user]
 
