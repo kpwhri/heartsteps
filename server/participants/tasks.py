@@ -460,57 +460,36 @@ def process_data_export_queue():
 
 
 def serialize_user_information(heartsteps_ids, filename='export.json'):
-    objects_to_serialize = []
-
-    studies = []
-    cohorts = []
-    
-    participants = Participant.objects.filter(heartsteps_id__in=heartsteps_ids) \
-    .prefetch_related('cohort') \
-    .prefetch_related('user') \
-    .all()
-    for p in participants:
-        if not p.cohort:
-            continue
-        if p.cohort.id not in [c.id for c in cohorts]:
-            cohorts.append(p.cohort)
-        if p.cohort.study and p.cohort.study.id not in [s.id for s in studies]:
-            # Need to do something different to export all users, following line deletes them
-            # p.cohort.study.admins = []
-            studies.append(p.cohort.study)
+    participants = Participant.objects.filter(
+        heartsteps_id__in=heartsteps_ids
+    ).all()
+    for participant in participants:
+        # Removing but not saving cohort information
+        # because we don't care about serializing
+        # survey administration data
+        participant.cohort = None
     users = [p.user for p in participants if p.user]
-
-    objects_to_serialize += users
-    objects_to_serialize += studies
-    objects_to_serialize += cohorts
-    objects_to_serialize += participants
     
-    account_users = FitbitAccountUser.objects.filter(user__in=users) \
+    fitbit_account_users = FitbitAccountUser.objects.filter(user__in=users) \
     .prefetch_related('account') \
     .all()
     fitbit_accounts = []
-    for au in account_users:
+    for au in fitbit_account_users:
         if au.account.uuid not in [account.uuid for account in fitbit_accounts]:
             au.account.fitbit_user = str(au.account.uuid)[:10]
             au.account.access_token = None
             au.account.refresh_token = None
             au.account.expires_at = None
             fitbit_accounts.append(au.account)
-    objects_to_serialize += fitbit_accounts
-    objects_to_serialize += account_users
+    fitbit_days = FitbitDay.objects.filter(account__in=fitbit_accounts).all()
+    fitbit_heart_rate_minutes = FitbitMinuteHeartRate.objects.filter(account__in=fitbit_accounts).all()
+    fitbit_step_count_minutes = FitbitMinuteStepCount.objects.filter(account__in=fitbit_accounts).all()
 
-    objects_to_serialize += FitbitDay.objects.filter(account__in=fitbit_accounts).all()
-    objects_to_serialize += FitbitMinuteHeartRate.objects.filter(account__in=fitbit_accounts).all()
-    objects_to_serialize += FitbitMinuteStepCount.objects.filter(account__in=fitbit_accounts).all()
+    objects = []
+    for queryset in [users, participants, fitbit_accounts, fitbit_account_users, fitbit_days, fitbit_heart_rate_minutes, fitbit_step_count_minutes]:
+        objects += list(queryset)
 
-    # push_messages = PushMessage.objects.filter(recipient__in=users).all()
-    # push_message_reciepts = []
-    # for pm in push_messages:
-    #     push_message_reciepts += pm._message_receipts
-    # objects_to_serialize += push_messages
-    # objects_to_serialize += push_message_reciepts
-
-    json = serializers.serialize('json', objects_to_serialize)
+    json = serializers.serialize('json', objects)
     print(type(json), len(json))
     _file = open(filename, 'w')
 
