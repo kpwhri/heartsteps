@@ -200,7 +200,7 @@ try:
         'default': env.db(),
     }
 except ImproperlyConfigured:
-    warnings.warn("No database URL set. Defaulting to sqllite.")
+    warnings.warn("No database URL set. Defaulting to sqlite.")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
