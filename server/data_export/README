@@ -1,0 +1,5 @@
+This folder contains utilities for exporting data to csv format. They do not need a full Django server to run. 
+
+For running in standalone mode in a fresh install, begin by creating a new Python environment and installing the heartsteps python requirements from server/requirements.txt using pip install -r requirements.txt. Note that these requirements will not install with conda due to package versions not being available.
+
+To configure for development mode, copy an export.json file to this directory and run local_setup.sh to build an empty sqllite database and populate it with data.
