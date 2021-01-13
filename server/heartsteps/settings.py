@@ -1,5 +1,7 @@
 import os, environ
 from corsheaders.defaults import default_headers
+import warnings
+from django.core.exceptions import ImproperlyConfigured
 
 env = environ.Env()
 
@@ -193,9 +195,18 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db(),
-}
+try:
+    DATABASES = {
+        'default': env.db(),
+    }
+except ImproperlyConfigured:
+    warnings.warn("No database URL set. Defaulting to sqllite.")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'heartsteps_local',
+        }
+    } 
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
