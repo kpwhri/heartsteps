@@ -4,3 +4,4 @@ This folder contains utilities for exporting data to csv format. They do not nee
 2) From the root of the heartsteps repo, run "docker-compose run server bash". This will build the docker file for the server, run it, and then start a bash session. The root of this repository on the host is mounted as /server in the container.
 3) On the host, copy a data export file to this directory.
 4) In the Docker container, run "local_setup.sh" to create an empty database and import an export.json file. This will create an sqlite database in this directory.
+5) Run "python run_export.py" to export data. Will create a directory "output" under this directory containing user data directories. 
