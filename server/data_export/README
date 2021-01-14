@@ -1,5 +1,6 @@
-This folder contains utilities for exporting data to csv format. They do not need a full Django server to run. 
+This folder contains utilities for exporting data to csv format. They do not need a full Django server to run. The steps needed to setup a development environment are as follows:
 
-For running in standalone mode in a fresh install, begin by creating a new Python environment and installing the heartsteps python requirements from server/requirements.txt using pip install -r requirements.txt. Note that these requirements will not install with conda due to package versions not being available.
-
-To configure for development mode, copy an export.json file to this directory and run local_setup.sh to build an empty sqllite database and populate it with data.
+1) Install Docker Desktop (https://www.docker.com/products/docker-desktop)
+2) From the root of the heartsteps repo, run "docker-compose run server bash". This will build the docker file for the server, run it, and then start a bash session. The root of this repository on the host is mounted as /server in the container.
+3) On the host, copy a data export file to this directory.
+4) In the Docker container, run "local_setup.sh" to create an empty database and import an export.json file. This will create an sqlite database in this directory.

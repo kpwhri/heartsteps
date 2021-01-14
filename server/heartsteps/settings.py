@@ -195,18 +195,13 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-try:
-    DATABASES = {
-        'default': env.db(),
+#Force use a local data base for now
+DATABASES = {
+    'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': 'heartsteps_local',
     }
-except ImproperlyConfigured:
-    warnings.warn("No database URL set. Defaulting to sqlite.")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'heartsteps_local',
-        }
-    } 
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
