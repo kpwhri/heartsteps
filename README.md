@@ -13,27 +13,63 @@ To understand the application architecture, please see the [application architec
 The following outlines how to run the applications for local development, and then deploy the entire application.
 
 ## Development
-Please don't use 'docker-compose up', multiple services of the same type will be built and created. This will start all services in development mode, so any file changes will be reloaded and shown. *This is not recommended for working on a single service because:*
-* Many development tasks need more complex commands to update database models
-* Running all services at once is a heavy load for a computer
-
-Here is how to start both the heartsteps-server and heartsteps-client in development mode.
+We use a docker-ized workflow to make installing and running a development environment easier -- while `docker-compose up` does work, Django requires you to setup the database and an empty database is pretty boring.
 ```
-# You'll need to build the service-template
-$ docker-compose build service-template
-
-# First create the database and load test data
-# (you can skip this if you've done this before)
+# Create a new server database
 $ docker-compose run server python manage.py migrate
+# Add test data and Django admin user
 $ docker-compose run server python manage.py loaddata test-data
 
-# Now run the heartsteps-client, which also starts the heartsteps-server
-$ docker-compose run --serviceports client
+$ docker-compose up
+# Server admin at http://localhost:8080/admin
+# Server dashboard at http://localhost:8080/dashboard
+# Username: admin
+# Password: password1234
 
-# The heartsteps-server will be running on localhost:8080
-# The heartsteps-client will be running on localhost:8100
-# The admin username and password is "admin" and "password1234"
-# The test user entry code and birth year are "test-test" and "1980"
+# Angular mobile app client
+# http://localhost:8100/
+```
+
+Previous code sets up the server and client, but doesn't create or load any sample participants or data. The follow code will setup two test user accounts -- one that has 2 weeks of fake data and has completed the onboarding process, and a second that is a completely new account.
+```
+# Adding test user accounts is a little convoluted (sorry)
+# Maybe we can turn this into a Django Command?
+$ docker-compose run server python manage.py shell
+> from participants.tasks import reset_test_participants
+> reset_test_participants()
+# User: test
+# Entry code: test-test
+# Birth year: 2021
+# User: test-new
+# Entry code: test-new1
+# Birth year: 2021
+```
+
+When working with the server or client, I find it useful to work in the docker container's command line directly (your utility may vary).
+```
+$ docker-compose run --service-ports server bash
+> echo("Whoa I'm in the server")
+# Run the dev server
+> hocho start dev
+# Run those unit-tests
+> python manage.py test
+# If you want to install a python package from pip
+> pip install some-damn-package
+> pip freeze > requirements.txt
+# You need to rebuild the docker image for this to persist
+
+$ docker-compose run --service-ports client bash
+> echo("Dude, this version of Angular is 3 years old")
+# Run the dev environment with hot reloading
+> npm run dev
+# Build the debuggable android app
+> npm run build:app:android:debug
+# Let's cover iOS dev somewhere else...
+```
+
+PS: Docker has a tendency to cache all sorts of things, sometimes destroying the containers is a good thing.
+```
+$ docker rm -f $(docker ps -aq)
 ```
 
 ### HeartSteps Server
@@ -68,27 +104,23 @@ The Flask webserver is responsible for validating HTTP requests, and running the
 
 Each service has an install.r script file, which runs when the Docker image is built, and is responsible for installing R-libraries used by the service.
 
-*Running Activty Suggestion Service*
+*Running Walking Suggestion Service*
 ```
-$ docker-compose run --service-ports activity-suggestion
+$ docker-compose -f docker-compose.activity-suggestions.yaml run --service-ports walking-suggestion-service
+# This will start a web server running at http://localhost:5000
 ```
-This will start a web server running at http://localhost:5000
+
 
 *Running Anti-Sedentary Service*
 ```
-$ docker-compose run --service-ports anti-sedentary
+$ docker-compose -f docker-compose.activity-suggestions.yaml run --service-ports anti-sedentary
+# This will start a web server running at http://localhost:5001
 ```
-This will start a web server running at http://localhost:5001
 
 *Debugging Tips*
 Docker creates containers and images and attempts to reuse them. This means that the install.r script isn't run often. To trigger a service to be rebuilt:
 ```
-$ docker-compose build activity-suggestion
-```
-
-Docker's cached containers sometimes need to be removed, the best way to remove them is:
-```
-$ docker rm -f $(docker ps -aq)
+$ docker-compose -f docker-compose.activity-suggestions.yaml build activity-suggestion
 ```
 
 ### Pooling Service
@@ -132,7 +164,7 @@ Here is a list of the environment variables that are used by HeartSteps. All doc
 * *HOST_NAME* is the host_name used by django on the heartsteps_server.
 * *DEBUG* makes Django run in debug mode.
 
-## Data Storage and Export Instructions
+**This list is incomplete help!**
 
 ### HeartSteps Server Database
 The heartsteps-server uses a postgres database in Google Cloud's SQL Database. To access the database, you will need a credentials file with access permisisons.
