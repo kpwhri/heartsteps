@@ -37,3 +37,13 @@ RUN pip install -r requirements.txt
 CMD gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
     gcloud config set project heartsteps-kpwhri && \
     honcho start web cloudsql celery
+
+#Install dataexport virtual environment and dependencies
+#to support the use of pandas
+ENV OLDPATH=$PATH
+ENV VIRTUAL_ENV=/export_venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN pip install -r requirements.txt
+RUN pip install -r requirements_export.txt
+ENV PATH=$OLDPATH

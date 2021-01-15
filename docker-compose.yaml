@@ -42,6 +42,23 @@ services:
     depends_on:
       - db
       - rabbitmq
+  data_export_dev:
+    build: 
+      context: ./
+      dockerfile: data_export_dev.Dockerfile
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres:password@db:5432/postgres
+    command: ["honcho", "start", "dev"]
+    volumes:
+      - ./server:/server
+      - ./credentials:/credentials
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
 volumes:
   client-platforms:
   client-node-modules:

@@ -193,9 +193,19 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db(),
-}
+if os.getenv('DATA_EXPORT_DEV') is None:
+    #Use postgres for normal server operations
+    DATABASES = {
+        'default': env.db(),
+    }
+else:
+    #Use SQLite for data export development
+    DATABASES = {
+        'default': {
+           'ENGINE': 'django.db.backends.sqlite3',
+           'NAME': 'heartsteps_local.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

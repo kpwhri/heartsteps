@@ -1,0 +1,11 @@
+This folder contains utilities for exporting data to csv format. They do not need a full Django server to run. The steps needed to setup a development environment are as follows:
+
+1) Install Docker Desktop (https://www.docker.com/products/docker-desktop)
+
+2) From the root of the heartsteps repo, run "docker-compose run data_export_dev bash". This will build the docker file for the server setup for data export development and then start a bash session. The root the server directory on the host is mounted as /server in the container.
+
+3) On the host, copy a data export zip file to the server/data_export directory and unzip it to obtain a subdirectory called "U01DataFixtures". This directory should contain a collection of Django .json data dump files.
+
+4) In the Docker container, run "local_setup.sh" from server/data_export. This will create an empty database and import all of the .json files from the U01DataFixtures directory. This steps creates an sqlite database heartsteps_local.sqlite3 in the server/data_export directory that can be viewed on the host as well as in the container.
+
+5) Run "bash run_export.sh" to export data. Will create a directory "output" under this directory containing user data directories. run_export.sh sources a python virtual environment that is required to run the data export code. 
