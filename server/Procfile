@@ -1,4 +1,4 @@
-dev: ./manage.py runserver 0.0.0.0:8080
+dev: python ./manage.py runserver 0.0.0.0:8080
 web: gunicorn -b :8080 heartsteps.wsgi:application --log-level debug
 celery: celery worker -A heartsteps -l info -Q default,fitbit,messages
 celeryMessages: celery worker -A heartsteps -l info -Q messages
