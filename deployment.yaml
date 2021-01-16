@@ -189,7 +189,8 @@ spec:
       - name: heartsteps-celery-worker
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celery']
+        command: ["/bin/sh","-c"]
+        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celery"]
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
@@ -227,7 +228,8 @@ spec:
       - name: heartsteps-celery-worker-messages
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celeryMessages']
+        command: ["/bin/sh","-c"]
+        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celeryMessages"]
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
@@ -265,7 +267,8 @@ spec:
       - name: heartsteps-celery-worker-messages
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
-        command: ['honcho', 'start', 'cloudsql', 'celeryExport']
+        command: ["/bin/sh","-c"]
+        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celeryExport"]
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
