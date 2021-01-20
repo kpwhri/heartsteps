@@ -34,6 +34,12 @@
             <td>{{answered}}</td>
             {% endfor %}
         </tr>
+        <tr>
+            <th>Fully Answered</th>
+            {% for answered_fully in answered_fully_by_date %}
+            <td>{{answered_fully}}</td>
+            {% endfor %}
+        </tr>
     </tbody>
 </table>
 {% endblock %}

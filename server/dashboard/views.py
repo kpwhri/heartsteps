@@ -1184,7 +1184,8 @@ class CohortMorningMessagesView(CohortView):
             counts_by_date[_date] = {
                 'sent': 0,
                 'opened': 0,
-                'answered': 0
+                'answered': 0,
+                'answered_fully': 0
             }
         for morning_message in morning_messages:
             _date = morning_message.date
@@ -1196,12 +1197,15 @@ class CohortMorningMessagesView(CohortView):
                 counts_by_date[_date]['opened'] += 1
             if morning_message.survey.answered:
                 counts_by_date[_date]['answered'] += 1
+            if hasattr(morning_message.survey, '_answers') and hasattr(morning_message.survey, '_questions'):
+                if len(morning_message.survey._answers) == len(morning_message.survey._questions):
+                    counts_by_date[_date]['answered_fully'] += 1
 
         context['dates'] = [_date.strftime('%Y-%m-%d') for _date in last_week]
         context['sent_by_date'] = [counts_by_date[_date]['sent'] for _date in last_week]
         context['opened_by_date'] = [counts_by_date[_date]['opened'] for _date in last_week]
         context['answered_by_date'] = [counts_by_date[_date]['answered'] for _date in last_week]
-
+        context['answered_fully_by_date'] = [counts_by_date[_date]['answered_fully'] for _date in last_week]
         return context
 
 class ParticipantMorningMessagesView(ParticipantView):
