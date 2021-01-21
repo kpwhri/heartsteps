@@ -55,7 +55,10 @@
     <tbody>
         {% for participant in participants %}
         <tr>
-            <td>{{participant.heartsteps_id}}</td>
+            <td>
+                {% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id as overview_url %}
+                <a href="{{overview_url}}">{{participant.heartsteps_id}}</a>
+            </td>
             {% for morning_message in participant.morning_messages %}
             <td>
                 {% if morning_message %}
@@ -77,7 +80,6 @@
                     <dd>{{morning_message.opened}}</dd>
                     {% endif %}
                 </dl>
-                <a href="">View Morning Message</a>
                 {% endif %}
             </td>
             {% endfor %}
