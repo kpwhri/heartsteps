@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block body %}
-<table>
+<table class="table">
     <thead>
         <tr>
             <td>Dates</td>
@@ -40,6 +40,49 @@
             <td>{{answered_fully}}</td>
             {% endfor %}
         </tr>
+    </tbody>
+</table>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Participant</td>
+            {% for date in dates %}
+            <td>{{date}}</td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for participant in participants %}
+        <tr>
+            <td>{{participant.heartsteps_id}}</td>
+            {% for morning_message in participant.morning_messages %}
+            <td>
+                {% if morning_message %}
+                {{morning_message.number_of_questions}}
+                {{morning_message.number_of_answers}}
+                {% if morning_message.survey_answered and morning_message.survey_answered_fully %}
+                <p>Fully answered</p>
+                {% endif %}
+                {% if morning_message.survey_answered and not morning_message.survey_answered_fully %}
+                <p>Partially answered</p>
+                {% endif %}
+                <dl>
+                    {% if morning_message.sent %}
+                    <dt>Sent</dt>
+                    <dd>{{morning_message.sent}}</dd>
+                    {% endif %}
+                    {% if morning_message.opened %}
+                    <dt>Opened</dt>
+                    <dd>{{morning_message.opened}}</dd>
+                    {% endif %}
+                </dl>
+                <a href="">View Morning Message</a>
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 {% endblock %}

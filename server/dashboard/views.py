@@ -1172,13 +1172,17 @@ class CohortMorningMessagesView(CohortView):
 
         last_week = [date.today() - timedelta(days=offset) for offset in range(7)]
 
-        participants = self.query_participants().all()
+        participants = self.query_participants().filter(
+            archived = False,
+            active = True
+        ).all()
         users = [p.user for p in participants if p.user]
         morning_messages = MorningMessage.objects.filter(user__in=users, date__in=last_week) \
         .prefetch_message() \
         .prefetch_survey() \
         .all()
 
+        morning_messages_by_user_id_by_date = {}
         counts_by_date = {}
         for _date in last_week:
             counts_by_date[_date] = {
@@ -1187,15 +1191,18 @@ class CohortMorningMessagesView(CohortView):
                 'answered': 0,
                 'answered_fully': 0
             }
+        
         for morning_message in morning_messages:
             _date = morning_message.date
-            if not morning_message.message:
-                continue
-            if morning_message.message.sent:
+            _user_id = morning_message.user.id
+            if _user_id not in morning_messages_by_user_id_by_date:
+                morning_messages_by_user_id_by_date[_user_id] = {}
+            morning_messages_by_user_id_by_date[_user_id][_date] = morning_message
+            if morning_message.message and morning_message.message.sent:
                 counts_by_date[_date]['sent'] += 1
-            if morning_message.message.opened:
+            if morning_message.message and morning_message.message.opened:
                 counts_by_date[_date]['opened'] += 1
-            if morning_message.survey.answered:
+            if morning_message.message and morning_message.survey.answered:
                 counts_by_date[_date]['answered'] += 1
             if hasattr(morning_message.survey, '_answers') and hasattr(morning_message.survey, '_questions'):
                 if len(morning_message.survey._answers) == len(morning_message.survey._questions):
@@ -1206,6 +1213,39 @@ class CohortMorningMessagesView(CohortView):
         context['opened_by_date'] = [counts_by_date[_date]['opened'] for _date in last_week]
         context['answered_by_date'] = [counts_by_date[_date]['answered'] for _date in last_week]
         context['answered_fully_by_date'] = [counts_by_date[_date]['answered_fully'] for _date in last_week]
+
+        serialized_participants = []
+        for participant in participants:
+            if participant.user and participant.user.id in morning_messages_by_user_id_by_date:
+                serialized_morning_messages = []
+                for _date in last_week:
+                    if _date in morning_messages_by_user_id_by_date[participant.user.id]:
+                        morning_message = morning_messages_by_user_id_by_date[participant.user.id][_date]
+                        survey_answered_fully = None
+                        number_of_questions = 0
+                        number_of_answers = 0
+                        if morning_message.survey:
+                            number_of_answers = len(getattr(morning_message.survey, '_answers', []))
+                            number_of_questions = len(getattr(morning_message.survey, '_questions', []))
+                            if morning_message.survey.answered and number_of_answers == number_of_questions:
+                                survey_answered_fully = True
+                        serialized_morning_messages.append({
+                            'id': morning_message.id if morning_message.survey else None,
+                            'sent': morning_message.message.sent.strftime('%Y-%m-%d %H:%M:%S') if morning_message.message and morning_message.message.sent else None,
+                            'opened': morning_message.message.opened.strftime('%Y-%m-%d %H:%M:%S') if morning_message.message and morning_message.message.opened else None,
+                            'survey_answered': morning_message.survey.answered if morning_message.survey else None,
+                            'survey_answered_fully': survey_answered_fully,
+                            'number_of_questions': number_of_questions,
+                            'number_of_answers': number_of_answers
+                        })
+                    else:
+                        serialized_morning_messages.append({})
+                serialized_participant = {
+                    'heartsteps_id': participant.heartsteps_id,
+                    'morning_messages': serialized_morning_messages
+                }
+                serialized_participants.append(serialized_participant)
+        context['participants'] = serialized_participants
         return context
 
 class ParticipantMorningMessagesView(ParticipantView):
