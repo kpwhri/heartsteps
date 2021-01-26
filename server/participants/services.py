@@ -153,11 +153,6 @@ class ParticipantService:
                 user = self.participant.user,
                 enabled = True
             )
-            if self.participant.study_start and self.participant.study_end:
-                burst_period_configuration.generate_schedule(
-                    start = self.participant.study_start,
-                    end = self.participant.study_end
-                )
 
         if self.is_baseline_complete():
             anti_sedentary_configuration, _ = AntiSedentaryConfiguration.objects.update_or_create(
