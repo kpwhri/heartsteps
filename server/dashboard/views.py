@@ -50,6 +50,8 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import NightlyUpdate as WalkingSuggestionNightlyUpdate
 from watch_app.models import StepCount as WatchAppStepCount
+from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurveyDecision
+from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
@@ -1161,6 +1163,84 @@ class ParticipantAdherenceView(ParticipantView):
         
         context['metric_names'] = metric_names
         context['adherence_summaries'] = adherence_summaries
+        return context
+
+class CohortWalkingSuggestionSurveyView(CohortView):
+
+    template_name = 'dashboard/cohort-walking-suggestion-surveys.html'
+
+    def get_context_data(self, start=None, end=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        if start and end:
+            try:
+                start_datetime = datetime.strptime(start, '%Y-%m-%d')
+                end_datetime = datetime.strptime(end, '%Y-%m-%d')
+            except ValueError:
+                raise Http404('Not a date')
+        else:
+            start_datetime = datetime.now()- timedelta(days=7)
+            end_datetime = datetime.now()
+
+        time_difference = end_datetime - start_datetime
+        dates = [end_datetime.date() - timedelta(days=offset) for offset in range(time_difference.days + 1)]
+        dates.sort()
+        start_datetime = datetime(
+            dates[0].year,
+            dates[0].month,
+            dates[0].day,
+            tzinfo = pytz.timezone('America/Los_Angeles')
+        )
+        end_datetime = start_datetime + timedelta(days=len(dates))
+
+        participants = self.query_participants().filter(
+            archived = False,
+            active = True
+        ).all()
+        users = [p.user for p in participants if p.user]
+
+        summary_by_date = {}
+        for date in dates:
+            summary_by_date[date] = {
+                'decisions': 0,
+                'decisions_to_treat': 0,
+                'surveys': 0,
+                'surveys_answered': 0
+            }
+
+        decisions = WalkingSuggestionSurveyDecision.objects.filter(
+            user__in = users,
+            created__gte = start_datetime,
+            created__lte = end_datetime
+        ).all()
+        for decision in decisions:
+            decision_date = decision.created.astimezone(pytz.timezone('America/Los_Angeles')).date()
+            summary_by_date[decision_date]['decisions'] += 1
+            if decision.treated:
+                summary_by_date[decision_date]['decisions_to_treat'] += 1
+
+        walking_suggestion_surveys = WalkingSuggestionSurvey.objects.filter(
+            user__in = users,
+            created__gte = start_datetime,
+            created__lte = end_datetime
+        ).all()
+        for survey in walking_suggestion_surveys:
+            decision_date = survey.created.astimezone(pytz.timezone('America/Los_Angeles')).date()
+            summary_by_date[decision_date]['surveys'] += 1
+            if survey.answered:
+                summary_by_date[decision_date]['surveys_answered'] += 1
+
+        serialized_participants = []
+        for participant in participants:
+            serialized_participants.append({
+                'heartsteps_id': participant.heartsteps_id
+            })
+        context['participants'] = serialized_participants
+        context['dates'] = [_date.strftime('%Y-%m-%d') for _date in dates]
+        context['decisions_by_date'] = [summary_by_date[_date]['decisions'] for _date in dates]
+        context['decisions_to_treat_by_date'] = [summary_by_date[_date]['decisions_to_treat'] for _date in dates]
+        context['surveys_by_date'] = [summary_by_date[_date]['surveys'] for _date in dates]
+        context['surveys_answered_by_date'] = [summary_by_date[_date]['surveys_answered'] for _date in dates]
         return context
 
 class CohortMorningMessagesView(CohortView):

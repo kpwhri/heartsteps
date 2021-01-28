@@ -1,0 +1,90 @@
+{% extends 'dashboard/base.html' %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-walking-suggestion-surveys' cohort.id %}" class="nav-link active">Walking Suggestion Surveys</a>
+{% endblock %}
+
+{% block body %}
+<table class="table">
+    <thead>
+        <tr>
+            <td>Dates</td>
+            {% for date in dates %}
+            <td>{{date}}</td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Decisions</th>
+            {% for decisions in decisions_by_date %}
+            <td>{{decisions}}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Decisions to Treat</th>
+            {% for decisions_to_treat in decisions_to_treat_by_date %}
+            <td>{{decisions_to_treat}}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Surveys Created</th>
+            {% for surveys in surveys_by_date %}
+            <td>{{surveys}}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Surveys Answered</th>
+            {% for surveys_answered in surveys_answered_by_date %}
+            <td>{{surveys_answered}}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Participant</td>
+            {% for date in dates %}
+            <td>{{date}}</td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for participant in participants %}
+        <tr>
+            <td>
+                {% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id as overview_url %}
+                <a href="{{overview_url}}">{{participant.heartsteps_id}}</a>
+            </td>
+            {% for morning_message in participant.morning_messages %}
+            <td>
+                {% if morning_message %}
+                {{morning_message.number_of_questions}}
+                {{morning_message.number_of_answers}}
+                {% if morning_message.survey_answered and morning_message.survey_answered_fully %}
+                <p>Fully answered</p>
+                {% endif %}
+                {% if morning_message.survey_answered and not morning_message.survey_answered_fully %}
+                <p>Partially answered</p>
+                {% endif %}
+                <dl>
+                    {% if morning_message.sent %}
+                    <dt>Sent</dt>
+                    <dd>{{morning_message.sent}}</dd>
+                    {% endif %}
+                    {% if morning_message.opened %}
+                    <dt>Opened</dt>
+                    <dd>{{morning_message.opened}}</dd>
+                    {% endif %}
+                </dl>
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
