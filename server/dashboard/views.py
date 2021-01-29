@@ -42,6 +42,7 @@ from participants.models import DataExportSummary
 from participants.models import DataExportQueue
 from participants.services import ParticipantService
 from push_messages.services import PushMessageService
+from push_messages.models import Message as PushMessage
 from randomization.models import UnavailableReason
 from sms_messages.services import SMSService
 from sms_messages.models import Contact as SMSContact
@@ -50,6 +51,7 @@ from walking_suggestions.models import Configuration as WalkingSuggestionConfigu
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestions.models import NightlyUpdate as WalkingSuggestionNightlyUpdate
 from watch_app.models import StepCount as WatchAppStepCount
+from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurveyDecision
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
@@ -1205,9 +1207,11 @@ class CohortWalkingSuggestionSurveyView(CohortView):
                 'decisions': 0,
                 'decisions_to_treat': 0,
                 'surveys': 0,
-                'surveys_answered': 0
+                'surveys_answered': 0,
+                'messages_sent': 0,
+                'messages_opened':0
             }
-
+        decisions_by_user_id_by_date = {}       
         decisions = WalkingSuggestionSurveyDecision.objects.filter(
             user__in = users,
             created__gte = start_datetime,
@@ -1218,22 +1222,102 @@ class CohortWalkingSuggestionSurveyView(CohortView):
             summary_by_date[decision_date]['decisions'] += 1
             if decision.treated:
                 summary_by_date[decision_date]['decisions_to_treat'] += 1
-
+            if decision.user_id not in decisions_by_user_id_by_date:
+                decisions_by_user_id_by_date[decision.user_id] = {}
+            if decision_date not in decisions_by_user_id_by_date[decision.user_id]:
+                decisions_by_user_id_by_date[decision.user_id][decision_date] = []
+            decisions_by_user_id_by_date[decision.user_id][decision_date].append(decision)
+        
         walking_suggestion_surveys = WalkingSuggestionSurvey.objects.filter(
             user__in = users,
             created__gte = start_datetime,
             created__lte = end_datetime
         ).all()
+        walking_suggestion_surveys_by_user_id = {}
         for survey in walking_suggestion_surveys:
-            decision_date = survey.created.astimezone(pytz.timezone('America/Los_Angeles')).date()
-            summary_by_date[decision_date]['surveys'] += 1
+            survey_date = survey.created.astimezone(pytz.timezone('America/Los_Angeles')).date()
+            summary_by_date[survey_date]['surveys'] += 1
             if survey.answered:
-                summary_by_date[decision_date]['surveys_answered'] += 1
+                summary_by_date[survey_date]['surveys_answered'] += 1
+            if survey.user_id not in walking_suggestion_surveys_by_user_id:
+                walking_suggestion_surveys_by_user_id[survey.user_id] = []
+            survey._date = survey_date
+            walking_suggestion_surveys_by_user_id[survey.user_id].append(survey)
+
+        messages_by_user_id_by_date = {}
+        messages = PushMessage.objects.filter(
+            recipient__in = users,
+            collapse_subject = 'walking_suggestion_survey',
+            created__gte = start_datetime,
+            created__lte = end_datetime
+        )
+        for message in messages:
+            message_date = message.created.astimezone(pytz.timezone('America/Los_Angeles')).date()
+            user_id = message.recipient_id
+            if user_id not in messages_by_user_id_by_date:
+                messages_by_user_id_by_date[user_id] = {}
+            if message_date not in messages_by_user_id_by_date[user_id]:
+                messages_by_user_id_by_date[user_id][message_date] = []
+            messages_by_user_id_by_date[user_id][message_date].append(message)
+            if message.sent:
+                summary_by_date[message_date]['messages_sent'] += 1
+            if message.opened:
+                summary_by_date[message_date]['messages_opened'] += 1
+
+        configurations_by_user_id = {}
+        configurations = WalkingSuggestionSurveyConfiguration.objects.filter(
+            user__in = users
+        ).all()
+        for configuration in configurations:
+            configurations_by_user_id[configuration.user_id] = configuration
 
         serialized_participants = []
         for participant in participants:
+            serialized_dates = []
+            for _date in dates:
+                serialized_decisions = []
+                if participant.user and participant.user.id in decisions_by_user_id_by_date and _date in decisions_by_user_id_by_date[participant.user.id]:
+                    for _decision in decisions_by_user_id_by_date[participant.user.id][_date]:
+                        serialized_decisions.append({
+                            'time': _decision.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S'),
+                            'treatment_probability': _decision.treatment_probability,
+                            'treated': _decision.treated
+                        })
+                serialized_surveys = []
+                if participant.user and participant.user.id in walking_suggestion_surveys_by_user_id:
+                    for survey in walking_suggestion_surveys_by_user_id[participant.user.id]:
+                        if survey._date.strftime('%Y-%m-%d') != _date.strftime('%Y-%m-%d'):
+                            continue
+                        serialized_surveys.append({
+                            'id': survey.id,
+                            'time': survey.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S'),
+                            'answered': survey.answered
+                        })
+                serialized_messages = []
+                if participant.user and participant.user.id in messages_by_user_id_by_date and _date in messages_by_user_id_by_date[participant.user.id]:
+                    for message in messages_by_user_id_by_date[participant.user.id][_date]:
+                        serialized_messages.append({
+                            'id': str(message.uuid),
+                            'sent': message.sent.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S') if message.sent else None
+                        })
+                serialized_dates.append({
+                    'decisions': serialized_decisions,
+                    'surveys': serialized_surveys,
+                    'messages': serialized_messages
+                })
+            configured = 'None'
+            if participant.user and participant.user.id in configurations_by_user_id:
+                configuration = configurations_by_user_id[participant.user.id]
+                if not configuration.enabled:
+                    configured = 'Not Enabled'
+                elif configuration.treatment_probability is None:
+                    configured = 'No Treatment Probability'
+                else:
+                    configured = 'Treatment Probability: %d' % (configuration.treatment_probability)
             serialized_participants.append({
-                'heartsteps_id': participant.heartsteps_id
+                'heartsteps_id': participant.heartsteps_id,
+                'dates': serialized_dates,
+                'configured': configured
             })
         context['participants'] = serialized_participants
         context['dates'] = [_date.strftime('%Y-%m-%d') for _date in dates]
@@ -1241,6 +1325,8 @@ class CohortWalkingSuggestionSurveyView(CohortView):
         context['decisions_to_treat_by_date'] = [summary_by_date[_date]['decisions_to_treat'] for _date in dates]
         context['surveys_by_date'] = [summary_by_date[_date]['surveys'] for _date in dates]
         context['surveys_answered_by_date'] = [summary_by_date[_date]['surveys_answered'] for _date in dates]
+        context['messages_sent_by_date'] = [summary_by_date[_date]['messages_sent'] for _date in dates]
+        context['messages_opened_by_date'] = [summary_by_date[_date]['messages_opened'] for _date in dates]
         return context
 
 class CohortMorningMessagesView(CohortView):
