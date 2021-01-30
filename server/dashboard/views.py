@@ -1305,7 +1305,7 @@ class CohortWalkingSuggestionSurveyView(CohortView):
                     'surveys': serialized_surveys,
                     'messages': serialized_messages
                 })
-            configured = 'None'
+            configured = 'No Configuration'
             if participant.user and participant.user.id in configurations_by_user_id:
                 configuration = configurations_by_user_id[participant.user.id]
                 if not configuration.enabled:
@@ -1313,7 +1313,9 @@ class CohortWalkingSuggestionSurveyView(CohortView):
                 elif configuration.treatment_probability is None:
                     configured = 'No Treatment Probability'
                 else:
-                    configured = 'Treatment Probability: %d' % (configuration.treatment_probability)
+                    configured = 'Treatment Probability: {probability:.0%}'.format(
+                        probability = configuration.treatment_probability
+                    )
             serialized_participants.append({
                 'heartsteps_id': participant.heartsteps_id,
                 'dates': serialized_dates,

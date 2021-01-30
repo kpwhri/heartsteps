@@ -22,6 +22,11 @@
             <td>
                 <a href="">{{participant.heartsteps_id}}</a>
                 {% if participant.burst_period_configured %}
+                {% if participant.burst_period_configuration.daily_task %}
+                <p>Daily task last run at: {{participant.burst_period_configuration.daily_task.task.last_run_at}}</p>
+                {% else %}
+                <p>No daily task</p>
+                {% endif %}
                 {% if participant.burst_period_enabled %}
                 <p>Enabled</p>
                 {% else %}
