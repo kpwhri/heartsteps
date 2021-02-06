@@ -115,9 +115,10 @@ def export_morning_messages(username, filename=None, directory=None, start=None,
                 morning_message.is_sedentary_framed
             ])
         else:
-            rows.append([
-                _date.strftime('%Y-%m-%d')
-            ])
+            rows.append(
+                [_date.strftime('%Y-%m-%d')]
+                + [None for i in range(len(headers)-1)]    
+            )
 
     
     _file = open(path.join(directory, filename), 'w')
@@ -179,8 +180,8 @@ def export_morning_message_survey(username, filename=None, directory=None, start
             'time_opened': time_opened,
             'time_completed': time_completed
         }
-        if morning_message.survey and morning_message.survey.answered and morning_message.survey._questions:
-            for question in morning_message.survey.questions:
+        if morning_message.survey and morning_message.survey._questions:
+            for question in morning_message.survey._questions:
                 if question.name not in question_names:
                     question_names.append(question.name)
                 if hasattr(morning_message.survey, '_answers') and question.id in morning_message.survey._answers:
@@ -228,9 +229,10 @@ def export_morning_message_survey(username, filename=None, directory=None, start
                     row.append(None)
                 rows.append(row)
             else:
-                rows.append([
-                    _date.strftime('%Y-%m-%d')
-                ])
+                rows.append(
+                    [_date.strftime('%Y-%m-%d')]
+                    + [None for i in range(len(headers)-1)]
+                )
 
     _file = open(path.join(directory, filename), 'w')
     writer = csv.writer(_file)

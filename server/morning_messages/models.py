@@ -221,7 +221,6 @@ class MorningMessageQuerySet(models.QuerySet):
             if hasattr(self, method_name):
                 getattr(self, method_name)()
             diff = datetime.now() - now
-            print('%s in %d seconds' % (_key, diff.seconds))
 
     def prefetch_decision(self):
         return self.prefetch_related('message_decision')
