@@ -34,6 +34,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpd
 from fitbit_api.tasks import unauthorize_fitbit_account
 from fitbit_api.models import FitbitDevice
 from morning_messages.models import MorningMessage
+from morning_messages.models import Configuration as MorningMessageConfiguration
 from participants.models import Cohort
 from participants.models import Participant
 from participants.models import Study
@@ -1345,11 +1346,11 @@ class CohortMorningMessagesView(CohortView):
             active = True
         ).all()
         users = [p.user for p in participants if p.user]
+        
         morning_messages = MorningMessage.objects.filter(user__in=users, date__in=last_week) \
         .prefetch_message() \
         .prefetch_survey() \
         .all()
-
         morning_messages_by_user_id_by_date = {}
         counts_by_date = {}
         for _date in last_week:
@@ -1359,7 +1360,6 @@ class CohortMorningMessagesView(CohortView):
                 'answered': 0,
                 'answered_fully': 0
             }
-        
         for morning_message in morning_messages:
             _date = morning_message.date
             _user_id = morning_message.user.id
@@ -1376,6 +1376,15 @@ class CohortMorningMessagesView(CohortView):
                 if len(morning_message.survey._answers) == len(morning_message.survey._questions):
                     counts_by_date[_date]['answered_fully'] += 1
 
+
+        configurations = MorningMessageConfiguration.objects \
+        .filter(user__in=users) \
+        .prefetch_related('daily_task') \
+        .all()
+        configuration_by_user_id = {}
+        for configuration in configurations:
+            configuration_by_user_id[configuration.user_id] = configuration
+
         context['dates'] = [_date.strftime('%Y-%m-%d') for _date in last_week]
         context['sent_by_date'] = [counts_by_date[_date]['sent'] for _date in last_week]
         context['opened_by_date'] = [counts_by_date[_date]['opened'] for _date in last_week]
@@ -1384,6 +1393,22 @@ class CohortMorningMessagesView(CohortView):
 
         serialized_participants = []
         for participant in participants:
+            serialized_participant = {
+                'heartsteps_id': participant.heartsteps_id,
+                'morning_messages': [{} for _date in last_week],
+                'last_morning_message': None,
+                'enabled': False,
+                'daily_task': False
+            }
+            if participant.user and participant.user.id in configuration_by_user_id:
+                configuraiton = configuration_by_user_id[participant.user.id]
+                if configuraiton.enabled:
+                    serialized_participant['enabled'] = True
+                if configuraiton.daily_task:
+                    if configuraiton.daily_task.task.last_run_at:
+                        serialized_participant['daily_task'] = "Last run at %s" % (configuraiton.daily_task.task.last_run_at.strftime('%Y-%m-%d %H:%M:%S')) 
+                    else:
+                        serialized_participant['daily_task'] = "Never run"
             if participant.user and participant.user.id in morning_messages_by_user_id_by_date:
                 serialized_morning_messages = []
                 for _date in last_week:
@@ -1408,11 +1433,8 @@ class CohortMorningMessagesView(CohortView):
                         })
                     else:
                         serialized_morning_messages.append({})
-                serialized_participant = {
-                    'heartsteps_id': participant.heartsteps_id,
-                    'morning_messages': serialized_morning_messages
-                }
-                serialized_participants.append(serialized_participant)
+                serialized_participant['morning_messages'] = serialized_morning_messages
+            serialized_participants.append(serialized_participant)
         context['participants'] = serialized_participants
         return context
 

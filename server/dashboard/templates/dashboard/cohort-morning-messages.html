@@ -58,6 +58,16 @@
             <td>
                 {% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id as overview_url %}
                 <a href="{{overview_url}}">{{participant.heartsteps_id}}</a>
+                {% if participant.enabled %}
+                <p>Morning Messages Enabled</p>
+                {% else %}
+                <p>Moring Messages Disabled</p>
+                {% endif %}
+                {% if participant.daily_task %}
+                <p>Daily task {{participant.daily_task}}</p>
+                {% else %}
+                <p>No daily task</p>
+                {% endif %}
             </td>
             {% for morning_message in participant.morning_messages %}
             <td>
