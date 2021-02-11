@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.core import serializers
 
+from activity_logs.tasks import export_activity_logs
 from adherence_messages.tasks import export_daily_metrics
 from anti_sedentary.tasks import export_anti_sedentary_decisions
 from anti_sedentary.tasks import export_anti_sedentary_service_requests
@@ -383,6 +384,9 @@ def export_user_data(username, log_export=True):
     
     export_file = setup_exports(participant, directory, log_export)
 
+    export_file(export_activity_logs, 
+        filename = 'activity-logs.csv'
+    )
     export_file(export_anti_sedentary_decisions,
         filename = 'anti-sedentary-decisions.csv'
     )
