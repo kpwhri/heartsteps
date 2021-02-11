@@ -24,12 +24,12 @@ def export_activity_logs(username, filename=None, directory=None, start=None, en
     day_service = DayService(username=username)
     if start:
         start_datetime = day_service.get_start_of_day(start)
-        activity_log_query = morning_message_query.filter(
+        activity_log_query = activity_log_query.filter(
             start__gte=start_datetime
         )
     if end:
         end_datetime = day_service.get_end_of_day(end)
-        morning_message_query = morning_message_query.filter(
+        activity_log_query = activity_log_query.filter(
             start__lte=end_datetime
         )
 
