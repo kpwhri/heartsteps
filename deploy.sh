@@ -34,6 +34,6 @@ docker push gcr.io/heartsteps-kpwhri/anti-sedentary-service
 kubectl create secret generic credentials --from-file credentials
 # update kubernetes images...
 sed -i "s/DEFAULT_BUILD_NUMBER/'$TRAVIS_BUILD_NUMBER'/g" deployment.yaml
-kubectl apply -f deployment.yaml
+kubectl apply -f deployment.yaml --validate=false
 # Migrate database
 docker-compose -f docker-compose.gcloud.yaml run server python manage.py migrate
