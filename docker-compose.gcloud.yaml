@@ -52,6 +52,7 @@ services:
             - "8080:8080"
         volumes:
             - ./server:/server-gcloud
+            - ./credentials:/credentials
             - cloudsql:/cloudsql
         working_dir: /server-gcloud
 volumes: 
