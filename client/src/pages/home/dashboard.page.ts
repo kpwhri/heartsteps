@@ -51,7 +51,6 @@ export class DashboardPage implements OnDestroy {
 
     public update() {
         this.updateAnchorMessage();
-        this.participantService.update();
         this.dailySummaryService.updateCurrentWeek();
     }
 

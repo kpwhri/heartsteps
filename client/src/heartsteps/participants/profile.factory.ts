@@ -57,6 +57,13 @@ export class ProfileService {
         })
     }
 
+    public update():Promise<void> {
+        return Promise.all([])
+        .then(() => {
+            return undefined;
+        });
+    }
+
     public load():Promise<boolean> {
         return Promise.all([
             this.setupDailyTime(),

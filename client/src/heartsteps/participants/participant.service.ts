@@ -50,7 +50,7 @@ export class ParticipantService {
         this.updatingParticipant.next(true);
         return this.isEnrolled()
         .then(() => {
-            return this.profileService.load()
+            return this.loadOrUpdateParticipant()
         })
         .then(() => {
             return this.getParticipant()
@@ -195,5 +195,32 @@ export class ParticipantService {
         .catch(() => {
             return false;
         });
+    }
+
+    private loadOrUpdateParticipant(): Promise<void> {
+        return this.isParticipantLoaded()
+        .then(() => {
+            return this.profileService.update();
+        })
+        .catch(() => {
+            return this.profileService.load()
+            .then(() => {
+                return this.markParticipantLoaded();
+            });
+        });
+    }
+
+    private isParticipantLoaded(): Promise<void> {
+        return this.storage.get('participant-loaded')
+        .then(() => {
+            return undefined;
+        })
+        .catch(() => {
+            return Promise.reject('Participant not loaded');
+        });
+    }
+
+    private markParticipantLoaded(): Promise<void> {
+        return this.storage.set('participant-loaded', true);
     }
 }
