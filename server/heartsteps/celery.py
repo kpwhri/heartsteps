@@ -42,6 +42,9 @@ app.conf.task_routes = {
     'participants.tasks.export_user_data': {
         'queue': 'export'
     },
+    'activity_surveys.tasks.*': {
+        'queue': 'messages'
+    },
     'anti_sedentary.tasks.*': {
         'queue': 'messages'
     },
