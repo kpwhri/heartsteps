@@ -214,6 +214,48 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: heartsteps-worker-fitbit
+  labels:
+    app: heartsteps-worker-fitbit
+spec:
+  selector:
+    matchLabels:
+      app: heartsteps-worker-fitbit
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: heartsteps-worker-fitbit
+    spec:
+      containers:
+      - name: heartsteps-celery-worker-fitbit
+        image: gcr.io/heartsteps-kpwhri/heartsteps-server
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celeryFitbit"]
+        env:
+          - name: BUILD_NUMBER
+            value: DEFAULT_BUILD_NUMBER
+          - name: DATABASE_URL
+            value: 'psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw'
+          - name: ANTI_SEDENTARY_SERVICE_URL
+            value: 'http://anti-sedentary:8080'
+          - name: WALKING_SUGGESTION_SERVICE_URL
+            value: 'http://walking-suggestion:8080'
+        volumeMounts:
+        - name: credentials
+          mountPath: "/credentials"
+          readOnly: true
+      volumes:
+      - name: credentials
+        secret: 
+          secretName: credentials
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: heartsteps-worker-messages
   labels:
     app: heartsteps-worker-messages
@@ -443,7 +485,7 @@ spec:
 
 ---
 
-apiVersion: apps/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: heartsteps

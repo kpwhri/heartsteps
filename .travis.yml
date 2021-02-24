@@ -27,6 +27,5 @@ script:
 # - docker-compose run client npm run build:app --prod
 
 after_success:
-- chmod +x deploy.sh deploy-pooling-service.sh
+- chmod +x deploy.sh
 - ./deploy.sh
-- ./deploy-pooling-service.sh
