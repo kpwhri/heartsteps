@@ -41,7 +41,7 @@ app.conf.task_routes = {
     'heartsteps_messages.tasks.*': {
         'queue': 'messages'
     },
-    'fitbit_activities.tasks.*': {
+    'fitbit_activities.tasks.update_fitbit_data': {
         'queue': 'fitbit'
     },
     'morning_messages.tasks.*': {

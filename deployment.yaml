@@ -190,7 +190,7 @@ spec:
         image: gcr.io/heartsteps-kpwhri/heartsteps-server
         imagePullPolicy: Always
         command: ["/bin/sh","-c"]
-        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celery"]
+        args: ["gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && gcloud config set project heartsteps-kpwhri && honcho start cloudsql celeryDefault"]
         env:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
@@ -221,7 +221,7 @@ spec:
   selector:
     matchLabels:
       app: heartsteps-worker-fitbit
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -260,7 +260,7 @@ metadata:
   labels:
     app: heartsteps-worker-messages
 spec:
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -299,7 +299,7 @@ metadata:
   labels:
     app: heartsteps-worker-export
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
