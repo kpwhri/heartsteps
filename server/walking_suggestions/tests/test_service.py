@@ -850,14 +850,18 @@ class DecisionAvailabilityTest(TestCase):
             hour = suggestion_time.hour,
             minute = suggestion_time.minute
         )
+        # Make walking suggestion decision 5 minutes before current_time
+        # so as second walking suggestion decision can't be made at durring
+        # the MIDAFTERNOON timeperiod.
         WalkingSuggestionDecisionService.make_decision(
             datetime = current_time - timedelta(minutes=5),
             user=self.user
         )
 
         try:
-            WalkingSuggestionDecisionService.make_decision_now(
-                user = self.user
+            WalkingSuggestionDecisionService.make_decision(
+                user = self.user,
+                datetime = current_time
             )
             self.fail('Should not have made second walking suggestion decision')
         except WalkingSuggestionDecisionService.RandomizationUnavailable:
