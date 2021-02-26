@@ -8,14 +8,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heartsteps.settings')
 
 app = Celery('heartsteps')
 
-# Using a string here means the worker doesn't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
-
-# Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+# This should make celery workers only reserve a single task
+# preventing message sending tasks from getting stuck behind
+# longer tasks, like nightly updates.
+# https://docs.celeryproject.org/en/stable/userguide/configuration.html#std-setting-worker_prefetch_multiplier
+app.conf.worker_prefetch_multiplier = 1
 
 app.conf.beat_schedule = {
     'reset-test-participants': {
