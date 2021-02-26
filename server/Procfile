@@ -1,6 +1,6 @@
 dev: python ./manage.py runserver 0.0.0.0:8080
 web: gunicorn -b :8080 heartsteps.wsgi:application --log-level debug
-celery: celery worker -A heartsteps -l info -Q default
+celery: celery worker -A heartsteps -l info -Q default,fitbit,messages
 celeryFitbit: celery worker -A heartsteps -l info -Q fitbit
 celeryMessages: celery worker -A heartsteps -l info -Q messages
 celeryExport: celery worker -A heartsteps -l info -Q export
