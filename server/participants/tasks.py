@@ -449,6 +449,9 @@ def daily_update(username):
         service.participant.study_start_date = service.participant.get_study_start_date()
         service.participant.save()
     update_location_categories(username)
+    export_user_data.apply_async(kwargs={
+        'username': username
+    })
 
 @shared_task
 def process_data_export_queue():

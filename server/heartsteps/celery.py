@@ -26,15 +26,6 @@ app.conf.beat_schedule = {
         'task': 'participants.tests.reset_test_participants',
         'schedule': crontab(hour='11', minute='0')
     },
-    'export-data': {
-        'task': 'participants.tasks.export_cohort_data',
-        'schedule': crontab(hour='11', minute='0')
-    },
-    'data-export-queue': {
-        'task': 'participants.tasks.process_data_export_queue',
-        'schedule': crontab()
-    }
-
 }
 
 app.conf.task_default_queue = 'default'
