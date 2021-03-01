@@ -50,7 +50,7 @@ class DailyWeatherForecast(models.Model):
         (SNOW, 'Snow')
     ]
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     date = models.DateField()
 
     category = models.CharField(max_length=70, choices=WEATHER_CHOICES)

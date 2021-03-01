@@ -12,7 +12,7 @@ class Device(models.Model):
     ONESIGNAL = 'onesignal'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     token = models.CharField(max_length=255)
     type = models.CharField(max_length=10, null=True, blank=True)
@@ -63,8 +63,8 @@ class Message(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES)
 
-    recipient = models.ForeignKey(User)
-    device = models.ForeignKey(Device, null=True)
+    recipient = models.ForeignKey(User, on_delete = models.CASCADE)
+    device = models.ForeignKey(Device, null=True, on_delete = models.CASCADE)
 
     data = JSONField(null=True)
     content = models.TextField(null=True)
@@ -133,6 +133,6 @@ class MessageReceipt(models.Model):
         (ENGAGED, 'Engaged')
     )
 
-    message = models.ForeignKey(Message)
+    message = models.ForeignKey(Message, on_delete = models.CASCADE)
     time = models.DateTimeField()
     type = models.CharField(max_length=20, choices=MESSAGE_RECEIPT_CHOICES)

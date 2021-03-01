@@ -35,7 +35,7 @@ class Week(models.Model):
     goal = models.IntegerField(null=True)
     confidence = models.FloatField(null=True)
 
-    survey = models.ForeignKey(WeekSurvey, null=True)
+    survey = models.ForeignKey(WeekSurvey, null=True, on_delete = models.SET_NULL)
     _barrier_options = JSONField(null=True)
     will_barriers_continue = models.CharField(
         max_length = 50,

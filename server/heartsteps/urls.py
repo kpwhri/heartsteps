@@ -34,8 +34,9 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(
         r'^login/$',
-        auth_views.login,
-        {'template_name': 'dashboard/login.html'},
+        auth_views.LoginView.as_view(
+            template_name = 'dashboard/login.html'
+        ),
         name='login'
     ),
     url(

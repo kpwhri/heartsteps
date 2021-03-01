@@ -21,7 +21,8 @@ User = get_user_model()
 class Configuration(models.Model):
     user = models.OneToOneField(
         User,
-        related_name = '+'
+        related_name = '+',
+        on_delete = models.CASCADE
     )
     enabled = models.BooleanField(default = True)
     treatment_probability = models.FloatField(null=True)

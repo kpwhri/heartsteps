@@ -181,7 +181,7 @@ class Configuration(models.Model):
     
 
 class BurstPeriod(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     start = models.DateField()
     end = models.DateField()
 

@@ -31,9 +31,16 @@ CRON_DAYS_OF_WEEK = [
 ]
 
 class DailyTask(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+        )
     category = models.CharField(max_length=20, null=True)
-    task = models.ForeignKey(PeriodicTask, null=True)
+    task = models.ForeignKey(
+        PeriodicTask,
+        null=True,
+        on_delete = models.CASCADE
+        )
 
     day = models.CharField(max_length=15, null=True)
     hour = models.IntegerField(null=True)

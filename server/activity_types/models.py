@@ -7,7 +7,7 @@ class ActivityType(models.Model):
     name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=150)
 
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE, blank=True)
 
     def __str__(self):
         suffix = ''

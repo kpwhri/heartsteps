@@ -688,9 +688,9 @@ class Decision(models.Model):
 
 class DecisionContext(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    decision = models.ForeignKey(Decision)
+    decision = models.ForeignKey(Decision, on_delete = models.CASCADE)
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete = models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 

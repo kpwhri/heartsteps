@@ -19,7 +19,7 @@ from surveys.models import Question, Survey, SurveyQuestion, SurveyAnswer, Surve
 User = get_user_model()
 
 class Configuration(models.Model):
-    user = models.OneToOneField(User, related_name='morning_message_configuration')
+    user = models.OneToOneField(User, on_delete = models.CASCADE, related_name='morning_message_configuration')
     enabled = models.BooleanField(default=True)
 
     daily_task = models.OneToOneField(
@@ -354,13 +354,13 @@ class MorningMessage(models.Model):
 
     objects = MorningMessageQuerySet.as_manager()
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     date = models.DateField()
     randomized = models.BooleanField(default=True)
 
-    survey = models.ForeignKey(MorningMessageSurvey, null=True, editable=False)
+    survey = models.ForeignKey(MorningMessageSurvey, null=True, editable=False, on_delete = models.SET_NULL)
 
-    message_decision = models.ForeignKey(MorningMessageDecision, null=True, editable=False)
+    message_decision = models.ForeignKey(MorningMessageDecision, null=True, editable=False, on_delete = models.SET_NULL)
 
     notification = models.CharField(max_length=255, null=True, editable=False)
     text = models.CharField(max_length=255, null=True, editable=False)
@@ -463,8 +463,8 @@ class MorningMessage(models.Model):
         return "%s: %s" % (self.user, self.date.strftime("%Y-%m-%d"))
 
 class MorningMessageContextObject(models.Model):
-    morning_message = models.ForeignKey(MorningMessage, related_name="context")
+    morning_message = models.ForeignKey(MorningMessage, on_delete = models.CASCADE, related_name="context")
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete = models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')

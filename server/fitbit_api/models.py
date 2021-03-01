@@ -124,12 +124,12 @@ class FitbitAccount(models.Model):
         self.save()
 
 class FitbitAccountUser(models.Model):
-    user = models.OneToOneField(User, unique=True)
-    account = models.ForeignKey(FitbitAccount)
+    user = models.OneToOneField(User, on_delete = models.CASCADE, unique=True)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
 
 class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, unique=True, primary_key=True)    
-    fitbit_account = models.ForeignKey(FitbitAccount)
+    fitbit_account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.uuid:
@@ -174,8 +174,8 @@ class FitbitAccountUpdate(models.Model):
 
 class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-    update = models.ForeignKey(FitbitUpdate, null=True)
-    subscription = models.ForeignKey(FitbitSubscription)
+    update = models.ForeignKey(FitbitUpdate, null=True, on_delete = models.CASCADE)
+    subscription = models.ForeignKey(FitbitSubscription, on_delete = models.CASCADE)
     payload = JSONField()
     created = models.DateTimeField(auto_now_add=True)
 
@@ -215,7 +215,7 @@ class FitbitDevice(models.Model):
         return update.time
 
 class FitbitDeviceUpdate(models.Model):
-    fitbit_device = models.ForeignKey(FitbitDevice)
+    fitbit_device = models.ForeignKey(FitbitDevice, on_delete = models.CASCADE)
     
     time = models.DateTimeField()
     battery_level = models.IntegerField(null=True)

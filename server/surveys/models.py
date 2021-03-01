@@ -46,7 +46,10 @@ class Answer(models.Model):
     label = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
 
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(
+        Question,
+        on_delete = models.CASCADE
+        )
     order = models.IntegerField(null=True)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -55,7 +58,10 @@ class Answer(models.Model):
 class Survey(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+        )
     answered = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -210,7 +216,10 @@ class SurveyQuestion(models.Model):
         null=True
     )
 
-    survey = models.ForeignKey(Survey)
+    survey = models.ForeignKey(
+        Survey,
+        on_delete = models.CASCADE,
+    )
     order = models.IntegerField(null=True)
 
     name = models.CharField(max_length=100)
@@ -263,10 +272,10 @@ class SurveyAnswer(models.Model):
     label = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
     
-    question = models.ForeignKey(SurveyQuestion, related_name="answers")
+    question = models.ForeignKey(SurveyQuestion, on_delete = models.CASCADE, related_name="answers")
     order = models.IntegerField(null=True)
 
 class SurveyResponse(models.Model):
-    survey = models.ForeignKey(Survey)
-    question = models.ForeignKey(SurveyQuestion)
-    answer = models.ForeignKey(SurveyAnswer, null=True)
+    survey = models.ForeignKey(Survey, on_delete = models.CASCADE)
+    question = models.ForeignKey(SurveyQuestion, on_delete = models.CASCADE)
+    answer = models.ForeignKey(SurveyAnswer, null=True, on_delete = models.CASCADE)
