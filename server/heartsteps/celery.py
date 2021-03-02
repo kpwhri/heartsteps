@@ -19,7 +19,11 @@ app.conf.worker_prefetch_multiplier = 1
 
 app.conf.beat_schedule = {
     'reset-test-participants': {
-        'task': 'participants.tests.reset_test_participants',
+        'task': 'participants.tasks.reset_test_participants',
+        'schedule': crontab(hour='11', minute='0')
+    },
+    'export-cohort-data': {
+        'task': 'participants.tasks.export_cohort_data',
         'schedule': crontab(hour='11', minute='0')
     },
 }
@@ -27,7 +31,7 @@ app.conf.beat_schedule = {
 app.conf.task_default_queue = 'default'
 app.conf.task_routes = {
     'participants.tasks.export_user_data': {
-        'queue': 'export'
+        'queue': 'default'
     },
     'activity_surveys.tasks.*': {
         'queue': 'messages'

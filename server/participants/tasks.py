@@ -435,9 +435,9 @@ def export_cohort_data():
         .all()
         users = [p.user for p in participants if p.user]
         for user in users:
-            DataExportQueue.objects.create(
-                user = user
-            )
+            export_user_data.apply_async(kwargs={
+                'username': user.username
+            })
 
 @shared_task
 def daily_update(username):
@@ -449,9 +449,6 @@ def daily_update(username):
         service.participant.study_start_date = service.participant.get_study_start_date()
         service.participant.save()
     update_location_categories(username)
-    export_user_data.apply_async(kwargs={
-        'username': username
-    })
 
 @shared_task
 def process_data_export_queue():
