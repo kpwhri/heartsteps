@@ -30,6 +30,7 @@ from .views import ParticipantBurstPeriodView
 from .views import ParticipantBurstPeriodDeleteView
 from .views import CohortMorningMessagesView
 from .views import CohortWalkingSuggestionSurveyView
+from .views import ParticipantBurstPeriodConfigurationView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -42,6 +43,7 @@ urlpatterns = [
     ),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)/delete', ParticipantBurstPeriodDeleteView.as_view(), name='dashboard-cohort-participant-burst-period-delete'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)', ParticipantBurstPeriodView.as_view(), name='dashboard-cohort-participant-burst-period'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/configuration', ParticipantBurstPeriodConfigurationView.as_view(), name='dashboard-cohort-participant-burst-period-configuration'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/', ParticipantBurstPeriodView.as_view(), name='dashboard-cohort-participant-burst-period'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/morning-messages', ParticipantMorningMessagesView.as_view(), name='dashboard-cohort-participant-morning-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/fitbit/disable', ParticipantDisableFitbitAccountView.as_view(), name='dashboard-cohort-participant-fitbit-disable'),

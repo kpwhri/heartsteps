@@ -64,7 +64,7 @@ from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .forms import BurstPeriodForm
 from .models import AdherenceAppInstallDashboard
-from .models import FitbitServiceDashboardwa
+from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
 
 class CohortListView(UserPassesTestMixin, TemplateView):
@@ -713,6 +713,48 @@ class ParticipantView(CohortView):
         except BurstPeriodConfiguration.DoesNotExist:
             pass
         return context
+
+class ParticipantBurstPeriodConfigurationView(ParticipantView):
+
+    template_name = 'dashboard/participant-burst-period-configuration.html'
+
+    def get_burst_configuration(self):
+        try:
+            return BurstPeriodConfiguration.objects \
+            .prefetch_burst_periods() \
+            .get(
+                user = self.participant.user
+            )
+        except BurstPeriodConfiguration.DoesNotExist:
+            return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+    def post(self, request, cohort_id, participant_id, **kwargs):
+        self.setup_participant()
+        config = self.get_burst_configuration()
+        if 'create-daily-task' in request.POST:
+            if config.daily_task:
+                config.daily_task.delete()
+            config.daily_task = config.create_daily_task()
+            config.save()
+        if 'enable' in request.POST:
+            config.enabled = True
+            config.save()
+        if 'disable' in request.POST:
+            config.enabled = False
+            config.save()
+        if 'create' in request.POST:
+            if config:
+                config.delete()
+            BurstPeriodConfiguration.objects.create(
+                user = self.participant.user
+            )
+        return HttpResponseRedirect("")
+
 
 class ParticipantActivitySummaryView(ParticipantView):
     template_name = 'dashboard/participant-activity-summary.html'

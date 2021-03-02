@@ -20,7 +20,7 @@
         {% for participant in participants %}
         <tr>
             <td>
-                <a href="">{{participant.heartsteps_id}}</a>
+                <a href="{% url 'dashboard-cohort-participant-burst-period-configuration' cohort.id participant.heartsteps_id %}">{{participant.heartsteps_id}}</a>
                 {% if participant.burst_period_configured %}
                 {% if participant.burst_period_configuration.daily_task %}
                 <p>Daily task last run at: {{participant.burst_period_configuration.daily_task.task.last_run_at}}</p>

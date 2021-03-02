@@ -79,8 +79,23 @@
         Disabled
         {% endif %}
     </dd>
-    </li>
 {% endfor %}
+    <dt>Burst Periods</dt>
+    {% if burst_configuration %}
+        {% if burst_configuration.enabled %}
+        <dd>Enabled</dd>
+        {% else %}
+        <dd>Disabled</dd>
+        {% endif %}
+        {% if burst_configuration.daily_task %}
+        <dd>{{ burst_configuration.daily_task.last_run_at}}</dd>
+        {% else %}
+        <dd>Burst period daily task missing</dd>
+        {% endif %}
+    {% else %}
+    <dd>Not configured</dd>
+    {% endif %}
+    <dd><a href="{% url 'dashboard-cohort-participant-burst-period-configuration' cohort.id participant.heartsteps_id %}">Change burst period configuration</a></dd>
 </dl>
 <nav>
     <ul class="nav flex-column">
@@ -135,11 +150,7 @@
 </form>
 {% if burst_configuration %}
 <h4>Burst Configuration</h4>
-{% if burst_configuration.enabled %}
-<p>Enabled</p>
-{% else %}
-<p>Disabled</p>
-{% endif %}
+
 {% if burst_configuration.burst_periods %}
 <ul>
 {% for burst_period in burst_configuration.burst_periods %}
