@@ -222,7 +222,7 @@ class ParticipantService:
                 user = self.participant.user
             )
             walking_suggestion_survey_configuration.enabled = False
-            walking_suggestion_configuration.save()
+            walking_suggestion_survey_configuration.save()
         except WalkingSuggestionSurveyConfiguration.DoesNotExist:
             pass
         AntiSedentaryConfiguration.objects.filter(user = self.participant.user).update(enabled = False)
