@@ -178,10 +178,11 @@ class DailyTaskSummaryView(CohortView):
         daily_tasks_by_username_then_task_name = {}
         for user in users:
             daily_tasks_by_username_then_task_name[user.username] = {}
-
-
+        
         task_names = []
         for dt in daily_tasks:
+            if not dt.task:
+                continue
             task_name = dt.task.task
             if task_name not in task_names:
                 task_names.append(task_name)
