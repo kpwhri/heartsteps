@@ -9,6 +9,7 @@ from adherence_messages.models import AdherenceMessage
 from adherence_messages.services import AdherenceAppInstallMessageService
 from adherence_messages.services import AdherenceFitbitUpdatedService
 from anti_sedentary.models import AntiSedentaryDecision
+from activity_surveys.models import Configuration as ActivitySurveyConfiguration
 from burst_periods.models import Configuration as BurstPeriodConfiguration
 from contact.models import ContactInformation
 from days.services import DayService
@@ -22,6 +23,7 @@ from randomization.models import UnavailableReason
 from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import WalkingSuggestionDecision
+from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 from watch_app.models import StepCount as WatchAppStepCount
 from watch_app.models import WatchInstall
 
@@ -702,6 +704,52 @@ class DashboardParticipant(Participant):
                 user = self.user
             )
         except BurstPeriodConfiguration.DoesNotExist:
+            return None
+
+
+    @property
+    def activity_survey_configuration(self):
+        if not hasattr(self, '_activity_survey_configuration'):
+            self._activity_survey_configuration = self.get_activity_survey_configuration()
+        return self._activity_survey_configuration
+
+    @property
+    def activity_surveys_enabled(self):
+        if self.activity_survey_configuration and self.activity_survey_configuration.enabled:
+            return True
+        else:
+            return False
+
+    @property
+    def activity_survey_treatment_probability(self):
+        if self.activity_survey_configuration:
+            if not self.activity_surveys_enabled:
+                return 0
+            return self.activity_survey_configuration.treatment_probability
+        return 0
+
+    def get_activity_survey_configuration(self):
+        if self.user:
+            try:
+                return ActivitySurveyConfiguration.objects.get(
+                    user = self.user
+                )
+            except ActivitySurveyConfiguration.DoesNotExist:
+                return None
+        return None
+
+    @property
+    def walking_suggestion_survey_configuration(self):
+        if not hasattr(self, '_walking_suggestion_survey_configuraiton'):
+            self._walking_suggestion_survey_configuraiton = self.get_walking_suggestion_configuration()
+        return self._walking_suggestion_survey_configuraiton
+
+    def get_walking_suggestion_configuration(self):
+        if not self.user:
+            return None
+        try:
+            return WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
+        except WalkingSuggestionSurveyConfiguration.DoesNotExist:
             return None
 
     def get_notifications(self, start, end):

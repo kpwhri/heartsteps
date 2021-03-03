@@ -79,23 +79,20 @@
         Disabled
         {% endif %}
     </dd>
-{% endfor %}
-    <dt>Burst Periods</dt>
-    {% if burst_configuration %}
-        {% if burst_configuration.enabled %}
-        <dd>Enabled</dd>
-        {% else %}
-        <dd>Disabled</dd>
-        {% endif %}
-        {% if burst_configuration.daily_task %}
-        <dd>{{ burst_configuration.daily_task.last_run_at}}</dd>
-        {% else %}
-        <dd>Burst period daily task missing</dd>
-        {% endif %}
-    {% else %}
-    <dd>Not configured</dd>
+    {% if configuration.treatment_probability is not None %}
+    <dd>Treatment probability is {{configuration.treatment_probability}}</dd>
     {% endif %}
-    <dd><a href="{% url 'dashboard-cohort-participant-burst-period-configuration' cohort.id participant.heartsteps_id %}">Change burst period configuration</a></dd>
+    {% if configuration.actions %}
+    <dd>
+        {% for action in configuration.actions %}
+        <form action="{{action.url}}" method="POST">
+            {% csrf_token %}
+            <input type="submit" name="{{action.value}}" value="{{action.name}}" />
+        </form>
+        {% endfor %}
+    </dd>
+    {% endif %}
+{% endfor %}
 </dl>
 <nav>
     <ul class="nav flex-column">
@@ -148,20 +145,4 @@
     <input type="hidden" name="message" value="Hi, this is a test message." />
     <input type="submit" value="Send test notification" />
 </form>
-{% if burst_configuration %}
-<h4>Burst Configuration</h4>
-
-{% if burst_configuration.burst_periods %}
-<ul>
-{% for burst_period in burst_configuration.burst_periods %}
-    <li>
-        {{burst_period.start}} to {{burst_period.end}}
-        {% url 'dashboard-cohort-participant-burst-period' cohort.id participant.heartsteps_id burst_period.id as bp_url %}
-        <a href="{{bp_url}}">Edit</a>
-    </li>
-{% endfor %}
-</ul>
-{% endif %}
-<a href="{% url 'dashboard-cohort-participant-burst-period' cohort.id participant.heartsteps_id %}">Create burst period</a>
-{% endif %}
 {% endblock %}

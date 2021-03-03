@@ -704,15 +704,39 @@ class ParticipantView(CohortView):
                 'enabled': self.participant.morning_messages_enabled
             }
         ]
-        try:
-            burst_configuration = BurstPeriodConfiguration.objects \
-            .prefetch_burst_periods() \
-            .get(
-                user = self.participant.user
+
+        context['configurations'].append({
+            'title': 'Activity Surveys',
+            'enabled': self.participant.activity_survey_configuration,
+            'treatment_probability': self.participant.activity_survey_treatment_probability
+        })
+
+        context['configurations'].append({
+            'title': 'Walking Suggestion Surveys',
+            'enabled': self.participant.walking_suggestion_survey_configuration.enabled,
+            'treatment_probability': self.participant.walking_suggestion_survey_configuration.treatment_probability
+        })
+
+        burst_period_actions = []
+        burst_period_actions.append({
+            'name': 'Disable' if self.participant.burst_period_enabled else 'Enable',
+            'value': 'disable' if self.participant.burst_period_enabled else 'enable',
+            'url': reverse(
+                'dashboard-cohort-participant-burst-period-configuration',
+                kwargs = {
+                    'cohort_id': self.cohort.id,
+                    'participant_id': self.participant.heartsteps_id
+                }
             )
-            context['burst_configuration'] = burst_configuration
-        except BurstPeriodConfiguration.DoesNotExist:
-            pass
+        })
+
+        context['configurations'].append({
+            'title': 'Burst Periods',
+            'enabled': self.participant.burst_period_enabled,
+            'actions': burst_period_actions
+        })
+
+        context['configurations'].sort(key = lambda x: x['title'])
         return context
 
 class ParticipantBurstPeriodConfigurationView(ParticipantView):
@@ -754,7 +778,7 @@ class ParticipantBurstPeriodConfigurationView(ParticipantView):
             BurstPeriodConfiguration.objects.create(
                 user = self.participant.user
             )
-        return HttpResponseRedirect("")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class ParticipantActivitySummaryView(ParticipantView):
