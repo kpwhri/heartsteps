@@ -9,10 +9,13 @@ from adherence_messages.models import AdherenceMessage
 from adherence_messages.services import AdherenceAppInstallMessageService
 from adherence_messages.services import AdherenceFitbitUpdatedService
 from anti_sedentary.models import AntiSedentaryDecision
+from activity_surveys.models import ActivitySurvey
+from activity_surveys.models import Decision as ActivitySurveyDecision
 from activity_surveys.models import Configuration as ActivitySurveyConfiguration
 from burst_periods.models import Configuration as BurstPeriodConfiguration
 from contact.models import ContactInformation
 from days.services import DayService
+from fitbit_activities.models import FitbitActivity
 from fitbit_activities.services import FitbitActivityService
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
@@ -764,6 +767,49 @@ class DashboardParticipant(Participant):
         .order_by('-created') \
         .all()
         return notifications
+
+    def last_activity_survey_decision(self):
+        if not hasattr(self, '_last_activity_survey_decision'):
+            self._last_activity_survey_decision = self.get_last_activity_survey_decision()
+        return self._last_activity_survey_decision
+
+    def get_last_activity_survey_decision(self):
+        if not self.user:
+            return None
+        last_decision = ActivitySurveyDecision.objects.filter(
+            user = self.user
+        ) \
+        .order_by('created') \
+        .last()
+        if not last_decision:
+            return None
+        day_service = DayService(user = self.user)
+        tz = day_service.get_timezone_at(last_decision.created)
+        last_decision.created = last_decision.created.astimezone(tz)
+        return last_decision
+
+    @property
+    def last_answered_activity_survey(self):
+        if not hasattr(self, '_last_answered_activity_survey'):
+            self._last_answered_activity_survey = self.get_last_answered_activity_survey()
+        return self._last_activity_survey
+
+    def get_last_answered_activity_survey(self):
+        if not self.user:
+            return None
+        last_survey = ActivitySurvey.objects.filter(
+            user = self.user
+        ) \
+        .order_by('fitbit_activity__start_time') \
+        .last()
+        if not last_survey:
+            return None
+        day_service = DayService(user = self.user)
+        tz = day_service.get_timezone_at(last_survey.updated)
+        last_survey.updated = last_survey.updated.astimezone(tz)
+        if last_survey.fitbit_activity:
+            last_survey.fitbit_activity.start_time = last_survey.fitbit_activity.start_time.astimezone(tz)
+        return last_survey
 
 class FitbitServiceDashboard(FitbitService):
 

@@ -247,24 +247,9 @@ class BurstPeriodSummaryView(CohortView):
         ) \
         .order_by('heartsteps_id') \
         .prefetch_related('user') \
-        .prefetch_burst_periods() \
         .all()
 
-        current_burst_periods = []
-        upcoming_burst_periods = []
-        other_participants = []
-        for participant in participants:
-            if participant.current_burst_period:
-                current_burst_periods.append(participant)
-                continue
-            if participant.next_burst_period:
-                upcoming_burst_periods.append(participant)
-                continue
-            other_participants.append(participant)
-
-        context['participants'] = sorted(current_burst_periods, key= lambda p: p.current_burst_period.start ) \
-        + sorted(upcoming_burst_periods, key=lambda p: p.next_burst_period.start) \
-        + other_participants
+        context['participants'] = [p for p in participants if p.burst_period_enabled]
         return context
 
 class InterventionSummaryView(CohortView):

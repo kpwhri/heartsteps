@@ -14,19 +14,15 @@
 <table class="table">
     <thead>
         <th>Participant</th>
-        <th>Burst Period</th>
+        <th>Activity Surveys</th>
+        <th>Walking Suggestion Surveys</th>
     </thead>
     <tbody>
         {% for participant in participants %}
         <tr>
             <td>
-                <a href="{% url 'dashboard-cohort-participant-burst-period-configuration' cohort.id participant.heartsteps_id %}">{{participant.heartsteps_id}}</a>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}">{{participant.heartsteps_id}}</a>
                 {% if participant.burst_period_configured %}
-                {% if participant.burst_period_configuration.daily_task %}
-                <p>Daily task last run at: {{participant.burst_period_configuration.daily_task.task.last_run_at}}</p>
-                {% else %}
-                <p>No daily task</p>
-                {% endif %}
                 {% if participant.burst_period_enabled %}
                 <p>Enabled</p>
                 {% else %}
@@ -35,28 +31,42 @@
                 {% else %}
                 <p>Not configured</p>
                 {% endif %}
-
             </td>
             <td>
                 <dl>
-                    {% if participant.previous_burst_periods %}
-                    <dt>Previous Burst Periods</dt>
-                    {% for burst_period in participant.previous_burst_periods %}
-                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
-                    {% endfor %}
+                    <dt>Last Activity Survey</dt>
+                    {% if participant.last_activity_survey %}
+                    {% with activity=participant.last_activity_survey.fitbit_activity %}
+                    <dd>{{activity.type}} at {{activity.start_time|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    {% endwith %}
+                    {% if participant.last_activity_survey.is_answered %}
+                    <dd>Answered on {{participant.last_activity_survey.updated|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    {% else %}
+                    <dd>Not answered</dd>
                     {% endif %}
-                    {% if participant.current_burst_period %}
-                    <dt>Current Burst Period</dt>
-                    <dd>{{participant.current_burst_period.start}} to {{participant.current_burst_period.end}}</dd>
+                    {% else %}
+                    <dd>No activity survey</dd>
                     {% endif %}
-                    {% if participant.next_burst_periods %}
-                    <dt>Next Burst Period</dt>
-                    {% for burst_period in participant.next_burst_periods %}
-                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
-                    {% endfor %}
+                    <dt>Last Activity Survey Decision</dt>
+                    {% if participant.last_activity_survey_decision %}
+                    {% if participant.last_activity_survey_decision.treated %}
+                    <dd>Treated ({{participant.last_activity_survey_decision.treatment_probability}})</dd>
+                    {% else %}
+                    <dd>Not treated ({{participant.last_activity_survey_decision.treatment_probability}})</dd>
+                    {% endif %}
+                    {% else %}
+                    <dd>No activity survey decisions</dd>
                     {% endif %}
                 </dl>
-
+            </td>
+            <td>
+                <dl>
+                    <dt>Last Walking Suggestion Survey</dt>
+                    <dd>Sent on</dd>
+                    <dd>Received on</dd>
+                    <dd>Opened on</dd>
+                    <dd>Completed on and completed fully</dd>
+                </dl>
             </td>
         </tr>
         {% endfor %}
