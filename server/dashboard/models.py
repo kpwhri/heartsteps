@@ -263,7 +263,8 @@ class DashboardParticipantQuerySet(models.QuerySet):
         lookup_functions = {
             'contact_information': self._fetch_contact_information,
             'page_views': self._fetch_page_views,
-            'fitbit_account': self._fetch_fitbit_account
+            'fitbit_account': self._fetch_fitbit_account,
+            'walking_suggestion_survey_summary': self._fetch_walking_suggestion_survey_summary
         }
         updated_lookups = ()
         secondary_lookups = ()
@@ -276,6 +277,21 @@ class DashboardParticipantQuerySet(models.QuerySet):
         super()._prefetch_related_objects()
         for lookup in secondary_lookups:
             lookup_functions[lookup]()
+
+    def prefetch_walking_suggestion_survey_summary():
+        return self.prefetch_related('walking_suggestion_survey_summary')
+
+    def _fetch_walking_suggestion_survey_summary(self):
+        users = [p.user for p in self._result_cache if p.user]
+        configurations = load_walking_suggestion_survey_summarys(users)
+        configurations_by_username = {}
+        for configuration in configurations:
+            configurations_by_username[configuration.user.username] = configuration
+        for participant in self._result_cache:
+            if participant.user and participant.user.username in configurations_by_username:
+                participant._walking_suggestion_survey_configuration = configurations_by_username[participant.user.username]
+            else:
+                p._walking_suggestion_survey_configuration = None
 
     def prefetch_contact_information(self):
         return self.prefetch_related('contact_information')
@@ -810,6 +826,20 @@ class DashboardParticipant(Participant):
         if last_survey.fitbit_activity:
             last_survey.fitbit_activity.start_time = last_survey.fitbit_activity.start_time.astimezone(tz)
         return last_survey
+
+    @property
+    def walking_suggestion_survey_configuration(self):
+        if not hasattr(self, '_walking_suggestion_survey_configuration'):
+            self._walking_suggestion_survey_configuraiton = self.get_walking_suggestion_configuration()
+        return self._walking_suggestion_survey_configuraiton
+
+    def get_walking_suggestion_configuration(self):
+        if not self.user:
+            return None
+        try:
+            return WalkingSuggestionSurveyConfiguration.objects.get(user=self.user)
+        except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+            return None
 
 class FitbitServiceDashboard(FitbitService):
 

@@ -10,7 +10,6 @@ from django.core.exceptions import ImproperlyConfigured
 from daily_tasks.models import DailyTask
 from days.services import DayService
 from push_messages.services import PushMessageService
-
 from surveys.models import Question
 from surveys.models import Survey
 from surveys.serializers import SurveySerializer
@@ -32,6 +31,66 @@ class Configuration(models.Model):
         if not hasattr(self,'_daily_tasks'):
             self._daily_tasks = self.get_daily_tasks()
         return self._daily_tasks
+    
+    @property
+    def last_survey(self):
+        if not hasattr(self, '_last_survey'):
+            self._last_survey = self.get_last_survey()
+        return self._last_survey
+
+    @property
+    def last_survey_answered_datetime(self):
+        service = DayService(user=self.user)
+        if self.last_survey.answered:
+            return service.get_datetime_at(self.last_survey.updated)
+        return None
+
+    @property
+    def last_survey_sent_datetime(self):
+        service = DayService(user=self.user)
+        if self.last_survey.created:
+            return service.get_datetime_at(self.last_survey.created)
+        return None
+
+    @property
+    def last_answered_survey(self):
+        if not hasattr(self, '_last_answered_survey'):
+            self._last_answered_survey = self.get_last_answered_survey()
+        return self._last_answered_survey
+
+    @property
+    def last_answered_survey_datetime(self):
+        service = DayService(user=self.user)
+        if self.last_answered_survey:
+            return service.get_datetime_at(self.last_answered_survey.updated)
+        return None
+
+    @property
+    def last_decision(self):
+        if not hasattr(self, '_last_decision'):
+            self._last_decision = self.get_last_decision()
+        return self._last_decision
+
+    def get_last_decision(self):
+        return Decision.objects.filter(
+            user = self.user
+        ) \
+        .last()
+
+    def get_last_survey(self):
+        return WalkingSuggestionSurvey.objects.filter(
+            user = self.user
+        ) \
+        .order_by('created') \
+        .last()
+
+    def get_last_answered_survey(self):
+        return WalkingSuggestionSurvey.objects.filter(
+            user = self.user,
+            answered = True
+        ) \
+        .order_by('created') \
+        .last()
 
     def get_current_date(self):
         service = DayService(user=self.user)
