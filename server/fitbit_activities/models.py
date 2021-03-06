@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit_api.models import FitbitAccount
@@ -25,7 +24,7 @@ class FitbitActivity(models.Model):
 
     average_heart_rate = models.IntegerField(null=True)
 
-    payload = JSONField(null=True, blank=True)
+    payload = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -186,7 +185,7 @@ class FitbitDailyUnprocessedData(models.Model):
     category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 
-    payload = JSONField()
+    payload = models.JSONField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

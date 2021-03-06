@@ -1,9 +1,8 @@
 import json
 import uuid
-from django.db import models
 
+from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 
 class Device(models.Model):
 
@@ -66,7 +65,7 @@ class Message(models.Model):
     recipient = models.ForeignKey(User, on_delete = models.CASCADE)
     device = models.ForeignKey(Device, null=True, on_delete = models.CASCADE)
 
-    data = JSONField(null=True)
+    data = models.JSONField(null=True)
     content = models.TextField(null=True)
     title = models.TextField(max_length=150, null=True)
     body = models.TextField(max_length=355, null=True)

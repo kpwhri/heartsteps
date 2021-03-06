@@ -1,7 +1,6 @@
 import uuid, pytz, math
 from datetime import datetime, timedelta
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 
 class FitbitAccount(models.Model):
@@ -144,7 +143,7 @@ class FitbitSubscription(models.Model):
 
 class FitbitUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-    payload = JSONField()
+    payload = models.JSONField()
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -176,7 +175,7 @@ class FitbitSubscriptionUpdate(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     update = models.ForeignKey(FitbitUpdate, null=True, on_delete = models.CASCADE)
     subscription = models.ForeignKey(FitbitSubscription, on_delete = models.CASCADE)
-    payload = JSONField()
+    payload = models.JSONField()
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
