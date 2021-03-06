@@ -142,9 +142,11 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
             username = 'test'
         )
 
-        activity_survey = ActivitySurvey.objects.get()
-        self.assertEqual(activity_survey.user.username, 'test')
-        self.assertEqual(activity_survey.fitbit_activity.id, fitbit_activity.id)
+        decision = Decision.objects.get()
+        self.assertEqual(decision.user.username, 'test')
+        self.assertTrue(decision.treated)
+        self.assertEqual(decision.fitbit_activity.id, fitbit_activity.id)
+        self.assertIsNotNone(decision.activity_survey)
 
     def test_does_not_create_second_survey(self):
         fitbit_activity = self.create_fitbit_activity()

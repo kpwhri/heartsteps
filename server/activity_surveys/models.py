@@ -36,9 +36,11 @@ class Decision(models.Model):
         on_delete = models.SET_NULL,
         related_name = '+'
     )
-    activity_survey_id = models.CharField(
-        max_length = 50,
-        null = True
+    activity_survey = models.ForeignKey(
+        'activity_surveys.ActivitySurvey',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
     )
 
     created = models.DateTimeField(auto_now_add=True)

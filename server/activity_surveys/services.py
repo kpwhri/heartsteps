@@ -62,7 +62,7 @@ class ActivitySurveyService:
             fitbit_activity = fitbit_activity
         )
         if decision:
-            decision.activity_survey_id = activity_survey.uuid
+            decision.activity_survey = activity_survey
             decision.fitbit_activity = fitbit_activity
             decision.save()
         activity_survey.reset_questions()
