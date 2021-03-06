@@ -13,6 +13,7 @@ from push_messages.models import Device
 from push_messages.services import PushMessageService
 
 from .models import Configuration
+from .models import Decision
 from .models import ActivitySurvey
 from .models import User
 from .tasks import randomize_activity_survey
@@ -173,6 +174,9 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         )
 
         self.assertEqual(ActivitySurvey.objects.count(), 0)
+        decision = Decision.objects.get(user = self.user)
+        self.assertFalse(decision.treated)
+        self.assertEqual(decision.treatment_probability, 0)
 
     def test_sends_message_with_survey_to_participant(self):
         fitbit_activity = self.create_fitbit_activity()        
@@ -200,6 +204,9 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         )
 
         self.send_notification.assert_not_called()
+        decision = Decision.objects.get(user = self.user)
+        self.assertFalse(decision.treated)
+        self.assertEqual(decision.treatment_probability, 0)
 
     def test_does_not_create_survey_if_not_randomized(self):
         self.random.return_value = 1

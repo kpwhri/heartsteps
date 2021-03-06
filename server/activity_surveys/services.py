@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+from django.utils import timezone
+
 from push_messages.services import PushMessageService
 from surveys.serializers import SurveySerializer
 
@@ -38,6 +42,11 @@ class ActivitySurveyService:
             user = self.user,
             treatment_probability = treatment_probability
         )
+        if not self.configuration.enabled:
+            decision.treatment_probability = 0
+        hour_ago = timezone.now() - timedelta(minutes=60)
+        if fitbit_activity and fitbit_activity.end_time < hour_ago:
+            decision.treatment_probability = 0
         decision.save()
         if decision.treated:
             survey = self.create_survey(
@@ -52,6 +61,10 @@ class ActivitySurveyService:
             decision = decision,
             fitbit_activity = fitbit_activity
         )
+        if decision:
+            decision.activity_survey_id = activity_survey.uuid
+            decision.fitbit_activity = fitbit_activity
+            decision.save()
         activity_survey.reset_questions()
         return activity_survey
 

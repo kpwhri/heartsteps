@@ -30,6 +30,17 @@ class Decision(models.Model):
     treated = models.BooleanField()
     treatment_probability = models.FloatField()
 
+    fitbit_activity = models.ForeignKey(
+        FitbitActivity,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+    activity_survey_id = models.CharField(
+        max_length = 50,
+        null = True
+    )
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
