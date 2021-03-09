@@ -11,6 +11,11 @@ app = Celery('heartsteps')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
+# This will prevent celery's backend clean up from running
+# which will make all task results persist in the database
+# https://docs.celeryproject.org/en/latest/userguide/configuration.html#result-expires
+app.conf.result_expires = None
+
 # This should make celery workers only reserve a single task
 # preventing message sending tasks from getting stuck behind
 # longer tasks, like nightly updates.
