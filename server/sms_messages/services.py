@@ -29,7 +29,7 @@ class SMSService:
         
     def send(self, body):
         if not self.__contact.enabled:
-            raise ContactNotEnabled('Contact not enabled')
+            raise SMSService.ContactNotEnabled('Contact not enabled')
         message = Message.objects.create(
             recipient = self.__contact.number,
             sender = self.__client.phone_number,
