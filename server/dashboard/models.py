@@ -805,19 +805,28 @@ class DashboardParticipant(Participant):
         return last_decision
 
     @property
-    def last_answered_activity_survey(self):
-        if not hasattr(self, '_last_answered_activity_survey'):
-            self._last_answered_activity_survey = self.get_last_answered_activity_survey()
+    def last_activity_survey(self):
+        if not hasattr(self, '_last_activity_survey'):
+            self._last_activity_survey = self.get_last_activity_survey()
         return self._last_activity_survey
 
-    def get_last_answered_activity_survey(self):
+    @property
+    def last_answered_activity_survey(self):
+        if not hasattr(self, '_last_answered_activity_survey'):
+            self._last_answered_activity_survey = self.get_last_activity_survey(answered=True)
+        return self._last_activity_survey
+
+    def get_last_activity_survey(self, answered=None):
         if not self.user:
             return None
-        last_survey = ActivitySurvey.objects.filter(
+        query = ActivitySurvey.objects.filter(
             user = self.user
-        ) \
-        .order_by('fitbit_activity__start_time') \
-        .last()
+        )
+        if answered is not None:
+            query = query.filter(
+                answered = answered
+            )
+        last_survey = query.order_by('created').last()
         if not last_survey:
             return None
         day_service = DayService(user = self.user)
