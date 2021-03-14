@@ -732,21 +732,6 @@ class DashboardParticipant(Participant):
             self._activity_survey_configuration = self.get_activity_survey_configuration()
         return self._activity_survey_configuration
 
-    @property
-    def activity_surveys_enabled(self):
-        if self.activity_survey_configuration and self.activity_survey_configuration.enabled:
-            return True
-        else:
-            return False
-
-    @property
-    def activity_survey_treatment_probability(self):
-        if self.activity_survey_configuration:
-            if not self.activity_surveys_enabled:
-                return 0
-            return self.activity_survey_configuration.treatment_probability
-        return 0
-
     def get_activity_survey_configuration(self):
         if self.user:
             try:
@@ -783,58 +768,6 @@ class DashboardParticipant(Participant):
         .order_by('-created') \
         .all()
         return notifications
-
-    def last_activity_survey_decision(self):
-        if not hasattr(self, '_last_activity_survey_decision'):
-            self._last_activity_survey_decision = self.get_last_activity_survey_decision()
-        return self._last_activity_survey_decision
-
-    def get_last_activity_survey_decision(self):
-        if not self.user:
-            return None
-        last_decision = ActivitySurveyDecision.objects.filter(
-            user = self.user
-        ) \
-        .order_by('created') \
-        .last()
-        if not last_decision:
-            return None
-        day_service = DayService(user = self.user)
-        tz = day_service.get_timezone_at(last_decision.created)
-        last_decision.created = last_decision.created.astimezone(tz)
-        return last_decision
-
-    @property
-    def last_activity_survey(self):
-        if not hasattr(self, '_last_activity_survey'):
-            self._last_activity_survey = self.get_last_activity_survey()
-        return self._last_activity_survey
-
-    @property
-    def last_answered_activity_survey(self):
-        if not hasattr(self, '_last_answered_activity_survey'):
-            self._last_answered_activity_survey = self.get_last_activity_survey(answered=True)
-        return self._last_activity_survey
-
-    def get_last_activity_survey(self, answered=None):
-        if not self.user:
-            return None
-        query = ActivitySurvey.objects.filter(
-            user = self.user
-        )
-        if answered is not None:
-            query = query.filter(
-                answered = answered
-            )
-        last_survey = query.order_by('created').last()
-        if not last_survey:
-            return None
-        day_service = DayService(user = self.user)
-        tz = day_service.get_timezone_at(last_survey.updated)
-        last_survey.updated = last_survey.updated.astimezone(tz)
-        if last_survey.fitbit_activity:
-            last_survey.fitbit_activity.start_time = last_survey.fitbit_activity.start_time.astimezone(tz)
-        return last_survey
 
     @property
     def walking_suggestion_survey_configuration(self):

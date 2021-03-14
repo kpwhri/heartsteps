@@ -36,44 +36,67 @@
             </td>
             <td>
                 <dl>
-                    <dt>Last Activity Survey Randomization</dt>
-                    {% if participant.last_activity_survey_decision %}
-                    {% with activity=participant.last_activity_survey_decision.fitbit_activity %}
-                    <dd>{{activity.type}} at {{activity.start_time|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    <dt>Activity Survey Status</dt>
+                    {% with configuration=participant.activity_survey_configuration %}
+                    {% if configuration %}
+                    {% if configuration.enabled %}
+                    <dd>Enabled</dd>
+                    {% else %}
+                    <dd>Disabled</dd>
+                    {% endif %}
+                    {% else %}
+                    <dd>Not configured</dd>
+                    {% endif %}
                     {% endwith %}
-                    {% if participant.last_activity_survey_decision.treated %}
-                    <dd>Treated ({{participant.last_activity_survey_decision.treatment_probability}})</dd>
+
+                    <dt>Last Activity Survey Randomization</dt>
+                    {% with last_decision=participant.activity_survey_configuration.last_decision %}
+                    {% if last_decision %}
+                    {% if last_decision.treated %}
+                    <dd>Treated ({{last_decision.treatment_probability}})</dd>
                     {% else %}
-                    <dd>Not treated ({{participant.last_activity_survey_decision.treatment_probability}})</dd>
+                    <dd>Not treated ({{last_decision.treatment_probability}})</dd>
                     {% endif %}
+
+                    {% with activity=last_decision.fitbit_activity %}
+                    {% if activity %}
+                    <dd>
+                        {{activity.type}} at {{activity.start_time|date:"SHORT_DATETIME_FORMAT"}}
+                    </dd>
                     {% else %}
-                    <dd class="error">No activity survey randomizations</dd>
+                    <dd class="is-error">No activity</dd>
                     {% endif %}
+                    {% endwith %}
+
+                    {% else %}
+                    <dd class="is-error">No activity survey randomizations</dd>
+                    {% endif %}
+                    {% endwith %}
 
                     <dt>Last Activity Survey</dt>
-                    {% with survey=participant.last_activity_survey %}
-                    {% if survey %}
-                    <dd>Survey notification set on ...</dd>
-                    {% if survey.is_answered %}
-                    <dd>Answered on {{participant.last_activity_survey.updated|date:"SHORT_DATETIME_FORMAT"}}</dd>
-                    {% else %}
-                    <dd>Not answered</dd>
-                    {% endif %}
-
-                    {% if not survey.is_answered and participant.last_answered_activity_survey %}
-                    {% with answered_survey=participant.last_answered_activity_survey %}
-                    <dd>Activity survey answered on {{answered_survey.updated}}</dd>
-                    {% endwith %}
-                    {% endif %}
-
-                    {% if not participant.last_answered_activity_survey %}
-                    <dd>No answered activity surveys</dd>
-                    {% endif %}
-
-                    {% else %}
+                    {% with survey=participant.activity_survey_configuration.last_survey %}
+                    {% if not survey %}
                     <dd>No activity surveys</dd>
                     {% endif %}
+
+                    {% if survey %}
+                    <dd>Created on {{survey.created|date}} at {{survey.created|time}}</dd>
+                    {% if survey.is_answered %}
+                    <dd>Answered on {{survey.answered_at|date}} at {{survey.answered_at|time}}</dd>
+                    {% endif %}
+
+                    {% endif %}
                     {% endwith %}
+
+                    {% if not participant.activity_survey_configuration.last_survey.is_answered %}
+                    {% if participant.activity_survey_configuration.last_answered_survey %}
+                    {% with survey=participant.activity_survey_configuration.last_answered_survey %}
+                    <dd>Last answered survey on {{survey.answered_at|date}} at {{survey.answered_at|time}}</dd>
+                    {% endwith %}
+                    {% else %}
+                    <dd class="is-error">No answered surveys</dd>
+                    {% endif %}
+                    {% endif %}
                 </dl>
             </td>
             <td>

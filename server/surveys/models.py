@@ -90,6 +90,10 @@ class Survey(models.Model):
         return str(self.uuid)
 
     @property
+    def answered_at(self):
+        return self.updated
+
+    @property
     def questions(self):
         questions = self.surveyquestion_set.order_by('order').all()
         return list(questions)

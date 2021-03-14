@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
+from days.services import DayService
 from fitbit_activities.models import FitbitActivity
 from surveys.models import Question
 from surveys.models import Survey
@@ -19,6 +20,52 @@ class Configuration(models.Model):
     )
     enabled = models.BooleanField(default = True)
     treatment_probability = models.FloatField(null=True)
+
+    @property
+    def last_decision(self):
+        if not hasattr(self, '_last_decision'):
+            self._last_decision = self.get_last_decision()
+        return self._last_decision
+
+    @property
+    def last_survey(self):
+        if not hasattr(self, '_last_survey'):
+            self._last_survey = self.get_last_survey()
+        return self._last_survey
+
+    @property
+    def last_answered_survey(self):
+        if not hasattr(self, '_last_answered_survey'):
+            self._last_answered_survey = self.get_last_answered_survey()
+        return self._last_answered_survey
+
+    def get_last_decision(self):
+        last_decision = Decision.objects.filter(
+            user = self.user
+        ) \
+        .order_by('created') \
+        .last()
+        if not last_decision:
+            return None
+        day_service = DayService(user = self.user)
+        tz = day_service.get_timezone_at(last_decision.created)
+        last_decision.created = last_decision.created.astimezone(tz)
+        return last_decision
+
+    def get_last_survey(self):
+        activity_survey = ActivitySurvey.objects.filter(
+            user = self.user
+        ).order_by('created') \
+        .last()
+        return activity_survey
+
+    def get_last_answered_survey(self):
+        activity_survey = ActivitySurvey.objects.filter(
+            user = self.user,
+            answered = True
+        ).order_by('created') \
+        .last()
+        return activity_survey
 
 class Decision(models.Model):
     user = models.ForeignKey(
