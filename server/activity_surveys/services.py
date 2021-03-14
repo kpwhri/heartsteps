@@ -47,13 +47,15 @@ class ActivitySurveyService:
         hour_ago = timezone.now() - timedelta(minutes=60)
         if fitbit_activity and fitbit_activity.end_time < hour_ago:
             decision.treatment_probability = 0
+        decision.randomize()
         decision.save()
         if decision.treated:
-            survey = self.create_survey(
+            decision.survey = self.create_survey(
                 decision = decision,
                 fitbit_activity = fitbit_activity
             )
-            self.send_notification(survey)   
+            decision.notification = self.send_notification(decision.survey)
+        decision.save()
 
     def create_survey(self, decision=None, fitbit_activity=None):
         activity_survey = ActivitySurvey.objects.create(

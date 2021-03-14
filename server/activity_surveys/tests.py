@@ -9,7 +9,7 @@ from fitbit_activities.models import FitbitActivity
 from fitbit_activities.models import FitbitActivityType
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
-from push_messages.models import Device
+from push_messages.models import Device, Message as PushMessage
 from push_messages.services import PushMessageService
 
 from .models import Configuration
@@ -118,7 +118,7 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
     def setUp(self):
         super().setUp()
 
-        Device.objects.create(
+        device = Device.objects.create(
             user = self.user,
             token = '12345',
             type = Device.ONESIGNAL,
@@ -128,6 +128,11 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         send_notification_patch = patch.object(PushMessageService, 'send_notification')
         self.addCleanup(send_notification_patch.stop)
         self.send_notification = send_notification_patch.start()
+        self.send_notification.return_value = PushMessage.objects.create(
+            message_type = PushMessage.NOTIFICATION,
+            recipient = self.user,
+            device = device
+        )
 
         randomize_patch = patch.object(random, 'random')
         self.addCleanup(randomize_patch.stop)

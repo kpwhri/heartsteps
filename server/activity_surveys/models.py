@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from days.services import DayService
 from fitbit_activities.models import FitbitActivity
+from push_messages.models import Message
 from surveys.models import Question
 from surveys.models import Survey
 
@@ -85,6 +86,12 @@ class Decision(models.Model):
     )
     activity_survey = models.ForeignKey(
         'activity_surveys.ActivitySurvey',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+    notification = models.ForeignKey(
+        Message,
         null = True,
         on_delete = models.SET_NULL,
         related_name = '+'
