@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
+from days.models import LocalizeTimezoneQuerySet
+
 User = get_user_model()
 
 class Question(models.Model):
@@ -55,6 +57,13 @@ class Answer(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+class SurveyQuerySet(LocalizeTimezoneQuerySet):
+    
+    def _fetch_all(self):
+        super()._fetch_all()
+        self.localize_results_attribute_timezone('created')
+        self.localize_results_attribute_timezone('updated')
+
 class Survey(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
@@ -66,6 +75,8 @@ class Survey(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    objects = SurveyQuerySet.as_manager()
 
     class QuestionDoesNotExist(RuntimeError):
         pass

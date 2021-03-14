@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
 from daily_tasks.models import DailyTask
+from days.models import LocalizeTimezoneQuerySet
 from days.services import DayService
 from push_messages.services import PushMessageService
 from surveys.models import Question
@@ -194,7 +195,12 @@ class Configuration(models.Model):
         for daily_task in daily_tasks:
             daily_task.delete()
         
+class DecisionQuerySet(LocalizeTimezoneQuerySet):
 
+    def _fetch_all(self):
+        super()._fetch_all()
+        self.localize_results_attribute_timezone('created')
+        self.localize_results_attribute_timezone('updated')
 
 class Decision(models.Model):
     user = models.ForeignKey(
@@ -214,11 +220,16 @@ class Decision(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    objects = DecisionQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         if self.treated is None:
             self.randomize()
         super().save(*args, **kwargs)
         
+    @property
+    def randomized_at(self):
+        return self.created
 
     def randomize(self):
         if self.treatment_probability is None:

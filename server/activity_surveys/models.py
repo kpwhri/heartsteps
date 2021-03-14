@@ -1,10 +1,14 @@
+from datetime import datetime
 import random
+import pytz
 
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
+from days.models import Day
+from days.models import LocalizeTimezoneQuerySet
 from days.services import DayService
 from fitbit_activities.models import FitbitActivity
 from push_messages.models import Message
@@ -46,11 +50,6 @@ class Configuration(models.Model):
         ) \
         .order_by('created') \
         .last()
-        if not last_decision:
-            return None
-        day_service = DayService(user = self.user)
-        tz = day_service.get_timezone_at(last_decision.created)
-        last_decision.created = last_decision.created.astimezone(tz)
         return last_decision
 
     def get_last_survey(self):
@@ -67,6 +66,12 @@ class Configuration(models.Model):
         ).order_by('created') \
         .last()
         return activity_survey
+
+class DecisionQuerySet(LocalizeTimezoneQuerySet):
+    
+    def _fetch_all(self):
+        super()._fetch_all()
+        self.localize_results_attribute_timezone('created')
 
 class Decision(models.Model):
     user = models.ForeignKey(
@@ -100,6 +105,8 @@ class Decision(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    objects = DecisionQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         if 'treatment_probability' in kwargs:
             self.treatment_probability = kwargs['treatment_probability']
@@ -108,6 +115,10 @@ class Decision(models.Model):
         if self.treated is None:
             self.randomize()
         super().save(*args, **kwargs)
+
+    @property
+    def randomized_at(self):
+        return self.created
         
 
     def randomize(self, treatment_probability=None):

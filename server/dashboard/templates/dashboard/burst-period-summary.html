@@ -52,11 +52,15 @@
                     <dt>Last Activity Survey Randomization</dt>
                     {% with last_decision=participant.activity_survey_configuration.last_decision %}
                     {% if last_decision %}
-                    {% if last_decision.treated %}
-                    <dd>Treated ({{last_decision.treatment_probability}})</dd>
-                    {% else %}
-                    <dd>Not treated ({{last_decision.treatment_probability}})</dd>
-                    {% endif %}
+                    <dd>
+                        {% if last_decision.treated %}
+                        <em>Treated</em>
+                        {% else %}
+                        <em>Not treated</em>
+                        {% endif %}
+                        <em>({{last_decision.treatment_probability}})</em>
+                        on {{last_decision.randomized_at|date}} at {{last_decision.randomized_at|time}}
+                    </dd>
 
                     {% with activity=last_decision.fitbit_activity %}
                     {% if activity %}
@@ -111,10 +115,17 @@
                     {% endif %}
                     <dt>Last Randomization</dt>
                     {% if configuration.last_decision %}
+                    {% with last_decision=configuration.last_decision %}
                     <dd>
-                        {% if configuration.last_decision.treated %}Treated{% else %}Not Treated{% endif %}
-                        ({{configuration.last_decision.treatment_probability}})
+                        {% if last_decision.treated %}
+                        <em>Treated</em>
+                        {% else %}
+                        <em>Not treated</em>
+                        {% endif %}
+                        <em>({{last_decision.treatment_probability}})</em>
+                        on {{last_decision.randomized_at|date}} at {{last_decision.randomized_at|time}}
                     </dd>
+                    {% endwith %}
                     {% else %}
                     <dd>No randomization decisions made</dd>
                     {% endif %}
