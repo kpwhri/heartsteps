@@ -690,16 +690,18 @@ class ParticipantView(CohortView):
             }
         ]
 
+        _config = self.participant.activity_survey_configuration
         context['configurations'].append({
             'title': 'Activity Surveys',
-            'enabled': self.participant.activity_survey_configuration,
-            'treatment_probability': self.participant.activity_survey_treatment_probability
+            'enabled': _config.enabled if _config else None,
+            'treatment_probability': _config.treatment_probability if _config else None
         })
 
+        _config = self.participant.walking_suggestion_survey_configuration
         context['configurations'].append({
             'title': 'Walking Suggestion Surveys',
-            'enabled': self.participant.walking_suggestion_survey_configuration.enabled,
-            'treatment_probability': self.participant.walking_suggestion_survey_configuration.treatment_probability
+            'enabled': _config.enabled if _config else None,
+            'treatment_probability': _config.treatment_probability if _config else None
         })
 
         burst_period_actions = []
