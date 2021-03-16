@@ -41,6 +41,7 @@
                     {% if configuration %}
                     {% if configuration.enabled %}
                     <dd>Enabled</dd>
+                    <dd>Treatment Probability {{configuration.treatment_probability}}</dd>
                     {% else %}
                     <dd>Disabled</dd>
                     {% endif %}
@@ -101,6 +102,25 @@
                     <dd class="is-error">No answered surveys</dd>
                     {% endif %}
                     {% endif %}
+
+                    {% with summary=participant.activity_survey_configuration.summary_of_last_24_hours %}
+                    {% if summary %}
+                    <dt>Surveys in Last 24 Hours</dt>
+                    <dd>{{summary.randomized}} surveys randomized</dd>
+                    <dd>{{summary.sent}} surveys sent</dd>
+                    <dd>{{summary.answered}} surveys answered</dd>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with summary=participant.activity_survey_configuration.summary_of_last_7_days %}
+                    {% if summary %}
+                    <dt>Surveys in Last 7 Days</dt>
+                    <dd>{{summary.randomized}} surveys randomized</dd>
+                    <dd>Sent {{summary.sent}} surveys sent</dd>
+                    <dd>Sent {{summary.answered}} surveys answered</dd>
+                    {% endif %}
+                    {% endwith %}
+
                 </dl>
             </td>
             <td>
@@ -110,6 +130,7 @@
                     <dt>Status</dt>
                     {% if configuration.enabled %}
                     <dd>Enabled</dd>
+                    <dd>Treatment Probability {{configuration.treatment_probability}}</dd>
                     {% else %}
                     <dd>Disabled</dd>
                     {% endif %}
@@ -142,6 +163,13 @@
                     {% if configuration.last_answered_survey_datetime and configuration.last_answered_survey_datetime != configuration.last_survey_answered_datetime %}
                     <dd>Last answered survey at {{configuration.last_answered_survey_datetime|date:"SHORT_DATETIME_FORMAT"}}</dd>
                     {% endif %}
+
+                    <dt>Surveys in Last 24 Hours</dt>
+                    <dd>Sent {{configuration.summary_of_last_24_hours.sent}} surveys sent</dd>
+                    <dd>Sent {{configuration.summary_of_last_24_hours.answered}} surveys answered</dd>
+                    <dt>Surveys in Last 7 days</dt>
+                    <dd>Sent {{configuration.summary_of_last_7_days.sent}} surveys sent</dd>
+                    <dd>Sent {{configuration.summary_of_last_7_days.answered}} surveys answered</dd>
                 </dl>
                 {% endwith %}
                 {% endif %}

@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
 
 import random
 
@@ -71,6 +74,40 @@ class Configuration(models.Model):
         if not hasattr(self, '_last_decision'):
             self._last_decision = self.get_last_decision()
         return self._last_decision
+
+    @property
+    def summary_of_last_24_hours(self):
+        if not hasattr(self, '_summary_of_last_24_hours'):
+            self._summary_of_last_24_hours = self.get_summary_of_last_24_hours()
+        return self._summary_of_last_24_hours
+
+    @property
+    def summary_of_last_7_days(self):
+        if not hasattr(self, '_summary_of_last_7_days'):
+            self._summary_of_last_7_days = self.get_summary_of_last_7_days()
+        return self._summary_of_last_7_days
+
+    def get_summary_of_last_24_hours(self):
+        surveys = WalkingSuggestionSurvey.objects.filter(
+            user = self.user,
+            created__gte = timezone.now() - timedelta(days=1)
+        ).all()
+
+        return Configuration.summarize_walking_suggestion_surveys(surveys)
+
+    def get_summary_of_last_7_days(self):
+        surveys = WalkingSuggestionSurvey.objects.filter(
+            user = self.user,
+            created__gte = timezone.now() - timedelta(days=7)
+        ).all()
+
+        return Configuration.summarize_walking_suggestion_surveys(surveys)
+
+    def summarize_walking_suggestion_surveys(surveys):
+        return {
+            'sent': sum([1 for survey in surveys]),
+            'answered': sum([1 for survey in surveys if survey.answered])
+        }
 
     def get_last_decision(self):
         return Decision.objects.filter(
