@@ -19,6 +19,4 @@ def randomize_walking_suggestion_survey(username):
     except Configuration.DoesNotExist:
         return 'Walking suggestion survey configuration for %s does not exist' % (username)
 
-    survey = configuration.randomize_survey()
-    if survey:
-        survey.send_notification()
+    configuration.randomize_survey()

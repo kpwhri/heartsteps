@@ -13,6 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 from daily_tasks.models import DailyTask
 from days.models import LocalizeTimezoneQuerySet
 from days.services import DayService
+from push_messages.models import Message
 from push_messages.services import PushMessageService
 from surveys.models import Question
 from surveys.models import Survey
@@ -165,16 +166,23 @@ class Configuration(models.Model):
                 suggestion_time_category = suggestion_time_category,
                 user = self.user
             ).count()
-            if number_of_similar_decisions < 1:
+            if number_of_similar_decisions == 0:
                 decision = Decision(
                     date = current_date,
                     suggestion_time_category = suggestion_time_category,
                     treatment_probability = self.treatment_probability,
                     user = self.user
                 )
-                decision.save()
+                decision.randomize()
                 if decision.treated:
-                    return self.create_survey()
+                    survey = self.create_survey()
+                    decision.survey = survey
+                    
+                    try:
+                        decision.notification = survey.send_notification()
+                    except WalkingSuggestionSurvey.NotificationSendError:
+                        pass
+                decision.save()
         return None
     
     def create_survey(self):
@@ -253,6 +261,19 @@ class Decision(models.Model):
 
     treated = models.BooleanField()
     treatment_probability = models.FloatField()
+
+    survey = models.ForeignKey(
+        'WalkingSuggestionSurvey',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+    notification = models.ForeignKey(
+        Message,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

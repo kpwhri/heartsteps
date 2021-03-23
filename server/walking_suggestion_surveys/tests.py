@@ -7,6 +7,8 @@ from unittest.mock import patch
 from django.test import TestCase
 
 from days.services import DayService
+from push_messages.models import Device
+from push_messages.models import Message
 from push_messages.services import PushMessageService
 from walking_suggestion_times.signals import suggestion_times_updated
 
@@ -140,14 +142,26 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         self.current_date = current_date_patch.start()
         self.current_date.return_value = date.today()
 
+        Device.objects.create(
+            user = self.user,
+            active = True
+        )
+
+        test_notification = Message()
+        test_notification.message_type = Message.NOTIFICATION
+        test_notification.recipient = self.user
+        test_notification.save()
+        self.test_notification = test_notification
+
         send_notification_patch = patch.object(PushMessageService, 'send_notification')
         self.addCleanup(send_notification_patch.stop)
-        send_notification_patch.start()
+        self.send_notification_patch = send_notification_patch.start()
+        self.send_notification_patch.return_value = self.test_notification
 
         random_patch = patch.object(random, 'random')
         self.addCleanup(random_patch.stop)
         self.random = random_patch.start()
-        self.random.return_value = 1
+        self.random.return_value = 0.1
 
     def test_creates_walking_suggestion_survey_decision_lunch(self):
         self.current_date.return_value = date(2020,11,8)
@@ -158,6 +172,8 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         decision = Decision.objects.get(user=self.user)
         self.assertEqual(decision.treatment_probability, self.configuration.treatment_probability)
         self.assertEqual(decision.suggestion_time_category, SuggestionTime.LUNCH)
+        self.assertIsNotNone(decision.notification)
+        self.assertEqual(decision.notification.id, self.test_notification.id)
 
     def test_creates_walking_suggestion_survey_decision_postdinner(self):
         self.current_date.return_value = date(2020,11,8)
@@ -168,6 +184,7 @@ class TestWalkingSuggestionSurveyTask(TestBase):
         decision = Decision.objects.get(user=self.user)
         self.assertEqual(decision.treatment_probability, self.configuration.treatment_probability)
         self.assertEqual(decision.suggestion_time_category, SuggestionTime.POSTDINNER)
+        self.assertEqual(decision.notification.id, self.test_notification.id)
 
     def test_does_not_create_walking_suggestion_survey(self):
         self.current_date.return_value = date(2020,11,8)
