@@ -17,6 +17,7 @@ from push_messages.models import Message
 from push_messages.services import PushMessageService
 from surveys.models import Question
 from surveys.models import Survey
+from surveys.models import SurveyQuerySet
 from surveys.serializers import SurveySerializer
 from walking_suggestion_times.models import SuggestionTime
 
@@ -242,10 +243,34 @@ class Configuration(models.Model):
         
 class DecisionQuerySet(LocalizeTimezoneQuerySet):
 
+    _preload_surveys = False
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone._preload_surveys = self._preload_surveys
+        return clone
+
     def _fetch_all(self):
         super()._fetch_all()
         self.localize_results_attribute_timezone('created')
-        self.localize_results_attribute_timezone('updated')
+        if self._result_cache and self._preload_surveys:
+            self._load_surveys()
+
+    def preload_surveys(self):
+        self._preload_surveys = True
+        return self
+
+    def _load_surveys(self):
+        survey_ids = [decision.survey_id for decision in self._result_cache if decision.survey_id]
+        surveys = WalkingSuggestionSurvey.objects.filter(uuid__in=survey_ids) \
+        .preload_answers() \
+        .all()
+        survey_by_id = {}
+        for survey in surveys:
+            survey_by_id[str(survey.uuid)] = survey
+        for decision in self._result_cache:
+            if decision.survey_id and decision.survey_id in survey_by_id:
+                decision.survey = survey_by_id[str(decision.survey_id)]
 
 class Decision(models.Model):
     user = models.ForeignKey(

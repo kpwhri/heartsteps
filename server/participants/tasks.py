@@ -34,6 +34,7 @@ from locations.tasks import update_location_categories
 from morning_messages.tasks import export_morning_message_survey
 from morning_messages.tasks import export_morning_messages
 from push_messages.models import Message as PushMessage
+from walking_suggestion_surveys.tasks import export_walking_suggestion_surveys
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
@@ -420,7 +421,9 @@ def export_user_data(username, log_export=True):
     export_file(export_walking_suggestion_service_requests,
         filename = 'walking-suggestion-service-requests.csv'
     )
-
+    export_file(export_walking_suggestion_surveys,
+        filename = 'walking-suggestion-surveys.csv'
+    )
     export_file(export_user_messages,
         filename = 'messages.csv'
     )
