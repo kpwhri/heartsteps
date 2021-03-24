@@ -59,10 +59,52 @@ class Answer(models.Model):
 
 class SurveyQuerySet(LocalizeTimezoneQuerySet):
     
+    _preload_answers = False
+    _answers_loaded = False
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone._preload_answers = self._preload_answers
+        clone._answers_loaded = self._answers_loaded
+        return clone
+
     def _fetch_all(self):
         super()._fetch_all()
         self.localize_results_attribute_timezone('created')
         self.localize_results_attribute_timezone('updated')
+
+        if self._result_cache and self._preload_answers and not self._answers_loaded:
+            self.load_answers()
+            self._answers_loaded = True
+
+    def preload_answers(self):
+        self._preload_answers = True
+        return self
+    
+    def load_answers(self):
+        survey_by_id = {}
+        for survey in self._result_cache:
+            survey_by_id[survey.id] = survey
+        questions = SurveyQuestion.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ).all()
+        for _question in questions:
+            survey = survey_by_id[_question.survey_id]
+            if not hasattr(survey, '_questions'):
+                setattr(survey,'_questions', [])
+            survey._questions.append(_question)
+        responses = SurveyResponse.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ) \
+        .exclude(answer = None) \
+        .prefetch_related('answer') \
+        .prefetch_related('question') \
+        .all()
+        for _response in responses:
+            survey = survey_by_id[_response.survey_id]
+            if not hasattr(survey, '_answers'):
+                setattr(survey,'_answers', {})
+            survey._answers[_response.question.name] = _response.answer
 
 class Survey(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)

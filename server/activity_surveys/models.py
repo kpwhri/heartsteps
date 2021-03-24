@@ -15,6 +15,8 @@ from fitbit_activities.models import FitbitActivity
 from push_messages.models import Message
 from surveys.models import Question
 from surveys.models import Survey
+from surveys.models import SurveyQuerySet
+
 
 User = get_user_model()
 
@@ -109,9 +111,34 @@ class Configuration(models.Model):
 
 class DecisionQuerySet(LocalizeTimezoneQuerySet):
     
+    _preload_surveys = False
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone._preload_surveys = self._preload_surveys
+        return clone
+
     def _fetch_all(self):
         super()._fetch_all()
         self.localize_results_attribute_timezone('created')
+        if self._result_cache and self._preload_surveys:
+            self._load_surveys()
+
+    def preload_activity_surveys(self):
+        self._preload_surveys = True
+        return self
+
+    def _load_surveys(self):
+        survey_ids = [decision.activity_survey_id for decision in self._result_cache if decision.activity_survey_id]
+        surveys = ActivitySurvey.objects.filter(uuid__in=survey_ids) \
+        .preload_answers() \
+        .all()
+        survey_by_id = {}
+        for survey in surveys:
+            survey_by_id[str(survey.uuid)] = survey
+        for decision in self._result_cache:
+            if decision.activity_survey_id and decision.activity_survey_id in survey_by_id:
+                decision.activity_survey = survey_by_id[str(decision.activity_survey_id)]
 
 class Decision(models.Model):
     user = models.ForeignKey(
@@ -195,4 +222,6 @@ class ActivitySurvey(Survey):
         on_delete = models.SET_NULL,
         related_name = '+'
     )
+
+    objects = SurveyQuerySet.as_manager()
 

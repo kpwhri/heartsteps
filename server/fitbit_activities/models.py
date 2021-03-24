@@ -14,6 +14,12 @@ class FitbitActivityType(models.Model):
     def __str__(self):
         return self.name
 
+class FitbitActivityManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset() \
+        .prefetch_related('type')
+
 class FitbitActivity(models.Model):
     account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     fitbit_id = models.CharField(max_length=50)
@@ -27,6 +33,8 @@ class FitbitActivity(models.Model):
     payload = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    objects = FitbitActivityManager()
 
     class Meta:
         ordering = ['start_time']

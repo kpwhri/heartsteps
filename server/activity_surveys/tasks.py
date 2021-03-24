@@ -1,3 +1,4 @@
+from os import path
 from celery import shared_task
 
 from push_messages.services import PushMessageService
@@ -6,6 +7,8 @@ from surveys.serializers import SurveySerializer
 from .models import Configuration
 from .models import ActivitySurvey
 from .models import FitbitActivity
+from .models import Decision
+from .resources import ActivitySurveyDecisionResource
 from .services import ActivitySurveyService 
 
 @shared_task
@@ -34,3 +37,30 @@ def randomize_activity_survey(fitbit_activity_id, username):
             fitbit_activity = fitbit_activity
         )
         return 'Randomized activity survey'
+
+def export_activity_surveys(username, directory='./', filename=None, start=None, end=None):
+    if not filename:
+        filename = '{username}.activity_surveys.csv'.format(
+            username = username
+        )
+    decision_query = Decision.objects.filter(
+        user__username = username
+    ) \
+    .preload_activity_surveys() \
+    .prefetch_related('user') \
+    .prefetch_related('notification') \
+    .prefetch_related('fitbit_activity')
+
+    if start:
+        decision_query = decision_query.filter(
+            created__gte = start
+        )
+    if end:
+        decision_query = decision_query.filter(
+            created__lte = end
+        )
+
+    dataset = ActivitySurveyDecisionResource().export(decision_query.all())
+    _file = open(path.join(directory, filename), 'w')
+    _file.write(dataset.csv)
+    _file.close()
