@@ -77,7 +77,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if self.request.user and not self.request.user.is_anonymous():
+        if self.request.user and not self.request.user.is_anonymous:
             admin_for_studies = Study.objects.filter(admins=self.request.user)
             self.admin_for_studies = list(admin_for_studies)
             if self.request.user.is_staff or self.admin_for_studies:
@@ -117,7 +117,7 @@ class DevSendNotificationView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if self.request.user and not self.request.user.is_anonymous():
+        if self.request.user and not self.request.user.is_anonymous:
             admin_for_studies = Study.objects.filter(admins=self.request.user)
             self.admin_for_studies = list(admin_for_studies)
             if self.request.user.is_staff or self.admin_for_studies:
