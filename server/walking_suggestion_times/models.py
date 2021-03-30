@@ -25,7 +25,7 @@ class SuggestionTime(models.Model):
         (POSTDINNER, 'Post dinner')
     ]
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     category = models.CharField(max_length=20, choices=CATEGORIES)
     
     hour = models.PositiveSmallIntegerField()

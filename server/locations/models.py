@@ -19,7 +19,10 @@ class Place(models.Model):
         (OTHER, 'Other')
     )
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+        )
     
     address = models.CharField(max_length=250, null=True, blank=True)
     latitude = models.FloatField()
@@ -46,7 +49,10 @@ class Place(models.Model):
         return "%s (%s)" % (self.user, self.type)
 
 class Location(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+        )
     latitude = models.FloatField()
     longitude = models.FloatField()
 

@@ -9,10 +9,11 @@ from fitbit_activities.models import FitbitActivity
 from fitbit_activities.models import FitbitActivityType
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
-from push_messages.models import Device
+from push_messages.models import Device, Message as PushMessage
 from push_messages.services import PushMessageService
 
 from .models import Configuration
+from .models import Decision
 from .models import ActivitySurvey
 from .models import User
 from .tasks import randomize_activity_survey
@@ -117,7 +118,7 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
     def setUp(self):
         super().setUp()
 
-        Device.objects.create(
+        device = Device.objects.create(
             user = self.user,
             token = '12345',
             type = Device.ONESIGNAL,
@@ -127,6 +128,11 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         send_notification_patch = patch.object(PushMessageService, 'send_notification')
         self.addCleanup(send_notification_patch.stop)
         self.send_notification = send_notification_patch.start()
+        self.send_notification.return_value = PushMessage.objects.create(
+            message_type = PushMessage.NOTIFICATION,
+            recipient = self.user,
+            device = device
+        )
 
         randomize_patch = patch.object(random, 'random')
         self.addCleanup(randomize_patch.stop)
@@ -141,9 +147,11 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
             username = 'test'
         )
 
-        activity_survey = ActivitySurvey.objects.get()
-        self.assertEqual(activity_survey.user.username, 'test')
-        self.assertEqual(activity_survey.fitbit_activity.id, fitbit_activity.id)
+        decision = Decision.objects.get()
+        self.assertEqual(decision.user.username, 'test')
+        self.assertTrue(decision.treated)
+        self.assertEqual(decision.fitbit_activity.id, fitbit_activity.id)
+        self.assertIsNotNone(decision.activity_survey)
 
     def test_does_not_create_second_survey(self):
         fitbit_activity = self.create_fitbit_activity()
@@ -173,6 +181,9 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         )
 
         self.assertEqual(ActivitySurvey.objects.count(), 0)
+        decision = Decision.objects.get(user = self.user)
+        self.assertFalse(decision.treated)
+        self.assertEqual(decision.treatment_probability, 0)
 
     def test_sends_message_with_survey_to_participant(self):
         fitbit_activity = self.create_fitbit_activity()        
@@ -200,6 +211,9 @@ class RandomizeSurveyForFitbitActivityTests(TestBase):
         )
 
         self.send_notification.assert_not_called()
+        decision = Decision.objects.get(user = self.user)
+        self.assertFalse(decision.treated)
+        self.assertEqual(decision.treatment_probability, 0)
 
     def test_does_not_create_survey_if_not_randomized(self):
         self.random.return_value = 1

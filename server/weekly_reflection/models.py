@@ -22,13 +22,13 @@ DAYS_OF_WEEK_NAMES = [
 DAYS_OF_WEEK_CHOICES = zip(DAYS_OF_WEEK, DAYS_OF_WEEK_NAMES)
 
 class ReflectionTime(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     day = models.CharField(max_length=15, choices=DAYS_OF_WEEK_CHOICES)
     time = models.CharField(max_length=15)
 
     active = models.BooleanField(default=True)
-    daily_task = models.ForeignKey(DailyTask, null=True)
+    daily_task = models.ForeignKey(DailyTask, null=True, on_delete = models.SET_NULL)
 
     def __str__(self):
         if self.active:

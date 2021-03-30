@@ -7,7 +7,7 @@ class AuthenticationSession(models.Model):
     state = models.CharField(max_length=50, null=True, blank=True)
     redirect = models.CharField(max_length=255, null=True)
     
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     disabled = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)

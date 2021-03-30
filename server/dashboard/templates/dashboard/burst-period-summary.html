@@ -1,6 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 {% load template_filters %}
+{% load tz %}
 
 {% block navigation %}
 <a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
@@ -8,25 +9,22 @@
 {% endblock %}
 
 {% block content %}
+{% localtime off %}
 {{availability}}
 <h2>Burst Periods for {{cohort.name}}</h2>
 
 <table class="table">
     <thead>
         <th>Participant</th>
-        <th>Burst Period</th>
+        <th>Activity Surveys</th>
+        <th>Walking Suggestion Surveys</th>
     </thead>
     <tbody>
         {% for participant in participants %}
         <tr>
             <td>
-                <a href="">{{participant.heartsteps_id}}</a>
+                <a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}">{{participant.heartsteps_id}}</a>
                 {% if participant.burst_period_configured %}
-                {% if participant.burst_period_configuration.daily_task %}
-                <p>Daily task last run at: {{participant.burst_period_configuration.daily_task.task.last_run_at}}</p>
-                {% else %}
-                <p>No daily task</p>
-                {% endif %}
                 {% if participant.burst_period_enabled %}
                 <p>Enabled</p>
                 {% else %}
@@ -35,32 +33,150 @@
                 {% else %}
                 <p>Not configured</p>
                 {% endif %}
-
             </td>
             <td>
                 <dl>
-                    {% if participant.previous_burst_periods %}
-                    <dt>Previous Burst Periods</dt>
-                    {% for burst_period in participant.previous_burst_periods %}
-                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
-                    {% endfor %}
+                    <dt>Activity Survey Status</dt>
+                    {% with configuration=participant.activity_survey_configuration %}
+                    {% if configuration %}
+                    {% if configuration.enabled %}
+                    <dd>Enabled</dd>
+                    <dd>Treatment Probability {{configuration.treatment_probability}}</dd>
+                    {% else %}
+                    <dd>Disabled</dd>
                     {% endif %}
-                    {% if participant.current_burst_period %}
-                    <dt>Current Burst Period</dt>
-                    <dd>{{participant.current_burst_period.start}} to {{participant.current_burst_period.end}}</dd>
+                    {% else %}
+                    <dd>Not configured</dd>
                     {% endif %}
-                    {% if participant.next_burst_periods %}
-                    <dt>Next Burst Period</dt>
-                    {% for burst_period in participant.next_burst_periods %}
-                    <dd>{{burst_period.start}} to {{burst_period.end}}</dd>
-                    {% endfor %}
-                    {% endif %}
-                </dl>
+                    {% endwith %}
 
+                    <dt>Last Activity Survey Randomization</dt>
+                    {% with last_decision=participant.activity_survey_configuration.last_decision %}
+                    {% if last_decision %}
+                    <dd>
+                        {% if last_decision.treated %}
+                        <em>Treated</em>
+                        {% else %}
+                        <em>Not treated</em>
+                        {% endif %}
+                        <em>({{last_decision.treatment_probability}})</em>
+                        on {{last_decision.randomized_at|date}} at {{last_decision.randomized_at|time}}
+                    </dd>
+
+                    {% with activity=last_decision.fitbit_activity %}
+                    {% if activity %}
+                    <dd>
+                        {{activity.type}} at {{activity.start_time|date:"SHORT_DATETIME_FORMAT"}}
+                    </dd>
+                    {% else %}
+                    <dd class="is-error">No activity</dd>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% else %}
+                    <dd class="is-error">No activity survey randomizations</dd>
+                    {% endif %}
+                    {% endwith %}
+
+                    <dt>Last Activity Survey</dt>
+                    {% with survey=participant.activity_survey_configuration.last_survey %}
+                    {% if not survey %}
+                    <dd>No activity surveys</dd>
+                    {% endif %}
+
+                    {% if survey %}
+                    <dd>Created on {{survey.created|date}} at {{survey.created|time}}</dd>
+                    {% if survey.is_answered %}
+                    <dd>Answered on {{survey.answered_at|date}} at {{survey.answered_at|time}}</dd>
+                    {% endif %}
+
+                    {% endif %}
+                    {% endwith %}
+
+                    {% if not participant.activity_survey_configuration.last_survey.is_answered %}
+                    {% if participant.activity_survey_configuration.last_answered_survey %}
+                    {% with survey=participant.activity_survey_configuration.last_answered_survey %}
+                    <dd>Last answered survey on {{survey.answered_at|date}} at {{survey.answered_at|time}}</dd>
+                    {% endwith %}
+                    {% else %}
+                    <dd class="is-error">No answered surveys</dd>
+                    {% endif %}
+                    {% endif %}
+
+                    {% with summary=participant.activity_survey_configuration.summary_of_last_24_hours %}
+                    {% if summary %}
+                    <dt>Surveys in Last 24 Hours</dt>
+                    <dd>{{summary.randomized}} surveys randomized</dd>
+                    <dd>{{summary.sent}} surveys sent</dd>
+                    <dd>{{summary.answered}} surveys answered</dd>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with summary=participant.activity_survey_configuration.summary_of_last_7_days %}
+                    {% if summary %}
+                    <dt>Surveys in Last 7 Days</dt>
+                    <dd>{{summary.randomized}} surveys randomized</dd>
+                    <dd>Sent {{summary.sent}} surveys sent</dd>
+                    <dd>Sent {{summary.answered}} surveys answered</dd>
+                    {% endif %}
+                    {% endwith %}
+
+                </dl>
+            </td>
+            <td>
+                {% if participant.walking_suggestion_survey_configuration %}
+                {% with configuration=participant.walking_suggestion_survey_configuration %}
+                <dl>
+                    <dt>Status</dt>
+                    {% if configuration.enabled %}
+                    <dd>Enabled</dd>
+                    <dd>Treatment Probability {{configuration.treatment_probability}}</dd>
+                    {% else %}
+                    <dd>Disabled</dd>
+                    {% endif %}
+                    <dt>Last Randomization</dt>
+                    {% if configuration.last_decision %}
+                    {% with last_decision=configuration.last_decision %}
+                    <dd>
+                        {% if last_decision.treated %}
+                        <em>Treated</em>
+                        {% else %}
+                        <em>Not treated</em>
+                        {% endif %}
+                        <em>({{last_decision.treatment_probability}})</em>
+                        on {{last_decision.randomized_at|date}} at {{last_decision.randomized_at|time}}
+                    </dd>
+                    {% endwith %}
+                    {% else %}
+                    <dd>No randomization decisions made</dd>
+                    {% endif %}
+                    <dt>Last Walking Suggestion Survey</dt>
+                    {% if configuration.last_survey %}
+                    {% if configuration.last_survey_answered_datetime %}
+                    <dd>Answered at {{configuration.last_survey_answered_datetime|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    {% else %}
+                    <dd>Not answered. Sent at {{configuration.last_survey_sent_datetime|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    {% endif %}
+                    {% else %}
+                    <dd>No walking suggestion surveys</dd>
+                    {% endif %}
+                    {% if configuration.last_answered_survey_datetime and configuration.last_answered_survey_datetime != configuration.last_survey_answered_datetime %}
+                    <dd>Last answered survey at {{configuration.last_answered_survey_datetime|date:"SHORT_DATETIME_FORMAT"}}</dd>
+                    {% endif %}
+
+                    <dt>Surveys in Last 24 Hours</dt>
+                    <dd>Sent {{configuration.summary_of_last_24_hours.sent}} surveys sent</dd>
+                    <dd>Sent {{configuration.summary_of_last_24_hours.answered}} surveys answered</dd>
+                    <dt>Surveys in Last 7 days</dt>
+                    <dd>Sent {{configuration.summary_of_last_7_days.sent}} surveys sent</dd>
+                    <dd>Sent {{configuration.summary_of_last_7_days.answered}} surveys answered</dd>
+                </dl>
+                {% endwith %}
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
+{% endlocaltime %}
 {% endblock %}

@@ -1,9 +1,8 @@
 import json
 import uuid
-from django.db import models
 
+from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 
 class Device(models.Model):
 
@@ -12,7 +11,7 @@ class Device(models.Model):
     ONESIGNAL = 'onesignal'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     token = models.CharField(max_length=255)
     type = models.CharField(max_length=10, null=True, blank=True)
@@ -63,10 +62,10 @@ class Message(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES)
 
-    recipient = models.ForeignKey(User)
-    device = models.ForeignKey(Device, null=True)
+    recipient = models.ForeignKey(User, on_delete = models.CASCADE)
+    device = models.ForeignKey(Device, null=True, on_delete = models.CASCADE)
 
-    data = JSONField(null=True)
+    data = models.JSONField(null=True)
     content = models.TextField(null=True)
     title = models.TextField(max_length=150, null=True)
     body = models.TextField(max_length=355, null=True)
@@ -133,6 +132,6 @@ class MessageReceipt(models.Model):
         (ENGAGED, 'Engaged')
     )
 
-    message = models.ForeignKey(Message)
+    message = models.ForeignKey(Message, on_delete = models.CASCADE)
     time = models.DateTimeField()
     type = models.CharField(max_length=20, choices=MESSAGE_RECEIPT_CHOICES)

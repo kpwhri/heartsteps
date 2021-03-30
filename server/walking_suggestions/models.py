@@ -18,7 +18,7 @@ from service_requests.models import ServiceRequest
 from walking_suggestion_times.models import SuggestionTime
 
 class Configuration(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     enabled = models.BooleanField(default=False)
 
     service_initialized_date = models.DateField(null=True)
@@ -218,7 +218,7 @@ class WalkingSuggestionDecision(Decision):
         return None
 
 class NightlyUpdate(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     day = models.DateField()
     updated = models.BooleanField(default=False)
 
@@ -233,7 +233,7 @@ class NightlyUpdate(models.Model):
         return self.day
 
 class PoolingServiceConfiguration(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     use_pooling = models.BooleanField(default=False)
 
     def __str__(self):

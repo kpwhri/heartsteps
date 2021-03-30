@@ -1,0 +1,35 @@
+{% extends 'dashboard/participant.html'%}
+
+{% block content %}
+<h2>Burst Period Configuration</h2>
+<form action="" method="POST" novalidate>
+    {% csrf_token %}
+    {% if burst_configuration %}
+    {% if burst_configuration.enabled %}
+    <p>Burst period configuration is enabled.</p>
+    <input type="submit" name="disable" value="Disable" />
+    {% else %}
+    <p>Burst period configuration is disabled.</p>
+    <input type="submit" name="enable" value="Enable" />
+    {% endif %}
+    {% if burst_configuration.daily_task %}
+    <dl>
+        <dt>Run at</dt>
+        <dd>{{burst_configuration.daily_task.hour}}:{{burst_configuration.daily_task.minute}}</dd>
+        <dt>Last run at</dt>
+        {% if burst_period_configuration.daily_task.task.last_run_at %}
+        <dd>{{burst_period_configuration.daily_task.task.last_run_at}}</dd>
+        {% else %}
+        <dd>Never run</dd>
+        {% endif %}
+    </dl>
+  {% else %}
+    <input type="submit" name="create-daily-task" value="Create daily task" />
+    {% endif %}
+
+    {% else %}
+    <p>Burst period configuration does not exist.</p>
+    <input type="submit" name="create" value="Create burst period configuration" />
+    {% endif %}
+</form>
+{% endblock %}

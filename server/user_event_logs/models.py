@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
@@ -20,4 +19,4 @@ class EventLog(models.Model):
     status = models.CharField(max_length=25)
 
     message = models.CharField(max_length=250, null=True)
-    data = JSONField(null=True)
+    data = models.JSONField(null=True)

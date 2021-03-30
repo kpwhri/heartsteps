@@ -12,6 +12,7 @@ from django.conf import settings
 from django.core import serializers
 
 from activity_logs.tasks import export_activity_logs
+from activity_surveys.tasks import export_activity_surveys
 from adherence_messages.tasks import export_daily_metrics
 from anti_sedentary.tasks import export_anti_sedentary_decisions
 from anti_sedentary.tasks import export_anti_sedentary_service_requests
@@ -33,6 +34,7 @@ from locations.tasks import update_location_categories
 from morning_messages.tasks import export_morning_message_survey
 from morning_messages.tasks import export_morning_messages
 from push_messages.models import Message as PushMessage
+from walking_suggestion_surveys.tasks import export_walking_suggestion_surveys
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
@@ -387,6 +389,9 @@ def export_user_data(username, log_export=True):
     export_file(export_activity_logs, 
         filename = 'activity-logs.csv'
     )
+    export_file(export_activity_surveys,
+        filename = 'activity-surveys.csv'
+    )
     export_file(export_anti_sedentary_decisions,
         filename = 'anti-sedentary-decisions.csv'
     )
@@ -416,7 +421,9 @@ def export_user_data(username, log_export=True):
     export_file(export_walking_suggestion_service_requests,
         filename = 'walking-suggestion-service-requests.csv'
     )
-
+    export_file(export_walking_suggestion_surveys,
+        filename = 'walking-suggestion-surveys.csv'
+    )
     export_file(export_user_messages,
         filename = 'messages.csv'
     )
@@ -435,9 +442,9 @@ def export_cohort_data():
         .all()
         users = [p.user for p in participants if p.user]
         for user in users:
-            DataExportQueue.objects.create(
-                user = user
-            )
+            export_user_data.apply_async(kwargs={
+                'username': user.username
+            })
 
 @shared_task
 def daily_update(username):

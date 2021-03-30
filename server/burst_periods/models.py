@@ -40,13 +40,11 @@ class Configuration(models.Model):
     objects = ConfigurationQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
-        if not self.daily_task:
-            self.daily_task = self.create_daily_task()
         super().save(*args, **kwargs)
         if self.enabled:
-            self.daily_task.enable()
+            self.burst_intervention_configurations()
         else:
-            self.daily_task.disable()
+            self.normalize_intervention_configurations()
 
     @property
     def burst_periods(self):
@@ -181,7 +179,7 @@ class Configuration(models.Model):
     
 
 class BurstPeriod(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
     start = models.DateField()
     end = models.DateField()
 

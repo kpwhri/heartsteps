@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
+from days.models import LocalizeTimezoneQuerySet
+
 User = get_user_model()
 
 class Question(models.Model):
@@ -46,20 +48,77 @@ class Answer(models.Model):
     label = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
 
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(
+        Question,
+        on_delete = models.CASCADE
+        )
     order = models.IntegerField(null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+class SurveyQuerySet(LocalizeTimezoneQuerySet):
+    
+    _preload_answers = False
+    _answers_loaded = False
+
+    def _clone(self, **kwargs):
+        clone = super()._clone(**kwargs)
+        clone._preload_answers = self._preload_answers
+        clone._answers_loaded = self._answers_loaded
+        return clone
+
+    def _fetch_all(self):
+        super()._fetch_all()
+        self.localize_results_attribute_timezone('created')
+        self.localize_results_attribute_timezone('updated')
+
+        if self._result_cache and self._preload_answers and not self._answers_loaded:
+            self.load_answers()
+            self._answers_loaded = True
+
+    def preload_answers(self):
+        self._preload_answers = True
+        return self
+    
+    def load_answers(self):
+        survey_by_id = {}
+        for survey in self._result_cache:
+            survey_by_id[survey.id] = survey
+        questions = SurveyQuestion.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ).all()
+        for _question in questions:
+            survey = survey_by_id[_question.survey_id]
+            if not hasattr(survey, '_questions'):
+                setattr(survey,'_questions', [])
+            survey._questions.append(_question)
+        responses = SurveyResponse.objects.filter(
+            survey_id__in = survey_by_id.keys()
+        ) \
+        .exclude(answer = None) \
+        .prefetch_related('answer') \
+        .prefetch_related('question') \
+        .all()
+        for _response in responses:
+            survey = survey_by_id[_response.survey_id]
+            if not hasattr(survey, '_answers'):
+                setattr(survey,'_answers', {})
+            survey._answers[_response.question.name] = _response.answer
+
 class Survey(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+        )
     answered = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    objects = SurveyQuerySet.as_manager()
 
     class QuestionDoesNotExist(RuntimeError):
         pass
@@ -82,6 +141,10 @@ class Survey(models.Model):
     @property
     def id(self):
         return str(self.uuid)
+
+    @property
+    def answered_at(self):
+        return self.updated
 
     @property
     def questions(self):
@@ -210,7 +273,10 @@ class SurveyQuestion(models.Model):
         null=True
     )
 
-    survey = models.ForeignKey(Survey)
+    survey = models.ForeignKey(
+        Survey,
+        on_delete = models.CASCADE,
+    )
     order = models.IntegerField(null=True)
 
     name = models.CharField(max_length=100)
@@ -263,10 +329,10 @@ class SurveyAnswer(models.Model):
     label = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
     
-    question = models.ForeignKey(SurveyQuestion, related_name="answers")
+    question = models.ForeignKey(SurveyQuestion, on_delete = models.CASCADE, related_name="answers")
     order = models.IntegerField(null=True)
 
 class SurveyResponse(models.Model):
-    survey = models.ForeignKey(Survey)
-    question = models.ForeignKey(SurveyQuestion)
-    answer = models.ForeignKey(SurveyAnswer, null=True)
+    survey = models.ForeignKey(Survey, on_delete = models.CASCADE)
+    question = models.ForeignKey(SurveyQuestion, on_delete = models.CASCADE)
+    answer = models.ForeignKey(SurveyAnswer, null=True, on_delete = models.CASCADE)

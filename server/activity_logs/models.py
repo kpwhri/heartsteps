@@ -14,9 +14,9 @@ class AbstractActivity(models.Model):
         abstract = True
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
 
-    type = models.ForeignKey(ActivityType)
+    type = models.ForeignKey(ActivityType, on_delete = models.CASCADE)
     vigorous = models.BooleanField(default=False)
     
     start = models.DateTimeField()
@@ -52,8 +52,8 @@ class ActivityLog(AbstractActivity):
         return "%s on %s (%s)" % (self.type, self.start, self.user)
 
 class ActivityLogSource(models.Model):
-    activity_log = models.OneToOneField(ActivityLog)
-    user = models.ForeignKey(User, null=True)
+    activity_log = models.OneToOneField(ActivityLog, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=50)

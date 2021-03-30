@@ -337,12 +337,12 @@ class Decision(models.Model):
 
     test = models.BooleanField(default=False)
     imputed = models.BooleanField(default=False)
-    available = models.NullBooleanField(null=True)
-    sedentary = models.NullBooleanField(null=True)
+    available = models.BooleanField(null=True)
+    sedentary = models.BooleanField(null=True)
 
     time = models.DateTimeField()
 
-    treated = models.NullBooleanField(null=True, blank=True)
+    treated = models.BooleanField(null=True, blank=True)
     treatment_probability = models.FloatField(null=True, blank=True)
 
     tags = models.ManyToManyField(ContextTag)
@@ -688,9 +688,9 @@ class Decision(models.Model):
 
 class DecisionContext(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    decision = models.ForeignKey(Decision)
+    decision = models.ForeignKey(Decision, on_delete = models.CASCADE)
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete = models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -700,7 +700,7 @@ class DecisionRating(models.Model):
         on_delete = models.CASCADE,
         related_name = '+'
     )
-    liked = models.NullBooleanField()
+    liked = models.BooleanField(null=True)
     comments = models.CharField(
         max_length=250,
         null = True

@@ -9,7 +9,7 @@ from service_requests.models import ServiceRequest
 User = get_user_model()
 
 class Configuration(models.Model):
-    user = models.ForeignKey(User, related_name="anti_sedentary_configuration")
+    user = models.ForeignKey(User, related_name="anti_sedentary_configuration", on_delete = models.CASCADE)
     enabled = models.BooleanField(default=False)
 
     def __str__(self):

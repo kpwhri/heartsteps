@@ -8,39 +8,39 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heartsteps.settings')
 
 app = Celery('heartsteps')
 
-# Using a string here means the worker doesn't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
-
-# Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+# This will prevent celery's backend clean up from running
+# which will make all task results persist in the database
+# https://docs.celeryproject.org/en/latest/userguide/configuration.html#result-expires
+app.conf.result_expires = None
+
+# This should make celery workers only reserve a single task
+# preventing message sending tasks from getting stuck behind
+# longer tasks, like nightly updates.
+# https://docs.celeryproject.org/en/stable/userguide/configuration.html#std-setting-worker_prefetch_multiplier
+app.conf.worker_prefetch_multiplier = 1
+
 app.conf.beat_schedule = {
-    'update-pooling-service': {
-        'task': 'walking_suggestions.tasks.update_pooling_service',
-        'schedule': crontab(hour='10', minute='0')
-    },
     'reset-test-participants': {
-        'task': 'participants.tests.reset_test_participants',
+        'task': 'participants.tasks.reset_test_participants',
         'schedule': crontab(hour='11', minute='0')
     },
-    'export-data': {
+    'export-cohort-data': {
         'task': 'participants.tasks.export_cohort_data',
         'schedule': crontab(hour='11', minute='0')
     },
-    'data-export-queue': {
-        'task': 'participants.tasks.process_data_export_queue',
-        'schedule': crontab()
-    }
-
 }
+app.conf.beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
 
 app.conf.task_default_queue = 'default'
 app.conf.task_routes = {
     'participants.tasks.export_user_data': {
-        'queue': 'export'
+        'queue': 'default'
+    },
+    'activity_surveys.tasks.*': {
+        'queue': 'messages'
     },
     'anti_sedentary.tasks.*': {
         'queue': 'messages'
@@ -51,7 +51,7 @@ app.conf.task_routes = {
     'heartsteps_messages.tasks.*': {
         'queue': 'messages'
     },
-    'fitbit_activities.tasks.*': {
+    'fitbit_activities.tasks.update_fitbit_data': {
         'queue': 'fitbit'
     },
     'morning_messages.tasks.*': {

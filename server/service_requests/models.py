@@ -6,7 +6,8 @@ class ServiceRequest(models.Model):
         User,
         null = True,
         editable = False,
-        db_index = True
+        db_index = True,
+        on_delete = models.CASCADE
     )
 
     url = models.CharField(max_length=500, editable=False)

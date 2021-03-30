@@ -5,7 +5,6 @@ from datetime import timedelta, datetime
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 
 from activity_summaries.models import Day
 from days.services import DayService
@@ -35,8 +34,8 @@ class Week(models.Model):
     goal = models.IntegerField(null=True)
     confidence = models.FloatField(null=True)
 
-    survey = models.ForeignKey(WeekSurvey, null=True)
-    _barrier_options = JSONField(null=True)
+    survey = models.ForeignKey(WeekSurvey, null=True, on_delete = models.SET_NULL)
+    _barrier_options = models.JSONField(null=True)
     will_barriers_continue = models.CharField(
         max_length = 50,
         choices = [

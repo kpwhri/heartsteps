@@ -79,7 +79,19 @@
         Disabled
         {% endif %}
     </dd>
-    </li>
+    {% if configuration.treatment_probability is not None %}
+    <dd>Treatment probability is {{configuration.treatment_probability}}</dd>
+    {% endif %}
+    {% if configuration.actions %}
+    <dd>
+        {% for action in configuration.actions %}
+        <form action="{{action.url}}" method="POST">
+            {% csrf_token %}
+            <input type="submit" name="{{action.value}}" value="{{action.name}}" />
+        </form>
+        {% endfor %}
+    </dd>
+    {% endif %}
 {% endfor %}
 </dl>
 <nav>
@@ -133,24 +145,4 @@
     <input type="hidden" name="message" value="Hi, this is a test message." />
     <input type="submit" value="Send test notification" />
 </form>
-{% if burst_configuration %}
-<h4>Burst Configuration</h4>
-{% if burst_configuration.enabled %}
-<p>Enabled</p>
-{% else %}
-<p>Disabled</p>
-{% endif %}
-{% if burst_configuration.burst_periods %}
-<ul>
-{% for burst_period in burst_configuration.burst_periods %}
-    <li>
-        {{burst_period.start}} to {{burst_period.end}}
-        {% url 'dashboard-cohort-participant-burst-period' cohort.id participant.heartsteps_id burst_period.id as bp_url %}
-        <a href="{{bp_url}}">Edit</a>
-    </li>
-{% endfor %}
-</ul>
-{% endif %}
-<a href="{% url 'dashboard-cohort-participant-burst-period' cohort.id participant.heartsteps_id %}">Create burst period</a>
-{% endif %}
 {% endblock %}

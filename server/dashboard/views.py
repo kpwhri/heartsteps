@@ -164,7 +164,7 @@ class CohortListView(UserPassesTestMixin, TemplateView):
         return reverse('dashboard-login')
 
     def test_func(self):
-        if self.request.user and not self.request.user.is_anonymous():
+        if self.request.user and not self.request.user.is_anonymous:
             admin_for_studies = Study.objects.filter(admins=self.request.user)
             self.admin_for_studies = list(admin_for_studies)
             if self.request.user.is_staff or self.admin_for_studies:
@@ -268,10 +268,11 @@ class DailyTaskSummaryView(CohortView):
         daily_tasks_by_username_then_task_name = {}
         for user in users:
             daily_tasks_by_username_then_task_name[user.username] = {}
-
-
+        
         task_names = []
         for dt in daily_tasks:
+            if not dt.task:
+                continue
             task_name = dt.task.task
             if task_name not in task_names:
                 task_names.append(task_name)
@@ -336,24 +337,9 @@ class BurstPeriodSummaryView(CohortView):
         ) \
         .order_by('heartsteps_id') \
         .prefetch_related('user') \
-        .prefetch_burst_periods() \
         .all()
 
-        current_burst_periods = []
-        upcoming_burst_periods = []
-        other_participants = []
-        for participant in participants:
-            if participant.current_burst_period:
-                current_burst_periods.append(participant)
-                continue
-            if participant.next_burst_period:
-                upcoming_burst_periods.append(participant)
-                continue
-            other_participants.append(participant)
-
-        context['participants'] = sorted(current_burst_periods, key= lambda p: p.current_burst_period.start ) \
-        + sorted(upcoming_burst_periods, key=lambda p: p.next_burst_period.start) \
-        + other_participants
+        context['participants'] = [p for p in participants if p.burst_period_enabled]
         return context
 
 class InterventionSummaryView(CohortView):
@@ -793,16 +779,84 @@ class ParticipantView(CohortView):
                 'enabled': self.participant.morning_messages_enabled
             }
         ]
+
+        _config = self.participant.activity_survey_configuration
+        context['configurations'].append({
+            'title': 'Activity Surveys',
+            'enabled': _config.enabled if _config else None,
+            'treatment_probability': _config.treatment_probability if _config else None
+        })
+
+        _config = self.participant.walking_suggestion_survey_configuration
+        context['configurations'].append({
+            'title': 'Walking Suggestion Surveys',
+            'enabled': _config.enabled if _config else None,
+            'treatment_probability': _config.treatment_probability if _config else None
+        })
+
+        burst_period_actions = []
+        burst_period_actions.append({
+            'name': 'Disable' if self.participant.burst_period_enabled else 'Enable',
+            'value': 'disable' if self.participant.burst_period_enabled else 'enable',
+            'url': reverse(
+                'dashboard-cohort-participant-burst-period-configuration',
+                kwargs = {
+                    'cohort_id': self.cohort.id,
+                    'participant_id': self.participant.heartsteps_id
+                }
+            )
+        })
+
+        context['configurations'].append({
+            'title': 'Burst Periods',
+            'enabled': self.participant.burst_period_enabled,
+            'actions': burst_period_actions
+        })
+
+        context['configurations'].sort(key = lambda x: x['title'])
+        return context
+
+class ParticipantBurstPeriodConfigurationView(ParticipantView):
+
+    template_name = 'dashboard/participant-burst-period-configuration.html'
+
+    def get_burst_configuration(self):
         try:
-            burst_configuration = BurstPeriodConfiguration.objects \
+            return BurstPeriodConfiguration.objects \
             .prefetch_burst_periods() \
             .get(
                 user = self.participant.user
             )
-            context['burst_configuration'] = burst_configuration
         except BurstPeriodConfiguration.DoesNotExist:
-            pass
+            return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         return context
+
+    def post(self, request, cohort_id, participant_id, **kwargs):
+        self.setup_participant()
+        config = self.get_burst_configuration()
+        if 'create-daily-task' in request.POST:
+            if config.daily_task:
+                config.daily_task.delete()
+            config.daily_task = config.create_daily_task()
+            config.save()
+        if 'enable' in request.POST:
+            config.enabled = True
+            config.save()
+        if 'disable' in request.POST:
+            config.enabled = False
+            config.save()
+        if 'create' in request.POST:
+            if config:
+                config.delete()
+            BurstPeriodConfiguration.objects.create(
+                user = self.participant.user
+            )
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 class ParticipantActivitySummaryView(ParticipantView):
     template_name = 'dashboard/participant-activity-summary.html'

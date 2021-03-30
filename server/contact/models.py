@@ -7,7 +7,10 @@ class ContactInformation(models.Model):
     """
     Contact information for a user
     """
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(
+        User,
+        on_delete = models.CASCADE
+        )
 
     name = models.CharField(max_length=255)
     email = models.EmailField()

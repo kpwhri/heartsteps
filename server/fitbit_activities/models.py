@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ImproperlyConfigured
 
 from fitbit_api.models import FitbitAccount
@@ -15,19 +14,27 @@ class FitbitActivityType(models.Model):
     def __str__(self):
         return self.name
 
+class FitbitActivityManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset() \
+        .prefetch_related('type')
+
 class FitbitActivity(models.Model):
-    account = models.ForeignKey(FitbitAccount)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     fitbit_id = models.CharField(max_length=50)
 
-    type = models.ForeignKey(FitbitActivityType, null=True, blank=True)
+    type = models.ForeignKey(FitbitActivityType, on_delete = models.CASCADE, null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
     average_heart_rate = models.IntegerField(null=True)
 
-    payload = JSONField(null=True, blank=True)
+    payload = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    objects = FitbitActivityManager()
 
     class Meta:
         ordering = ['start_time']
@@ -43,7 +50,7 @@ class FitbitActivity(models.Model):
 
 class FitbitDay(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
-    account = models.ForeignKey(FitbitAccount)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     date = models.DateField()
     _timezone = models.CharField(max_length=50, default=pytz.UTC.zone)
 
@@ -171,22 +178,22 @@ class FitbitDay(models.Model):
         return "%s: %s" % (self.account, self.date.strftime('%Y-%m-%d'))
 
 class FitbitMinuteStepCount(models.Model):
-    account = models.ForeignKey(FitbitAccount)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     time = models.DateTimeField()
     steps = models.IntegerField()
 
 class FitbitMinuteHeartRate(models.Model):
-    account = models.ForeignKey(FitbitAccount)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     time = models.DateTimeField()
     heart_rate = models.IntegerField()
 
 class FitbitDailyUnprocessedData(models.Model):
-    account = models.ForeignKey(FitbitAccount)
-    day = models.ForeignKey(FitbitDay, related_name='unprocessed_data')
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
+    day = models.ForeignKey(FitbitDay, related_name='unprocessed_data', on_delete = models.CASCADE)
     category = models.CharField(max_length=50)
     timezone = models.CharField(max_length=50, null=True, blank=True)
 
-    payload = JSONField()
+    payload = models.JSONField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
