@@ -15,14 +15,20 @@ from .models import Day
 from .serializers import DaySerializer
 
 def get_summary(user, date):
-    day, created = Day.objects.get_or_create(
+    day_query = Day.objects.filter(
         user = user,
         date = date
-    )
-    if created:
+    ).order_by('updated')
+    if day_query.count() > 0:
+        return day_query.last()
+    else:
+        day = Day.objects.create(
+            user = user,
+            date = date
+        )
         day.update_from_activities()
         day.update_from_fitbit()
-    return day
+        return day
 
 
 class DaySummaryView(DayView):
