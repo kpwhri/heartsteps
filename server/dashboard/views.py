@@ -67,6 +67,95 @@ from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
 
+from .services import DevSendNotificationService
+
+class DevFrontView(UserPassesTestMixin, TemplateView):
+    
+    template_name = 'dashboard/dev-front.html'
+
+    def get_login_url(self):
+        return reverse('dashboard-login')
+
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous():
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        import environ
+        # print(settings.DATABASE_URL)
+        
+        # root = environ.Path()
+        env = environ.Env()
+        environ.Env.read_env(".env-development")  # reading .env file
+        # print(root)
+        print(env)
+        print(env.str('ONESIGNAL_APP_ID'))
+        # print(settings.configured)
+        context['cohorts'] = []
+        studies = []
+        if self.request.user.is_superuser:
+            study_query = Study.objects
+        else:
+            study_query = Study.objects.filter(admins=self.request.user)
+        for study in study_query.all():
+            cohorts = []
+            for cohort in study.cohort_set.all():
+                cohorts.append({
+                'id': cohort.id,
+                'name': cohort.name
+            })
+            studies.append({
+                'id': study.id,
+                'name': study.name,
+                'cohorts': cohorts
+            })
+        context['studies'] = studies
+        return context
+
+
+class DevSendNotificationView(UserPassesTestMixin, TemplateView):
+    
+    template_name = 'dashboard/dev-send-notification.html'
+
+    def get_login_url(self):
+        return reverse('dashboard-login')
+
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous():
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        
+        device_id = [request.POST['playerid']]
+        dev_send_notification_service = DevSendNotificationService()
+        message_response_id = dev_send_notification_service.send_dev_notification(device_id=device_id)
+        context['message_response_id'] = message_response_id
+        
+        
+        return TemplateResponse(
+            request,
+            self.template_name,
+            context
+        )
+        
+
+
 class CohortListView(UserPassesTestMixin, TemplateView):
 
     template_name = 'dashboard/cohorts.html'
@@ -85,6 +174,7 @@ class CohortListView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        
         context['cohorts'] = []
         studies = []
         if self.request.user.is_superuser:

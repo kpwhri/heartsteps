@@ -1,0 +1,50 @@
+version: '2'
+services:
+  client:
+    build: ./client
+    command: npm run serve:app
+    volumes:
+      - ./client:/client
+      - ./credentials:/credentials
+      - client-platforms:/client/platforms
+      - client-node-modules:/client/node_modules
+      - client-gradle-cache:/root/.gradle/caches
+    ports:
+      - "8100:8100"
+      - "35729:35729"
+      - "53703:53703"
+    depends_on:
+      - db
+      - rabbitmq
+      - server
+  db:
+    environment: 
+      - POSTGRES_PASSWORD=password
+    image: postgres:10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3.7
+  server:
+    build: 
+      context: ./
+      dockerfile: server.Dockerfile
+    env_file: credentials/.env-development
+    environment:
+      - ALLOWED_HOSTS=localhost,server,192.168.99.100
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres:password@db:5432/postgres
+    command: ["honcho", "start", "dev"]
+    volumes:
+      - ./server:/server
+      - ./credentials:/credentials
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+volumes:
+  client-platforms:
+  client-node-modules:
+  pgdata:
+  client-gradle-cache:
