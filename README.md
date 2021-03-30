@@ -210,3 +210,10 @@ For the walking-suggestion service, run:
 $ docker-compose run walking-suggestion-service copy-files
 // Data will be downloaded to walking-suggestion-service/data
 ```
+
+### Context-specific Docker-compose yaml
+You may create a context-specific docker-compose YAML file. If you made a YAML file, you can use it with -f option.
+```
+$ docker-compose -f docker-compose.nlm.yaml up
+// Run docker-compose with a context-specific yaml file. Since the yaml file refers to a custom-made .env file, it would not work if you don't have 'certificate/.env-development' file.
+```
