@@ -48,6 +48,7 @@ All participant information is shown on the HeartSteps dashboard is seperated by
 * `surveys`
 * `user_event_logs` not really implemented
 * `weather` manages weather reports fetched from DarkSky API based on participant location
+* `notification_queue` Under development. handles notification queue
 
 ## Ugh Apps
 * `privacy_policy` needed to put privacy policy to be listed on app store somewhere...
