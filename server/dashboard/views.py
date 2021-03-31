@@ -137,11 +137,6 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         return "{} studies are created.".format(number_of_studies)    
 
     
-    def clear_debug_study(self):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        return dev_study_service.clear_debug_study()
-    
     def create_debug_cohort(self, number_of_cohorts):
         dev_study_service = DevStudyService(self.request.user)
         
@@ -151,6 +146,28 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 dev_study_service.create_debug_cohort(study)
             
         return "{} cohorts for all debug studies are created.".format(number_of_cohorts)  
+    
+    def create_debug_participant(self, number_of_participants):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        all_debug_studies = dev_study_service.get_all_debug_studies()
+        for study in all_debug_studies:
+            cohorts_in_study = dev_study_service.get_all_cohorts_in_study(study)
+            for cohort in cohorts_in_study:    
+                for i in range(number_of_participants):
+                    dev_study_service.create_debug_participant(cohort)
+            
+        return "{} participants for all debug studies are created.".format(number_of_participants)  
+    
+    def clear_debug_study(self):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        return dev_study_service.clear_debug_study()
+    
+    def clear_debug_participant(self):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        return dev_study_service.clear_debug_participant()
     
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -164,11 +181,16 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         elif dev_command == 'create-debug-study':
             number_of_studies = int(request.POST['number_of_studies'])
             context["results"] = self.create_debug_study(number_of_studies)
-        elif dev_command == 'clear-debug-study':
-            context["results"] = self.clear_debug_study()
         elif dev_command == 'create-debug-cohort':
             number_of_cohorts = int(request.POST['number_of_cohorts'])
             context["results"] = self.create_debug_cohort(number_of_cohorts)
+        elif dev_command == 'create-debug-participant':
+            number_of_participants = int(request.POST['number_of_participants'])
+            context["results"] = self.create_debug_participant(number_of_participants)
+        elif dev_command == 'clear-debug-study':
+            context["results"] = self.clear_debug_study()
+        elif dev_command == 'clear-debug-participant':
+            context["results"] = self.clear_debug_participant()
         else:
             context["results"] = "Unsupported command: {}".format(dev_command)
         

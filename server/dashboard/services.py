@@ -3,7 +3,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from participants.models import Study, Cohort
+from participants.models import Study, Cohort, Participant
 
 import random
 import datetime
@@ -91,13 +91,13 @@ class DevStudyService:
                                             )
         study_instance.admins.set([self.user])
         
-    def clear_debug_study(self):
-        results = Study.objects.filter(contact_name__startswith="Debugger").delete()
-        
-        return "All debug Studies are deleted: {}".format(results)
-    
     def get_all_debug_studies(self):
         results = Study.objects.filter(contact_name__startswith="Debugger")
+        
+        return results
+    
+    def get_all_cohorts_in_study(self, study):
+        results = Cohort.objects.filter(study=study)
         
         return results
     
@@ -112,3 +112,25 @@ class DevStudyService:
             study_length=study_length,
             export_data=export_data
             )
+    
+    def create_debug_participant(self, cohort):
+        heartsteps_id = self.getRandomName("id", 10)
+        enrollment_token = self.getRandomName("t", 8)
+        study_start_date = "2021-04-01"
+        
+        participant_instance = Participant.objects.create(
+            cohort=cohort,
+            heartsteps_id=heartsteps_id,
+            enrollment_token = enrollment_token,
+            study_start_date = study_start_date
+        )
+        
+    def clear_debug_study(self):
+        results = Study.objects.filter(contact_name__startswith="Debugger").delete()
+    
+        return "All debug Studies are deleted: {}".format(results)
+
+    def clear_debug_participant(self):
+        results = Participant.objects.filter(heartsteps_id__startswith="id").delete()
+    
+        return "All debug Participants are deleted: {}".format(results)
