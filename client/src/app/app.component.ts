@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
-import { Router, NavigationStart, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { AppService } from './app.service';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { LoadingService } from '@infrastructure/loading.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -29,8 +28,10 @@ export class MyApp {
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event: NavigationEnd) => {
             if (event.url == "/") {
-                console.log('App Component', 'should update participant?')
-                this.participantService.update();
+                this.participantService.get()
+                .then((participant) => {
+                    this.updateRoute(participant);
+                });
             }
         })
         
@@ -54,7 +55,7 @@ export class MyApp {
             } else if (participant && participant.isLoaded) {
                 this.router.navigate(['onboard'])
             } else if (participant) {
-                console.log('App Component', 'participant not loaded');
+                this.router.navigate(['loading']);
             } else {
                 this.router.navigate(['welcome']);
             }   
