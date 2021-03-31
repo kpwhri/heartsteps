@@ -87,12 +87,12 @@ class DevStudyService:
         study_instance = Study.objects.create(name=study_name, 
                                             contact_name=contact_name,
                                             contact_number=contact_number,
-                                            baseline_period=baseline_period                                            
+                                            baseline_period=baseline_period  
                                             )
         study_instance.admins.set([self.user])
         
     def get_all_debug_studies(self):
-        results = Study.objects.filter(contact_name__startswith="Debugger")
+        results = Study.objects.filter(contact_name__startswith="Debugger", admins__in=[self.user])
         
         return results
     
@@ -100,6 +100,22 @@ class DevStudyService:
         results = Cohort.objects.filter(study=study)
         
         return results
+    
+    def get_all_participants_in_cohort(self, cohort):
+        results = Participant.objects.filter(cohort=cohort)
+        
+        return results
+    
+    def get_all_debug_participants(self):
+        debug_studies = self.get_all_debug_studies()
+        debug_participants = []
+        
+        for study in debug_studies:
+            debug_cohorts = self.get_all_cohorts_in_study(study)
+            for cohort in debug_cohorts:
+                debug_participants.append(self.get_all_participants_in_cohort(cohort))    
+        
+        return debug_participants
     
     def create_debug_cohort(self, study):
         name = self.getRandomName("Debug Cohort", 10)
@@ -126,11 +142,20 @@ class DevStudyService:
         )
         
     def clear_debug_study(self):
-        results = Study.objects.filter(contact_name__startswith="Debugger").delete()
+        results = self.get_all_debug_studies().delete()
     
         return "All debug Studies are deleted: {}".format(results)
 
     def clear_debug_participant(self):
-        results = Participant.objects.filter(heartsteps_id__startswith="id").delete()
+        # results = Participant.objects.filter(heartsteps_id__startswith="id").delete()
+
+        debug_participants = self.get_all_debug_participants()
+        for participant in debug_participants:
+            participant.delete()
+            
+        return "{} debug Participants are deleted".format(str(len(debug_participants)))
     
-        return "All debug Participants are deleted: {}".format(results)
+    def clear_debug_participant_id(self):
+        results = Participant.objects.filter(heartsteps_id__startswith="id").delete()
+            
+        return "All Participants starting with `id` are deleted".format(results)

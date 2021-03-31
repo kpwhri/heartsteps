@@ -169,6 +169,11 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         
         return dev_study_service.clear_debug_participant()
     
+    def clear_debug_participant_id(self):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        return dev_study_service.clear_debug_participant_id()
+    
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         
@@ -191,6 +196,8 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             context["results"] = self.clear_debug_study()
         elif dev_command == 'clear-debug-participant':
             context["results"] = self.clear_debug_participant()
+        elif dev_command == 'clear-debug-participant-id':
+            context["results"] = self.clear_debug_participant_id()
         else:
             context["results"] = "Unsupported command: {}".format(dev_command)
         
