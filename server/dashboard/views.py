@@ -141,7 +141,17 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         dev_study_service = DevStudyService(self.request.user)
         
         return dev_study_service.clear_debug_study()
+    
+    def create_debug_cohort(self, number_of_cohorts):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        all_debug_studies = dev_study_service.get_all_debug_studies()
+        for study in all_debug_studies:
+            for i in range(number_of_cohorts):
+                dev_study_service.create_debug_cohort(study)
             
+        return "{} cohorts for all debug studies are created.".format(number_of_cohorts)  
+    
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         
@@ -156,6 +166,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             context["results"] = self.create_debug_study(number_of_studies)
         elif dev_command == 'clear-debug-study':
             context["results"] = self.clear_debug_study()
+        elif dev_command == 'create-debug-cohort':
+            number_of_cohorts = int(request.POST['number_of_cohorts'])
+            context["results"] = self.create_debug_cohort(number_of_cohorts)
         else:
             context["results"] = "Unsupported command: {}".format(dev_command)
         

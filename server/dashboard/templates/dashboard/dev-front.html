@@ -33,6 +33,19 @@
         </form>
     </li>
 
+    <li>
+        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+            {% csrf_token %}
+            <input type="hidden" id="dev-command" value="create-debug-cohort" name="dev-command" />
+            <div class="form-group mb-2">
+                Create N debug-cohorts per study.
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" class="form-control" id="number_of_cohorts" name="number_of_cohorts" placeholder="ex) 10">
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Create</button>
+        </form>
+    </li>
 
     <li>
         <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
@@ -44,6 +57,7 @@
             <button type="submit" class="btn btn-primary mb-2">Clear</button>
         </form>
     </li>
+
 
 </ul>
 

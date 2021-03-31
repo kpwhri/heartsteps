@@ -3,7 +3,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from participants.models import Study
+from participants.models import Study, Cohort
 
 import random
 import datetime
@@ -73,8 +73,13 @@ class DevStudyService:
     def __init__(self, user, configuration=None):
         self.user = user
     
+    def getRandomName(self, heading, digits):
+        formatstr = '%0{}X'.format(digits)
+        randhex = formatstr % random.randrange(16**digits)
+        return "{} {}".format(heading, randhex)
+        
     def create_debug_study(self):
-        study_name = "Debug Study {}".format(random.randint(100000000, 999999999))
+        study_name = self.getRandomName("Debug Study", 10)
         contact_name = "Debugger"
         contact_number = "8581234567"
         baseline_period = 7
@@ -90,4 +95,20 @@ class DevStudyService:
         results = Study.objects.filter(contact_name__startswith="Debugger").delete()
         
         return "All debug Studies are deleted: {}".format(results)
+    
+    def get_all_debug_studies(self):
+        results = Study.objects.filter(contact_name__startswith="Debugger")
         
+        return results
+    
+    def create_debug_cohort(self, study):
+        name = self.getRandomName("Debug Cohort", 10)
+        study_length = 365
+        export_data = False
+        
+        cohort_instance = Cohort.objects.create(
+            study=study,
+            name=name,
+            study_length=study_length,
+            export_data=export_data
+            )
