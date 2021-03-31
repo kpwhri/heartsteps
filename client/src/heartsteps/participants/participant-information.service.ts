@@ -131,7 +131,7 @@ export class ParticipantInformationService {
             return baselineComplete;
         })
         .catch(() => {
-            console.error('baseline complete not found');
+            return false;
         });
     }
 

@@ -80,9 +80,6 @@ export class ProfileService {
             this.loadParticipantInformation()
         ])
         .then(() => {
-            return this.loadDailySummaries();
-        })
-        .then(() => {
             return Promise.resolve(true);
         })
         .catch(() => {

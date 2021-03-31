@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { LoadingService } from '@infrastructure/loading.service';
 
 @Component({
     templateUrl: 'app.html'
@@ -28,6 +29,7 @@ export class MyApp {
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event: NavigationEnd) => {
             if (event.url == "/") {
+                console.log('App Component', 'should update participant?')
                 this.participantService.update();
             }
         })
@@ -45,12 +47,14 @@ export class MyApp {
 
     private updateRoute(participant: Participant) {
         if(this.router.url === "/") {
-            if(participant && participant.isSetup && (participant.isBaselineComplete || participant.staff)) {
+            if(participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
                 this.router.navigate(['home', 'dashboard']);
-            } else if (participant && participant.isSetup) {
+            } else if (participant && participant.isLoaded && participant.isSetup) {
                 this.router.navigate(['baseline']);
-            } else if (participant) {
+            } else if (participant && participant.isLoaded) {
                 this.router.navigate(['onboard'])
+            } else if (participant) {
+                console.log('App Component', 'participant not loaded');
             } else {
                 this.router.navigate(['welcome']);
             }   
