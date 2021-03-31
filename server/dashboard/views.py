@@ -146,35 +146,6 @@ class DevSendNotificationView(UserPassesTestMixin, TemplateView):
             context
         )
 
-class DevCreateStudyView(UserPassesTestMixin, TemplateView):
-    template_name = 'dashboard/dev-message.html'
-    
-    def get_login_url(self):
-        return reverse('dashboard-login')
-    
-    def test_func(self):
-        if self.request.user and not self.request.user.is_anonymous:
-            admin_for_studies = Study.objects.filter(admins=self.request.user)
-            self.admin_for_studies = list(admin_for_studies)
-            if self.request.user.is_staff or self.admin_for_studies:
-                return True
-        return False
-    
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        
-        number_of_studies = int(request.POST['number_of_studies'])
-        
-        dev_create_study_service = DevStudyService(self.request.user)
-        
-        for i in range(number_of_studies):
-            dev_create_study_service.create_debug_study()
-        
-        context["results"] = "{} studies are created.".format(number_of_studies)
-        
-        return TemplateResponse(request, self.template_name, context)
-
-
 class DevGenericView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/dev-message.html'
     
@@ -194,7 +165,13 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         
         return dev_study_service.clear_debug_study()
         
+    def create_debug_study(self, number_of_studies):
+        dev_study_service = DevStudyService(self.request.user)
         
+        for i in range(number_of_studies):
+            dev_study_service.create_debug_study()
+        
+        return "{} studies are created.".format(number_of_studies)    
     
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -204,6 +181,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         
         if dev_command == 'clear-debug-study':
             context["results"] = self.clear_debug_study()
+        elif dev_command == 'create-debug-study':
+            number_of_studies = int(request.POST['number_of_studies'])
+            context["results"] = self.create_debug_study(number_of_studies)
         else:
             context["results"] = "Unsupported command: {}".format(dev_command)
         

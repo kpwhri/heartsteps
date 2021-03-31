@@ -19,8 +19,9 @@
     </li>
 
     <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-create-study' %}" method="POST" role="form">
+        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
             {% csrf_token %}
+            <input type="hidden" id="dev-command" value="create-debug-study" name="dev-command" />
             <div class="form-group mb-2">
                 Create N studies with random names.
             </div>
@@ -30,6 +31,7 @@
             <button type="submit" class="btn btn-primary mb-2">Create</button>
         </form>
     </li>
+
 
     <li>
         <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">

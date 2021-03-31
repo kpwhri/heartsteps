@@ -3,7 +3,6 @@ from django.contrib.auth import views as auth_views
 
 from .views import DevFrontView
 from .views import DevSendNotificationView
-from .views import DevCreateStudyView
 from .views import DevGenericView
 
 from .views import CohortListView
@@ -79,7 +78,6 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)', DashboardListView.as_view(), name='dashboard-cohort-participants'),
     url('dev/front', DevFrontView.as_view(), name='dashboard-dev-front'),
     url('dev/send-notification', DevSendNotificationView.as_view(), name='dashboard-dev-send-notification'),
-    url('dev/create-study', DevCreateStudyView.as_view(), name='dashboard-dev-create-study'),
     url('dev/generic', DevGenericView.as_view(), name='dashboard-dev-generic'),
     url('', CohortListView.as_view(), name='dashboard-cohorts')
 ]
