@@ -19,10 +19,11 @@ export class ActivityPlanService {
         private activityLogService: ActivityLogService,
         private documentStorage: DocumentStorageService,
         private activityTypeService: ActivityTypeService
-    ) {}
+    ) {
+        this.storage = this.documentStorage.create('heartsteps-activity-plans');
+    }
 
     public setup(): Promise<boolean> {
-        this.storage = this.documentStorage.create('heartsteps-activity-plans');
         return this.loadPlans()
         .then(() => {
             return true;

@@ -58,9 +58,16 @@ export class ProfileService {
     }
 
     public update():Promise<void> {
-        return Promise.all([])
+        return Promise.all([
+            this.loadCurrentWeek(),
+            this.setupActivityTypeService(),
+            this.setupActivityPlanService()
+        ])
         .then(() => {
             return undefined;
+        })
+        .catch(() => {
+            return Promise.reject("Profile factory did not update participant");
         });
     }
 
@@ -73,12 +80,12 @@ export class ProfileService {
             this.loadContactInformation(),
             this.loadFitbit(),
             this.loadFitbitWatchStatus(),
-            this.loadCurrentWeek(),
             this.loadCurrentActivityLogs(),
-            this.setupActivityPlanService(),
-            this.setupActivityTypeService(),
             this.loadParticipantInformation()
         ])
+        .then(() => {
+            return this.update();
+        })
         .then(() => {
             return Promise.resolve(true);
         })
@@ -288,9 +295,6 @@ export class ProfileService {
 
     private setupActivityTypeService() :Promise<boolean> {
         return this.activityTypeService.setup()
-        .then(() => {
-            return this.activityTypeService.load();
-        })
         .then(() => {
             return true;
         })

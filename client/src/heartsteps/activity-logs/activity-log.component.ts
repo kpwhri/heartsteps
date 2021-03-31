@@ -31,6 +31,9 @@ export class ActivityLogComponent implements OnInit {
                 this.type = activityType.title;
                 this.setActivityTypeClass(activityType.name);
             })
+            .catch(() => {
+                console.log('Could not get activity log?')
+            })
         }
 
         this.start = this.activityLog.formatStartTime();

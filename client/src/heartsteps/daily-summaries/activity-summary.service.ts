@@ -56,7 +56,6 @@ export class ActivitySummaryService {
                 this.load()
             });
         });
-        return Promise.resolve(undefined);
     }
 
     public updateStatistics(): Promise<void> {
@@ -65,29 +64,6 @@ export class ActivitySummaryService {
             this.storage.set('activity-summary', data);
             return this.load();
         });
-
-
-        return this.dailySummaryService.getAll()
-        .then((dailySummaries) => {
-            let totalActivitiesCompleted = 0;
-            let totalActivityMinutes = 0;
-            let totalMiles = 0;
-            let totalSteps = 0;
-
-            dailySummaries.forEach((summary) => {
-                totalActivitiesCompleted += summary.activitiesCompleted;
-                totalActivityMinutes += summary.minutes;
-                totalMiles += summary.miles;
-                totalSteps += summary.steps;
-            });
-
-            this.totalActivitiesCompleted.next(totalActivitiesCompleted);
-            this.totalActivityMinutes.next(totalActivityMinutes);
-            this.totalMiles.next(totalMiles);
-            this.totalSteps.next(totalSteps);
-
-            return undefined;
-        })
     }
 
 }
