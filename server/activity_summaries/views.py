@@ -11,7 +11,10 @@ from rest_framework.response import Response
 from days.views import DayView
 from fitbit_activities.services import FitbitDayService
 
+from .models import ActivitySummary
 from .models import Day
+
+from .serializers import ActivitySummarySerializer
 from .serializers import DaySerializer
 
 def get_summary(user, date):
@@ -94,4 +97,13 @@ class DaySummaryUpdateView(DayView):
         summary = get_summary(request.user, date)
         serialized = DaySerializer(summary)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
+class ActivitySummaryView(APIView):
+
+    def get(self, request):
+        summary, _ = ActivitySummary.objects.get_or_create(
+            user = request.user
+        )
+        serialized = ActivitySummarySerializer(summary)
+        return Response(serialized.data, status.HTTP_200_OK)
 

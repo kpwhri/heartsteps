@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import pytz
 import uuid
 
@@ -15,9 +15,12 @@ from fitbit_api.services import FitbitService, FitbitClient
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
 
-from .models import Day, User
 
-class ActivitySummaryViewTests(APITestCase):
+from .models import ActivitySummary
+from .models import Day
+from .models import User
+
+class TestBase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -27,7 +30,7 @@ class ActivitySummaryViewTests(APITestCase):
         self.client.force_authenticate(self.user)
 
     def create_day(self, date):
-        Day.objects.create(
+        return Day.objects.create(
             user = self.user,
             date = date,
             moderate_minutes = 10,
@@ -36,6 +39,15 @@ class ActivitySummaryViewTests(APITestCase):
             steps = 10,
             miles = 0.25
         )
+
+class ActivitySummaryViewTests(TestBase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username = "test",
+            date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.UTC) 
+        )
+        self.client.force_authenticate(self.user)
 
     def test_get_invalid_date(self):
         response = self.client.get(reverse('activity-summary-day', kwargs={
@@ -145,6 +157,18 @@ class ActivitySummaryViewTests(APITestCase):
         fitbit_day_update.assert_not_called()
 
         self.assertEqual(response.status_code, 400)
+
+    def test_get_activity_summary(self):
+        today = self.create_day(date.today())
+
+        response = self.client.get(reverse('activity-summary'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['activities_completed'], today.activities_completed)
+        self.assertEqual(response.data['miles'], today.miles)
+        self.assertEqual(response.data['steps'], today.steps)
+        self.assertEqual(response.data['minutes'], today.total_minutes)
+        assert 'updated' in response.data
 
 class FitbitDayUpdatesDay(TestCase):
 
@@ -296,3 +320,47 @@ class ActivitLogUpdateDay(TestCase):
             self.assertEqual(day.moderate_minutes, 10)
         self.assertEqual(len(days), 2)
 
+class ActivitSummary(TestBase):
+    
+    def test_activity_summary_updated_after_day_summary_saved(self):
+        
+        day = self.create_day(date.today())
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.activities_completed, day.activities_completed)
+        self.assertEqual(summary.miles, day.miles)
+        self.assertEqual(summary.minutes, day.total_minutes)
+        self.assertEqual(summary.steps, day.steps)
+
+        day.miles = 3
+        day.steps = 1000
+        day.save()
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.miles, day.miles)
+        self.assertEqual(summary.steps, day.steps)
+
+    def test_activity_summary_updates_for_multiple_days(self):
+        yesterday = self.create_day(date.today() - timedelta(days=1))
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.activities_completed, yesterday.activities_completed)
+        self.assertEqual(summary.miles, yesterday.miles)
+        self.assertEqual(summary.minutes, yesterday.total_minutes)
+        self.assertEqual(summary.steps, yesterday.steps)
+
+        today = self.create_day(date.today())
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.activities_completed, today.activities_completed + yesterday.activities_completed)
+        self.assertEqual(summary.miles, today.miles + yesterday.miles)
+        self.assertEqual(summary.minutes, today.total_minutes + yesterday.total_minutes)
+        self.assertEqual(summary.steps, today.steps + yesterday.steps)
+
+        today.delete()
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.activities_completed, yesterday.activities_completed)
+        self.assertEqual(summary.miles, yesterday.miles)
+        self.assertEqual(summary.minutes, yesterday.total_minutes)
+        self.assertEqual(summary.steps, yesterday.steps)
