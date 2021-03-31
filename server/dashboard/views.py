@@ -68,6 +68,7 @@ from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
 
 from .services import DevSendNotificationService
+from .services import DevStudyService
 
 class DevFrontView(UserPassesTestMixin, TemplateView):
     
@@ -144,8 +145,69 @@ class DevSendNotificationView(UserPassesTestMixin, TemplateView):
             self.template_name,
             context
         )
-        
 
+class DevCreateStudyView(UserPassesTestMixin, TemplateView):
+    template_name = 'dashboard/dev-message.html'
+    
+    def get_login_url(self):
+        return reverse('dashboard-login')
+    
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        
+        number_of_studies = int(request.POST['number_of_studies'])
+        
+        dev_create_study_service = DevStudyService(self.request.user)
+        
+        for i in range(number_of_studies):
+            dev_create_study_service.create_debug_study()
+        
+        context["results"] = "{} studies are created.".format(number_of_studies)
+        
+        return TemplateResponse(request, self.template_name, context)
+
+
+class DevGenericView(UserPassesTestMixin, TemplateView):
+    template_name = 'dashboard/dev-message.html'
+    
+    def get_login_url(self):
+        return reverse('dashboard-login')
+    
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+    
+    def clear_debug_study(self):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        return dev_study_service.clear_debug_study()
+        
+        
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        
+        
+        dev_command = request.POST['dev-command']
+        
+        if dev_command == 'clear-debug-study':
+            context["results"] = self.clear_debug_study()
+        else:
+            context["results"] = "Unsupported command: {}".format(dev_command)
+        
+        return TemplateResponse(request, self.template_name, context)
 
 class CohortListView(UserPassesTestMixin, TemplateView):
 

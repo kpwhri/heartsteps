@@ -3,6 +3,11 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+from participants.models import Study
+
+import random
+import datetime
+
 class DevSendNotificationService:    
     def __init__(self, configuration=None):
         pass
@@ -62,3 +67,27 @@ class DevSendNotificationService:
             )
         
         return message_response_id
+
+
+class DevStudyService:
+    def __init__(self, user, configuration=None):
+        self.user = user
+    
+    def create_debug_study(self):
+        study_name = "Debug Study {}".format(random.randint(100000000, 999999999))
+        contact_name = "Debugger"
+        contact_number = "8581234567"
+        baseline_period = 7
+        
+        study_instance = Study.objects.create(name=study_name, 
+                                            contact_name=contact_name,
+                                            contact_number=contact_number,
+                                            baseline_period=baseline_period                                            
+                                            )
+        study_instance.admins.set([self.user])
+        
+    def clear_debug_study(self):
+        results = Study.objects.filter(contact_name__startswith="Debugger").delete()
+        
+        return "All debug Studies are deleted: {}".format(results)
+        

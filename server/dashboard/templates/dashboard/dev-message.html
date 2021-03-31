@@ -1,0 +1,10 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block content %}
+<h3>DevTest</h3>
+<h4>Operation has been done. Here is the result: </h4>
+<p><pre>{{ results }}</pre></p>
+<a href="{% url 'dashboard-dev-front' %}">Back to the Dev Front</a>
+{% endblock %}
