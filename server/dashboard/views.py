@@ -109,43 +109,6 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context['studies'] = studies
         return context
 
-
-class DevSendNotificationView(UserPassesTestMixin, TemplateView):
-    
-    template_name = 'dashboard/dev-send-notification.html'
-
-    def get_login_url(self):
-        return reverse('dashboard-login')
-
-    def test_func(self):
-        if self.request.user and not self.request.user.is_anonymous:
-            admin_for_studies = Study.objects.filter(admins=self.request.user)
-            self.admin_for_studies = list(admin_for_studies)
-            if self.request.user.is_staff or self.admin_for_studies:
-                return True
-        return False
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        
-        return context
-    
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        
-        device_id = [request.POST['playerid']]
-        dev_send_notification_service = DevSendNotificationService()
-        message_response_id = dev_send_notification_service.send_dev_notification(device_id=device_id)
-        context['message_response_id'] = message_response_id
-        
-        
-        return TemplateResponse(
-            request,
-            self.template_name,
-            context
-        )
-
 class DevGenericView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/dev-message.html'
     
@@ -159,11 +122,11 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             if self.request.user.is_staff or self.admin_for_studies:
                 return True
         return False
-    
-    def clear_debug_study(self):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        return dev_study_service.clear_debug_study()
+
+    def send_notification(self, player_ids):
+        dev_send_notification_service = DevSendNotificationService()
+        message_response_id = dev_send_notification_service.send_dev_notification(device_id=player_ids)
+        return "Notification is sent: {}".format(player_ids)        
         
     def create_debug_study(self, number_of_studies):
         dev_study_service = DevStudyService(self.request.user)
@@ -172,18 +135,27 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             dev_study_service.create_debug_study()
         
         return "{} studies are created.".format(number_of_studies)    
+
     
+    def clear_debug_study(self):
+        dev_study_service = DevStudyService(self.request.user)
+        
+        return dev_study_service.clear_debug_study()
+            
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         
         
         dev_command = request.POST['dev-command']
         
-        if dev_command == 'clear-debug-study':
-            context["results"] = self.clear_debug_study()
+        if dev_command == 'send-notification':
+            player_ids = [request.POST['playerid']]
+            context["results"] = self.send_notification(player_ids)
         elif dev_command == 'create-debug-study':
             number_of_studies = int(request.POST['number_of_studies'])
             context["results"] = self.create_debug_study(number_of_studies)
+        elif dev_command == 'clear-debug-study':
+            context["results"] = self.clear_debug_study()
         else:
             context["results"] = "Unsupported command: {}".format(dev_command)
         

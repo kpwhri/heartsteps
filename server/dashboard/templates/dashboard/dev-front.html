@@ -6,8 +6,9 @@
 <h3>DevTest</h3>
 <ul>
     <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-send-notification' %}" method="POST" role="form">
+        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
             {% csrf_token %}
+            <input type="hidden" id="dev-command" value="send-notification" name="dev-command" />
             <div class="form-group mb-2">
                 Send example notification to a test device.
             </div>
