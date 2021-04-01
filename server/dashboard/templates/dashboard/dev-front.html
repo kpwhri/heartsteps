@@ -4,114 +4,245 @@
 
 {% block content %}
 <h3>DevTest</h3>
-<ul>
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <input type="hidden" id="dev-command" value="send-notification" name="dev-command" />
-            <div class="form-group mb-2">
-                Send example notification to a test device.
-            </div>
-            <div class="form-group mx-sm-3 mb-2">
-                <input type="text" class="form-control" id="playerid" name="playerid" placeholder="Player ID">
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Send</button>
-        </form>
-    </li>
+{% if is_staff %}
 
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <input type="hidden" id="dev-command" value="create-debug-study" name="dev-command" />
-            <div class="form-group mb-2">
-                Create N debug-studies with random names.
-            </div>
-            <div class="form-group mx-sm-3 mb-2">
-                <input type="text" class="form-control" id="number_of_studies" name="number_of_studies" placeholder="ex) 10">
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Create</button>
-        </form>
-    </li>
-
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <input type="hidden" id="dev-command" value="create-debug-cohort" name="dev-command" />
-            <div class="form-group mb-2">
-                Create N debug-cohorts per study.
-            </div>
-            <div class="form-group mx-sm-3 mb-2">
-                <input type="text" class="form-control" id="number_of_cohorts" name="number_of_cohorts" placeholder="ex) 2">
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Create</button>
-        </form>
-    </li>
-
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <input type="hidden" id="dev-command" value="create-debug-participant" name="dev-command" />
-            <div class="form-group mb-2">
-                Create N debug-participants per cohort.
-            </div>
-            <div class="form-group mx-sm-3 mb-2">
-                <input type="text" class="form-control" id="number_of_participants" name="number_of_participants" placeholder="ex) 100">
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Create</button>
-        </form>
-    </li>
-
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <div class="form-group mb-2">
-                Clear all debug participants. (only works when the debug cohorts are alive)
-            </div>
-            <input type="hidden" id="dev-command" value="clear-debug-participant" name="dev-command" />
-            <button type="submit" class="btn btn-primary mb-2">Clear</button>
-        </form>
-    </li>
+<div id="accordion" class="gap-3">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <h4>Study, Cohorts, Participants, Devices</h4>
+            </button>
+            List all items of "Participants" app (+Device) in a table view
+        </div>
+        <div id="collapseOne" class="collapse cardmargin" aria-labelledby="headingOne" data-parent="#accordion">
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Study</th>
+                        <th scope="col">Cohort</th>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Device</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for study in studies %}
+                        <tr>
+                            <td>{{study.name}}</td>
+                        </tr>
+                        {% for cohort in study.cohorts %}
+                            <tr>
+                                <td></td>
+                                <td>{{cohort.name}}</td>
+                            </tr>
+                            {% for participant in cohort.participants %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{participant.heartsteps_id}}</td>
+                                </tr>
+                                {% for device in participant.devices %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{device.token}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <div class="form-group mb-2">
-                Clear all participants starting with "id".
-            </div>
-            <input type="hidden" id="dev-command" value="clear-debug-participant-id" name="dev-command" />
-            <button type="submit" class="btn btn-primary mb-2">Clear</button>
-        </form>
-    </li>
-
-    <li>
-        <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
-            {% csrf_token %}
-            <div class="form-group mb-2">
-                Clear all debug studies.
-            </div>
-            <input type="hidden" id="dev-command" value="clear-debug-study" name="dev-command" />
-            <button type="submit" class="btn btn-primary mb-2">Clear</button>
-        </form>
-    </li>
-
-
-
-</ul>
-
+    <div class="card">
+        <div class="card-header" id="headingTwo">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                <h4>Colleagues</h4>
+            </button>
+            Other users who are in "admins" lists of my studies
+        </div>
+        <div id="collapseTwo" class="collapse cardmargin" aria-labelledby="headingTwo" data-parent="#accordion">
+            <table class="table table-dark">
+                <thead>
+                    <tr><td>Username</td></tr>
+                </thead>
+                <tbody>
+                    {% if colleagues %}
+                        {% for colleague in colleagues %}
+                            <tr><td>{{ colleague.username }}</td></tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td>No colleagues</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 
+    <div class="card">
+        <div class="card-header" id="headingThree">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                <h4>Create Debug Items</h4>
+            </button>
+        </div>
+        <div id="collapseThree" class="collapse cardmargin" aria-labelledby="headingThree" data-parent="#accordion">
+            <ul>
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="create-debug-study" name="dev-command" />
+                        <div class="form-group mb-2">
+                            Create N debug-studies with random names.
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input type="text" class="form-control" id="number_of_studies" name="number_of_studies" placeholder="ex) 10">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Create</button>
+                    </form>
+                </li>
 
-<div>
-{% for study in studies %}
-    <h3>{{study.name}}</h3>
-    <ul>
-    {% for cohort in study.cohorts %}
-        <li>
-            <a href="{% url 'dashboard-cohort-participants' cohort.id %}">{{cohort.name}}</a>
-        </li>
-    {% endfor %}
-    </ul>
-{% endfor %}
+
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="create-debug-cohort" name="dev-command" />
+                        <div class="form-group mb-2">
+                            Create N debug-cohorts per study.
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input type="text" class="form-control" id="number_of_cohorts" name="number_of_cohorts" placeholder="ex) 2">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Create</button>
+                    </form>
+                </li>
+
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="create-debug-participant" name="dev-command" />
+                        <div class="form-group mb-2">
+                            Create N debug-participants per cohort.
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input type="text" class="form-control" id="number_of_participants" name="number_of_participants" placeholder="ex) 100">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Create</button>
+                    </form>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" id="headingFour">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                <h4>Clear Debug Studies, Cohorts, and Participants Under My Name [Danger]</h4>
+            </button>
+        </div>
+        <div id="collapseFour" class="collapse cardmargin" aria-labelledby="headingFour" data-parent="#accordion">
+            <ul>
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <div class="form-group mb-2">
+                            Clear all debug studies.
+                        </div>
+                        <input type="hidden" id="dev-command" value="clear-debug-study" name="dev-command" />
+                        <button type="submit" class="btn btn-primary mb-2">Clear</button>
+                    </form>
+                </li>
+
+
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <div class="form-group mb-2">
+                            Clear all debug participants. (only works when the parent debug cohorts are alive)
+                        </div>
+                        <input type="hidden" id="dev-command" value="clear-debug-participant" name="dev-command" />
+                        <button type="submit" class="btn btn-primary mb-2">Clear</button>
+                    </form>
+                </li>
+            </ul>
+            <h5>Debug objects to be deleted:
+                <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Study</th>
+                        <th scope="col">Cohort</th>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Device</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for study in debug_studies %}
+                        <tr>
+                            <td>{{study.name}}</td>
+                        </tr>
+                        {% for cohort in study.cohorts %}
+                            <tr>
+                                <td></td>
+                                <td>{{cohort.name}}</td>
+                            </tr>
+                            {% for participant in cohort.participants %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{participant.heartsteps_id}}</td>
+                                </tr>
+                                {% for device in participant.devices %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{device.token}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingFive">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                <h4>Tools</h4>
+            </button>
+        </div>
+        <div id="collapseFive" class="collapse cardmargin" aria-labelledby="headingFive" data-parent="#accordion">
+            <ul>
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="send-notification" name="dev-command" />
+                        <div class="form-group mb-2">
+                            Send example notification to a test device.
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input type="text" class="form-control" id="playerid" name="playerid" placeholder="Player ID">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Send</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
+
+
+{% else %}
+
+<h4>You are not a super user!</h4>
+<a href="{% url 'dashboard-cohorts' %}">Go back to Dashboard</a>
+
+{% endif %}
+
+
 {% endblock %}

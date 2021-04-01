@@ -44,3 +44,7 @@ i.icon-error {
     background-repeat: no-repeat;
     background-position: center center;
 }
+
+.cardmargin {
+    margin: 1rem 15px 0;
+}

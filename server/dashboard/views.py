@@ -43,7 +43,7 @@ from participants.models import DataExportSummary
 from participants.models import DataExportQueue
 from participants.services import ParticipantService
 from push_messages.services import PushMessageService
-from push_messages.models import Message as PushMessage
+from push_messages.models import Device, Message as PushMessage
 from randomization.models import UnavailableReason
 from sms_messages.services import SMSService
 from sms_messages.models import Contact as SMSContact
@@ -68,7 +68,7 @@ from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
 
 from .services import DevSendNotificationService
-from .services import DevStudyService
+from .services import DevService
 
 class DevFrontView(UserPassesTestMixin, TemplateView):
     
@@ -85,29 +85,29 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
                 return True
         return False
 
+    
+        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+                
+        context["is_staff"] = self.request.user.is_staff
         
-        context['cohorts'] = []
-        studies = []
-        if self.request.user.is_superuser:
-            study_query = Study.objects
-        else:
-            study_query = Study.objects.filter(admins=self.request.user)
-        for study in study_query.all():
-            cohorts = []
-            for cohort in study.cohort_set.all():
-                cohorts.append({
-                'id': cohort.id,
-                'name': cohort.name
-            })
-            studies.append({
-                'id': study.id,
-                'name': study.name,
-                'cohorts': cohorts
-            })
-        context['studies'] = studies
+        dev_service = DevService(self.request.user)
+        
+        
+        study_query = dev_service.get_all_studies_query()
+        context['studies'] = dev_service.get_study_cohort_participant_device_dict(study_query)
+        
+        debug_studies_query = dev_service.get_all_studies_query(debug=True)
+        context['debug_studies'] = dev_service.get_study_cohort_participant_device_dict(debug_studies_query)
+        
+        colleagues = dev_service.get_colleague_dict()
+        
+        context['colleagues'] = colleagues
+        
         return context
+
+    
 
 class DevGenericView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/dev-message.html'
@@ -127,81 +127,52 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         dev_send_notification_service = DevSendNotificationService()
         message_response_id = dev_send_notification_service.send_dev_notification(device_id=player_ids)
         return "Notification is sent: {}".format(player_ids)        
-        
-    def create_debug_study(self, number_of_studies):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        for i in range(number_of_studies):
-            dev_study_service.create_debug_study()
-        
-        return "{} studies are created.".format(number_of_studies)    
-
     
-    def create_debug_cohort(self, number_of_cohorts):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        all_debug_studies = dev_study_service.get_all_debug_studies()
-        for study in all_debug_studies:
-            for i in range(number_of_cohorts):
-                dev_study_service.create_debug_cohort(study)
-            
-        return "{} cohorts for all debug studies are created.".format(number_of_cohorts)  
+    def set_device_token(self, username, player_id):
+        dev_send_notification_service = DevSendNotificationService()
+        result = dev_send_notification_service.set_device_token(username, player_id)
+        return "Notification is sent: {}".format(result)        
     
-    def create_debug_participant(self, number_of_participants):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        all_debug_studies = dev_study_service.get_all_debug_studies()
-        for study in all_debug_studies:
-            cohorts_in_study = dev_study_service.get_all_cohorts_in_study(study)
-            for cohort in cohorts_in_study:    
-                for i in range(number_of_participants):
-                    dev_study_service.create_debug_participant(cohort)
-            
-        return "{} participants for all debug studies are created.".format(number_of_participants)  
-    
-    def clear_debug_study(self):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        return dev_study_service.clear_debug_study()
-    
-    def clear_debug_participant(self):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        return dev_study_service.clear_debug_participant()
-    
-    def clear_debug_participant_id(self):
-        dev_study_service = DevStudyService(self.request.user)
-        
-        return dev_study_service.clear_debug_participant_id()
     
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         
+        self.dev_service = DevService(self.request.user)
         
-        dev_command = request.POST['dev-command']
+        context["userstring"] = self.request.user
+        context["is_superuser"] = self.request.user.is_staff
         
-        if dev_command == 'send-notification':
-            player_ids = [request.POST['playerid']]
-            context["results"] = self.send_notification(player_ids)
-        elif dev_command == 'create-debug-study':
-            number_of_studies = int(request.POST['number_of_studies'])
-            context["results"] = self.create_debug_study(number_of_studies)
-        elif dev_command == 'create-debug-cohort':
-            number_of_cohorts = int(request.POST['number_of_cohorts'])
-            context["results"] = self.create_debug_cohort(number_of_cohorts)
-        elif dev_command == 'create-debug-participant':
-            number_of_participants = int(request.POST['number_of_participants'])
-            context["results"] = self.create_debug_participant(number_of_participants)
-        elif dev_command == 'clear-debug-study':
-            context["results"] = self.clear_debug_study()
-        elif dev_command == 'clear-debug-participant':
-            context["results"] = self.clear_debug_participant()
-        elif dev_command == 'clear-debug-participant-id':
-            context["results"] = self.clear_debug_participant_id()
+        if self.request.user and self.request.user.is_superuser:
+            dev_command = request.POST['dev-command']
+            
+            if dev_command == 'send-notification':
+                player_ids = [request.POST['playerid']]
+                context["results"] = self.send_notification(player_ids)
+            elif dev_command == 'set-device-token':
+                username = request.POST['username']
+                player_id = request.POST['playerid']
+                context["results"] = self.set_device_token(username, player_id)
+            elif dev_command == 'create-debug-study':
+                number_of_studies = int(request.POST['number_of_studies'])
+                context["results"] = self.dev_service.create_debug_study(number_of_studies)
+            elif dev_command == 'create-debug-cohort':
+                number_of_cohorts = int(request.POST['number_of_cohorts'])
+                context["results"] = self.dev_service.create_debug_cohort(number_of_cohorts)
+            elif dev_command == 'create-debug-participant':
+                number_of_participants = int(request.POST['number_of_participants'])
+                context["results"] = self.dev_service.create_debug_participant(number_of_participants)
+            elif dev_command == 'clear-debug-study':
+                context["results"] = self.dev_service.clear_debug_study()
+            elif dev_command == 'clear-debug-participant':
+                context["results"] = self.dev_service.clear_debug_participant()
+            elif dev_command == 'clear-orphan-debug-participant':
+                context["results"] = self.dev_service.clear_orphan_debug_participant()
+            else:
+                context["results"] = "Unsupported command: {}".format(dev_command)
+            
+            return TemplateResponse(request, self.template_name, context)
         else:
-            context["results"] = "Unsupported command: {}".format(dev_command)
-        
-        return TemplateResponse(request, self.template_name, context)
+            return TemplateResponse(request, self.template_name, context)
 
 class CohortListView(UserPassesTestMixin, TemplateView):
 
