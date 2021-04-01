@@ -14,7 +14,7 @@ export class EnrollmentService {
         private storage:StorageService
     ) {}
 
-    public enroll(token:String, birthYear:Number):Promise<boolean> {
+    public enroll(token:String, birthYear:Number):Promise<void> {
         const postData = {
             enrollmentToken: token
         };
@@ -30,7 +30,7 @@ export class EnrollmentService {
             return this.participantService.setHeartstepsId(data.heartstepsId);
         })
         .then(() => {
-            return true;
+            return undefined;
         })
         .catch((error) => {
             if(!error) {

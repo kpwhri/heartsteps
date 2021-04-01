@@ -8,6 +8,7 @@ from fitbit_api.services import FitbitService
 from fitbit_activities.models import FitbitDay
 
 from .models import ActivityLog, Day
+from .models import ActivitySummary
 
 def list_and_create_day(user, date):
     day_query = Day.objects.filter(
@@ -49,3 +50,13 @@ def fitbit_day_updates_day(sender, instance, *args, **kwargs):
     for user in fitbit_service.get_users():
         for day in list_and_create_day(user, fitbit_day.date):
             day.update_from_fitbit()
+
+def day_summary_updates_activity_summary(sender, instance, *args, **kwargs):
+    day = instance
+    summary, _ = ActivitySummary.objects.get_or_create(
+        user_id = day.user_id
+    )
+    summary.update()
+
+post_save.connect(day_summary_updates_activity_summary, sender=Day)
+post_delete.connect(day_summary_updates_activity_summary, sender=Day)

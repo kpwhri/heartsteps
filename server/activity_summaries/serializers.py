@@ -4,7 +4,20 @@ from fitbit_activities.models import FitbitDay, FitbitActivity
 
 from activity_logs.models import ActivityLog, ActivityType
 
+from .models import ActivitySummary
 from .models import Day
+
+class ActivitySummarySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ActivitySummary
+        fields = (
+            'activities_completed',
+            'miles',
+            'minutes',
+            'steps',
+            'updated'
+        )
 
 class DaySerializer(serializers.ModelSerializer):
     class Meta:

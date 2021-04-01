@@ -4,10 +4,10 @@ import { StorageService } from "@infrastructure/storage.service";
 import { ParticipantInformationService } from "./participant-information.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReplaySubject, BehaviorSubject } from "rxjs";
-import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 
 export class Participant{
     dateEnrolled: Date;
+    isLoaded: boolean;
     isSetup: boolean;
     isBaselineComplete: boolean;
     name: string;
@@ -26,8 +26,7 @@ export class ParticipantService {
         private storage:StorageService,
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
-        private contactInformationService: ContactInformationService,
-        private dailySummaryService: DailySummaryService
+        private contactInformationService: ContactInformationService
     ) {}
 
     public get():Promise<Participant> {
@@ -73,7 +72,8 @@ export class ParticipantService {
             this.getStaffStatus(),
             this.getName(),
             this.participantInformationService.getDateEnrolled(),
-            this.getBaselineComplete()
+            this.getBaselineComplete(),
+            this.getParticipantLoaded()
         ])
         .then((results) => {
             const participant = new Participant();
@@ -82,6 +82,7 @@ export class ParticipantService {
             participant.name = results[2];
             participant.dateEnrolled = results[3];
             participant.isBaselineComplete = results[4];
+            participant.isLoaded = results[5];
             return participant
         });
     }
@@ -141,9 +142,6 @@ export class ParticipantService {
 
     public setHeartstepsId(heartstepsId:string):Promise<boolean> {
         return this.storage.set(storageKey, heartstepsId)
-        .then(() => {
-            return this.update();
-        })
         .then(() => {
             return true;
         });
@@ -217,6 +215,16 @@ export class ParticipantService {
         })
         .catch(() => {
             return Promise.reject('Participant not loaded');
+        });
+    }
+
+    private getParticipantLoaded(): Promise<boolean> {
+        return this.isParticipantLoaded()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
         });
     }
 

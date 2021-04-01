@@ -10,6 +10,33 @@ from fitbit_activities.services import FitbitDayService
 
 User = get_user_model()
 
+class ActivitySummary(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
+    
+    activities_completed = models.PositiveIntegerField(default=0)
+    miles = models.FloatField(default=0)
+    minutes = models.PositiveIntegerField(default=0)
+    steps = models.PositiveIntegerField(default=0)
+
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user'])
+        ]
+
+    def update(self):
+        days = Day.objects.filter(user=self.user).all()
+        self.activities_completed = sum([_day.activities_completed for _day in days])
+        self.miles = sum([_day.miles for _day in days])
+        self.minutes = sum([_day.total_minutes for _day in days])
+        self.steps = sum([_day.steps for _day in days])
+        self.save()
+
 class Day(models.Model):
 
     user = models.ForeignKey(

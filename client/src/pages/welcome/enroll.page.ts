@@ -21,7 +21,7 @@ export class EnrollPageComponent {
     public continue() {
         this.dismiss()
         .then(() => {
-            this.router.navigate(['onboard']);
+            this.router.navigate(['/']);
         })
     }
 

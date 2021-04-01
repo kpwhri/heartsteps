@@ -45,20 +45,26 @@ export class ActivityTypeService {
         });
     }
 
-    public getActivityTypesByName(): Promise<Array<ActivityType>> {
-        return this.getActivityTypes();
-    }
-
 
     public get(type:string):Promise<ActivityType> {
+        return this.getActivityTypeByName(type)
+        .catch(() => {
+            return this.update()
+            .then(() => {
+                return this.getActivityTypeByName(type)
+            });
+        });
+    }
+
+    private getActivityTypeByName(type:string): Promise<ActivityType> {
         const activityTypes = this.activityTypes.value;
         const activityType = activityTypes.find((activityType) => {
             return activityType.name === type;
         });
         if(activityType) {
             return Promise.resolve(activityType);
-        } else {
-            return Promise.reject('No matching type');
+        }else {
+            return Promise.reject('activity type not found');
         }
     }
 

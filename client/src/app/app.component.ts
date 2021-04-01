@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ParticipantService, Participant } from '@heartsteps/participants/participant.service';
-import { Router, NavigationStart, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { AppService } from './app.service';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -28,7 +28,10 @@ export class MyApp {
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event: NavigationEnd) => {
             if (event.url == "/") {
-                this.participantService.update();
+                this.participantService.get()
+                .then((participant) => {
+                    this.updateRoute(participant);
+                });
             }
         })
         
@@ -45,12 +48,14 @@ export class MyApp {
 
     private updateRoute(participant: Participant) {
         if(this.router.url === "/") {
-            if(participant && participant.isSetup && (participant.isBaselineComplete || participant.staff)) {
+            if(participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
                 this.router.navigate(['home', 'dashboard']);
-            } else if (participant && participant.isSetup) {
+            } else if (participant && participant.isLoaded && participant.isSetup) {
                 this.router.navigate(['baseline']);
-            } else if (participant) {
+            } else if (participant && participant.isLoaded) {
                 this.router.navigate(['onboard'])
+            } else if (participant) {
+                this.router.navigate(['loading']);
             } else {
                 this.router.navigate(['welcome']);
             }   

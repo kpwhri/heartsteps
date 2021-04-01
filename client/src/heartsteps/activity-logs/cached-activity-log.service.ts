@@ -22,9 +22,8 @@ export class CachedActivityLogService {
         private dateFactory: DateFactory,
         private participantInformationService: ParticipantInformationService,
         private activityTypeService: ActivityTypeService
-    ) {}
+    ) {
 
-    public setup():Promise<boolean> {
         this.storage = this.documentStorageService.create('activity-logs');
         this.activityLogService.updated.subscribe((activityLog: ActivityLog) => {
             this.storage.set(activityLog.id, this.activityLogService.serialize(activityLog))
@@ -39,6 +38,9 @@ export class CachedActivityLogService {
             })
         });
 
+    }
+
+    public setup():Promise<boolean> {
         return this.update()
         .then(() => {
             return true;

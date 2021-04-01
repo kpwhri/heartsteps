@@ -47,7 +47,6 @@ export class ActivitiesPage implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-
         this.totalActivitiesCompleteSubscription = this.activitySummaryService.totalActivitiesCompleted
         .filter(activities => activities !== undefined)
         .subscribe((totalActivitiesComplete) => {
@@ -72,6 +71,8 @@ export class ActivitiesPage implements OnInit, OnDestroy {
         .subscribe((steps) => {
             this.totalSteps = steps.toLocaleString();
         });
+
+        this.activitySummaryService.updateStatistics();
 
     }
 

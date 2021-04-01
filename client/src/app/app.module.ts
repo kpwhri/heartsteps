@@ -25,8 +25,14 @@ import { BaselineWeekModule } from '@pages/baseline-week/baseline-week.module';
 import { RootComponent } from './root.component';
 import { AppService } from './app.service';
 import { AppReadyResolver } from './app.resolver';
+import { LoadingPageComponent } from './loading-page.component';
+import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 
 const routes: Routes = [
+  {
+    path: 'loading',
+    component: LoadingPageComponent
+  },
   {
     path: '',
     component: RootComponent,
@@ -38,6 +44,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
+    LoadingPageComponent,
     MyApp,
     RootComponent
   ],
@@ -49,6 +56,7 @@ const routes: Routes = [
     SetupPageModule,
     HomePageModule,
     HeartstepsInfrastructureModule,
+    HeartstepsComponentsModule,
     NotificationsModule,
     NotificationsPageModule,
     WeeklySurveyModule,

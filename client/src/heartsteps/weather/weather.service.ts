@@ -46,6 +46,9 @@ export class WeatherService {
                     console.log('Storing date', date);
                     this.store(forecast);
                 }
+            })
+            .catch(() => {
+                console.log('Weather service failed to update weather');
             });
         });
 
