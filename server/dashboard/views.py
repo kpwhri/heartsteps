@@ -172,8 +172,8 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             elif dev_command == 'send-notification-to-user': 
                 username = request.POST['username']
                 user = self.dev_service.get_user_by_username(username)
-                tokens = self.dev_service.get_distinct_device_tokens_by_user(user)
-                context["results"] = self.send_notification(tokens)
+                result = self.dev_service.send_notification_by_user(user)
+                context["results"] = result
             else:
                 context["results"] = "Unsupported command: {}".format(dev_command)
             

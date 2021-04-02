@@ -4,7 +4,9 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 
+
 from participants.models import Study, Cohort, Participant
+from push_messages.services import PushMessageService
 from push_messages.models import Device
 
 import random
@@ -75,14 +77,28 @@ class DevSendNotificationService:
         
         return message_response_id
     
+    
+    
     def set_device_token(self, username, player_id):
         user = User.objects.get(username=username)
         
-        device = Device.objects.create(
-            type="OneSignal",
-            token=player_id,
-            user=user
-        )
+        device = Device.objects.filter(
+            user = user,
+            active = True
+        ) \
+        .order_by('-created') \
+        .first()
+        
+        if device:
+            device.token=player_id
+            device.save()
+        else:
+            device = Device.objects.create(
+                type="onesignal",
+                token=player_id,
+                user=user,
+                active=True
+            )
         
         return device
 
@@ -90,6 +106,12 @@ class DevSendNotificationService:
 
 
 class DevService:
+    class ArgumentError(RuntimeError):
+        pass
+    
+    class NotificationSendError(RuntimeError):
+        pass
+    
     def __init__(self, user):
         self.user = user
         
@@ -306,7 +328,7 @@ class DevService:
                             
                             participant = self.__create_participant(cohort, heartsteps_id, enrollment_token, study_start_date, new_user)
                             
-                            new_device = Device.objects.create(user=new_user, token=token)
+                            new_device = Device.objects.create(user=new_user, token=token, active=True, type='onesignal')
                             
                             participants.append(participant)
                 
@@ -367,5 +389,12 @@ class DevService:
         else:
             raise DevService.ArgumentError()
         
-            
-    
+    def send_notification_by_user(self, user):
+        service = PushMessageService(user = user)
+        message = service.send_notification(
+            body = 'Dev Test Message Body.',
+            title = 'Dev Test Message Title',
+            collapse_subject = 'Dev Test Collapse Subject',
+            data = {}
+        )
+        return message
