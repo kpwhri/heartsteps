@@ -8,63 +8,53 @@
 
 <div id="accordion" class="gap-3">
     <div class="card">
-        <div class="card-header" id="headingOne">
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        <div class="card-header" id="heading1">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
                 <h4>Study, Cohorts, Participants, Devices</h4>
             </button>
             List all items of "Participants" app (+Device) in a table view
         </div>
-        <div id="collapseOne" class="collapse cardmargin" aria-labelledby="headingOne" data-parent="#accordion">
-            <table class="table table-dark">
-                <thead>
-                    <tr>
-                        <th scope="col">Study</th>
-                        <th scope="col">Cohort</th>
-                        <th scope="col">Participant</th>
-                        <th scope="col">Device</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for study in studies %}
+        <div id="collapse1" class="collapse cardmargin" aria-labelledby="heading1" data-parent="#accordion">
+            {% for study in studies %}
+                <h5><b>"{{study.name}}"</b> Study</h5>
+                <table class="table table-dark">
+                    <thead>
                         <tr>
-                            <td>{{study.name}}</td>
+                            <th scope="col">Cohort</th>
+                            <th scope="col">Participant</th>
+                            <th scope="col">Device</th>
                         </tr>
+                    </thead>
+                    <tbody>
                         {% for cohort in study.cohorts %}
                             <tr>
-                                <td></td>
                                 <td>{{cohort.name}}</td>
+                                <td></td>
+                                <td></td>
                             </tr>
                             {% for participant in cohort.participants %}
                                 <tr>
                                     <td></td>
-                                    <td></td>
                                     <td>{{participant.heartsteps_id}}</td>
+                                    <td> {{ participant.devices_text }} </td>
                                 </tr>
-                                {% for device in participant.devices %}
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>{{device.token}}</td>
-                                    </tr>
-                                {% endfor %}
                             {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            {% endfor %}    
         </div>
     </div>
 
 
     <div class="card">
-        <div class="card-header" id="headingTwo">    
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        <div class="card-header" id="heading2">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
                 <h4>Colleagues</h4>
             </button>
             Other users who are in "admins" lists of my studies
         </div>
-        <div id="collapseTwo" class="collapse cardmargin" aria-labelledby="headingTwo" data-parent="#accordion">
+        <div id="collapse2" class="collapse cardmargin" aria-labelledby="heading2" data-parent="#accordion">
             <table class="table table-dark">
                 <thead>
                     <tr><td>Username</td></tr>
@@ -84,12 +74,12 @@
 
 
     <div class="card">
-        <div class="card-header" id="headingThree">    
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+        <div class="card-header" id="heading3">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
                 <h4>Create Debug Items</h4>
             </button>
         </div>
-        <div id="collapseThree" class="collapse cardmargin" aria-labelledby="headingThree" data-parent="#accordion">
+        <div id="collapse3" class="collapse cardmargin" aria-labelledby="heading3" data-parent="#accordion">
             <ul>
                 <li>
                     <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
@@ -125,7 +115,7 @@
                         {% csrf_token %}
                         <input type="hidden" id="dev-command" value="create-debug-participant" name="dev-command" />
                         <div class="form-group mb-2">
-                            Create N debug-participants per cohort.
+                            Create N debug-participants, Users, and Devices per cohort.
                         </div>
                         <div class="form-group mx-sm-3 mb-2">
                             <input type="text" class="form-control" id="number_of_participants" name="number_of_participants" placeholder="ex) 100">
@@ -139,12 +129,12 @@
     </div>
 
     <div class="card">
-        <div class="card-header" id="headingFour">    
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+        <div class="card-header" id="heading4">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
                 <h4>Clear Debug Studies, Cohorts, and Participants Under My Name [Danger]</h4>
             </button>
         </div>
-        <div id="collapseFour" class="collapse cardmargin" aria-labelledby="headingFour" data-parent="#accordion">
+        <div id="collapse4" class="collapse cardmargin" aria-labelledby="heading4" data-parent="#accordion">
             <ul>
                 <li>
                     <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
@@ -211,12 +201,12 @@
         </div>
     </div>
     <div class="card">
-        <div class="card-header" id="headingFive">    
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+        <div class="card-header" id="heading5">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
                 <h4>Tools</h4>
             </button>
         </div>
-        <div id="collapseFive" class="collapse cardmargin" aria-labelledby="headingFive" data-parent="#accordion">
+        <div id="collapse5" class="collapse cardmargin" aria-labelledby="heading5" data-parent="#accordion">
             <ul>
                 <li>
                     <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
@@ -231,8 +221,29 @@
                         <button type="submit" class="btn btn-primary mb-2">Send</button>
                     </form>
                 </li>
+
+                <li>
+                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="set-device-token" name="dev-command" />
+                        <div class="form-group mb-2">
+                            Set OneSignal Token to a participant.
+                        </div>
+                        <select class="form-select" aria-label="Default select example" id="username" name="username">
+                            <option selected>Select a User</option>
+                            {% for puser in participant_users %}
+                                <option value="{{puser.username}}">{{puser.study.name}} | {{puser.cohort.name}} | {{puser.username}}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <input type="text" class="form-control" id="playerid" name="playerid" placeholder="Player ID">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Set</button>
+                    </form>
+                </li>
             </ul>
         </div>
+
     </div>
 </div>
 

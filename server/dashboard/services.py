@@ -96,6 +96,8 @@ class DevService:
         else:
             return "{}{}".format(heading, randhex)
     
+    
+    
     def get_all_studies_query(self, debug=False):
         if self.user.is_superuser:
             study_query = Study.objects
@@ -147,6 +149,8 @@ class DevService:
         else:
             return []
     
+    
+    
     def get_study_cohort_participant_device_dict(self, study_query):
         studies = []
         if study_query:
@@ -178,11 +182,14 @@ class DevService:
         if participant_query:
             for participant in participant_query.all():
                 devices = self.get_device_by_participant_dict(participant)
+                
                 participants.append({
                                     'heartsteps_id': participant.heartsteps_id,
                                     'enrollment_token': participant.enrollment_token,
-                                    'devices': devices
+                                    'devices': devices,
+                                    'devices_text': ', '.join(d['token'] for d in devices)
                                 })
+        
         return participants
 
     def get_device_by_participant_dict(self, participant):
@@ -207,6 +214,28 @@ class DevService:
                 "username": user.username,
             })
         return colleagues
+    
+    def get_participant_users_dict(self):
+        participant_users_dict = []
+        study_query = self.get_all_studies_query()
+        if study_query:
+            for study in study_query.all():
+                cohort_query = self.get_all_cohorts_query(study)
+                if cohort_query:
+                    for cohort in cohort_query.all():
+                        participant_query = self.get_all_participants_query(cohort)
+                        if participant_query:
+                            for participant in participant_query.all():
+                                if participant and participant.user:
+                                    participant_users_dict.append({
+                                        'username': participant.user.username, 
+                                        'study': {'id': study.id, 'name': study.name}, 
+                                        'cohort': {'id': cohort.id, 'name': cohort.name}
+                                    })
+        
+        return participant_users_dict
+    
+    
     
     def create_debug_study(self, number_of_studies):
         studies = []
@@ -266,18 +295,25 @@ class DevService:
                             heartsteps_id = self.__get_random_name("id", 10, space=False)
                             enrollment_token = self.__get_random_name("t", 8, space=False)
                             study_start_date = "2021-04-01"
+                            username = self.__get_random_name("user", 10, space=False)
+                            new_user = User.objects.create(username=username)
+                            token = self.__get_random_name("token", 10)
                             
-                            participant = self.__create_participant(cohort, heartsteps_id, enrollment_token, study_start_date)
+                            participant = self.__create_participant(cohort, heartsteps_id, enrollment_token, study_start_date, new_user)
+                            
+                            new_device = Device.objects.create(user=new_user, token=token)
+                            
                             participants.append(participant)
                 
         return "{} participants for all debug studies are created:{}".format(len(participants), participants) 
 
-    def __create_participant(self, cohort, heartsteps_id, enrollment_token, study_start_date):
+    def __create_participant(self, cohort, heartsteps_id, enrollment_token, study_start_date, user):
         participant_instance = Participant.objects.create(
                                 cohort=cohort,
                                 heartsteps_id=heartsteps_id,
                                 enrollment_token = enrollment_token,
-                                study_start_date = study_start_date
+                                study_start_date = study_start_date,
+                                user = user
                             ) 
         return participant_instance
     

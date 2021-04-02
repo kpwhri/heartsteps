@@ -102,8 +102,10 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context['debug_studies'] = dev_service.get_study_cohort_participant_device_dict(debug_studies_query)
         
         colleagues = dev_service.get_colleague_dict()
-        
         context['colleagues'] = colleagues
+        
+        participant_users = dev_service.get_participant_users_dict()
+        context['participant_users'] = participant_users
         
         return context
 
