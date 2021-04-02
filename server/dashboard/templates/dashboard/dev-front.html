@@ -77,7 +77,7 @@
         <div class="card-header" id="heading3">    
             <button class="btn btn-link" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
                 <h4>Create Debug Items</h4>
-            </button>
+            </button>Recommend not to do this in the real server.
         </div>
         <div id="collapse3" class="collapse cardmargin" aria-labelledby="heading3" data-parent="#accordion">
             <ul>
@@ -206,7 +206,7 @@
                 <h4>Tools</h4>
             </button>
         </div>
-        <div id="collapse5" class="collapse cardmargin" aria-labelledby="heading5" data-parent="#accordion">
+        <div id="collapse5" class="collapse cardmargin show" aria-labelledby="heading5" data-parent="#accordion">
             <ul>
                 <li>
                     <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
@@ -222,23 +222,66 @@
                     </form>
                 </li>
 
+
+
+
+                
                 <li>
-                    <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
                         {% csrf_token %}
                         <input type="hidden" id="dev-command" value="set-device-token" name="dev-command" />
-                        <div class="form-group mb-2">
-                            Set OneSignal Token to a participant.
+                        
+                        <div class="form-row">
+                            <div class="col">
+                                Set OneSignal Token to a participant.
+                            </div>
                         </div>
-                        <select class="form-select" aria-label="Default select example" id="username" name="username">
-                            <option selected>Select a User</option>
-                            {% for puser in participant_users %}
-                                <option value="{{puser.username}}">{{puser.study.name}} | {{puser.cohort.name}} | {{puser.username}}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="form-group mx-sm-3 mb-2">
-                            <input type="text" class="form-control" id="playerid" name="playerid" placeholder="Player ID">
+
+                        <div class="form-row">
+                            <div class="col">
+                                <select class="form-select form-control m-1" id="username" name="username">
+                                    <option selected>Select a User</option>
+                                    {% for puser in participant_users %}
+                                        <option value="{{puser.username}}">{{puser.study.name}} | {{puser.cohort.name}} | {{puser.username}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mb-2">Set</button>
+                        <div class="form-row">
+                            <div class="col">
+                                <input type="text" class="form-control m-1" id="playerid" name="playerid" placeholder="Player ID">
+                                <button type="submit" class="btn btn-primary mb-2 m-1">Set</button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+
+                <li>
+                    <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="send-notification-to-user" name="dev-command" />
+                        
+                        <div class="form-row">
+                            <div class="col">
+                                Send test notification to a user.
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col">
+                                <select class="form-select form-control m-1" id="username" name="username">
+                                    <option selected>Select a User</option>
+                                    {% for puser in participant_users %}
+                                        <option value="{{puser.username}}">{{puser.study.name}} | {{puser.cohort.name}} | {{puser.username}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary mb-2 m-1">Send</button>
+                            </div>
+                        </div>
                     </form>
                 </li>
             </ul>

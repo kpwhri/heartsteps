@@ -60,13 +60,18 @@ class DevSendNotificationService:
         else:
             raise Exception(response.text)
             
-    def send_notification(self, device_id):
-        message_response_id = self.__send(device_id = device_id,
-                body = "test body",
-                title = "test title",
-                collapse_subject = "test collapse_subject",
-                data = {}
-            )
+    def send_notification(self, device_ids):
+        for device_id in device_ids:
+            device_id_single = [device_id]
+            try:
+                message_response_id = self.__send(device_id = device_id_single,
+                        body = "test body",
+                        title = "test title",
+                        collapse_subject = "test collapse_subject",
+                        data = {}
+                    )
+            except Exception as err:
+                print("Exception thrown: {}".format(err))
         
         return message_response_id
     
@@ -342,5 +347,25 @@ class DevService:
         
         return "Orphan Participants are deleted: {}".format(result)
     
+    def get_user_by_username(self, username):
+        try:
+            user = User.objects.filter(username=username).first()
+        
+            return user
+        except:
+            return None
     
+    def get_distinct_device_tokens_by_user(self, user):
+        if user:
+            try:
+                devices = Device.objects.filter(user=user).all()
+                tokens = [device.token for device in devices]
+                tokens = list(set(tokens))
+                return tokens
+            except:
+                raise DevService.ArgumentError()
+        else:
+            raise DevService.ArgumentError()
+        
+            
     

@@ -169,6 +169,11 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 context["results"] = self.dev_service.clear_debug_participant()
             elif dev_command == 'clear-orphan-debug-participant':
                 context["results"] = self.dev_service.clear_orphan_debug_participant()
+            elif dev_command == 'send-notification-to-user': 
+                username = request.POST['username']
+                user = self.dev_service.get_user_by_username(username)
+                tokens = self.dev_service.get_distinct_device_tokens_by_user(user)
+                context["results"] = self.send_notification(tokens)
             else:
                 context["results"] = "Unsupported command: {}".format(dev_command)
             
