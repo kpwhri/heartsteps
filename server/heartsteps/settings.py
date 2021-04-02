@@ -132,7 +132,8 @@ INSTALLED_APPS = [
     'pin_gen',
     'closeout_messages',
     'burst_periods',
-    'fitbit_clock_face'
+    'fitbit_clock_face',
+    'nlm'
 ]
 
 MIDDLEWARE = [
