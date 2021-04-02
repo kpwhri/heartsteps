@@ -398,3 +398,26 @@ class DevService:
             data = {}
         )
         return message
+
+    def get_cohort_dict(self):
+        study_query = self.get_all_studies_query()
+        cohorts = []
+        if study_query:
+            for study in study_query.all():
+                cohort_query = self.get_all_cohorts_query(study)
+                if cohort_query:
+                    for cohort in cohort_query.all():
+                        cohorts.append({
+                            'id': cohort.id,
+                            'study': {
+                                'id': study.id,
+                                'name': study.name
+                            },
+                            'name': cohort.name
+                        })
+        return cohorts
+    
+    def get_cohort_by_id(self, cohort_id):
+        cohort = Cohort.objects.get(id=cohort_id)
+        
+        return cohort

@@ -56,6 +56,8 @@ from walking_suggestion_surveys.models import Configuration as WalkingSuggestion
 from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurveyDecision
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
+from nlm.services import NLMService
+
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
 
@@ -107,6 +109,8 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         participant_users = dev_service.get_participant_users_dict()
         context['participant_users'] = participant_users
         
+        cohorts = dev_service.get_cohort_dict()
+        context['cohorts'] = cohorts
         return context
 
     
@@ -140,6 +144,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         
         self.dev_service = DevService(self.request.user)
+        self.nlm_service = NLMService(self.request.user)
         
         context["userstring"] = self.request.user
         context["is_superuser"] = self.request.user.is_staff
@@ -174,6 +179,10 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 user = self.dev_service.get_user_by_username(username)
                 result = self.dev_service.send_notification_by_user(user)
                 context["results"] = result
+            elif dev_command == 'assign-cohort-to-nlm':
+                cohort_id = request.POST['cohort-id']
+                cohort = self.dev_service.get_cohort_by_id(cohort_id)
+                context["results"] = self.nlm_service.assign_cohort_to_nlm(cohort)
             else:
                 context["results"] = "Unsupported command: {}".format(dev_command)
             
