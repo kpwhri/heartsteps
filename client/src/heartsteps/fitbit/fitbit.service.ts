@@ -27,11 +27,16 @@ export class FitbitService {
         private browser: BrowserService,
         private storageService: StorageService,
         private platform: Platform
-    ) {
-        this.getAccount()
+    ) {}
+
+    public setup(): Promise<void> {
+        return this.getAccount()
         .then((account) => {
             this.account.next(account);
         })
+        .catch(() => {
+            this.account.next(undefined);
+        });
     }
 
     public setRedirectURL(url: string) {

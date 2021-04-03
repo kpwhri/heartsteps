@@ -36,7 +36,7 @@ export class FitbitWatchService {
             this.watch.next(watch);
         })
         .catch(() => {
-            
+            this.watch.next(undefined);
         });
     }
 

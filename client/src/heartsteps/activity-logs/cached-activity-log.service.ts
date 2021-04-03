@@ -37,14 +37,7 @@ export class CachedActivityLogService {
                 this.reload();
             })
         });
-
-    }
-
-    public setup():Promise<boolean> {
-        return this.update()
-        .then(() => {
-            return true;
-        });
+        this.reload();
     }
 
     public get(day: Date): Subscribable<Array<ActivityLog>> {
@@ -140,7 +133,7 @@ export class CachedActivityLogService {
         });
     }
 
-    private reload(): Promise<Array<ActivityLog>> {
+    public reload(): Promise<Array<ActivityLog>> {
         return this.storage.getList()
         .then((items) => {
             return items.map((data) => {

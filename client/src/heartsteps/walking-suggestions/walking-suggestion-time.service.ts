@@ -12,7 +12,7 @@ export class WalkingSuggestionTimeService{
         private storage:StorageService
     ){}
 
-    getTimeFields():Promise<Array<any>> {
+    public getTimeFields():Promise<Array<any>> {
         return Promise.resolve([
             { key:'morning', name:'Morning'},
             { key:'lunch', name:'Lunch'},
@@ -22,7 +22,7 @@ export class WalkingSuggestionTimeService{
         ])
     }
 
-    getDefaultTimes():Promise<any> {
+    public getDefaultTimes():Promise<any> {
         return Promise.resolve({
             morning: this.parseTime("08:00"),
             lunch: this.parseTime("12:00"),
@@ -32,7 +32,7 @@ export class WalkingSuggestionTimeService{
         });
     }
 
-    getTimes():Promise<any> {
+    public getTimes():Promise<any> {
         return this.storage.get(storageKey)
         .then((times) => {
             const timesAsDates = {}
@@ -46,18 +46,18 @@ export class WalkingSuggestionTimeService{
         })
     }
 
-    setTimes(times):Promise<any> {
+    public setTimes(times):Promise<any> {
         return this.storage.set(storageKey, times)
         .then(() => {
             return times;
         });
     }
 
-    removeTimes():Promise<any> {
+    public removeTimes():Promise<any> {
         return this.storage.remove(storageKey);
     }
 
-    updateTimes(times:any):Promise<boolean> {
+    public updateTimes(times:any):Promise<boolean> {
         return this.validateTimes(times)
         .then(() => {
             return this.saveTimes(times)
@@ -67,7 +67,7 @@ export class WalkingSuggestionTimeService{
         })
     }
 
-    validateTimes(times:any):Promise<boolean> {
+    public validateTimes(times:any):Promise<boolean> {
         let errors = {
             required: [],
             outOfOrder: [],
@@ -108,7 +108,7 @@ export class WalkingSuggestionTimeService{
         })
     }
 
-    saveTimes(times:any):Promise<boolean> {
+    public saveTimes(times:any):Promise<boolean> {
         const formattedTimes = {};
         Object.keys(times).forEach((key) => {
             formattedTimes[key] = this.formatTime(times[key]);
@@ -125,7 +125,7 @@ export class WalkingSuggestionTimeService{
         })
     }
 
-    loadTimes():Promise<any> {
+    public loadTimes():Promise<any> {
         return this.getTimes()
         .catch(() => {
             return this.heartstepsServer.get('walking-suggestions/times/')

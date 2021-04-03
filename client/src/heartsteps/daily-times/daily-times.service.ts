@@ -16,10 +16,7 @@ export class DailyTimeService {
     constructor() {}
 
     public setup():Promise<boolean> {
-
-        this.loadDefaultTimes();
-
-        return Promise.resolve(true);
+        return this.loadDefaultTimes();
     }
 
     private loadDefaultTimes():Promise<boolean> {

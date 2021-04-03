@@ -12,8 +12,6 @@ import { ActivityTypeService } from "@heartsteps/activity-types/activity-type.se
 import { FitbitWatchService } from "@heartsteps/fitbit-watch/fitbit-watch.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
 import { ParticipantInformationService } from "./participant-information.service";
-import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
-import { WeatherService } from "@heartsteps/weather/weather.service";
 
 
 @Injectable()
@@ -32,9 +30,7 @@ export class ProfileService {
         private cachedActivityLogService: CachedActivityLogService,
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService,
-        private participantInformationService: ParticipantInformationService,
-        private dailySummaryService: DailySummaryService,
-        private weatherService: WeatherService
+        private participantInformationService: ParticipantInformationService
     ) {}
 
     public isComplete():Promise<boolean> {
@@ -59,9 +55,12 @@ export class ProfileService {
 
     public update():Promise<void> {
         return Promise.all([
+            this.fitbitService.setup(),
             this.loadCurrentWeek(),
+            this.setupActivityLogCache(),
+            this.setupActivityPlanService(),
             this.setupActivityTypeService(),
-            this.setupActivityPlanService()
+            this.setupDailyTimes(),
         ])
         .then(() => {
             return undefined;
@@ -73,14 +72,13 @@ export class ProfileService {
 
     public load():Promise<boolean> {
         return Promise.all([
-            this.setupDailyTime(),
-            this.loadWalkingSuggestions(),
+            this.loadActivityLogCache(),
+            this.loadWalkingSuggestionTimes(),
             this.loadPlaces(),
             this.loadReflectionTime(),
             this.loadContactInformation(),
             this.loadFitbit(),
             this.loadFitbitWatchStatus(),
-            this.loadCurrentActivityLogs(),
             this.loadParticipantInformation()
         ])
         .then(() => {
@@ -136,7 +134,7 @@ export class ProfileService {
         })
     }
 
-    private setupDailyTime():Promise<boolean> {
+    private setupDailyTimes():Promise<boolean> {
         return this.dailyTimeService.setup()
         .catch(() => {
             return Promise.resolve(false);
@@ -203,14 +201,17 @@ export class ProfileService {
         })
     }
 
-    private loadWalkingSuggestions():Promise<boolean> {
-        return this.walkingSuggestionTimeService.loadTimes()
+    private loadWalkingSuggestionTimes():Promise<boolean> {
+        return this.walkingSuggestionTimeService.getTimes()
+        .catch(() => {
+            return this.walkingSuggestionTimeService.loadTimes()
+        })
         .then(() => {
             return true;
         })
         .catch(() => {
-            return Promise.resolve(false);
-        })
+            return false
+        });
     }
 
     private checkPlacesSet():Promise<boolean> {
@@ -273,13 +274,23 @@ export class ProfileService {
         })
     }
 
-    private loadCurrentActivityLogs(): Promise<boolean> {
-        return this.cachedActivityLogService.setup()
+    private setupActivityLogCache(): Promise<boolean> {
+        return this.cachedActivityLogService.reload()
         .then(() => {
             return true;
         })
         .catch(() => {
             return Promise.resolve(false);
+        })
+    }
+
+    private loadActivityLogCache(): Promise<boolean> {
+        return this.cachedActivityLogService.update()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
         })
     }
 
@@ -310,29 +321,6 @@ export class ProfileService {
         })
         .catch(() => {
             return Promise.resolve(false);
-        })
-    }
-
-    private loadDailySummaries(): Promise<boolean> {
-        return this.participantInformationService.getDateEnrolled()
-        .then((enrolledDate) => {
-            return this.dailySummaryService.setup(enrolledDate)
-            .then(() => {
-                return true;
-            })
-            .catch(() => {
-                return Promise.resolve(false);
-            });
-        });
-    }
-
-    private updateWeatherCache(): Promise<boolean> {
-        return this.weatherService.updateCache()
-        .then(() => {
-            return true;
-        })
-        .catch(() => {
-            return false;
         })
     }
 
