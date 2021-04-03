@@ -1362,6 +1362,26 @@ class ParticipantAdherenceView(ParticipantView):
         context['adherence_summaries'] = adherence_summaries
         return context
 
+class ParticipantSendTestWalkingSuggestionSurvey(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+        if self.participant.user:
+            try:
+                configuration = WalkingSuggestionSurveyConfiguration.objects.get(
+                    user = self.participant.user
+                )
+                survey = configuration.create_survey()
+                try:
+                    survey.send_notification()
+                    messages.add_message(request, messages.SUCCESS, 'Survey sent')
+                except survey.NotificationSendError:
+                    messages.add_message(request, messages.ERROR, 'Could not send survey')
+            except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+                messages.add_message(request, messages.ERROR, 'Walking suggestion configuration does not exist')    
+        else:
+            messages.add_message(request, messages.ERROR, 'Not enabled')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 class CohortWalkingSuggestionSurveyView(CohortView):
 
     template_name = 'dashboard/cohort-walking-suggestion-surveys.html'

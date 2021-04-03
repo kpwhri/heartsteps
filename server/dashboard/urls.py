@@ -35,6 +35,7 @@ from .views import CohortMorningMessagesView
 from .views import CohortWalkingSuggestionSurveyView
 from .views import ParticipantBurstPeriodConfigurationView
 from .views import ParticipantPageViews
+from .views import ParticipantSendTestWalkingSuggestionSurvey
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -64,6 +65,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/page-views', ParticipantPageViews.as_view(), name='dashboard-cohort-participant-page-views'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/export', ParticipantExportView.as_view(), name='dashboard-cohort-participant-export'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/send-walking-suggestion-survey', ParticipantSendTestWalkingSuggestionSurvey.as_view(), name='dashboard-cohort-participant-send-walking-suggestion-survey'),
     url('(?P<cohort_id>[\d]+)/walking-suggestion-surveys/(?P<start>[\d\w\-]+)/(?P<end>[\d\w\-]+)', CohortWalkingSuggestionSurveyView.as_view()),
     url('(?P<cohort_id>[\d]+)/walking-suggestion-surveys', CohortWalkingSuggestionSurveyView.as_view(), name='dashboard-cohort-walking-suggestion-surveys'),
     url('(?P<cohort_id>[\d]+)/morning-messages', CohortMorningMessagesView.as_view(), name='dashboard-cohort-morning-messages'),

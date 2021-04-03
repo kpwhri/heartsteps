@@ -152,4 +152,10 @@
     <input type="hidden" name="message" value="Hi, this is a test message." />
     <input type="submit" value="Send test notification" />
 </form>
+
+<form method="POST" action="{% url 'dashboard-cohort-participant-send-walking-suggestion-survey' cohort.id participant.heartsteps_id %}">
+    {% csrf_token %}
+    <input type="submit" value="Send Walking Suggestion Survey" />
+</form>
+
 {% endblock %}
