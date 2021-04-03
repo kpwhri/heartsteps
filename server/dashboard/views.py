@@ -42,6 +42,7 @@ from participants.models import DataExport
 from participants.models import DataExportSummary
 from participants.models import DataExportQueue
 from participants.services import ParticipantService
+from page_views.models import PageView
 from push_messages.services import PushMessageService
 from push_messages.models import Device, Message as PushMessage
 from randomization.models import UnavailableReason
@@ -1153,6 +1154,21 @@ class ParticipantSMSMessagesView(ParticipantView):
             self.template_name,
             context
         )
+
+class ParticipantPageViews(ParticipantView):
+    template_name = 'dashboard/participant-page-views.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.participant.user:
+            page_views = PageView.objects.filter(
+                user = self.participant.user,
+                time__gte = timezone.now() - timedelta(days=7)
+            ) \
+            .order_by('-time') \
+            .all()
+            context['page_views'] = page_views
+        return context
 
 class ParticipantFeatureToggleView(ParticipantView):
     template_name = 'dashboard/participant-feature-toggle.html'

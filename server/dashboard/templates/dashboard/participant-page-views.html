@@ -1,0 +1,17 @@
+{% extends 'dashboard/participant.html'%}
+
+{% block content %}
+<h1>Page Views</h1>
+{% if page_views %}
+<ul>
+    {% for page_view in page_views %}
+    <li>
+        <em>{{page_view.time|date}} at {{page_view.time|time}}</em>
+        {{page_view.uri}}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No page views for {{participant.heartsteps_id}}</p>
+{% endif %}
+{% endblock %}

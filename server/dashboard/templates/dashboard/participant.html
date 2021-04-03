@@ -138,6 +138,13 @@
                 Data Exports
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-page-views' cohort.id participant.heartsteps_id %}"
+                >
+                Page Views
+            </a>
+        </li>
     </ul>
 </nav>
 <form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
