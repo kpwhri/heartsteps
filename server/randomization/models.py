@@ -408,11 +408,10 @@ class Decision(models.Model):
     def is_notification_recently_sent(self):
         return self.__is_message_recently_sent()
 
-    def __is_message_recently_sent(self, message_model=None, duration_minutes=60):
-        if not message_model:
-            message_model = Message
-        recent_notification_count = message_model.objects.filter(
+    def __is_message_recently_sent(self, duration_minutes=60):
+        recent_notification_count = Message.objects.filter(
             recipient = self.user,
+            collapse_subject = 'activity-suggestion',
             created__range = [
                 self.time - timedelta(minutes = duration_minutes),
                 self.time

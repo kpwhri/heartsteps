@@ -136,11 +136,12 @@ class DecisionMessageTest(TestCase):
         self.assertIn(message_template, context_objects)
         self.assertIn(push_message, context_objects)
 
-    def test_is_unavailabe_if_notification_sent_in_last_hour(self):
+    def test_is_unavailabe_if_activity_suggestion_sent_in_last_hour(self):
         decision_service = self.make_decision_service()
         message = PushMessage.objects.create(
             recipient = decision_service.decision.user,
-            message_type = PushMessage.NOTIFICATION
+            message_type = PushMessage.NOTIFICATION,
+            collapse_subject = 'activity-suggestion'
         )
         message.created = decision_service.decision.time - timedelta(minutes=30)
         message.save()
@@ -148,6 +149,18 @@ class DecisionMessageTest(TestCase):
         decision_service.update_availability()
 
         self.assertFalse(decision_service.decision.available)
+
+    def test_is_available_if_non_activity_suggestion_push_message_sent(self):
+        message = PushMessage.objects.create(
+            recipient = self.user,
+            message_type = PushMessage.NOTIFICATION,
+            collapse_subject = 'Not an activity suggestion'
+        )
+        
+        decision_service = self.make_decision_service()
+        decision_service.update_availability()
+
+        self.assertTrue(decision_service.decision.available)
 
     def test_is_availabe_if_no_notification_last_hour(self):
         decision_service = self.make_decision_service()
