@@ -29,8 +29,15 @@ class ActivitySummary(models.Model):
             models.Index(fields=['user'])
         ]
 
+    def get_all_days(self):
+        days = Day.objects.filter(user=self.user).order_by('updated').all()
+        days_by_date = {}
+        for day in days:
+            days_by_date[day.date] = day
+        return [days_by_date[_date] for _date in sorted(days_by_date.keys())]
+
     def update(self):
-        days = Day.objects.filter(user=self.user).all()
+        days = self.get_all_days()
         self.activities_completed = sum([_day.activities_completed for _day in days])
         self.miles = sum([_day.miles for _day in days])
         self.minutes = sum([_day.total_minutes for _day in days])
