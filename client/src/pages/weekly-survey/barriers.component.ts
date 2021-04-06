@@ -18,6 +18,8 @@ export class BarriersComponent implements OnInit {
 
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
+    public ready: boolean = false;
+
     public form: FormGroup;
 
     public week: Week;
@@ -28,7 +30,6 @@ export class BarriersComponent implements OnInit {
     public willCompleteOptions: Array<SelectOption>;
 
     constructor(
-        private activatedRoute: ActivatedRoute,
         private barrierModalController: BarrierModalController,
         private weeklySurveyService: WeeklySurveyService,
         private loadingService: LoadingService
@@ -36,14 +37,25 @@ export class BarriersComponent implements OnInit {
 
     ngOnInit() {
         this.form = new FormGroup({});
+        this.loadingService.show('Loading barriers');
+        this.weeklySurveyService.get()
+        .then(weeklySurvey => {
+            this.weeklySurvey = weeklySurvey
+            this.week = this.weeklySurvey.currentWeek;
+            this.barriers = this.weeklySurvey.barriers;
 
-        this.weeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
-        this.week = this.weeklySurvey.currentWeek;
-        this.barriers = this.weeklySurvey.barriers;
+            this.form.addControl('barriers', new FormControl([...this.barriers]));
+            this.form.addControl('willBarriersContinue', new FormControl(this.weeklySurvey.willBarriersContinue));
 
-        this.form.addControl('barriers', new FormControl([...this.barriers]));
-        this.form.addControl('willBarriersContinue', new FormControl(this.weeklySurvey.willBarriersContinue));
+            this.update();
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
 
+    }
+
+    private update() {
         this.barrierOptions = this.weeklySurvey.barrierOptions.map((option) => {
             const selectOption = new SelectOption();
             selectOption.name = option;
@@ -65,7 +77,7 @@ export class BarriersComponent implements OnInit {
                 value: 'unknown'
             }
         ]
-
+        this.ready = true;
     }
 
     public nextPage() {

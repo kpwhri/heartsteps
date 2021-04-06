@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { Router, ActivatedRoute } from "@angular/router";
-import { WeeklySurveyService as HeartstepsWeeklySurveyService, WeeklySurvey } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { Router } from "@angular/router";
+import { WeeklySurveyService as HeartstepsWeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { SurveyStartPage } from "./survey-start.page";
 import { SurveyComponent } from "./survey.component";
 import { NextWeekGoalComponent } from "./next-week-goal.component";
@@ -13,16 +13,13 @@ import { BarriersComponent } from "./barriers.component";
 export class WeeklySurveyPage implements OnInit {
 
     public pages:Array<any>;
-    private weeklySurvey: WeeklySurvey;
 
     constructor(
         private weeklySurveyService: HeartstepsWeeklySurveyService,
-        private activatedRoute: ActivatedRoute,
         private router: Router
     ) {}
 
     ngOnInit() {
-        this.weeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
         this.pages = [{
             key: 'start',
             title: 'Weekly Review',

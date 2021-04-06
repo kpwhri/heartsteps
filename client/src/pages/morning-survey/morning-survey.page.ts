@@ -17,28 +17,30 @@ export class MorningSurveyPage {
 
     constructor(
         private morningMessageService: MorningMessageService,
-        private activatedRoute: ActivatedRoute,
         private router: Router
     ) {
-        this.morningMessage = this.activatedRoute.snapshot.data['morningMessage'];
+        this.morningMessageService.get()
+        .then((morningMessage) => {
+            this.morningMessage = morningMessage;
 
-        if (this.morningMessage.anchor) {
-            this.pages = [{
-                key: 'start',
-                title: 'Good Morning',
-                component: StartPageComponent
-            }, {
-                key: 'survey',
-                title: "What's your day like today?",
-                component: SurveyPageComponent
-            }]
-        } else {
-            this.pages = [{
-                key: 'survey',
-                title: "What's your day like today?",
-                component: SurveyPageComponent
-            }]
-        }
+            if (this.morningMessage.anchor) {
+                this.pages = [{
+                    key: 'start',
+                    title: 'Good Morning',
+                    component: StartPageComponent
+                }, {
+                    key: 'survey',
+                    title: "What's your day like today?",
+                    component: SurveyPageComponent
+                }]
+            } else {
+                this.pages = [{
+                    key: 'survey',
+                    title: "What's your day like today?",
+                    component: SurveyPageComponent
+                }]
+            }
+        });
 
     }
 
