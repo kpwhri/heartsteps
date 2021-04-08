@@ -1658,6 +1658,14 @@ class ParticipantMorningMessagesView(ParticipantView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        if self.participant.user:
+            try:
+                context['configuration'] = MorningMessageConfiguration.objects \
+                .prefetch_related('daily_task') \
+                .get(user = self.participant.user)
+            except MorningMessageConfiguration.DoesNotExist:
+                pass
         
         if self.participant.user:
             morning_messages = MorningMessage.objects \
@@ -1735,6 +1743,28 @@ class ParticipantMorningMessagesView(ParticipantView):
             
         context['morning_messages'] = serialized_morning_messages
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.participant.user:
+            try:
+                configuration = MorningMessageConfiguration.objects.get(user=self.participant.user)
+                if not configuration.daily_task:
+                    configuration.create_daily_task()
+                if configuration.enabled:
+                    messages.add_message(request, messages.SUCCESS, 'Morning messages disabled')
+                    configuration.enabled = False
+                else:
+                    messages.add_message(request, messages.SUCCESS, 'Morning messages enabled')
+                    configuration.enabled = True
+                configuration.save()
+            except MorningMessageConfiguration.DoesNotExist:
+                MorningMessageConfiguration.objects.create(
+                    user = self.participant.user
+                )
+                messages.add_message(request, messages.SUCCESS, 'Morning message configuration created')
+        else:
+            messages.add_message(request, messages.ERROR, 'Participant disabled')
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 class ParticipantExportView(ParticipantView):
 
