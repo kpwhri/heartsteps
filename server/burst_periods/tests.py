@@ -14,7 +14,8 @@ class TestBurstPeriodGeneration(TestCase):
     def setUp(self):
         self.user = User.objects.create(username='test')
         self.configuration = Configuration.objects.create(
-            user=self.user
+            user=self.user,
+            enabled = True
         )
 
     def test_does_not_generate_dates_if_disabled(self):

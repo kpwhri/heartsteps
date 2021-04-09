@@ -146,12 +146,9 @@ class ParticipantService:
             burst_period_configuration = BurstPeriodConfiguration.objects.get(
                 user = self.participant.user
             )
-            burst_period_configuration.enabled = True
-            burst_period_configuration.save()
         except BurstPeriodConfiguration.DoesNotExist:
             burst_period_configuration = BurstPeriodConfiguration.objects.create(
-                user = self.participant.user,
-                enabled = True
+                user = self.participant.user
             )
 
         if self.is_baseline_complete():
@@ -201,14 +198,6 @@ class ParticipantService:
     def disable(self):
         self.participant.active = False
         self.participant.save()
-        try:
-            burst_period_configuration = BurstPeriodConfiguration.objects.get(
-                user = self.participant.user
-            )
-            burst_period_configuration.enabled = False
-            burst_period_configuration.save()
-        except BurstPeriodConfiguration.DoesNotExist:
-            pass
         try:
             activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
                 user = self.participant.user
