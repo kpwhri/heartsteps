@@ -50,8 +50,8 @@ class MessageView(APIView):
             )
         except Message.DoesNotExist:
             return Response({}, status = status.HTTP_404_NOT_FOUND)
-        if request.user.id is not message.recipient.id:
-            return Response({}, status = status.HTTP_401_NOT_AUTHORIZED)
+        if request.user.id != message.recipient.id:
+            return Response({}, status = status.HTTP_401_UNAUTHORIZED)
         return Response(
             {
                 'id': str(message.uuid),
