@@ -46,5 +46,6 @@ urlpatterns = [
     ),
     url(r'^api-auth', include('rest_framework.urls')),
     url(r'^dashboard/', include('dashboard.urls')),
+    url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'', include('privacy_policy.urls'))
 ]

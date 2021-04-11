@@ -19,6 +19,10 @@ DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
+SILKY_AUTHENTICATION = True
+SILKY_AUTHORISATION = True
+SILKY_PERMISSIONS = lambda user: user.is_superuser
+
 ADHERENCE_MESSAGE_TIME = env.str('ADHERENCE_MESSAGE_TIME', '19:00')
 
 ACTIVITY_SURVEY_DEFAULT_PROBABILITY = env.float('ACTIVITY_SURVEY_DEFAULT_PROBABILITY', default=0.25)
@@ -93,6 +97,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
+    'silk',
     'privacy_policy',
     'user_event_logs',
     'contact',
@@ -137,6 +142,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
