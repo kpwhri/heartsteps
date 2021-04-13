@@ -42,6 +42,7 @@ from participants.models import DataExport
 from participants.models import DataExportSummary
 from participants.models import DataExportQueue
 from participants.services import ParticipantService
+from page_views.models import PageView
 from push_messages.services import PushMessageService
 from push_messages.models import Device, Message as PushMessage
 from randomization.models import UnavailableReason
@@ -1154,6 +1155,21 @@ class ParticipantSMSMessagesView(ParticipantView):
             context
         )
 
+class ParticipantPageViews(ParticipantView):
+    template_name = 'dashboard/participant-page-views.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.participant.user:
+            page_views = PageView.objects.filter(
+                user = self.participant.user,
+                time__gte = timezone.now() - timedelta(days=7)
+            ) \
+            .order_by('-time') \
+            .all()
+            context['page_views'] = page_views
+        return context
+
 class ParticipantFeatureToggleView(ParticipantView):
     template_name = 'dashboard/participant-feature-toggle.html'
 
@@ -1345,6 +1361,26 @@ class ParticipantAdherenceView(ParticipantView):
         context['metric_names'] = metric_names
         context['adherence_summaries'] = adherence_summaries
         return context
+
+class ParticipantSendTestWalkingSuggestionSurvey(ParticipantView):
+
+    def post(self, request, *args, **kwargs):
+        if self.participant.user:
+            try:
+                configuration = WalkingSuggestionSurveyConfiguration.objects.get(
+                    user = self.participant.user
+                )
+                survey = configuration.create_survey()
+                try:
+                    survey.send_notification()
+                    messages.add_message(request, messages.SUCCESS, 'Survey sent')
+                except survey.NotificationSendError:
+                    messages.add_message(request, messages.ERROR, 'Could not send survey')
+            except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+                messages.add_message(request, messages.ERROR, 'Walking suggestion configuration does not exist')    
+        else:
+            messages.add_message(request, messages.ERROR, 'Not enabled')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 class CohortWalkingSuggestionSurveyView(CohortView):
 
@@ -1622,6 +1658,14 @@ class ParticipantMorningMessagesView(ParticipantView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        if self.participant.user:
+            try:
+                context['configuration'] = MorningMessageConfiguration.objects \
+                .prefetch_related('daily_task') \
+                .get(user = self.participant.user)
+            except MorningMessageConfiguration.DoesNotExist:
+                pass
         
         if self.participant.user:
             morning_messages = MorningMessage.objects \
@@ -1699,6 +1743,28 @@ class ParticipantMorningMessagesView(ParticipantView):
             
         context['morning_messages'] = serialized_morning_messages
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.participant.user:
+            try:
+                configuration = MorningMessageConfiguration.objects.get(user=self.participant.user)
+                if not configuration.daily_task:
+                    configuration.create_daily_task()
+                if configuration.enabled:
+                    messages.add_message(request, messages.SUCCESS, 'Morning messages disabled')
+                    configuration.enabled = False
+                else:
+                    messages.add_message(request, messages.SUCCESS, 'Morning messages enabled')
+                    configuration.enabled = True
+                configuration.save()
+            except MorningMessageConfiguration.DoesNotExist:
+                MorningMessageConfiguration.objects.create(
+                    user = self.participant.user
+                )
+                messages.add_message(request, messages.SUCCESS, 'Morning message configuration created')
+        else:
+            messages.add_message(request, messages.ERROR, 'Participant disabled')
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 class ParticipantExportView(ParticipantView):
 

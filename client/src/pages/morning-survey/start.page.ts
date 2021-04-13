@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
+import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 
 @Component({
@@ -14,15 +15,17 @@ export class StartPageComponent implements OnInit {
     @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
     constructor(
-        private activatedRoute: ActivatedRoute
+        private morningMessageService: MorningMessageService
     ){}
 
     ngOnInit() {
-        const morningMessage: MorningMessage = this.activatedRoute.snapshot.data['morningMessage'];
-        this.today = morningMessage.date;
-        if (morningMessage.text) {
-            this.message = morningMessage.text;            
-        }
+        this.morningMessageService.get()
+        .then((morningMessage) => {
+            this.today = morningMessage.date;
+            if (morningMessage.text) {
+                this.message = morningMessage.text;            
+            }
+        });
     }
 
     done() {

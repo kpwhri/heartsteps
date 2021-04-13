@@ -59,7 +59,7 @@ export class NotificationPage implements OnInit {
 
     public dismiss() {
         this.notification.engaged();
-        this.router.navigate(['']);
+        this.router.navigate(['/']);
     }
 
     private updateSurvey(survey: any) {

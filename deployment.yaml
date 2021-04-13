@@ -221,7 +221,7 @@ spec:
   selector:
     matchLabels:
       app: heartsteps-worker-fitbit
-  replicas: 3
+  replicas: 4
   template:
     metadata:
       labels:
@@ -260,7 +260,7 @@ metadata:
   labels:
     app: heartsteps-worker-messages
 spec:
-  replicas: 3
+  replicas: 4
   template:
     metadata:
       labels:
@@ -376,7 +376,7 @@ metadata:
   labels:
     app: heartsteps-server
 spec:
-  replicas: 2
+  replicas: 4
   template:
     metadata:
       labels:
@@ -451,7 +451,7 @@ metadata:
   labels:
     app: heartsteps-nginx
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:

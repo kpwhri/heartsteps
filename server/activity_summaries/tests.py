@@ -364,3 +364,14 @@ class ActivitSummary(TestBase):
         self.assertEqual(summary.miles, yesterday.miles)
         self.assertEqual(summary.minutes, yesterday.total_minutes)
         self.assertEqual(summary.steps, yesterday.steps)
+
+    def test_activity_summary_handles_multiple_days_for_single_date(self):
+        yesterday = self.create_day(date.today() - timedelta(days=1))
+        today = self.create_day(date.today())
+        second_today = self.create_day(date.today())
+
+        summary = ActivitySummary.objects.get(user = self.user)
+        self.assertEqual(summary.activities_completed, today.activities_completed + yesterday.activities_completed)
+        self.assertEqual(summary.miles, today.miles + yesterday.miles)
+        self.assertEqual(summary.minutes, today.total_minutes + yesterday.total_minutes)
+        self.assertEqual(summary.steps, today.steps + yesterday.steps)

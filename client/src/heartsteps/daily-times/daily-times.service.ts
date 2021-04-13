@@ -13,13 +13,12 @@ export class DailyTimeService {
 
     public times:BehaviorSubject<Array<DailyTime>> = new BehaviorSubject(undefined);
 
-    constructor() {}
+    constructor() {
+        this.loadDefaultTimes();
+    }
 
     public setup():Promise<boolean> {
-
-        this.loadDefaultTimes();
-
-        return Promise.resolve(true);
+        return this.loadDefaultTimes();
     }
 
     private loadDefaultTimes():Promise<boolean> {

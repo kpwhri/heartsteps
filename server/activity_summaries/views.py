@@ -101,9 +101,14 @@ class DaySummaryUpdateView(DayView):
 class ActivitySummaryView(APIView):
 
     def get(self, request):
-        summary, _ = ActivitySummary.objects.get_or_create(
+        summary = ActivitySummary.objects.filter(
             user = request.user
-        )
+        ).last()
+        if not summary:
+            summary = ActivitySummary.objects.create(
+                user = request.user
+            )
+            summary.update()
         serialized = ActivitySummarySerializer(summary)
         return Response(serialized.data, status.HTTP_200_OK)
 

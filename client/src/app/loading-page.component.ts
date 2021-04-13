@@ -3,7 +3,7 @@ import { ParticipantService } from "@heartsteps/participants/participant.service
 import { Router } from "@angular/router";
 
 @Component({
-    template: '<app-page title="Loading"><p>Updating participant information</p></app-page>'
+    template: '<app-page class="start-screen"><div class="headline"><p>Loading information</p></div></app-page>'
 })
 export class LoadingPageComponent {
 

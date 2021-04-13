@@ -1,23 +1,25 @@
-<heartsteps-weather *ngIf="showWeather"
-    [date]="today"
-    >
-    Today
-</heartsteps-weather>
-<app-form
-    [formGroup]="form"
-    submitLabel="Complete"
-    (onSubmit)="done()"
-    [error]="error"
-    >
-    <app-range-field *ngFor="let question of questions"
-        [formControlName]="question.name"
-        [label]="question.label"
-        [options]="question.options"
-    ></app-range-field>
-    <app-choice-field
-        formControlName="mood"
-        label="Which of these best describes how you feel this morning?"
-        [options]="moodChoices"
+<div *ngIf="ready">
+    <heartsteps-weather *ngIf="showWeather"
+        [date]="today"
         >
-    </app-choice-field>
-</app-form>
+        Today
+    </heartsteps-weather>
+    <app-form
+        [formGroup]="form"
+        submitLabel="Complete"
+        (onSubmit)="done()"
+        [error]="error"
+        >
+        <app-range-field *ngFor="let question of questions"
+            [formControlName]="question.name"
+            [label]="question.label"
+            [options]="question.options"
+        ></app-range-field>
+        <app-choice-field
+            formControlName="mood"
+            label="Which of these best describes how you feel this morning?"
+            [options]="moodChoices"
+            >
+        </app-choice-field>
+    </app-form>
+</div>

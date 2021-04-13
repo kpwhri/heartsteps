@@ -14,10 +14,7 @@ import { WeatherModule } from '@heartsteps/weather/weather.module';
 
 const morningSurveyRoutes: Routes = [{
     path: 'morning-survey/:page',
-    component: MorningSurveyPage,
-    resolve: {
-        morningMessage: MorningMessageResolver
-    }
+    component: MorningSurveyPage
 }, {
     path: 'morning-survey',
     redirectTo: 'morning-survey/start'

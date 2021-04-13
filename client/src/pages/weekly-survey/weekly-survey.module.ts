@@ -21,10 +21,7 @@ import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
 const routes: Routes = [
     {
         path: 'weekly-survey/:page',
-        component: WeeklySurveyPage,
-        resolve: {
-            weeklySurvey: WeeklySurveyResolver
-        }
+        component: WeeklySurveyPage
     }, {
         path: 'weekly-survey',
         redirectTo: 'weekly-survey/start'

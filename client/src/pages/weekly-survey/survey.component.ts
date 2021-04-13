@@ -20,7 +20,6 @@ export class SurveyComponent implements OnInit {
     private weeklySurvey: WeeklySurvey;
 
     constructor(
-        private activatedRoute: ActivatedRoute,
         private weeklySurveyService: WeeklySurveyService,
         private loadingService: LoadingService
     ) {}
@@ -28,9 +27,19 @@ export class SurveyComponent implements OnInit {
     ngOnInit() {
         this.form = new FormGroup({});
 
-        this.weeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
-        this.week = this.weeklySurvey.currentWeek;
+        this.loadingService.show('Loading survey');
+        this.weeklySurveyService.get()
+        .then((weeklySurvey) => {
+            this.weeklySurvey = weeklySurvey;
+            this.week = this.weeklySurvey.currentWeek;
+            this.update();
+        })
+        .then(() => {
+            this.loadingService.dismiss()
+        });
+    }
 
+    private update() {
         const questions = [];
         let response = {};
         if(this.weeklySurvey.response) {

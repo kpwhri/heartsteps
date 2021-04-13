@@ -1,7 +1,8 @@
 import { Component, Output, EventEmitter, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Week } from "@heartsteps/weekly-survey/week.model";
-import { WeeklySurvey } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { WeeklySurvey, WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({
     templateUrl: './next-week-plans.component.html'
@@ -12,12 +13,19 @@ export class NextWeekPlansComponent implements OnInit {
     public nextWeek: Week;
 
     constructor(
-        private activatedRoute: ActivatedRoute
+        private weeklySurveyService: WeeklySurveyService,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit() {
-        const weeklySurvey: WeeklySurvey = this.activatedRoute.snapshot.data['weeklySurvey'];
-        this.nextWeek = weeklySurvey.nextWeek; 
+        this.loadingService.show('Loading plans');
+        this.weeklySurveyService.get()
+        .then((weeklySurvey) => {
+            this.nextWeek = weeklySurvey.nextWeek; 
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 
     nextPage() {

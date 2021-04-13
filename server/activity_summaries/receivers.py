@@ -53,10 +53,14 @@ def fitbit_day_updates_day(sender, instance, *args, **kwargs):
 
 def day_summary_updates_activity_summary(sender, instance, *args, **kwargs):
     day = instance
-    summary, _ = ActivitySummary.objects.get_or_create(
-        user_id = day.user_id
-    )
-    summary.update()
+    summaries = ActivitySummary.objects.filter(user_id = day.user_id).all()
+    summaries = list(summaries)
+    if not summaries:
+        summaries = [ActivitySummary.objects.create(
+            user_id = day.user_id
+        )]
+    for summary in summaries:
+        summary.update()
 
 post_save.connect(day_summary_updates_activity_summary, sender=Day)
 post_delete.connect(day_summary_updates_activity_summary, sender=Day)

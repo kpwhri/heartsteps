@@ -121,7 +121,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             self.enabled = False
 
     def make_decision_now(user=None, username=None):
-        WalkingSuggestionDecisionService.make_decision(
+        return WalkingSuggestionDecisionService.make_decision(
             datetime = timezone.now(),
             user = user,
             username = username
@@ -150,6 +150,7 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
             time = datetime
         )
         WalkingSuggestionDecisionService.process_decision(decision_service.decision)
+        return decision_service.decision
 
     def process_decision(decision):
         decision_service = WalkingSuggestionDecisionService(decision)

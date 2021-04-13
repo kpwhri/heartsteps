@@ -24,7 +24,7 @@ class Configuration(models.Model):
         on_delete = models.CASCADE,
         related_name = '+'    
     )
-    enabled = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=False)
 
     daily_task = models.ForeignKey(
         DailyTask,
