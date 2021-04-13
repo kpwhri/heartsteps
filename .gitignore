@@ -70,3 +70,6 @@ pooling_service_time/
 # Ignore fitbit build components
 fitbit/build
 fitbit/node_modules
+
+dev.sh
+server/dev.sh

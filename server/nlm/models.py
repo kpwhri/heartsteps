@@ -1,11 +1,13 @@
 from django.db import models
 
+from django.contrib.auth.models import User
 from participants.models import Cohort, Participant
 
 
 class CohortAssignment(models.Model):
     cohort = models.OneToOneField(Cohort, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Level(models.Model):
     """5 Levels: Recovery, Random, N+O, N+R, Full"""
@@ -15,4 +17,5 @@ class Level(models.Model):
 class ParticipantAssignment(models.Model):  # roster for NLM study
     """Contains all NLM Participant"""
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
+    cohort_assignment = models.ForeignKey(CohortAssignment, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)    
