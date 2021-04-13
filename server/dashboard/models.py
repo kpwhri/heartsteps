@@ -329,16 +329,22 @@ class DashboardParticipantQuerySet(models.QuerySet):
     
     def _fetch_fitbit_account(self):
         user_ids = [p.user.id for p in self._result_cache if p.user]
-        fitbit_account_by_user_id = {}
+        fitbit_account_id_by_user_id = {}
         fitbit_account_users = FitbitAccountUser.objects.filter(
             user_id__in = user_ids
-        ).prefetch_related('account') \
-        .all()
+        ).all()
         for account_user in fitbit_account_users:
-            fitbit_account_by_user_id[account_user.user_id] = account_user.account
+            fitbit_account_id_by_user_id[account_user.user_id] = account_user.account_id
+        account_ids = fitbit_account_id_by_user_id.values()
+        fitbit_accounts = FitbitAccount.objects.filter(uuid__in=account_ids) \
+        .prefetch_summary() \
+        .all()
+        fitbit_account_by_id = {}
+        for fitbit_account in fitbit_accounts:
+            fitbit_account_by_id[fitbit_account.uuid] = fitbit_account
         for participant in self._result_cache:
-            if participant.user and participant.user.id in fitbit_account_by_user_id:
-                participant._fitbit_account = fitbit_account_by_user_id[participant.user.id]
+            if participant.user and participant.user.id in fitbit_account_id_by_user_id and fitbit_account_id_by_user_id[participant.user.id] in fitbit_account_by_id:
+                participant._fitbit_account = fitbit_account_by_id[fitbit_account_id_by_user_id[participant.user.id]]
             else:
                 participant._fitbit_account = None
 
@@ -405,17 +411,14 @@ class DashboardParticipant(Participant):
     @property
     def fitbit_first_updated(self):
         if self.fitbit_account:
-            service = FitbitService(account=self.fitbit_account)
-            return service.first_updated_on()
+            return self.fitbit_account.first_updated
         return None
 
     @property
     def fitbit_last_updated(self):
         if self.fitbit_account:
-            service = FitbitService(account=self.fitbit_account)
-            return service.last_updated_on()
+            return self.fitbit_account.last_updated
         return None
-
 
     @property
     def first_page_view(self):

@@ -3,6 +3,43 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.auth.models import User
 
+class FitbitAccountQuerySet(models.QuerySet):
+
+    _load_summary = False
+    _summary_loaded = False
+
+    def _clone(self, *args, **kwargs):
+        clone = super()._clone(*args, **kwargs)
+        clone._load_summary = self._load_summary
+        clone._summary_loaded = self._summary_loaded
+        return clone
+
+    def prefetch_summary(self):
+        self._load_summary = True
+        return self
+
+    def _fetch_all(self):
+        super()._fetch_all()
+        if self._result_cache and self._load_summary and not self._summary_loaded:
+            self.load_summaries()
+            self._summary_loaded = True
+
+    def load_summaries(self):
+        summaries = FitbitAccountSummary.objects.filter(
+            account__in = [account for account in self._result_cache] 
+        ) \
+        .prefetch_related('first_update') \
+        .prefetch_related('last_update') \
+        .all()
+        summary_by_account_id = {}
+        for summary in summaries:
+            summary_by_account_id[summary.account_id] = summary
+        for account in self._result_cache:
+            if account.uuid in summary_by_account_id:
+                account._fitbit_account_summary = summary_by_account_id[account.uuid]
+            else:
+                account._fitbit_account_summary = None
+
 class FitbitAccount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)
     fitbit_user = models.CharField(max_length=32, unique=True)
@@ -10,6 +47,8 @@ class FitbitAccount(models.Model):
     access_token = models.TextField(null=True, blank=True, help_text='The OAuth2 access token')
     refresh_token = models.TextField(null=True, blank=True, help_text='The OAuth2 refresh token')
     expires_at = models.FloatField(null=True, blank=True, help_text='The timestamp when the access token expires')
+
+    objects = FitbitAccountQuerySet.as_manager()
 
     def __str__(self):
         return str(self.fitbit_user)
@@ -20,60 +59,48 @@ class FitbitAccount(models.Model):
             return False
         else:
             return True
+
+    @property
+    def fitbit_account_summary(self):
+        if not hasattr(self, '_fitbit_account_summary'):
+            self._fitbit_account_summary = self.get_fitbit_account_summary()
+        return self._fitbit_account_summary
+
+    def get_fitbit_account_summary(self):
+        try:
+            return FitbitAccountSummary.objects.get(account = self)
+        except FitbitAccountSummary.DoesNotExist:
+            return FitbitAccountSummary.objects.create(
+                account = self,
+                first_update = FitbitAccountUpdate.objects.filter(account=self).first(),
+                last_update = FitbitAccountUpdate.objects.filter(account=self).last(),
+            )
     
     @property
     def first_updated(self):
-        if hasattr(self, '_first_updated'):
-            return self._first_updated
-        first_update = self.get_first_update()        
-        if first_update:
-            self._first_updated = first_update
-            return self._first_updated
-        else:
-            return None
+        if not hasattr(self, '_first_updated'):
+            first_update = self.get_first_update()      
+            if first_update:
+                self._first_updated = first_update.created
+            else:
+                self._first_updated = None
+        return self._first_updated
 
     def get_first_update(self):
-        subscription_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
-            subscription__fitbit_account = self
-        ).first()
-        account_update = FitbitAccountUpdate.objects.filter(account = self).first()
-        if account_update and subscription_update:
-            if account_update.created < subscription_update.created:
-                return account_update.created
-            else:
-                return subscription_update.created
-        if account_update:
-            return account_update.created
-        if subscription_update:
-            return subscription_update.created
-        return None
+        return self.fitbit_account_summary.first_update
 
     @property
     def last_updated(self):
-        if hasattr(self, '_last_updated'):
-            return self._last_updated
-        last_update = self.get_last_update()
-        if last_update:
-            self._last_updated = last_update
-            return self._last_updated
-        else:
-            return None
+        if not hasattr(self, '_last_updated'):
+            last_update = self.get_last_update()
+            if last_update:
+                self._last_updated = last_update.created
+            else:
+                self._last_updated = None
+        return self._last_updated
 
     def get_last_update(self):
-        subscription_update = FitbitSubscriptionUpdate.objects.order_by('created').filter(
-            subscription__fitbit_account = self
-        ).last()
-        account_update = FitbitAccountUpdate.objects.filter(account = self).last()
-        if account_update and subscription_update:
-            if account_update.created > subscription_update.created:
-                return account_update.created
-            else:
-                return subscription_update.created
-        if account_update:
-            return account_update.created
-        if subscription_update:
-            return subscription_update.created
-        return None
+        return self.fitbit_account_summary.last_update
 
     def was_updated_between(self, start, end):
         subscription_updates = FitbitSubscriptionUpdate.objects.filter(
@@ -168,6 +195,18 @@ class FitbitAccountUpdate(models.Model):
     class Meta:
         ordering = ['created']
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            summary = FitbitAccountSummary.objects.get(account_id = self.account_id)
+            summary.last_update = self
+            summary.save()
+        except FitbitAccountSummary.DoesNotExist:
+            FitbitAccountSummary.objects.create(
+                account_id = self.account_id,
+                last_update = self
+            )
+
     def __str__(self):
         return 'Fitbit account %s updated at %s' % (self.account.fitbit_user, self.created)
 
@@ -222,3 +261,21 @@ class FitbitDeviceUpdate(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+class FitbitAccountSummary(models.Model):
+    account = models.ForeignKey(
+        FitbitAccount,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+    first_update = models.ForeignKey(
+        FitbitAccountUpdate,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+    last_update = models.ForeignKey(
+        FitbitAccountUpdate,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
