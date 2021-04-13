@@ -77,14 +77,14 @@ class NLMServiceTest(TestCase):
         nlm_service = NLMService(self.user)
         nlm_service.assign_cohort_to_nlm(self.cohort)
     
-    # def test_assign_cohort_nlm_with_wrong_argument_1(self):
-    #     nlm_service = NLMService(self.user)
-    #     self.assertRaises(None, nlm_service.assign_cohort_to_nlm, None)
+    def test_assign_cohort_nlm_with_wrong_argument_1(self):
+        nlm_service = NLMService(self.user)
+        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, None)
     
-    # def test_assign_cohort_nlm_with_wrong_argument_2(self):
-    #     nlm_service = NLMService(self.user)
-    #     self.assertRaises(None, nlm_service.assign_cohort_to_nlm, self.study)
+    def test_assign_cohort_nlm_with_wrong_argument_2(self):
+        nlm_service = NLMService(self.user)
+        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, self.study)
         
-    # def test_assign_cohort_nlm_with_wrong_argument_3(self):
-    #     nlm_service = NLMService(self.user)
-    #     self.assertRaises(None, nlm_service.assign_cohort_to_nlm, self.user)
+    def test_assign_cohort_nlm_with_wrong_argument_3(self):
+        nlm_service = NLMService(self.user)
+        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, self.user)

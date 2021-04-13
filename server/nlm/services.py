@@ -110,16 +110,22 @@ class NLMService:
 
         Returns:
             QuerySet: all instances of the cohort assignment (nlm.models.CohortAssignment)
-        """        
-        nlm_assignment_query = self.dsg.get_cohort_assignment(cohort)
-        if nlm_assignment_query and nlm_assignment_query.count() > 0:
-            result = nlm_assignment_query.all() 
-            self.apply_all_cohort_assignments()
-            return result
+        """       
+        if cohort: 
+            if isinstance(cohort, Cohort):
+                nlm_assignment_query = self.dsg.get_cohort_assignment(cohort)
+                if nlm_assignment_query and nlm_assignment_query.count() > 0:
+                    result = nlm_assignment_query.all() 
+                    self.apply_all_cohort_assignments()
+                    return result
+                else:
+                    result = self.dsg.create_new_cohort_assignment_to_NLM(cohort)
+                    self.apply_all_cohort_assignments()
+                    return result
+            else:
+                raise ValueError("passed parameter is not Cohort:{}".format(cohort))
         else:
-            result = self.dsg.create_new_cohort_assignment_to_NLM(cohort)
-            self.apply_all_cohort_assignments()
-            return result
+            raise ValueError("cohort parameter is {}".format(cohort))
     
     def apply_all_cohort_assignments(self):
         """Fetch all non-NLM participants in all NLM-assigned cohorts, put them into a NLM Participant assignment
