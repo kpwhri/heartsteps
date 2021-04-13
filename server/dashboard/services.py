@@ -389,11 +389,19 @@ class DevService:
         else:
             raise DevService.ArgumentError()
         
+    def __generate_wordy_message(self, wordbase, number_of_words):
+        wordlist = []
+        
+        for i in range(number_of_words):
+            wordlist.append("{}{}".format(wordbase, i))
+        
+        return " ".join(wordlist)
+        
     def send_notification_by_user(self, user):
         service = PushMessageService(user = user)
         message = service.send_notification(
-            body = 'Dev Test Message Body.',
-            title = 'Dev Test Message Title',
+            body = self.__generate_wordy_message("Body", 30),
+            title = self.__generate_wordy_message("Title", 20),
             collapse_subject = 'Dev Test Collapse Subject',
             data = {}
         )

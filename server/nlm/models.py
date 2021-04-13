@@ -12,9 +12,7 @@ class Level(models.Model):
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
     
-class ParticipantAssignment(models.Model):
+class ParticipantAssignment(models.Model):  # roster for NLM study
     """Contains all NLM Participant"""
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-    
-    
+    active = models.BooleanField(default=True)    
