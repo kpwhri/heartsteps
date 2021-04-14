@@ -163,7 +163,6 @@ class NLMService:
         
         if participant_assignment_list:
             for participant_assignment in participant_assignment_list:
-                print(participant_assignment.participant)
                 participant_list.append(participant_assignment.participant)
             
         return participant_list
