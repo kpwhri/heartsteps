@@ -22,6 +22,7 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
+from page_views.models import PageViewSummary
 from participants.models import Participant
 from randomization.models import UnavailableReason
 from sms_messages.models import Contact as SMSContact
@@ -313,18 +314,19 @@ class DashboardParticipantQuerySet(models.QuerySet):
         return self.prefetch_related('page_views')
 
     def _fetch_page_views(self):
-        return
+        users = [p.user for p in self._result_cache if p.user]
+        page_view_summary_by_user_id = {}
+        page_view_summaries = PageViewSummary.objects.filter(user__in=users) \
+        .prefetch_related('last_page_view') \
+        .prefetch_related('first_page_view') \
+        .all()
+        for summary in page_view_summaries:
+            page_view_summary_by_user_id[summary.user_id] = summary
         for participant in self._result_cache:
-            first_page_view = None
-            last_page_view = None
-            if participant.user:
-                page_view_query = PageView.objects.filter(user=participant.user) \
-                .order_by('time')
-
-                first_page_view = page_view_query.first()
-                last_page_view = page_view_query.last()
-            participant._first_page_view = first_page_view
-            participant._last_page_view = last_page_view
+            if participant.user and participant.user.id in page_view_summary_by_user_id:
+                summary = page_view_summary_by_user_id[participant.user.id]
+                participant._first_page_view = summary.first_page_view
+                participant._last_page_view = summary.last_page_view
 
     def prefetch_fitbit_account(self):
         return self.prefetch_related('fitbit_account')
