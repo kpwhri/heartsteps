@@ -75,7 +75,11 @@ class FitbitDay(models.Model):
     def save(self, *args, **kwargs):
         self.minutes_worn = self.get_minutes_worn()
         self.wore_fitbit = self.get_wore_fitbit()
+        
         super().save(*args, **kwargs)
+        
+        summary, _ = FitbitActivitySummary.objects.get_or_create(account=self.account)
+        summary.update()
 
     @property
     def timezone(self):
@@ -201,3 +205,28 @@ class FitbitDailyUnprocessedData(models.Model):
     class Meta:
         unique_together = ('day', 'category')
 
+class FitbitActivitySummary(models.Model):
+    account = models.ForeignKey(
+        FitbitAccount,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+
+    days_worn = models.PositiveIntegerField(default=0)
+    
+    last_fitbit_activity = models.ForeignKey(
+        FitbitActivity,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+
+    def update(self):
+        days_by_date = {}
+        for day in FitbitDay.objects.filter(account=self.account).all():
+            days_by_date[day.date] = day
+        self.days_worn = sum([1 for day in days_by_date.values() if day.wore_fitbit])
+        self.last_fitbit_activity = FitbitActivity.objects.filter(
+            account = self.account
+        ).last()
+        self.save()

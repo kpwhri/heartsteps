@@ -289,7 +289,8 @@ class DashboardListView(CohortView):
                 cohort = self.cohort,
             )\
             .order_by('heartsteps_id')\
-            .prefetch_related('user')
+            .prefetch_related('user') \
+            .prefetch_related('cohort')
 
     # Add the Twilio from-number for the form
     def get_context_data(self, **kwargs):
