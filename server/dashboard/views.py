@@ -96,6 +96,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context["is_staff"] = self.request.user.is_staff
         
         dev_service = DevService(self.request.user)
+        nlm_service = NLMService(self.request.user)
         
         
         study_query = dev_service.get_all_studies_query()
@@ -112,6 +113,22 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         
         cohorts = dev_service.get_cohort_dict()
         context['cohorts'] = cohorts
+        
+        nlm_cohorts = nlm_service.get_nlm_cohorts_dict()
+        context['nlmcohorts'] = nlm_cohorts
+        if len(nlm_cohorts) > 0:
+            context['nlmcohort_text'] = ", ".join([x["name"] for x in nlm_cohorts])
+        else:
+            context['nlmcohort_text'] = "No cohort is NLM-style."
+        
+        nlm_participants = nlm_service.get_nlm_participants_dict()
+        context['nlmparticipants'] = nlm_participants
+        if len(nlm_participants) > 0:
+            context['nlm_participant_text'] = ", ".join([x.heartsteps_id for x in nlm_participants])
+        else:
+            context['nlm_participant_text'] = "No participant is NLM-style."
+        
+        
         return context
 
     

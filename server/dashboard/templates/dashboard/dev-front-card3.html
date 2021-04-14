@@ -1,0 +1,54 @@
+<div class="card">
+    <div class="card-header" id="heading3">    
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
+            <h4>Create Debug Items</h4>
+        </button>Recommend not to do this in the real server.
+    </div>
+    <div id="collapse3" class="collapse cardmargin" aria-labelledby="heading3" data-parent="#accordion">
+        <ul>
+            <li>
+                <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="create-debug-study" name="dev-command" />
+                    <div class="form-group mb-2">
+                        Create N debug-studies with random names.
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="text" class="form-control" id="number_of_studies" name="number_of_studies" placeholder="ex) 10">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Create</button>
+                </form>
+            </li>
+
+
+            <li>
+                <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="create-debug-cohort" name="dev-command" />
+                    <div class="form-group mb-2">
+                        Create N debug-cohorts per study.
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="text" class="form-control" id="number_of_cohorts" name="number_of_cohorts" placeholder="ex) 2">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Create</button>
+                </form>
+            </li>
+
+            <li>
+                <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="create-debug-participant" name="dev-command" />
+                    <div class="form-group mb-2">
+                        Create N debug-participants, Users, and Devices per cohort.
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="text" class="form-control" id="number_of_participants" name="number_of_participants" placeholder="ex) 100">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Create</button>
+                </form>
+            </li>
+
+        </ul>
+    </div>
+</div>

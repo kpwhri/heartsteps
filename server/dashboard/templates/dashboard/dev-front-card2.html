@@ -1,0 +1,24 @@
+<div class="card">
+    <div class="card-header" id="heading2">    
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+            <h4>Colleagues</h4>
+        </button>
+        Other users who are in "admins" lists of my studies
+    </div>
+    <div id="collapse2" class="collapse cardmargin" aria-labelledby="heading2" data-parent="#accordion">
+        <table class="table table-dark">
+            <thead>
+                <tr><td>Username</td></tr>
+            </thead>
+            <tbody>
+                {% if colleagues %}
+                    {% for colleague in colleagues %}
+                        <tr><td>{{ colleague.username }}</td></tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td>No colleagues</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>

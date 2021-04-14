@@ -1,0 +1,38 @@
+<div class="card">
+    <div class="card-header" id="heading1">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+            <h4>Study, Cohorts, Participants, Devices</h4>
+        </button>
+        List all items of "Participants" app (+Device) in a table view
+    </div>
+    <div id="collapse1" class="collapse cardmargin" aria-labelledby="heading1" data-parent="#accordion">
+        {% for study in studies %}
+            <h5><b>"{{study.name}}"</b> Study</h5>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Cohort</th>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Device</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cohort in study.cohorts %}
+                        <tr>
+                            <td>{{cohort.name}}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        {% for participant in cohort.participants %}
+                            <tr>
+                                <td></td>
+                                <td>{{participant.heartsteps_id}}</td>
+                                <td> {{ participant.devices_text }} </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}    
+    </div>
+</div>

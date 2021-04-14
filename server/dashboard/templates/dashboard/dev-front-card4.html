@@ -1,0 +1,72 @@
+<div class="card">
+    <div class="card-header" id="heading4">    
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+            <h4>Clear Debug Studies, Cohorts, and Participants Under My Name [Danger]</h4>
+        </button>
+    </div>
+    <div id="collapse4" class="collapse cardmargin" aria-labelledby="heading4" data-parent="#accordion">
+        <ul>
+            <li>
+                <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <div class="form-group mb-2">
+                        Clear all debug studies.
+                    </div>
+                    <input type="hidden" id="dev-command" value="clear-debug-study" name="dev-command" />
+                    <button type="submit" class="btn btn-primary mb-2">Clear</button>
+                </form>
+            </li>
+
+
+            <li>
+                <form class="form-inline" action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <div class="form-group mb-2">
+                        Clear all debug participants. (only works when the parent debug cohorts are alive)
+                    </div>
+                    <input type="hidden" id="dev-command" value="clear-debug-participant" name="dev-command" />
+                    <button type="submit" class="btn btn-primary mb-2">Clear</button>
+                </form>
+            </li>
+        </ul>
+        <h5>Debug objects to be deleted:
+            <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Study</th>
+                    <th scope="col">Cohort</th>
+                    <th scope="col">Participant</th>
+                    <th scope="col">Device</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for study in debug_studies %}
+                    <tr>
+                        <td>{{study.name}}</td>
+                    </tr>
+                    {% for cohort in study.cohorts %}
+                        <tr>
+                            <td></td>
+                            <td>{{cohort.name}}</td>
+                        </tr>
+                        {% for participant in cohort.participants %}
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>{{participant.heartsteps_id}}</td>
+                            </tr>
+                            {% for device in participant.devices %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{device.token}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

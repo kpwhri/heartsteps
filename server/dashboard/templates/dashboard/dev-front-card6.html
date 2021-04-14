@@ -1,0 +1,48 @@
+<div class="card">
+        <div class="card-header" id="heading6">    
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse6" aria-expanded="true" aria-controls="collapse6">
+                <h4>NLM-specific</h4>
+            </button>
+        </div>
+        <div id="collapse6" class="collapse cardmargin show" aria-labelledby="heading6" data-parent="#accordion">
+            <ul>
+                <li>
+                    <div class="form-row">
+                        <div class="col">
+                            The list of Cohorts in NLM-type study: {{ nlmcohort_text }}
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-row">
+                        <div class="col">
+                            The list of Participants in NLM-type study: {{ nlm_participant_text }}
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="assign-cohort-to-nlm" name="dev-command" />
+
+                        <div class="form-row">
+                            <div class="col">
+                                <select class="form-select form-control m-1" id="cohort-id" name="cohort-id">
+                                    <option selected>Select a Cohort</option>
+                                    {% for cohort in cohorts %}
+                                        <option value="{{cohort.id}}">{{cohort.study.name}} | {{cohort.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary mb-2 m-1">Set</button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
