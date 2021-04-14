@@ -372,11 +372,14 @@ class DashboardParticipant(Participant):
 
     @property
     def study_start(self):
-        return None
+        return self.study_start_date
 
     @property
     def study_end(self):
-        return None
+        if self.study_length:
+            return self.study_start_date + timedelta(days=self.study_length)
+        else:
+            return None
 
     @property
     def contact_information(self):
