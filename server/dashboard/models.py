@@ -16,6 +16,7 @@ from burst_periods.models import Configuration as BurstPeriodConfiguration
 from contact.models import ContactInformation
 from days.services import DayService
 from fitbit_activities.models import FitbitActivity
+from fitbit_activities.models import FitbitActivitySummary
 from fitbit_activities.services import FitbitActivityService
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
@@ -312,6 +313,7 @@ class DashboardParticipantQuerySet(models.QuerySet):
         return self.prefetch_related('page_views')
 
     def _fetch_page_views(self):
+        return
         for participant in self._result_cache:
             first_page_view = None
             last_page_view = None
@@ -347,7 +349,14 @@ class DashboardParticipantQuerySet(models.QuerySet):
                 participant._fitbit_account = fitbit_account_by_id[fitbit_account_id_by_user_id[participant.user.id]]
             else:
                 participant._fitbit_account = None
-
+        activity_summaries_by_account_id = {}
+        for summary in FitbitActivitySummary.objects.filter(account_id__in=account_ids).all():
+            activity_summaries_by_account_id[summary.account_id] = summary
+        for participant in self._result_cache:
+            if participant.user and participant.user.id in fitbit_account_id_by_user_id:
+                account_id = fitbit_account_id_by_user_id[participant.user.id]
+                if account_id in activity_summaries_by_account_id:
+                    participant._fitbit_activity_summary = activity_summaries_by_account_id[fitbit_account_id_by_user_id[participant.user.id]]
 
 class DashboardParticipant(Participant):
 
@@ -358,6 +367,14 @@ class DashboardParticipant(Participant):
 
     class Meta:
         proxy = True
+
+    @property
+    def study_start(self):
+        return None
+
+    @property
+    def study_end(self):
+        return None
 
     @property
     def contact_information(self):
@@ -379,11 +396,17 @@ class DashboardParticipant(Participant):
             return None
     
     @property
+    def fitbit_activity_summary(self):
+        if not hasattr(self, '_fitbit_activity_summary'):
+            self._fitbit_activity_summary = None
+        return self._fitbit_activity_summary
+
+    @property
     def fitbit_days_worn(self):
-        if self.fitbit_account:
-            service = FitbitActivityService(account=self.fitbit_account)
-            return service.get_days_worn()
-        return None
+        if self.fitbit_activity_summary:
+            return self.fitbit_activity_summary.days_worn
+        else:
+            return None
 
     @property
     def fitbit_account(self):
@@ -634,6 +657,7 @@ class DashboardParticipant(Participant):
         return None
 
     def watch_app_installed_date(self):
+        return None
         install = WatchInstall.objects.filter(
             user = self.user
         ).order_by('created').last()
@@ -643,6 +667,7 @@ class DashboardParticipant(Participant):
             return None
 
     def last_watch_app_data(self):
+        return None
         last_step_count = WatchAppStepCount.objects.filter(
             user = self.user
         ).order_by('start').last()
@@ -653,6 +678,7 @@ class DashboardParticipant(Participant):
 
     @property
     def last_text_sent(self):
+        return None
         try:
             if self.user:
                 contact = SMSContact.objects.get(user=self.user)
