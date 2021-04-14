@@ -7,7 +7,6 @@ from participants.models import Cohort, Participant
 class CohortAssignment(models.Model):
     cohort = models.OneToOneField(Cohort, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Level(models.Model):
     """5 Levels: Recovery, Random, N+O, N+R, Full"""

@@ -50,7 +50,7 @@ class NLMService:
             Returns:
                 QuerySet: all instances of the cohort assignment (nlm.models.CohortAssignment)
             """        
-            result = CohortAssignment.objects.create(cohort=cohort, user=self.user)
+            result = CohortAssignment.objects.create(cohort=cohort)
             return result
         
         def get_cohort_assignment(self, cohort):
@@ -62,7 +62,7 @@ class NLMService:
             Returns:
                 CohortAssignment: CohortAssignment Object
             """
-            nlm_assignment_query = CohortAssignment.objects.filter(user=self.user, cohort=cohort)
+            nlm_assignment_query = CohortAssignment.objects.filter(cohort=cohort)
             return nlm_assignment_query
         
         def get_or_create_participant_assignment_list(self, cohort_assignment):
