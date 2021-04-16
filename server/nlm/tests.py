@@ -1,6 +1,8 @@
 import unittest
 from unittest import TestCase
 
+from django.db.utils import IntegrityError
+
 import django
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -96,3 +98,49 @@ class NLMServiceTest(TestCase):
         module = "nlm.conditionality.Random_50_50"
         nlm_service.add_conditionaility(name, description, module)
         nlm_service.remove_conditionaility(name)
+        
+    def test_add_conditionailty_2(self):
+        nlm_service = NLMService(self.user)
+        name = "Random_50_50"
+        name2 = "Random_50_50_2"
+        description = "take chances of 50:50"
+        module = "nlm.conditionality.Random_50_50"
+        module2 = "nlm.conditionality.Random_50_50_2"
+        nlm_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name, description, module)
+        nlm_service.remove_conditionaility(name)
+        
+    def test_add_conditionailty_3(self):
+        nlm_service = NLMService(self.user)
+        name = "Random_50_50"
+        name2 = "Random_50_50_2"
+        description = "take chances of 50:50"
+        module = "nlm.conditionality.Random_50_50"
+        module2 = "nlm.conditionality.Random_50_50_2"
+        nlm_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name, description, module2)
+        nlm_service.remove_conditionaility(name)
+
+    def test_add_conditionailty_4(self):
+        nlm_service = NLMService(self.user)
+        name = "Random_50_50"
+        name2 = "Random_50_50_2"
+        description = "take chances of 50:50"
+        module = "nlm.conditionality.Random_50_50"
+        module2 = "nlm.conditionality.Random_50_50_2"
+        nlm_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name2, description, module)
+        nlm_service.remove_conditionaility(name)
+        nlm_service.remove_conditionaility(name2)
+        
+    def test_add_conditionailty_5(self):
+        nlm_service = NLMService(self.user)
+        name = "Random_50_50"
+        name2 = "Random_50_50_2"
+        description = "take chances of 50:50"
+        module = "nlm.conditionality.Random_50_50"
+        module2 = "nlm.conditionality.Random_50_50_2"
+        nlm_service.add_conditionaility(name, description, module)
+        nlm_service.add_conditionaility(name2, description, module2)
+        nlm_service.remove_conditionaility(name)
+        nlm_service.remove_conditionaility(name2)
