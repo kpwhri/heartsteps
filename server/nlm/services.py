@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import CohortAssignment, ParticipantAssignment, Conditionality
 
 
+
 class NLMService:
     class __DBSafeGuard:
         """Provide safe access to database. 
@@ -191,3 +192,18 @@ class NLMService:
     def remove_conditionaility(self, name):
         """Removes a conditionality"""
         self.dsg.delete_conditionaility(name)
+        
+    def call_conditionality(self, module):
+        """Run a conditionality by a module path
+
+        Args:
+            module (str): modulepath
+        """
+        
+        params = module.split(".")
+        functionname = params[-1]
+        modulename = ".".join(params[0:-1])
+        
+        import importlib
+        moduleobj = importlib.import_module(name=modulename)
+        return getattr(moduleobj, functionname)()

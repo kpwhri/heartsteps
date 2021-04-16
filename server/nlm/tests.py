@@ -144,3 +144,9 @@ class NLMServiceTest(TestCase):
         nlm_service.add_conditionaility(name2, description, module2)
         nlm_service.remove_conditionaility(name)
         nlm_service.remove_conditionaility(name2)
+        
+    def test_run_conditionality(self):
+        nlm_service = NLMService(self.user)
+        module = "nlm.conditionality.Random_50_50"
+        result = nlm_service.call_conditionality(module)
+        
