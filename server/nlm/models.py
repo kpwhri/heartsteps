@@ -18,7 +18,6 @@ class ParticipantAssignment(models.Model):  # roster for NLM study
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
     # it should be changed to OneToManyField if we extend study type
     cohort_assignment = models.ForeignKey(CohortAssignment, on_delete=models.CASCADE)
-    # we need this. because one participant can belong to many cohorts
     active = models.BooleanField(default=True)    
 
 class Conditionality(models.Model):
