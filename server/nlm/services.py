@@ -1,7 +1,7 @@
 from participants.models import Cohort, Participant
 
 from django.contrib.auth.models import User
-from .models import CohortAssignment, ParticipantAssignment
+from .models import CohortAssignment, ParticipantAssignment, Conditionality
 
 
 class NLMService:
@@ -84,6 +84,23 @@ class NLMService:
                 participant_assignment_list.append(result[0])
             
             return participant_assignment_list
+        
+        def create_conditionaility(self, name, description, module):
+            """create a new conditionaility
+
+            Args:
+                name (str): conditionality name (unique)
+                description (str): conditionality description
+                module (str): conditionality module (unique)
+
+            Returns:
+                Conditionality: newly created conditionaility object
+            """
+            return Conditionality.objects.create(user=self.user, name=name, description=description, module=module)
+        
+        def delete_conditionaility(self, name):
+            return Conditionality.objects.filter(user=self.user, name=name).delete()
+            
             
         
     def __init__(self, user):
@@ -166,3 +183,11 @@ class NLMService:
                 participant_list.append(participant_assignment.participant)
             
         return participant_list
+    
+    def add_conditionaility(self, name, description, module):
+        """Adds a new conditionality"""
+        self.dsg.create_conditionaility(name, description, module)
+        
+    def remove_conditionaility(self, name):
+        """Removes a conditionality"""
+        self.dsg.delete_conditionaility(name)

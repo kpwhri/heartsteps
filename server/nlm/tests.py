@@ -88,3 +88,11 @@ class NLMServiceTest(TestCase):
     def test_assign_cohort_nlm_with_wrong_argument_3(self):
         nlm_service = NLMService(self.user)
         self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, self.user)
+        
+    def test_add_conditionailty_1(self):
+        nlm_service = NLMService(self.user)
+        name = "Random_50_50"
+        description = "take chances of 50:50"
+        module = "nlm.conditionality.Random_50_50"
+        nlm_service.add_conditionaility(name, description, module)
+        nlm_service.remove_conditionaility(name)
