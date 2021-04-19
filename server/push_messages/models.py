@@ -4,6 +4,8 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
+from .clients import OneSignalClient
+
 class Device(models.Model):
 
     ANDROID = 'android'
@@ -93,6 +95,24 @@ class Message(models.Model):
             return self._message_receipts[receipt_type]
         else:
             return None
+
+    def update_message_receipts(self):
+        if self.device.type is not 'onesignal':
+            raise RuntimeError('No client for message device')
+        client = OneSignalClient(self.device)
+        receipts = client.get_message_receipts(message.external_id)
+        for receipt_type, receipt_datetime in receipts.items():
+            try:
+                receipt = MessageReceipt.objects.get(
+                    message = message,
+                    type = receipt_type
+                )
+            except MessageReceipt.DoesNotExist:
+                receipt = MessageReceipt(
+                    message = message
+                )
+            receipt.time = receipt_datetime
+            receipt.save()
 
     @property
     def sent(self):

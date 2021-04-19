@@ -12,6 +12,11 @@ from push_messages.tasks import onesignal_get_received
 
 class TestPushMessageService(TestCase):
 
+    def setUp(self):
+        task_patch = patch.object(onesignal_get_received, 'apply_async')
+        self.get_received_task = task_patch.start()
+        self.addCleanup(task_patch.stop)
+
     def make_user(self):
         user = User.objects.create(username="test")
         Device.objects.create(
@@ -75,6 +80,10 @@ class TestPushMessageService(TestCase):
         self.assertEqual(message.message_type, Message.NOTIFICATION)
         self.assertEqual(message.body, "Example message")
         self.assertEqual(message.title, "HeartSteps")
+        self.get_received_task.assert_called_with(
+            countdown = 300,
+            kwargs = {'message_id': message.id}
+        )
 
     @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_data(self, send):
@@ -140,10 +149,6 @@ class OneSignalClientTests(TestCase):
             user=self.user
         )
 
-        task_patch = patch.object(onesignal_get_received, 'apply_async')
-        self.get_received_task = task_patch.start()
-        self.addCleanup(task_patch.stop)
-
         requests_patch = patch.object(requests, 'post')
         self.request_post = requests_patch.start()
         self.addCleanup(requests_patch.stop)
@@ -183,10 +188,6 @@ class OneSignalClientTests(TestCase):
         )
 
         self.assertEqual(message_id, 'example-message-id')
-        self.get_received_task.assert_called_with(
-            countdown = 300,
-            kwargs = {'message_id': 'example-message-id'}
-        )
         request_json = self.request_post.call_args[1]['json']
         self.assertEqual(request_json['include_player_ids'], [self.device.token])
         self.assertEqual(request_json['contents']['en'], 'test body')

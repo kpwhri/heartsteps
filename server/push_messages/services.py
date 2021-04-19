@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
+from push_messages.tasks import onesignal_get_received
 
 class DeviceMissingError(Exception):
     """User doesn't have a registered or active device."""
@@ -13,6 +14,9 @@ class PushMessageService():
     """
     Handles sending messages to a user and creating message reciepts.
     """
+
+    class MessageNotFound(RuntimeError):
+        pass
 
     class MessageSendError(RuntimeError):
         pass
@@ -27,10 +31,10 @@ class PushMessageService():
             user = User.objects.get(username=username)
         self.user = user
         self.device = self.get_device_for_user(self.user)
-        self._service = self.get_client()
+        self._service = self.get_client(self.device)
         self.__client = self._service
 
-    def get_client(self):
+    def get_client(self, device):
         client_types = {
             'apns': ApplePushClient,
             'apns-dev': AppleDevelopmentPushClient,
@@ -38,11 +42,11 @@ class PushMessageService():
             'onesignal': OneSignalClient
         }
 
-        client = client_types.get(self.device.type)
+        client = client_types.get(device.type)
         if client:
-            return client(self.device)
+            return client(device)
         else:
-            return ClientBase(self.device)
+            return ClientBase(device)
 
     def get_device_for_user(self, user):
         device = Device.objects.filter(
@@ -92,6 +96,12 @@ class PushMessageService():
         if external_id:
             message.external_id = external_id
             message.save()
+            onesignal_get_received.apply_async(
+                countdown=300,
+                kwargs={
+                    'message_id':message.id
+                    }
+                )
         return message
 
     def send_notification(self, body, title=None, collapse_subject=None, data={}, send_message_id_only=False):
