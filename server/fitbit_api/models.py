@@ -38,7 +38,9 @@ class FitbitAccountQuerySet(models.QuerySet):
             if account.uuid in summary_by_account_id:
                 account._fitbit_account_summary = summary_by_account_id[account.uuid]
             else:
-                account._fitbit_account_summary = None
+                account._fitbit_account_summary = FitbitAccountSummary(
+                    account = account
+                )
 
 class FitbitAccount(models.Model):
     uuid = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4)

@@ -97,19 +97,20 @@ class Message(models.Model):
             return None
 
     def update_message_receipts(self):
-        if self.device.type is not 'onesignal':
+        if self.device.type != 'onesignal':
             raise RuntimeError('No client for message device')
         client = OneSignalClient(self.device)
-        receipts = client.get_message_receipts(message.external_id)
+        receipts = client.get_message_receipts(self.external_id)
         for receipt_type, receipt_datetime in receipts.items():
             try:
                 receipt = MessageReceipt.objects.get(
-                    message = message,
+                    message = self,
                     type = receipt_type
                 )
             except MessageReceipt.DoesNotExist:
                 receipt = MessageReceipt(
-                    message = message
+                    message = self,
+                    type = receipt_type
                 )
             receipt.time = receipt_datetime
             receipt.save()

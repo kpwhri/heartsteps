@@ -1129,6 +1129,36 @@ class ParticipantNotificationsView(ParticipantView):
             )
         )
 
+class ParticipantNotificationDetailView(ParticipantView):
+
+    template_name = 'dashboard/participant-notification-detail.html'
+
+    def setup_participant(self):
+        super().setup_participant()
+        self.setup_notification()
+
+    def setup_notification(self):
+        if 'notification_id' not in self.kwargs:
+            raise Http404('No notification id')
+        try:
+            self.notification = PushMessage.objects.get(
+                id = self.kwargs['notification_id'],
+                recipient = self.participant.user if self.participant.user else None
+            )
+        except PushMessage.DoesNotExist:
+            raise Http404('Notification does not exist') 
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['notification'] = self.notification
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.setup_participant()
+        self.notification.update_message_receipts()
+        messages.add_message(request, messages.SUCCESS, 'Updated message receipts')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 class ParticipantSMSMessagesView(ParticipantView):
     
     template_name = 'dashboard/sms-messages.html'
