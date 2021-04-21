@@ -7,6 +7,8 @@ import { HeartstepsWebsite } from './website.component';
 import { EnrollmentModule } from '@pages/enrollment/enrollment.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
+import { SetupPageModule } from '@pages/setup/setup.module';
+import { ParticipantModule } from '@heartsteps/participants/participant.module';
 
 declare var process: {
     env: {
@@ -32,6 +34,8 @@ if (!process.env.PRODUCTION) {
     imports: [
         BrowserModule,
         EnrollmentModule,
+        ParticipantModule,
+        SetupPageModule,
         IonicModule.forRoot(HeartstepsWebsite),
         RouterModule.forRoot(
             appRoutes,
