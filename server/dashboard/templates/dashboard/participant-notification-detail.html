@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" class="nav-link active">Notifications</a>
+{% endblock %}
+
+{% block content %}
+{{notification.device.type}}
+<em>{{notification.title}}</em>
+{{notification.body}}
+<dl>
+    <dt>Category</dt>
+    <dd>{{notification.collapse_subject}}</dd>
+    <dt>Received</dt>
+    <dd>{{notification.received}}</dd>
+    <dt>Opened</dt>
+    <dd>{{notification.opened}}</dd>
+</dl>
+
+<form method="post" action="">
+    {% csrf_token %}
+    <input type="submit" value="Update" />
+</form>
+
+{% endblock %}

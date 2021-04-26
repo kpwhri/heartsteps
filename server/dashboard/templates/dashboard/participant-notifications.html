@@ -23,7 +23,10 @@
             <dd>{{notification.received}}</dd>
             <dt>Opened</dt>
             <dd>{{notification.opened}}</dd>
-        </dl>        
+        </dl>
+        <nav>
+            <a href="{% url 'dashboard-cohort-participant-notification-detail' cohort.id participant.heartsteps_id notification.id %}">View details</a>
+        </nav>   
     </li>
 {% endfor %}
 </ul>

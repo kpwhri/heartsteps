@@ -15,6 +15,7 @@ from .views import ParticipantAdherenceView
 from .views import ParticipantEditView
 from .views import ParticipantSMSMessagesView
 from .views import ParticipantNotificationsView
+from .views import ParticipantNotificationDetailView
 from .views import ParticipantInterventionSummaryView
 from .views import ParticipantEnableView
 from .views import ParticipantDisableView
@@ -59,6 +60,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence-messages', ParticipantToggleAdherenceMessagesView.as_view(), name='dashboard-cohort-participant-adherence-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence', ParticipantAdherenceView.as_view(), name='dashboard-cohort-participant-adherence'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/intervention-summary', ParticipantInterventionSummaryView.as_view(), name='dashboard-cohort-participant-intervention-summary'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications/(?P<notification_id>[\d\w\-]+)', ParticipantNotificationDetailView.as_view(), name='dashboard-cohort-participant-notification-detail'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications', ParticipantNotificationsView.as_view(), name='dashboard-cohort-participant-notifications'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/messages', ParticipantSMSMessagesView.as_view(), name='dashboard-cohort-participant-sms-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/activity', ParticipantActivitySummaryView.as_view(), name='dashboard-cohort-participant-activity-summary'),

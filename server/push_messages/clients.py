@@ -9,11 +9,13 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
-from .tasks import onesignal_get_received
-
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
 class ClientBase:
+
+    SENT = 'sent'
+    RECEIVED = 'received'
+    FAILED = 'failed'
 
     class MessageSendError(RuntimeError):
         pass
@@ -62,6 +64,8 @@ class FirebaseMessageService(ClientBase):
 
 class OneSignalClient(ClientBase):
 
+    SENT = 'onesignal-sent'
+
     def __init__(self, device):
         self.device = device
 
@@ -77,6 +81,30 @@ class OneSignalClient(ClientBase):
         if not hasattr(settings, 'ONESIGNAL_APP_ID'):
             raise ImproperlyConfigured('No OneSignal APP ID')
         return settings.ONESIGNAL_APP_ID
+
+    def get_message_receipts(self, message_id):
+            url = 'https://onesignal.com/api/v1/notifications/{message_id}?app_id={app_id}'.format(
+                app_id = self.get_app_id(),
+                message_id = message_id
+            )
+            response = requests.get(url, headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic %s' % (self.get_api_key())
+            })
+            if response.status_code == 200:
+                data = response.json()
+                receipts = {}
+                if 'send_after' in data and data['send_after']:
+                    receipts[self.SENT] = timezone.make_aware(datetime.fromtimestamp(data['send_after']))
+                if 'completed_at' in data and data['completed_at']:
+                    completed_datetime = timezone.make_aware(datetime.fromtimestamp(data['completed_at']))
+                    if 'successful' in data and data['successful'] > 0:
+                        receipts[self.RECEIVED] = completed_datetime
+                    else:
+                        receipts[self.FAILED] = completed_datetime
+                return receipts
+            else:
+                raise RuntimeError('OneSignal message status request failed')
 
     def send(self, body=None, title=None, collapse_subject=None, data={}):
         
@@ -104,10 +132,6 @@ class OneSignalClient(ClientBase):
             response_data = response.json()
             if 'errors' in response_data and response_data['errors'] and len(response_data['errors']) > 0:
                 raise self.MessageSendError(response_data['errors'][0])
-            message_id = response_data['id']
-            onesignal_get_received.apply_async(countdown=300, kwargs={
-                'message_id': message_id
-            })
-            return message_id
+            return response_data['id']
         else:
             raise self.MessageSendError(response.text)
