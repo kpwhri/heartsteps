@@ -29,4 +29,10 @@ def Random_50_50_log():
             }
         }), purpose="test purpose", object="test object")
     
-    
+def parameterized_conditionality():
+    """This is a sample conditionality with parameter. Don't erase it. Don't use it for other than testing purpose.
+
+    Returns:
+        boolean: return the conditionality.
+    """
+    pass

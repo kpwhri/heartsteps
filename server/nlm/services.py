@@ -1,7 +1,7 @@
 from participants.models import Cohort, Participant
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents
+from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter
 
 
 class LogService:
@@ -152,12 +152,44 @@ class StudyTypeService:
             Returns:
                 Conditionality: newly created conditionaility object
             """
-            return Conditionality.objects.create(user=self.user, name=name, description=description, studytype=study_type, module_path=module_path)
+            return Conditionality.objects.create(name=name, description=description, studytype=study_type, module_path=module_path)
         
         def delete_conditionaility(self, name):
-            return Conditionality.objects.filter(user=self.user, name=name).delete()
+            return Conditionality.objects.filter(studytype__admins=self.user, name=name).delete()
         
+        def clear_all_conditionalities(self):
+            """
+            Do not use this other than development purporse
+            """
+            return Conditionality.objects.filter(studytype__admins=self.user).delete()  
         
+        def set_conditionality_parameter(self, parameter_fullname, value):
+            import datetime
+            from django.conf import settings
+            from django.utils.timezone import make_aware
+
+            naive_datetime = datetime.datetime.now()
+            aware_datetime = make_aware(naive_datetime)
+            
+            from datetime import datetime
+            old_parameter = ConditionalityParameter.objects.filter(parameter_fullname=parameter_fullname, 
+                                                                   period_begin__lte=aware_datetime,
+                                                                   period_finish__gte=aware_datetime).order_by('-period_begin').first()
+            
+            if old_parameter:
+                old_parameter.period_finish = aware_datetime
+                            
+            return ConditionalityParameter.objects.create(
+                period_begin=aware_datetime,
+                parameter_fullname=parameter_fullname,
+                value=value,
+                value_type = type(value)
+            )
+        
+        def get_all_conditionality_parameters(self):
+            return ConditionalityParameter.objects.all()
+        
+
     
     def __init__(self, user, study_type_name):
         if user:
@@ -255,3 +287,18 @@ class StudyTypeService:
         import importlib
         moduleobj = importlib.import_module(name=modulename)
         return getattr(moduleobj, functionname)()
+    
+    def set_conditionality_parameter(self, parameter_fullname, value):
+        return self.dsg.set_conditionality_parameter(parameter_fullname, value)
+    
+    def get_all_conditionality_parameters(self):
+        query = self.dsg.get_all_conditionality_parameters()
+        
+        list = []
+        if query:
+            for item in query:
+                list.append(item.__dict__)
+        return list
+    
+    def clear_all_conditionalities(self):
+        return self.dsg.clear_all_conditionalities()

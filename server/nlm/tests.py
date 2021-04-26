@@ -1,4 +1,5 @@
 import unittest
+import json
 from unittest import TestCase
 
 from django.db.utils import IntegrityError
@@ -55,6 +56,7 @@ class StudyTypeServiceTest(TestCase):
         self.study_type_name = "test study type"
             
     def tearDown(self):
+        
         self.cohort.delete()
         self.study.delete()
         self.user.delete()
@@ -90,6 +92,7 @@ class StudyTypeServiceTest(TestCase):
     def test_add_conditionailty_1(self):
         # Try to insert normal trivial conditionality
         study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service.clear_all_conditionalities()
         name = "always_true_conditionality"
         description = "always return true"
         module_path = "nlm.conditionality.always_true_conditionality"
@@ -166,7 +169,7 @@ class StudyTypeServiceTest(TestCase):
     def test_dump_all_logging(self):
         log_service = LogService(subject_name="nlm.test")
         
-        print(log_service.dump())
+        # print(log_service.dump())
         
     def test_clear_all_logging(self):
         log_service = LogService(subject_name="nlm.test")
@@ -179,3 +182,12 @@ class StudyTypeServiceTest(TestCase):
         log_service.log()
         
         log_service.clear()  
+    
+    def test_create_conditionality_parameter(self):
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service.set_conditionality_parameter("nlm.test.test_conditionality.ramdom.threshold", 0.2)
+    
+    def test_dump_conditionality_parameter(self):
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service.get_all_conditionality_parameters()
+        

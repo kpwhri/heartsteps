@@ -29,7 +29,6 @@ class ParticipantAssignment(models.Model):  # roster for NLM study
 class Conditionality(models.Model):
     """Base Class for all conditionalities"""
     name = models.CharField(max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1024)
     studytype = models.ForeignKey(StudyType, on_delete=models.CASCADE)
     module_path = models.CharField(max_length=1024, unique=True)
@@ -37,7 +36,7 @@ class Conditionality(models.Model):
     active = models.BooleanField(default=True)
     """means whether the conditionality is running or not. This can be reset to True anytime."""
     class Meta:
-        unique_together = ['name', 'user', 'studytype']
+        unique_together = ['name', 'studytype']
 
 
 class LogSubject(models.Model):
@@ -64,3 +63,16 @@ class LogContents(models.Model):
             models.Index(fields=['purpose', 'object']),             # also covers p
             models.Index(fields=['object'])
         ]
+
+class ConditionalityParameter(models.Model):
+    conditionality = models.ForeignKey(Conditionality, null=True, on_delete=models.SET_NULL)
+    participant = models.ForeignKey(Participant, null=True, on_delete=models.SET_NULL)
+    parameter_fullname = models.CharField(max_length=1024)
+    period_begin = models.DateTimeField(auto_now_add=True)
+    period_finish = models.DateTimeField(null=True)
+    value = models.CharField(max_length=255)
+    value_type = models.CharField(max_length=255)
+    
+    class Meta:
+        unique_together = ['conditionality', 'participant', 'parameter_fullname', 'period_begin', 'period_finish']
+    
