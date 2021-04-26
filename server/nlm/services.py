@@ -1,11 +1,10 @@
 from participants.models import Cohort, Participant
 
 from django.contrib.auth.models import User
-from .models import CohortAssignment, ParticipantAssignment, Conditionality
+from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality
 
 
-
-class NLMService:
+class StudyTypeService:
     class __DBSafeGuard:
         """Provide safe access to database. 
         """        
@@ -23,6 +22,20 @@ class NLMService:
                 self.user = user
             else:
                 raise ValueError("nlmservice parameter cannot be null.")
+        
+        def get_or_create_study_type(self, study_type_name):
+            """Returns StudyType with a name. If not exists, it creates an object for it.
+
+            Args:
+                study_type_name (str): study type name
+
+            Returns:
+                tuple : a Tuple of (object, created)
+            """
+            study_type_object, created = StudyType.objects.get_or_create(name=study_type_name)
+            study_type_object.admins.set([self.user])
+            
+            return (study_type_object, created)
             
         def get_all_cohort_assignments_query(self):
             """Returns all cohort assignments as a query.
@@ -39,7 +52,7 @@ class NLMService:
             
             return query
         
-        def create_new_cohort_assignment_to_NLM(self, cohort):
+        def create_new_cohort_assignment(self, cohort, study_type):
             """Create CohortAssignment DB object. 
             
             ** This is a safeguard restricting direct access to the database. Please use this. **
@@ -47,11 +60,12 @@ class NLMService:
             Args:
                 user (django.contrib.auth.models.User): current user. it limits responsible studies.
                 cohort (participants.models.Cohort): target cohort to be applied
+                study_type (nlm.models.StudyType): target study cohort to be applied
 
             Returns:
                 QuerySet: all instances of the cohort assignment (nlm.models.CohortAssignment)
             """        
-            result = CohortAssignment.objects.create(cohort=cohort)
+            result = CohortAssignment.objects.create(cohort=cohort, studytype=study_type)
             return result
         
         def get_cohort_assignment(self, cohort):
@@ -86,45 +100,38 @@ class NLMService:
             
             return participant_assignment_list
         
-        def create_conditionaility(self, name, description, module):
+        def create_conditionaility(self, name, description, study_type, module_path):
             """create a new conditionaility
 
             Args:
                 name (str): conditionality name (unique)
                 description (str): conditionality description
-                module (str): conditionality module (unique)
+                study_type (StudyType): the StudyType that the conditionality is in
+                module_path (str): conditionality module (unique)
 
             Returns:
                 Conditionality: newly created conditionaility object
             """
-            return Conditionality.objects.create(user=self.user, name=name, description=description, module=module)
+            return Conditionality.objects.create(user=self.user, name=name, description=description, studytype=study_type, module_path=module_path)
         
         def delete_conditionaility(self, name):
             return Conditionality.objects.filter(user=self.user, name=name).delete()
-            
-            
         
-    def __init__(self, user):
-        """Initialize NLM Service instance
         
-        Args:
-            user (django.contrib.auth.models.User): current user. it limits responsible studies.
-
-        Raises:
-            ValueError: if user is None
-        """        
+    
+    def __init__(self, user, study_type_name):
         if user:
             self.user = user
         else:
             raise ValueError("user parameter is invalid")
         
-        self.dsg = NLMService.__DBSafeGuard(self.user)
-    
-    def assign_cohort_to_nlm(self, cohort):
-        """Assigns participants in a cohort into the NLM study.
+        self.dsg = StudyTypeService.__DBSafeGuard(self.user)
         
-        This will be generalized soon.
-
+        self.study_type, new_study_type = self.dsg.get_or_create_study_type(study_type_name)
+        
+    def assign_cohort(self, cohort):
+        """Assigns participants in a cohort into the particular study type.
+        
         Args:
             cohort (participants.models.Cohort): target cohort to be applied
 
@@ -133,13 +140,14 @@ class NLMService:
         """       
         if cohort: 
             if isinstance(cohort, Cohort):
-                self.dsg.create_new_cohort_assignment_to_NLM(cohort)
+                self.dsg.create_new_cohort_assignment(cohort, self.study_type)
                 result = self.apply_all_cohort_assignments()
                 return result
             else:
                 raise ValueError("passed parameter is not Cohort:{}".format(cohort))
         else:
             raise ValueError("cohort parameter is {}".format(cohort))
+        
     
     def apply_all_cohort_assignments(self):
         """Fetch all non-NLM participants in all NLM-assigned cohorts, put them into a NLM Participant assignment
@@ -185,9 +193,9 @@ class NLMService:
             
         return participant_list
     
-    def add_conditionaility(self, name, description, module):
+    def add_conditionaility(self, name, description, module_path):
         """Adds a new conditionality"""
-        self.dsg.create_conditionaility(name, description, module)
+        self.dsg.create_conditionaility(name, description, self.study_type, module_path)
         
     def remove_conditionaility(self, name):
         """Removes a conditionality"""

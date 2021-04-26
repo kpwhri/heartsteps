@@ -57,7 +57,7 @@ from walking_suggestion_surveys.models import Configuration as WalkingSuggestion
 from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurveyDecision
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
-from nlm.services import NLMService
+from nlm.services import StudyTypeService
 
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
@@ -162,7 +162,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         
         self.dev_service = DevService(self.request.user)
-        self.nlm_service = NLMService(self.request.user)
+        self.nlm_service = StudyTypeService(self.request.user, "NLM")
         
         context["userstring"] = self.request.user
         context["is_superuser"] = self.request.user.is_staff

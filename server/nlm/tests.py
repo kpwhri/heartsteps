@@ -9,18 +9,13 @@ from django.contrib.auth.models import User
 
 from participants.models import Study, Cohort
 
-from .services import NLMService
+from .models import StudyType
+from .services import StudyTypeService
 
-class NLMServiceTest(TestCase):
+class StudyTypeServiceTest(TestCase):
     def setUp(self):
         # create test user
-        try:
-            self.user = User.objects.get(username='user_for_test')
-            # previous test has failed
-            print('reusing old test user..')
-        except User.DoesNotExist:
-            # previous test has succeeded
-            self.user = User.objects.create(username='user_for_test')            
+        self.user, newuser = User.objects.get_or_create(username='user_for_test')         
 
         # create test study
         try:
@@ -56,7 +51,8 @@ class NLMServiceTest(TestCase):
                                             name=cohort_name,
                                             study_length=study_length,
                                             export_data=export_data
-                                            )
+                                            )   
+        self.study_type_name = "test study type"
             
     def tearDown(self):
         self.cohort.delete()
@@ -67,86 +63,86 @@ class NLMServiceTest(TestCase):
         
         
     def test_new_service_instance_with_empty_init(self):
-        self.assertRaises(TypeError, NLMService)
+        self.assertRaises(TypeError, StudyTypeService)
     
     def test_new_service_instance_with_correct_init(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
     
     def test_new_service_instance_with_correct_init_but_wrong_argument(self):
-        self.assertRaises(ValueError, NLMService, None)
+        self.assertRaises(ValueError, StudyTypeService, None, None)
     
     def test_assign_cohort_nlm(self):
-        nlm_service = NLMService(self.user)
-        nlm_service.assign_cohort_to_nlm(self.cohort)
-    
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service.assign_cohort(self.cohort)
+        
     def test_assign_cohort_nlm_with_wrong_argument_1(self):
-        nlm_service = NLMService(self.user)
-        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, None)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        self.assertRaises(ValueError, study_type_service.assign_cohort, None)
     
     def test_assign_cohort_nlm_with_wrong_argument_2(self):
-        nlm_service = NLMService(self.user)
-        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, self.study)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        self.assertRaises(ValueError, study_type_service.assign_cohort, self.study)
         
     def test_assign_cohort_nlm_with_wrong_argument_3(self):
-        nlm_service = NLMService(self.user)
-        self.assertRaises(ValueError, nlm_service.assign_cohort_to_nlm, self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        self.assertRaises(ValueError, study_type_service.assign_cohort, self.user)
         
     def test_add_conditionailty_1(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "Random_50_50"
         description = "take chances of 50:50"
-        module = "nlm.conditionality.Random_50_50"
-        nlm_service.add_conditionaility(name, description, module)
-        nlm_service.remove_conditionaility(name)
+        module_path = "nlm.conditionality.Random_50_50"
+        study_type_service.add_conditionaility(name, description, module_path)
+        study_type_service.remove_conditionaility(name)
         
     def test_add_conditionailty_2(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "Random_50_50"
         name2 = "Random_50_50_2"
         description = "take chances of 50:50"
         module = "nlm.conditionality.Random_50_50"
         module2 = "nlm.conditionality.Random_50_50_2"
-        nlm_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name, description, module)
-        nlm_service.remove_conditionaility(name)
+        study_type_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module)
+        study_type_service.remove_conditionaility(name)
         
     def test_add_conditionailty_3(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "Random_50_50"
         name2 = "Random_50_50_2"
         description = "take chances of 50:50"
         module = "nlm.conditionality.Random_50_50"
         module2 = "nlm.conditionality.Random_50_50_2"
-        nlm_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name, description, module2)
-        nlm_service.remove_conditionaility(name)
+        study_type_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module2)
+        study_type_service.remove_conditionaility(name)
 
     def test_add_conditionailty_4(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "Random_50_50"
         name2 = "Random_50_50_2"
         description = "take chances of 50:50"
         module = "nlm.conditionality.Random_50_50"
         module2 = "nlm.conditionality.Random_50_50_2"
-        nlm_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, nlm_service.add_conditionaility, name2, description, module)
-        nlm_service.remove_conditionaility(name)
-        nlm_service.remove_conditionaility(name2)
+        study_type_service.add_conditionaility(name, description, module)
+        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name2, description, module)
+        study_type_service.remove_conditionaility(name)
+        study_type_service.remove_conditionaility(name2)
         
     def test_add_conditionailty_5(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "Random_50_50"
         name2 = "Random_50_50_2"
         description = "take chances of 50:50"
         module = "nlm.conditionality.Random_50_50"
         module2 = "nlm.conditionality.Random_50_50_2"
-        nlm_service.add_conditionaility(name, description, module)
-        nlm_service.add_conditionaility(name2, description, module2)
-        nlm_service.remove_conditionaility(name)
-        nlm_service.remove_conditionaility(name2)
+        study_type_service.add_conditionaility(name, description, module)
+        study_type_service.add_conditionaility(name2, description, module2)
+        study_type_service.remove_conditionaility(name)
+        study_type_service.remove_conditionaility(name2)
         
     def test_run_conditionality(self):
-        nlm_service = NLMService(self.user)
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
         module = "nlm.conditionality.Random_50_50"
-        result = nlm_service.call_conditionality(module)
+        result = study_type_service.call_conditionality(module)
         

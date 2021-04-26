@@ -5,6 +5,7 @@ from participants.models import Cohort, Participant
 
 class StudyType(models.Model):
     name = models.CharField(max_length=255)
+    admins = models.ManyToManyField(User, blank=False)
     active = models.BooleanField(default=True)
 
 class CohortAssignment(models.Model):
@@ -21,7 +22,6 @@ class Level(models.Model):
 class ParticipantAssignment(models.Model):  # roster for NLM study
     """Contains all NLM Participant"""
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
-    studytype = models.ForeignKey(StudyType, on_delete=models.CASCADE)
     # it should be changed to OneToManyField if we extend study type
     cohort_assignment = models.ForeignKey(CohortAssignment, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)    
