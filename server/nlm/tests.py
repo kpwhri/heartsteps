@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from participants.models import Study, Cohort
 
 from .models import StudyType
-from .services import StudyTypeService
+from .services import StudyTypeService, LogService
 
 class StudyTypeServiceTest(TestCase):
     def setUp(self):
@@ -88,61 +88,94 @@ class StudyTypeServiceTest(TestCase):
         self.assertRaises(ValueError, study_type_service.assign_cohort, self.user)
         
     def test_add_conditionailty_1(self):
+        # Try to insert normal trivial conditionality
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "Random_50_50"
-        description = "take chances of 50:50"
-        module_path = "nlm.conditionality.Random_50_50"
+        name = "always_true_conditionality"
+        description = "always return true"
+        module_path = "nlm.conditionality.always_true_conditionality"
         study_type_service.add_conditionaility(name, description, module_path)
         study_type_service.remove_conditionaility(name)
         
     def test_add_conditionailty_2(self):
+        # Try to insert same conditionality twice : causes exception
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "Random_50_50"
-        name2 = "Random_50_50_2"
-        description = "take chances of 50:50"
-        module = "nlm.conditionality.Random_50_50"
-        module2 = "nlm.conditionality.Random_50_50_2"
+        name = "always_true_conditionality"
+        description = "always return true"
+        module = "nlm.conditionality.always_true_conditionality"
         study_type_service.add_conditionaility(name, description, module)
         self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module)
         study_type_service.remove_conditionaility(name)
         
     def test_add_conditionailty_3(self):
+        # Try to insert two conditionalities with same names, and different module path : causes exception
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "Random_50_50"
-        name2 = "Random_50_50_2"
-        description = "take chances of 50:50"
-        module = "nlm.conditionality.Random_50_50"
-        module2 = "nlm.conditionality.Random_50_50_2"
+        name = "always_true_conditionality"
+        name2 = "always_true_conditionality_2"
+        description = "always return true"
+        module = "nlm.conditionality.always_true_conditionality"
+        module2 = "nlm.conditionality.always_true_conditionality_2"
         study_type_service.add_conditionaility(name, description, module)
         self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module2)
         study_type_service.remove_conditionaility(name)
 
     def test_add_conditionailty_4(self):
+        # Try to insert two conditionalities with different names, and same module path : causes exception
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "Random_50_50"
-        name2 = "Random_50_50_2"
-        description = "take chances of 50:50"
-        module = "nlm.conditionality.Random_50_50"
-        module2 = "nlm.conditionality.Random_50_50_2"
+        name = "always_true_conditionality"
+        name2 = "always_true_conditionality_2"
+        description = "always return true"
+        module = "nlm.conditionality.always_true_conditionality"
         study_type_service.add_conditionaility(name, description, module)
         self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name2, description, module)
         study_type_service.remove_conditionaility(name)
         study_type_service.remove_conditionaility(name2)
         
     def test_add_conditionailty_5(self):
+        # Try to insert two conditionalities with different names, and different module path : no exception
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "Random_50_50"
-        name2 = "Random_50_50_2"
-        description = "take chances of 50:50"
-        module = "nlm.conditionality.Random_50_50"
-        module2 = "nlm.conditionality.Random_50_50_2"
+        name = "always_true_conditionality"
+        name2 = "always_true_conditionality_2"
+        description = "always return true"
+        module = "nlm.conditionality.always_true_conditionality"
+        module2 = "nlm.conditionality.always_true_conditionality_2"
         study_type_service.add_conditionaility(name, description, module)
         study_type_service.add_conditionaility(name2, description, module2)
         study_type_service.remove_conditionaility(name)
         study_type_service.remove_conditionaility(name2)
         
     def test_run_conditionality(self):
+        # try to run individual conditionality
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        module = "nlm.conditionality.Random_50_50"
+        module = "nlm.conditionality.always_true_conditionality"
         result = study_type_service.call_conditionality(module)
+
+    def test_run_conditionality_with_logging(self):
+        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        module = "nlm.conditionality.Random_50_50_log"
+        result = study_type_service.call_conditionality(module)
+    
+    def test_log(self):
+        log_service = LogService(subject_name="nlm.test")
         
+        import time
+        
+        log_service.log()
+        time.sleep(0.500)
+        log_service.log()
+    
+    def test_dump_all_logging(self):
+        log_service = LogService(subject_name="nlm.test")
+        
+        print(log_service.dump())
+        
+    def test_clear_all_logging(self):
+        log_service = LogService(subject_name="nlm.test")
+        
+        import time
+        
+        log_service.clear()        
+        log_service.log()
+        time.sleep(0.200)
+        log_service.log()
+        
+        log_service.clear()  

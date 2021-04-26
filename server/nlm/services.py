@@ -1,9 +1,49 @@
 from participants.models import Cohort, Participant
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality
+from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents
 
 
+class LogService:
+    def __init__(self, subject_name='Unknown'):
+        self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
+        
+    def log(self, value="(Empty Message)", purpose="Unknown", object="Unknown"):
+        log_object, created = LogObject.objects.get_or_create(name=object)
+        log_purpose, created = LogPurpose.objects.get_or_create(name=purpose)
+        
+        LogContents.objects.create(
+            subject=self.subject,
+            object=log_object,
+            purpose=log_purpose,
+            value=value
+        )
+    
+    def dump(self):
+        query = LogContents.objects.filter(subject=self.subject)
+        
+        log_list = []
+        
+        if query:
+            for item in query.all():
+                log_list.append({
+                    'logtime': item.logtime,
+                    'subject': item.subject.name,
+                    'object': item.object.name,
+                    'purpose': item.purpose.name,
+                    'value': item.value
+                })
+        return log_list
+
+    def clear(self):
+        """Do Not User This Method. This is only for development.
+        This will be removed when the development is finished.
+        """
+        query = LogContents.objects.filter(subject=self.subject)
+        query.delete()
+
+            
+        
 class StudyTypeService:
     class __DBSafeGuard:
         """Provide safe access to database. 

@@ -38,3 +38,29 @@ class Conditionality(models.Model):
     """means whether the conditionality is running or not. This can be reset to True anytime."""
     class Meta:
         unique_together = ['name', 'user', 'studytype']
+
+
+class LogSubject(models.Model):
+    name = models.CharField(max_length=255)
+
+class LogObject(models.Model):
+    name = models.CharField(max_length=255)
+
+class LogPurpose(models.Model):
+    name = models.CharField(max_length=255)
+
+class LogContents(models.Model):
+    logtime = models.DateTimeField(auto_now_add=True)
+    subject = models.ForeignKey(LogSubject, on_delete=models.CASCADE)
+    object = models.ForeignKey(LogObject, on_delete=models.CASCADE)
+    purpose = models.ForeignKey(LogPurpose, on_delete=models.DO_NOTHING)
+    value = models.TextField(blank=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['-logtime']),
+            models.Index(fields=['subject', 'object', 'purpose']),  # also covers s+o, s
+            models.Index(fields=['subject', 'purpose']),            
+            models.Index(fields=['purpose', 'object']),             # also covers p
+            models.Index(fields=['object'])
+        ]
