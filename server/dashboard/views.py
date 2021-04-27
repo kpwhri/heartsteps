@@ -1100,11 +1100,26 @@ class ParticipantNotificationsView(ParticipantView):
 
     template_name = 'dashboard/participant-notifications.html'
 
+    def get_notifications(self, user, start, end):
+        if not user:
+            return []
+        notifications = PushMessage.objects.filter(
+            recipient = user,
+            message_type = PushMessage.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        ) \
+        .order_by('-created') \
+        .localize_datetimes() \
+        .all()
+        return notifications
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['notifications'] = self.participant.get_notifications(
-            timezone.now() - timedelta(days=7),
-            timezone.now()
+        context['notifications'] = self.get_notifications(
+            user = self.participant.user,
+            start = timezone.now() - timedelta(days=7),
+            end = timezone.now()
         )
         return context
 

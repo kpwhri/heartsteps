@@ -1,6 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 {% load template_filters %}
+{% load tz %}
 
 {% block navigation %}
 <a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
@@ -9,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-
+{% localtime off %}
 <h2>Notifications for {{participant.heartsteps_id}}</h2>
 <ul class="list-unstyled">
 {% for notification in notifications %}
@@ -19,6 +20,8 @@
         <dl>
             <dt>Category</dt>
             <dd>{{notification.collapse_subject}}</dd>
+            <dt>Sent</dt>
+            <dd>{{notification.sent | date}} at {{notification.sent | time}} {{notification.sent.tzinfo}}</dd>
             <dt>Received</dt>
             <dd>{{notification.received}}</dd>
             <dt>Opened</dt>
@@ -30,4 +33,5 @@
     </li>
 {% endfor %}
 </ul>
+{% endlocaltime %}
 {% endblock %}

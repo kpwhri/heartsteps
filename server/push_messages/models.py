@@ -4,6 +4,8 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
+from days.models import LocalizeTimezoneQuerySet
+
 from .clients import OneSignalClient
 
 class Device(models.Model):
@@ -25,15 +27,25 @@ class Device(models.Model):
     def __str__(self):
         return '%s (%s)' % (self.type, self.token)
 
-class MessageReceiptQuerySet(models.QuerySet):
+class MessageReceiptQuerySet(LocalizeTimezoneQuerySet):
 
     _receipts_loaded = False
+    _localize_datetimes = False
+    _datetime_localized = False
+
+    def _clone(self, *args, **kwargs):
+        clone = super()._clone(*args, **kwargs)
+        clone._localize_datetimes = self._localize_datetimes
+        return clone
 
     def _fetch_all(self):
         super()._fetch_all()
-        if not self._receipts_loaded:
+        if self._result_cache and not self._receipts_loaded:
             self._fetch_message_receipts()
             self._receipts_loaded = True
+        if self._result_cache and self._localize_datetimes and not self._datetime_localized:
+            self.localize_messages(self._result_cache)
+            self._datetime_localized = True
 
     def _fetch_message_receipts(self):
         if self._result_cache:
@@ -50,6 +62,30 @@ class MessageReceiptQuerySet(models.QuerySet):
                     _message._message_receipts = message_receipts[_message.id]
                 else:
                     _message._message_receipts = {}
+
+    def localize_datetimes(self):
+        self._localize_datetimes = True
+        return self
+
+    def localize_messages(self, messages):
+        user_ids = []
+        start = None
+        end = None
+        for message in messages:
+            if message.recipient_id not in user_ids:
+                user_ids.append(message.recipient_id)
+            if not start or message.created < start:
+                start = message.created
+            if not end or message.created > end:
+                end = message.created        
+        timezone_dict = self.cache_timezones(user_ids, start, end)
+        for message in messages:
+            message_receipts = message.get_message_receipts()
+            for key, value in message_receipts.items():
+                message_receipts[key] = self.set_timezone(timezone_dict, message.recipient_id, value)
+                print("set timezone", message_receipts[key].tzinfo)
+            message.set_message_receipts(message_receipts)
+
 
 
 class Message(models.Model):
@@ -89,9 +125,8 @@ class Message(models.Model):
         self._message_receipts = message_receipts
 
     def __get_receipt_time(self, receipt_type):
-        if not hasattr(self, '_message_receipts'):
-            self.__load_message_receipts()
-        if receipt_type in self._message_receipts:
+        message_receipts = self.get_message_receipts()
+        if receipt_type in message_receipts:
             return self._message_receipts[receipt_type]
         else:
             return None
@@ -114,6 +149,14 @@ class Message(models.Model):
                 )
             receipt.time = receipt_datetime
             receipt.save()
+
+    def get_message_receipts(self):
+        if not hasattr(self, '_message_receipts'):
+            self.__load_message_receipts()
+        return self._message_receipts
+
+    def set_message_receipts(self, message_receipts):
+        self._message_receipts = message_receipts
 
     @property
     def sent(self):

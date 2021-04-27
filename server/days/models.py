@@ -25,6 +25,9 @@ class Day(models.Model):
     def get_timezone(self):
         return pytz.timezone(self.timezone)
 
+    def localize(self, datetime):
+        return datetime.astimezone(self.get_timezone())
+
     def set_start(self):
         self.start = datetime(
             self.date.year,
@@ -50,7 +53,29 @@ class LocalizeTimezoneQuerySet(models.QuerySet):
         if self._result_cache:
             self.localize_datetime(self._result_cache, attribute)
         
-    
+    def cache_timezones(self, user_ids, start, end):
+        days_by_user_id = {}
+        for user_id in user_ids:
+            days_by_user_id[user_id] = []
+        days = Day.objects.filter(
+            user_id__in = user_ids,
+            end__gte = start,
+            start__lte = end
+        ).all()
+        for day in days:
+            days_by_user_id[day.user_id].append(day)
+        for user_id in days_by_user_id.keys():
+            days_by_user_id[user_id].sort(key = lambda day: day.start)
+        return days_by_user_id
+
+    def set_timezone(self, timezone_dict, user_id, _datetime):
+        if user_id in timezone_dict:
+            days = timezone_dict[user_id]
+            for day in days:
+                if day.end > _datetime:
+                    return day.localize(_datetime)
+        return _datetime
+
     def localize_datetime(self, objects, attribute):
         datetimes_by_user_id = {}
         for _object in objects:

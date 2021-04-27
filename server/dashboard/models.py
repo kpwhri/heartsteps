@@ -39,8 +39,6 @@ from morning_messages.models import MorningMessage
 from morning_messages.models import MorningMessageSurvey
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
-from push_messages.models import Message as PushMessage
-
 class AdherenceAppInstallDashboard(AdherenceAppInstallMessageService):
 
     def __init__(self, user=None):
@@ -789,19 +787,6 @@ class DashboardParticipant(Participant):
             return WalkingSuggestionSurveyConfiguration.objects.get(user = self.user)
         except WalkingSuggestionSurveyConfiguration.DoesNotExist:
             return None
-
-    def get_notifications(self, start, end):
-        if not self.user:
-            return []
-        notifications = PushMessage.objects.filter(
-            recipient = self.user,
-            message_type = PushMessage.NOTIFICATION,
-            created__gte = start,
-            created__lte = end
-        ) \
-        .order_by('-created') \
-        .all()
-        return notifications
 
     @property
     def walking_suggestion_survey_configuration(self):
