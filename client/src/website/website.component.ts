@@ -16,10 +16,12 @@ export class HeartstepsWebsite implements OnInit {
         this.router.events
         .filter((event) => event instanceof NavigationEnd)
         .subscribe((event: NavigationEnd) => {
-            this.participantService.get()
-            .then((participant) => {
-                this.updateRoute(participant);
-            })
+            if(event.url === '/') {
+                this.participantService.get()
+                .then((participant) => {
+                    this.updateRoute(participant);
+                });
+            }
         })
     }
 
