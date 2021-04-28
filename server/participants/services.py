@@ -9,11 +9,13 @@ from adherence_messages.services import AdherenceService
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
 from anti_sedentary.services import AntiSedentaryService
 from burst_periods.models import Configuration as BurstPeriodConfiguration
+from days.services import DayService
 from fitbit_activities.services import FitbitActivityService
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.tasks import update_incomplete_days
 from morning_messages.models import Configuration as MorningMessagesConfiguration
+from push_messages.models import Message as PushMessage
 from sms_messages.models import Contact as SMSContact
 from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 from walking_suggestion_times.models import SuggestionTime
@@ -290,6 +292,7 @@ class ParticipantService:
                 
 
             self.update_fitbit(date)
+            self.update_message_receipts(date)
             self.update_adherence(date)
             self.update_weather_forecasts(date)
 
@@ -367,3 +370,15 @@ class ParticipantService:
             weather_service.update_forecasts()
         except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
             pass
+
+    def update_message_receipts(self, date):
+        if not self.user:
+            return
+        day_service = DayService(user=self.user)
+        messages = PushMessage.objects.filter(
+            recipient = self.user,
+            created__gte = day_service.get_start_of_day(date),
+            created__lte = day_service.get_end_of_day(date)
+        ).all()
+        for message in messages:
+            message.update_message_receipts()

@@ -11,6 +11,8 @@ from anti_sedentary.services import AntiSedentaryService
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
+from push_messages.models import Device as PushMessageDevice
+from push_messages.models import Message as PushMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from weather.services import WeatherService
@@ -92,3 +94,24 @@ class NightlyUpdateTest(TestCase):
         update_daily_forecast.assert_called()
         update_forecasts.assert_called()
 
+    @patch.object(PushMessage, 'update_message_receipts')
+    def test_updates_message_receipts_for_yesterday(self, update_message_receipts):
+        message = PushMessage.objects.create(
+            recipient = self.user,
+            device = PushMessageDevice.objects.create(
+                user = self.user,
+                type = PushMessageDevice.ONESIGNAL,
+                active = True
+            )
+        )
+        message.created = message.created - timedelta(days=1)
+        message.save()
+        # This second push message will not have message receipts updated
+        PushMessage.objects.create(
+            recipient = self.user,
+            device = message.device
+        )
+
+        daily_update(username = self.user.username)
+
+        update_message_receipts.assert_called_once()
