@@ -1,6 +1,8 @@
+from datetime import timedelta
 from unittest.mock import patch
 from django.test import TestCase
 from django.test import override_settings
+from django.utils import timezone
 import requests
 
 from django.contrib.auth.models import User
@@ -222,3 +224,70 @@ class OneSignalClientTests(TestCase):
             pass
 
 
+class TestOneSignalMessageReceiptsUpdate(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.user = User.objects.create(username='test')
+        self.device = Device.objects.create(
+            user=self.user,
+            type = Device.ONESIGNAL,
+            active = True
+        )
+
+        task_patch = patch.object(onesignal_get_received, 'apply_async')
+        self.get_received_task = task_patch.start()
+        self.addCleanup(task_patch.stop)
+
+        get_message_receipts_patch = patch.object(OneSignalClient, 'get_message_receipts')
+        self.addCleanup(get_message_receipts_patch.stop)
+        self.get_message_receipts = get_message_receipts_patch.start()
+        self.get_message_receipts.return_value = {}
+
+    def make_message(self, created = None):
+        message = Message.objects.create(
+            recipient = self.user,
+            device = self.device,
+            message_type = Message.NOTIFICATION
+        )
+        if created:
+            message.created = created
+            message.save()
+        return message
+
+    def test_updates_message_receipts(self):
+        message = self.make_message()
+        sent_datetime = message.created + timedelta(minutes=1)
+        received_datetime = message.created + timedelta(minutes=2)
+        self.get_message_receipts.return_value = {
+            MessageReceipt.SENT: sent_datetime,
+            MessageReceipt.RECEIVED: received_datetime
+        }
+
+        onesignal_get_received(message.id)
+
+        self.assertEqual(message.sent, sent_datetime)
+        self.assertEqual(message.received, received_datetime)
+
+    def test_will_recheck_5_minutes_later_if_not_received(self):
+        message = self.make_message()
+        self.get_message_receipts.return_value = {
+            MessageReceipt.SENT: message.created + timedelta(minutes=1)
+        }
+
+        onesignal_get_received(message.id)
+
+        self.get_received_task.assert_called_with(
+            eta = 5*60,
+            kwargs = { 'message_id': message.id }
+        )
+
+    def test_will_not_recheck_received_if_message_created_1_hour_ago(self):
+        message = self.make_message(created=timezone.now() - timedelta(hours=1))
+        self.get_message_receipts.return_value = {
+            MessageReceipt.SENT: message.created + timedelta(minutes=1)
+        }
+
+        onesignal_get_received(message.id)
+
+        self.get_received_task.assert_not_called()
