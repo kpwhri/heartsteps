@@ -1,3 +1,4 @@
+from datetime import time
 from .services import StudyTypeService
 from .models import StudyType, Conditionality
 
@@ -22,6 +23,12 @@ class Programlet(metaclass=abc.ABCMeta):
         self.check_parameters()
     
     @abc.abstractmethod
+    def prepare(self):
+        """prepare running. run() tries this once a second until this returns true (timeout=100s).
+        """
+        pass
+    
+    @abc.abstractmethod
     def main_logic(self):
         """do main logic of the programlet.
         This is declared, but not implemented. should be implemented in subclasses.
@@ -40,7 +47,6 @@ class Programlet(metaclass=abc.ABCMeta):
     def filter_parameter(self, parameter_fullname):
         returnlist = []
         for item in self.conditionality_parameters:
-            print(item.parameter_fullname)
             if item.parameter_fullname == parameter_fullname:
                 returnlist.append(item)
         return returnlist
@@ -63,15 +69,29 @@ class Programlet(metaclass=abc.ABCMeta):
             return parameter_object.value
             
     def run(self):
-        self.main_logic()
-
+        max_trial = 100
+        prepared = False
+        for i in range(max_trial):
+            if self.prepare():
+                prepared = True
+                break
+            else:
+                pass
+        if prepared:
+            return self.main_logic()            
+        else:
+            return False
+        
 ### Don't touch above! ###
 
 class Programlet_Test_Test(Programlet):
     def check_parameters(self):            
         self.threshold = self.pick_value(self.filter_parameter("nlm.test.test_conditionality.ramdom.threshold")[0])
         self.test_str = self.pick_value(self.filter_parameter("nlm.test.test_conditionality.ramdom.test_str")[0])
-        
+
+    def prepare(self):
+        return True
+            
     def main_logic(self):
         import random
         import json
