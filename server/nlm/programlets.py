@@ -1,5 +1,5 @@
 from datetime import time
-from .services import StudyTypeService
+from .services import StudyTypeService, LogService
 from .models import StudyType, Conditionality
 
 import abc
@@ -21,12 +21,13 @@ class Programlet(metaclass=abc.ABCMeta):
         self.conditionality = self.parameters.conditionality
         self.conditionality_parameters = self.study_type_service.get_conditionality_parameters(self.conditionality)
         self.check_parameters()
+        self.logger = LogService(subject_name=self.name)
     
     @abc.abstractmethod
     def prepare(self):
         """prepare running. run() tries this once a second until this returns true (timeout=100s).
         """
-        pass
+        raise NotImplementedError
     
     @abc.abstractmethod
     def main_logic(self):
@@ -44,6 +45,12 @@ class Programlet(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def postprocess(self):
+        """run anything if something has to be done after running.
+        """
+        raise NotImplementedError
+    
     def filter_parameter(self, parameter_fullname):
         returnlist = []
         for item in self.conditionality_parameters:
@@ -67,7 +74,10 @@ class Programlet(metaclass=abc.ABCMeta):
                 return v
         except:
             return parameter_object.value
-            
+    
+    def load(self, parameter_name: str):
+        return self.pick_value(self.filter_parameter(parameter_name)[0])
+        
     def run(self):
         max_trial = 100
         prepared = False
@@ -86,8 +96,8 @@ class Programlet(metaclass=abc.ABCMeta):
 
 class Programlet_Test_Test(Programlet):
     def check_parameters(self):            
-        self.threshold = self.pick_value(self.filter_parameter("nlm.test.test_conditionality.ramdom.threshold")[0])
-        self.test_str = self.pick_value(self.filter_parameter("nlm.test.test_conditionality.ramdom.test_str")[0])
+        self.threshold = self.load("nlm.test.test_conditionality.ramdom.threshold")
+        self.test_str = self.load("nlm.test.test_conditionality.ramdom.test_str")
 
     def prepare(self):
         return True
@@ -95,16 +105,19 @@ class Programlet_Test_Test(Programlet):
     def main_logic(self):
         import random
         import json
-        from nlm.services import LogService
         
         random_value = random.random()
         
-        logger = LogService(subject_name=self.name)
-        logger.log(value=json.dumps({
+        self.logger.log(value=json.dumps({
             "name": "random value", 
             "value": (random_value > self.threshold),
             "support_evidences": {
                 "random_value": random_value,
                 "threshold": self.threshold
                 }
-            }), purpose="test purpose", object="test object")
+            }))
+
+        return True
+    
+    def postprocess():
+        return True
