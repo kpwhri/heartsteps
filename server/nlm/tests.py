@@ -12,6 +12,7 @@ from participants.models import Study, Cohort
 
 from .models import StudyType
 from .services import StudyTypeService, LogService
+from .programlets import ProgramletParameters
 
 class StudyTypeServiceTest(TestCase):
     def setUp(self):
@@ -89,62 +90,15 @@ class StudyTypeServiceTest(TestCase):
         study_type_service = StudyTypeService(self.user, self.study_type_name)
         self.assertRaises(ValueError, study_type_service.assign_cohort, self.user)
         
-    def test_add_conditionailty_1(self):
+    def test_add_conditionailty(self):
         # Try to insert normal trivial conditionality
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        study_type_service.clear_all_conditionalities()
+        # study_type_service.clear_all_conditionalities()
         name = "always_true_conditionality"
         description = "always return true"
         module_path = "nlm.conditionality.always_true_conditionality"
-        study_type_service.add_conditionaility(name, description, module_path)
-        study_type_service.remove_conditionaility(name)
-        
-    def test_add_conditionailty_2(self):
-        # Try to insert same conditionality twice : causes exception
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "always_true_conditionality"
-        description = "always return true"
-        module = "nlm.conditionality.always_true_conditionality"
-        study_type_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module)
-        study_type_service.remove_conditionaility(name)
-        
-    def test_add_conditionailty_3(self):
-        # Try to insert two conditionalities with same names, and different module path : causes exception
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "always_true_conditionality"
-        name2 = "always_true_conditionality_2"
-        description = "always return true"
-        module = "nlm.conditionality.always_true_conditionality"
-        module2 = "nlm.conditionality.always_true_conditionality_2"
-        study_type_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name, description, module2)
-        study_type_service.remove_conditionaility(name)
-
-    def test_add_conditionailty_4(self):
-        # Try to insert two conditionalities with different names, and same module path : causes exception
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "always_true_conditionality"
-        name2 = "always_true_conditionality_2"
-        description = "always return true"
-        module = "nlm.conditionality.always_true_conditionality"
-        study_type_service.add_conditionaility(name, description, module)
-        self.assertRaises(IntegrityError, study_type_service.add_conditionaility, name2, description, module)
-        study_type_service.remove_conditionaility(name)
-        study_type_service.remove_conditionaility(name2)
-        
-    def test_add_conditionailty_5(self):
-        # Try to insert two conditionalities with different names, and different module path : no exception
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
-        name = "always_true_conditionality"
-        name2 = "always_true_conditionality_2"
-        description = "always return true"
-        module = "nlm.conditionality.always_true_conditionality"
-        module2 = "nlm.conditionality.always_true_conditionality_2"
-        study_type_service.add_conditionaility(name, description, module)
-        study_type_service.add_conditionaility(name2, description, module2)
-        study_type_service.remove_conditionaility(name)
-        study_type_service.remove_conditionaility(name2)
+        study_type_service.add_conditionality(name, description, module_path)
+        study_type_service.remove_conditionality(module_path)
         
     def test_run_conditionality(self):
         # try to run individual conditionality
@@ -185,9 +139,59 @@ class StudyTypeServiceTest(TestCase):
     
     def test_create_conditionality_parameter(self):
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        study_type_service.set_conditionality_parameter("nlm.test.test_conditionality.ramdom.threshold", 0.2)
-    
-    def test_dump_conditionality_parameter(self):
+        name = "random with parameterized threshold"
+        description = "random with parameterized threshold"
+        module_path = "nlm.conditionality.parameterized_conditionality"
+        try:
+            study_type_service.remove_conditionality(module_path)
+        except:
+            pass        
+        new_conditionality = study_type_service.add_conditionality(name, description, module_path)
+
+        conditionality_parameter_name = "nlm.test.test_conditionality.ramdom.threshold"
+        try:
+            study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
+        except:
+            pass
+        study_type_service.set_conditionality_parameter(new_conditionality, conditionality_parameter_name, 0.2)
+        study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
+        study_type_service.remove_conditionality(module_path)
+
+    def test_use_conditionality_parameter_with_setting(self):
         study_type_service = StudyTypeService(self.user, self.study_type_name)
-        study_type_service.get_all_conditionality_parameters()
+        name = "random with parameterized threshold"
+        description = "random with parameterized threshold"
+        module_path = "nlm.conditionality.parameterized_conditionality"
+        try:
+            study_type_service.remove_conditionality(module_path)
+        except:
+            pass     
+        new_conditionality = study_type_service.add_conditionality(name, description, module_path)
+        
+        conditionality_parameter_name = "nlm.test.test_conditionality.ramdom.threshold"
+        try:
+            study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
+        except:
+            pass
+        study_type_service.set_conditionality_parameter(new_conditionality, conditionality_parameter_name, 0.2)
+        
+        
+        conditionality_parameter_name2 = "nlm.test.test_conditionality.ramdom.test_str"
+        try:
+            study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name2)
+        except:
+            pass
+        study_type_service.set_conditionality_parameter(new_conditionality, conditionality_parameter_name2, "test string")
+        
+        
+        
+        params = ProgramletParameters(
+            "Test_Test",
+            study_type_service,
+            new_conditionality)
+        study_type_service.call_conditionality(module_path, parameters=params)
+        
+        study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
+        study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name2)
+        study_type_service.remove_conditionality(module_path)
         

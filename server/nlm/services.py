@@ -62,7 +62,7 @@ class StudyTypeService:
                 self.user = user
             else:
                 raise ValueError("nlmservice parameter cannot be null.")
-        
+       
         def get_or_create_study_type(self, study_type_name):
             """Returns StudyType with a name. If not exists, it creates an object for it.
 
@@ -140,8 +140,8 @@ class StudyTypeService:
             
             return participant_assignment_list
         
-        def create_conditionaility(self, name, description, study_type, module_path):
-            """create a new conditionaility
+        def create_conditionality(self, name, description, study_type, module_path):
+            """create a new conditionality
 
             Args:
                 name (str): conditionality name (unique)
@@ -150,12 +150,12 @@ class StudyTypeService:
                 module_path (str): conditionality module (unique)
 
             Returns:
-                Conditionality: newly created conditionaility object
+                Conditionality: newly created conditionality object
             """
             return Conditionality.objects.create(name=name, description=description, studytype=study_type, module_path=module_path)
         
-        def delete_conditionaility(self, name):
-            return Conditionality.objects.filter(studytype__admins=self.user, name=name).delete()
+        def delete_conditionality(self, module_path):
+            return Conditionality.objects.filter(studytype__admins=self.user, module_path=module_path).delete()
         
         def clear_all_conditionalities(self):
             """
@@ -163,7 +163,7 @@ class StudyTypeService:
             """
             return Conditionality.objects.filter(studytype__admins=self.user).delete()  
         
-        def set_conditionality_parameter(self, parameter_fullname, value):
+        def set_conditionality_parameter(self, conditionality, parameter_fullname, value):
             import datetime
             from django.conf import settings
             from django.utils.timezone import make_aware
@@ -172,7 +172,8 @@ class StudyTypeService:
             aware_datetime = make_aware(naive_datetime)
             
             from datetime import datetime
-            old_parameter = ConditionalityParameter.objects.filter(parameter_fullname=parameter_fullname, 
+            old_parameter = ConditionalityParameter.objects.filter(conditionality=conditionality, 
+                                                                   parameter_fullname=parameter_fullname, 
                                                                    period_begin__lte=aware_datetime,
                                                                    period_finish__gte=aware_datetime).order_by('-period_begin').first()
             
@@ -180,6 +181,7 @@ class StudyTypeService:
                 old_parameter.period_finish = aware_datetime
                             
             return ConditionalityParameter.objects.create(
+                conditionality=conditionality,
                 period_begin=aware_datetime,
                 parameter_fullname=parameter_fullname,
                 value=value,
@@ -189,7 +191,17 @@ class StudyTypeService:
         def get_all_conditionality_parameters(self):
             return ConditionalityParameter.objects.all()
         
+        def remove_conditionality(self, conditionality, parameter_fullname):
+            return ConditionalityParameter.objects.filter(
+                conditionality=conditionality, 
+                parameter_fullname=parameter_fullname).delete()
 
+        def get_conditionality_parameters(self, conditionality):
+            return ConditionalityParameter.objects.filter(
+                conditionality=conditionality
+            ).all()
+            
+            
     
     def __init__(self, user, study_type_name):
         if user:
@@ -200,7 +212,7 @@ class StudyTypeService:
         self.dsg = StudyTypeService.__DBSafeGuard(self.user)
         
         self.study_type, new_study_type = self.dsg.get_or_create_study_type(study_type_name)
-        
+    
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.
         
@@ -265,15 +277,18 @@ class StudyTypeService:
             
         return participant_list
     
-    def add_conditionaility(self, name, description, module_path):
-        """Adds a new conditionality"""
-        self.dsg.create_conditionaility(name, description, self.study_type, module_path)
+    def add_conditionality(self, name, description, module_path):
+        """Adds a new conditionality
+        Returns: 
+            Conditionality: the new conditionality (nlm.models.Conditionality)
+        """
+        return self.dsg.create_conditionality(name, description, self.study_type, module_path)
         
-    def remove_conditionaility(self, name):
+    def remove_conditionality(self, module_path):
         """Removes a conditionality"""
-        self.dsg.delete_conditionaility(name)
+        return self.dsg.delete_conditionality(module_path)
         
-    def call_conditionality(self, module):
+    def call_conditionality(self, module, parameters=None):
         """Run a conditionality by a module path
 
         Args:
@@ -286,19 +301,14 @@ class StudyTypeService:
         
         import importlib
         moduleobj = importlib.import_module(name=modulename)
-        return getattr(moduleobj, functionname)()
+        return getattr(moduleobj, functionname)(parameters)
     
-    def set_conditionality_parameter(self, parameter_fullname, value):
-        return self.dsg.set_conditionality_parameter(parameter_fullname, value)
+    def set_conditionality_parameter(self, conditionality, parameter_fullname, value):
+        return self.dsg.set_conditionality_parameter(conditionality, parameter_fullname, value)
     
-    def get_all_conditionality_parameters(self):
-        query = self.dsg.get_all_conditionality_parameters()
-        
-        list = []
-        if query:
-            for item in query:
-                list.append(item.__dict__)
-        return list
+    def remove_conditionality_parameter(self, conditionality, parameter_fullname):
+        return self.dsg.remove_conditionality(conditionality, parameter_fullname)
     
-    def clear_all_conditionalities(self):
-        return self.dsg.clear_all_conditionalities()
+    def get_conditionality_parameters(self, conditionality):
+        return self.dsg.get_conditionality_parameters(conditionality)
+    

@@ -36,7 +36,7 @@ class Conditionality(models.Model):
     active = models.BooleanField(default=True)
     """means whether the conditionality is running or not. This can be reset to True anytime."""
     class Meta:
-        unique_together = ['name', 'studytype']
+        unique_together = ['module_path', 'studytype']
 
 
 class LogSubject(models.Model):
@@ -52,7 +52,7 @@ class LogContents(models.Model):
     logtime = models.DateTimeField(auto_now_add=True)
     subject = models.ForeignKey(LogSubject, on_delete=models.CASCADE)
     object = models.ForeignKey(LogObject, on_delete=models.CASCADE)
-    purpose = models.ForeignKey(LogPurpose, on_delete=models.DO_NOTHING)
+    purpose = models.ForeignKey(LogPurpose, null=True, on_delete=models.SET_NULL)
     value = models.TextField(blank=True)
     
     class Meta:
@@ -75,4 +75,5 @@ class ConditionalityParameter(models.Model):
     
     class Meta:
         unique_together = ['conditionality', 'participant', 'parameter_fullname', 'period_begin', 'period_finish']
+    
     

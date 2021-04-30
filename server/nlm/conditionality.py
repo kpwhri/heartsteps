@@ -1,4 +1,4 @@
-def always_true_conditionality():
+def always_true_conditionality(params):
     """This is a sample conditionality. Don't erase it. Don't use it for other than testing purpose.
 
     Returns:
@@ -6,7 +6,7 @@ def always_true_conditionality():
     """
     return True
 
-def Random_50_50_log():
+def Random_50_50_log(params):
     """This is a sample conditionality with logging. Don't erase it. Don't use it for other than testing purpose.
 
     Returns:
@@ -28,11 +28,18 @@ def Random_50_50_log():
             "threshold": threshold_value
             }
         }), purpose="test purpose", object="test object")
-    
-def parameterized_conditionality():
+
+
+def parameterized_conditionality(params):
     """This is a sample conditionality with parameter. Don't erase it. Don't use it for other than testing purpose.
 
     Returns:
         boolean: return the conditionality.
     """
-    pass
+    from nlm.programlets import Programlet_Test_Test
+    
+    programlet = Programlet_Test_Test(params)
+    return programlet.run()
+    
+    
+    
