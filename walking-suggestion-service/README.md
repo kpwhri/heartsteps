@@ -19,10 +19,7 @@ docker-compose run walking-suggestion-service copy-files
 
 **List of changes made to HS Bandit**
 
--	Change the default probability to 0.1 on Sept 6
--	Update the prior distribution using HS V2 participants’ data on Sept 6
--	Change the default probability to 0.2 on Oct 30
--	Expand the availability definition on Oct 19
+Please see the word file (List of changes for walking suggestion service) in dropbox (3month study/HeartStepsBandit/study information) for the list of changes. 
 
 
 
