@@ -4,6 +4,13 @@ from import_export.widgets import DateTimeWidget
 
 from .models import Decision
 
+class LocalDateTimeWidget(DateTimeWidget):
+
+    def render(self, value, obj=None):
+        if not value:
+            return ""
+        return value.strftime('%Y-%m-%d %H:%M:%S')
+
 class WalkingSuggestionSurveyDecisionResource(resources.ModelResource):
 
     decision_id = Field(
@@ -39,17 +46,17 @@ class WalkingSuggestionSurveyDecisionResource(resources.ModelResource):
     notification_sent = Field(
         attribute = 'notification__sent',
         column_name = 'Notification Sent',
-        widget = DateTimeWidget(format = '%Y-%m-%d %H:%M:%S')
+        widget = LocalDateTimeWidget()
     )
     notification_received = Field(
         attribute = 'notification__received',
         column_name = 'Notification Received',
-        widget = DateTimeWidget(format = '%Y-%m-%d %H:%M:%S')
+        widget = LocalDateTimeWidget()
     )
     notification_opened = Field(
         attribute = 'notification__opened',
         column_name = 'Notification Opened',
-        widget = DateTimeWidget(format = '%Y-%m-%d %H:%M:%S')
+        widget = LocalDateTimeWidget()
     )
 
     class Meta:

@@ -83,7 +83,6 @@ class MessageReceiptQuerySet(LocalizeTimezoneQuerySet):
             message_receipts = message.get_message_receipts()
             for key, value in message_receipts.items():
                 message_receipts[key] = self.set_timezone(timezone_dict, message.recipient_id, value)
-                print("set timezone", message_receipts[key].tzinfo)
             message.set_message_receipts(message_receipts)
 
 

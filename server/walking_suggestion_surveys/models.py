@@ -244,17 +244,27 @@ class Configuration(models.Model):
 class DecisionQuerySet(LocalizeTimezoneQuerySet):
 
     _preload_surveys = False
+    _surveys_loaded = False
+    _localize_datetimes = False
+    _localized_datetimes = False
 
     def _clone(self, **kwargs):
         clone = super()._clone(**kwargs)
         clone._preload_surveys = self._preload_surveys
+        clone._surveys_loaded = self._surveys_loaded
+        clone._localize_datetimes = self._localize_datetimes
+        clone._localized_datetimes = self._localized_datetimes
         return clone
 
     def _fetch_all(self):
         super()._fetch_all()
-        self.localize_results_attribute_timezone('created')
-        if self._result_cache and self._preload_surveys:
+        if self._result_cache and self._preload_surveys and not self._surveys_loaded:
             self._load_surveys()
+            self._surveys_loaded = True
+
+        if self._result_cache and self._localize_datetimes and not self._localized_datetimes:
+            self._load_timezones()
+            self._localized_datetimes = True
 
     def preload_surveys(self):
         self._preload_surveys = True
@@ -271,6 +281,30 @@ class DecisionQuerySet(LocalizeTimezoneQuerySet):
         for decision in self._result_cache:
             if decision.survey_id and decision.survey_id in survey_by_id:
                 decision.survey = survey_by_id[str(decision.survey_id)]
+
+    def localize_timezone(self):
+        self._localize_datetimes = True
+        return self
+
+    def _load_timezones(self):
+        user_ids = []
+        start = None
+        end = None
+        for decision in self._result_cache:
+            if decision.user_id not in user_ids:
+                user_ids.append(decision.user_id)
+            if not start or decision.created < start:
+                start = decision.created
+            if not end or decision.created > end:
+                end = decision.created
+        timezone_dict = self.cache_timezones(user_ids, start, end)
+        for decision in self._result_cache:
+            decision.created = self.set_timezone(timezone_dict, decision.user_id, decision.created)
+            if decision.notification:
+                message_receipts = decision.notification.get_message_receipts()
+                for key, value in message_receipts.items():
+                    message_receipts[key] = self.set_timezone(timezone_dict, decision.user_id, value)
+                decision.notification.set_message_receipts(message_receipts)
 
 class Decision(models.Model):
     user = models.ForeignKey(

@@ -33,7 +33,8 @@ def export_walking_suggestion_surveys(username, directory='./', filename=None, s
     decision_query = Decision.objects.filter(user__username=username) \
     .prefetch_related('user') \
     .prefetch_related('notification') \
-    .preload_surveys()
+    .preload_surveys() \
+    .localize_timezone()
 
     if start:
         decision_query = decision_query.filter(
