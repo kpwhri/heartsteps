@@ -38,7 +38,9 @@ services:
             file: docker-compose.yaml
             service: rabbitmq
     server:
-        build: ./server
+        build: 
+            context: ./
+            dockerfile: server.Dockerfile
         env_file:
           - credentials/.env-production
         environment:
