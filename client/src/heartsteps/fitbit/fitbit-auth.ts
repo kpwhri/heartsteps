@@ -25,6 +25,23 @@ export class FitbitAuth {
         this.saved.emit(true);
     }
 
+    public update() {
+        this.loadingService.show('Updating fitbit authorization');
+        this.fitbitService.updateFitbitAccount()
+        .then(() => {
+            return this.fitbitService.isAuthorized();
+        })
+        .then(() => {
+            this.nextPage();
+        })
+        .catch(() => {
+            this.alertController.show('Unauthroized');
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
+    }
+
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
         return this.fitbitService.authorize()

@@ -103,8 +103,9 @@ export class FitbitWatchService {
     }
 
     public openWatchInstallPage() {
+        console.log('FitbitWatchService', 'Open Watch Install Page');
         const url = 'https://gam.fitbit.com/gallery/clock/0bd06f9e-2adc-4391-ab05-d177dda1a167';
-        this.browserService.open_external(url);
+        this.browserService.open(url);
     }
 
 }

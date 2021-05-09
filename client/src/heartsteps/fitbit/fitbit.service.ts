@@ -64,17 +64,8 @@ export class FitbitService {
     private openBrowser(): Promise<void> {
         return this.getURL()
         .then((url) => {
-            const browserPromise = this.browser.openAndWait(url)
-            .then(() => {
-                this.updateAuthorization()
-            });
-            return Promise.race([
-                browserPromise,
-                this.waitForAuthorization()
-            ])
-            .then(() => {
-                return undefined;
-            })    
+            this.browser.open(url);
+            return undefined;
         });
     }
 

@@ -14,11 +14,14 @@ export class BrowserService {
 
     public open(url: string): Promise<boolean> {
         if (this.platform.is('cordova')) {
+            console.log('Browser Server', 'Is Cordova');
             return this.checkSafariAvailable()
             .then(() => {
+                console.log('Browser Server', 'Open is safari');
                 return this.openInSafari(url)
             })
             .catch(() => {
+                console.log('Browser Service', 'Did not ooen');
                 return Promise.reject("Opening browser not supported")
             })
         } else {
@@ -62,7 +65,7 @@ export class BrowserService {
             .catch(() => {
                 reject();
             });
-        })
+        });
     }
 
     private openInSafari(url: string): Promise<boolean> {
