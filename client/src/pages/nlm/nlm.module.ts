@@ -6,8 +6,9 @@ import { IonicPageModule } from 'ionic-angular';
 
 const nlmRoutes: Routes = [
   {
-    path: 'nlm',
-    component: BlankPage
+    path: 'nlm/blank',
+    component: BlankPage,
+    outlet: 'modal'
   }
 ];
 

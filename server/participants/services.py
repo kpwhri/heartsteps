@@ -166,12 +166,15 @@ class ParticipantService:
             morning_message_configuration.enabled = True
             morning_message_configuration.save()
 
-            walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
-                user=self.participant.user
-            )
-            walking_suggestion_configuration.enabled = True
-            walking_suggestion_configuration.save()
-
+            try:
+                walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
+                    user=self.participant.user
+                )
+                walking_suggestion_configuration.enabled = True
+                walking_suggestion_configuration.save()
+            except WalkingSuggestionConfiguration.MultipleObjectsReturned:
+                pass
+            
             try:
                 activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
                     user = self.participant.user

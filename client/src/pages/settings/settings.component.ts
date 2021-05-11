@@ -266,7 +266,13 @@ export class SettingsComponent {
         }])
     }
 
-    public testLogFunction() {
-        console.log('test blank screen', 'hello world')
+    public testNLMBlank() {
+        console.log('NLM', 'Blank Modal')
+        // this.router.navigate(['nlm'])
+        this.router.navigate([{
+            outlets: {
+                modal: ['nlm', 'blank'].join('/')
+            }
+        }])
     }
 } 
