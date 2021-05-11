@@ -9,6 +9,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { MyApp } from './app.component';
 
 import { WelcomePageModule } from '../pages/welcome/welcome.module';
+import { NLMModule } from '../pages/nlm/nlm.module';
 import { OnboardPageModule } from '../pages/onboard/onboard.module';
 import { NotificationService } from '@app/notification.service';
 import { HomePageModule } from '@pages/home/home.module';
@@ -51,6 +52,7 @@ const routes: Routes = [
   imports: [
     BaselineWeekModule,
     WelcomePageModule,
+    NLMModule,
     CurrentWeekModule,
     OnboardPageModule,
     SetupPageModule,
