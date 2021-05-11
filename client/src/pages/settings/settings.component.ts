@@ -265,4 +265,8 @@ export class SettingsComponent {
             }
         }])
     }
+
+    public testLogFunction() {
+        console.log('test blank screen', 'hello world')
+    }
 } 
