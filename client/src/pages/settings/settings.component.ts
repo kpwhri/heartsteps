@@ -268,10 +268,18 @@ export class SettingsComponent {
 
     public testNLMBlank() {
         console.log('NLM', 'Blank Modal')
-        // this.router.navigate(['nlm'])
         this.router.navigate([{
             outlets: {
                 modal: ['nlm', 'blank'].join('/')
+            }
+        }])
+    }
+
+    public nlmBoutPlanningModal() {
+        console.log('NLM', 'Blank Modal')
+        this.router.navigate([{
+            outlets: {
+                modal: ['nlm', 'bout-planning-modal'].join('/')
             }
         }])
     }
