@@ -72,10 +72,11 @@ class DevSendNotificationService:
                         collapse_subject = "test collapse_subject",
                         data = {}
                     )
+                return message_response_id
             except Exception as err:
                 print("Exception thrown: {}".format(err))
+                return None
         
-        return message_response_id
     
     
     

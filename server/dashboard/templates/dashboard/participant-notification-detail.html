@@ -9,10 +9,16 @@
 {% endblock %}
 
 {% block content %}
-{{notification.device.type}}
-<em>{{notification.title}}</em>
-{{notification.body}}
+
 <dl>
+    <dt>Devide Type</dt>
+    <dd>{{notification.device.type}}</dd>
+    <dt>Device Token</dt>
+    <dd>{{notification.device.token}}</dd>
+    <dt>Notification Title</dt>
+    <dd>{{notification.title}}</dd>
+    <dt>Notification Body</dt>
+    <dd>{{notification.body}}</dd>
     <dt>Category</dt>
     <dd>{{notification.collapse_subject}}</dd>
     <dt>Received</dt>
