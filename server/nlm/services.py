@@ -53,7 +53,7 @@ class StudyTypeService:
             """Initiate DBSafeGuard toolbox
             
             Args:
-                nlmservice (NLMService): parent nlmService
+                user (User): subject user
 
             Raises:
                 ValueError: [description]
@@ -61,7 +61,7 @@ class StudyTypeService:
             if user:
                 self.user = user
             else:
-                raise ValueError("nlmservice parameter cannot be null.")
+                raise ValueError("user parameter cannot be null.")
        
         def get_or_create_study_type(self, study_type_name):
             """Returns StudyType with a name. If not exists, it creates an object for it.

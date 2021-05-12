@@ -96,7 +96,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context["is_staff"] = self.request.user.is_staff
         
         dev_service = DevService(self.request.user)
-        nlm_service = NLMService(self.request.user)
+        nlm_service = StudyTypeService(self.request.user, "NLM")
         
         
         study_query = dev_service.get_all_studies_query()
