@@ -201,6 +201,8 @@ class FitbitAccountUpdate(models.Model):
         super().save(*args, **kwargs)
         try:
             summary = FitbitAccountSummary.objects.get(account_id = self.account_id)
+            if summary.first_update_id is None:
+                summary.first_update = self
             summary.last_update = self
             summary.save()
         except FitbitAccountSummary.DoesNotExist:
