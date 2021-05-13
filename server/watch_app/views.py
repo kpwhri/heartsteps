@@ -51,19 +51,23 @@ class StepCountUpdateView(APIView):
 
 class LoginView(ParticipantLoginView):
 
-    def authentication_successful(self):
-        install = WatchInstall.objects.filter(
-            user=self.participant.user
-        ) \
-        .order_by('-created') \
-        .first()
-        if install:
-            install.updated = timezone.now()
-            install.save()
-        else:
-            WatchInstall.objects.create(
-                user = self.participant.user
-            )
+    def post(self, request):
+        response = super().post(request)
+        if response.status_code == 200:
+            user = User.objects.get(username = response.data['heartstepsId'])
+            install = WatchInstall.objects.filter(
+                user = user
+            ) \
+            .order_by('-created') \
+            .first()
+            if install:
+                install.updated = timezone.now()
+                install.save()
+            else:
+                WatchInstall.objects.create(
+                    user = user
+                )
+        return response
 
 class WatchAppStatus(object):
     def __init__(self, installed, lastUpdated):

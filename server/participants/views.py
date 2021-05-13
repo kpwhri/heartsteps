@@ -42,34 +42,16 @@ class LoginView(APIView):
         except ParticipantService.NoParticipant:
             return Response({}, status.HTTP_401_UNAUTHORIZED)
 
-        self.service = service
-        self.participant = service.participant
-        self.authentication_successful()
+        service.initialize()
 
         return Response(
-            self.get_response(),
-            headers=self.get_headers()
+            {
+                'heartstepsId': service.get_heartsteps_id()
+            },
+            headers = {
+                'Authorization-Token': service.get_authorization_token()
+            }
         )
-
-    def get_response(self):
-        return {
-            'heartstepsId': self.service.get_heartsteps_id()
-        }
-
-    def get_headers(self):
-        return {
-            'Authorization-Token': self.service.get_authorization_token()
-        }
-
-    def authentication_successful(self):
-        pass
-
-
-class EnrollView(LoginView):
-
-    def authentication_successful(self):
-        self.service.initialize()
-
 
 class ParticipantInformationView(APIView):
 
