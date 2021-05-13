@@ -197,6 +197,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 user = self.dev_service.get_user_by_username(username)
                 result = self.dev_service.send_notification_by_user(user)
                 context["results"] = result
+            elif dev_command == 'send-typed-notification-to-user':
+                username = request.POST['username']
+                notification_type = request.POST['notification_type']
+                user = self.dev_service.get_user_by_username(username)
+                result = self.dev_service.send_typed_notification_by_user(user, notification_type)
+                context["results"] = result
             elif dev_command == 'assign-cohort-to-nlm':
                 cohort_id = request.POST['cohort-id']
                 cohort = self.dev_service.get_cohort_by_id(cohort_id)
@@ -1124,7 +1130,6 @@ class ParticipantNotificationsView(ParticipantView):
         return context
 
     def post(self, request, *args, **kwargs):
-
         if 'message' in request.POST and request.POST['message'] is not '':
             try:
                 service = PushMessageService(username=self.participant.heartsteps_id)

@@ -76,10 +76,10 @@ class DevSendNotificationService:
             except Exception as err:
                 print("Exception thrown: {}".format(err))
                 return None
-        
-    
-    
-    
+
+
+
+
     def set_device_token(self, username, player_id):
         user = User.objects.get(username=username)
         
@@ -210,7 +210,7 @@ class DevService:
         if participant_query:
             for participant in participant_query.all():
                 devices = self.get_device_by_participant_dict(participant)
-                
+                                    
                 participants.append({
                                     'heartsteps_id': participant.heartsteps_id,
                                     'enrollment_token': participant.enrollment_token,
@@ -320,11 +320,11 @@ class DevService:
                 if cohorts_query:
                     for cohort in cohorts_query.all():    
                         for i in range(number_of_participants):
-                            heartsteps_id = self.__get_random_name("id", 10, space=False)
                             enrollment_token = self.__get_random_name("t", 8, space=False)
                             study_start_date = "2021-04-01"
                             username = self.__get_random_name("user", 10, space=False)
                             new_user = User.objects.create(username=username)
+                            heartsteps_id = username
                             token = self.__get_random_name("token", 10)
                             
                             participant = self.__create_participant(cohort, heartsteps_id, enrollment_token, study_start_date, new_user)
@@ -407,6 +407,44 @@ class DevService:
             data = {}
         )
         return message
+
+    def send_typed_notification_by_user(self, user, notification_type=None):
+        if not notification_type:
+            notification_type = "short_body_title"
+        
+        service = PushMessageService(user = user)
+        
+        if notification_type == "body_only":
+            message = service.send_notification(
+                "Hi, this is a test message.",
+                data={}
+            )
+        elif notification_type == "short_body_title":
+            message = service.send_notification(
+                body = "test body",
+                title = "test title"
+            )
+        elif notification_type == "long_body_title":
+            message = service.send_notification(
+                body = self.__generate_wordy_message("Body", 30),
+                title = self.__generate_wordy_message("Title", 20)                
+            )
+        elif notification_type == "url1":
+            message = service.send_notification(
+                "https://www.google.com"
+            )
+        elif notification_type == "url2":
+            message = service.send_notification(
+                "https://www.heartsteps.net"
+            )
+        elif notification_type == "url3":
+            message = service.send_notification(
+                "https://www.heartsteps.net/settings"
+            )
+        
+        # messages.add_message(request, messages.SUCCESS, 'Message sent')
+        return message
+
 
     def get_cohort_dict(self):
         study_query = self.get_all_studies_query()

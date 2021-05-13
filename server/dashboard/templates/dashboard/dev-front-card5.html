@@ -77,6 +77,49 @@
                     </div>
                 </form>
             </li>
+
+
+            <li>
+                <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="send-typed-notification-to-user" name="dev-command" />
+                    
+                    <div class="form-row">
+                        <div class="col">
+                            Send typed notification to a user.
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col">
+                            <select class="form-select form-control m-1" id="username" name="username">
+                                <option selected>Select a User</option>
+                                {% for puser in participant_users %}
+                                    <option value="{{puser.username}}">{{puser.study.name}} | {{puser.cohort.name}} | {{puser.username}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <select class="form-select form-control m-1" id="notification_type" name="notification_type">
+                                <option selected>Select a Notification Type</option>
+                                <option value="body_only">Body Only</option>
+                                <option value="short_body_title">Short Body and Title</option>
+                                <option value="long_body_title">Long Body and Title</option>
+                                <option value="url1">URL 1: Google</option>
+                                <option value="url2">URL 2: Heartsteps Dashboard</option>
+                                <option value="url3">URL 3: Heartsteps Setting</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary mb-2 m-1">Send</button>
+                        </div>
+                    </div>
+                </form>
+            </li>
         </ul>
     </div>
 </div>
