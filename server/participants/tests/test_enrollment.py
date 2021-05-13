@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import date
 
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -127,3 +128,36 @@ class EnrollViewTests(APITestCase):
         })
 
         self.assertEqual(response.status_code, 200)
+
+    def test_study_start_date_is_set_when_enrolled(self):
+        Participant.objects.create(
+            heartsteps_id = 'test',
+            enrollment_token = 'token',
+            birth_year = '1999'
+        )
+
+        response = self.client.post(reverse('participants-login'), {
+            'enrollmentToken': 'token',
+            'birthYear': 1999
+        })
+
+        participant = Participant.objects.get(heartsteps_id='test')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(participant.study_start_date, date.today())
+
+    def test_study_start_date_is_not_updated_if_already_set(self):
+        Participant.objects.create(
+            heartsteps_id = 'test',
+            enrollment_token = 'token',
+            birth_year = '1999',
+            study_start_date = date(2021,5,10)
+        )
+
+        response = self.client.post(reverse('participants-login'), {
+            'enrollmentToken': 'token',
+            'birthYear': 1999
+        })
+
+        participant = Participant.objects.get(heartsteps_id='test')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(participant.study_start_date, date.today())

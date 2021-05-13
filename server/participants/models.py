@@ -124,6 +124,8 @@ class Participant(models.Model):
             username = self.heartsteps_id
         )
         self.user = user
+        if self.study_start_date is None:
+            self.study_start_date = self.get_study_start_date()
         self.save()
 
     @property
