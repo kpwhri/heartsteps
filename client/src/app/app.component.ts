@@ -20,33 +20,38 @@ export class MyApp {
         private router: Router
     ) {
         console.log('AppComponent', 'starting...')
+        // subscribe to the participant service to get the participant info who is looking at the screen right now
         this.participantService.participant.subscribe((participant) => {
             console.log('AppComponent', 'got participant', participant);
             this.updateRoute(participant);
         });
+
         this.router.events
-        .filter((event) => event instanceof NavigationEnd)
+        .filter((event) => event instanceof NavigationEnd)  // even after the routing is finished, if we're still in the '/', then
         .subscribe((event: NavigationEnd) => {
-            if (event.url == "/") {
-                this.participantService.get()
+            if (event.url == "/") { 
+                this.participantService.get()   // try directly to get the participant info
                 .then((participant) => {
-                    this.updateRoute(participant);
+                    this.updateRoute(participant);  // and use that info to update the screen (branching to proper screen depending on the participant status)
                 });
             }
         })
         
-        platform.ready()
+        platform.ready()    // if the platform is ready (device, resource)
         .then(() => {
-            return this.appService.setup()
+            return this.appService.setup()  // go to the initial app service setup logic
         })
-        .then(() => {
+        .then(() => {                   // after that
             console.log('AppComponent', 'setup');
-            statusBar.styleDefault();
-            splashScreen.hide();
+            statusBar.styleDefault();   // make the status bar appear
+            splashScreen.hide();        // make the splashScreen go away
         });
     }
 
     private updateRoute(participant: Participant) {
+        // participant status process:
+        // no participant | not loaded | not setup | not baselineCompleted | everything is set
+        // welcome        | loading    | onboard   | baseline              | home/dashboard
         if(this.router.url === "/") {
             if(participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
                 this.router.navigate(['home', 'dashboard']);
