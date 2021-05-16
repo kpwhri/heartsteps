@@ -25,7 +25,3 @@ script:
 - docker-compose run server python manage.py test
 # - docker-compose run client npm test
 # - docker-compose run client npm run build:app --prod
-
-after_success:
-- chmod +x deploy.sh
-- ./deploy.sh
