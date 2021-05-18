@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-unused-variable
 import * as moment from 'moment';
 import { ActivityLog } from '@heartsteps/activity-logs/activity-log.model';
 

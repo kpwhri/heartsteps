@@ -14,6 +14,7 @@ export class LocalNotificationService {
 
     constructor(
         private platform: Platform,
+        // tslint:disable-next-line:no-unused-variable
         private zone: NgZone
     ) {}
 

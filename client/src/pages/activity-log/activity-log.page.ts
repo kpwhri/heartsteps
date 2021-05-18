@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { LoadingService } from "@infrastructure/loading.service";
 import { ActivityLogService } from "@heartsteps/activity-logs/activity-log.service";
 

@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-unused-variable
 import { Component, Output, EventEmitter, Input, ViewChild, AfterViewInit } from "@angular/core";
 import { ActivityLog } from "./activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
@@ -12,7 +13,7 @@ import { FormComponent } from "@infrastructure/form/form.component";
     providers: [DateFactory]
 })
 export class LogFormComponent {
-
+// tslint:disable-next-line:no-unused-variable
     @ViewChild(FormComponent) private formCtrl:FormComponent;
 
     public activityLog:ActivityLog

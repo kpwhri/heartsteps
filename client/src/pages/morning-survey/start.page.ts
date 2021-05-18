@@ -1,6 +1,4 @@
 import { Component, Output, EventEmitter, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
 

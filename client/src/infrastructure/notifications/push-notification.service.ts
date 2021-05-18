@@ -1,7 +1,6 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { BehaviorSubject, Subject } from "rxjs";
-import { resolve } from "url";
 
 declare var window: {
     plugins: {

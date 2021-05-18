@@ -1,7 +1,6 @@
 import { Component, forwardRef, ElementRef, Renderer2 } from "@angular/core";
 import { AbstractField } from "@infrastructure/form/abstract-field";
-import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirective, FormGroupName } from "@angular/forms";
-import { ActivityPlan } from "@heartsteps/activity-plans/activity-plan.model";
+import { NG_VALUE_ACCESSOR, FormGroup, FormControl, Validators, FormGroupDirective } from "@angular/forms";
 import { Subscription } from "rxjs";
 import { DateFactory } from "@infrastructure/date.factory";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";

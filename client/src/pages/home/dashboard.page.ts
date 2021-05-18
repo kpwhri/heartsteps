@@ -27,6 +27,7 @@ export class DashboardPage implements OnDestroy {
         private anchorMessageService: AnchorMessageService,
         private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService,
+        // tslint:disable-next-line:no-unused-variable
         private participantService: ParticipantService,
         private platform: Platform
     ) {

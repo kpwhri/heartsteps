@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 
+// tslint:disable-next-line:no-unused-variable
 declare var cordova;
 
 @Injectable()

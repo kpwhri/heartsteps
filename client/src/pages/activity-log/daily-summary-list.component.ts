@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { DateFactory } from '@infrastructure/date.factory';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { Router } from '@angular/router';

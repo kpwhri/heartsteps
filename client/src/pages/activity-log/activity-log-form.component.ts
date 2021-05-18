@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-unused-variable
 import { Component, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
@@ -5,8 +6,6 @@ import { DateFactory } from "@infrastructure/date.factory";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 import { ActivityType } from "@heartsteps/activity-types/activity-type.service";
 import { CachedActivityLogService } from "@heartsteps/activity-logs/cached-activity-log.service";
-import { Subscription } from "rxjs";
-
 
 @Component({
     selector: 'activity-log-form',

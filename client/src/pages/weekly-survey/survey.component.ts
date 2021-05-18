@@ -1,6 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { WeeklySurvey } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
 import { LoadingService } from "@infrastructure/loading.service";

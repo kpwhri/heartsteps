@@ -17,6 +17,7 @@ export class ActivityEnjoyedModalComponent {
     public form: FormGroup;
 
     constructor(
+        // tslint:disable-next-line:no-unused-variable
         private activityLogService: ActivityLogService,
         private loadingService: LoadingService
     ) {

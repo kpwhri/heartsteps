@@ -1,7 +1,6 @@
 import { Component, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
 import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
-import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
 

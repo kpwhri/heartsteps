@@ -1,7 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from "@angular/core";
 import { Week } from "@heartsteps/weekly-survey/week.model";
-import { ActivatedRoute } from "@angular/router";
-import { WeeklySurvey, WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
+import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.service";
 import { LoadingService } from "@infrastructure/loading.service";
 
 @Component({

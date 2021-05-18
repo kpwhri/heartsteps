@@ -88,8 +88,10 @@ export class FitbitService {
         })
     }
 
+    // tslint:disable-next-line:no-unused-variable
     private waitForAuthorization(): Promise<boolean> {
         return new Promise((resolve) => {
+            // tslint:disable-next-line:no-unused-variable
             const interval = setInterval(() => {
                 this.updateAuthorization()
                 .then(() => {

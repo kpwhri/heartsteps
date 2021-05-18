@@ -19,7 +19,9 @@ export class PlaceEdit implements OnInit {
     private latitude:Number;
     private longitude:Number;
 
+    // tslint:disable-next-line:no-unused-variable
     private mapLat:Number;
+    // tslint:disable-next-line:no-unused-variable
     private mapLng:Number;
 
     @ViewChild('map') mapElement: ElementRef;

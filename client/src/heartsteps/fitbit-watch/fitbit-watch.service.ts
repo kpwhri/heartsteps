@@ -5,6 +5,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ReplaySubject } from "rxjs";
 import moment from "moment";
 
+// tslint:disable-next-line:no-unused-variable
 const storageKey = 'watch-app-installed'
 
 export class FitbitWatch {

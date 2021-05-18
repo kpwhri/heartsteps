@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+// tslint:disable-next-line:no-unused-variable
 import { BehaviorSubject, Subject } from "rxjs";
 import { ActivityLog } from "@heartsteps/activity-logs/activity-log.model";
 import { DocumentStorageService, DocumentStorage } from "@infrastructure/document-storage.service";

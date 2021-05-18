@@ -18,6 +18,7 @@ import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 })
 export class DateFieldComponent extends SelectFieldComponent {
 
+    // tslint:disable-next-line:no-unused-variable
     private date: Date;
 
     private formatDate(date:Date):string {

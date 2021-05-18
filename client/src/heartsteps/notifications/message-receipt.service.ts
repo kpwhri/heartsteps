@@ -40,12 +40,13 @@ export class MessageReceiptService {
             return true;
         });
     }
-
+    
+    // tslint:disable-next-line:no-unused-variable
     private setMessageState(messageId: string, state: string): Promise<boolean> {
         return this.storage.get(storageKey)
         .then((messages) => {
             if(!messages) {
-                messages = {}
+                messages = {} 
             }
             if (!messages[messageId]) {
                 messages[messageId] = {}

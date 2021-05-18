@@ -13,6 +13,7 @@ import { Range } from "ionic-angular";
 export class HeartstepsRangeComponent implements OnInit, ControlValueAccessor  {
 
     private onChange:Function;
+    // tslint:disable-next-line:no-unused-variable
     private onTouched:Function;
 
     public sliderValue:number = 3;

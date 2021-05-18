@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { ContactInformationService } from '@heartsteps/contact-information/contact-information.service';
 import { LoadingService } from '@infrastructure/loading.service';
+// tslint:disable-next-line:no-unused-variable
 import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
 
 @Component({

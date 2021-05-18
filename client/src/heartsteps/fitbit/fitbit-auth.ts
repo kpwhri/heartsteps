@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-unused-variable
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { LoadingService } from '@infrastructure/loading.service';
 import { FitbitService } from './fitbit.service';

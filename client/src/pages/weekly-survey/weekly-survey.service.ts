@@ -1,10 +1,6 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { Router } from "@angular/router";
+import { Subject } from "rxjs";
 import { Week } from "@heartsteps/weekly-survey/week.model";
-import { WeekService } from "@heartsteps/weekly-survey/week.service";
-import { EventEmitter } from "events";
-import { Subscribable } from "rxjs/Observable";
 
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
 import { StartPageComponent } from "./start.page";
 import { SurveyPageComponent } from "./survey.page";
