@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { LoadingService } from '@infrastructure/loading.service';
 import { FitbitService } from './fitbit.service';
 import { AlertDialogController } from '@infrastructure/alert-dialog.controller';
-import { resolve } from 'path';
+// import { resolve } from 'path';
 
 @Component({
     selector: 'heartsteps-fitbit-auth',

@@ -18,7 +18,8 @@
       "@pages/*": ["pages/*"]
     },
     "sourceMap": true,
-    "target": "es5"
+    "target": "es5",
+    "types": []
   },
   "include": [
     "src/**/*.ts"

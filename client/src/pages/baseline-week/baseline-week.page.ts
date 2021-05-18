@@ -5,7 +5,7 @@ import moment from 'moment';
 import { DailySummary } from '@heartsteps/daily-summaries/daily-summary.model';
 import { Router } from '@angular/router';
 import { ParticipantInformationService } from '@heartsteps/participants/participant-information.service';
-import { promises } from 'fs';
+// import { promises } from 'fs';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 
 class Day {

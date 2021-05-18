@@ -1,0 +1,18 @@
+version: '3'
+services:
+  client_build_ios: 
+    build: 
+      context: ./
+      dockerfile: client_build.ios.Dockerfile
+    volumes:
+      - ./client:/client
+      - ./credentials:/credentials
+      - client-platforms:/client/platforms
+      - client-node-modules:/client/node_modules
+      - client-gradle-cache:/root/.gradle/caches
+volumes:
+  client-platforms:
+  client-node-modules:
+  pgdata:
+  client-gradle-cache:
+  
