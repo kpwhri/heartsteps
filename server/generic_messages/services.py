@@ -70,7 +70,7 @@ class GenericMessagesService:
             return message_template
             
     def issue_sent_log(self, message_template: GenericMessageModel):
-        sent_log = GenericMessageSentLog.objects.create(message_template=message_template)
+        sent_log = GenericMessageSentLog.objects.create(message_template=message_template, user=self.__user)
         return sent_log
         
     def send_message(self, parent_id: str, message_id: str, message_title: str, message_body: str, is_test:bool=False):

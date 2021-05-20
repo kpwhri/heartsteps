@@ -31,3 +31,5 @@ class GenericMessageModel(models.Model):
 class GenericMessageSentLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message_template = models.ForeignKey(GenericMessageModel, null=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    when = models.DateTimeField(auto_now_add=True, null=True)
