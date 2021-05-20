@@ -7,6 +7,7 @@ import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
+import { BoutPlanningService } from "@heartsteps/bout-planning/bout-planning.service";
 import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Message } from "@heartsteps/notifications/message.model";
@@ -28,6 +29,7 @@ declare var process: {
 export class SettingsComponent {
 
     public staffParticipant: boolean = false;
+    public participantName: string = "";
     public buildVersion: string = process.env.BUILD_VERSION;
     public buildDate: string = process.env.BUILD_DATE;
 
@@ -43,6 +45,7 @@ export class SettingsComponent {
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private antiSedentaryService: AntiSedentaryService,
+        private boutPlanningService: BoutPlanningService,
         private participantService: ParticipantService,
         private platform: Platform
     ) {
@@ -51,6 +54,7 @@ export class SettingsComponent {
         .first()
         .subscribe((participant) => {
             this.staffParticipant = participant.staff;
+            this.participantName = participant.name;
         })
     }
 
@@ -282,5 +286,22 @@ export class SettingsComponent {
                 modal: ['nlm', 'bout-planning-modal'].join('/')
             }
         }])
+    }
+
+    public nlmBoutPlanningNotification() {
+        console.log('NLM', 'Bout Planning Notification')
+        this.loadingService.show("Requesting Bout Planning Notification");
+        this.boutPlanningService.sendTestMessage()
+        .then((message) => {
+            if(!this.platform.is('cordova')) {
+                return this.openMessage(message);
+            }
+        })
+        .catch(() => {
+            this.alertDialog.show('Error sending bout-planning message');
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 } 

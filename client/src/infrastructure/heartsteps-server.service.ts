@@ -57,7 +57,7 @@ export class HeartstepsServer {
         }
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
-            if(this.isNativeDevice()) {
+            if (this.isNativeDevice()) {
                 return this.http.get(this.makeUrl(url), {}, headers)
             } else {
                 return this.http.get(this.makeUrl(url), {headers: headers})
@@ -78,7 +78,7 @@ export class HeartstepsServer {
     post(url:string, data:any):Promise<any> {
         return this.setAuthorizationHeaderToken()
         .then((headers) => {
-            if(this.isNativeDevice()) {
+            if (this.isNativeDevice()) {
                 this.http.setDataSerializer('json')
                 return this.http.post(this.makeUrl(url), data, headers)
             } else {

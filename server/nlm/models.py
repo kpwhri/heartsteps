@@ -75,5 +75,5 @@ class ConditionalityParameter(models.Model):
     
     class Meta:
         unique_together = ['conditionality', 'participant', 'parameter_fullname', 'period_begin', 'period_finish']
-    
-    
+        
+        

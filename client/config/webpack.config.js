@@ -42,13 +42,13 @@ webpackConfig[env].resolve = {
 }
 
 var production = true;
-if(env==='dev') {
-    production = false
+if (env === 'dev') {
+    production = false;
 }
 
 var envs = new webpack.EnvironmentPlugin({
     PRODUCTION: production,
-    HEARTSTEPS_URL: '/api',
+    HEARTSTEPS_URL: (production) ? '/api' : 'http://localhost:8080/api',
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',
@@ -64,5 +64,5 @@ webpackConfig.prod.plugins.push(envs);
 
 
 module.exports = function() {
-    return webpackConfig;   
+    return webpackConfig;
 };

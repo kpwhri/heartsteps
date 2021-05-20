@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     'activity_summaries',
     'fitbit_activity_logs',
     'anti_sedentary',
+    'bout_planning',
     'watch_app',
     'participants',
     'dashboard',

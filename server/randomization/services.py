@@ -77,7 +77,7 @@ class DecisionService():
 
     def update_context(self):
         new_context = self.generate_context()
-        for tag in self.generate_context():
+        for tag in self.generate_context(): # did you mean to refer to the new_context?
             if tag:
                 self.add_context(tag)
 
@@ -244,6 +244,7 @@ class DecisionMessageService(DecisionService):
 
     def get_message_template(self):
         if hasattr(self, '__message_template'):
+            # reuse previous message template
             return self.__message_template
         try:
             context_object = DecisionContext.objects.get(
@@ -258,11 +259,13 @@ class DecisionMessageService(DecisionService):
                 decision = self.decision,
                 content_object = message_template
             )
+            # save message_template for the future use
             self.__message_template = message_template
             return message_template
 
     def send_message(self):
         push_message_service = PushMessageService(self.user)
+        
         message_template = self.get_message_template()
         message = push_message_service.send_notification(
             message_template.body,

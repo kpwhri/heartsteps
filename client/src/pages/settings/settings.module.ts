@@ -12,6 +12,7 @@ import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walkin
 import { GoalPage } from './goal.page';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
+import { BoutPlanningModule } from '@heartsteps/bout-planning/bout-planning.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { NotificationsPage } from './notifications.page';
 import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
@@ -95,6 +96,7 @@ const settingsRoutes: Routes = [
     imports: [
         ActivitySurveysModule,
         AntiSedentaryModule,
+        BoutPlanningModule,
         BrowserModule,
         ContactInformationModule,
         FitbitWatchModule,
