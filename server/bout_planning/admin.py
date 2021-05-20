@@ -11,15 +11,15 @@ from randomization.admin import DecisionAdmin
 from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
 
-from .models import BoutPlanningConfiguration
+from .models import GenericMessagesConfiguration
 from .services import BoutPlanningService
 
 
-class BoutPlanningConfigurationAdmin(ExportMixin, admin.ModelAdmin):
+class GenericMessagesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ['user', 'enabled']
     actions = [
         ]
     readonly_fields = [
     ]
 
-admin.site.register(BoutPlanningConfiguration, BoutPlanningConfigurationAdmin)
+admin.site.register(GenericMessagesConfiguration, GenericMessagesAdmin)

@@ -9,8 +9,8 @@ from service_requests.models import ServiceRequest
 
 User = get_user_model()
 
-class BoutPlanningConfiguration(models.Model):
-    user = models.ForeignKey(User, related_name="bout_planning_configuration", on_delete = models.CASCADE)
+class GenericMessagesConfiguration(models.Model):
+    user = models.ForeignKey(User, related_name="generic_messages_configuration", on_delete = models.CASCADE)
     enabled = models.BooleanField(default=False)
 
     def __str__(self):

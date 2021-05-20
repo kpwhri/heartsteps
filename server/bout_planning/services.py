@@ -16,7 +16,7 @@ from walking_suggestion_times.models import SuggestionTime
 from watch_app.services import StepCountService
 
 from push_messages.services import PushMessageService
-from .models import BoutPlanningConfiguration
+from .models import GenericMessagesConfiguration
 from .models import GenericMessageModel, GenericMessageSentLog
 
 class BoutPlanningService:
@@ -38,8 +38,8 @@ class BoutPlanningService:
     def __init__(self, configuration=None, username=None):
         try:
             if username:
-                configuration = BoutPlanningConfiguration.objects.get(user__username=username) 
-        except BoutPlanningConfiguration.DoesNotExist:
+                configuration = GenericMessagesConfiguration.objects.get(user__username=username) 
+        except GenericMessagesConfiguration.DoesNotExist:
             pass
         if not configuration:
             raise BoutPlanningService.NoConfiguration('No configuration: configuration={}, username={}'.format(configuration, username))
