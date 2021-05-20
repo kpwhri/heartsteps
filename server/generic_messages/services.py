@@ -6,20 +6,11 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from days.services import DayService
-# from fitbit_activities.services import FitbitStepCountService
-# from fitbit_api.services import FitbitService
-from randomization.services import DecisionContextService
-from randomization.services import DecisionMessageService
-from randomization.models import ContextTag
-from walking_suggestion_times.models import SuggestionTime
-from watch_app.services import StepCountService
-
 from push_messages.services import PushMessageService
 from .models import GenericMessagesConfiguration
 from .models import GenericMessageModel, GenericMessageSentLog
 
-class BoutPlanningService:
+class GenericMessagesService:
 
     class Unavailable(ImproperlyConfigured):
         pass
@@ -42,13 +33,13 @@ class BoutPlanningService:
         except GenericMessagesConfiguration.DoesNotExist:
             pass
         if not configuration:
-            raise BoutPlanningService.NoConfiguration('No configuration: configuration={}, username={}'.format(configuration, username))
+            raise GenericMessagesService.NoConfiguration('No configuration: configuration={}, username={}'.format(configuration, username))
         
         self.__configuration = configuration
         self.__user = configuration.user
 
     def create_service(username=None):
-        return BoutPlanningService(username=username)
+        return GenericMessagesService(username=username)
 
 
     def create_message_template(self, parent_id: str, message_id: str, message_title: str, message_body: str):
@@ -109,4 +100,4 @@ class BoutPlanningService:
 
     def update(self, date):
         if not self._client:
-            raise BoutPlanningService.Unavailable('No client')
+            raise GenericMessagesService.Unavailable('No client')

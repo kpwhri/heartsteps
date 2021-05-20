@@ -7,7 +7,7 @@ import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
 import { AntiSedentaryService } from "@heartsteps/anti-sedentary/anti-sedentary.service";
-import { BoutPlanningService } from "@heartsteps/bout-planning/bout-planning.service";
+// import { GenericMessagesService } from "@heartsteps/generic-messages/generic-messages.service";
 import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Message } from "@heartsteps/notifications/message.model";
@@ -42,7 +42,7 @@ export class SettingsPage {
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
         private antiSedentaryService: AntiSedentaryService,
-        private boutPlanningService: BoutPlanningService,
+        // private genericMessagesService: GenericMessagesService,
         private participantService: ParticipantService,
         private platform: Platform,
         private activitySurveyService: ActivitySurveyService

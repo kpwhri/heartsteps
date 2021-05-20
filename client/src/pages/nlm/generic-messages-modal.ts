@@ -2,9 +2,9 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 @Component({
-    templateUrl: 'bout-planning-modal.html'
+    templateUrl: 'generic-messages-modal.html'
 })
-export class BoutPlanningModal {
+export class GenericMessagesModal {
 
     constructor(
         private router: Router

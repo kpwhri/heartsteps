@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { InfrastructureModule } from "@infrastructure/infrastructure.module";
-import { BoutPlanningService } from "./bout-planning.service";
+import { GenericMessagesService } from "./generic-messages.service";
 
 
 
@@ -9,7 +9,7 @@ import { BoutPlanningService } from "./bout-planning.service";
         InfrastructureModule
     ],
     providers: [
-        BoutPlanningService
+        GenericMessagesService
     ]
 })
-export class BoutPlanningModule {}
+export class GenericMessagesModule {}

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BlankPage } from './blank-page';
-import { BoutPlanningModal } from './bout-planning-modal';
+import { GenericMessagesModal } from './generic-messages-modal';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { IonicPageModule } from 'ionic-angular';
 
@@ -12,8 +12,8 @@ const nlmRoutes: Routes = [
     outlet: 'modal'
   },
   {
-    path: 'nlm/bout-planning-modal',
-    component: BoutPlanningModal,
+    path: 'nlm/generic-messages-modal',
+    component: GenericMessagesModal,
     outlet: 'modal'
   }
 ];
@@ -21,17 +21,17 @@ const nlmRoutes: Routes = [
 @NgModule({
   declarations: [
     BlankPage,
-    BoutPlanningModal
+    GenericMessagesModal
   ],
   entryComponents: [
     BlankPage,
-    BoutPlanningModal
+    GenericMessagesModal
   ],
   imports: [
     HeartstepsComponentsModule,
     
     IonicPageModule.forChild(BlankPage),
-    IonicPageModule.forChild(BoutPlanningModal),
+    IonicPageModule.forChild(GenericMessagesModal),
 
     RouterModule.forChild(nlmRoutes)
   ],

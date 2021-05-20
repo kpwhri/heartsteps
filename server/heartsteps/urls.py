@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^api/walking-suggestion-survey/', include('walking_suggestion_surveys.urls')),
     url(r'^api/activity-survey/', include('activity_surveys.urls')),
     url(r'^api/anti-sedentary/', include('anti_sedentary.urls')),
-    url(r'^api/bout-planning/', include('bout_planning.urls')),
+    url(r'^api/generic-messages/', include('generic_messages.urls')),
     url(r'^api/activity-suggestions/', include('randomization.urls')),
     url(r'^api/activity/', include('activity_types.urls')),
     url(r'^api/activity/', include('activity_logs.urls')),

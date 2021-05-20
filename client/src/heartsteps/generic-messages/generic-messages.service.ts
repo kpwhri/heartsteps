@@ -6,7 +6,7 @@ import { MessageService } from "@heartsteps/notifications/message.service";
 
 
 @Injectable()
-export class BoutPlanningService {
+export class GenericMessagesService {
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -14,7 +14,7 @@ export class BoutPlanningService {
     ) {}
 
     public sendTestMessage():Promise<Message> {
-        return this.heartstepsServer.post('bout-planning/', {})
+        return this.heartstepsServer.post('generic-messages/', {})
         .then((data) => {
             return this.messageService.loadMessage(data.messageId);
         });

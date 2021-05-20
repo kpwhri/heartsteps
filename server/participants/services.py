@@ -20,6 +20,7 @@ from sms_messages.models import Contact as SMSContact
 from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
+from generic_messages.models import GenericMessagesConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
 from weather.services import WeatherService
@@ -291,7 +292,16 @@ class ParticipantService:
                         user = self.participant.user,
                         enabled = True
                     )
-                wss_config.update_survey_times()
+                try:
+                    GenericMessagesConfiguration.objects.get(
+                        user = self.participant.user
+                    )
+                except GenericMessagesConfiguration.DoesNotExist:
+                    GenericMessagesConfiguration.objects.create(
+                        user = self.participant.user,
+                        enabled = True
+                    )
+                
                 
 
             self.update_fitbit(date)
