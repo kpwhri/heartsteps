@@ -1138,12 +1138,10 @@ class ParticipantNotificationsView(ParticipantView):
             
         if 'message' in request.POST and request.POST['message'] is not '':
             if 'module' in request.POST and request.POST['module'] == 'generic_messages':
-                print("using generic")
                 generic_messages_service = GenericMessagesService.create_service(username=self.participant.user.username)
                 sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest", "Sample Title", "Sample Body", True)
                 messages.add_message(request, messages.SUCCESS, 'Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
             else:
-                print("using naive")
                 try:
                     service = PushMessageService(username=self.participant.heartsteps_id)
                     sent_message = service.send_notification(request.POST['message'])
