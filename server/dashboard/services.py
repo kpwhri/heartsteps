@@ -83,25 +83,10 @@ class DevSendNotificationService:
     def set_device_token(self, username, player_id):
         user = User.objects.get(username=username)
         
-        device = Device.objects.filter(
-            user = user,
-            active = True
-        ) \
-        .order_by('-created') \
-        .first()
+        Device.objects.filter(user=user).delete()
+        newDevice = Device.objects.create(user=user, active=True, token=player_id, type="onesignal")
         
-        if device:
-            device.token=player_id
-            device.save()
-        else:
-            device = Device.objects.create(
-                type="onesignal",
-                token=player_id,
-                user=user,
-                active=True
-            )
-        
-        return device
+        return newDevice
 
 
 
