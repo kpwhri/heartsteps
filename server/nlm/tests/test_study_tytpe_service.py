@@ -10,58 +10,16 @@ from django.contrib.auth.models import User
 
 from participants.models import Study, Cohort
 
-from .models import StudyType
-from .services import StudyTypeService, LogService
-from .programlets import ProgramletParameters
+from heartsteps.tests import HeartStepsTestCase
+from nlm.models import StudyType
+from nlm.services import StudyTypeService, LogService
+from nlm.programlets import ProgramletParameters
 
-class StudyTypeServiceTest(TestCase):
+class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
-        # create test user
-        self.user, newuser = User.objects.get_or_create(username='user_for_test')         
-
-        # create test study
-        try:
-            self.study = Study.objects.get(name='study_for_test')
-            # previous test has failed
-            print('reusing old test study..')
-        except Study.DoesNotExist:
-            study_name = "study_for_test"
-            contact_name = "Debugger"
-            contact_number = "8581234567"
-            baseline_period = 7
-            self.study = Study.objects.create(name=study_name, 
-                                            contact_name=contact_name,
-                                            contact_number=contact_number,
-                                            baseline_period=baseline_period  
-                                            )
-            self.study.admins.set([self.user])
-        
-        # create test cohort
-        try:
-            self.cohort = Cohort.objects.filter(study=self.study).first()
-            if self.cohort:
-                # previous test has failed
-                print('reusing old test cohort..')
-            else:
-                raise Cohort.DoesNotExist
-        except Cohort.DoesNotExist:
-            cohort_name = "cohort_for_test"
-            study_length = 365
-            export_data = False   
-            self.cohort = Cohort.objects.create(
-                                            study=self.study,
-                                            name=cohort_name,
-                                            study_length=study_length,
-                                            export_data=export_data
-                                            )   
+        super().setUp()
         self.study_type_name = "test study type"
             
-    def tearDown(self):
-        
-        self.cohort.delete()
-        self.study.delete()
-        self.user.delete()
-        
     #######################################
         
         
@@ -110,33 +68,7 @@ class StudyTypeServiceTest(TestCase):
         study_type_service = StudyTypeService(self.user, self.study_type_name)
         module = "nlm.conditionality.Random_50_50_log"
         result = study_type_service.call_conditionality(module)
-    
-    def test_log(self):
-        log_service = LogService(subject_name="nlm.test")
-        
-        import time
-        
-        log_service.log()
-        time.sleep(0.500)
-        log_service.log()
-    
-    def test_dump_all_logging(self):
-        log_service = LogService(subject_name="nlm.test")
-        
-        # print(log_service.dump())
-        
-    def test_clear_all_logging(self):
-        log_service = LogService(subject_name="nlm.test")
-        
-        import time
-        
-        log_service.clear()        
-        log_service.log()
-        time.sleep(0.200)
-        log_service.log()
-        
-        log_service.clear()  
-    
+            
     def test_create_conditionality_parameter(self):
         study_type_service = StudyTypeService(self.user, self.study_type_name)
         name = "random with parameterized threshold"
