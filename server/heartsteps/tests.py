@@ -58,11 +58,8 @@ class HeartStepsTestCase(TestCase):
         )
 
     def tearDown(self):
-        User.objects.all().delete()
-        Participant.objects.all().delete()
-        Cohort.objects.all().delete()
-        Study.objects.all().delete()
-        Device.objects.all().delete()
+        self.user.delete()
+        self.study.delete()
     
     def checkif_non_none(self, obj_dict):
         for k, v in obj_dict.items():

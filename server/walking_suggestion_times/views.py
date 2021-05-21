@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from django_celery_beat.models import PeriodicTasks
 
 from .models import SuggestionTime, User
 from .serializers import SuggestionTimeSerializer
