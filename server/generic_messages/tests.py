@@ -2,6 +2,7 @@ from heartsteps.tests import HeartStepsTestCase
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from participants.models import Participant
@@ -26,12 +27,12 @@ class GenericMessagesTest(HeartStepsTestCase):
 
     def test_views_method_test_2(self):
         obj = GenericMessagesMessageCreateView()
-        request = HttpRequest()
+        request = None
         self.assertRaises(AssertionError, obj.post, request)
     
     def test_views_method_test_3(self):
         obj = GenericMessagesMessageCreateView()
-        request = HttpRequest()
+        request = Request(HttpRequest())
         request.user = self.user
         self.assertRaises(GenericMessagesService.NoConfiguration, obj.post, request)
     
@@ -41,7 +42,7 @@ class GenericMessagesTest(HeartStepsTestCase):
         obj = GenericMessagesMessageCreateView()
         GenericMessagesConfiguration.objects.create(user=self.user, enabled=True)
         
-        request = HttpRequest()
+        request = Request(HttpRequest())
         request.user = self.user
         post_response = obj.post(request)
         

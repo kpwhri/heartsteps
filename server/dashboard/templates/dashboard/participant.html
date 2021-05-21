@@ -153,6 +153,13 @@
     <input type="submit" value="Send test notification" />
 </form>
 
+<form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="message" value="Hi, this is a test message." />
+    <input type="hidden" name="module" value="generic-messages" />
+    <input type="submit" value="Send test notification with generic_messages app" />
+</form>
+
 <form method="POST" action="{% url 'dashboard-cohort-participant-send-walking-suggestion-survey' cohort.id participant.heartsteps_id %}">
     {% csrf_token %}
     <input type="submit" value="Send Walking Suggestion Survey" />

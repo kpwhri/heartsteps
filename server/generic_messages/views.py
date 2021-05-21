@@ -18,7 +18,7 @@ class GenericMessagesMessageCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        assert isinstance(request, HttpRequest), (
+        assert isinstance(request, Request), (
             'The `request` argument must be an instance of '
             '`django.http.HttpRequest`, not `{}.{}`.'
             .format(request.__class__.__module__, request.__class__.__name__)
