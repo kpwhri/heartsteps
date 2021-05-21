@@ -19,6 +19,8 @@ from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage as PaginatorEmptyPage
 from django.core.paginator import PageNotAnInteger as PatinatorPageNotAnInteger
 import pytz
+from rest_framework import status
+from rest_framework.response import Response
 
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from adherence_messages.models import AdherenceMetric
@@ -33,6 +35,7 @@ from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpdate
 from fitbit_api.tasks import unauthorize_fitbit_account
 from fitbit_api.models import FitbitDevice
+from generic_messages.services import GenericMessagesService
 from morning_messages.models import MorningMessage
 from morning_messages.models import Configuration as MorningMessageConfiguration
 from participants.models import Cohort
@@ -1130,13 +1133,23 @@ class ParticipantNotificationsView(ParticipantView):
         return context
 
     def post(self, request, *args, **kwargs):
+        for k,v in request.POST.items():
+            print("request.POST['{}']: {}".format(k, v))
+            
         if 'message' in request.POST and request.POST['message'] is not '':
-            try:
-                service = PushMessageService(username=self.participant.heartsteps_id)
-                service.send_notification(request.POST['message'])
-                messages.add_message(request, messages.SUCCESS, 'Message sent')
-            except:
-                messages.add_message(request, messages.ERROR, 'Could not send message')
+            if 'module' in request.POST and request.POST['module'] == 'generic_messages':
+                print("using generic")
+                generic_messages_service = GenericMessagesService.create_service(username=self.participant.user.username)
+                sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest", "Sample Title", "Sample Body", True)
+                messages.add_message(request, messages.SUCCESS, 'Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
+            else:
+                print("using naive")
+                try:
+                    service = PushMessageService(username=self.participant.heartsteps_id)
+                    sent_message = service.send_notification(request.POST['message'])
+                    messages.add_message(request, messages.SUCCESS, 'Message sent: /notification/{}'.format(sent_message.data["messageId"]))
+                except:
+                    messages.add_message(request, messages.ERROR, 'Could not send message')
         else:
             messages.add_message(request, messages.ERROR, 'No message to send')
         return HttpResponseRedirect(
