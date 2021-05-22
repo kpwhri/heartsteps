@@ -11,6 +11,17 @@ from heartsteps.tests import HeartStepsTestCase
 from daily_tasks.models import User, DailyTask
 from hourly_tasks.models import HourlyTask
 
+from nlm.services import LogService
+
+class HourlyTaskTestingTask:
+    def run(arguments):
+        print("You've got into hourly testing task!!")
+        print(arguments.__dict__)
+        
+        log_service = LogService(subject_name="hourly_tasks.test_task")
+        log_service.log("You've got into hourly testing task!!")
+        log_service.log(arguments.__dict__)
+        
 class HourlyTaskUpdateTest(HeartStepsTestCase):
 
     def setUp(self):
@@ -25,23 +36,24 @@ class HourlyTaskUpdateTest(HeartStepsTestCase):
         
 
 
-    def create_task(self, minute=0):
+    def create_task(self, minute=0, arguments={}):
         return HourlyTask.create_hourly_task(
             user = self.user,
             category = 'example',
-            task = 'example.example.task',
+            task = 'hourly_tasks.tests.HourlyTaskTestingTask.run',
             name = 'Name of task!',
-            arguments = {},
+            arguments = arguments,
             minute = minute
         )
 
     
 
 
-    def test_updates_tasks_with_timezone(self):
+    def test_create_hourly_tasks(self):
         newHourlyTask = self.create_task(
             minute = 0
         )
+
         
         # print("newDailyTask.__dict__={}".format(newHourlyTask.__dict__))
         
