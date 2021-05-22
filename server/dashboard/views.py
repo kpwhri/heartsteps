@@ -60,7 +60,7 @@ from walking_suggestion_surveys.models import Configuration as WalkingSuggestion
 from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurveyDecision
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
-from nlm.services import StudyTypeService
+from nlm.services import StudyTypeService, LogService
 
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
@@ -210,6 +210,13 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 cohort_id = request.POST['cohort-id']
                 cohort = self.dev_service.get_cohort_by_id(cohort_id)
                 context["results"] = self.nlm_service.assign_cohort_to_nlm(cohort)
+            elif dev_command == 'test_logs':
+                log_service = LogService()
+                log_service.log("test log")
+                context["results"] = log_service.dump(pretty=True)    
+            elif dev_command == 'view_logs':
+                log_service = LogService()
+                context["results"] = log_service.dump(pretty=True)
             else:
                 context["results"] = "Unsupported command: {}".format(dev_command)
             

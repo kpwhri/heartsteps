@@ -120,6 +120,44 @@
                     </div>
                 </form>
             </li>
+
+            <li>
+                <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="test_logs" name="dev-command" />
+                    
+                    <div class="form-row">
+                        <div class="col">
+                            Insert a test log
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary mb-2 m-1">Insert</button>
+                        </div>
+                    </div>
+                </form>
+            </li>
+
+            <li>
+                <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="view_logs" name="dev-command" />
+                    
+                    <div class="form-row">
+                        <div class="col">
+                            Dump All Logs under (subject="Unknown")
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary mb-2 m-1">Dump</button>
+                        </div>
+                    </div>
+                </form>
+            </li>
         </ul>
     </div>
 </div>

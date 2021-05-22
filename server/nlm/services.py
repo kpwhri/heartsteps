@@ -7,6 +7,10 @@ from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditio
 class LogService:
     def __init__(self, subject_name='Unknown'):
         self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
+    
+    def log(value="(Empty Message)", purpose="Unknown", object="Unknown"):
+        log_service = LogService()
+        log_service.log(value, purpose, object)
         
     def log(self, value="(Empty Message)", purpose="Unknown", object="Unknown"):
         log_object, created = LogObject.objects.get_or_create(name=object)
@@ -19,8 +23,8 @@ class LogService:
             value=value
         )
     
-    def dump(self):
-        query = LogContents.objects.filter(subject=self.subject)
+    def dump(self, pretty=False):
+        query = LogContents.objects.filter(subject=self.subject).order_by("-logtime")
         
         log_list = []
         
@@ -33,7 +37,20 @@ class LogService:
                     'purpose': item.purpose.name,
                     'value': item.value
                 })
-        return log_list
+        
+        if pretty:
+            import json
+
+            from django.core.serializers.json import DjangoJSONEncoder
+
+            return json.dumps(
+                log_list,
+                sort_keys=True,
+                indent=2,
+                cls=DjangoJSONEncoder
+            )
+        else:
+            return log_list
 
     def clear(self):
         """Do Not User This Method. This is only for development.
