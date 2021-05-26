@@ -18,9 +18,7 @@ class StudyType(models.Model):
         
         return query.all()
     
-    def get_all_child_cohorts(self):
-        cohorts = []
-        
+    def get_all_child_cohort_assignments(self):
         query = CohortAssignment.objects.filter(studytype=self)
         
         return query.all()
