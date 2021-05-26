@@ -471,7 +471,7 @@ class DevService:
         
         return list(hourly_tasks)
     
-    def create_task(self, name, task='hourly_tasks.tasks.hourly_task_test', minute=0, arguments={}):
+    def create_task(self, name, task='nlm.tasks.nlm_base_hourly_task', minute=0, arguments={}):
         return HourlyTask.create_hourly_task(
             user = self.user,
             category = 'example',
@@ -483,7 +483,13 @@ class DevService:
         
     def create_sample_hourly_tasks(self):
         for minute in range(0, 60):
-            self.create_task(name="Sample Hourly Task: minute={}".format(minute), minute=minute, arguments={'minute': minute})
+            self.create_task(name="Sample Hourly Task: minute={}".format(minute), minute=minute, arguments={'parameters': 
+                    {
+                        "a": 1,
+                        "b": 2
+                    }
+                
+                })
     
     def delete_hourly_task_by_id(self, hourly_task_id):
         return HourlyTask.objects.get(id=hourly_task_id).delete()

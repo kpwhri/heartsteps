@@ -1,6 +1,7 @@
 dev: python ./manage.py runserver 0.0.0.0:8080
 web: gunicorn -b :8080 heartsteps.wsgi:application --log-level debug
 celery: celery worker -A heartsteps -l info -Q default,fitbit,messages,export
+celery2: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker -A heartsteps -l info -Q default,fitbit,messages,export
 celeryDefault: celery worker -A heartsteps -l info -Q default
 celeryFitbit: celery worker -A heartsteps -l info -Q fitbit
 celeryMessages: celery worker -A heartsteps -l info -Q messages
