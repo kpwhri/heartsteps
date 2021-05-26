@@ -3,11 +3,12 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
-
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from participants.models import Study, Cohort, Participant
 from push_messages.services import PushMessageService
 from push_messages.models import Device
+from hourly_tasks.models import HourlyTask
 
 import random
 import datetime
@@ -453,3 +454,62 @@ class DevService:
         cohort = Cohort.objects.get(id=cohort_id)
         
         return cohort
+    
+    
+    def get_all_crontabs(self):
+        crontabs = CrontabSchedule.objects.all()
+        
+        return list(crontabs)
+    
+    def get_all_periodic_tasks(self):
+        periodic_tasks = PeriodicTask.objects.all()
+        
+        return list(periodic_tasks)
+    
+    def get_all_hourly_tasks(self):
+        hourly_tasks = HourlyTask.objects.all()
+        
+        return list(hourly_tasks)
+    
+    def create_task(self, name, task='hourly_tasks.tasks.hourly_task_test', minute=0, arguments={}):
+        return HourlyTask.create_hourly_task(
+            user = self.user,
+            category = 'example',
+            task = task,
+            name = name,
+            arguments = arguments,
+            minute = minute
+        )
+        
+    def create_sample_hourly_tasks(self):
+        for minute in range(0, 60):
+            self.create_task(name="Sample Hourly Task: minute={}".format(minute), minute=minute, arguments={'minute': minute})
+    
+    def delete_hourly_task_by_id(self, hourly_task_id):
+        return HourlyTask.objects.get(id=hourly_task_id).delete()
+    
+    def get_all_hourly_tasks_query(self):
+        return HourlyTask.objects.filter(user=self.user)
+    
+    def get_hourly_tasks_dict(self):
+        query = self.get_all_hourly_tasks_query()
+        
+        hourly_tasks = []
+        if query:
+            for item in query.all():
+                name = "(no name)"
+                if item.task:
+                    name = item.task.name
+                    
+                hourly_tasks.append({
+                    "id": item.id,
+                    "name": name,
+                    "str": item.__str__
+                })
+        
+        return hourly_tasks
+    
+    def delete_all_hourly_tasks(self):
+        query = self.get_all_hourly_tasks_query()
+        for hourly_task in query.all():
+            hourly_task.task.delete()

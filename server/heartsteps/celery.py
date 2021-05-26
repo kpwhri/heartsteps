@@ -68,5 +68,8 @@ app.conf.task_routes = {
     },
     'weekly_reflection.tasks.*': {
         'queue': 'messages'
+    },
+    'hourly_tasks.tasks.*': {
+        'queue': 'messages'
     }
 }

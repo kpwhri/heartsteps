@@ -131,6 +131,18 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         else:
             context['nlm_participant_text'] = "No participant is NLM-style."
         
+        hourly_tasks = dev_service.get_hourly_tasks_dict()
+        context['hourly_tasks'] = hourly_tasks
+        
+        context['generic_command_list'] = [
+            "insert_test_log",
+            "dump_log",
+            'view_crontabs',
+            'view_periodic_tasks',
+            'view_hourly_tasks',
+            'create_sample_hourly_tasks',
+            "delete_all_hourly_tasks"
+        ]
         
         return context
 
@@ -160,6 +172,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         result = dev_send_notification_service.set_device_token(username, player_id)
         return "Notification is sent: {}".format(result)        
     
+    def prettyprint(self, obj):
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4)
+        
+        return pp.pformat(obj)
+            
     
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -214,9 +232,36 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 log_service = LogService()
                 log_service.log("test log")
                 context["results"] = log_service.dump(pretty=True)    
-            elif dev_command == 'view_logs':
-                log_service = LogService()
-                context["results"] = log_service.dump(pretty=True)
+            elif dev_command == 'delete_hourly_tasks':
+                hourly_task_id = request.POST['hourly-task-id']
+                self.dev_service.delete_hourly_task_by_id(hourly_task_id=hourly_task_id)
+                objlist = self.dev_service.get_all_hourly_tasks()
+                context["results"] = self.prettyprint(objlist)
+            elif dev_command == 'generic-command':
+                generic_command = request.POST['generic-command']
+                if generic_command == 'delete_all_hourly_tasks':
+                    self.dev_service.delete_all_hourly_tasks()
+                elif generic_command == 'insert_test_log':
+                    log_service = LogService()
+                    log_service.log("test log")
+                    context["results"] = log_service.dump(pretty=True)
+                elif generic_command == 'dump_log':
+                    context["results"] = LogService.dump(pretty=True) 
+                elif generic_command == 'view_crontabs':
+                    crontabs = self.dev_service.get_all_crontabs()
+                    context["results"] = self.prettyprint(crontabs)
+                elif generic_command == 'view_periodic_tasks':
+                    objlist = self.dev_service.get_all_periodic_tasks()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_hourly_tasks':
+                    objlist = self.dev_service.get_all_hourly_tasks()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'create_sample_hourly_tasks':
+                    self.dev_service.create_sample_hourly_tasks()
+                    objlist = self.dev_service.get_all_hourly_tasks()
+                    context["results"] = self.prettyprint(objlist)
+                else:
+                    context["results"] = "Unsupported generic command: {}".format(generic_command)
             else:
                 context["results"] = "Unsupported command: {}".format(dev_command)
             

@@ -23,8 +23,8 @@ class LogService:
             value=value
         )
     
-    def dump(self, pretty=False):
-        query = LogContents.objects.filter(subject=self.subject).order_by("-logtime")
+    def dump(pretty=False):
+        query = LogContents.objects.filter().order_by("-logtime")
         
         log_list = []
         

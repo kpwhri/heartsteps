@@ -13,15 +13,6 @@ from hourly_tasks.models import HourlyTask
 
 from nlm.services import LogService
 
-class HourlyTaskTestingTask:
-    def run(arguments):
-        print("You've got into hourly testing task!!")
-        print(arguments.__dict__)
-        
-        log_service = LogService(subject_name="hourly_tasks.test_task")
-        log_service.log("You've got into hourly testing task!!")
-        log_service.log(arguments.__dict__)
-        
 class HourlyTaskUpdateTest(HeartStepsTestCase):
 
     def setUp(self):

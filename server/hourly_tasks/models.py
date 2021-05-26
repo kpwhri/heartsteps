@@ -48,12 +48,6 @@ class HourlyTask(models.Model):
     # hour = models.IntegerField(null=True)
     minute = models.IntegerField(null=True)
 
-    # def __str__(self):
-    #     if self.task:
-    #         return self.task.name
-    #     else:
-    #         return "%s (no task)" % (self.user)
-
     # @property
     # def enabled(self):
     #     return self.task.enabled
@@ -95,7 +89,7 @@ class HourlyTask(models.Model):
             self.task = PeriodicTask(name=name)
         
         if not self.task.crontab:
-            crontab, _ = CrontabSchedule.objects.get_or_create()
+            crontab = CrontabSchedule.objects.create()
             self.task.crontab = crontab
         self.task.task = task
         self.task.kwargs = json.dumps(arguments)

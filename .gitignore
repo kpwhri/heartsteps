@@ -73,3 +73,4 @@ fitbit/node_modules
 
 dev.sh
 server/dev.sh
+server/celerybeat.pid
