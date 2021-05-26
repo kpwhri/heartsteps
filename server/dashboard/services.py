@@ -1,5 +1,6 @@
 import requests
 # from push_messages.clients import OneSignalClient
+from django.db import models
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
@@ -12,6 +13,10 @@ from hourly_tasks.models import HourlyTask
 
 import random
 import datetime
+
+from nlm.models import StudyType, CohortAssignment
+import pprint
+import uuid
 
 class DevSendNotificationService:    
     def __init__(self, configuration=None):
@@ -519,3 +524,98 @@ class DevService:
         query = self.get_all_hourly_tasks_query()
         for hourly_task in query.all():
             hourly_task.task.delete()
+            
+    def design_test_study(self):
+        objlist = []
+            
+        # Study Type
+        test_study_type, _ = StudyType.objects.get_or_create(
+            name="NLM",
+            frequency=StudyType.HOURLY
+        )
+        test_study_type.admin = [self.user]
+        objlist.append(test_study_type)
+        
+        # Study
+        test_study = Study.objects.create(
+            name = "nlm_test_" + str(uuid.uuid4().hex)
+        )
+        test_study.admin = [self.user]
+        objlist.append(test_study)
+        
+        # Cohort
+        test_cohort = Cohort.objects.create(
+            name = "nlm_test_cohort_" + str(uuid.uuid4().hex),
+            study = test_study
+        )
+        objlist.append(test_cohort)
+        
+        # Cohort Assignment
+        test_cohort_assignment = CohortAssignment.objects.create(
+            cohort = test_cohort,
+            studytype = test_study_type
+        )
+        objlist.append(test_cohort_assignment)
+        
+        
+        return objlist
+    
+    def view_test_study(self):
+        lines = []
+        
+        # StudyType
+        try:
+            test_study_type = StudyType.objects.get(
+                name="NLM"
+            )
+            lines.append("StudyType found: {}".format(test_study_type))
+        except:
+            lines.append("no NLM study type")
+            return lines
+        
+        # Study
+        try:
+            studies = Study.objects.filter(name__startswith='nlm_test_').all()
+            if studies:    
+                for a_study in studies:
+                    lines.append("Study found: {}".format(a_study))
+            else:
+                raise models.Model.DoesNotExist
+        except:
+            lines.append("no study found")
+            return lines
+        
+        # Cohort
+        try:
+            cohorts = Cohort.objects.filter(name__startswith='nlm_test_cohort_').all()
+            if cohorts:    
+                for a_cohort in cohorts:
+                    lines.append("Cohort found: {}".format(a_cohort))
+            else:
+                raise models.Model.DoesNotExist
+        except:
+            lines.append("no cohort found")
+            return lines
+        
+        
+        # CohortAssignment
+        try:
+            cohort_assignments = CohortAssignment.objects.filter(studytype=test_study_type).all()
+            if cohort_assignments:    
+                for a_cohort_assignment in cohort_assignments:
+                    lines.append("CohortAssignment found: {}".format(a_cohort_assignment))
+            else:
+                raise models.Model.DoesNotExist
+        except:
+            lines.append("no cohort assignment found")
+            return lines
+        
+        
+        return lines
+        
+        
+    def delete_test_study(self):
+        StudyType.objects.get(name="NLM").delete()
+        
+        Study.objects.filter(name__startswith='nlm_test_').delete()
+        # cohort is deleted by cascading

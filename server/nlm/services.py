@@ -62,6 +62,7 @@ class LogService:
             
         
 class StudyTypeService:
+    
     class __DBSafeGuard:
         """Provide safe access to database. 
         """        
@@ -89,7 +90,7 @@ class StudyTypeService:
             Returns:
                 tuple : a Tuple of (object, created)
             """
-            study_type_object, created = StudyType.objects.get_or_create(name=study_type_name)
+            study_type_object, created = StudyType.objects.get_or_create(name=study_type_name, frequency=StudyType.HOURLY)
             study_type_object.admins.set([self.user])
             
             return (study_type_object, created)

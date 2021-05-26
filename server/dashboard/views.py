@@ -141,7 +141,10 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             'view_periodic_tasks',
             'view_hourly_tasks',
             'create_sample_hourly_tasks',
-            "delete_all_hourly_tasks"
+            "delete_all_hourly_tasks",
+            'design_test_study',
+            'view_test_study',
+            'clear_test_study'
         ]
         
         return context
@@ -259,6 +262,15 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 elif generic_command == 'create_sample_hourly_tasks':
                     self.dev_service.create_sample_hourly_tasks()
                     objlist = self.dev_service.get_all_hourly_tasks()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'design_test_study':
+                    objlist = self.dev_service.design_test_study()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_test_study':
+                    lines = self.dev_service.view_test_study()
+                    context["results"] = "\n".join(lines)
+                elif generic_command == 'clear_test_study':
+                    objlist = self.dev_service.delete_test_study()
                     context["results"] = self.prettyprint(objlist)
                 else:
                     context["results"] = "Unsupported generic command: {}".format(generic_command)
