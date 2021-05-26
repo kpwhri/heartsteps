@@ -2,7 +2,9 @@
     title="Fitbit Authorization"
     (onDismiss)="goBack()"
     >
-    <heartsteps-fitbit-auth *ngIf="!account" (saved)="goBack()"></heartsteps-fitbit-auth>
+    <p>HeartSteps uses Fitbit to collect information about your physical activity. Activities detected by Fitbit will be shown in HeartSteps.</p>
+    <p>Please <strong>allow all permissions</strong> when connecting Fitbit to HeartSteps.</p>
+    
     <div *ngIf="account">
         <p *ngIf="account.isAuthorized">Account is authorized</p>
         <p *ngIf="!account.isAuthorized">Account is not authorized</p>
@@ -17,5 +19,16 @@
             <dd *ngIf="lastDeviceUpdate">{{format_date(account.lastDeviceUpdate)}}</dd>
         </dl>
     </div>
+    <button *ngIf="!account"
+        (click)="authorize()"    
+        class="heartsteps-primary-button"
+        >
+        Authorize Account
+    </button>
+    <button *ngIf="account"
+        (click)="authorize()"
+        >
+        Re-authorize Account
+    </button>
     <button (click)="refreshData()">Refresh Account Data</button>
 </app-modal>

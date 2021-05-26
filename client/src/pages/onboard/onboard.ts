@@ -5,10 +5,10 @@ import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions
 import { PlacesList } from '@heartsteps/places/places-list';
 import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
-import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
+import { FitbitAuthPage } from './fitbit-auth.page';
 
 const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
@@ -33,7 +33,7 @@ const onboardingPages:Array<Step> = [{
 }, {
     key: 'fitbitAuthorization',
     title: 'Fitbit',
-    component: FitbitAuth
+    component: FitbitAuthPage
 }, {
     key: 'fitbitWatch',
     title: 'HeartSteps Clock Face',
