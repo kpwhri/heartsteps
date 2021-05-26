@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 import { FitbitService, FitbitAccount } from "@heartsteps/fitbit/fitbit.service";
+import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { LoadingService } from "@infrastructure/loading.service";
 import moment from "moment";
 
@@ -19,7 +20,8 @@ export class FitbitAuthorizationPage {
     constructor(
         private router: Router,
         private fitbitService: FitbitService,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private alertController: AlertDialogController
     ) {
         this.fitbitService.account.subscribe((account) => {
             this.account = account;
@@ -31,6 +33,17 @@ export class FitbitAuthorizationPage {
             }
         });
         this.refreshData();
+    }
+
+    public authorize() {
+        this.loadingService.show("Authorizing Fitbit");
+        return this.fitbitService.authorize()
+        .catch(() => {
+            this.alertController.show('Authorization failed')
+        })
+        .then(() => {
+            this.loadingService.dismiss();
+        });
     }
 
     public removeFitbitAccount() {

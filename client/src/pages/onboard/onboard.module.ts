@@ -11,6 +11,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { OnboardGaurd } from './onboard.gaurd';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
+import { FitbitAuthPage } from './fitbit-auth.page';
 
 const onboardRoutes:Routes = [
     {
@@ -27,7 +28,11 @@ const onboardRoutes:Routes = [
 
 @NgModule({
     declarations: [
+        FitbitAuthPage,
         OnboardPage,
+    ],
+    entryComponents: [
+        FitbitAuthPage
     ],
     imports: [
         HeartstepsComponentsModule,
