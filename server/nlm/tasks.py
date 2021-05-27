@@ -39,6 +39,8 @@ def nlm_base_hourly_task(parameters):
             for a_participant in participants:
                 log("participant discovered: {}".format(a_participant))
                 
-                generic_messages_service = GenericMessagesService.create_service(username=a_participant.user.username)
-                sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks: {}".format(parameters["minute"]), False)
-                log('Message sent using generic_messages: msg-{}, url- /notification/{}'.format("Sample Body: {}".format(parameters["minute"]), sent_message.data["messageId"]))
+                # generic_messages_service = GenericMessagesService.create_service(username=a_participant.user.username)
+                # sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks: {}".format(parameters["minute"]), False)
+                # log('Message sent using generic_messages: msg-{}, url- /notification/{}'.format("Sample Body: {}".format(parameters["minute"]), sent_message.data["messageId"]))
+                
+                study_type_service.handle_participant_hourly_task(a_participant, a_cohort)

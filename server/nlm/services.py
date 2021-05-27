@@ -229,6 +229,45 @@ class StudyTypeService:
         
         return query.all()
     
+    def handle_participant_hourly_task(self, participant, cohort):
+        # check if levels are assigned
+        
+        # fetch level assignments
+        
+        # decide whether this participant should be decided or not
+        
+        # per level, decide what to do
+            # level 1
+                # calculate condition 1
+                
+                # calculate condition 2
+                
+                # calculate condition 3
+                
+                # decide whether to send bout planning window or not
+                
+            # level 2
+                # calculate condition 1
+                
+                # calculate condition 2
+                
+                # calculate condition 3
+                
+                # decide whether to send bout planning window or not
+                
+            # level 3
+                # calculate condition 1
+                
+                # calculate condition 2
+                
+                # calculate condition 3
+                
+                # decide whether to send bout planning window or not
+                
+        # according to the decision, send the bout planning window or not
+        
+        pass
+    
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.
         
