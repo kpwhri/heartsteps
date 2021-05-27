@@ -91,7 +91,8 @@ class StudyTypeService:
                 tuple : a Tuple of (object, created)
             """
             study_type_object, created = StudyType.objects.get_or_create(name=study_type_name, frequency=StudyType.HOURLY)
-            study_type_object.admins.set([self.user])
+            study_type_object.admins.add(self.user)
+            study_type_object.save()
             
             return (study_type_object, created)
             
@@ -201,15 +202,32 @@ class StudyTypeService:
             
             
     
-    def __init__(self, user, study_type_name):
+    def __init__(self, study_type_name, user=None, frequency=StudyType.HOURLY):
+        assert study_type_name, "Study type name cannot be None"
         if user:
+            self.isreadonly = False
             self.user = user
+            
+            self.dsg = StudyTypeService.__DBSafeGuard(self.user)
+        
+            self.study_type, created = StudyType.objects.get_or_create(name=study_type_name, frequency=frequency)
+            self.study_type.admins.add(self.user)
         else:
-            raise ValueError("user parameter is invalid")
+            self.user = None
+            self.isreadonly = True
+            if StudyType.objects.filter(name=study_type_name).exists():
+                self.study_type = StudyType.objects.get(name=study_type_name, active=True)
+                self.user = None
+            else:
+                raise StudyType.DoesNotExist
+    
+    def create_service(study_type):
+        return StudyTypeService(study_type.name, study_type.frequency)
+    
+    def get_all_child_cohort_assignments(self):
+        query = CohortAssignment.objects.filter(studytype=self.study_type, active=True)
         
-        self.dsg = StudyTypeService.__DBSafeGuard(self.user)
-        
-        self.study_type, new_study_type = self.dsg.get_or_create_study_type(study_type_name)
+        return query.all()
     
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.

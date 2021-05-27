@@ -32,7 +32,8 @@ class HeartStepsTestCase(TestCase):
             contact_number=contact_number,
             baseline_period=baseline_period
             )
-        self.study.admins.set([self.user])
+        self.study.admins.add(self.user)
+        self.study.save()
         
         cohort_name = "cohort_for_test"
         study_length = 365

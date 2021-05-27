@@ -275,7 +275,8 @@ class DevService:
                                             contact_number=contact_number,
                                             baseline_period=baseline_period  
                                             )
-        study_instance.admins.set([self.user])
+        study_instance.admins.add(self.user)
+        study_instance.save()
         
         return study_instance
     

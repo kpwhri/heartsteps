@@ -99,7 +99,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context["is_staff"] = self.request.user.is_staff
         
         dev_service = DevService(self.request.user)
-        nlm_service = StudyTypeService(self.request.user, "NLM")
+        nlm_service = StudyTypeService("NLM", self.request.user)
         
         
         study_query = dev_service.get_all_studies_query()
@@ -186,7 +186,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         
         self.dev_service = DevService(self.request.user)
-        self.nlm_service = StudyTypeService(self.request.user, "NLM")
+        self.nlm_service = StudyTypeService("NLM", self.request.user)
         
         context["userstring"] = self.request.user
         context["is_superuser"] = self.request.user.is_staff

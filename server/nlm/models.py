@@ -11,18 +11,6 @@ class StudyType(models.Model):
     active = models.BooleanField(default=True)
     frequency = models.CharField(max_length=20, default=HOURLY)
     
-    def get_all(frequency=None):
-        query = StudyType.objects
-        if frequency:
-            query = query.filter(frequency=frequency)
-        
-        return query.all()
-    
-    def get_all_child_cohort_assignments(self):
-        query = CohortAssignment.objects.filter(studytype=self)
-        
-        return query.all()
-    
     def __str__(self):
         return "{} ({})".format(self.name, self.frequency)
 
