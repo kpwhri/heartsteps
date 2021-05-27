@@ -46,6 +46,8 @@ class ParticipantAssignment(models.Model):  # roster for NLM study
     # it should be changed to OneToManyField if we extend study type
     cohort_assignment = models.ForeignKey(CohortAssignment, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)    
+    def __str__(self):
+        return "{} - {}".format(self.participant, self.cohort_assignment)
 
 class Conditionality(models.Model):
     """Base Class for all conditionalities"""

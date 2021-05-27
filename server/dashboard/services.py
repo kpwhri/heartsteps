@@ -14,7 +14,7 @@ from hourly_tasks.models import HourlyTask
 import random
 import datetime
 
-from nlm.models import StudyType, CohortAssignment
+from nlm.models import StudyType, CohortAssignment, ParticipantAssignment
 import pprint
 import uuid
 
@@ -107,7 +107,7 @@ class DevService:
     def __init__(self, user):
         self.user = user
         
-    def __get_random_name(self, heading, digits, space=True):
+    def __get_random_name(self, heading, digits, space=False):
         formatstr = '%0{}X'.format(digits)
         randhex = formatstr % random.randrange(16**digits)
         if space:
@@ -538,14 +538,14 @@ class DevService:
         
         # Study
         test_study = Study.objects.create(
-            name = "nlm_test_" + str(uuid.uuid4().hex)
+            name = self.__get_random_name("nlm_test_", 8)
         )
         test_study.admin = [self.user]
         objlist.append(test_study)
         
         # Cohort
         test_cohort = Cohort.objects.create(
-            name = "nlm_test_cohort_" + str(uuid.uuid4().hex),
+            name = self.__get_random_name("nlm_test_cohort_", 8),
             study = test_study
         )
         objlist.append(test_cohort)
@@ -557,6 +557,38 @@ class DevService:
         )
         objlist.append(test_cohort_assignment)
         
+        # User
+        test_user = User.objects.create(
+            username = self.__get_random_name("nlm_test_user_", 8)
+        )
+        objlist.append(test_user)
+        
+        # Participant
+        test_participant = Participant.objects.create(
+            heartsteps_id = self.__get_random_name("nlm_test_pcp_", 4),
+            enrollment_token = self.__get_random_name("test_", 2),
+            birth_year = "2021",
+            cohort = test_cohort,
+            user=test_user
+        )
+        objlist.append(test_participant)
+        
+        # Device
+        Device.objects.filter(user=test_user).delete()
+        test_device = Device.objects.create(
+            user=test_user,
+            active=True, 
+            token="5d851ed2-77f3-4205-b377-12557f7a2918", 
+            type="onesignal"
+        )
+        objlist.append(test_device)
+        
+        # ParticipantAssignment
+        test_participant_assignment = ParticipantAssignment.objects.create(
+            participant=test_participant,
+            cohort_assignment=test_cohort_assignment
+        )
+        objlist.append(test_participant_assignment)
         
         return objlist
     
@@ -564,58 +596,96 @@ class DevService:
         lines = []
         
         # StudyType
-        try:
-            test_study_type = StudyType.objects.get(
-                name="NLM"
-            )
-            lines.append("StudyType found: {}".format(test_study_type))
-        except:
-            lines.append("no NLM study type")
+        study_type_list, success = self.view_modelclass(lines, 
+                                       StudyType, {
+            'name': 'NLM'
+        })
+        if not success:
             return lines
+        test_study_type = study_type_list[0]
         
         # Study
-        try:
-            studies = Study.objects.filter(name__startswith='nlm_test_').all()
-            if studies:    
-                for a_study in studies:
-                    lines.append("Study found: {}".format(a_study))
-            else:
-                raise models.Model.DoesNotExist
-        except:
-            lines.append("no study found")
+        _, success = self.view_modelclass(lines, 
+                                       Study, {
+            'name__startswith': 'nlm_test_'
+        })
+        if not success:
             return lines
         
         # Cohort
-        try:
-            cohorts = Cohort.objects.filter(name__startswith='nlm_test_cohort_').all()
-            if cohorts:    
-                for a_cohort in cohorts:
-                    lines.append("Cohort found: {}".format(a_cohort))
-            else:
-                raise models.Model.DoesNotExist
-        except:
-            lines.append("no cohort found")
+        _, success = self.view_modelclass(lines, 
+                                       Cohort, {
+            'name__startswith': 'nlm_test_cohort_'
+        })
+        if not success:
             return lines
         
         
         # CohortAssignment
-        try:
-            cohort_assignments = CohortAssignment.objects.filter(studytype=test_study_type).all()
-            if cohort_assignments:    
-                for a_cohort_assignment in cohort_assignments:
-                    lines.append("CohortAssignment found: {}".format(a_cohort_assignment))
-            else:
-                raise models.Model.DoesNotExist
-        except:
-            lines.append("no cohort assignment found")
+        test_cohort_assignment_list, success = self.view_modelclass(lines, 
+                                       CohortAssignment, {
+            'studytype': test_study_type
+        })
+        if not success:
+            return lines
+        test_cohort_assignment = test_cohort_assignment_list[0]
+        
+        # User
+        test_users, success = self.view_modelclass(lines, 
+                                       User, {
+            'username__startswith': "nlm_test_user_"
+        })
+        if not success:
+            return lines
+        
+        # Participant
+        test_participants, success = self.view_modelclass(lines, 
+                                       Participant, {
+            'user__username__startswith': "nlm_test_user_"
+        })
+        if not success:
+            return lines
+        
+        # Device
+        test_devices, success = self.view_modelclass(lines, 
+                                       Device, {
+            'user__username__startswith': "nlm_test_user_"
+        })
+        if not success:
+            return lines
+        
+        # ParticipantAssignment
+        test_participant_assignment, success = self.view_modelclass(lines, 
+                                       ParticipantAssignment, {
+            'cohort_assignment': test_cohort_assignment
+        })
+        if not success:
             return lines
         
         
         return lines
+
+    def view_modelclass(self, lines, modelclass, filter_dict):
+        modelname = modelclass.__name__
+        success = True
+        try:
+            itemlist = modelclass.objects.filter(**filter_dict).all()
+            if itemlist:    
+                for an_item in itemlist:
+                    lines.append("{} found: {}".format(modelname, an_item))
+            else:
+                raise models.Model.DoesNotExist
+        except:
+            lines.append("no {} found".format(modelname))
+            success = False
+        return itemlist, success
         
         
     def delete_test_study(self):
         StudyType.objects.get(name="NLM").delete()
         
         Study.objects.filter(name__startswith='nlm_test_').delete()
-        # cohort is deleted by cascading
+        # Cohort, CohortAssignment, ParticipantAssignment will be deleted by cascading
+        
+        User.objects.filter(username__startswith='nlm_test_user_').delete()
+        # Participant will be deleted by cascading
