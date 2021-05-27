@@ -491,10 +491,8 @@ class DevService:
         for minute in range(0, 60):
             self.create_task(name="Sample Hourly Task: minute={}".format(minute), minute=minute, arguments={'parameters': 
                     {
-                        "a": 1,
-                        "b": 2
-                    }
-                
+                        "minute": minute
+                    }            
                 })
     
     def delete_hourly_task_by_id(self, hourly_task_id):

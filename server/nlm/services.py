@@ -222,7 +222,7 @@ class StudyTypeService:
                 raise StudyType.DoesNotExist
     
     def create_service(study_type):
-        return StudyTypeService(study_type.name, study_type.frequency)
+        return StudyTypeService(study_type.name, frequency=study_type.frequency)
     
     def get_all_child_cohort_assignments(self):
         query = CohortAssignment.objects.filter(studytype=self.study_type, active=True)

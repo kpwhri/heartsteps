@@ -124,13 +124,6 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         else:
             context['nlmcohort_text'] = "No cohort is NLM-style."
         
-        nlm_participants = nlm_service.get_nlm_participants_dict()
-        context['nlmparticipants'] = nlm_participants
-        if len(nlm_participants) > 0:
-            context['nlm_participant_text'] = ", ".join([x.heartsteps_id for x in nlm_participants])
-        else:
-            context['nlm_participant_text'] = "No participant is NLM-style."
-        
         hourly_tasks = dev_service.get_hourly_tasks_dict()
         context['hourly_tasks'] = hourly_tasks
         
