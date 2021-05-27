@@ -302,6 +302,7 @@ class StudyTypeService:
             pass
         else:
             self.log_service.info("handling terminated because the decision is unnecessary.", participant)
+            return False
         
         # per level, decide what to do
         if todays_level == Level.LEVEL1:    # Recovery
@@ -400,6 +401,8 @@ class StudyTypeService:
             self.log_service.info("no notification will be sent", participant)
         
         self.log_service.info("handling terminated because the logic ended.", participant)
+        
+        return True
     
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.
