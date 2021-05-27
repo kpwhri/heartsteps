@@ -1,7 +1,7 @@
 from participants.models import Cohort, Participant
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter
+from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter
 
 
 class LogService:
@@ -138,26 +138,6 @@ class StudyTypeService:
             nlm_assignment_query = CohortAssignment.objects.filter(cohort=cohort)
             return nlm_assignment_query
         
-        def get_or_create_participant_assignment_list(self, cohort_assignment):
-            """Return a list of participant assignments under a cohort assignment
-
-            Args:
-                cohort_assignment (CohortAssignment): target cohort assignment for the participant assignment list
-
-            Returns:
-                List: Participant Assignment List
-            """
-            cohort = cohort_assignment.cohort
-            
-            participant_query = Participant.objects.filter(cohort=cohort)
-            
-            participant_assignment_list = []
-            for participant in participant_query.all():
-                result = ParticipantAssignment.objects.get_or_create(participant=participant, cohort_assignment=cohort_assignment)
-                participant_assignment_list.append(result[0])
-            
-            return participant_assignment_list
-        
         def create_conditionality(self, name, description, study_type, module_path):
             """create a new conditionality
 
@@ -242,28 +222,12 @@ class StudyTypeService:
         """       
         if cohort: 
             if isinstance(cohort, Cohort):
-                self.dsg.create_new_cohort_assignment(cohort, self.study_type)
-                result = self.apply_all_cohort_assignments()
-                return result
+                return self.dsg.create_new_cohort_assignment(cohort, self.study_type)
             else:
                 raise ValueError("passed parameter is not Cohort:{}".format(cohort))
         else:
             raise ValueError("cohort parameter is {}".format(cohort))
         
-    
-    def apply_all_cohort_assignments(self):
-        """Fetch all non-NLM participants in all NLM-assigned cohorts, put them into a NLM Participant assignment
-        
-        This will be generalized soon.
-        """        
-        
-        cohort_assignment_query = self.dsg.get_all_cohort_assignments_query()
-        if cohort_assignment_query:
-            all_participant_assignment_list = []
-            for cohort_assignment in cohort_assignment_query.all():
-                participant_assignment_list = self.dsg.get_or_create_participant_assignment_list(cohort_assignment)
-                all_participant_assignment_list = all_participant_assignment_list + participant_assignment_list
-            return all_participant_assignment_list
         
                 
     def get_nlm_cohorts_dict(self):
@@ -280,20 +244,6 @@ class StudyTypeService:
             return cohort_list
         else:
             return []
-    
-    def get_nlm_participants_dict(self):
-        """Returns a list of assigned participant dictionaries in NLM type study
-        """
-        
-        participant_assignment_list = self.apply_all_cohort_assignments()
-        
-        participant_list = []
-        
-        if participant_assignment_list:
-            for participant_assignment in participant_assignment_list:
-                participant_list.append(participant_assignment.participant)
-            
-        return participant_list
     
     def add_conditionality(self, name, description, module_path):
         """Adds a new conditionality

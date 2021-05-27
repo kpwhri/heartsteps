@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from nlm.models import StudyType, CohortAssignment, ParticipantAssignment
+from nlm.models import StudyType, CohortAssignment
 from nlm.services import StudyTypeService, LogService
 import pprint
 
@@ -31,11 +31,11 @@ def nlm_base_hourly_task(parameters):
         for a_cohort_assignment in cohort_assignments:
             log(2, "cohort discovered: {}".format(a_cohort_assignment))
             
+            
+            
             a_cohort = a_cohort_assignment.cohort
             participants = Participant.objects.filter(cohort=a_cohort, active=True).all()
             
             for a_participant in participants:
                 log(3, "participant discovered: {}".format(a_participant))
                 
-                a_participant_assignment, _ = ParticipantAssignment.objects.get_or_create(participant=a_participant, cohort_assignment=a_cohort_assignment)
-                log(4, "participant_assignment discovered: {}".format(a_participant_assignment))

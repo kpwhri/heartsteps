@@ -14,7 +14,7 @@ from hourly_tasks.models import HourlyTask
 import random
 import datetime
 
-from nlm.models import StudyType, CohortAssignment, ParticipantAssignment
+from nlm.models import StudyType, CohortAssignment
 import pprint
 import uuid
 
@@ -583,13 +583,6 @@ class DevService:
         )
         objlist.append(test_device)
         
-        # ParticipantAssignment
-        test_participant_assignment = ParticipantAssignment.objects.create(
-            participant=test_participant,
-            cohort_assignment=test_cohort_assignment
-        )
-        objlist.append(test_participant_assignment)
-        
         return objlist
     
     def view_test_study(self):
@@ -654,14 +647,6 @@ class DevService:
         if not success:
             return lines
         
-        # ParticipantAssignment
-        test_participant_assignment, success = self.view_modelclass(lines, 
-                                       ParticipantAssignment, {
-            'cohort_assignment': test_cohort_assignment
-        })
-        if not success:
-            return lines
-        
         
         return lines
 
@@ -685,7 +670,7 @@ class DevService:
         StudyType.objects.get(name="NLM").delete()
         
         Study.objects.filter(name__startswith='nlm_test_').delete()
-        # Cohort, CohortAssignment, ParticipantAssignment will be deleted by cascading
+        # Cohort, CohortAssignment will be deleted by cascading
         
         User.objects.filter(username__startswith='nlm_test_user_').delete()
         # Participant will be deleted by cascading
