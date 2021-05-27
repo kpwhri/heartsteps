@@ -9,8 +9,10 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db import IntegrityError
 from django.http import Http404
 from django.http import HttpResponseRedirect
+from django.http import UnreadablePostError
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -234,6 +236,22 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 self.dev_service.delete_hourly_task_by_id(hourly_task_id=hourly_task_id)
                 objlist = self.dev_service.get_all_hourly_tasks()
                 context["results"] = self.prettyprint(objlist)
+            elif dev_command == 'upload_level_csv':
+                nickname = request.POST['nickname']
+                if request.FILES['level_csv_file_form_control']:
+                    myFile = request.FILES.get('level_csv_file_form_control')
+                    
+                    if (myFile.multiple_chunks()):
+                        raise UnreadablePostError("too long")
+                    else:
+                        csv_file_content = myFile.read().decode("utf-8-sig")
+                        lines = csv_file_content.split("\n")
+                        try:
+                            context["results"] = self.dev_service.upload_level_csv(myFile.name, nickname, lines)
+                        except IntegrityError:
+                            context["results"] = "The nickname {} is already used.".format(nickname)
+                else:
+                    raise UnreadablePostError        
             elif dev_command == 'generic-command':
                 generic_command = request.POST['generic-command']
                 if generic_command == 'delete_all_hourly_tasks':

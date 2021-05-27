@@ -130,6 +130,4 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     
     def test_handle_conditionality(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
-        # print(self.participant.__dict__)
-        # study_type_service.handle_participant_hourly_task(self.participant)
-        nlm_base_hourly_task({"minute":1})
+        nlm_base_hourly_task({})

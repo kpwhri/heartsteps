@@ -2,7 +2,7 @@ from participants.models import Cohort, Participant
 from django.db import models
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter, Level
+from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter, PreloadedLevelSequenceFile
 from generic_messages.services import GenericMessagesService
 
 class LogService:
@@ -77,6 +77,13 @@ class LogService:
         self.log(value=msg, purpose="ERROR", object=self.__get_object_str(obj))
         
 class StudyTypeService:
+    
+    LEVEL1 = 1
+    LEVEL2 = 2
+    LEVEL3 = 3
+    LEVEL4 = 4
+    LEVEL5 = 5
+    
     
     class __DBSafeGuard:
         """Provide safe access to database. 
@@ -254,7 +261,7 @@ class StudyTypeService:
         return True
     
     def fetch_todays_level(self, participant):
-        return Level.LEVEL5
+        return StudyTypeService.LEVEL5
     
     def is_decision_needed(self, participant):
         return True
@@ -305,7 +312,7 @@ class StudyTypeService:
             return False
         
         # per level, decide what to do
-        if todays_level == Level.LEVEL1:    # Recovery
+        if todays_level == StudyTypeService.LEVEL1:    # Recovery
             # for level 1 (recovery), we don't have to calculate the conditionalities.
             # decide whether to send bout planning window or not
             is_notification_needed = False
@@ -313,7 +320,7 @@ class StudyTypeService:
             self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
             
             
-        elif todays_level == Level.LEVEL2:  # Random
+        elif todays_level == StudyTypeService.LEVEL2:  # Random
             # for level 2 (random), we need to roll a dice
             
             # calculate conditionality 1
@@ -329,7 +336,7 @@ class StudyTypeService:
             self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
             
             
-        elif todays_level == Level.LEVEL3:  # N+O
+        elif todays_level == StudyTypeService.LEVEL3:  # N+O
             # for level 3 (N+O), we need two conditionalities
             
             # calculate conditionality 1
@@ -349,7 +356,7 @@ class StudyTypeService:
             self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
             
             
-        elif todays_level == Level.LEVEL4:  # N+R
+        elif todays_level == StudyTypeService.LEVEL4:  # N+R
             # for level 4 (N+R), we need two conditionalities
             # calculate conditionality 1
             need_conditionality = self.get_need_conditionality(participant)    
@@ -367,7 +374,7 @@ class StudyTypeService:
                 self.log_service.info("since the participant is at level 4, by N+R conditionality, no notification will be sent.", participant)
             self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
             
-        elif todays_level == Level.LEVEL5:  # N+R+O (Full)
+        elif todays_level == StudyTypeService.LEVEL5:  # N+R+O (Full)
             # for level 5 (N+R+O), we need three conditionalities
             # calculate conditionality 1
             need_conditionality = self.get_need_conditionality(participant)    
@@ -472,4 +479,3 @@ class StudyTypeService:
     
     def get_conditionality_parameters(self, conditionality):
         return self.dsg.get_conditionality_parameters(conditionality)
-    

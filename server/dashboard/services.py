@@ -14,7 +14,7 @@ from hourly_tasks.models import HourlyTask
 import random
 import datetime
 
-from nlm.models import StudyType, CohortAssignment
+from nlm.models import StudyType, CohortAssignment, PreloadedLevelSequenceFile
 import pprint
 import uuid
 
@@ -673,3 +673,6 @@ class DevService:
         
         User.objects.filter(username__startswith='nlm_test_user_').delete()
         # Participant will be deleted by cascading
+    
+    def upload_level_csv(self, filename, nickname, lines):
+        return PreloadedLevelSequenceFile.insert(self.user, filename, nickname, lines)

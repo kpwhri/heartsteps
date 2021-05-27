@@ -11,15 +11,13 @@ from participants.models import Participant
 def log(msg):
     log_service = LogService(subject_name="nlm_task")
     log_service.log(value=msg, purpose="INFO")
-    print(msg)
+    # print(msg)
     return log_service
                 
 
 
 @shared_task
 def nlm_base_hourly_task(parameters):
-    log("parameter:{}".format(pprint.pformat(parameters)))
-    
     # try to bring all hourly studies
     hourly_study_types = StudyType.objects.filter(frequency=StudyType.HOURLY).all()
     
