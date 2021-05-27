@@ -25,7 +25,7 @@ class LogService:
         )
     
     def dump(pretty=False):
-        query = LogContents.objects.filter().order_by("-logtime")
+        query = LogContents.objects.filter().order_by("-logtime")[:100]
         
         log_list = []
         
