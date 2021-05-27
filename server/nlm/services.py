@@ -1,8 +1,9 @@
 from participants.models import Cohort, Participant
+from django.db import models
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter
-
+from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter, Level
+from generic_messages.services import GenericMessagesService
 
 class LogService:
     def __init__(self, subject_name='Unknown'):
@@ -30,13 +31,7 @@ class LogService:
         
         if query:
             for item in query.all():
-                log_list.append({
-                    'logtime': item.logtime,
-                    'subject': item.subject.name,
-                    'object': item.object.name,
-                    'purpose': item.purpose.name,
-                    'value': item.value
-                })
+                log_list.append(str(item))
         
         if pretty:
             import json
@@ -52,14 +47,34 @@ class LogService:
         else:
             return log_list
 
+    def clear_all():
+        """Do Not User This Method. This is only for development.
+        This will be removed when the development is finished.
+        """
+        LogContents.objects.all().delete()
+        
     def clear(self):
         """Do Not User This Method. This is only for development.
         This will be removed when the development is finished.
         """
         query = LogContents.objects.filter(subject=self.subject)
+        
         query.delete()
 
+    def __get_object_str(self, obj:models.Model):
+        if isinstance(obj, Participant):
+            return "{}:{}".format(obj.__class__.__name__, obj.heartsteps_id)
+        else:
+            return "{}:{}".format(obj.__class__.__name__, obj.id)
             
+    def info(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="INFO", object=self.__get_object_str(obj))
+    
+    def data(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="DATA", object=self.__get_object_str(obj))
+    
+    def error(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="ERROR", object=self.__get_object_str(obj))
         
 class StudyTypeService:
     
@@ -204,6 +219,7 @@ class StudyTypeService:
     
     def __init__(self, study_type_name, user=None, frequency=StudyType.HOURLY):
         assert study_type_name, "Study type name cannot be None"
+        self.log_service = LogService(subject_name="StudyTypeService")
         if user:
             self.isreadonly = False
             self.user = user
@@ -229,44 +245,161 @@ class StudyTypeService:
         
         return query.all()
     
-    def handle_participant_hourly_task(self, participant, cohort):
+    
+    # TODO: fill up with real logics
+    def is_level_sequence_assigned(self, participant):
+        return True
+    
+    def assign_level_sequence(self, participant):
+        return True
+    
+    def fetch_todays_level(self, participant):
+        return Level.LEVEL5
+    
+    def is_decision_needed(self, participant):
+        return True
+    
+    def get_random_conditionality(self, participant):
+        return True
+    
+    def get_need_conditionality(self, participant):
+        return True
+    
+    def get_opportunity_condition(self, participant):
+        return True
+    
+    def get_receptivity_condition(self, participant):
+        return True
+    
+    def send_notification(self, participant):
+        generic_messages_service = GenericMessagesService.create_service(username=participant.user.username)
+        sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks", False)
+        self.log_service.info('Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
+        
+        return True
+    
+    def handle_participant_hourly_task(self, participant):
+        self.log_service.info("handling initiated", participant)
+        
         # check if levels are assigned
+        if self.is_level_sequence_assigned(participant):
+            self.log_service.info("level sequence assignment checked", participant)
+        else:
+            level_sequence_id = self.assign_level_sequence(participant)
+            self.log_service.info("new level sequence is assigned: {}".format(level_sequence_id), participant)
         
         # fetch level assignments
+        todays_level = self.fetch_todays_level(participant)
+        self.log_service.info("today's level is fetched: {}".format(todays_level), participant)
+        self.log_service.data("todays_level:{}".format(todays_level), participant)
         
         # decide whether this participant should be decided or not
+        is_decision_needed = self.is_decision_needed(participant)
+        self.log_service.info("decision necessity is decided: {}".format(is_decision_needed), participant)
+        self.log_service.data("is_decision_needed:{}".format(is_decision_needed), participant)
+        
+        if is_decision_needed:
+            pass
+        else:
+            self.log_service.info("handling terminated because the decision is unnecessary.", participant)
         
         # per level, decide what to do
-            # level 1
-                # calculate condition 1
+        if todays_level == Level.LEVEL1:    # Recovery
+            # for level 1 (recovery), we don't have to calculate the conditionalities.
+            # decide whether to send bout planning window or not
+            is_notification_needed = False
+            self.log_service.info("since the participant is at level 1, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == Level.LEVEL2:  # Random
+            # for level 2 (random), we need to roll a dice
+            
+            # calculate conditionality 1
+            random_conditionality = self.get_random_conditionality(participant)
+            self.log_service.data("random_conditionality:{}".format(random_conditionality),participant)
+            
+            # decide whether to send bout planning window or not
+            is_notification_needed = random_conditionality
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 2, by virtue of coin toss, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 2, by virtue of coin toss, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == Level.LEVEL3:  # N+O
+            # for level 3 (N+O), we need two conditionalities
+            
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            opportunity_conditionality = self.get_opportunity_condition(participant)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
                 
-                # calculate condition 2
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and opportunity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 3, by N+O conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 3, by N+O conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == Level.LEVEL4:  # N+R
+            # for level 4 (N+R), we need two conditionalities
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            receptivity_conditionality = self.get_receptivity_condition(participant)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
                 
-                # calculate condition 3
-                
-                # decide whether to send bout planning window or not
-                
-            # level 2
-                # calculate condition 1
-                
-                # calculate condition 2
-                
-                # calculate condition 3
-                
-                # decide whether to send bout planning window or not
-                
-            # level 3
-                # calculate condition 1
-                
-                # calculate condition 2
-                
-                # calculate condition 3
-                
-                # decide whether to send bout planning window or not
-                
-        # according to the decision, send the bout planning window or not
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and receptivity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 4, by N+R conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 4, by N+R conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+        elif todays_level == Level.LEVEL5:  # N+R+O (Full)
+            # for level 5 (N+R+O), we need three conditionalities
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            receptivity_conditionality = self.get_receptivity_condition(participant)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
+            
+            # calculate conditionality 3
+            opportunity_conditionality = self.get_opportunity_condition(participant)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
+            
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and receptivity_conditionality and opportunity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+
+        else:
+            self.log_service.error("unknown level is detected: {}".format(todays_level), participant)
+            raise NotImplementedError
         
-        pass
+        # according to the decision, send the bout planning window or not
+        if is_notification_needed:
+            self.log_service.info("notification is being sent", participant)
+            self.send_notification(participant)
+        else:
+            self.log_service.info("no notification will be sent", participant)
+        
+        self.log_service.info("handling terminated because the logic ended.", participant)
     
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.

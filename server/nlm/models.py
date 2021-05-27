@@ -24,6 +24,13 @@ class CohortAssignment(models.Model):
 
 class Level(models.Model):
     """5 Levels: Recovery, Random, N+O, N+R, Full"""
+    
+    LEVEL1 = "Recovery"
+    LEVEL2 = "Random"
+    LEVEL3 = "N+O"
+    LEVEL4 = "N+R"
+    LEVEL5 = "N+R+O"
+    
     name = models.CharField(max_length=100)
     studytype = models.ForeignKey(StudyType, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
@@ -43,12 +50,21 @@ class Conditionality(models.Model):
 
 class LogSubject(models.Model):
     name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.name
 
 class LogObject(models.Model):
     name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.name
 
 class LogPurpose(models.Model):
     name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.name
 
 class LogContents(models.Model):
     logtime = models.DateTimeField(auto_now_add=True)
@@ -57,9 +73,13 @@ class LogContents(models.Model):
     purpose = models.ForeignKey(LogPurpose, null=True, on_delete=models.SET_NULL)
     value = models.TextField(blank=True)
     
+    def __str__(self):
+        return "{}: {} - {} {} [{}]".format(self.logtime, self.purpose, self.subject, self.value, self.object)
+    
     class Meta:
         indexes = [
             models.Index(fields=['-logtime']),
+            models.Index(fields=['-logtime', 'subject']),
             models.Index(fields=['subject', 'object', 'purpose']),  # also covers s+o, s
             models.Index(fields=['subject', 'purpose']),            
             models.Index(fields=['purpose', 'object']),             # also covers p

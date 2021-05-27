@@ -130,6 +130,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context['generic_command_list'] = [
             "insert_test_log",
             "dump_log",
+            'clear_log',
             'view_crontabs',
             'view_periodic_tasks',
             'view_hourly_tasks',
@@ -243,6 +244,8 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     context["results"] = log_service.dump(pretty=True)
                 elif generic_command == 'dump_log':
                     context["results"] = LogService.dump(pretty=True) 
+                elif generic_command == 'clear_log':
+                    context["results"] = LogService.clear_all() 
                 elif generic_command == 'view_crontabs':
                     crontabs = self.dev_service.get_all_crontabs()
                     context["results"] = self.prettyprint(crontabs)

@@ -14,6 +14,7 @@ from heartsteps.tests import HeartStepsTestCase
 from nlm.models import StudyType
 from nlm.services import StudyTypeService, LogService
 from nlm.programlets import ProgramletParameters
+from nlm.tasks import nlm_base_hourly_task
 
 class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
@@ -126,4 +127,9 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
         study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name2)
         study_type_service.remove_conditionality(module_path)
-        
+    
+    def test_handle_conditionality(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        # print(self.participant.__dict__)
+        # study_type_service.handle_participant_hourly_task(self.participant)
+        nlm_base_hourly_task({"minute":1})
