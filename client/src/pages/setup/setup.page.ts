@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
-import { FitbitAuth } from '@heartsteps/fitbit/fitbit-auth';
 import { Step } from '@infrastructure/components/stepper.component';
 import { FitbitService } from '@heartsteps/fitbit/fitbit.service';
+import { FitbitAuthorizePage } from './fitbit-authorize.page';
 
 const onboardingPages:Array<Step> = [{
     key: 'contactInformation',
@@ -12,7 +12,7 @@ const onboardingPages:Array<Step> = [{
 }, {
     key: 'fitbit',
     title: 'Fitbit',
-    component: FitbitAuth
+    component: FitbitAuthorizePage
 }];
 
 @Component({

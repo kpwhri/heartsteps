@@ -12,6 +12,7 @@ import { EnrollmentGaurd } from "./enrollment.gaurd";
 import { InfrastructureModule } from "@infrastructure/infrastructure.module";
 import { FitbitAuthorizePage } from "./fitbit-authorize.page";
 import { StudyContactInformation, ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
+import { FitbitModule } from "@heartsteps/fitbit/fitbit.module";
 
 @Injectable()
 export class StudyContactInformationResolver implements Resolve<StudyContactInformation> {
@@ -62,6 +63,7 @@ const enrollmentRoutes: Routes = [
     imports: [
         HeartstepsComponentsModule,
         HeartstepsEnrollmentModule,
+        FitbitModule,
         FormModule,
         ParticipantModule,
         CurrentWeekModule,
