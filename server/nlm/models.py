@@ -59,7 +59,14 @@ class PreloadedLevelSequenceFile(models.Model):
             PreloadedLevelSequenceLevel.objects.bulk_create(bulk_levels)
             line_index += 1
         
+        sequence_file.numberOfDays = day_index
+        sequence_file.numberOfSequences = line_index
+        sequence_file.save()
+        
         return sequence_file
+    
+    def __str__(self):
+        return "PreloadedLevelSequenceFile(user={}, filename={}, nickname={}, numberOfDays={}, numberOfSequence={}, whenUploaded={})".format(self.user, self.filename, self.nickname, self.numberOfDays, self.numberOfSequences, self.whenUploaded)
     
     class Meta:
         unique_together = ['user', 'nickname']

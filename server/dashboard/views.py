@@ -140,7 +140,9 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             "delete_all_hourly_tasks",
             'design_test_study',
             'view_test_study',
-            'clear_test_study'
+            'clear_test_study',
+            'view_preloaded_seq',
+            'clear_preloaded_seq'
         ]
         
         return context
@@ -239,15 +241,15 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             elif dev_command == 'upload_level_csv':
                 nickname = request.POST['nickname']
                 if request.FILES['level_csv_file_form_control']:
-                    myFile = request.FILES.get('level_csv_file_form_control')
+                    level_csv_file = request.FILES.get('level_csv_file_form_control')
                     
-                    if (myFile.multiple_chunks()):
+                    if (level_csv_file.multiple_chunks()):
                         raise UnreadablePostError("too long")
                     else:
-                        csv_file_content = myFile.read().decode("utf-8-sig")
+                        csv_file_content = level_csv_file.read().decode("utf-8-sig")
                         lines = csv_file_content.split("\n")
                         try:
-                            context["results"] = self.dev_service.upload_level_csv(myFile.name, nickname, lines)
+                            context["results"] = self.dev_service.upload_level_csv(level_csv_file.name, nickname, lines)
                         except IntegrityError:
                             context["results"] = "The nickname {} is already used.".format(nickname)
                 else:
@@ -285,6 +287,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     context["results"] = "\n".join(lines)
                 elif generic_command == 'clear_test_study':
                     objlist = self.dev_service.delete_test_study()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_preloaded_seq':
+                    lines = self.dev_service.view_preloaded_seq()
+                    context["results"] = "\n".join(lines)
+                elif generic_command == 'clear_preloaded_seq':
+                    objlist = self.dev_service.delete_preloaded_seq()
                     context["results"] = self.prettyprint(objlist)
                 else:
                     context["results"] = "Unsupported generic command: {}".format(generic_command)

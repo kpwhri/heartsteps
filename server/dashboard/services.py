@@ -14,7 +14,7 @@ from hourly_tasks.models import HourlyTask
 import random
 import datetime
 
-from nlm.models import StudyType, CohortAssignment, PreloadedLevelSequenceFile
+from nlm.models import StudyType, CohortAssignment, PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
 import pprint
 import uuid
 
@@ -649,11 +649,15 @@ class DevService:
         
         return lines
 
-    def view_modelclass(self, lines, modelclass, filter_dict):
+    def view_modelclass(self, lines, modelclass, filter_dict, limit=None):
         modelname = modelclass.__name__
         success = True
         try:
-            itemlist = modelclass.objects.filter(**filter_dict).all()
+            if limit:
+                itemlist = modelclass.objects.filter(**filter_dict).all()[:limit]
+            else:    
+                itemlist = modelclass.objects.filter(**filter_dict).all()
+                
             if itemlist:    
                 for an_item in itemlist:
                     lines.append("{} found: {}".format(modelname, an_item))
@@ -662,6 +666,9 @@ class DevService:
         except:
             lines.append("no {} found".format(modelname))
             success = False
+        if success and not limit is None:
+            lines.append("  ... more to come")
+            
         return itemlist, success
         
         
@@ -676,3 +683,28 @@ class DevService:
     
     def upload_level_csv(self, filename, nickname, lines):
         return PreloadedLevelSequenceFile.insert(self.user, filename, nickname, lines)
+    
+    def view_preloaded_seq(self):
+        lines = []
+        
+        # PreloadedLevelSequenceFile
+        preloaded_sequence_file_list, success = self.view_modelclass(lines, 
+                                       PreloadedLevelSequenceFile, {
+        })
+        if not success:
+            return lines
+        
+        # PreloadedLevelSequenceLine
+        preloaded_sequence_line_list, success = self.view_modelclass(lines, 
+                                       PreloadedLevelSequenceLine, {
+        }, limit=30)
+        
+        # PreloadedLevelSequenceLine
+        preloaded_sequence_level_list, success = self.view_modelclass(lines, 
+                                       PreloadedLevelSequenceLevel, {
+        }, limit=30)
+        
+        return lines
+    
+    def delete_preloaded_seq(self):
+        PreloadedLevelSequenceFile.objects.all().delete()
