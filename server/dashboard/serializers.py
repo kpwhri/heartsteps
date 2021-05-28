@@ -7,6 +7,7 @@ class PushMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PushMessage
         fields = ('__all__')
+        # testing new git login
 
     # type = serializers.SlugRelatedField(
     #     slug_field='recipient',
