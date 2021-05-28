@@ -1,14 +1,14 @@
 version: '2'
 services:
   client:
-    build: ./client
+    build: 
+      context: ./
+      dockerfile: client.Dockerfile
     command: npm run serve:app
     volumes:
       - ./client:/client
       - ./credentials:/credentials
-      - client-platforms:/client/platforms
       - client-node-modules:/client/node_modules
-      - client-gradle-cache:/root/.gradle/caches
     ports:
       - "8100:8100"
       - "35729:35729"
@@ -17,6 +17,17 @@ services:
       - db
       - rabbitmq
       - server
+  client-android:
+    build: 
+      context: ./
+      dockerfile: client-android.Dockerfile
+    command: npm run build:app:android
+    volumes:
+      - ./client:/client
+      - ./credentials:/credentials
+      - client-platforms:/client/platforms
+      - client-node-modules:/client/node_modules
+      - client-gradle-cache:/root/.gradle/caches
   db:
     environment: 
       - POSTGRES_PASSWORD=password

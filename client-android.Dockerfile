@@ -25,11 +25,8 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 
 RUN npm install cordova ionic sass -g
 
-ADD . /client
+ADD ./client /client
 WORKDIR /client
 
-# Turn off bin links, because docker gets cranky
-# RUN npm config set bin-links false
-
 RUN npm install
-CMD ionic build --prod
+CMD npm run build:app:android

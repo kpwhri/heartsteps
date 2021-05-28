@@ -18,6 +18,10 @@ gsutil -m rsync -dr server/static gs://heartsteps-dev/static
 docker tag heartsteps_server gcr.io/heartsteps-dev/heartsteps-server
 docker push gcr.io/heartsteps-dev/heartsteps-server
 
+# This installs node_modules into the client directory,
+# which is missing because of docker-compose configuraiton
+docker-compose run client npm install
+
 docker-compose -f gcloud-dev.docker-compose.yaml build client
 docker-compose run client npm run build:app --prod
 gsutil -m rsync -dr client/www gs://heartsteps-dev/app
