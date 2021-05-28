@@ -1,8 +1,9 @@
 from participants.models import Cohort, Participant
+from django.db import models
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, ParticipantAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter
-
+from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter, PreloadedLevelSequenceFile
+from generic_messages.services import GenericMessagesService
 
 class LogService:
     def __init__(self, subject_name='Unknown'):
@@ -24,19 +25,13 @@ class LogService:
         )
     
     def dump(pretty=False):
-        query = LogContents.objects.filter().order_by("-logtime")
+        query = LogContents.objects.filter().order_by("-logtime")[:100]
         
         log_list = []
         
         if query:
             for item in query.all():
-                log_list.append({
-                    'logtime': item.logtime,
-                    'subject': item.subject.name,
-                    'object': item.object.name,
-                    'purpose': item.purpose.name,
-                    'value': item.value
-                })
+                log_list.append(str(item))
         
         if pretty:
             import json
@@ -52,16 +47,43 @@ class LogService:
         else:
             return log_list
 
+    def clear_all():
+        """Do Not User This Method. This is only for development.
+        This will be removed when the development is finished.
+        """
+        LogContents.objects.all().delete()
+        
     def clear(self):
         """Do Not User This Method. This is only for development.
         This will be removed when the development is finished.
         """
         query = LogContents.objects.filter(subject=self.subject)
+        
         query.delete()
 
+    def __get_object_str(self, obj:models.Model):
+        if isinstance(obj, Participant):
+            return "{}:{}".format(obj.__class__.__name__, obj.heartsteps_id)
+        else:
+            return "{}:{}".format(obj.__class__.__name__, obj.id)
             
+    def info(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="INFO", object=self.__get_object_str(obj))
+    
+    def data(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="DATA", object=self.__get_object_str(obj))
+    
+    def error(self, msg, obj:models.Model):
+        self.log(value=msg, purpose="ERROR", object=self.__get_object_str(obj))
         
 class StudyTypeService:
+    
+    LEVEL1 = 1
+    LEVEL2 = 2
+    LEVEL3 = 3
+    LEVEL4 = 4
+    LEVEL5 = 5
+    
     
     class __DBSafeGuard:
         """Provide safe access to database. 
@@ -91,7 +113,8 @@ class StudyTypeService:
                 tuple : a Tuple of (object, created)
             """
             study_type_object, created = StudyType.objects.get_or_create(name=study_type_name, frequency=StudyType.HOURLY)
-            study_type_object.admins.set([self.user])
+            study_type_object.admins.add(self.user)
+            study_type_object.save()
             
             return (study_type_object, created)
             
@@ -137,26 +160,6 @@ class StudyTypeService:
             """
             nlm_assignment_query = CohortAssignment.objects.filter(cohort=cohort)
             return nlm_assignment_query
-        
-        def get_or_create_participant_assignment_list(self, cohort_assignment):
-            """Return a list of participant assignments under a cohort assignment
-
-            Args:
-                cohort_assignment (CohortAssignment): target cohort assignment for the participant assignment list
-
-            Returns:
-                List: Participant Assignment List
-            """
-            cohort = cohort_assignment.cohort
-            
-            participant_query = Participant.objects.filter(cohort=cohort)
-            
-            participant_assignment_list = []
-            for participant in participant_query.all():
-                result = ParticipantAssignment.objects.get_or_create(participant=participant, cohort_assignment=cohort_assignment)
-                participant_assignment_list.append(result[0])
-            
-            return participant_assignment_list
         
         def create_conditionality(self, name, description, study_type, module_path):
             """create a new conditionality
@@ -221,15 +224,192 @@ class StudyTypeService:
             
             
     
-    def __init__(self, user, study_type_name):
+    def __init__(self, study_type_name, user=None, frequency=StudyType.HOURLY):
+        assert study_type_name, "Study type name cannot be None"
+        self.log_service = LogService(subject_name="StudyTypeService")
         if user:
+            self.isreadonly = False
             self.user = user
+            
+            self.dsg = StudyTypeService.__DBSafeGuard(self.user)
+        
+            self.study_type, created = StudyType.objects.get_or_create(name=study_type_name, frequency=frequency)
+            self.study_type.admins.add(self.user)
         else:
-            raise ValueError("user parameter is invalid")
+            self.user = None
+            self.isreadonly = True
+            if StudyType.objects.filter(name=study_type_name).exists():
+                self.study_type = StudyType.objects.get(name=study_type_name, active=True)
+                self.user = None
+            else:
+                raise StudyType.DoesNotExist
+    
+    def create_service(study_type):
+        return StudyTypeService(study_type.name, frequency=study_type.frequency)
+    
+    def get_all_child_cohort_assignments(self):
+        query = CohortAssignment.objects.filter(studytype=self.study_type, active=True)
         
-        self.dsg = StudyTypeService.__DBSafeGuard(self.user)
+        return query.all()
+    
+    
+    # TODO: fill up with real logics
+    def is_level_sequence_assigned(self, participant):
+        return True
+    
+    def assign_level_sequence(self, participant):
+        return True
+    
+    def fetch_todays_level(self, participant):
+        return StudyTypeService.LEVEL5
+    
+    def is_decision_needed(self, participant):
+        return True
+    
+    def get_random_conditionality(self, participant):
+        return True
+    
+    def get_need_conditionality(self, participant):
+        return True
+    
+    def get_opportunity_condition(self, participant):
+        return True
+    
+    def get_receptivity_condition(self, participant):
+        return True
+    
+    def send_notification(self, participant):
+        generic_messages_service = GenericMessagesService.create_service(username=participant.user.username)
+        sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks", False)
+        self.log_service.info('Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
         
-        self.study_type, new_study_type = self.dsg.get_or_create_study_type(study_type_name)
+        return True
+    
+    def handle_participant_hourly_task(self, participant):
+        self.log_service.info("handling initiated", participant)
+        
+        # check if levels are assigned
+        if self.is_level_sequence_assigned(participant):
+            self.log_service.info("level sequence assignment checked", participant)
+        else:
+            level_sequence_id = self.assign_level_sequence(participant)
+            self.log_service.info("new level sequence is assigned: {}".format(level_sequence_id), participant)
+        
+        # fetch level assignments
+        todays_level = self.fetch_todays_level(participant)
+        self.log_service.info("today's level is fetched: {}".format(todays_level), participant)
+        self.log_service.data("todays_level:{}".format(todays_level), participant)
+        
+        # decide whether this participant should be decided or not
+        is_decision_needed = self.is_decision_needed(participant)
+        self.log_service.info("decision necessity is decided: {}".format(is_decision_needed), participant)
+        self.log_service.data("is_decision_needed:{}".format(is_decision_needed), participant)
+        
+        if is_decision_needed:
+            pass
+        else:
+            self.log_service.info("handling terminated because the decision is unnecessary.", participant)
+            return False
+        
+        # per level, decide what to do
+        if todays_level == StudyTypeService.LEVEL1:    # Recovery
+            # for level 1 (recovery), we don't have to calculate the conditionalities.
+            # decide whether to send bout planning window or not
+            is_notification_needed = False
+            self.log_service.info("since the participant is at level 1, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == StudyTypeService.LEVEL2:  # Random
+            # for level 2 (random), we need to roll a dice
+            
+            # calculate conditionality 1
+            random_conditionality = self.get_random_conditionality(participant)
+            self.log_service.data("random_conditionality:{}".format(random_conditionality),participant)
+            
+            # decide whether to send bout planning window or not
+            is_notification_needed = random_conditionality
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 2, by virtue of coin toss, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 2, by virtue of coin toss, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == StudyTypeService.LEVEL3:  # N+O
+            # for level 3 (N+O), we need two conditionalities
+            
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            opportunity_conditionality = self.get_opportunity_condition(participant)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
+                
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and opportunity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 3, by N+O conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 3, by N+O conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+            
+        elif todays_level == StudyTypeService.LEVEL4:  # N+R
+            # for level 4 (N+R), we need two conditionalities
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            receptivity_conditionality = self.get_receptivity_condition(participant)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
+                
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and receptivity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 4, by N+R conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 4, by N+R conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            
+        elif todays_level == StudyTypeService.LEVEL5:  # N+R+O (Full)
+            # for level 5 (N+R+O), we need three conditionalities
+            # calculate conditionality 1
+            need_conditionality = self.get_need_conditionality(participant)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            
+            # calculate conditionality 2
+            receptivity_conditionality = self.get_receptivity_condition(participant)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
+            
+            # calculate conditionality 3
+            opportunity_conditionality = self.get_opportunity_condition(participant)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
+            
+            # decide whether to send bout planning window or not
+            is_notification_needed = (need_conditionality and receptivity_conditionality and opportunity_conditionality)
+            if is_notification_needed:
+                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, notification will be sent.", participant)
+            else:
+                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, no notification will be sent.", participant)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+
+        else:
+            self.log_service.error("unknown level is detected: {}".format(todays_level), participant)
+            raise NotImplementedError
+        
+        # according to the decision, send the bout planning window or not
+        if is_notification_needed:
+            self.log_service.info("notification is being sent", participant)
+            self.send_notification(participant)
+        else:
+            self.log_service.info("no notification will be sent", participant)
+        
+        self.log_service.info("handling terminated because the logic ended.", participant)
+        
+        return True
     
     def assign_cohort(self, cohort):
         """Assigns participants in a cohort into the particular study type.
@@ -242,28 +422,12 @@ class StudyTypeService:
         """       
         if cohort: 
             if isinstance(cohort, Cohort):
-                self.dsg.create_new_cohort_assignment(cohort, self.study_type)
-                result = self.apply_all_cohort_assignments()
-                return result
+                return self.dsg.create_new_cohort_assignment(cohort, self.study_type)
             else:
                 raise ValueError("passed parameter is not Cohort:{}".format(cohort))
         else:
             raise ValueError("cohort parameter is {}".format(cohort))
         
-    
-    def apply_all_cohort_assignments(self):
-        """Fetch all non-NLM participants in all NLM-assigned cohorts, put them into a NLM Participant assignment
-        
-        This will be generalized soon.
-        """        
-        
-        cohort_assignment_query = self.dsg.get_all_cohort_assignments_query()
-        if cohort_assignment_query:
-            all_participant_assignment_list = []
-            for cohort_assignment in cohort_assignment_query.all():
-                participant_assignment_list = self.dsg.get_or_create_participant_assignment_list(cohort_assignment)
-                all_participant_assignment_list = all_participant_assignment_list + participant_assignment_list
-            return all_participant_assignment_list
         
                 
     def get_nlm_cohorts_dict(self):
@@ -280,20 +444,6 @@ class StudyTypeService:
             return cohort_list
         else:
             return []
-    
-    def get_nlm_participants_dict(self):
-        """Returns a list of assigned participant dictionaries in NLM type study
-        """
-        
-        participant_assignment_list = self.apply_all_cohort_assignments()
-        
-        participant_list = []
-        
-        if participant_assignment_list:
-            for participant_assignment in participant_assignment_list:
-                participant_list.append(participant_assignment.participant)
-            
-        return participant_list
     
     def add_conditionality(self, name, description, module_path):
         """Adds a new conditionality
@@ -329,4 +479,3 @@ class StudyTypeService:
     
     def get_conditionality_parameters(self, conditionality):
         return self.dsg.get_conditionality_parameters(conditionality)
-    

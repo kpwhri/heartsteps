@@ -19,9 +19,11 @@ before_script:
 - docker volume prune -f
 - docker-compose build server > /dev/null
 - docker-compose run server python manage.py migrate > /dev/null
-# - docker-compose build client > /dev/null
 
 script:
 - docker-compose run server python manage.py test
-# - docker-compose run client npm test
-# - docker-compose run client npm run build:app --prod
+
+after_success:
+- chmod +x gcloud-dev-deploy.sh
+- ./gcloud-dev-deploy.sh
+

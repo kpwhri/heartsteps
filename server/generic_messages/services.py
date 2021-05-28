@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth.models import User
+
 
 from push_messages.services import PushMessageService
 from .models import GenericMessagesConfiguration
@@ -26,20 +28,21 @@ class GenericMessagesService:
     class RequestError(RuntimeError):
         pass
 
-    def __init__(self, configuration=None, username=None):
-        try:
-            if username:
-                configuration = GenericMessagesConfiguration.objects.get(user__username=username) 
-        except GenericMessagesConfiguration.DoesNotExist:
-            pass
-        if not configuration:
-            raise GenericMessagesService.NoConfiguration('No configuration: configuration={}, username={}'.format(configuration, username))
+    def __init__(self, username, force=True):
+        assert username is not None, "username must not be None"
         
-        self.__configuration = configuration
-        self.__user = configuration.user
-
-    def create_service(username=None):
-        return GenericMessagesService(username=username)
+        self.__user = User.objects.get(username=username)
+        
+        try:
+            if force:
+                self.__configuration, _ = GenericMessagesConfiguration.objects.get_or_create(user=self.__user) 
+            else:
+                self.__configuration = GenericMessagesConfiguration.objects.get(user=self.__user) 
+        except GenericMessagesConfiguration.DoesNotExist:
+            raise GenericMessagesService.NoConfiguration('No configuration: configuration={}, username={}'.format(self.__configuration, username))
+                
+    def create_service(username=None, force=True):
+        return GenericMessagesService(username=username, force=force)
 
 
     def create_message_template(self, parent_id: str, message_id: str, message_title: str, message_body: str):

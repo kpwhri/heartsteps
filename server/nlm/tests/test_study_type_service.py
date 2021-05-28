@@ -14,6 +14,7 @@ from heartsteps.tests import HeartStepsTestCase
 from nlm.models import StudyType
 from nlm.services import StudyTypeService, LogService
 from nlm.programlets import ProgramletParameters
+from nlm.tasks import nlm_base_hourly_task
 
 class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
@@ -27,30 +28,30 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         self.assertRaises(TypeError, StudyTypeService)
     
     def test_new_service_instance_with_correct_init(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
     
     def test_new_service_instance_with_correct_init_but_wrong_argument(self):
-        self.assertRaises(ValueError, StudyTypeService, None, None)
+        self.assertRaises(AssertionError, StudyTypeService, None, None)
     
     def test_assign_cohort_nlm(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         study_type_service.assign_cohort(self.cohort)
         
     def test_assign_cohort_nlm_with_wrong_argument_1(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         self.assertRaises(ValueError, study_type_service.assign_cohort, None)
     
     def test_assign_cohort_nlm_with_wrong_argument_2(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         self.assertRaises(ValueError, study_type_service.assign_cohort, self.study)
         
     def test_assign_cohort_nlm_with_wrong_argument_3(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         self.assertRaises(ValueError, study_type_service.assign_cohort, self.user)
         
     def test_add_conditionailty(self):
         # Try to insert normal trivial conditionality
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         # study_type_service.clear_all_conditionalities()
         name = "always_true_conditionality"
         description = "always return true"
@@ -60,17 +61,17 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         
     def test_run_conditionality(self):
         # try to run individual conditionality
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         module = "nlm.conditionality.always_true_conditionality"
         result = study_type_service.call_conditionality(module)
 
     def test_run_conditionality_with_logging(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         module = "nlm.conditionality.Random_50_50_log"
         result = study_type_service.call_conditionality(module)
             
     def test_create_conditionality_parameter(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         name = "random with parameterized threshold"
         description = "random with parameterized threshold"
         module_path = "nlm.conditionality.parameterized_conditionality"
@@ -90,7 +91,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         study_type_service.remove_conditionality(module_path)
 
     def test_use_conditionality_parameter_with_setting(self):
-        study_type_service = StudyTypeService(self.user, self.study_type_name)
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         name = "random with parameterized threshold"
         description = "random with parameterized threshold"
         module_path = "nlm.conditionality.parameterized_conditionality"
@@ -126,4 +127,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name)
         study_type_service.remove_conditionality_parameter(new_conditionality, conditionality_parameter_name2)
         study_type_service.remove_conditionality(module_path)
-        
+    
+    def test_handle_conditionality(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        nlm_base_hourly_task({})

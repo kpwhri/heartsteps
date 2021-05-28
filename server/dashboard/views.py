@@ -9,8 +9,10 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db import IntegrityError
 from django.http import Http404
 from django.http import HttpResponseRedirect
+from django.http import UnreadablePostError
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -101,7 +103,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context["is_staff"] = self.request.user.is_staff
         
         dev_service = DevService(self.request.user)
-        nlm_service = StudyTypeService(self.request.user, "NLM")
+        nlm_service = StudyTypeService("NLM", self.request.user)
         
         
         study_query = dev_service.get_all_studies_query()
@@ -126,19 +128,13 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         else:
             context['nlmcohort_text'] = "No cohort is NLM-style."
         
-        nlm_participants = nlm_service.get_nlm_participants_dict()
-        context['nlmparticipants'] = nlm_participants
-        if len(nlm_participants) > 0:
-            context['nlm_participant_text'] = ", ".join([x.heartsteps_id for x in nlm_participants])
-        else:
-            context['nlm_participant_text'] = "No participant is NLM-style."
-        
         hourly_tasks = dev_service.get_hourly_tasks_dict()
         context['hourly_tasks'] = hourly_tasks
         
         context['generic_command_list'] = [
             "insert_test_log",
             "dump_log",
+            'clear_log',
             'view_crontabs',
             'view_periodic_tasks',
             'view_hourly_tasks',
@@ -146,7 +142,9 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             "delete_all_hourly_tasks",
             'design_test_study',
             'view_test_study',
-            'clear_test_study'
+            'clear_test_study',
+            'view_preloaded_seq',
+            'clear_preloaded_seq'
         ]
         
         return context
@@ -188,7 +186,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         
         self.dev_service = DevService(self.request.user)
-        self.nlm_service = StudyTypeService(self.request.user, "NLM")
+        self.nlm_service = StudyTypeService("NLM", self.request.user)
         
         context["userstring"] = self.request.user
         context["is_superuser"] = self.request.user.is_staff
@@ -242,6 +240,22 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 self.dev_service.delete_hourly_task_by_id(hourly_task_id=hourly_task_id)
                 objlist = self.dev_service.get_all_hourly_tasks()
                 context["results"] = self.prettyprint(objlist)
+            elif dev_command == 'upload_level_csv':
+                nickname = request.POST['nickname']
+                if request.FILES['level_csv_file_form_control']:
+                    level_csv_file = request.FILES.get('level_csv_file_form_control')
+                    
+                    if (level_csv_file.multiple_chunks()):
+                        raise UnreadablePostError("too long")
+                    else:
+                        csv_file_content = level_csv_file.read().decode("utf-8-sig")
+                        lines = csv_file_content.split("\n")
+                        try:
+                            context["results"] = self.dev_service.upload_level_csv(level_csv_file.name, nickname, lines)
+                        except IntegrityError:
+                            context["results"] = "The nickname {} is already used.".format(nickname)
+                else:
+                    raise UnreadablePostError        
             elif dev_command == 'generic-command':
                 generic_command = request.POST['generic-command']
                 if generic_command == 'delete_all_hourly_tasks':
@@ -252,6 +266,8 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     context["results"] = log_service.dump(pretty=True)
                 elif generic_command == 'dump_log':
                     context["results"] = LogService.dump(pretty=True) 
+                elif generic_command == 'clear_log':
+                    context["results"] = LogService.clear_all() 
                 elif generic_command == 'view_crontabs':
                     crontabs = self.dev_service.get_all_crontabs()
                     context["results"] = self.prettyprint(crontabs)
@@ -273,6 +289,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     context["results"] = "\n".join(lines)
                 elif generic_command == 'clear_test_study':
                     objlist = self.dev_service.delete_test_study()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_preloaded_seq':
+                    lines = self.dev_service.view_preloaded_seq()
+                    context["results"] = "\n".join(lines)
+                elif generic_command == 'clear_preloaded_seq':
+                    objlist = self.dev_service.delete_preloaded_seq()
                     context["results"] = self.prettyprint(objlist)
                 else:
                     context["results"] = "Unsupported generic command: {}".format(generic_command)

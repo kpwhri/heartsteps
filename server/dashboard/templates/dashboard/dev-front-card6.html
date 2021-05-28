@@ -14,13 +14,6 @@
                     </div>
                 </li>
                 <li>
-                    <div class="form-row">
-                        <div class="col">
-                            The list of Participants in NLM-type study: {{ nlm_participant_text }}
-                        </div>
-                    </div>
-                </li>
-                <li>
                     <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form">
                         {% csrf_token %}
                         <input type="hidden" id="dev-command" value="assign-cohort-to-nlm" name="dev-command" />
@@ -38,6 +31,26 @@
                         <div class="form-row">
                             <div class="col">
                                 <button type="submit" class="btn btn-primary mb-2 m-1">Set</button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+                <li>
+                    <form action="{% url 'dashboard-dev-generic' %}" method="POST" role="form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" id="dev-command" value="upload_level_csv" name="dev-command" />
+                        <div class="form-row">
+                            <div class="col">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="level_csv_file_form_control">Example file input</label>
+                                        <input type="text" class="form-control" id="nickname" name="nickname" placeholder="nickname">
+                                        <input type="file" class="form-control-file" id="level_csv_file_form_control" name="level_csv_file_form_control">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary mb-2 m-1">Upload</button>
                             </div>
                         </div>
                     </form>

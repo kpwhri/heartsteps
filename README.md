@@ -146,7 +146,11 @@ $ docker-compose run --service-ports pooling-service-gcloud
 ```
 
 ## Deployment
-This application is automatically tested and deployed to the google cloud by Travis-CI. See .travis-ci.yml for details of the CI/CD process.
+There is a test deployment that is available at https://dev.heartsteps.net
+This application is automatically tested and deployed to the google cloud by Travis-CI. 
+.travis-ci.yml runs unit tests for the heartsteps-server then runs deploy-gcloud-dev.sh
+
+The deployment of this application is based on [Google Cloud's "Running Django on Google Kubernetes" documentation.](https://cloud.google.com/python/django/kubernetes-engine)
 
 Managing the heartsteps-server in deployment might require completing tasks like flushing the database, changing administration passwords, or other debugging tasks. **To run the *heartsteps-server* as if it was deployed to gcloud** and connected to the gcloud database, use the following command:
 ```

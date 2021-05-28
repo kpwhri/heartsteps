@@ -1,9 +1,7 @@
 version: '2'
 services:
     client:
-        build: 
-            context: ./
-            dockerfile: client.Dockerfile
+        build: ./client
         env_file:
           - credentials/.env-production
         command: npm run serve:app
@@ -22,15 +20,18 @@ services:
           - rabbitmq
           - server
     cloudsql:
-        image: gcr.io/cloudsql-docker/gce-proxy:1.11
-        command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-kpwhri:us-west1:heartsteps-kpw -credential_file=/credentials/google-service-account.json
+        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        command: /cloud_sql_proxy -dir=/cloudsql -instances=heartsteps-dev:us-central1:dev-database=tcp:0.0.0.0:5432 -credential_file=/credentials/gcloud-dev-service-account.json
+        ports:
+            - 5432:5432
         volumes:
-            - cloudsql:/cloudsql
             - ./credentials:/credentials
     nginx:
-        build: ./nginx
+        build: 
+            context: ./
+            dockerfile: gcloud-dev-nginx.Dockerfile
         volumes:
-            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./gcloud-dev-nginx.conf:/etc/nginx/nginx.conf
         ports:
             - "8000:8000"
         depends_on:
@@ -44,21 +45,20 @@ services:
             context: ./
             dockerfile: server.Dockerfile
         env_file:
-          - credentials/.env-production
+          - credentials/.env-gcloud-dev
         environment:
             - ALLOWED_HOSTS=localhost,server
             - DEBUG=True
-            - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw
+            - DATABASE_URL=psql://heartsteps:heartsteps@cloudsql:5432/heartsteps
         depends_on:
             - cloudsql
             - rabbitmq
         ports:
             - "8080:8080"
         volumes:
-            - ./server:/server-gcloud
+            - ./server:/server
             - ./credentials:/credentials
-            - cloudsql:/cloudsql
-        working_dir: /server-gcloud
+        working_dir: /server
 volumes: 
     cloudsql:
     client-platforms:
