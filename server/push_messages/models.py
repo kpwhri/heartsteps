@@ -33,6 +33,10 @@ class MessageReceiptQuerySet(LocalizeTimezoneQuerySet):
     _localize_datetimes = False
     _datetime_localized = False
 
+    def get_queryset(self):
+        return super().get_queryset() \
+        .prefetch_related('type')
+
     def _clone(self, *args, **kwargs):
         clone = super()._clone(*args, **kwargs)
         clone._localize_datetimes = self._localize_datetimes

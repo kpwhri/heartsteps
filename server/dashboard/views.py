@@ -19,8 +19,9 @@ from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage as PaginatorEmptyPage
 from django.core.paginator import PageNotAnInteger as PatinatorPageNotAnInteger
 import pytz
-from rest_framework import status
+from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from adherence_messages.models import AdherenceMetric
@@ -75,6 +76,7 @@ from .models import DashboardParticipant
 
 from .services import DevSendNotificationService
 from .services import DevService
+from .serializers import PushMessageSerializer
 
 class DevFrontView(UserPassesTestMixin, TemplateView):
     
@@ -1223,6 +1225,43 @@ class ParticipantNotificationsView(ParticipantView):
                 }
             )
         )
+
+class ParticipantNotificationEndpointView(APIView):
+    permissions_classes = (permissions.IsAuthenticated,)
+
+    def setup_participant(self, participant_id):
+        if participant_id is not None:
+            try:
+                participant = DashboardParticipant.objects.get(heartsteps_id=participant_id)
+                return participant
+            except Participant.DoesNotExist:
+                raise Http404('No matching participant')
+        else:
+            raise Http404('No participant')
+
+    def get_notifications(self, user, start, end):
+        if not user:
+            return []
+        notifications = PushMessage.objects.filter(
+            recipient = user,
+            message_type = PushMessage.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        ) \
+        .order_by('-created') \
+        .localize_datetimes() \
+        .all()
+        return notifications
+    
+    def get(self, request, cohort_id, participant_id):
+        # TODO: change to 24 hrs
+        start = timezone.now() - timedelta(days=2)
+        end = timezone.now()
+        participant = self.setup_participant(participant_id)
+
+        notifications = self.get_notifications(participant.user, start, end)
+        serialized = PushMessageSerializer(notifications)
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
 class ParticipantNotificationDetailView(ParticipantView):
 
