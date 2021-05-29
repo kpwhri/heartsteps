@@ -73,6 +73,9 @@ export class OnboardPage implements OnInit {
     public finish() {
         this.participantService.markOnboardComplete()
         .then(() => {
+            return this.participantService.markParticipantNotLoaded()
+        })
+        .then(() => {
             this.router.navigate(['/'])
         });
     }
