@@ -1,10 +1,10 @@
-import { Injectable } from "@angular/core";
-import { BrowserService } from "@infrastructure/browser.service";
-import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Platform } from "ionic-angular";
-import { ReplaySubject } from "rxjs";
-import { StorageService } from "@infrastructure/storage.service";
-import moment from "moment";
+import { Injectable } from '@angular/core';
+import { BrowserService } from '@infrastructure/browser.service';
+import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { Platform } from 'ionic-angular';
+import { ReplaySubject } from 'rxjs';
+import { StorageService } from '@infrastructure/storage.service';
+import moment from 'moment';
 
 const storageKey: string = 'fitbit-account-details'
 
@@ -19,14 +19,13 @@ export class FitbitAccount {
 @Injectable()
 export class FitbitService {
 
-    private redirectURL: string = '/';
+    private redirectURL: string;
     public account: ReplaySubject<FitbitAccount> = new ReplaySubject(1);
 
     constructor(
         private heartstepsServer: HeartstepsServer,
         private browser: BrowserService,
-        private storageService: StorageService,
-        private platform: Platform
+        private storageService: StorageService
     ) {}
 
     public setup(): Promise<void> {
@@ -43,42 +42,17 @@ export class FitbitService {
         this.redirectURL = url;
     }
 
-    public authorize():Promise<boolean> {
-        if (this.platform.is('cordova')) {
-            return this.openBrowser()
-            .then(() => {
-                return this.isAuthorized();
-            });
-        } else {
-            return this.redirectBrowser();
-        }
-    }
-
-    private getURL(): Promise<string> {
+    public startAuthorization():Promise<void> {
         return this.getAuthorizationToken()
         .then((token) => {
             return this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
-        })
-    }
-
-    private openBrowser(): Promise<void> {
-        return this.getURL()
+        }) 
         .then((url) => {
+            if(this.redirectURL) {
+                url += '?redirect=' + this.redirectURL;
+            }
             this.browser.open(url);
-            return undefined;
-        });
-    }
-
-    private redirectBrowser(): Promise<boolean> {
-        return this.getURL()
-        .then((url) => {
-            this.browser.open(url + '?redirect=' + this.redirectURL);
-            return new Promise<boolean>((resolve) => {
-                setTimeout(() => {
-                    resolve(true);
-                }, 2000);
-            });  
-        });
+        })
     }
 
     private getAuthorizationToken(): Promise<string> {
@@ -86,19 +60,6 @@ export class FitbitService {
         .then((response) => {
             return response.token;
         })
-    }
-
-    // tslint:disable-next-line:no-unused-variable
-    private waitForAuthorization(): Promise<boolean> {
-        return new Promise((resolve) => {
-            // tslint:disable-next-line:no-unused-variable
-            const interval = setInterval(() => {
-                this.updateAuthorization()
-                .then(() => {
-                    resolve(true);
-                });
-            }, 2000);
-        });
     }
 
     public updateAuthorization(): Promise<FitbitAccount> {

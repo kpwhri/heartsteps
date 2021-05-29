@@ -64,10 +64,7 @@ export class FitbitAuthorizePage implements OnInit{
 
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
-        return this.fitbitService.authorize()
-        .then(() => {
-            this.nextPage();            
-        })
+        return this.fitbitService.startAuthorization()
         .catch(() => {
             this.showAuthorizationError();
         })

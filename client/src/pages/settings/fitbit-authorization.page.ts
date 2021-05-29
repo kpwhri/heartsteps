@@ -37,7 +37,7 @@ export class FitbitAuthorizationPage {
 
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
-        return this.fitbitService.authorize()
+        return this.fitbitService.startAuthorization()
         .catch(() => {
             this.alertController.show('Authorization failed')
         })
