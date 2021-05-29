@@ -42,17 +42,6 @@ export class BrowserService {
         })
     }
 
-    public open_external(url: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            if (this.platform.is('ios') || this.platform.is('android')) {
-                window.open(url, '_system');
-            } else {
-                window.open(url, '_blank');
-            }
-            resolve(true);
-        })
-    }
-
     private checkSafariAvailable(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.safariViewController.isAvailable()
@@ -82,19 +71,7 @@ export class BrowserService {
             });
         });
     }
-
-    public openAndWait(url: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            const childWindow: Window = window.open(url);
-            const interval = setInterval(function() {
-                if(childWindow.closed) {
-                    resolve();
-                    clearInterval(interval);
-                }
-            }, 500);
-        });
-    }
-
+    
     private navigateTo(url: string) {
         window.location.assign(url);
     }

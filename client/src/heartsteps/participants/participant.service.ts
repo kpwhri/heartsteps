@@ -231,4 +231,8 @@ export class ParticipantService {
     private markParticipantLoaded(): Promise<void> {
         return this.storage.set('participant-loaded', true);
     }
+
+    public markParticipantNotLoaded(): Promise<void> {
+        return this.storage.remove('participant-loaded');
+    }
 }
