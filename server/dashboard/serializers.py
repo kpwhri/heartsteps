@@ -1,11 +1,11 @@
-from rest_framework import serializers
-from push_messages.models import Device, Message as PushMessage
+from rest_framework import serializers, generics
+from push_messages.models import Device, Message, MessageReceiptQuerySet
 
 class PushMessageSerializer(serializers.ModelSerializer):
     # actual_objs = serializers.SerializerMethodField()
 
     class Meta:
-        model = PushMessage
+        model = Message
         fields = ('__all__')
         # testing new git login
 
