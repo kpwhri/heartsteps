@@ -2,9 +2,6 @@ import { Injectable } from "@angular/core";
 import { Platform } from "ionic-angular";
 import { SafariViewController } from '@ionic-native/safari-view-controller';
 
-// tslint:disable-next-line:no-unused-variable
-declare var cordova;
-
 @Injectable()
 export class BrowserService {
 
@@ -59,17 +56,10 @@ export class BrowserService {
     }
 
     private openInSafari(url: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            this.safariViewController.show({
-                url: url
-            })
-            .subscribe((result) => {
-                console.log(result)
-                if(result.event === 'closed') {
-                    resolve();
-                }
-            });
+        this.safariViewController.show({
+            url: url
         });
+        return Promise.resolve(true);
     }
     
     private navigateTo(url: string) {
