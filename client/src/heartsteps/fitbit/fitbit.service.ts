@@ -111,9 +111,13 @@ export class FitbitService {
     }
 
     public isAuthorized(): Promise<boolean> {
-        return this.storageService.get(storageKey)
-        .then((fitbitId) => {
-            return Promise.resolve(true);
+        return this.getAccount()
+        .then((account) => {
+            if(account.isAuthorized) {
+                return Promise.resolve(true);
+            } else {
+                return Promise.reject('Not authorized');
+            }
         });
     }
 
