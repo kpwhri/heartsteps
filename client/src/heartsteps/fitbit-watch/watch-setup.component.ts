@@ -36,6 +36,7 @@ export class WatchSetupComponent {
     }
 
     public skip() {
+        console.log('skip me')
         this.saved.emit(true);
     }
 

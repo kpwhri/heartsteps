@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BrowserService } from '@infrastructure/browser.service';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
-import { Platform } from 'ionic-angular';
 import { ReplaySubject } from 'rxjs';
 import { StorageService } from '@infrastructure/storage.service';
 import moment from 'moment';
