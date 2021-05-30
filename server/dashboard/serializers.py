@@ -6,7 +6,7 @@ class PushMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ('__all__')
+        fields = ['recipient', 'content', 'title', 'body']
         # testing new git login
 
     # type = serializers.SlugRelatedField(
@@ -14,8 +14,8 @@ class PushMessageSerializer(serializers.ModelSerializer):
         # queryset = PushMessage.objects.filter(recipient=None).all()
     # )
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
         
 
     # def get_objs(actual_objs):

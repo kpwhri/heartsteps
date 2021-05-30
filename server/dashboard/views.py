@@ -1290,9 +1290,10 @@ class ParticipantNotificationEndpointView(APIView):
         # TODO: markdown version is currently 2.6.11, need 3+
         # https://stackoverflow.com/questions/57479412/attributeerror-at-ordereddict-object-has-no-attribute-register-in-django-r
         print('Markdown version:', markdown.version)
-        print(participant)
-        print(participant.user)
+        # print(participant)
+        # print(participant.user)
         print(notifications)
+        print(dir(notifications))
         print(serialized.data)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
