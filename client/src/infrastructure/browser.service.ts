@@ -1,25 +1,25 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { Platform } from "ionic-angular";
-import { SafariViewController } from '@ionic-native/safari-view-controller';
+
+declare var SafariViewController:any;
 
 @Injectable()
 export class BrowserService {
 
+    public opened:EventEmitter<void> = new EventEmitter();
+    public closed:EventEmitter<void> = new EventEmitter();
+
     constructor(
-        private platform: Platform,
-        private safariViewController: SafariViewController
+        private platform: Platform
     ) {}
 
     public open(url: string): Promise<boolean> {
         if (this.platform.is('cordova')) {
-            console.log('Browser Server', 'Is Cordova');
             return this.checkSafariAvailable()
             .then(() => {
-                console.log('Browser Server', 'Open is safari');
                 return this.openInSafari(url)
             })
             .catch(() => {
-                console.log('Browser Service', 'Did not ooen');
                 return Promise.reject("Opening browser not supported")
             })
         } else {
@@ -31,7 +31,7 @@ export class BrowserService {
     public close(): Promise<boolean> {
         return this.checkSafariAvailable()
         .then(() => {
-            this.safariViewController.hide();
+            SafariViewController.hide();
             return Promise.resolve(true);
         })
         .catch(() => {
@@ -39,25 +39,30 @@ export class BrowserService {
         })
     }
 
-    private checkSafariAvailable(): Promise<boolean> {
+    private checkSafariAvailable(): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.safariViewController.isAvailable()
-            .then((available) => {
+            SafariViewController.isAvailable((available) => {
                 if(available) {
-                    resolve(true);
+                    resolve();
                 } else {
-                    reject();
+                    reject('Safari not available');
                 }
             })
-            .catch(() => {
-                reject();
-            });
         });
     }
 
     private openInSafari(url: string): Promise<boolean> {
-        this.safariViewController.show({
+        SafariViewController.show({
             url: url
+        }, (result) => {
+            if (result.event == 'opened') {
+                this.opened.emit();
+            }
+            if (result.event === 'closed') {
+                this.closed.emit();
+            }
+        }, (error) => {
+            console.log('Safari error', error);
         });
         return Promise.resolve(true);
     }
