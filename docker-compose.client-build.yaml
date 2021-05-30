@@ -10,6 +10,22 @@ services:
       - client-platforms:/client/platforms
       - client-node-modules:/client/node_modules
       - client-gradle-cache:/root/.gradle/caches
+  client_android:
+    build:
+      context: ./
+      dockerfile: client-android.Dockerfile
+    env_file:
+      - credentials/.env-production
+    environment: 
+      - BUILD_PLATFORM=android
+      - BUILD_VERSION=2.2.4
+      - HEARTSTEPS_URL=https://heartsteps.net/api
+    volumes:
+      - ./client:/client
+      - ./credentials:/credentials
+      - client-platforms:/client/platforms
+      - client-node-modules:/client/node_modules
+      - client-gradle-cache:/root/.gradle/caches
 volumes:
   client-platforms:
   client-node-modules:
