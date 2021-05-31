@@ -1,77 +1,83 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { SettingsPage } from './settings-page';
-import { ContactPage } from './contact-page';
-import { ContactInformationModule } from '@heartsteps/contact-information/contact-information.module';
-import { PlacesPage } from './places-page';
-import { PlacesModule } from '@heartsteps/places/places.module';
-import { ReflectionTimePage } from './reflection-time-page';
-import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.module';
-import { SuggestionTimesPage } from './suggestion-times';
-import { WalkingSuggestionsModule } from '@heartsteps/walking-suggestions/walking-suggestions.module';
-import { GoalPage } from './goal.page';
-import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
-import { AntiSedentaryModule } from '@heartsteps/anti-sedentary/anti-sedentary.module';
-import { GenericMessagesModule } from '@heartsteps/generic-messages/generic-messages';
-import { BrowserModule } from '@angular/platform-browser';
-import { NotificationsPage } from './notifications.page';
-import { NotificationsModule } from '@heartsteps/notifications/notifications.module';
-import { SettingsComponent } from './settings.component';
-import { FitbitAuthorizationPage } from './fitbit-authorization.page';
-import { FitbitModule } from '@heartsteps/fitbit/fitbit.module';
-import { FitbitWatchPage } from './fitbit-watch.page';
-import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
-import { ActivitySurveysModule } from '@heartsteps/activity-surveys/activity-surveys.module';
-import { FitbitClockFacePinPage } from './fitbit-clock-face-pin.page';
-import { FormModule } from '@infrastructure/form/form.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { SettingsPage } from "./settings-page";
+import { ContactPage } from "./contact-page";
+import { ContactInformationModule } from "@heartsteps/contact-information/contact-information.module";
+import { PlacesPage } from "./places-page";
+import { PlacesModule } from "@heartsteps/places/places.module";
+import { ReflectionTimePage } from "./reflection-time-page";
+import { WeeklySurveyModule } from "@heartsteps/weekly-survey/weekly-survey.module";
+import { SuggestionTimesPage } from "./suggestion-times";
+import { WalkingSuggestionsModule } from "@heartsteps/walking-suggestions/walking-suggestions.module";
+import { GoalPage } from "./goal.page";
+import { HeartstepsComponentsModule } from "@infrastructure/components/components.module";
+import { AntiSedentaryModule } from "@heartsteps/anti-sedentary/anti-sedentary.module";
+import { GenericMessagesModule } from "@heartsteps/generic-messages/generic-messages";
+import { BrowserModule } from "@angular/platform-browser";
+import { NotificationsPage } from "./notifications.page";
+import { NotificationsModule } from "@heartsteps/notifications/notifications.module";
+import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
+import { SettingsComponent } from "./settings.component";
+import { FitbitAuthorizationPage } from "./fitbit-authorization.page";
+import { FitbitModule } from "@heartsteps/fitbit/fitbit.module";
+import { FitbitWatchPage } from "./fitbit-watch.page";
+import { FitbitWatchModule } from "@heartsteps/fitbit-watch/fitbit-watch.module";
+import { ActivitySurveysModule } from "@heartsteps/activity-surveys/activity-surveys.module";
+import { FitbitClockFacePinPage } from "./fitbit-clock-face-pin.page";
+import { FormModule } from "@infrastructure/form/form.module";
+import { ReactiveFormsModule } from "@angular/forms";
 
 const settingsRoutes: Routes = [
     {
-        path: 'settings/contact',
+        path: "settings/contact",
         component: ContactPage,
-        outlet: 'modal'
-    }, {
-        path: 'settings/places',
+        outlet: "modal",
+    },
+    {
+        path: "settings/places",
         component: PlacesPage,
-        outlet: 'modal'
-    }, {
-        path: 'settings/reflection-time',
+        outlet: "modal",
+    },
+    {
+        path: "settings/reflection-time",
         component: ReflectionTimePage,
-        outlet: 'modal'
-    }, {
-        path: 'settings/suggestion-times',
+        outlet: "modal",
+    },
+    {
+        path: "settings/suggestion-times",
         component: SuggestionTimesPage,
-        outlet: 'modal'
-    }, {
-        path: 'settings/weekly-goal',
+        outlet: "modal",
+    },
+    {
+        path: "settings/weekly-goal",
         component: GoalPage,
-        outlet: 'modal'
-    }, {
-        path: 'settings/notifications',
+        outlet: "modal",
+    },
+    {
+        path: "settings/notifications",
         component: NotificationsPage,
-        outlet: 'modal'
+        outlet: "modal",
     },
     {
-        path: 'settings/fitbit-authorization',
+        path: "settings/fitbit-authorization",
         component: FitbitAuthorizationPage,
-        outlet: 'modal'
+        outlet: "modal",
     },
     {
-        path: 'settings/fitbit-watch',
+        path: "settings/fitbit-watch",
         component: FitbitWatchPage,
-        outlet: 'modal'
+        outlet: "modal",
     },
     {
-        path: 'settings/fitbit-clock-face-pin',
+        path: "settings/fitbit-clock-face-pin",
         component: FitbitClockFacePinPage,
-        outlet: 'modal'
+        outlet: "modal",
     },
     {
-        path: 'settings',
-        component: SettingsPage
-    }
-]
+        path: "settings",
+        component: SettingsPage,
+    },
+];
 
 @NgModule({
     declarations: [
@@ -85,14 +91,10 @@ const settingsRoutes: Routes = [
         GoalPage,
         FitbitAuthorizationPage,
         FitbitWatchPage,
-        FitbitClockFacePinPage
+        FitbitClockFacePinPage,
     ],
-    entryComponents: [
-        SettingsPage
-    ],
-    exports: [
-        RouterModule
-    ],
+    entryComponents: [SettingsPage],
+    exports: [RouterModule],
     imports: [
         ActivitySurveysModule,
         AntiSedentaryModule,
@@ -108,7 +110,8 @@ const settingsRoutes: Routes = [
         WeeklySurveyModule,
         WalkingSuggestionsModule,
         NotificationsModule,
-        RouterModule.forChild(settingsRoutes)
+        NotificationCenterModule,
+        RouterModule.forChild(settingsRoutes),
     ],
 })
 export class SettingsModule {}
