@@ -1,14 +1,14 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { Message } from "@heartsteps/notifications/message.model";
-import { MessageService } from "@heartsteps/notifications/message.service";
+// import { Message } from "@heartsteps/notifications/message.model";
+// import { MessageService } from "@heartsteps/notifications/message.service";
 
 @Injectable()
 export class NotificationCenterService {
     constructor(
-        private heartstepsServer: HeartstepsServer,
-        private messageService: MessageService
-    ) {}
+        private heartstepsServer: HeartstepsServer
+    ) // private messageService: MessageService
+    {}
 
     public getRecentNotifications(): Promise<any> {
         // TODO: remove hardcoded url and use params in get() method
