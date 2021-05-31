@@ -71,11 +71,13 @@ export class OnboardPage implements OnInit {
     }
 
     public finish() {
+        console.log('Onboarding finished!')
         this.participantService.markOnboardComplete()
         .then(() => {
             return this.participantService.markParticipantNotLoaded()
         })
         .then(() => {
+            console.log('Onboarding done: Navigate to home')
             this.router.navigate(['/'])
         });
     }
