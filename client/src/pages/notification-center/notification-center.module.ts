@@ -1,13 +1,10 @@
-import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
-import { NotificationCenterPage } from './notification-center';
+import { NgModule } from "@angular/core";
+import { IonicPageModule } from "ionic-angular";
+import { NotificationCenterPage } from "./notification-center";
 
 @NgModule({
-  declarations: [
-    NotificationCenterPage,
-  ],
-  imports: [
-    IonicPageModule.forChild(NotificationCenterPage),
-  ],
+    declarations: [NotificationCenterPage],
+    imports: [IonicPageModule.forChild(NotificationCenterPage)],
+    exports: [NotificationCenterPage],
 })
 export class NotificationCenterPageModule {}

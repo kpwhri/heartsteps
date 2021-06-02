@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component } from "@angular/core";
+// import { IonicPage, NavController, NavParams } from 'ionic-angular';
 
 /**
  * Generated class for the NotificationCenterPage page.
@@ -8,18 +8,18 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
  * Ionic pages and navigation.
  */
 
-@IonicPage()
+// @IonicPage()
 @Component({
-  selector: 'page-notification-center',
-  templateUrl: 'notification-center.html',
+    selector: "page-notification-center",
+    templateUrl: "notification-center.html",
 })
 export class NotificationCenterPage {
+    //   constructor(public navCtrl: NavController, public navParams: NavParams) {
+    //   }
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+    constructor() {}
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad NotificationCenterPage');
-  }
-
+    //   ionViewDidLoad() {
+    //     console.log('ionViewDidLoad NotificationCenterPage');
+    //   }
 }
