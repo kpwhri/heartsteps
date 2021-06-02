@@ -44,5 +44,8 @@ class MessageReceiptSerializer(serializers.Serializer):
                 })
         return return_dict
 
-        
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['recipient', 'content', 'title', 'body']
 

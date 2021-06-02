@@ -1,9 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
+from datetime import timedelta
+from participants.models import Participant
+from django.http.response import Http404
 
+from dashboard.models import DashboardParticipant
 from .models import Message, Device, MessageReceipt
-from .serializers import DeviceSerializer, MessageReceiptSerializer
+from .serializers import DeviceSerializer, MessageReceiptSerializer, MessageSerializer
 
 from django.utils import timezone
 
@@ -102,3 +106,52 @@ class RecievedMessageView(APIView):
                         )
             return Response({}, status.HTTP_200_OK)
         return Response(serialized_receipts.errors, status.HTTP_400_BAD_REQUEST)
+
+class ParticipantNotificationEndpointView(APIView):
+    permissions_classes = (permissions.IsAuthenticated,)
+
+    def setup_participant(self, participant_id):
+        if participant_id is not None:
+            try:
+                participant = DashboardParticipant.objects.get(heartsteps_id=participant_id)
+                return participant
+            except Participant.DoesNotExist:
+                raise Http404('No matching participant')
+        else:
+            raise Http404('No participant')
+
+    def get_notifications(self, user, start, end):
+        if not user:
+            return []
+        notifications = Message.objects.filter(
+            recipient = user,
+            message_type = Message.NOTIFICATION,
+            created__gte = start,
+            created__lte = end
+        ) \
+        .order_by('-created') \
+        .localize_datetimes() \
+        .all()
+        return notifications
+    
+    def get(self, request, cohort_id, participant_id):
+        # TODO: change to 24 hrs
+        start = timezone.now() - timedelta(days=2)
+        end = timezone.now()
+        participant = self.setup_participant(participant_id)
+
+        notifications = self.get_notifications(participant.user, start, end)
+        serialized = MessageSerializer(notifications, many=True)
+        # TODO: delete print debugging statements
+        print(dir(request))
+        print(request.user)
+        print(participant)
+        print(dir(participant))
+        print(participant.pk)
+        print(participant.user_id)
+        print(participant.heartsteps_id)
+        # print(notifications)
+        # print(dir(notifications))
+        # print(serialized.data)
+        # TODO: shouldn't always return 200 status, add a 404 case
+        return Response(serialized.data, status=status.HTTP_200_OK)

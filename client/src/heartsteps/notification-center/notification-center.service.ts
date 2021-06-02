@@ -11,7 +11,7 @@ export class NotificationCenterService {
 
     public getRecentNotifications(): Promise<any> {
         // TODO: remove hardcoded url and use params in get() method
-        return this.heartstepsServer.get("/1/test/notifications_api", {});
+        return this.heartstepsServer.get("/notification_center/1/test/", {});
     }
 
     // public getRecentNotifications(): Promise<any> {

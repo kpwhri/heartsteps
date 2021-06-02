@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
-from .views import DevFrontView, ParticipantNotificationEndpointView
+from .views import DevFrontView
 from .views import DevGenericView
 
 from .views import CohortListView
@@ -60,7 +60,6 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence-messages', ParticipantToggleAdherenceMessagesView.as_view(), name='dashboard-cohort-participant-adherence-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/adherence', ParticipantAdherenceView.as_view(), name='dashboard-cohort-participant-adherence'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/intervention-summary', ParticipantInterventionSummaryView.as_view(), name='dashboard-cohort-participant-intervention-summary'),
-    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications_api', ParticipantNotificationEndpointView.as_view(), name='dashboard-cohort-participant-notification-endpoint'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications/(?P<notification_id>[\d\w\-]+)', ParticipantNotificationDetailView.as_view(), name='dashboard-cohort-participant-notification-detail'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/notifications', ParticipantNotificationsView.as_view(), name='dashboard-cohort-participant-notifications'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/messages', ParticipantSMSMessagesView.as_view(), name='dashboard-cohort-participant-sms-messages'),
