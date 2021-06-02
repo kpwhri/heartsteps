@@ -22,8 +22,6 @@ export class NotificationCenterPage implements OnInit {
     // TODO: change type from any
     // TODO: make private if possible
     public notifications: any = "default notification filler";
-    public jsonObject: any = "default";
-    public test: string = "";
 
     constructor(private notificationService: NotificationCenterService) {}
 
@@ -35,13 +33,12 @@ export class NotificationCenterPage implements OnInit {
         return this.notificationService
             .getRecentNotifications()
             .then((notifications) => {
-                this.test = "test123";
                 let stringJSON = JSON.stringify(notifications);
                 // this.notifications = JSON.parse(stringJSON);
                 // TODO: where is console.log going?
                 // TODO: How do I debug effectively here?
-                this.jsonObject = JSON.parse(stringJSON);
-                this.notifications = <Notification[]>this.jsonObject;
+                let jsonObject = JSON.parse(stringJSON);
+                this.notifications = <Notification[]>jsonObject;
                 console.log(notifications);
             });
     }

@@ -1284,13 +1284,17 @@ class ParticipantNotificationEndpointView(APIView):
         notifications = self.get_notifications(participant.user, start, end)
         serialized = PushMessageSerializer(notifications, many=True)
         # TODO: delete print debugging statements
-        # print(dir(request))
-        # print(request.user)
-        # print(participant)
-        # print(participant.user)
+        print(dir(request))
+        print(request.user)
+        print(participant)
+        print(dir(participant))
+        print(participant.pk)
+        print(participant.user_id)
+        print(participant.heartsteps_id)
         # print(notifications)
         # print(dir(notifications))
         # print(serialized.data)
+        # TODO: shouldn't always return 200 status, add a 404 case
         return Response(serialized.data, status=status.HTTP_200_OK)
 
 class ParticipantNotificationDetailView(ParticipantView):
