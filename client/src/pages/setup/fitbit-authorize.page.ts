@@ -55,7 +55,7 @@ export class FitbitAuthorizePage implements OnInit{
             this.nextPage();
         })
         .catch(() => {
-            this.alertController.show('Unauthroized');
+            this.alertController.show('Your Fitbit account is not authorized. Please connect to Fitbit');
         })
         .then(() => {
             this.loadingService.dismiss();

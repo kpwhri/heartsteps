@@ -36,7 +36,7 @@ export class FitbitAuthPage {
             this.nextPage();
         })
         .catch(() => {
-            this.alertController.show('Unauthroized');
+            this.alertController.show('Your fitbit account is unauthorized. Connect to Fitbit to continue.');
         })
         .then(() => {
             this.loadingService.dismiss();

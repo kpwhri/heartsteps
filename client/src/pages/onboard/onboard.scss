@@ -5,4 +5,34 @@ pages-onboarding {
     > * {
         flex-grow: 1;
     }
+
+    heartsteps-stepper .content {
+        display: flex;
+        flex-direction: column;
+
+        > * {
+            flex: 1 0 auto;
+        }
+
+        > *:first-child {
+            display: none;
+        }
+    }
+
+    > heartsteps-stepper > .content > heartsteps-fitbit-auth {
+        display: flex;
+        flex-direction: column;
+        
+        > * {
+            flex: 0 0 auto;
+        }
+
+        > nav:last-child {
+            flex: 1 0 auto;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+    }
 }
