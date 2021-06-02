@@ -15,3 +15,13 @@
 <h1>Hello Test</h1>
 <h3>My Notifications: {{ notifications }} DONE</h3>
 <h3>Test Var: {{ test }} DONE</h3>
+<h3>JsonObject: {{ jsonObject }}</h3>
+
+<table>
+    <tr *ngFor="let notification of notifications">
+        <td>{{ notification.recipient }}</td>
+        <td>{{ notification.content }}</td>
+        <td>{{ notification.title }}</td>
+        <td>{{ notification.body }}</td>
+    </tr>
+</table>
