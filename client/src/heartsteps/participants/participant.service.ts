@@ -12,6 +12,7 @@ export class Participant{
     isBaselineComplete: boolean;
     name: string;
     staff: boolean;
+    participantTags: string[];
 }
 
 const storageKey = 'heartsteps-id'
@@ -73,7 +74,8 @@ export class ParticipantService {
             this.getName(),
             this.participantInformationService.getDateEnrolled(),
             this.getBaselineComplete(),
-            this.getParticipantLoaded()
+            this.getParticipantLoaded(),
+            this.getParticipantTags()
         ])
         .then((results) => {
             const participant = new Participant();
@@ -83,6 +85,8 @@ export class ParticipantService {
             participant.dateEnrolled = results[3];
             participant.isBaselineComplete = results[4];
             participant.isLoaded = results[5];
+            participant.participantTags = results[6];
+            // participant.participantTags = ["NLM", "TEST"];
             return participant
         });
     }
@@ -234,5 +238,16 @@ export class ParticipantService {
 
     public markParticipantNotLoaded(): Promise<void> {
         return this.storage.remove('participant-loaded');
+    }
+
+    private getParticipantTags(): Promise<string[]> {
+        return this.participantInformationService.getParticipantTags()
+        .then((participantTags:string[]) => {
+            return Promise.resolve(participantTags);
+        })
+        .catch(() => {
+            return Promise.resolve([]);
+        })
+
     }
 }

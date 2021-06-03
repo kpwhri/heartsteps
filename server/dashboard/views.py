@@ -64,6 +64,7 @@ from walking_suggestion_surveys.models import Decision as WalkingSuggestionSurve
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
 from nlm.services import StudyTypeService, LogService
+from nlm.models import CohortAssignment
 
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
@@ -143,7 +144,8 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             'view_test_study',
             'clear_test_study',
             'view_preloaded_seq',
-            'clear_preloaded_seq'
+            'clear_preloaded_seq',
+            'view_cohort_assignment'
         ]
         
         return context
@@ -294,6 +296,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     context["results"] = "\n".join(lines)
                 elif generic_command == 'clear_preloaded_seq':
                     objlist = self.dev_service.delete_preloaded_seq()
+                    context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_cohort_assignment':
+                    objlist = self.dev_service.view_generic_model([CohortAssignment])
                     context["results"] = self.prettyprint(objlist)
                 else:
                     context["results"] = "Unsupported generic command: {}".format(generic_command)
@@ -1546,6 +1551,18 @@ class ParticipantSendTestWalkingSuggestionSurvey(ParticipantView):
                 messages.add_message(request, messages.ERROR, 'Walking suggestion configuration does not exist')    
         else:
             messages.add_message(request, messages.ERROR, 'Not enabled')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+class CohortAddStudyTypeView(CohortView):
+
+    template_name = 'dashboard/cohort-add-studytype.html'
+    
+    def post(self, request, *args, **kwargs):
+        if self.cohort.id:
+            study_type_service = StudyTypeService("NLM", user=request.user)
+            study_type_service.assign_cohort(self.cohort)
+            messages.add_message(request, messages.SUCCESS, 'cohort is flagged as "NLM" cohort: cohort_id={}, cohort_name={}'.format(self.cohort.id, self.cohort.name))
+            
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 class CohortWalkingSuggestionSurveyView(CohortView):

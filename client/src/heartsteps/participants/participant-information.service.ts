@@ -19,13 +19,14 @@ export class ParticipantInformationService {
 
     public load(): Promise<boolean> {
         return this.heartstepsServer.get('information')
-        .then((data) => {
+            .then((data) => {
             return Promise.all([
                 this.setDateEnrolled(data['date_enrolled']),
                 this.setStaff(data['staff']),
                 this.setBaselinePeriod(data['baselinePeriod']),
                 this.setStudyContactInformation(data['studyContactName'], data['studyContactNumber']),
-                this.setBaselineComplete(data['baselineComplete'])
+                this.setBaselineComplete(data['baselineComplete']),
+                this.setParticipantTags(data['participantTags'])
             ])
         })
         .then(() => {
@@ -134,5 +135,17 @@ export class ParticipantInformationService {
             return false;
         });
     }
+    private setParticipantTags(participantTags: string[]): Promise<boolean> {
+        return this.storage.set('participantTags', participantTags)
+        .then(() => {
+            return true;
+        });
+    }
 
+    public getParticipantTags():Promise<string[]> {
+        return this.load()
+                .then(() => {
+                    return this.storage.get('participantTags');
+                })       
+    }
 }

@@ -652,8 +652,11 @@ class DevService:
     def view_modelclass(self, lines, modelclass, filter_dict, limit=None):
         modelname = modelclass.__name__
         success = True
+        more_to_come = False
         try:
             if limit:
+                if modelclass.objects.filter(**filter_dict).all().count() > limit:
+                    more_to_come = True
                 itemlist = modelclass.objects.filter(**filter_dict).all()[:limit]
             else:    
                 itemlist = modelclass.objects.filter(**filter_dict).all()
@@ -666,7 +669,7 @@ class DevService:
         except:
             lines.append("no {} found".format(modelname))
             success = False
-        if success and not limit is None:
+        if success and not limit is None and more_to_come == True:
             lines.append("  ... more to come")
             
         return itemlist, success
@@ -725,4 +728,12 @@ class DevService:
     def check_if_assigned(self, username):
         thisuser = User.objects.get(username==username)
         
+    def view_generic_model(self, model_list):
+        lines = []
         
+        for a_model in model_list:
+            self.view_modelclass(lines, 
+                                a_model, {
+            }, limit=30)
+            
+        return lines

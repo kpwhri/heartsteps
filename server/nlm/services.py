@@ -151,7 +151,7 @@ class StudyTypeService:
             Returns:
                 QuerySet: all instances of the cohort assignment (nlm.models.CohortAssignment)
             """        
-            result = CohortAssignment.objects.create(cohort=cohort, studytype=study_type)
+            result, _ = CohortAssignment.objects.get_or_create(cohort=cohort, studytype=study_type)
             return result
         
         def get_cohort_assignment(self, cohort):
@@ -526,3 +526,6 @@ class StudyTypeService:
     
     def delete_level_csv(self, nickname):
         PreloadedLevelSequenceFile.objects.filter(user=self.user, nickname=nickname).all().delete()
+        
+    def is_cohort_assigned(self, cohort):
+        return CohortAssignment.objects.filter(studytype=self.study_type, cohort=cohort).exists()

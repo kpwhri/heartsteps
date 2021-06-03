@@ -34,4 +34,8 @@ export class StorageService {
     public clear():Promise<any> {
         return this.storage.clear();
     }
+
+    public keys(): Promise<string[]> {
+        return this.storage.keys();
+    }
 }

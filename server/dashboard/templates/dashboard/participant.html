@@ -165,4 +165,12 @@
     <input type="submit" value="Send Walking Suggestion Survey" />
 </form>
 
+<form action="{% url 'dashboard-cohort-add-studytype' cohort.id %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="message" value="Hi, this is a test message." />
+    <input type="hidden" name="module" value="generic_messages" />
+    <input type="submit" value="Flag this participant's cohort as NLM" />
+</form>
+
+
 {% endblock %}

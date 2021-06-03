@@ -28,6 +28,7 @@ declare var process: {
 export class SettingsPage {
 
     public staffParticipant: boolean = false;
+    public participantTags: string[] = [];
     public buildVersion: string = process.env.BUILD_VERSION;
     public buildDate: string = process.env.BUILD_DATE;
 
@@ -52,6 +53,7 @@ export class SettingsPage {
         .first()
         .subscribe((participant) => {
             this.staffParticipant = participant.staff;
+            this.participantTags = participant.participantTags;
         })
     }
 

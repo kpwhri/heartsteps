@@ -25,6 +25,8 @@ from walking_suggestions.services import WalkingSuggestionService
 from walking_suggestions.tasks import nightly_update as walking_suggestions_nightly_update
 from weather.services import WeatherService
 
+from nlm.services import StudyTypeService
+
 from .models import Participant, User
 from .models import NightlyUpdateRecord
 
@@ -75,6 +77,20 @@ class ParticipantService:
             return study.baseline_period
         else:
             return 0
+
+    def get_participantTags(self):
+        tag_list = []
+        # TODO: Implement Participant Tags
+
+        # For NLM        
+        study_type_service = StudyTypeService("NLM", user=self.user)
+        if study_type_service.is_cohort_assigned(self.participant.cohort):
+            tag_list.append("NLM")
+        
+        # TODO: Add more tags if necessary
+        
+        
+        return tag_list
 
     def get_participant(token, birth_year):
         try:

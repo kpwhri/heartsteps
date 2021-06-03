@@ -5,6 +5,7 @@ from .views import DevFrontView
 from .views import DevGenericView
 
 from .views import CohortListView
+from .views import CohortAddStudyTypeView
 from .views import BurstPeriodSummaryView
 from .views import DashboardListView
 from .views import InterventionSummaryView
@@ -68,6 +69,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/export', ParticipantExportView.as_view(), name='dashboard-cohort-participant-export'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/send-walking-suggestion-survey', ParticipantSendTestWalkingSuggestionSurvey.as_view(), name='dashboard-cohort-participant-send-walking-suggestion-survey'),
+    url('(?P<cohort_id>[\d]+)/add-studytype', CohortAddStudyTypeView.as_view(), name='dashboard-cohort-add-studytype'),
     url('(?P<cohort_id>[\d]+)/walking-suggestion-surveys/(?P<start>[\d\w\-]+)/(?P<end>[\d\w\-]+)', CohortWalkingSuggestionSurveyView.as_view()),
     url('(?P<cohort_id>[\d]+)/walking-suggestion-surveys', CohortWalkingSuggestionSurveyView.as_view(), name='dashboard-cohort-walking-suggestion-surveys'),
     url('(?P<cohort_id>[\d]+)/morning-messages', CohortMorningMessagesView.as_view(), name='dashboard-cohort-morning-messages'),
