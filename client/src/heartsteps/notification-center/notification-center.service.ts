@@ -9,9 +9,15 @@ export class NotificationCenterService {
         private heartstepsServer: HeartstepsServer // private messageService: MessageService
     ) {}
 
-    public getRecentNotifications(): Promise<any> {
-        // TODO: remove hardcoded url and use params in get() method
-        return this.heartstepsServer.get("/notification_center/1/test/", {});
+    public getRecentNotifications(
+        cohortId: number,
+        userId: string
+    ): Promise<any> {
+        // TODO: is this the best way to do this? is it safe?
+        return this.heartstepsServer.get(
+            `/notification_center/${cohortId}/${userId}/`,
+            {}
+        );
     }
 
     // public getRecentNotifications(): Promise<any> {

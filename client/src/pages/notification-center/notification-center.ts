@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { Notification } from "@pages/notification-center/Notification";
-// import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams } from "ionic-angular";
 
 /**
  * Generated class for the NotificationCenterPage page.
@@ -10,7 +10,7 @@ import { Notification } from "@pages/notification-center/Notification";
  * Ionic pages and navigation.
  */
 
-// @IonicPage()
+@IonicPage()
 @Component({
     selector: "page-notification-center",
     templateUrl: "notification-center.html",
@@ -19,19 +19,22 @@ export class NotificationCenterPage implements OnInit {
     //   constructor(public navCtrl: NavController, public navParams: NavParams) {
     //   }
 
-    // TODO: change type from any
-    // TODO: make private if possible
-    public notifications: any = "default notification filler";
+    public notifications: Notification[] = [];
+    // TODO: remove hardocode pass these in as @Input()
+    private cohortId: number = 1;
+    private userId: string = "test";
 
-    constructor(private notificationService: NotificationCenterService) {}
+    constructor(private notificationService: NotificationCenterService) {
+        this.notifications;
+    }
 
-    //   ionViewDidLoad() {
-    //     console.log('ionViewDidLoad NotificationCenterPage');
-    //   }
+    ionViewDidLoad() {
+        console.log("ionViewDidLoad NotificationCenterPage");
+    }
 
-    public getNotifications() {
+    private getNotifications() {
         return this.notificationService
-            .getRecentNotifications()
+            .getRecentNotifications(this.cohortId, this.userId)
             .then((notifications) => {
                 let stringJSON = JSON.stringify(notifications);
                 // this.notifications = JSON.parse(stringJSON);
