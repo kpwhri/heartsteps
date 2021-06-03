@@ -205,3 +205,29 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         study_type_service.assign_level_sequence(self.participant, "sample_csv")
         
         self.assertTrue(study_type_service.is_level_sequence_assigned(self.participant))
+        
+        
+        study_type_service.delete_level_csv("sample_csv")
+
+    def test_fetch_todays_level(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        self.assertFalse(study_type_service.is_level_sequence_assigned(self.participant))
+        
+        sample_sequence = [str(StudyTypeService.LEVEL1)] * 5
+        sample_sequence_str = ",".join(sample_sequence)
+        sample_csv = [sample_sequence_str] * 3
+        
+        # sample_csv = ['"1","1","1","1","1"',
+        #               '"1","1","1","1","1"',
+        #               '"1","1","1","1","1"'
+        #               ]
+        
+        study_type_service.upload_level_csv("sample.csv", "sample_csv", sample_csv)
+        study_type_service.assign_level_sequence(self.participant, "sample_csv")
+        
+        self.assertTrue(study_type_service.is_level_sequence_assigned(self.participant))
+        
+        self.assertEqual(StudyTypeService.LEVEL1, study_type_service.fetch_todays_level(self.participant))
+        
+        study_type_service.delete_level_csv("sample_csv")

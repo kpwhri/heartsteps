@@ -302,7 +302,12 @@ class StudyTypeService:
         return next_available_sequence
     
     def fetch_todays_level(self, participant):
-        return StudyTypeService.LEVEL5
+        # TODO: consider user's timezone
+        today_date = datetime.now().date()
+        
+        todays_level = LevelAssignment.objects.get(participant=participant, date=today_date)
+        
+        return todays_level.level
     
     def is_decision_needed(self, participant):
         return True
