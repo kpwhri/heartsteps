@@ -84,6 +84,18 @@ class PreloadedLevelSequenceLevel(models.Model):
     day_serial_number = models.IntegerField(null=False)
     level = models.IntegerField(null=False)
 
+class LevelLineAssignment(models.Model):
+    study_type = models.ForeignKey(StudyType, null=False, on_delete = models.CASCADE)
+    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    preloaded_sequence_line = models.ForeignKey(PreloadedLevelSequenceLine, null=True, on_delete=models.CASCADE)
+    when_assigned = models.DateTimeField(auto_now_add=True)
+    
+class LevelAssignment(models.Model):
+    line_assignment = models.ForeignKey(LevelLineAssignment, on_delete = models.CASCADE, null=False)
+    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    date = models.DateField(null=False)
+    level = models.IntegerField(null=False)
+
 class Conditionality(models.Model):
     """Base Class for all conditionalities"""
     name = models.CharField(max_length=255)

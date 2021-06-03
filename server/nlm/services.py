@@ -2,7 +2,10 @@ from participants.models import Cohort, Participant
 from django.db import models
 
 from django.contrib.auth.models import User
-from .models import StudyType, CohortAssignment, Conditionality, LogSubject, LogObject, LogPurpose, LogContents, ConditionalityParameter, PreloadedLevelSequenceFile
+from .models import StudyType, CohortAssignment, Conditionality, ConditionalityParameter
+from .models import LogSubject, LogObject, LogPurpose, LogContents
+from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
+from .models import LevelLineAssignment, LevelAssignment
 from generic_messages.services import GenericMessagesService
 
 class LogService:
@@ -255,7 +258,10 @@ class StudyTypeService:
     
     # TODO: fill up with real logics
     def is_level_sequence_assigned(self, participant):
-        return True
+        return LevelLineAssignment.objects.filter(
+            study_type=self.study_type,
+            participant=participant
+        ).exists()
     
     def assign_level_sequence(self, participant):
         return True

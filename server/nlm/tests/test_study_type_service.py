@@ -131,3 +131,13 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     def test_handle_conditionality(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         nlm_base_hourly_task({})
+    
+    def test_check_sequence_assignment_1(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        study_type_service.is_level_sequence_assigned(self.participant)
+    
+    def test_check_sequence_assignment_2(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        self.assertFalse(study_type_service.is_level_sequence_assigned(self.participant))
