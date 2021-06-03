@@ -12,7 +12,9 @@ from participants.models import Study, Cohort
 
 from heartsteps.tests import HeartStepsTestCase
 from nlm.models import StudyType
+from nlm.models import PreloadedLevelSequenceFile
 from nlm.services import StudyTypeService, LogService
+from dashboard.services import DevService
 from nlm.programlets import ProgramletParameters
 from nlm.tasks import nlm_base_hourly_task
 
@@ -131,7 +133,50 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     def test_handle_conditionality(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         nlm_base_hourly_task({})
+        
+    def test_create_preloaded_level_sequence_file(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        sample_sequence = ["1"] * 5
+        sample_sequence_str = ",".join(sample_sequence)
+        sample_csv = [sample_sequence_str] * 3
+        
+        # print(sample_csv)
+        
+        
+        study_type_service.upload_level_csv("sample.csv", "sample_csv", sample_csv)
+        # dev_service = DevService(self.user)
+        # print(dev_service.view_preloaded_seq())
+        study_type_service.delete_level_csv("sample_csv")
     
+    
+    def test_assign_level_sequence_1(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        self.assertRaises(AssertionError, study_type_service.assign_level_sequence, self.participant, None)
+    
+    def test_assign_level_sequence_2(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        self.assertRaises(PreloadedLevelSequenceFile.DoesNotExist, study_type_service.assign_level_sequence, self.participant, "sample_seq")
+    
+    def test_assign_level_sequence_3(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        sample_sequence = ["1"] * 5
+        sample_sequence_str = ",".join(sample_sequence)
+        sample_csv = [sample_sequence_str] * 3
+        
+        # sample_csv = ['"1","1","1","1","1"',
+        #               '"1","1","1","1","1"',
+        #               '"1","1","1","1","1"'
+        #               ]
+        
+        study_type_service.upload_level_csv("sample.csv", "sample_csv", sample_csv)
+        study_type_service.assign_level_sequence(self.participant, "sample_csv")
+        
+        study_type_service.delete_level_csv("sample_csv")
+        
     def test_check_sequence_assignment_1(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         
@@ -141,3 +186,22 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         
         self.assertFalse(study_type_service.is_level_sequence_assigned(self.participant))
+        
+    def test_check_sequence_assignment_3(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        self.assertFalse(study_type_service.is_level_sequence_assigned(self.participant))
+        
+        sample_sequence = ["1"] * 5
+        sample_sequence_str = ",".join(sample_sequence)
+        sample_csv = [sample_sequence_str] * 3
+        
+        # sample_csv = ['"1","1","1","1","1"',
+        #               '"1","1","1","1","1"',
+        #               '"1","1","1","1","1"'
+        #               ]
+        
+        study_type_service.upload_level_csv("sample.csv", "sample_csv", sample_csv)
+        study_type_service.assign_level_sequence(self.participant, "sample_csv")
+        
+        self.assertTrue(study_type_service.is_level_sequence_assigned(self.participant))

@@ -8,6 +8,8 @@ from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, Prel
 from .models import LevelLineAssignment, LevelAssignment
 from generic_messages.services import GenericMessagesService
 
+from datetime import datetime, timedelta
+
 class LogService:
     def __init__(self, subject_name='Unknown'):
         self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
@@ -263,8 +265,41 @@ class StudyTypeService:
             participant=participant
         ).exists()
     
-    def assign_level_sequence(self, participant):
-        return True
+    def assign_level_sequence(self, participant, file_nickname):
+        assert file_nickname is not None, "File nickname is required"
+        
+        sequence_file = PreloadedLevelSequenceFile.objects.get(
+            nickname=file_nickname,
+            user__in=self.study_type.admins.all(),
+        )
+        
+        next_available_sequence = PreloadedLevelSequenceLine.objects.filter(
+            sequence_file=sequence_file,
+            is_used=False
+        ).order_by("sequence_serial_number").first()
+        
+        # TODO: convert to considering user's timezone
+        today_date = datetime.now().date()
+        
+        # record the assignment
+        line_assignment = LevelLineAssignment.objects.create(
+            study_type=self.study_type,
+            participant=participant,
+            preloaded_sequence_line=next_available_sequence
+        )
+        
+        preloaded_levels = PreloadedLevelSequenceLevel.objects.filter(sequence_line=next_available_sequence).order_by("day_serial_number").all()
+        
+        for a_preloaded_level in preloaded_levels:
+            the_day = today_date + timedelta(days=a_preloaded_level.day_serial_number)
+            LevelAssignment.objects.create(
+                line_assignment=line_assignment,
+                participant=participant,
+                date=the_day,
+                level=a_preloaded_level.level
+            )
+            
+        return next_available_sequence
     
     def fetch_todays_level(self, participant):
         return StudyTypeService.LEVEL5
@@ -298,7 +333,7 @@ class StudyTypeService:
         if self.is_level_sequence_assigned(participant):
             self.log_service.info("level sequence assignment checked", participant)
         else:
-            level_sequence_id = self.assign_level_sequence(participant)
+            level_sequence_id = self.assign_level_sequence(participant, "NLM sequence")
             self.log_service.info("new level sequence is assigned: {}".format(level_sequence_id), participant)
         
         # fetch level assignments
@@ -485,3 +520,9 @@ class StudyTypeService:
     
     def get_conditionality_parameters(self, conditionality):
         return self.dsg.get_conditionality_parameters(conditionality)
+    
+    def upload_level_csv(self, filename, nickname, lines):
+        return PreloadedLevelSequenceFile.insert(self.user, filename, nickname, lines)
+    
+    def delete_level_csv(self, nickname):
+        PreloadedLevelSequenceFile.objects.filter(user=self.user, nickname=nickname).all().delete()

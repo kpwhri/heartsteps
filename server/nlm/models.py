@@ -90,11 +90,17 @@ class LevelLineAssignment(models.Model):
     preloaded_sequence_line = models.ForeignKey(PreloadedLevelSequenceLine, null=True, on_delete=models.CASCADE)
     when_assigned = models.DateTimeField(auto_now_add=True)
     
+    def __str__(self):
+        return 'study_type: {}, participant: {}, preloaded_line: {}, when: {}'.format(self.study_type, self.participant, self.preloaded_sequence_line, self.when_assigned)
+    
 class LevelAssignment(models.Model):
     line_assignment = models.ForeignKey(LevelLineAssignment, on_delete = models.CASCADE, null=False)
     participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
     date = models.DateField(null=False)
     level = models.IntegerField(null=False)
+    
+    def __str__(self):
+        return 'line_assignment: {}, participant: {}, date: {}, level: {}'.format(self.line_assignment, self.participant, self.date, self.level)
 
 class Conditionality(models.Model):
     """Base Class for all conditionalities"""

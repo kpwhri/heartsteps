@@ -14,7 +14,7 @@ from hourly_tasks.models import HourlyTask
 import random
 import datetime
 
-from nlm.models import StudyType, CohortAssignment, PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
+from nlm.models import StudyType, CohortAssignment, PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel, LevelLineAssignment, LevelAssignment
 import pprint
 import uuid
 
@@ -681,8 +681,6 @@ class DevService:
         User.objects.filter(username__startswith='nlm_test_user_').delete()
         # Participant will be deleted by cascading
     
-    def upload_level_csv(self, filename, nickname, lines):
-        return PreloadedLevelSequenceFile.insert(self.user, filename, nickname, lines)
     
     def view_preloaded_seq(self):
         lines = []
@@ -706,5 +704,25 @@ class DevService:
         
         return lines
     
+    def view_levels(self):
+        lines = []
+        
+        # LevelLineAssignment
+        self.view_modelclass(lines, 
+                            LevelLineAssignment, {
+        })
+        
+        # PreloadedLevelSequenceLine
+        self.view_modelclass(lines, 
+                            LevelAssignment, {
+        }, limit=30)
+        
+        return lines
+    
     def delete_preloaded_seq(self):
         PreloadedLevelSequenceFile.objects.all().delete()
+        
+    def check_if_assigned(self, username):
+        thisuser = User.objects.get(username==username)
+        
+        

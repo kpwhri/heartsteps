@@ -250,7 +250,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                         csv_file_content = level_csv_file.read().decode("utf-8-sig")
                         lines = csv_file_content.split("\n")
                         try:
-                            context["results"] = self.dev_service.upload_level_csv(level_csv_file.name, nickname, lines)
+                            context["results"] = self.nlm_service.upload_level_csv(level_csv_file.name, nickname, lines)
                         except IntegrityError:
                             context["results"] = "The nickname {} is already used.".format(nickname)
                 else:
