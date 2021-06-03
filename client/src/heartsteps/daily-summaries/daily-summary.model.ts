@@ -12,6 +12,9 @@ export class DailySummary {
 
     public steps: number = 0;
     public miles: number = 0;
+    public dailyStepGoal: number = 8000;
+    public dailyStepDiff: number = 8000;
+    public dailyStepMsg: string = "Steps to Go";
 
     public activitiesCompleted: number = 0;
 

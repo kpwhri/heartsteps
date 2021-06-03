@@ -17,6 +17,9 @@ export class DailySummaryComponent implements OnDestroy {
     public moderateMinutes: number = 0;
     public steps: number = 0;
     public miles: number = 0;
+    public dailyStepGoal: number = 8000;
+    public dailyStepDiff: number = 8000;
+    public dailyStepMsg: string = "Steps to Go";
 
     private summary: DailySummary;
 
@@ -54,6 +57,15 @@ export class DailySummaryComponent implements OnDestroy {
         this.miles = this.summary.miles;
         
         this.formatDate();
+
+        this.dailyStepDiff = this.dailyStepGoal - this.steps;
+        if (this.dailyStepDiff < 0) {
+            this.dailyStepMsg = "Steps Beyond Goal";
+            this.dailyStepDiff *= -1;
+        }
+        else {
+            this.dailyStepMsg = "Steps to Go";
+        }
     }
 
     private formatDate() {
