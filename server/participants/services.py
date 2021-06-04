@@ -250,7 +250,7 @@ class ParticipantService:
                 (SuggestionTime.MORNING, 8, 0),
                 (SuggestionTime.LUNCH, 12, 0),
                 (SuggestionTime.MIDAFTERNOON, 14, 0),
-                (SuggestionTime.EVENING, 5, 0),
+                (SuggestionTime.EVENING, 17, 0),
                 (SuggestionTime.POSTDINNER, 20, 0)
             ]
             for category, hour, minute in default_times:
