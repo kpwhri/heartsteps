@@ -8,7 +8,10 @@ from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, Prel
 from .models import LevelLineAssignment, LevelAssignment
 from generic_messages.services import GenericMessagesService
 
+from days.services import DayService
 from datetime import datetime, timedelta
+from django.utils import timezone
+import pytz
 
 class LogService:
     def __init__(self, subject_name='Unknown'):
@@ -89,6 +92,7 @@ class StudyTypeService:
     LEVEL4 = 4
     LEVEL5 = 5
     
+    LEVEL_DEFAULT = LEVEL5  # full JITAI is default.
     
     class __DBSafeGuard:
         """Provide safe access to database. 
@@ -265,6 +269,14 @@ class StudyTypeService:
             participant=participant
         ).exists()
     
+    def localize_datetime(self, datetime_in_UTC):
+        day_service = DayService(self.user)
+        local_timezone = day_service.get_timezone_at(datetime_in_UTC)
+        if isinstance(datetime_in_UTC, datetime):
+            return datetime_in_UTC.astimezone(local_timezone)
+        else:
+            return datetime(datetime_in_UTC.year, datetime_in_UTC.month, datetime_in_UTC.day, tzinfo=local_timezone)
+    
     def assign_level_sequence(self, participant, file_nickname):
         assert file_nickname is not None, "File nickname is required"
         
@@ -278,8 +290,10 @@ class StudyTypeService:
             is_used=False
         ).order_by("sequence_serial_number").first()
         
-        # TODO: convert to considering user's timezone
-        today_date = datetime.now().date()
+        if participant.study_start_date:
+            study_start_date = self.localize_datetime(participant.study_start_date)
+        else:
+            study_start_date = self.localize_datetime(timezone.now()).date()
         
         # record the assignment
         line_assignment = LevelLineAssignment.objects.create(
@@ -291,7 +305,7 @@ class StudyTypeService:
         preloaded_levels = PreloadedLevelSequenceLevel.objects.filter(sequence_line=next_available_sequence).order_by("day_serial_number").all()
         
         for a_preloaded_level in preloaded_levels:
-            the_day = today_date + timedelta(days=a_preloaded_level.day_serial_number)
+            the_day = study_start_date + timedelta(days=a_preloaded_level.day_serial_number)
             LevelAssignment.objects.create(
                 line_assignment=line_assignment,
                 participant=participant,
@@ -303,11 +317,16 @@ class StudyTypeService:
     
     def fetch_todays_level(self, participant):
         # TODO: consider user's timezone
-        today_date = datetime.now().date()
+        today_date = self.localize_datetime(timezone.now()).date()
         
-        todays_level = LevelAssignment.objects.get(participant=participant, date=today_date)
+        try:
+            todays_level = LevelAssignment.objects.get(participant=participant, date=today_date)
+            return todays_level.level
+        except LevelAssignment.DoesNotExist:
+            self.log_service.info("No LevelAssignment is found. Using default Level: {}".format(StudyTypeService.LEVEL_DEFAULT), participant)
+            return StudyTypeService.LEVEL_DEFAULT
         
-        return todays_level.level
+        
     
     def is_decision_needed(self, participant):
         return True
