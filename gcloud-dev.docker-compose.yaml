@@ -3,7 +3,7 @@ services:
     client:
         build: ./client
         env_file:
-          - credentials/.env-production
+          - credentials/.env-gcloud-dev
         command: npm run serve:app
         volumes:
             - ./client:/client
