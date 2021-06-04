@@ -24,7 +24,7 @@ export class WalkingSuggestionTimesComponent implements OnInit {
     ngOnInit() {
         return this.activitySuggestionTimeService.getTimes()
         .catch(() => {
-            return this.activitySuggestionTimeService.getDefaultTimes();
+            return {}
         })
         .then((times) => {
             this.times = times;

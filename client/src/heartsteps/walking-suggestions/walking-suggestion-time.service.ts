@@ -22,16 +22,6 @@ export class WalkingSuggestionTimeService{
         ])
     }
 
-    public getDefaultTimes():Promise<any> {
-        return Promise.resolve({
-            morning: this.parseTime("08:00"),
-            lunch: this.parseTime("12:00"),
-            midafternoon: this.parseTime("14:00"),
-            evening: this.parseTime("17:00"),
-            postdinner: this.parseTime("20:00")
-        });
-    }
-
     public getTimes():Promise<any> {
         return this.storage.get(storageKey)
         .then((times) => {
