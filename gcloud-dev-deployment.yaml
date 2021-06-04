@@ -147,7 +147,7 @@ spec:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
-            value: '35.202.95.78,heartsteps.net,heartsteps-service'
+            value: '35.201.93.75,heartsteps.net,heartsteps-service'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@localhost:5432/heartsteps'
         ports:
@@ -236,14 +236,28 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: Service
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
 metadata:
-  name: hello
+  name: heartsteps-certificate
 spec:
-  type: LoadBalancer
-  selector:
-    app: heartsteps-nginx
-  ports:
-  - port: 80
-    targetPort: 8000
+  domains:
+    - dev.heartsteps.net
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dev-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: heartsteps-dev-address
+    networking.gke.io/managed-certificates: heartsteps-certificate
+    kubernetes.io/ingress.class: "gce"
+spec:
+  defaultBackend:
+    service:
+      name: heartsteps-nginx
+      port:
+        number: 8000
+
