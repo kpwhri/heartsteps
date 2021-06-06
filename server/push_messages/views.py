@@ -110,10 +110,10 @@ class RecievedMessageView(APIView):
 class ParticipantNotificationEndpointView(APIView):
     permissions_classes = (permissions.IsAuthenticated,)
 
-    def setup_participant(self, participant_id):
-        if participant_id is not None:
+    def setup_participant(self, participant_id_setup):
+        if participant_id_setup is not None:
             try:
-                participant = DashboardParticipant.objects.get(heartsteps_id=participant_id)
+                participant = DashboardParticipant.objects.get(heartsteps_id=participant_id_setup)
                 return participant
             except Participant.DoesNotExist:
                 raise Http404('No matching participant')
@@ -134,24 +134,22 @@ class ParticipantNotificationEndpointView(APIView):
         .all()
         return notifications
     
+    # TODO: find out why removing cohort_id and participant_id breaks the endpoint
+    # the endpoint requires these 2 params to work even tho they are optional 
+    # and not used in the logic of get()
+    # 
     def get(self, request, cohort_id, participant_id):
-        # TODO: change to 24 hrs
-        start = timezone.now() - timedelta(days=2)
+        start = timezone.now() - timedelta(days=1)
         end = timezone.now()
-        participant = self.setup_participant(participant_id)
+        
+        # check to see if the request is allowed (i.e. participant is logged in)
+        if request.user.is_anonymous:
+            raise Http404('No participant, please log in')
 
-        notifications = self.get_notifications(participant.user, start, end)
+        # check to see if the participant exists
+        self.setup_participant(request.user)
+
+        notifications = self.get_notifications(request.user, start, end)
         serialized = MessageSerializer(notifications, many=True)
-        # TODO: delete print debugging statements
-        print(dir(request))
-        print(request.user)
-        print(participant)
-        print(dir(participant))
-        print(participant.pk)
-        print(participant.user_id)
-        print(participant.heartsteps_id)
-        # print(notifications)
-        # print(dir(notifications))
-        # print(serialized.data)
-        # TODO: shouldn't always return 200 status, add a 404 case
+        print(dir(notifications))
         return Response(serialized.data, status=status.HTTP_200_OK)

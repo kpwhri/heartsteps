@@ -10,7 +10,7 @@
     </ion-navbar>
 </ion-header>
 
-<ion-list>
+<!-- <ion-list>
     <ion-item>
         <ion-label>Pokémon Yellow</ion-label>
     </ion-item>
@@ -26,17 +26,17 @@
     <ion-item>
         <ion-label>Super Mario World</ion-label>
     </ion-item>
-</ion-list>
+</ion-list> -->
 
 <!-- TODO: the first list item is cut off -->
-<ion-list>
+<!-- <ion-list>
     <ion-item *ngFor="let notification of notifications">
         <ion-label>{{ notification.recipient }}</ion-label>
         <ion-label>{{ notification.content }}</ion-label>
         <ion-label>{{ notification.title }}</ion-label>
         <ion-label>{{ notification.body }}</ion-label>
     </ion-item>
-</ion-list>
+</ion-list> -->
 <!-- <h1>Main Content</h1>
 
 <div slot="fixed">
@@ -48,11 +48,13 @@
 <!-- <h1>Hello Test</h1> -->
 <!-- <h3>My Notifications: {{ notifications }} DONE</h3> -->
 
-<table>
-    <tr *ngFor="let notification of notifications">
-        <td>{{ notification.recipient }}</td>
-        <td>{{ notification.content }}</td>
-        <td>{{ notification.title }}</td>
-        <td>{{ notification.body }}</td>
-    </tr>
-</table>
+<ul *ngFor="let notification of notifications">
+    <!-- TODO: first line is obstructed by navbar -->
+    <!-- go to http://localhost:8100/#/home/notification-center to reproduce bug -->
+    <li>Created: {{ notification.created }}</li>
+    <li>Recipient: {{ notification.recipient }}</li>
+    <li>Content: {{ notification.content}}</li>
+    <li>Title: {{notification.title }}</li>
+    <li>Body: {{notification.body }}</li>
+    <li></li>
+</ul>

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-// import { Message } from "@heartsteps/notifications/message.model";
-// import { MessageService } from "@heartsteps/notifications/message.service";
+import { Message } from "@heartsteps/notifications/message.model";
+import { MessageService } from "@heartsteps/notifications/message.service";
 
 @Injectable()
 export class NotificationCenterService {
@@ -13,7 +13,6 @@ export class NotificationCenterService {
         cohortId: number,
         userId: string
     ): Promise<any> {
-        // TODO: is this the best way to do this? is it safe?
         return this.heartstepsServer.get(
             `/notification_center/${cohortId}/${userId}/`,
             {}
