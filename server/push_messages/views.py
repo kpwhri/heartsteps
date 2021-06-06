@@ -151,5 +151,5 @@ class ParticipantNotificationEndpointView(APIView):
 
         notifications = self.get_notifications(request.user, start, end)
         serialized = MessageSerializer(notifications, many=True)
-        print(dir(notifications))
+        # print(dir(notifications))
         return Response(serialized.data, status=status.HTTP_200_OK)
