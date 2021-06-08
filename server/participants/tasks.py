@@ -33,6 +33,7 @@ from locations.tasks import export_location_count_csv
 from locations.tasks import update_location_categories
 from morning_messages.tasks import export_morning_message_survey
 from morning_messages.tasks import export_morning_messages
+from page_views.models import PageView
 from push_messages.models import Message as PushMessage
 from walking_suggestion_surveys.tasks import export_walking_suggestion_surveys
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
@@ -261,6 +262,44 @@ def export_user_messages(username, directory=None, filename=None, start=None, en
     )
     _file.close()
 
+def export_app_page_views(username, directory=None, filename=None, start=None, end=None):
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.page_views.csv' % (username)
+    
+    page_views_query = PageView.objects.filter(
+        user__username = username
+    ).exclude(platform=PageView.WEBSITE)
+    if start:
+        page_views_query = page_views_query.filter(
+            time__gte=start
+        )
+    if end:
+        page_views_query = page_views_query.filter(
+            time__lte=end
+        )
+    page_views = []
+    for page_view in page_views_query.order_by('time').all():
+        page_views.append([
+            username,
+            page_view.time.strftime('%Y-%m-%d'),
+            page_view.time.strftime('%H:%M:%S'),
+            'UTC',
+            page_view.uri
+        ])
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [[
+            'HeartSteps ID',
+            'Date',
+            'Time',
+            'Timezone',
+            'Uri'
+        ]] + page_views
+    )
+    _file.close()
 
 def export_user_locations(username, directory=None, filename=None, start=None, end=None):
     if not directory:
@@ -423,6 +462,9 @@ def export_user_data(username, log_export=True):
     )
     export_file(export_walking_suggestion_surveys,
         filename = 'walking-suggestion-surveys.csv'
+    )
+    export_file(export_app_page_views,
+        filename = 'client-page-views.csv'
     )
     export_file(export_user_messages,
         filename = 'messages.csv'
