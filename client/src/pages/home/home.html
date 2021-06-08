@@ -1,20 +1,29 @@
 <header>
-    <h2>{{pageTitle}}</h2>
-    <span *ngIf="updatingParticipant"
-        class="loading"
-        >
+    <h2>
+        {{pageTitle}}
+        <a routerLink="notification-center"
+            ><img
+                id="notification-bell"
+                src="../../assets/icon/REPLACE-notification-bell-PLACEHOLDER.png"
+                alt="Notification Center"
+            />
+        </a>
+    </h2>
+    <span *ngIf="updatingParticipant" class="loading">
         Updating participant
     </span>
 </header>
+
 <div id="home-content" class="content">
     <router-outlet></router-outlet>
 </div>
 <nav>
-    <a *ngFor="let tab of tabs"
+    <a
+        *ngFor="let tab of tabs"
         class="{{tab.key}}"
         [routerLink]="[tab.key]"
-        routerLinkActive="active"     
-        >
+        routerLinkActive="active"
+    >
         {{tab.name}}
     </a>
 </nav>
