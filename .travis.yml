@@ -25,5 +25,7 @@ script:
 
 after_success:
 - chmod +x gcloud-dev-deploy.sh
-- ./gcloud-dev-deploy.sh
+- chmod +x kpwhri-deploy.sh
+- if ["$TRAVIS_BRANCH" = "master"]; then ./gcloud-dev-deploy.sh; fi
+- if ["$TRAVIS_BRANCH" = "kpwhri"]; then ./kpwhri-deploy.sh; fi
 
