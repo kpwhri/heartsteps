@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { Notification } from "@pages/notification-center/Notification";
 // import { Message } from "@heartsteps/notifications/message.model";
 // import { MessageService } from "@heartsteps/notifications/message.service";
 
@@ -12,21 +13,10 @@ export class NotificationCenterService {
     public getRecentNotifications(
         cohortId: number,
         userId: string
-    ): Promise<any> {
+    ): Promise<Notification[]> {
         return this.heartstepsServer.get(
             `/notification_center/${cohortId}/${userId}/`,
             {}
         );
     }
-
-    // public getRecentNotifications(): Promise<any> {
-    //     // TODO: remove hardcoded url and use params in get() method
-    //     return this.heartstepsServer
-    //         .get("1/test/notifications_api", {})
-    //         .then((notifications) => {
-    //             // TODO: use MessageService to display messages
-    //             // TODO: look at activity-survey.service.ts for reference
-    //             console.log(notifications);
-    //         });
-    // }
 }

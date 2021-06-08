@@ -29,6 +29,8 @@ export class HomePage implements OnInit, OnDestroy {
     public updatingParticipantSubscription: Subscription;
 
     private routerSubscription: Subscription;
+    private notificationCenterUrl = "/home/notification-center";
+    private notificationCenterName = "Notification Center";
 
     public tabs: Array<Tab> = [
         {
@@ -87,9 +89,8 @@ export class HomePage implements OnInit, OnDestroy {
                 this.activeTab = activeTab.key;
             })
             .catch(() => {
-                // TODO: get rid of hardcoded strings
-                if (url === "/home/notification-center") {
-                    this.pageTitle = "Notification Center";
+                if (url === this.notificationCenterUrl) {
+                    this.pageTitle = this.notificationCenterName;
                 } else {
                     console.log("No matching tab found");
                 }

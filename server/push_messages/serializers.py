@@ -47,5 +47,5 @@ class MessageReceiptSerializer(serializers.Serializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['created','recipient', 'content', 'title', 'body']
+        fields = ['created', 'title', 'body']
 

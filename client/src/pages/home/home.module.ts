@@ -19,8 +19,6 @@ import { ActivitiesPage } from "./activities.page";
 import { DashboardNotificationComponent } from "./dashboard-notifications.component";
 import { SettingsComponent } from "@pages/settings/settings.component";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
-// TODO: why do you need to import NotificationCenterModule and NotificationCenterPage
-// if NotificationCenterModule exports NotificationCenterPage
 import { NotificationCenterPage } from "@pages/notification-center/notification-center";
 
 const routes: Routes = [
