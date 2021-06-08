@@ -40,7 +40,6 @@ export class NotificationCenterPage implements OnInit {
                 // this.notifications = JSON.parse(stringJSON);
                 let jsonObject = JSON.parse(stringJSON);
                 this.notifications = <Notification[]>jsonObject;
-                console.log(notifications);
             });
     }
 
