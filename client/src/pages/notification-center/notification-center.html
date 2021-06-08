@@ -1,7 +1,7 @@
-<ul *ngFor="let notification of notifications">
+<ul *ngFor="let notification of notifications" class="notification-list">
     <!-- <li>Date: {{ notification.created | date:'MM/dd/yy' }}</li> -->
 
-    <ion-item-divider>
+    <ion-item-divider class="notification-elem">
         <li>{{ notification.created | date:'h:mm a' }}</li>
         <li><strong>{{notification.title }}</strong></li>
         <li>{{notification.body }}</li>
