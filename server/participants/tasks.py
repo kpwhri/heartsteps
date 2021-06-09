@@ -5,6 +5,7 @@ import csv
 from datetime import date
 from datetime import timedelta
 from math import floor
+import pytz
 
 from celery import shared_task
 from django.utils import timezone
@@ -271,21 +272,42 @@ def export_app_page_views(username, directory=None, filename=None, start=None, e
     page_views_query = PageView.objects.filter(
         user__username = username
     ).exclude(platform=PageView.WEBSITE)
+    days_query = Day.objects.filter(
+        user__username = username
+    )
     if start:
         page_views_query = page_views_query.filter(
             time__gte=start
+        )
+        days_query = days_query.filter(
+            end__gte = start
         )
     if end:
         page_views_query = page_views_query.filter(
             time__lte=end
         )
+        days_query = days_query.filter(
+            start__lte = end
+        )
+    days = days_query.order_by('start').all()
+    days = list(days)
+    current_day = None
+    current_timezone = pytz.UTC
+    if days:
+        current_day = days.pop(0)
+        current_timezone = current_day.get_timezone()
+
     page_views = []
     for page_view in page_views_query.order_by('time').all():
+        if current_day and days:
+            while current_day.end < page_view.time and days:
+                current_day = days.pop(0)
+        page_view_time = page_view.time.astimezone(current_timezone)
         page_views.append([
             username,
-            page_view.time.strftime('%Y-%m-%d'),
-            page_view.time.strftime('%H:%M:%S'),
-            'UTC',
+            page_view_time.strftime('%Y-%m-%d'),
+            page_view_time.strftime('%H:%M:%S'),
+            current_timezone.zone,
             page_view.uri
         ])
     _file = open(os.path.join(directory, filename), 'w')
