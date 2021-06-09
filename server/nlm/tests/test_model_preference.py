@@ -12,12 +12,16 @@ class ModelPreferenceTest(HeartStepsTestCase):
         pref.save()
         
     def test_create_2(self):
-        pref = Preference.create("test.path.value", 1)
+        pref, overwrite = Preference.create("test.path.value", 1)
         self.assertEqual(pref.value, 1)
-        pref = Preference.create("test.path.value", "2")
+        self.assertFalse(overwrite)
+        pref, overwrite = Preference.create("test.path.value", "2")
         self.assertEqual(pref.value, "2")
+        self.assertTrue(overwrite)
     
     # def test_create_3(self):
+    #     pref = Preference.create("test.path.value", 1)
+        
         
     
     # def test_try_to_get(self):

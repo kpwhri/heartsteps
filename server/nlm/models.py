@@ -179,6 +179,18 @@ class Preference(models.Model):
             Preference.objects.create(path=path, participant=participant, value=default)
     
     def create(path, value):
-        return Preference.objects.create(path=path, value=value)
+        """create preference object
+
+        Args:
+            path (str): preference path/name
+            value (str): set value
+
+        Returns:
+            Preference: added preference object
+            bool: if overwritten
+        """
+        overwrite = Preference.objects.filter(path=path).exists()
+        
+        return Preference.objects.create(path=path, value=value), overwrite
     
     
