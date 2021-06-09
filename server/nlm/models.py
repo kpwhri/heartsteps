@@ -26,7 +26,7 @@ class PreloadedLevelSequenceFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255)
     whenUploaded = models.DateTimeField(auto_now_add=True)
-    nickname = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255, unique=True)
     numberOfDays = models.IntegerField(null=False)
     numberOfSequences = models.IntegerField(null=False)
     
@@ -67,9 +67,6 @@ class PreloadedLevelSequenceFile(models.Model):
     
     def __str__(self):
         return "PreloadedLevelSequenceFile(user={}, filename={}, nickname={}, numberOfDays={}, numberOfSequence={}, whenUploaded={})".format(self.user, self.filename, self.nickname, self.numberOfDays, self.numberOfSequences, self.whenUploaded)
-    
-    class Meta:
-        unique_together = ['user', 'nickname']
 
 class PreloadedLevelSequenceLine(models.Model):
     sequence_file = models.ForeignKey(PreloadedLevelSequenceFile, on_delete = models.CASCADE)
@@ -165,4 +162,23 @@ class ConditionalityParameter(models.Model):
     class Meta:
         unique_together = ['conditionality', 'participant', 'parameter_fullname', 'period_begin', 'period_finish']
         
+
+    
+class Preference(models.Model):
+    participant = models.ForeignKey(Participant, null=True, on_delete=models.CASCADE)
+    path = models.CharField(max_length=512)
+    value = models.CharField(max_length=50)
+    when_created = models.DateTimeField(auto_now_add=True)
+    
+    def try_to_get(path, participant, default=None):
+        query = Preference.objects.filter(path=path, participant=participant)
         
+        if query.exists():
+            return query.order_by("-when_created").first().value
+        else:
+            Preference.objects.create(path=path, participant=participant, value=default)
+    
+    def create(path, value):
+        return Preference.objects.create(path=path, value=value)
+    
+    

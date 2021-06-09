@@ -6,6 +6,7 @@ from .models import StudyType, CohortAssignment, Conditionality, ConditionalityP
 from .models import LogSubject, LogObject, LogPurpose, LogContents
 from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
 from .models import LevelLineAssignment, LevelAssignment
+from .models import Preference
 from generic_messages.services import GenericMessagesService
 
 from days.services import DayService
@@ -269,8 +270,8 @@ class StudyTypeService:
             participant=participant
         ).exists()
     
-    def localize_datetime(self, datetime_in_UTC):
-        day_service = DayService(self.user)
+    def localize_datetime(self, participant_user, datetime_in_UTC):
+        day_service = DayService(participant_user)
         local_timezone = day_service.get_timezone_at(datetime_in_UTC)
         if isinstance(datetime_in_UTC, datetime):
             return datetime_in_UTC.astimezone(local_timezone)
@@ -278,22 +279,34 @@ class StudyTypeService:
             return datetime(datetime_in_UTC.year, datetime_in_UTC.month, datetime_in_UTC.day, tzinfo=local_timezone)
     
     def assign_level_sequence(self, participant, file_nickname):
+        # check parameters
         assert file_nickname is not None, "File nickname is required"
         
-        sequence_file = PreloadedLevelSequenceFile.objects.get(
-            nickname=file_nickname,
-            user__in=self.study_type.admins.all(),
-        )
+        # bring the sequence file (nickname is a unique attribute)
+        try:
+            sequence_file = PreloadedLevelSequenceFile.objects.get(
+                nickname=file_nickname,
+                user__in=self.study_type.admins.all(),
+            )    
+        except PreloadedLevelSequenceFile.DoesNotExist:
+            raise PreloadedLevelSequenceFile.DoesNotExist("No preloaded sequence file is found.")
         
-        next_available_sequence = PreloadedLevelSequenceLine.objects.filter(
-            sequence_file=sequence_file,
-            is_used=False
-        ).order_by("sequence_serial_number").first()
-        
+        # under the file, look up next available sequence line
+        try:    
+            next_available_sequence = PreloadedLevelSequenceLine.objects.filter(
+                sequence_file=sequence_file,
+                is_used=False
+            ).order_by("sequence_serial_number").first()
+        except PreloadedLevelSequenceLine.DoesNotExist:
+            raise Exception("No unused line is found.")
+            
+        # try to use participant's study_start_date
+        # if the study_start_date is not available, use today
+        # TODO: change to "actual" start date
         if participant.study_start_date:
-            study_start_date = self.localize_datetime(participant.study_start_date)
+            study_start_date = self.localize_datetime(participant.user, participant.study_start_date).date()
         else:
-            study_start_date = self.localize_datetime(timezone.now()).date()
+            study_start_date = self.localize_datetime(participant.user, timezone.now()).date()
         
         # record the assignment
         line_assignment = LevelLineAssignment.objects.create(
@@ -316,8 +329,7 @@ class StudyTypeService:
         return next_available_sequence
     
     def fetch_todays_level(self, participant):
-        # TODO: consider user's timezone
-        today_date = self.localize_datetime(timezone.now()).date()
+        today_date = self.localize_datetime(participant.user, timezone.now()).date()
         
         try:
             todays_level = LevelAssignment.objects.get(participant=participant, date=today_date)
@@ -328,8 +340,15 @@ class StudyTypeService:
         
         
     
-    def is_decision_needed(self, participant):
+    def is_decision_needed(self, participant, test_time=None):
         return True
+    
+        # fetch the participant's decision window preferences
+        first_decision_point_hour = Preference.try_to_get(path="nlm.bout_planning.first_decision_point_hour", participant=participant, default=8)
+        
+        # decide if now is the participant's decision point or not
+        
+        raise NotImplementedError
     
     def get_random_conditionality(self, participant):
         return True

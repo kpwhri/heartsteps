@@ -18,6 +18,9 @@ from dashboard.services import DevService
 from nlm.programlets import ProgramletParameters
 from nlm.tasks import nlm_base_hourly_task
 
+from django.utils import timezone
+import pytz
+
 class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
         super().setUp()
@@ -231,3 +234,12 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         self.assertEqual(StudyTypeService.LEVEL1, study_type_service.fetch_todays_level(self.participant))
         
         study_type_service.delete_level_csv("sample_csv")
+        
+        
+    def test_is_decision_point_1(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        # self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
+        # self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 30, 0)))
+        # self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
+        
