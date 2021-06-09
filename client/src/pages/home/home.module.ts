@@ -19,7 +19,7 @@ import { ActivitiesPage } from "./activities.page";
 import { DashboardNotificationComponent } from "./dashboard-notifications.component";
 import { SettingsComponent } from "@pages/settings/settings.component";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
-import { NotificationCenterPage } from "@pages/notification-center/notification-center";
+import { NotificationCenterPage } from "./notification-center";
 
 const routes: Routes = [
     {

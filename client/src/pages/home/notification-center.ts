@@ -1,9 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
-import { Notification } from "@pages/notification-center/Notification";
-import { IonicPage } from "ionic-angular";
+import { Notification } from "@heartsteps/notification-center/Notification";
 
-@IonicPage()
 @Component({
     selector: "page-notification-center",
     templateUrl: "notification-center.html",
@@ -16,10 +14,6 @@ export class NotificationCenterPage implements OnInit {
 
     constructor(private notificationService: NotificationCenterService) {
         this.notifications;
-    }
-
-    ionViewDidLoad() {
-        console.log("ionViewDidLoad NotificationCenterPage");
     }
 
     private getNotifications(): Promise<Notification[]> {
