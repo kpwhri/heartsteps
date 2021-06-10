@@ -171,6 +171,18 @@ class Preference(models.Model):
     when_created = models.DateTimeField(auto_now_add=True)
     
     def try_to_get(path, participant=None, default=None):
+        """try to get a preference object
+
+        Args:
+            path (str): preference path/name
+            participant (Participant, optional): filter condition. Defaults to None.
+            default (str, optional): default value. if specified, it will be returned in case the db doesn't have this preference. Defaults to None.
+
+        Returns:
+            value (str): preference value
+            fromdb (bool): if the preference exists in db
+        """
+        
         return_value = default
         return_fromdb = False
         
