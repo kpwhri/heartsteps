@@ -9,7 +9,7 @@
         "build": "ionic-app-scripts build",
         "lint": "ionic-app-scripts lint",
         "dev": "ionic-app-scripts serve --appEntryPoint /client/src/app/main.ts",
-        "build:app": "ionic-app-scripts build --appEntryPoint /client/src/app/main.ts",
+        "build:app": "ionic-app-scripts build --appEntryPoint /client/src/app/main.ts --prod",
         "build:app:android": "ionic cordova build android --release --buildConfig=/credentials/build.json --appEntryPoint /client/src/app/main.ts",
         "build:app:android:debug": "ionic cordova build android --appEntryPoint /client/src/app/main.ts",
         "build:app:ios": "ionic cordova prepare ios --prod --appEntryPoint /client/src/app/main.ts --buildFlag='-UseModernBuildSystem=0'",
