@@ -45,9 +45,51 @@ class ModelPreferenceTest(HeartStepsTestCase):
         Preference.delete(path, self.participant)
         pref, overwrite = Preference.create(path, 3, self.participant)
         self.assertFalse(overwrite)
+    
+    def test_try_to_get_1(self):
+        path = "test.path.value"
         
+        value, fromdb = Preference.try_to_get(path)
+        self.assertEqual(value, None)
+        self.assertFalse(fromdb)
+
+        value, fromdb = Preference.try_to_get(path, default=5)
+        self.assertEqual(value, 5)
+        self.assertFalse(fromdb)
         
+        pref, overwrite = Preference.create(path, 4)
+        self.assertFalse(overwrite)
+        self.assertEqual(pref.value, 4)
+        
+        value, fromdb = Preference.try_to_get(path)
+        self.assertEqual(value, 4)
+        self.assertTrue(fromdb)
+        
+        value, fromdb = Preference.try_to_get(path, default=5)
+        self.assertEqual(value, 4)
+        self.assertTrue(fromdb)
         
     
-    # def test_try_to_get(self):
+    def test_try_to_get_2(self):
+        path = "test.path.value"
+        
+        value, fromdb = Preference.try_to_get(path, self.participant)
+        self.assertEqual(value, None)
+        self.assertFalse(fromdb)
+
+        value, fromdb = Preference.try_to_get(path, self.participant, default=5)
+        self.assertEqual(value, 5)
+        self.assertFalse(fromdb)
+        
+        pref, overwrite = Preference.create(path, 4, self.participant)
+        self.assertFalse(overwrite)
+        self.assertEqual(pref.value, 4)
+        
+        value, fromdb = Preference.try_to_get(path, self.participant)
+        self.assertEqual(value, 4)
+        self.assertTrue(fromdb)
+        
+        value, fromdb = Preference.try_to_get(path, participant=self.participant, default=5)
+        self.assertEqual(value, 4)
+        self.assertTrue(fromdb)
         

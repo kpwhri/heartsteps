@@ -170,14 +170,17 @@ class Preference(models.Model):
     value = models.CharField(max_length=50)
     when_created = models.DateTimeField(auto_now_add=True)
     
-    def try_to_get(path, participant, default=None):
-        query = Preference.objects.filter(path=path, participant=participant)
+    def try_to_get(path, participant=None, default=None):
+        return_value = default
+        return_fromdb = False
         
+        query = Preference.objects.filter(path=path, participant=participant)
         if query.exists():
-            return query.order_by("-when_created").first().value
-        else:
-            Preference.objects.create(path=path, participant=participant, value=default)
-    
+            return_value = query.order_by("-when_created").first().value
+            return_fromdb = True
+        
+        return return_value, return_fromdb
+        
     def create(path, value, participant=None):
         """create preference object
 
