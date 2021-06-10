@@ -13,6 +13,7 @@ from days.services import DayService
 from datetime import datetime, timedelta
 from django.utils import timezone
 import pytz
+import random
 
 class LogService:
     def __init__(self, subject_name='Unknown'):
@@ -385,8 +386,16 @@ class StudyTypeService:
         
         return False
             
-    def get_random_conditionality(self, participant):
-        return True
+    def get_random_conditionality(self, participant, test_value=None):
+        # get random criteria (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
+        random_criteria, _ = Preference.try_to_get("nlm.bout_planning.conditionality.random.random_criteria", default=50, convert_to_int=True)
+        
+        if test_value:
+            random_value = test_value
+        else:
+            random_value = random.random() * 100
+            
+        return random_value <= random_criteria
     
     def get_need_conditionality(self, participant):
         return True

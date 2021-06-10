@@ -280,4 +280,18 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 0)))
         self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 1)))
         
+    def test_random_conditionality(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=0))
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=10))
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=20))
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=30))
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=40))
+        self.assertTrue(study_type_service.get_random_conditionality(self.participant, test_value=50))
+        self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=60))
+        self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=70))
+        self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=80))
+        self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=90))
+        self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=100))
         
