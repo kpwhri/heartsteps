@@ -346,19 +346,20 @@ class StudyTypeService:
         first_decision_point_hour, _ = Preference.try_to_get(
             path="nlm.bout_planning.first_decision_point_hour", 
             participant=participant, 
-            default=8)
+            default=8, 
+            convert_to_int=True)
         
         # get decision point expiration window (in minutes)
         decision_point_expiration_window, _ = Preference.try_to_get(
             path="nlm.bout_planning.decision_point_expiration_window",
-            default=10
-        )
+            default=10, 
+            convert_to_int=True)
         
         # get decision point gap (in hours)
         decision_point_gap, _ = Preference.try_to_get(
             path="nlm.bout_planning.decision_point_gap",
-            default=3
-        )
+            default=3, 
+            convert_to_int=True)
         
         # decide if now is the participant's decision point or not
         if test_time:
@@ -371,8 +372,7 @@ class StudyTypeService:
             hour=first_decision_point_hour, 
             minute=0,
             second=0,
-            microsecond=0,
-            tzinfo=current_time.tzinfo)
+            microsecond=0)
         decision_points.append(temp_time)
         
         for i in range(1, 4):
