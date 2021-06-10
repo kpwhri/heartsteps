@@ -388,13 +388,13 @@ class StudyTypeService:
             
     def get_random_conditionality(self, participant, test_value=None):
         # get random criteria (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
-        random_criteria, _ = Preference.try_to_get("nlm.bout_planning.conditionality.random.random_criteria", default=50, convert_to_int=True)
+        random_criteria, fromdb = Preference.try_to_get("nlm.bout_planning.conditionality.random.random_criteria", default=50, convert_to_int=True)
         
-        if test_value:
-            random_value = test_value
-        else:
+        if test_value is None:
             random_value = random.random() * 100
-            
+        else:
+            random_value = test_value
+        
         return random_value <= random_criteria
     
     def get_need_conditionality(self, participant):
