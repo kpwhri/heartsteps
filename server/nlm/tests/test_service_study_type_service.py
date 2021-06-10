@@ -19,7 +19,10 @@ from nlm.programlets import ProgramletParameters
 from nlm.tasks import nlm_base_hourly_task
 
 from django.utils import timezone
+import datetime
 import pytz
+
+from days.models import Day
 
 class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
@@ -239,7 +242,42 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     def test_is_decision_point_1(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         
-        # self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
-        # self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 30, 0)))
-        # self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 7, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 1)))
+        
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 10, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 1)))
+        
+    
+    def test_is_decision_point_2(self):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        Day.objects.create(
+            user = self.user,
+            date = datetime.date.today(),
+            timezone = 'America/Los_Angeles'
+        )
+        
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 7, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 1, tzinfo=pytz.timezone('US/Pacific'))))
+        
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 10, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 1)))
+        
         

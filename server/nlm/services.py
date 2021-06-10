@@ -341,15 +341,50 @@ class StudyTypeService:
         
     
     def is_decision_needed(self, participant, test_time=None):
-        return True
-    
         # fetch the participant's decision window preferences
-        first_decision_point_hour = Preference.try_to_get(path="nlm.bout_planning.first_decision_point_hour", participant=participant, default=8)
+        first_decision_point_hour, _ = Preference.try_to_get(
+            path="nlm.bout_planning.first_decision_point_hour", 
+            participant=participant, 
+            default=8)
+        
+        # get decision point expiration window (in minutes)
+        decision_point_expiration_window, _ = Preference.try_to_get(
+            path="nlm.bout_planning.decision_point_expiration_window",
+            default=10
+        )
+        
+        # get decision point gap (in hours)
+        decision_point_gap, _ = Preference.try_to_get(
+            path="nlm.bout_planning.decision_point_gap",
+            default=3
+        )
         
         # decide if now is the participant's decision point or not
+        if test_time:
+            current_time = test_time
+        else:
+            current_time = self.localize_datetime(participant.user, timezone.now())
+        decision_points = []
+        temp_time = current_time
+        temp_time = temp_time.replace(
+            hour=first_decision_point_hour, 
+            minute=0,
+            second=0,
+            microsecond=0,
+            tzinfo=current_time.tzinfo)
+        decision_points.append(temp_time)
         
-        raise NotImplementedError
-    
+        for i in range(1, 4):
+            temp_time = temp_time.replace(hour=temp_time.hour + decision_point_gap)
+            decision_points.append(temp_time)
+        
+        # intentionally iterates twice. Later, we might get the index of which decision point we are near to.
+        for i in range(0, 4):
+            if current_time >= decision_points[i] and current_time - decision_points[i] <= timedelta(minutes=decision_point_expiration_window):
+                return True
+        
+        return False
+            
     def get_random_conditionality(self, participant):
         return True
     

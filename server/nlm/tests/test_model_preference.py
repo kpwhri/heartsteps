@@ -53,43 +53,49 @@ class ModelPreferenceTest(HeartStepsTestCase):
         self.assertEqual(value, None)
         self.assertFalse(fromdb)
 
-        value, fromdb = Preference.try_to_get(path, default=5)
+        value, fromdb = Preference.try_to_get(path, default=5, convert_to_int=True)
         self.assertEqual(value, 5)
+        self.assertIsInstance(value, int)
         self.assertFalse(fromdb)
         
         pref, overwrite = Preference.create(path, 4)
         self.assertFalse(overwrite)
         self.assertEqual(pref.value, 4)
         
-        value, fromdb = Preference.try_to_get(path)
+        value, fromdb = Preference.try_to_get(path, convert_to_int=True)
         self.assertEqual(value, 4)
+        self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
         
-        value, fromdb = Preference.try_to_get(path, default=5)
+        value, fromdb = Preference.try_to_get(path, default=5, convert_to_int=True)
         self.assertEqual(value, 4)
+        self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
         
     
     def test_try_to_get_2(self):
         path = "test.path.value"
         
-        value, fromdb = Preference.try_to_get(path, self.participant)
+        value, fromdb = Preference.try_to_get(path, self.participant, convert_to_int=True)
         self.assertEqual(value, None)
         self.assertFalse(fromdb)
 
-        value, fromdb = Preference.try_to_get(path, self.participant, default=5)
+        value, fromdb = Preference.try_to_get(path, self.participant, default=5, convert_to_int=True)
         self.assertEqual(value, 5)
+        self.assertIsInstance(value, int)
         self.assertFalse(fromdb)
         
         pref, overwrite = Preference.create(path, 4, self.participant)
         self.assertFalse(overwrite)
         self.assertEqual(pref.value, 4)
         
-        value, fromdb = Preference.try_to_get(path, self.participant)
+        value, fromdb = Preference.try_to_get(path, self.participant, convert_to_int=True)
         self.assertEqual(value, 4)
+        self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
         
-        value, fromdb = Preference.try_to_get(path, participant=self.participant, default=5)
+        value, fromdb = Preference.try_to_get(path, participant=self.participant, default=5, convert_to_int=True)
         self.assertEqual(value, 4)
+        self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
         

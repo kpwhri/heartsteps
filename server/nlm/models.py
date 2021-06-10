@@ -170,7 +170,7 @@ class Preference(models.Model):
     value = models.CharField(max_length=50)
     when_created = models.DateTimeField(auto_now_add=True)
     
-    def try_to_get(path, participant=None, default=None):
+    def try_to_get(path, participant=None, default=None, convert_to_int=False):
         """try to get a preference object
 
         Args:
@@ -190,6 +190,9 @@ class Preference(models.Model):
         if query.exists():
             return_value = query.order_by("-when_created").first().value
             return_fromdb = True
+        
+        if return_value and convert_to_int:
+            return_value = int(return_value)
         
         return return_value, return_fromdb
         
