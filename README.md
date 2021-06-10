@@ -152,14 +152,28 @@ This application is automatically tested and deployed to the google cloud by Tra
 
 The deployment of this application is based on [Google Cloud's "Running Django on Google Kubernetes" documentation.](https://cloud.google.com/python/django/kubernetes-engine)
 
-Managing the heartsteps-server in deployment might require completing tasks like flushing the database, changing administration passwords, or other debugging tasks. **To run the *heartsteps-server* as if it was deployed to gcloud** and connected to the gcloud database, use the following command:
-```
-$ docker-compose run server-gcloud bash
+It can be useful to setup kubectrl to directly access the Kubernentes cluster.
+To do this you need to use the gcloud command line to setup the needed certificates.
 
-// You will then be able to run tasks like:
-/server# ./manage.py createsuperuser
-/server# ./manage.py loaddata initial_data
 ```
+# First login with your google account (you have access, right?)
+$ gcloud auth login
+
+# Set the correct gcloud project
+$ gcloud config set project heartsteps-dev
+
+# Set up kubernetes
+$ gcloud container clusters get-credentials dev-cluster --region=us-central1-a
+
+# Lets see what pods you can connect to...
+$ kubectrl get pods
+
+# You'll get a long list of running pods
+# let's assume one is named heartsteps-worker-123456789-abc
+$ kubectrl exec -it heartsteps-worker-123456789-abc 
+
+```
+
 
 ## Environment Variables
 Here is a list of the environment variables that are used by HeartSteps. All docker containers in this project share the same environment variables at run time and during build time on Travis-CI. None of the heartsteps docker containers use all the environment variables. Below is a list of environment variables used in the project, and how the environment variable is used.
@@ -220,4 +234,18 @@ You may create a context-specific docker-compose YAML file. If you made a YAML f
 ```
 $ docker-compose -f docker-compose.nlm.yaml up
 // Run docker-compose with a context-specific yaml file. Since the yaml file refers to a custom-made .env file, it would not work if you don't have 'certificate/.env-development' file.
+```
+
+To connect to the dev server through docker you will need the development credentials in your credentials dirctory. There are two files that you need:
+* .env-gcloud-dev
+* gcloud-dev-service-account.json
+
+With the credentials above you use gcloud-dev.docker-compose.yaml to connect to the database, but with your local file directory which is pretty useful for debugging.
+
+```
+$ docker-compose -f gcloud-dev.docker-compose.yaml run server bash
+
+# Let's pretend you need to setup a new superuser
+> python manage.py createsuperuser
+
 ```
