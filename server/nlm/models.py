@@ -178,7 +178,7 @@ class Preference(models.Model):
         else:
             Preference.objects.create(path=path, participant=participant, value=default)
     
-    def create(path, value):
+    def create(path, value, participant=None):
         """create preference object
 
         Args:
@@ -189,8 +189,9 @@ class Preference(models.Model):
             Preference: added preference object
             bool: if overwritten
         """
-        overwrite = Preference.objects.filter(path=path).exists()
+        overwrite = Preference.objects.filter(path=path, participant=participant).exists()
         
-        return Preference.objects.create(path=path, value=value), overwrite
+        return Preference.objects.create(path=path, value=value, participant=participant), overwrite
     
-    
+    def delete(path, participant=None):
+        return Preference.objects.filter(path=path, participant=participant).delete()
