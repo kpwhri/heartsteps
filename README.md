@@ -166,11 +166,11 @@ $ gcloud config set project heartsteps-dev
 $ gcloud container clusters get-credentials dev-cluster --region=us-central1-a
 
 # Lets see what pods you can connect to...
-$ kubectrl get pods
+$ kubectl get pods
 
 # You'll get a long list of running pods
 # let's assume one is named heartsteps-worker-123456789-abc
-$ kubectrl exec -it heartsteps-worker-123456789-abc 
+$ kubectl exec -it heartsteps-worker-123456789-abc 
 
 ```
 
