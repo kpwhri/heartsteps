@@ -18,11 +18,11 @@ before_script:
 - docker system prune -af
 - docker volume prune -f
 - docker-compose build server > /dev/null
+- docker-compose build client > /dev/null
 - docker-compose run server python manage.py migrate > /dev/null
 
 script:
 - docker-compose run server python manage.py test
-- docker compose run client npm install
 - docker-compose run client npm run build:app
 
 after_success:
