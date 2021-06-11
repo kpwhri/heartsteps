@@ -74,3 +74,8 @@ fitbit/node_modules
 dev.sh
 server/dev.sh
 server/celerybeat.pid
+dev-credentials.tar.asc
+dev-credentials.tar
+dev-credentials/.env-development
+dev-credentials/.env-gcloud-dev
+dev-credentials/gcloud-dev-service-account.json
