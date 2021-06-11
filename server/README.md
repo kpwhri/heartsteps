@@ -5,6 +5,8 @@ The *Primary App* in the server is `participants` which defines the Study, Cohor
 
 All participant information is shown on the HeartSteps dashboard is seperated by Study "admins" access to Django user accounts. Non-identifiable information is shown on the default django admin, and should be considered viewable by any Django staff user accounts. The Django superuser account has access to all information in the database.
 
+**NOTE** To aim for a more orthagonal application architecture, the participant model has a one-to-one relationship with the Django User model. This allows other applicaitons to use the Django User model directly without dependency on the participant module -- hopefully supporting more reusable modules. The best way to import the Django User model is with [get_user_model method.](https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#referencing-the-user-model)
+
 ## Primary Apps
 * `participants` configures the person participating in HeartSteps, which includes starting and stoping interventions and participant authentication.
 * `heartsteps_messages` was an attempt to simplify anti-sedentary and walking suggestion orchestration with the fitbit clock face app to a seperate non-participants app (as the participants app is a mess).
