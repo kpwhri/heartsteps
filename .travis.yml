@@ -22,6 +22,7 @@ before_script:
 
 script:
 - docker-compose run server python manage.py test
+- docker compose run client npm install
 - docker-compose run client npm run build:app
 
 after_success:
