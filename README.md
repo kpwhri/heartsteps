@@ -259,6 +259,8 @@ To enable the Fitbit API Subscription, you need to add a subscription where the 
 We recommend setting a subscriber ID, as Fitbit will set the value to 1 otherwise.
 You will need to set both the FITBIT_SUBSCRIBER_ID and FITBIT_SUBSCRIBER_VERIFICATION_CODE with corresponding values in your server's environment variables.
 
+To access intra-day step counts for participants, you need to request special access from Fitbit here: https://dev.fitbit.com/build/reference/web-api/intraday-requests/
+Please note this is a really long form
 
 ## Troubleshooting
 This software has been known to break, here are some quick tips and commands for resetting your local environment.
