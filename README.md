@@ -67,10 +67,7 @@ $ docker-compose run --service-ports client bash
 # Let's cover iOS dev somewhere else...
 ```
 
-PS: Docker has a tendency to cache all sorts of things, sometimes destroying the containers is a good thing.
-```
-$ docker rm -f $(docker ps -aq)
-```
+**NOTE:** See the troubleshooting section at the end of this document for quick fixes to local development issues.
 
 ### HeartSteps Server
 
@@ -189,7 +186,7 @@ The heartsteps-server uses a postgres database in Google Cloud's SQL Database. T
 
 This database can be accessed directly by running:
 ```
-$ docker-compose -f docker-compose.gcloud.yaml run --service-ports cloudsql
+$ docker-compose -f gcloud-dev.docker-compose.yaml run --service-ports cloudsql
 // The postgres server is now available at psql://heartsteps:heartsteps@localhost:5432
 ```
 
@@ -249,3 +246,39 @@ $ docker-compose -f gcloud-dev.docker-compose.yaml run server bash
 > python manage.py createsuperuser
 
 ```
+## Service Integrations
+HeartSteps uses multiple APIs and services to deliver a complete experience.
+
+### Fitbit API Integration
+A connection the Fitbit API is required for HeartSteps to function properly.
+
+Authorization for a participant requires the Fitbit server publicly accessiable and connected to HeartSteps.
+You will want to set Fitbit API's return URL value to `https://<your domain>/api/fitbit/authorize/process`
+
+To enable the Fitbit API Subscription, you need to add a subscription where the endpoint is `https://<your domain>/api/fitbit/subscription`
+We recommend setting a subscriber ID, as Fitbit will set the value to 1 otherwise.
+You will need to set both the FITBIT_SUBSCRIBER_ID and FITBIT_SUBSCRIBER_VERIFICATION_CODE with corresponding values in your server's environment variables.
+
+
+## Troubleshooting
+This software has been known to break, here are some quick tips and commands for resetting your local environment.
+
+Docker and Docker-Compose leave old container everywhere, often simply destroying these containers will get eveything working correctly.
+
+```
+
+$ docker rm -f $(docker ps -aq)
+
+```
+
+**Completely destroying the database** is often useful if database migrations get screwed up.
+The local database is stored in a docker volume called `heartsteps_pgdata` to delete it run
+
+```
+$ docker volume rm heartsteps_pgdata
+```
+
+The heartsteps client applications store data in the browser's localstorage which can sometimes get set into the incorrect state.
+A common issue is being logged in with an Authorization Token that was created for a different system.
+It's good practice to delete the localstorage occasionally. 
+
