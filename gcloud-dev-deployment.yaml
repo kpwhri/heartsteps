@@ -147,7 +147,7 @@ spec:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
-            value: '35.201.93.75,heartsteps.net,heartsteps-service'
+            value: '35.201.93.75,dev.heartsteps.net,heartsteps-server'
           - name: DATABASE_URL
             value: 'psql://heartsteps:heartsteps@localhost:5432/heartsteps'
         ports:
