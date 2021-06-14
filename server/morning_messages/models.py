@@ -213,14 +213,13 @@ class MorningMessageQuerySet(models.QuerySet):
     def _fetch_all(self):
         super()._fetch_all()
         while self._result_cache and self.prefetch_methods.keys():
-            now = datetime.now()
             keys = self.prefetch_methods.keys()
             _key = list(keys).pop()
             method_name = self.prefetch_methods[_key]
             del self.prefetch_methods[_key]
             if hasattr(self, method_name):
                 getattr(self, method_name)()
-            diff = datetime.now() - now
+
 
     def prefetch_decision(self):
         return self.prefetch_related('message_decision')
@@ -287,20 +286,26 @@ class MorningMessageQuerySet(models.QuerySet):
                 _morning_message._message = message
 
     def fetch_surveys(self):
+        survey_uuids = [_mm.survey_id for _mm in self._result_cache]
         survey_by_id = {}
-        surveys = MorningMessageSurvey.objects.filter(
-            uuid__in = [_mm.survey_id for _mm in self._result_cache]
-        ).all()
-        for survey in surveys:
-            survey_by_id[survey.id] = survey
+
+        # Querying Morning Message Surveys took too long
+        # Realized we only need questions and responses (below)
+        for survey_uuid in survey_uuids:
+            survey_by_id[survey_uuid] = MorningMessageSurvey(
+                uuid = survey_uuid
+            )
+
         questions = SurveyQuestion.objects.filter(
-            survey_id__in = survey_by_id.keys()
+            survey_id__in = survey_uuids
         ).all()
         for _question in questions:
-            survey = survey_by_id[_question.survey_id]
-            if not hasattr(survey, '_questions'):
-                setattr(survey,'_questions', [])
-            survey._questions.append(_question)
+            if _question.survey_id in survey_by_id:
+                survey = survey_by_id[_question.survey_id]
+                if not hasattr(survey, '_questions'):
+                    setattr(survey,'_questions', [])
+                survey._questions.append(_question)
+
         responses = SurveyResponse.objects.filter(
             survey_id__in = survey_by_id.keys()
         ) \
@@ -308,14 +313,19 @@ class MorningMessageQuerySet(models.QuerySet):
         .prefetch_related('answer') \
         .all()
         for _response in responses:
-            survey = survey_by_id[_response.survey_id]
-            if not hasattr(survey, '_answers'):
-                setattr(survey,'_answers', {})
-            survey._answers[_response.question_id] = _response.answer
-        
+            if _question.survey_id in survey_by_id:
+                survey = survey_by_id[_response.survey_id]
+                if not hasattr(survey, '_answers'):
+                    setattr(survey,'_answers', {})
+                survey._answers[_response.question_id] = _response.answer
+
         for _morning_message in self._result_cache:
             if _morning_message.survey_id in survey_by_id:
                 _morning_message.survey = survey_by_id[_morning_message.survey_id]
+                if hasattr(_morning_message.survey,'_answers'):
+                    _morning_message.survey.answered = True
+                else:
+                    _morning_message.survey.answered = False
             else:
                 _morning_message.survey = None
 

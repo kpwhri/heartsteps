@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db import IntegrityError
+from django.db.models.query import Prefetch
 from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.http import UnreadablePostError
@@ -1748,6 +1749,7 @@ class CohortMorningMessagesView(CohortView):
         .prefetch_message() \
         .prefetch_survey() \
         .all()
+
         morning_messages_by_user_id_by_date = {}
         counts_by_date = {}
         for _date in last_week:
@@ -1759,7 +1761,7 @@ class CohortMorningMessagesView(CohortView):
             }
         for morning_message in morning_messages:
             _date = morning_message.date
-            _user_id = morning_message.user.id
+            _user_id = morning_message.user_id
             if _user_id not in morning_messages_by_user_id_by_date:
                 morning_messages_by_user_id_by_date[_user_id] = {}
             morning_messages_by_user_id_by_date[_user_id][_date] = morning_message
@@ -1776,7 +1778,7 @@ class CohortMorningMessagesView(CohortView):
 
         configurations = MorningMessageConfiguration.objects \
         .filter(user__in=users) \
-        .prefetch_related('daily_task') \
+        .prefetch_related(Prefetch('daily_task', queryset=DailyTask.objects.prefetch_related('task'))) \
         .all()
         configuration_by_user_id = {}
         for configuration in configurations:
@@ -1802,6 +1804,7 @@ class CohortMorningMessagesView(CohortView):
                 if configuraiton.enabled:
                     serialized_participant['enabled'] = True
                 if configuraiton.daily_task:
+                    pass
                     if configuraiton.daily_task.task.last_run_at:
                         serialized_participant['daily_task'] = "Last run at %s" % (configuraiton.daily_task.task.last_run_at.strftime('%Y-%m-%d %H:%M:%S')) 
                     else:
