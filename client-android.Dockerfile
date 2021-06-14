@@ -23,7 +23,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get update && \ 
     apt-get install -y nodejs
 
-RUN npm install cordova ionic sass -g
+RUN npm install cordova @ionic/cli sass -g
 
 ADD ./client /client
 WORKDIR /client
