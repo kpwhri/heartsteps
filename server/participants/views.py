@@ -70,7 +70,7 @@ class ParticipantInformationView(APIView):
             'studyContactNumber': service.get_study_contact_number(),
             'baselinePeriod': service.get_baseline_period(),
             'baselineComplete': service.is_baseline_complete(),
-            'participantTags': service.get_participantTags()
+            'participantTags': []
         })
 
 
