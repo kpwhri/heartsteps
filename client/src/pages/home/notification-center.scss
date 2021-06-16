@@ -1,18 +1,16 @@
-page-notification-center {
-    // TODO: talk about overriding default margin of 1em in pages.scss
-    margin: 0;
-}
-
 li {
     color: black;
 }
 
-:root {
-    --padding-top: 0px;
-    --padding-bottom: 0px;
+.notification-list {
+    border-left: 5px solid red;
+    background-color: #f1f1f1;
+    list-style-type: none;
+    padding: 10px 20px;
 }
 
-.notification-list {
-    padding-top: var(--padding-top);
-    padding-bottom: var(--padding-bottom);
+ul {
+    list-style-type: none;
+    padding: 0;
+    border: 1px solid #ddd;
 }
