@@ -29,5 +29,18 @@ class DailyStepGoalsList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
+        step_goals = StepGoals.objects.filter(
+            user = request.user
+        ).order_by('date') \
+        .all()
 
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        if step_goals:
+            serialized_step_goals = []
+            for step_goal in step_goals:
+                serialized_step_goals.append({
+                    'date': step_goal.date.strftime('%Y-%m-%d'),
+                    'step_goal': step_goal.step_goal
+                })
+            return Response(serialized_step_goals)
+        else:
+            return Response('No step goals', status=status.HTTP_404_NOT_FOUND)
