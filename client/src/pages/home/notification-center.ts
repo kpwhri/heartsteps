@@ -8,9 +8,6 @@ import { Notification } from "@heartsteps/notification-center/Notification";
 })
 export class NotificationCenterPage implements OnInit {
     public notifications: Notification[] = [];
-    // TODO: remove hardocode
-    private cohortId: number = 12345;
-    private userId: string = "garbage";
 
     constructor(private notificationService: NotificationCenterService) {
         this.notifications;

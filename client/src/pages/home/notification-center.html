@@ -1,5 +1,9 @@
 <ul *ngFor="let notification of notifications" class="notification-list">
-    <li>{{ notification.created | date:'h:mm a' }}</li>
-    <li><strong>{{notification.title }}</strong></li>
-    <li>{{notification.body }}</li>
+    <li class="notification-list-item time-list-item">
+        {{ notification.created | date:'h:mm a' }}
+    </li>
+    <li class="notification-list-item">
+        <strong>{{notification.title }}</strong>
+    </li>
+    <li class="notification-list-item">{{notification.body }}</li>
 </ul>
