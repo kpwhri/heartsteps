@@ -17,17 +17,6 @@ services:
       - db
       - rabbitmq
       - server
-  client-android:
-    build: 
-      context: ./
-      dockerfile: client-android.Dockerfile
-    command: npm run build:app:android
-    volumes:
-      - ./client:/client
-      - ./credentials:/credentials
-      - client-platforms:/client/platforms
-      - client-node-modules:/client/node_modules
-      - client-gradle-cache:/root/.gradle/caches
   db:
     environment: 
       - POSTGRES_PASSWORD=password
@@ -54,7 +43,5 @@ services:
       - db
       - rabbitmq
 volumes:
-  client-platforms:
   client-node-modules:
   pgdata:
-  client-gradle-cache:
