@@ -142,7 +142,8 @@ INSTALLED_APPS = [
     'closeout_messages',
     'burst_periods',
     'fitbit_clock_face',
-    'nlm'
+    'nlm',
+    'daily_step_goals'
 ]
 
 MIDDLEWARE = [

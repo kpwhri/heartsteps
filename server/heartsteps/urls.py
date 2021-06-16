@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^api/', include('morning_messages.urls')),
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/', include('weather.urls')),
+    url(r'^api/', include('daily_step_goals.urls')),
     # TODO: URGENT IMPORTANT PUT NOTIFICATION CENTER IN PUSH_MESSAGE AND REMOVE dashboard.urls
     # remove after debugging notification center
     # URL for notifications center endpoint is now:
