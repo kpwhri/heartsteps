@@ -18,7 +18,7 @@ export class NotificationCenterPage implements OnInit {
 
     private getNotifications(): Promise<Notification[]> {
         return this.notificationService
-            .getRecentNotifications(this.cohortId, this.userId)
+            .getRecentNotifications()
             .then((notifications) => {
                 return (this.notifications = notifications);
             });

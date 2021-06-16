@@ -138,7 +138,7 @@ class ParticipantNotificationEndpointView(APIView):
     # the endpoint requires these 2 params to work even tho they are optional 
     # and not used in the logic of get()
     # 
-    def get(self, request, cohort_id, participant_id):
+    def get(self, request):
         start = timezone.now() - timedelta(days=1)
         end = timezone.now()
         

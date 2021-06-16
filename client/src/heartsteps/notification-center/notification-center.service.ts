@@ -10,13 +10,7 @@ export class NotificationCenterService {
         private heartstepsServer: HeartstepsServer // private messageService: MessageService
     ) {}
 
-    public getRecentNotifications(
-        cohortId: number,
-        userId: string
-    ): Promise<Notification[]> {
-        return this.heartstepsServer.get(
-            `/notification_center/${cohortId}/${userId}/`,
-            {}
-        );
+    public getRecentNotifications(): Promise<Notification[]> {
+        return this.heartstepsServer.get("/notification_center/", {});
     }
 }
