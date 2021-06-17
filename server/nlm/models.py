@@ -112,23 +112,23 @@ class Conditionality(models.Model):
         unique_together = ['module_path', 'studytype']
 
 
-class LogSubject(models.Model):
-    name = models.CharField(max_length=255)
+# class LogSubject(models.Model):
+#     name = models.CharField(max_length=255)
     
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-class LogObject(models.Model):
-    name = models.CharField(max_length=255)
+# class LogObject(models.Model):
+#     name = models.CharField(max_length=255)
     
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-class LogPurpose(models.Model):
-    name = models.CharField(max_length=255)
+# class LogPurpose(models.Model):
+#     name = models.CharField(max_length=255)
     
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
 class LogContents(models.Model):
     logtime = models.DateTimeField(auto_now_add=True)

@@ -3,7 +3,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from .models import StudyType, CohortAssignment, Conditionality, ConditionalityParameter
-from .models import LogSubject, LogObject, LogPurpose, LogContents
+from .models import LogContents
 from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
 from .models import LevelLineAssignment, LevelAssignment
 from .models import Preference
