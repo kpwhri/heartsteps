@@ -1,6 +1,8 @@
+
 import unittest
 import json
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from django.db.utils import IntegrityError
 
@@ -19,9 +21,11 @@ from nlm.programlets import ProgramletParameters
 from nlm.tasks import nlm_base_hourly_task
 
 from django.utils import timezone
-import datetime
+from datetime import datetime
+from datetime import date
 import pytz
 
+from freezegun import freeze_time
 from days.models import Day
 
 class StudyTypeServiceTest(HeartStepsTestCase):
@@ -242,19 +246,19 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     def test_is_decision_point_1(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
         
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 7, 59, 59)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 1, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 3, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 0)))
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 1)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 7, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 10, 1)))
         
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 10, 59, 59)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 1, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 3, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 0)))
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 1)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 10, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 10, 1)))
         
     
     def test_is_decision_point_2(self):
@@ -262,23 +266,23 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         
         Day.objects.create(
             user = self.user,
-            date = datetime.date.today(),
+            date = date(2021, 6, 2),
             timezone = 'America/Los_Angeles'
         )
         
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 7, 59, 59)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 0, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 1, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 3, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 0)))
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 8, 10, 1, tzinfo=pytz.timezone('US/Pacific'))))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 7, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 8, 10, 1, tzinfo=pytz.timezone('US/Pacific'))))
         
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 10, 59, 59)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 0, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 1, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 3, 0)))
-        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 0)))
-        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=timezone.datetime(2021, 6, 3, 11, 10, 1)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 10, 59, 59)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 0, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 1, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 3, 0)))
+        self.assertTrue(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 10, 0)))
+        self.assertFalse(study_type_service.is_decision_needed(self.participant, test_time=datetime(2021, 6, 3, 11, 10, 1)))
         
     def test_random_conditionality(self):
         study_type_service = StudyTypeService(self.study_type_name, self.user)
@@ -294,4 +298,77 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=80))
         self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=90))
         self.assertFalse(study_type_service.get_random_conditionality(self.participant, test_value=100))
+    
+    @patch('nlm.services.StudyTypeService.get_decision_point_gap')
+    @patch('nlm.services.StudyTypeService.get_decision_point_expiration_window')
+    @patch('nlm.services.StudyTypeService.get_first_decision_point_hour')
+    @patch('nlm.services.StudyTypeService.get_last_day_achieved')
+    @patch('nlm.services.StudyTypeService.get_today_steps')
+    @patch('daily_step_goals.services.StepGoalsService.get_today_step_goal')
+    def test_need_conditionality(self, 
+                                 mock_get_today_step_goal, 
+                                 mock_get_today_steps, 
+                                 mock_get_last_day_achieved,
+                                 mock_get_first_decision_point_hour,
+                                 mock_get_decision_point_expiration_window,
+                                 mock_get_decision_point_gap):
         
+        Day.objects.create(
+            user = self.participant.user,
+            date = date(2021, 6, 10),
+            timezone = 'America/Los_Angeles'
+        )
+        
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+
+        # non-relevant mocking
+        mock_get_first_decision_point_hour.return_value = 8
+        mock_get_decision_point_expiration_window.return_value = 10
+        mock_get_decision_point_gap.return_value = 3
+
+
+        # first decision point => totally depends on the previous goal achievement (invert the last_day_achieved))
+        mock_get_today_step_goal.return_value = 8000
+        mock_get_today_steps.return_value = 0
+        mock_get_last_day_achieved.return_value = False
+        with freeze_time(lambda: datetime.strptime("2021-06-14 08:05-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertTrue(study_type_service.get_need_conditionality(self.participant))
+            
+        mock_get_last_day_achieved.return_value = True
+        with freeze_time(lambda: datetime.strptime("2021-06-14 07:55-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_need_conditionality(self.participant))
+        
+        with freeze_time(lambda: datetime.strptime("2021-06-14 08:05-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_need_conditionality(self.participant))
+
+
+        
+        # second and later decision points => Prorated Goals = (Elapsed Hours) * (Daily Goal) / 12. returns whether if current step is larger than prorated goals
+        mock_get_today_step_goal.return_value = 8000
+        mock_get_today_steps.return_value = 0
+        with freeze_time(lambda: datetime.strptime("2021-06-14 11:00-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertTrue(study_type_service.get_need_conditionality(self.participant))
+
+        mock_get_today_steps.return_value = 4000
+        with freeze_time(lambda: datetime.strptime("2021-06-14 11:00-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_need_conditionality(self.participant))
+            
+
+        # before decision window
+        mock_get_last_day_achieved.return_value = False
+        with freeze_time(lambda: datetime.strptime("2021-06-14 07:55-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertTrue(study_type_service.get_need_conditionality(self.participant))
+        
+        mock_get_last_day_achieved.return_value = True
+        with freeze_time(lambda: datetime.strptime("2021-06-14 07:55-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_need_conditionality(self.participant))
+
+        # after decision window => Prorated Goals = (Daily Goal). returns whether if current step is larger than prorated goals
+        mock_get_today_step_goal.return_value = 8000
+        mock_get_today_steps.return_value = 7900
+        with freeze_time(lambda: datetime.strptime("2021-06-14 22:00-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertTrue(study_type_service.get_need_conditionality(self.participant))
+
+        mock_get_today_steps.return_value = 9000
+        with freeze_time(lambda: datetime.strptime("2021-06-14 22:00-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_need_conditionality(self.participant))

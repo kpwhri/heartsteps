@@ -9,6 +9,8 @@ from .models import LevelLineAssignment, LevelAssignment
 from .models import Preference
 from generic_messages.services import GenericMessagesService
 
+from daily_step_goals.services import StepGoalsService
+
 from days.services import DayService
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -343,29 +345,30 @@ class StudyTypeService:
     
     def is_decision_needed(self, participant, test_time=None):
         # fetch the participant's decision window preferences
-        first_decision_point_hour, _ = Preference.try_to_get(
-            path="nlm.bout_planning.first_decision_point_hour", 
-            participant=participant, 
-            default=8, 
-            convert_to_int=True)
+        first_decision_point_hour = self.get_first_decision_point_hour(participant)
         
         # get decision point expiration window (in minutes)
-        decision_point_expiration_window, _ = Preference.try_to_get(
-            path="nlm.bout_planning.decision_point_expiration_window",
-            default=10, 
-            convert_to_int=True)
+        decision_point_expiration_window = self.get_decision_point_expiration_window()
         
         # get decision point gap (in hours)
-        decision_point_gap, _ = Preference.try_to_get(
-            path="nlm.bout_planning.decision_point_gap",
-            default=3, 
-            convert_to_int=True)
+        decision_point_gap = self.get_decision_point_gap()
         
         # decide if now is the participant's decision point or not
         if test_time:
             current_time = test_time
         else:
             current_time = self.localize_datetime(participant.user, timezone.now())
+        
+        decision_points = self.construct_decision_points(first_decision_point_hour, decision_point_gap, current_time)
+        
+        # intentionally iterates twice. Later, we might get the index of which decision point we are near to.
+        for i in range(0, 4):
+            if current_time >= decision_points[i] and current_time - decision_points[i] <= timedelta(minutes=decision_point_expiration_window):
+                return True
+        
+        return False
+
+    def construct_decision_points(self, first_decision_point_hour, decision_point_gap, current_time):
         decision_points = []
         temp_time = current_time
         temp_time = temp_time.replace(
@@ -376,15 +379,34 @@ class StudyTypeService:
         decision_points.append(temp_time)
         
         for i in range(1, 4):
-            temp_time = temp_time.replace(hour=temp_time.hour + decision_point_gap)
+            temp_time = temp_time.replace(hour=((temp_time.hour + decision_point_gap) % 24))
             decision_points.append(temp_time)
-        
-        # intentionally iterates twice. Later, we might get the index of which decision point we are near to.
-        for i in range(0, 4):
-            if current_time >= decision_points[i] and current_time - decision_points[i] <= timedelta(minutes=decision_point_expiration_window):
-                return True
-        
-        return False
+        return decision_points
+
+    def get_decision_point_gap(self):
+        decision_point_gap, _ = Preference.try_to_get(
+            path="nlm.bout_planning.decision_point_gap",
+            default=3, 
+            convert_to_int=True)
+            
+        return decision_point_gap
+
+    def get_decision_point_expiration_window(self):
+        decision_point_expiration_window, _ = Preference.try_to_get(
+            path="nlm.bout_planning.decision_point_expiration_window",
+            default=10, 
+            convert_to_int=True)
+            
+        return decision_point_expiration_window
+
+    def get_first_decision_point_hour(self, participant):
+        first_decision_point_hour, _ = Preference.try_to_get(
+            path="nlm.bout_planning.first_decision_point_hour", 
+            participant=participant, 
+            default=8, 
+            convert_to_int=True)
+            
+        return first_decision_point_hour
             
     def get_random_conditionality(self, participant, test_value=None):
         # get random criteria (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
@@ -397,8 +419,59 @@ class StudyTypeService:
         
         return random_value <= random_criteria
     
-    def get_need_conditionality(self, participant):
+    def get_last_day_achieved(self, participant):
+        # TODO: implement this
         return True
+    
+    def get_today_steps(self, participant):
+        # TODO: implement this
+        return 180
+    
+    def get_need_conditionality(self, participant):
+        step_goals_service = StepGoalsService(participant.user)
+        today_step_goal = step_goals_service.get_today_step_goal()
+        
+        today_steps = self.get_today_steps(participant)
+        last_day_achieved = self.get_last_day_achieved(participant)
+        
+        first_decision_point_hour = self.get_first_decision_point_hour(participant)
+        decision_point_gap = self.get_decision_point_gap(participant)
+        current_time = self.localize_datetime(participant.user, datetime.now().astimezone(pytz.UTC))
+        
+        decision_points = self.construct_decision_points(
+            first_decision_point_hour, decision_point_gap, current_time
+        )
+        decision_point_interval_index = self.get_decision_point_interval_index(current_time, decision_points)
+        
+        
+        if decision_point_interval_index <= 0:
+            return not last_day_achieved
+        elif 0 < decision_point_interval_index and decision_point_interval_index <=4:
+            prorated_goal = today_step_goal * decision_point_interval_index / 4 
+            
+            return prorated_goal > today_steps
+        
+    def get_decision_point_interval_index(self, current_time, decision_points):
+        twelveth_hour = decision_points[0].replace(hour=((decision_points[0].hour+12) % 24))
+        
+        if current_time < decision_points[0]:
+            decision_point_interval_index = -1
+        elif current_time < decision_points[1]:
+            decision_point_interval_index = 0
+        elif current_time < decision_points[2]:
+            decision_point_interval_index = 1
+        elif current_time < decision_points[3]:
+            decision_point_interval_index = 2
+        elif current_time < twelveth_hour:
+            decision_point_interval_index = 3
+        else:
+            decision_point_interval_index = 4
+            
+            
+        return decision_point_interval_index
+        
+        
+        
     
     def get_opportunity_condition(self, participant):
         return True
