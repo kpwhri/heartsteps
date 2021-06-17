@@ -19,7 +19,6 @@ import random
 
 class LogService:
     def __init__(self, subject_name=None):
-        # self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
         self.subject_str = subject_name
     
     def log(value=None, purpose=None, object=None):
@@ -27,9 +26,6 @@ class LogService:
         log_service.log(value, purpose, object)
         
     def log(self, value=None, purpose=None, object=None):
-        # log_object, created = LogObject.objects.get_or_create(name=object)
-        # log_purpose, created = LogPurpose.objects.get_or_create(name=purpose)
-        
         LogContents.objects.create(
             subject_str=self.subject_str,
             object_str=object,
