@@ -406,7 +406,7 @@ class StudyTypeService:
         return first_decision_point_hour
             
     def get_random_conditionality(self, participant, test_value=None):
-        # get random criteria (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
+        # with a random criterion (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
         random_criteria, fromdb = Preference.try_to_get("nlm.bout_planning.conditionality.random.random_criteria", default=50, convert_to_int=True)
         
         if test_value is None:
@@ -425,8 +425,7 @@ class StudyTypeService:
         return 180
     
     def get_need_conditionality(self, participant):
-        step_goals_service = StepGoalsService(participant.user)
-        today_step_goal = step_goals_service.get_today_step_goal()
+        today_step_goal = self.get_step_goal(participant)
         
         today_steps = self.get_today_steps(participant)
         last_day_achieved = self.get_last_day_achieved(participant)
@@ -447,6 +446,11 @@ class StudyTypeService:
             prorated_goal = today_step_goal * decision_point_interval_index / 4 
             
             return prorated_goal > today_steps
+
+    def get_step_goal(self, participant, date=None):
+        step_goals_service = StepGoalsService(participant.user)
+        step_goal = step_goals_service.get_step_goal(date)
+        return step_goal
         
     def get_decision_point_interval_index(self, current_time, decision_points):
         twelveth_hour = decision_points[0].replace(hour=((decision_points[0].hour+12) % 24))

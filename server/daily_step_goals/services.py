@@ -4,5 +4,13 @@ class StepGoalsService:
         
         self.user = user
     
-    def get_today_step_goal(self):
+    def get_step_goal(self, date=None):
+        """returns step goal
+
+        Args:
+            date ([datetime], optional): date to fetch the step goal. Defaults to None. If omitted, today's goal is fetched
+
+        Returns:
+            [int]: step goal of the day
+        """
         return 8001;
