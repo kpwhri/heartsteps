@@ -304,9 +304,9 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     @patch('nlm.services.StudyTypeService.get_first_decision_point_hour')
     @patch('nlm.services.StudyTypeService.get_last_day_achieved')
     @patch('nlm.services.StudyTypeService.get_today_steps')
-    @patch('daily_step_goals.services.StepGoalsService.get_today_step_goal')
+    @patch('daily_step_goals.services.StepGoalsService.get_step_goal')
     def test_need_conditionality(self, 
-                                 mock_get_today_step_goal, 
+                                 mock_get_step_goal, 
                                  mock_get_today_steps, 
                                  mock_get_last_day_achieved,
                                  mock_get_first_decision_point_hour,
@@ -328,7 +328,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
 
 
         # first decision point => totally depends on the previous goal achievement (invert the last_day_achieved))
-        mock_get_today_step_goal.return_value = 8000
+        mock_get_step_goal.return_value = 8000
         mock_get_today_steps.return_value = 0
         mock_get_last_day_achieved.return_value = False
         with freeze_time(lambda: datetime.strptime("2021-06-14 08:05-0700", "%Y-%m-%d %H:%M%z")):
@@ -344,7 +344,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
 
         
         # second and later decision points => Prorated Goals = (Elapsed Hours) * (Daily Goal) / 12. returns whether if current step is larger than prorated goals
-        mock_get_today_step_goal.return_value = 8000
+        mock_get_step_goal.return_value = 8000
         mock_get_today_steps.return_value = 0
         with freeze_time(lambda: datetime.strptime("2021-06-14 11:00-0700", "%Y-%m-%d %H:%M%z")):
             self.assertTrue(study_type_service.get_need_conditionality(self.participant))
@@ -364,7 +364,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
             self.assertFalse(study_type_service.get_need_conditionality(self.participant))
 
         # after decision window => Prorated Goals = (Daily Goal). returns whether if current step is larger than prorated goals
-        mock_get_today_step_goal.return_value = 8000
+        mock_get_step_goal.return_value = 8000
         mock_get_today_steps.return_value = 7900
         with freeze_time(lambda: datetime.strptime("2021-06-14 22:00-0700", "%Y-%m-%d %H:%M%z")):
             self.assertTrue(study_type_service.get_need_conditionality(self.participant))
