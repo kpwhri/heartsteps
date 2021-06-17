@@ -18,21 +18,22 @@ import pytz
 import random
 
 class LogService:
-    def __init__(self, subject_name='Unknown'):
-        self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
+    def __init__(self, subject_name=None):
+        # self.subject, created = LogSubject.objects.get_or_create(name=subject_name)
+        self.subject_str = subject_name
     
-    def log(value="(Empty Message)", purpose="Unknown", object="Unknown"):
+    def log(value=None, purpose=None, object=None):
         log_service = LogService()
         log_service.log(value, purpose, object)
         
-    def log(self, value="(Empty Message)", purpose="Unknown", object="Unknown"):
-        log_object, created = LogObject.objects.get_or_create(name=object)
-        log_purpose, created = LogPurpose.objects.get_or_create(name=purpose)
+    def log(self, value=None, purpose=None, object=None):
+        # log_object, created = LogObject.objects.get_or_create(name=object)
+        # log_purpose, created = LogPurpose.objects.get_or_create(name=purpose)
         
         LogContents.objects.create(
-            subject=self.subject,
-            object=log_object,
-            purpose=log_purpose,
+            subject_str=self.subject_str,
+            object_str=object,
+            purpose_str=purpose,
             value=value
         )
     
@@ -69,7 +70,7 @@ class LogService:
         """Do Not User This Method. This is only for development.
         This will be removed when the development is finished.
         """
-        query = LogContents.objects.filter(subject=self.subject)
+        query = LogContents.objects.filter(subject_str=self.subject_str)
         
         query.delete()
 

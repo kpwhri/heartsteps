@@ -265,7 +265,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 elif generic_command == 'insert_test_log':
                     log_service = LogService()
                     log_service.log("test log")
-                    context["results"] = log_service.dump(pretty=True)
+                    context["results"] = LogService.dump(pretty=True)
                 elif generic_command == 'dump_log':
                     context["results"] = LogService.dump(pretty=True) 
                 elif generic_command == 'clear_log':

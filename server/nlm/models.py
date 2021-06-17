@@ -132,23 +132,32 @@ class LogPurpose(models.Model):
 
 class LogContents(models.Model):
     logtime = models.DateTimeField(auto_now_add=True)
-    subject = models.ForeignKey(LogSubject, on_delete=models.CASCADE)
-    object = models.ForeignKey(LogObject, on_delete=models.CASCADE)
-    purpose = models.ForeignKey(LogPurpose, null=True, on_delete=models.SET_NULL)
-    value = models.TextField(blank=True)
+    # subject = models.ForeignKey(LogSubject, on_delete=models.CASCADE)
+    subject_str = models.CharField(max_length=255, null=True)
+    # object = models.ForeignKey(LogObject, on_delete=models.CASCADE)
+    object_str = models.CharField(max_length=255, null=True)
+    # purpose = models.ForeignKey(LogPurpose, null=True, on_delete=models.SET_NULL)
+    purpose_str = models.CharField(max_length=255, null=True)
+    value = models.TextField(null=True, blank=True)
+    
+    def if_this_else_that(x, this, that):
+        if x:
+            return this
+        else:
+            return that
     
     def __str__(self):
-        return "{}: {} - {} {} [{}]".format(self.logtime, self.purpose, self.subject, self.value, self.object)
+        return "{}: {} - {} [{}] | {}".format(self.logtime, self.purpose_str, self.subject_str, self.object_str, self.value)
     
     class Meta:
         indexes = [
             models.Index(fields=['-logtime']),
-            models.Index(fields=['-logtime', 'subject']),
-            models.Index(fields=['subject', 'object', 'purpose']),  # also covers s+o, s
-            models.Index(fields=['subject', 'purpose']),            
-            models.Index(fields=['purpose', 'object']),             # also covers p
-            models.Index(fields=['object'])
-        ]
+            models.Index(fields=['-logtime', 'subject_str']),
+            models.Index(fields=['subject_str', 'object_str', 'purpose_str']),  # also covers s+o, s
+            models.Index(fields=['subject_str', 'purpose_str']),            
+            models.Index(fields=['purpose_str', 'object_str']),             # also covers p
+            models.Index(fields=['object_str'])
+        ] 
 
 class ConditionalityParameter(models.Model):
     conditionality = models.ForeignKey(Conditionality, null=True, on_delete=models.SET_NULL)
