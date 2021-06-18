@@ -1,9 +1,32 @@
-<ul *ngFor="let notification of notifications" class="notification-list">
-    <li class="notification-list-item time-list-item">
-        {{ notification.created | date:'h:mm a' }}
-    </li>
-    <li class="notification-list-item">
-        <strong>{{notification.title }}</strong>
-    </li>
-    <li class="notification-list-item">{{notification.body }}</li>
-</ul>
+<div *ngFor="let notification of notifications">
+    <ng-container *ngIf="notification.received">
+        <ul class="notification notification-unread">
+            <li class="notification-list-item time-list-item">
+                {{ notification.created | date:'h:mm a' }}
+            </li>
+            <li class="notification-list-item">
+                <strong>{{notification.title }}</strong>
+            </li>
+            <li class="notification-list-item">{{notification.body }}</li>
+            <li class="notification-list-item">{{notification.sent }}</li>
+            <li class="notification-list-item">{{notification.received }}</li>
+            <li class="notification-list-item">{{notification.opened }}</li>
+            <li class="notification-list-item">{{notification.engaged }}</li>
+        </ul>
+    </ng-container>
+    <ng-container *ngIf="notification.received == null">
+        <ul class="notification">
+            <li class="notification-list-item time-list-item">
+                {{ notification.created | date:'h:mm a' }}
+            </li>
+            <li class="notification-list-item">
+                <strong>{{notification.title }}</strong>
+            </li>
+            <li class="notification-list-item">{{notification.body }}</li>
+            <li class="notification-list-item">{{notification.sent }}</li>
+            <li class="notification-list-item">{{notification.received }}</li>
+            <li class="notification-list-item">{{notification.opened }}</li>
+            <li class="notification-list-item">{{notification.engaged }}</li>
+        </ul>
+    </ng-container>
+</div>

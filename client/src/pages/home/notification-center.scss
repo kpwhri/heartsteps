@@ -2,8 +2,11 @@ li {
     color: black;
 }
 
-.notification-list {
+.notification-unread {
     border-left: 5px solid red;
+}
+
+.notification {
     background-color: #f1f1f1;
     list-style-type: none;
     padding: 10px 20px;
