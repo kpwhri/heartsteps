@@ -1,7 +1,7 @@
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">
         <ng-container *ngIf="isRead(notification) === true">
-            <ul class="notification notification-unread">
+            <ul class="notification">
                 <li class="notification-list-item time-list-item">
                     {{ notification.created | date:'h:mm a' }}
                 </li>
@@ -20,7 +20,7 @@
             </ul>
         </ng-container>
         <ng-container *ngIf="isRead(notification) === false">
-            <ul class="notification">
+            <ul class="notification notification-unread">
                 <li class="notification-list-item time-list-item">
                     {{ notification.created | date:'h:mm a' }}
                 </li>
