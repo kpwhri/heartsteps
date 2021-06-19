@@ -372,3 +372,20 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         mock_get_today_steps.return_value = 9000
         with freeze_time(lambda: datetime.strptime("2021-06-14 22:00-0700", "%Y-%m-%d %H:%M%z")):
             self.assertFalse(study_type_service.get_need_conditionality(self.participant))
+            
+    @patch('nlm.services.StudyTypeService.get_steps')
+    @patch('nlm.services.StudyTypeService.get_step_goal')
+    def test_get_last_day_achieved_1(self,
+                                   mock_get_step_goal,
+                                   mock_get_steps):
+        # Test simple logic only
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
+        
+        mock_get_step_goal.return_value = 8000
+        mock_get_steps.return_value = 123
+        with freeze_time(lambda: datetime.strptime("2021-06-14 12:34-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertFalse(study_type_service.get_last_day_achieved(self.participant))
+            
+        mock_get_steps.return_value = 8213
+        with freeze_time(lambda: datetime.strptime("2021-06-14 12:34-0700", "%Y-%m-%d %H:%M%z")):
+            self.assertTrue(study_type_service.get_last_day_achieved(self.participant))

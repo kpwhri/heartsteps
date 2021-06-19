@@ -417,8 +417,18 @@ class StudyTypeService:
         return random_value <= random_criteria
     
     def get_last_day_achieved(self, participant):
+        last_day_date = (datetime.now() - timedelta(days=1)).date()
+        last_day_step_goal = self.get_step_goal(
+            participant, 
+            date=last_day_date)
+        
+        last_day_step_count = self.get_steps(participant, last_day_date)
+        
+        return (last_day_step_goal < last_day_step_count)
+    
+    def get_steps(self, participant, date=None):
         # TODO: implement this
-        return True
+        return 180
     
     def get_today_steps(self, participant):
         # TODO: implement this
