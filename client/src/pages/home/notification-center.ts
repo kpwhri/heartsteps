@@ -1,4 +1,4 @@
-import { Component, OnInit, onDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { Notification } from "@heartsteps/notification-center/Notification";
 
