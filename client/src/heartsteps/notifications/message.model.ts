@@ -1,36 +1,37 @@
 import { MessageReceiptService } from "./message-receipt.service";
 
-
 export class Message {
     public id: string;
     public type: string;
+    public created: any;
 
     public title: string;
     public body: string;
+
+    public sent: any;
+    public received: any;
+    public opened: any;
+    public engaged: any;
 
     public survey: any;
 
     public context: any = {};
 
-    constructor(
-        private messageRecieptService: MessageReceiptService
-    ) {}
+    constructor(private messageRecieptService: MessageReceiptService) {}
 
-    public received():Promise<boolean> {
+    public toggleReceived(): Promise<boolean> {
         return this.messageRecieptService.received(this.id);
     }
 
-    public displayed(): Promise<boolean> {
+    public toggleDisplayed(): Promise<boolean> {
         return this.messageRecieptService.displayed(this.id);
     }
 
-    public opened():Promise<boolean> {
+    public toggleOpened(): Promise<boolean> {
         return this.messageRecieptService.opened(this.id);
     }
 
-    public engaged():Promise<boolean> {
+    public toggleEngaged(): Promise<boolean> {
         return this.messageRecieptService.engaged(this.id);
     }
-
 }
-

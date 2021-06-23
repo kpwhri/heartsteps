@@ -1,74 +1,75 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
+import { NotificationService } from "@app/notification.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
-import { Notification } from "@heartsteps/notification-center/Notification";
+import { Message } from "@heartsteps/notifications/message.model";
+import { Subscription } from "rxjs";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "page-notification-center",
     templateUrl: "notification-center.html",
 })
 export class NotificationCenterPage implements OnInit, OnDestroy {
-    public notifications: Notification[] = [];
+    public notifications: Message[] = [];
+    public haveUnread: boolean = false;
+    public interval: any;
+    public message: string;
 
-    constructor(private notificationService: NotificationCenterService) {
-        this.notifications;
-    }
+    private unreadStatusSubscription: Subscription;
+    private notificationsSubscription: Subscription;
 
-    // pull notifications from django
-    private getNotifications(): Promise<Notification[]> {
-        return this.notificationService
-            .getRecentNotifications()
-            .then((notifications) => {
-                return (this.notifications = notifications);
-            });
-    }
+    constructor(
+        private notificationCenterService: NotificationCenterService,
+        private notificationService: NotificationService,
+        private router: Router
+    ) {}
 
-    // checks to see if user has seen the push notification
-    public isRead(notification: Notification): boolean {
-        if (this.isReceived(notification)) {
-            /* 
-            engaged means user dismissed notification from their OS notification center
-            opened means user opened push notification and it launched heartsteps app 
-            */
-            if (notification.engaged || notification.opened) {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
+    // private updateNotification(notification: Message): Promise<any> {
+    //     return this.notificationCenterService
+    //         .updateNotification(notification)
+    //         .then((response) => {
+    //             return response.data;
+    //         })
+    //         .catch((error) => {
+    //             console.log("update notification failed, error: ", error);
+    //         });
+    // }
 
-    // checks to see if user got a push notification
-    public isReceived(notification: Notification): boolean {
-        if (notification.sent && notification.received) {
-            return true;
-        }
-        return false;
-    }
-
-    private updateReadStatus(): void {
-        console.log("updating notification read status");
-        for (let i = 0; i < this.notifications.length; i++) {
-            console.log(this.notifications[i]);
-            if (this.isReceived(this.notifications[i])) {
-                // if this message is unread
-                if (this.isRead(this.notifications[i]) === false) {
-                    console.log("unread message num: ", i);
-                    // TODO: make a post request and change to read
-                } else {
-                    console.log("read message num: ", i);
-                }
-            } else {
-                console.log("unreceived message num: ", i);
-            }
-        }
-        return;
+    public redirect(notification: Message) {
+        // TODO: so far only tested message.type == "notification", test other types
+        return this.notificationCenterService.redirectNotification(
+            notification
+        );
+        // return this.router.navigate(["weekly-survey"]);
     }
 
     ngOnInit() {
-        this.getNotifications();
+        this.notificationsSubscription =
+            this.notificationCenterService.currentNotifications.subscribe(
+                (notifications) => (this.notifications = notifications)
+            );
+        this.unreadStatusSubscription =
+            this.notificationCenterService.currentUnreadStatus.subscribe(
+                (unreadStatus) => (this.haveUnread = unreadStatus)
+            );
+        /* 
+        TODO: bug where refreshNotification is called twice and only updates every other call
+        bell icon updates 2.5 sec too late after data already arrives in inbox, should be synced
+        problem is that i'm subscribing twice (here and home.ts)
+        but i need to subscribe here to render HTML template
+        and i need to subscribe on home.ts to get updated readStatus
+        need to make notification-center.ts into own component to fix 
+        */
+        this.notificationCenterService.refreshNotifications();
+        this.interval = setInterval(() => {
+            this.notificationCenterService.refreshNotifications();
+        }, 5000);
     }
 
     ngOnDestroy() {
-        this.updateReadStatus();
+        clearInterval(this.interval);
+        this.notificationCenterService.testUpdateNotification();
+        this.notificationsSubscription.unsubscribe();
+        this.unreadStatusSubscription.unsubscribe();
     }
 }

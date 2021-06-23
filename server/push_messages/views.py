@@ -134,12 +134,9 @@ class ParticipantNotificationEndpointView(APIView):
         .all()
         return notifications
     
-    # TODO: find out why removing cohort_id and participant_id breaks the endpoint
-    # the endpoint requires these 2 params to work even tho they are optional 
-    # and not used in the logic of get()
-    # 
     def get(self, request):
-        start = timezone.now() - timedelta(days=1)
+        # TODO: change back to days=1
+        start = timezone.now() - timedelta(days=7)
         end = timezone.now()
         
         # check to see if the request is allowed (i.e. participant is logged in)

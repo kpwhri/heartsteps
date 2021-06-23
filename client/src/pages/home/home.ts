@@ -8,6 +8,7 @@ import {
 import { Router, RouterEvent, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
+import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 
 class Tab {
     name: string;
@@ -32,6 +33,10 @@ export class HomePage implements OnInit, OnDestroy {
     private notificationCenterUrl = "/home/notification-center";
     private notificationCenterName = "Notification Center";
 
+    private unreadStatusSubscription: Subscription;
+    public haveUnread: boolean = true;
+    public interval: any;
+
     public tabs: Array<Tab> = [
         {
             name: "Dashboard",
@@ -54,7 +59,8 @@ export class HomePage implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private element: ElementRef,
-        private participantService: ParticipantService
+        private participantService: ParticipantService,
+        private notificationCenterService: NotificationCenterService
     ) {}
 
     ngOnInit() {
@@ -70,11 +76,24 @@ export class HomePage implements OnInit, OnDestroy {
                     this.updatingParticipant = isUpdating;
                 }
             );
+        this.unreadStatusSubscription =
+            this.notificationCenterService.currentUnreadStatus.subscribe(
+                (unreadStatus) => (this.haveUnread = unreadStatus)
+            );
+        this.notificationCenterService.refreshNotifications();
+
+        // TODO: IMPORTANT subscription not updating every 5 seconds, only called once
+        // just changed BehaviorSubject(setupNotifications()) to BehaviorSubject(null)
+        this.interval = setInterval(() => {
+            this.notificationCenterService.refreshNotifications();
+        }, 5000);
     }
 
     ngOnDestroy() {
         this.routerSubscription.unsubscribe();
         this.updatingParticipantSubscription.unsubscribe();
+        clearInterval(this.interval);
+        this.unreadStatusSubscription.unsubscribe();
     }
 
     private updateFromUrl(url: string) {

@@ -7,8 +7,8 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
 
 @Component({
-    selector: 'heartsteps-notification-page',
-    templateUrl: './notification.page.html'
+    selector: "heartsteps-notification-page",
+    templateUrl: "./notification.page.html",
 })
 export class NotificationPage implements OnInit {
     private notification: Message;
@@ -35,31 +35,32 @@ export class NotificationPage implements OnInit {
     ngOnInit() {
         this.activatedRoute.paramMap.subscribe((paramMap) => {
             this.loading = true;
-            const notificationId: string = paramMap.get('notificationId');
-            this.messageService.getMessage(notificationId)
-            .then((notification) => {
-                this.loading = false;
-                this.notification = notification;
-                this.title = this.notification.title;
-                this.body = this.notification.body;
+            const notificationId: string = paramMap.get("notificationId");
+            this.messageService
+                .getMessage(notificationId)
+                .then((notification) => {
+                    this.loading = false;
+                    this.notification = notification;
+                    this.title = this.notification.title;
+                    this.body = this.notification.body;
 
-                if(this.notification.context.survey) {
-                    this.updateSurvey(this.notification.context.survey);
-                }
+                    if (this.notification.context.survey) {
+                        this.updateSurvey(this.notification.context.survey);
+                    }
 
-                if(this.notification.context.randomizationId) {
-                    this.setupRatingForm();
-                    this.updateStaffStatus();
-                } else {
-                    this.ratingForm = null;
-                }
-            }) 
+                    if (this.notification.context.randomizationId) {
+                        this.setupRatingForm();
+                        this.updateStaffStatus();
+                    } else {
+                        this.ratingForm = null;
+                    }
+                });
         });
     }
 
     public dismiss() {
-        this.notification.engaged();
-        this.router.navigate(['/']);
+        this.notification.toggleEngaged();
+        this.router.navigate(["/"]);
     }
 
     private updateSurvey(survey: any) {
@@ -75,11 +76,14 @@ export class NotificationPage implements OnInit {
                     options: question.options.map((option) => {
                         return {
                             name: option.label,
-                            value: option.value
+                            value: option.value,
                         };
-                    })
+                    }),
                 });
-                form.addControl(question.name, new FormControl(response[question.name]));
+                form.addControl(
+                    question.name,
+                    new FormControl(response[question.name])
+                );
             });
             this.surveyId = survey.id;
             this.form = form;
@@ -91,51 +95,59 @@ export class NotificationPage implements OnInit {
     }
 
     private updateStaffStatus() {
-        this.participantInformationService.isStaff()
-        .then(() => {
-            this.isStaff = true;
-        })
-        .catch(() => {
-            this.isStaff = false;
-        });
+        this.participantInformationService
+            .isStaff()
+            .then(() => {
+                this.isStaff = true;
+            })
+            .catch(() => {
+                this.isStaff = false;
+            });
     }
 
     private setupRatingForm() {
         this.ratingForm = new FormGroup({
             liked: new FormControl(),
-            comments: new FormControl()
+            comments: new FormControl(),
         });
     }
 
     public saveRating() {
         const randomizationId = this.notification.context.randomizationId;
-        if(randomizationId) {
-            this.heartstepsServer.post('activity-suggestions/' + randomizationId +'/rating', this.ratingForm.value)
-            .catch(() => {
-                // nothing
-            })
-            .then(() => {
-                this.dismiss();
-            })
+        if (randomizationId) {
+            this.heartstepsServer
+                .post(
+                    "activity-suggestions/" + randomizationId + "/rating",
+                    this.ratingForm.value
+                )
+                .catch(() => {
+                    // nothing
+                })
+                .then(() => {
+                    this.dismiss();
+                });
         } else {
             this.dismiss();
         }
     }
 
     public saveSurvey() {
-        if(this.surveyId && this.form) {
-            if(this.form.valid) {
-                this.heartstepsServer.post('surveys/'+this.surveyId+'/response', this.form.value)
-                .then(() => {
-                    this.dismiss()
-                })
-                .catch(() => {
-                    console.log('failed to save?')
-                });
+        if (this.surveyId && this.form) {
+            if (this.form.valid) {
+                this.heartstepsServer
+                    .post(
+                        "surveys/" + this.surveyId + "/response",
+                        this.form.value
+                    )
+                    .then(() => {
+                        this.dismiss();
+                    })
+                    .catch(() => {
+                        console.log("failed to save?");
+                    });
             }
         } else {
             this.dismiss();
         }
     }
-
 }
