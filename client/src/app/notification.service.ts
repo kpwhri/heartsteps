@@ -5,7 +5,6 @@ import { WeeklySurveyService } from "@heartsteps/weekly-survey/weekly-survey.ser
 import { Message } from "@heartsteps/notifications/message.model";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 
-// TODO: IMPORTANT USE SERVICE TO REDIRECT IN NOTIFICATION CENTER
 @Injectable()
 export class NotificationService {
     constructor(

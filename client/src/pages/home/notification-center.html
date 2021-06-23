@@ -1,4 +1,52 @@
-<div><h2>Unread Status: {{ haveUnread }}</h2></div>
+<ng-template #debugOutput let-notification="notification">
+    <li *ngIf="notification.received" class="notification-list-item">
+        RECEIVED
+    </li>
+    <li *ngIf="notification.engaged" class="notification-list-item">ENGAGED</li>
+    <li *ngIf="notification.opened" class="notification-list-item">OPENED</li>
+    <li class="notification-list-item">{{notification.id }}</li>
+</ng-template>
+
+<ng-template #notificationDetails let-notification="notification">
+    <li class="notification-list-item time-list-item">
+        {{ notification.created | date:'h:mm a' }}
+    </li>
+    <li class="notification-list-item">
+        <strong>{{notification.title }}</strong>
+    </li>
+    <li class="notification-list-item">{{notification.body }}</li>
+</ng-template>
+
+<div *ngFor="let notification of notifications">
+    <ng-container *ngIf="isReceived(notification)">
+        <ng-container *ngIf="isRead(notification) === true">
+            <ul class="notification">
+                <a role="button" (click)="redirect(notification)">
+                    <ng-template
+                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
+                    ></ng-template>
+                    <!-- <ng-template
+                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
+                    ></ng-template> -->
+                </a>
+            </ul>
+        </ng-container>
+        <ng-container *ngIf="isRead(notification) === false">
+            <ul class="notification notification-unread">
+                <a role="button" (click)="redirect(notification)">
+                    <ng-template
+                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
+                    ></ng-template>
+                    <!-- <ng-template
+                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
+                    ></ng-template> -->
+                </a>
+            </ul>
+        </ng-container>
+    </ng-container>
+</div>
+
+<!-- <div><h2>Unread Status: {{ haveUnread }}</h2></div>
 <div *ngFor="let notification of notifications">
     <ul class="notification">
         <a role="button" (click)="redirect(notification)">
@@ -9,9 +57,9 @@
                 <strong>{{notification.title }}</strong>
             </li>
             <li class="notification-list-item">{{notification.body }}</li>
-            <!-- <li class="notification-list-item">{{notification.sent }}</li> -->
-            <!-- <li class="notification-list-item">{{notification.received }}</li> -->
-            <!-- <li class="notification-list-item">{{notification.opened }}</li> -->
+            <li class="notification-list-item">{{notification.sent }}</li>
+            <li class="notification-list-item">{{notification.received }}</li>
+            <li class="notification-list-item">{{notification.opened }}</li>
             <li *ngIf="notification.engaged" class="notification-list-item">
                 ENGAGED
             </li>
@@ -21,51 +69,4 @@
             <li class="notification-list-item">{{notification.id }}</li>
         </a>
     </ul>
-</div>
-
-<!-- <div *ngFor="let notification of notifications">
-    <ng-container *ngIf="isReceived(notification)">
-        {{message}}
-        <button (click)="newMessage()">New Message</button>
-        <ng-container *ngIf="isRead(notification) === true">
-            <ul class="notification">
-                <li class="notification-list-item time-list-item">
-                    {{ notification.created | date:'h:mm a' }}
-                </li>
-                <li class="notification-list-item">
-                    <strong>{{notification.title }}</strong>
-                </li>
-                <li class="notification-list-item">{{notification.body }}</li>
-                <li class="notification-list-item">{{notification.sent }}</li>
-                <li class="notification-list-item">
-                    {{notification.received }}
-                </li>
-                <li class="notification-list-item">{{notification.opened }}</li>
-                <li class="notification-list-item">
-                    {{notification.engaged }}
-                </li>
-                <li class="notification-list-item">{{notification.id }}</li>
-            </ul>
-        </ng-container>
-        <ng-container *ngIf="isRead(notification) === false">
-            <ul class="notification notification-unread">
-                <li class="notification-list-item time-list-item">
-                    {{ notification.created | date:'h:mm a' }}
-                </li>
-                <li class="notification-list-item">
-                    <strong>{{notification.title }}</strong>
-                </li>
-                <li class="notification-list-item">{{notification.body }}</li>
-                <li class="notification-list-item">{{notification.sent }}</li>
-                <li class="notification-list-item">
-                    {{notification.received }}
-                </li>
-                <li class="notification-list-item">{{notification.opened }}</li>
-                <li class="notification-list-item">
-                    {{notification.engaged }}
-                </li>
-                <li class="notification-list-item">{{notification.id }}</li>
-            </ul>
-        </ng-container>
-    </ng-container>
 </div> -->

@@ -7,10 +7,6 @@ import { NotificationService } from "@app/notification.service";
 
 @Injectable()
 export class NotificationCenterService {
-    // TODO: IMPORTANT - TS FATAL ERROR ON START, ONLY WORKS WITH THIS SETUP
-    // change to null and change back to get working
-    // changing to BehaviorSubject(null) doesn't subscribe in home.ts
-    // moving this.setupNotifications() to the ctor doesn't work either
     private notifications: BehaviorSubject<Message[]> = new BehaviorSubject([]);
     public currentNotifications = this.notifications.asObservable();
 
@@ -39,7 +35,7 @@ export class NotificationCenterService {
         return this.heartstepsServer.get("/notification_center/", {});
     }
 
-    // initialize this.notifications and returns current notifications in array
+    // re-initialize this.notifications and returns current notifications in array
     public getNotifications(): Message[] {
         this.getRecentNotifications().then((data) => {
             let notifications: Message[] = data.map(
@@ -53,6 +49,7 @@ export class NotificationCenterService {
     }
 
     // TODO: IMPORTANT DESERIALIZE COPIED / REFACTORED FROM MESSAGE.SERVICE.TS
+    // explicitly declare Message to avoid javascript type errors
     public deserializeMessage(data: any): Message {
         const message = new Message(this.messageReceiptService);
         message.id = data.uuid;
@@ -70,32 +67,33 @@ export class NotificationCenterService {
         return message;
     }
 
+    // mark a single notification as engaged (ignored)
     private updateNotification(notification: Message) {
         // TODO: update to include toggleOpened when users open notification links
         notification.toggleEngaged();
     }
 
-    redirectNotification(notification: Message) {
+    // redirects notification based on notification.type
+    public redirectNotification(notification: Message) {
         notification.toggleOpened();
         return this.notificationService.processOpenedMessage(notification);
     }
 
+    // mark all notifications as engaged (ignored)
     public updateAllNotifications() {
         if (this.notifications.value.length > 0) {
             this.notifications.value.map(this.updateNotification, this);
-            // for (let i = 0; i < this.notifications.value.length; i++) {
-            //     this.updateNotification(this.notifications.value[i]);
-            // }
         }
     }
 
-    // mark the first notification as engaged
+    // mark the first notification as engaged (ignored)
     public testUpdateNotification() {
         if (this.notifications.value.length > 0) {
             this.updateNotification(this.notifications.value[0]);
         }
     }
 
+    // update unread status based on if there are unread notifications
     public updateUnreadStatus(): boolean {
         let newStatus: boolean = this.areUnreadNotifications();
         this.unreadStatus.next(newStatus);
@@ -118,7 +116,7 @@ export class NotificationCenterService {
         return false;
     }
 
-    // // checks to see if user got a push notification
+    // checks to see if user received a push notification
     public isReceived(notification: Message): boolean {
         if (notification.sent && notification.received) {
             return true;
@@ -127,35 +125,29 @@ export class NotificationCenterService {
     }
 
     private areUnreadNotifications(): boolean {
-        // TODO: for testing, get rid
-        if (this.notifications.value.length % 2 === 0) {
-            return true;
+        // if we have any notifications
+        if (this.notifications.value.length > 0) {
+            for (let i = 0; i < this.notifications.value.length; i++) {
+                if (
+                    this.isReceived(this.notifications.value[i]) &&
+                    this.isRead(this.notifications.value[i]) === false
+                ) {
+                    return true;
+                }
+            }
         }
+        // we have no notifications or no unread notifications
         return false;
+
+        // TODO: for testing, get rid
+        // if (this.notifications.value.length % 2 === 0) {
+        //     return true;
+        // }
+        // return false;
         // console.log(
         //     "this.notifications.value.length: ",
         //     this.notifications.value.length
         // );
-        // // if we have any notifications
-        // if (this.notifications.value.length > 0) {
-        //     for (let i = 0; i < this.notifications.value.length; i++) {
-        //         // console.log(this.notifications.value[i]);
-        //         if (
-        //             this.isReceived(this.notifications.value[i]) &&
-        //             this.isRead(this.notifications.value[i]) === false
-        //         ) {
-        //             // TODO: IMPORTANT CHANGE TO FALSE
-        //             // BACKWARDS LOGIC FOR TESTING ONLY
-        //             // if this message is unread
-        //             console.log("unread message num: ", i);
-        //             return true;
-        //         } else {
-        //             // console.log("read or unreceived message num: ", i);
-        //         }
-        //     }
-        // }
-        // // we have no notifications or no unread notifications
-        // return false;
     }
 
     refreshNotifications() {

@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { NotificationService } from "@app/notification.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { Subscription } from "rxjs";
-import { Router } from "@angular/router";
 
 @Component({
     selector: "page-notification-center",
@@ -13,34 +11,26 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
     public notifications: Message[] = [];
     public haveUnread: boolean = false;
     public interval: any;
-    public message: string;
 
     private unreadStatusSubscription: Subscription;
     private notificationsSubscription: Subscription;
 
-    constructor(
-        private notificationCenterService: NotificationCenterService,
-        private notificationService: NotificationService,
-        private router: Router
-    ) {}
+    constructor(private notificationCenterService: NotificationCenterService) {}
 
-    // private updateNotification(notification: Message): Promise<any> {
-    //     return this.notificationCenterService
-    //         .updateNotification(notification)
-    //         .then((response) => {
-    //             return response.data;
-    //         })
-    //         .catch((error) => {
-    //             console.log("update notification failed, error: ", error);
-    //         });
-    // }
-
+    // redirects message based on message.type
     public redirect(notification: Message) {
         // TODO: so far only tested message.type == "notification", test other types
         return this.notificationCenterService.redirectNotification(
             notification
         );
-        // return this.router.navigate(["weekly-survey"]);
+    }
+
+    public isReceived(notification: Message): boolean {
+        return this.notificationCenterService.isReceived(notification);
+    }
+
+    public isRead(notification: Message): boolean {
+        return this.notificationCenterService.isRead(notification);
     }
 
     ngOnInit() {
@@ -68,7 +58,7 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         clearInterval(this.interval);
-        this.notificationCenterService.testUpdateNotification();
+        this.notificationCenterService.updateAllNotifications();
         this.notificationsSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();
     }

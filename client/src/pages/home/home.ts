@@ -82,8 +82,6 @@ export class HomePage implements OnInit, OnDestroy {
             );
         this.notificationCenterService.refreshNotifications();
 
-        // TODO: IMPORTANT subscription not updating every 5 seconds, only called once
-        // just changed BehaviorSubject(setupNotifications()) to BehaviorSubject(null)
         this.interval = setInterval(() => {
             this.notificationCenterService.refreshNotifications();
         }, 5000);
