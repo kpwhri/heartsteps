@@ -130,7 +130,7 @@ class FitbitAuthorizationTest(APITestCase):
         print('test_process_response', response, '\n')
         print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
         print('Fitbit Object Access Token: ', fitbit_account.account.access_token, '\n')
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
 
     def mock_access_token_fail(self, code, redirect_uri=None):

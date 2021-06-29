@@ -138,7 +138,7 @@ class ParticipantService:
     # TODO: remove print debugging
     def is_baseline_complete(self):
         try:
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             service = FitbitActivityService(user=self.user)
             print('is_baseline_complete service: ', service)
         except FitbitActivityService.NoAccount:
