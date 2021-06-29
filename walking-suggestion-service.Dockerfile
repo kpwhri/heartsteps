@@ -1,7 +1,7 @@
 FROM python:3.7.7-buster
 ENV PYTHONUNBUFFERED 1
 
-RUN echo "deb http://cran.us.r-project.org/bin/linux/debian buster-cran35/" | tee -a /etc/apt/sources.list && \
+RUN echo "deb [trusted=yes] http://cloud.r-project.org/bin/linux/debian buster-cran40/" | tee -a /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y r-base
 
