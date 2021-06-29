@@ -183,14 +183,18 @@ class FitbitClient():
         for subscription in FitbitSubscription.objects.filter(fitbit_account = self.account).all():
             existing_subscription_ids.append(subscription.uuid)
         fitbit_subscription_ids = self.list_subscriptions()
+        print('existing subscription ids', existing_subscription_ids, flush=True)
+        print('fitbit subscription ids: ', fitbit_subscription_ids)
         for subscription_id in fitbit_subscription_ids:
             if not subscription_id in existing_subscription_ids:
+                print('creating subscription, id num: ', subscription_id)
                 FitbitSubscription.objects.create(
                     uuid = subscription_id,
                     fitbit_account = self.account
                 )
         for existing_id in existing_subscription_ids:
             if existing_id not in fitbit_subscription_ids:
+                print('deleting subscription, id num: ', existing_id)
                 FitbitSubscription.objects.filter(uuid=existing_id).delete()
         return False
 

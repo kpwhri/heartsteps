@@ -5,13 +5,17 @@ from fitbit_api.services import FitbitService
 
 @shared_task
 def subscribe_to_fitbit(username):
+    # TODO: remove print debugging
     try:
         service = FitbitService(fitbit_user=username)
+        print('fitbit service: ', service)
         fitbit_client = FitbitClient(account=service.account)
+        print('fitbit client: ', fitbit_client)
         fitbit_client.subscriptions_update()
         if not fitbit_client.is_subscribed():
             fitbit_client.subscribe()
     except FitbitService.NoAccount:
+        print('FitbitService.NoAccount exception')
         return False
         
 @shared_task
