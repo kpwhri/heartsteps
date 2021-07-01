@@ -432,4 +432,9 @@ class StudyTypeServiceTest(HeartStepsTestCase):
             day = date(2018,10,10)
         )
         
+    @patch('daily_step_goals.services.StepGoalsService.get_step_goal')
+    def test_get_step_goal(self, mock_get_step_goal):
+        study_type_service = StudyTypeService(self.study_type_name, self.user)
         
+        mock_get_step_goal.return_value = 3456
+        self.assertEqual(study_type_service.get_step_goal(self.user), 3456)
