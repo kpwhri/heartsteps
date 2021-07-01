@@ -1,5 +1,7 @@
 from heartsteps.tests import HeartStepsTestCase
 
+from django.contrib.auth.models import User
+
 from nlm.models import Preference
 
 class ModelPreferenceTest(HeartStepsTestCase):
@@ -20,9 +22,9 @@ class ModelPreferenceTest(HeartStepsTestCase):
         self.assertTrue(overwrite)
     
     def test_create_3(self):
-        pref, overwrite = Preference.create("test.path.value", 3, self.participant)
+        pref, overwrite = Preference.create("test.path.value", 3, self.user)
         self.assertEqual(pref.value,3)
-        self.assertEqual(pref.participant,self.participant)
+        self.assertEqual(pref.user,self.user)
         self.assertFalse(overwrite)
     
     def test_delete_1(self):
@@ -38,12 +40,12 @@ class ModelPreferenceTest(HeartStepsTestCase):
         
     def test_delete_2(self):
         path = "test.path.value"
-        pref, overwrite = Preference.create(path, 3, self.participant)
+        pref, overwrite = Preference.create(path, 3, self.user)
         self.assertFalse(overwrite)
-        pref, overwrite = Preference.create(path, 3, self.participant)
+        pref, overwrite = Preference.create(path, 3, self.user)
         self.assertTrue(overwrite)
-        Preference.delete(path, self.participant)
-        pref, overwrite = Preference.create(path, 3, self.participant)
+        Preference.delete(path, self.user)
+        pref, overwrite = Preference.create(path, 3, self.user)
         self.assertFalse(overwrite)
     
     def test_try_to_get_1(self):
@@ -76,26 +78,25 @@ class ModelPreferenceTest(HeartStepsTestCase):
     def test_try_to_get_2(self):
         path = "test.path.value"
         
-        value, fromdb = Preference.try_to_get(path, self.participant, convert_to_int=True)
+        value, fromdb = Preference.try_to_get(path, self.user, convert_to_int=True)
         self.assertEqual(value, None)
         self.assertFalse(fromdb)
 
-        value, fromdb = Preference.try_to_get(path, self.participant, default=5, convert_to_int=True)
+        value, fromdb = Preference.try_to_get(path, self.user, default=5, convert_to_int=True)
         self.assertEqual(value, 5)
         self.assertIsInstance(value, int)
         self.assertFalse(fromdb)
         
-        pref, overwrite = Preference.create(path, 4, self.participant)
+        pref, overwrite = Preference.create(path, 4, self.user)
         self.assertFalse(overwrite)
         self.assertEqual(pref.value, 4)
         
-        value, fromdb = Preference.try_to_get(path, self.participant, convert_to_int=True)
+        value, fromdb = Preference.try_to_get(path, self.user, convert_to_int=True)
         self.assertEqual(value, 4)
         self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
         
-        value, fromdb = Preference.try_to_get(path, participant=self.participant, default=5, convert_to_int=True)
+        value, fromdb = Preference.try_to_get(path, user=self.user, default=5, convert_to_int=True)
         self.assertEqual(value, 4)
         self.assertIsInstance(value, int)
         self.assertTrue(fromdb)
-        

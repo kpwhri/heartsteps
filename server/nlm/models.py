@@ -83,7 +83,7 @@ class PreloadedLevelSequenceLevel(models.Model):
 
 class LevelLineAssignment(models.Model):
     study_type = models.ForeignKey(StudyType, null=False, on_delete = models.CASCADE)
-    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE)
     preloaded_sequence_line = models.ForeignKey(PreloadedLevelSequenceLine, null=True, on_delete=models.CASCADE)
     when_assigned = models.DateTimeField(auto_now_add=True)
     
@@ -92,7 +92,7 @@ class LevelLineAssignment(models.Model):
     
 class LevelAssignment(models.Model):
     line_assignment = models.ForeignKey(LevelLineAssignment, on_delete = models.CASCADE, null=False)
-    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE)
     date = models.DateField(null=False)
     level = models.IntegerField(null=False)
     
@@ -152,12 +152,12 @@ class ConditionalityParameter(models.Model):
 
     
 class Preference(models.Model):
-    participant = models.ForeignKey(Participant, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     path = models.CharField(max_length=512)
     value = models.CharField(max_length=50)
     when_created = models.DateTimeField(auto_now_add=True)
     
-    def try_to_get(path, participant=None, default=None, convert_to_int=False):
+    def try_to_get(path, user=None, default=None, convert_to_int=False):
         """try to get a preference object
 
         Args:
@@ -173,7 +173,7 @@ class Preference(models.Model):
         return_value = default
         return_fromdb = False
         
-        query = Preference.objects.filter(path=path, participant=participant)
+        query = Preference.objects.filter(path=path, user=user)
         if query.exists():
             return_value = query.order_by("-when_created").first().value
             return_fromdb = True
@@ -183,7 +183,7 @@ class Preference(models.Model):
         
         return return_value, return_fromdb
         
-    def create(path, value, participant=None):
+    def create(path, value, user=None):
         """create preference object
 
         Args:
@@ -194,9 +194,9 @@ class Preference(models.Model):
             Preference: added preference object
             bool: if overwritten
         """
-        overwrite = Preference.objects.filter(path=path, participant=participant).exists()
+        overwrite = Preference.objects.filter(path=path, user=user).exists()
         
-        return Preference.objects.create(path=path, value=value, participant=participant), overwrite
+        return Preference.objects.create(path=path, value=value, user=user), overwrite
     
-    def delete(path, participant=None):
-        return Preference.objects.filter(path=path, participant=participant).delete()
+    def delete(path, user=None):
+        return Preference.objects.filter(path=path, user=user).delete()

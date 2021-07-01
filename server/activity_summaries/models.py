@@ -128,3 +128,9 @@ class Day(models.Model):
             else:
                 self.moderate_minutes += activity.duration
         self.save()
+    
+    def get_all_days_query(user, date):
+        return Day.objects.filter(
+            user = user,
+            date = date
+        ).order_by('updated')

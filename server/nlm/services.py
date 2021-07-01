@@ -1,21 +1,29 @@
-from participants.models import Cohort, Participant
-from django.db import models
+# base imports
+from datetime import datetime, timedelta
+import pytz
+import random
 
+# django imports
+from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+
+# other app imports
+from participants.models import Cohort, Participant
+from generic_messages.services import GenericMessagesService
+from daily_step_goals.services import StepGoalsService
+from activity_summaries.models import Day
+from days.services import DayService
+
+# same app imports
 from .models import StudyType, CohortAssignment, Conditionality, ConditionalityParameter
 from .models import LogContents
 from .models import PreloadedLevelSequenceFile, PreloadedLevelSequenceLine, PreloadedLevelSequenceLevel
 from .models import LevelLineAssignment, LevelAssignment
 from .models import Preference
-from generic_messages.services import GenericMessagesService
 
-from daily_step_goals.services import StepGoalsService
 
-from days.services import DayService
-from datetime import datetime, timedelta
-from django.utils import timezone
-import pytz
-import random
+
 
 class LogService:
     def __init__(self, subject_name=None):
@@ -264,21 +272,21 @@ class StudyTypeService:
     
     
     # TODO: fill up with real logics
-    def is_level_sequence_assigned(self, participant):
+    def is_level_sequence_assigned(self, user):
         return LevelLineAssignment.objects.filter(
             study_type=self.study_type,
-            participant=participant
+            user=user
         ).exists()
     
-    def localize_datetime(self, participant_user, datetime_in_UTC):
-        day_service = DayService(participant_user)
+    def localize_datetime(self, user, datetime_in_UTC):
+        day_service = DayService(user)
         local_timezone = day_service.get_timezone_at(datetime_in_UTC)
         if isinstance(datetime_in_UTC, datetime):
             return datetime_in_UTC.astimezone(local_timezone)
         else:
             return datetime(datetime_in_UTC.year, datetime_in_UTC.month, datetime_in_UTC.day, tzinfo=local_timezone)
     
-    def assign_level_sequence(self, participant, file_nickname):
+    def assign_level_sequence(self, user, file_nickname):
         # check parameters
         assert file_nickname is not None, "File nickname is required"
         
@@ -300,18 +308,19 @@ class StudyTypeService:
         except PreloadedLevelSequenceLine.DoesNotExist:
             raise Exception("No unused line is found.")
             
-        # try to use participant's study_start_date
+        # try to use user's study_start_date
         # if the study_start_date is not available, use today
         # TODO: change to "actual" start date
+        participant = Participant.objects.get(user=user)
         if participant.study_start_date:
-            study_start_date = self.localize_datetime(participant.user, participant.study_start_date).date()
+            study_start_date = self.localize_datetime(user, participant.study_start_date).date()
         else:
-            study_start_date = self.localize_datetime(participant.user, timezone.now()).date()
+            study_start_date = self.localize_datetime(user, timezone.now()).date()
         
         # record the assignment
         line_assignment = LevelLineAssignment.objects.create(
             study_type=self.study_type,
-            participant=participant,
+            user=user,
             preloaded_sequence_line=next_available_sequence
         )
         
@@ -321,28 +330,28 @@ class StudyTypeService:
             the_day = study_start_date + timedelta(days=a_preloaded_level.day_serial_number)
             LevelAssignment.objects.create(
                 line_assignment=line_assignment,
-                participant=participant,
+                user=user,
                 date=the_day,
                 level=a_preloaded_level.level
             )
             
         return next_available_sequence
     
-    def fetch_todays_level(self, participant):
-        today_date = self.localize_datetime(participant.user, timezone.now()).date()
+    def fetch_todays_level(self, user):
+        today_date = self.localize_datetime(user, timezone.now()).date()
         
         try:
-            todays_level = LevelAssignment.objects.get(participant=participant, date=today_date)
+            todays_level = LevelAssignment.objects.get(user=user, date=today_date)
             return todays_level.level
         except LevelAssignment.DoesNotExist:
-            self.log_service.info("No LevelAssignment is found. Using default Level: {}".format(StudyTypeService.LEVEL_DEFAULT), participant)
+            self.log_service.info("No LevelAssignment is found. Using default Level: {}".format(StudyTypeService.LEVEL_DEFAULT), user)
             return StudyTypeService.LEVEL_DEFAULT
         
         
     
-    def is_decision_needed(self, participant, test_time=None):
-        # fetch the participant's decision window preferences
-        first_decision_point_hour = self.get_first_decision_point_hour(participant)
+    def is_decision_needed(self, user, test_time=None):
+        # fetch the user's decision window preferences
+        first_decision_point_hour = self.get_first_decision_point_hour(user)
         
         # get decision point expiration window (in minutes)
         decision_point_expiration_window = self.get_decision_point_expiration_window()
@@ -350,11 +359,11 @@ class StudyTypeService:
         # get decision point gap (in hours)
         decision_point_gap = self.get_decision_point_gap()
         
-        # decide if now is the participant's decision point or not
+        # decide if now is the user's decision point or not
         if test_time:
             current_time = test_time
         else:
-            current_time = self.localize_datetime(participant.user, timezone.now())
+            current_time = self.localize_datetime(user, timezone.now())
         
         decision_points = self.construct_decision_points(first_decision_point_hour, decision_point_gap, current_time)
         
@@ -396,16 +405,16 @@ class StudyTypeService:
             
         return decision_point_expiration_window
 
-    def get_first_decision_point_hour(self, participant):
+    def get_first_decision_point_hour(self, user):
         first_decision_point_hour, _ = Preference.try_to_get(
             path="nlm.bout_planning.first_decision_point_hour", 
-            participant=participant, 
+            user=user, 
             default=8, 
             convert_to_int=True)
             
         return first_decision_point_hour
             
-    def get_random_conditionality(self, participant, test_value=None):
+    def get_random_conditionality(self, user, test_value=None):
         # with a random criterion (0~100). if the random value equals to or less than the criteria, the conditionality is "True"
         random_criteria, fromdb = Preference.try_to_get("nlm.bout_planning.conditionality.random.random_criteria", default=50, convert_to_int=True)
         
@@ -416,33 +425,44 @@ class StudyTypeService:
         
         return random_value <= random_criteria
     
-    def get_last_day_achieved(self, participant):
+    def get_last_day_achieved(self, user):
         last_day_date = (datetime.now() - timedelta(days=1)).date()
         last_day_step_goal = self.get_step_goal(
-            participant, 
+            user, 
             date=last_day_date)
         
-        last_day_step_count = self.get_steps(participant, last_day_date)
+        last_day_step_count = self.get_steps(user, last_day_date)
         
         return (last_day_step_goal < last_day_step_count)
     
-    def get_steps(self, participant, date=None):
-        # TODO: implement this
-        return 180
+    def get_steps(self, user, date=None):
+        if date is None:
+            date = datetime.now().astimezone(pytz.utc).date()
+        day_query = Day.get_all_days_query(user, date)
+        if day_query.count() > 0:
+            return_row = day_query.last()
+            return return_row.steps
+        else:
+            day = Day.objects.create(
+                user = user,
+                date = date
+            )
+            day.update_from_activities()
+            day.update_from_fitbit()
+        return day.steps
     
-    def get_today_steps(self, participant):
-        # TODO: implement this
-        return 180
+    def get_today_steps(self, user):
+        return self.get_steps(user)
     
-    def get_need_conditionality(self, participant):
-        today_step_goal = self.get_step_goal(participant)
+    def get_need_conditionality(self, user):
+        today_step_goal = self.get_step_goal(user)
         
-        today_steps = self.get_today_steps(participant)
-        last_day_achieved = self.get_last_day_achieved(participant)
+        today_steps = self.get_today_steps(user)
+        last_day_achieved = self.get_last_day_achieved(user)
         
-        first_decision_point_hour = self.get_first_decision_point_hour(participant)
-        decision_point_gap = self.get_decision_point_gap(participant)
-        current_time = self.localize_datetime(participant.user, datetime.now().astimezone(pytz.UTC))
+        first_decision_point_hour = self.get_first_decision_point_hour(user)
+        decision_point_gap = self.get_decision_point_gap(user)
+        current_time = self.localize_datetime(user, datetime.now().astimezone(pytz.UTC))
         
         decision_points = self.construct_decision_points(
             first_decision_point_hour, decision_point_gap, current_time
@@ -457,8 +477,8 @@ class StudyTypeService:
             
             return prorated_goal > today_steps
 
-    def get_step_goal(self, participant, date=None):
-        step_goals_service = StepGoalsService(participant.user)
+    def get_step_goal(self, user, date=None):
+        step_goals_service = StepGoalsService(user)
         step_goal = step_goals_service.get_step_goal(date)
         return step_goal
         
@@ -484,43 +504,43 @@ class StudyTypeService:
         
         
     
-    def get_opportunity_condition(self, participant):
+    def get_opportunity_condition(self, user):
         return True
     
-    def get_receptivity_condition(self, participant):
+    def get_receptivity_condition(self, user):
         return True
     
-    def send_notification(self, participant):
-        generic_messages_service = GenericMessagesService.create_service(username=participant.user.username)
+    def send_notification(self, user):
+        generic_messages_service = GenericMessagesService.create_service(username=user.username)
         sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks", False)
         self.log_service.info('Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
         
         return True
     
-    def handle_participant_hourly_task(self, participant):
-        self.log_service.info("handling initiated", participant)
+    def handle_user_hourly_task(self, user):
+        self.log_service.info("handling initiated", user)
         
         # check if levels are assigned
-        if self.is_level_sequence_assigned(participant):
-            self.log_service.info("level sequence assignment checked", participant)
+        if self.is_level_sequence_assigned(user):
+            self.log_service.info("level sequence assignment checked", user)
         else:
-            level_sequence_id = self.assign_level_sequence(participant, "NLM sequence")
-            self.log_service.info("new level sequence is assigned: {}".format(level_sequence_id), participant)
+            level_sequence_id = self.assign_level_sequence(user, "NLM sequence")
+            self.log_service.info("new level sequence is assigned: {}".format(level_sequence_id), user)
         
         # fetch level assignments
-        todays_level = self.fetch_todays_level(participant)
-        self.log_service.info("today's level is fetched: {}".format(todays_level), participant)
-        self.log_service.data("todays_level:{}".format(todays_level), participant)
+        todays_level = self.fetch_todays_level(user)
+        self.log_service.info("today's level is fetched: {}".format(todays_level), user)
+        self.log_service.data("todays_level:{}".format(todays_level), user)
         
-        # decide whether this participant should be decided or not
-        is_decision_needed = self.is_decision_needed(participant)
-        self.log_service.info("decision necessity is decided: {}".format(is_decision_needed), participant)
-        self.log_service.data("is_decision_needed:{}".format(is_decision_needed), participant)
+        # decide whether this user should be decided or not
+        is_decision_needed = self.is_decision_needed(user)
+        self.log_service.info("decision necessity is decided: {}".format(is_decision_needed), user)
+        self.log_service.data("is_decision_needed:{}".format(is_decision_needed), user)
         
         if is_decision_needed:
             pass
         else:
-            self.log_service.info("handling terminated because the decision is unnecessary.", participant)
+            self.log_service.info("handling terminated because the decision is unnecessary.", user)
             return False
         
         # per level, decide what to do
@@ -528,98 +548,98 @@ class StudyTypeService:
             # for level 1 (recovery), we don't have to calculate the conditionalities.
             # decide whether to send bout planning window or not
             is_notification_needed = False
-            self.log_service.info("since the participant is at level 1, no notification will be sent.", participant)
-            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+            self.log_service.info("since the user is at level 1, no notification will be sent.", user)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), user)
             
             
         elif todays_level == StudyTypeService.LEVEL2:  # Random
             # for level 2 (random), we need to roll a dice
             
             # calculate conditionality 1
-            random_conditionality = self.get_random_conditionality(participant)
-            self.log_service.data("random_conditionality:{}".format(random_conditionality),participant)
+            random_conditionality = self.get_random_conditionality(user)
+            self.log_service.data("random_conditionality:{}".format(random_conditionality),user)
             
             # decide whether to send bout planning window or not
             is_notification_needed = random_conditionality
             if is_notification_needed:
-                self.log_service.info("since the participant is at level 2, by virtue of coin toss, notification will be sent.", participant)
+                self.log_service.info("since the user is at level 2, by virtue of coin toss, notification will be sent.", user)
             else:
-                self.log_service.info("since the participant is at level 2, by virtue of coin toss, no notification will be sent.", participant)
-            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+                self.log_service.info("since the user is at level 2, by virtue of coin toss, no notification will be sent.", user)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), user)
             
             
         elif todays_level == StudyTypeService.LEVEL3:  # N+O
             # for level 3 (N+O), we need two conditionalities
             
             # calculate conditionality 1
-            need_conditionality = self.get_need_conditionality(participant)    
-            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            need_conditionality = self.get_need_conditionality(user)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), user)
             
             # calculate conditionality 2
-            opportunity_conditionality = self.get_opportunity_condition(participant)
-            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
+            opportunity_conditionality = self.get_opportunity_condition(user)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), user)
                 
             # decide whether to send bout planning window or not
             is_notification_needed = (need_conditionality and opportunity_conditionality)
             if is_notification_needed:
-                self.log_service.info("since the participant is at level 3, by N+O conditionality, notification will be sent.", participant)
+                self.log_service.info("since the user is at level 3, by N+O conditionality, notification will be sent.", user)
             else:
-                self.log_service.info("since the participant is at level 3, by N+O conditionality, no notification will be sent.", participant)
-            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+                self.log_service.info("since the user is at level 3, by N+O conditionality, no notification will be sent.", user)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), user)
             
             
         elif todays_level == StudyTypeService.LEVEL4:  # N+R
             # for level 4 (N+R), we need two conditionalities
             # calculate conditionality 1
-            need_conditionality = self.get_need_conditionality(participant)    
-            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            need_conditionality = self.get_need_conditionality(user)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), user)
             
             # calculate conditionality 2
-            receptivity_conditionality = self.get_receptivity_condition(participant)
-            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
+            receptivity_conditionality = self.get_receptivity_condition(user)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), user)
                 
             # decide whether to send bout planning window or not
             is_notification_needed = (need_conditionality and receptivity_conditionality)
             if is_notification_needed:
-                self.log_service.info("since the participant is at level 4, by N+R conditionality, notification will be sent.", participant)
+                self.log_service.info("since the user is at level 4, by N+R conditionality, notification will be sent.", user)
             else:
-                self.log_service.info("since the participant is at level 4, by N+R conditionality, no notification will be sent.", participant)
-            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+                self.log_service.info("since the user is at level 4, by N+R conditionality, no notification will be sent.", user)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), user)
             
         elif todays_level == StudyTypeService.LEVEL5:  # N+R+O (Full)
             # for level 5 (N+R+O), we need three conditionalities
             # calculate conditionality 1
-            need_conditionality = self.get_need_conditionality(participant)    
-            self.log_service.data("need_conditionality:{}".format(need_conditionality), participant)
+            need_conditionality = self.get_need_conditionality(user)    
+            self.log_service.data("need_conditionality:{}".format(need_conditionality), user)
             
             # calculate conditionality 2
-            receptivity_conditionality = self.get_receptivity_condition(participant)
-            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), participant)
+            receptivity_conditionality = self.get_receptivity_condition(user)
+            self.log_service.data("receptivity_conditionality:{}".format(receptivity_conditionality), user)
             
             # calculate conditionality 3
-            opportunity_conditionality = self.get_opportunity_condition(participant)
-            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), participant)
+            opportunity_conditionality = self.get_opportunity_condition(user)
+            self.log_service.data("opportunity_conditionality:{}".format(opportunity_conditionality), user)
             
             # decide whether to send bout planning window or not
             is_notification_needed = (need_conditionality and receptivity_conditionality and opportunity_conditionality)
             if is_notification_needed:
-                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, notification will be sent.", participant)
+                self.log_service.info("since the user is at level 5, by N+R+O conditionality, notification will be sent.", user)
             else:
-                self.log_service.info("since the participant is at level 5, by N+R+O conditionality, no notification will be sent.", participant)
-            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), participant)
+                self.log_service.info("since the user is at level 5, by N+R+O conditionality, no notification will be sent.", user)
+            self.log_service.data("is_notification_needed:{}".format(is_notification_needed), user)
 
         else:
-            self.log_service.error("unknown level is detected: {}".format(todays_level), participant)
+            self.log_service.error("unknown level is detected: {}".format(todays_level), user)
             raise NotImplementedError
         
         # according to the decision, send the bout planning window or not
         if is_notification_needed:
-            self.log_service.info("notification is being sent", participant)
-            self.send_notification(participant)
+            self.log_service.info("notification is being sent", user)
+            self.send_notification(user)
         else:
-            self.log_service.info("no notification will be sent", participant)
+            self.log_service.info("no notification will be sent", user)
         
-        self.log_service.info("handling terminated because the logic ended.", participant)
+        self.log_service.info("handling terminated because the logic ended.", user)
         
         return True
     

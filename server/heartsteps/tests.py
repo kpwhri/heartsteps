@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from participants.models import Study, Cohort, Participant
 from push_messages.models import Device
+from fitbit_api.models import FitbitAccount, FitbitAccountUser
+from activity_summaries.models import ActivitySummary, Day
 
 from uuid import UUID
 
@@ -58,10 +60,16 @@ class HeartStepsTestCase(TestCase):
             active=True
         )
 
+    def list_all(self, list_class, msg_index):
+        for index, item in enumerate(list_class):
+            print("[{}].tearDown[{}-{}]: {}".format(id(self), msg_index, index, list(map(lambda x: x.__dict__, item.objects.all()))))
+            pass
+            
     def tearDown(self):
         self.user.delete()
+        ActivitySummary.objects.all().delete()
         self.study.delete()
-    
+        
     def checkif_non_none(self, obj_dict):
         for k, v in obj_dict.items():
             assert v is not None, ("{} is None".format(k))
