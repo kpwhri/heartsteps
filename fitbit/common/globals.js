@@ -1,6 +1,6 @@
 export const ANTI_SEDENTARY_MESSAGE = "sendAntisedentaryMessage";
 export const AUTHORIZATION_TOKEN = "authorizationToken";
-export const BASE_URL = "https://heartsteps.net";
+export const BASE_URL = "https://dev.heartsteps.net";
 //export const BASE_URL = "http://localhost:8080";
 export const BIRTH_YEAR = "birthYear";
 export const ENTRY_CODE = "entryCode";
