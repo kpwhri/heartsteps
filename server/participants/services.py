@@ -140,7 +140,7 @@ class ParticipantService:
         try:
             # import pdb; pdb.set_trace()
             service = FitbitActivityService(user=self.user)
-            print('is_baseline_complete service: ', service)
+            # print('is_baseline_complete service: ', service)
         except FitbitActivityService.NoAccount:
             return False
         if self.user.is_staff:

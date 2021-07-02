@@ -21,8 +21,8 @@ class FitbitAuthorizationTest(APITestCase):
 
         self.client.force_authenticate(user)
         response = self.client.post(reverse('fitbit-authorize-start'))
-        print('fitbit_authorize_start_response:\n', response, '\n')
-        print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
+        # print('fitbit_authorize_start_response:\n', response, '\n')
+        # print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
         self.assertEqual(response.status_code, 201)
 
         session = AuthenticationSession.objects.get(user=user, token=response.data['token'])
@@ -35,8 +35,8 @@ class FitbitAuthorizationTest(APITestCase):
         response = self.client.get(reverse('fitbit-authorize-login', kwargs={
             'token': str(session.token)
         }))
-        print('fitbit_authorize_login_response:\n', response, '\n')
-        print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
+        # print('fitbit_authorize_login_response:\n', response, '\n')
+        # print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
 
         self.assertEqual(response.status_code, 302)
 
@@ -45,8 +45,8 @@ class FitbitAuthorizationTest(APITestCase):
             'token': 'fake-token'
         }))
 
-        print('test_authorize_fail_response:\n', response, '\n')
-        print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
+        # print('test_authorize_fail_response:\n', response, '\n')
+        # print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
         self.assertEqual(response.status_code, 404)
     
     def test_authorize_invalid_time(self):
@@ -62,8 +62,8 @@ class FitbitAuthorizationTest(APITestCase):
             'token': session.token
         }))
 
-        print('test_authorize_invalid_time_response:\n', response, '\n')
-        print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
+        # print('test_authorize_invalid_time_response:\n', response, '\n')
+        # print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
         self.assertEqual(response.status_code, 404)
 
     def test_process_with_no_session(self):
@@ -127,10 +127,9 @@ class FitbitAuthorizationTest(APITestCase):
         self.assertEqual(fitbit_account.account.fitbit_user, 'example-fitbit-id')
         # import pdb; pdb.set_trace()
         subscribe_to_fitbit.assert_called()
-        print('test_process_response', response, '\n')
-        print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
-        print('Fitbit Object Access Token: ', fitbit_account.account.access_token, '\n')
-        # import pdb; pdb.set_trace()
+        # print('test_process_response', response, '\n')
+        # print('Fitbit Objects Count: ', FitbitAccount.objects.count(), '\n')
+        # print('Fitbit Object Access Token: ', fitbit_account.account.access_token, '\n')
 
 
     def mock_access_token_fail(self, code, redirect_uri=None):
