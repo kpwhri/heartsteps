@@ -49,3 +49,12 @@ class ClockFace(models.Model):
         if not self.pin:
             self.pin = self.get_unique_pin()
         super().save(*args, **kwargs)
+
+
+class ClockFaceStepCount(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE
+    )
+    steps = models.PositiveIntegerField()
+    time = models.DateTimeField()
