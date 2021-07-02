@@ -15,6 +15,7 @@ import { FormModule } from '@infrastructure/form/form.module';
 // import { BarriersComponent } from './barriers.component';
 // import { BarrierModalComponent } from './barrier-modal.component';
 import { DialogsModule } from '@infrastructure/dialogs/dialogs.module';
+import { BoutPlanningPage } from './bout-planning.page';
 
 const routes: Routes = [
     // {
@@ -28,6 +29,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
+    BoutPlanningPage
     // BarriersComponent,
     // BarrierModalComponent,
     // WeeklySurveyPage,
