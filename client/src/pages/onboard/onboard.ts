@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationsPermissionComponent } from '@heartsteps/notifications/notification-permission.component';
 import { WeeklyReflectionTimePage } from '@heartsteps/weekly-survey/weekly-reflection-time.page';
+import { FirstBoutPlanningTimePage } from '@heartsteps/bout-planning/first-bout-planning-time.page';
 import { WalkingSuggestionTimesComponent } from '@heartsteps/walking-suggestions/walking-suggestion-times.component';
 import { PlacesList } from '@heartsteps/places/places-list';
 import { Router } from '@angular/router';
@@ -22,6 +23,10 @@ const onboardingPages:Array<Step> = [{
     key: 'weeklyReflectionTime',
     title: 'Reflection Time',
     component: WeeklyReflectionTimePage
+}, {
+    key: 'firstBoutPlanningTime',
+    title: 'First Bout Planning Time',
+    component: FirstBoutPlanningTimePage
 }, {
     key: 'walkingSuggestionTimes',
     title: 'Suggestion Times',
@@ -46,6 +51,7 @@ const onboardingPages:Array<Step> = [{
     entryComponents: [
         NotificationsPermissionComponent,
         WeeklyReflectionTimePage,
+        FirstBoutPlanningTimePage,
         WalkingSuggestionTimesComponent,
         PlacesList
     ]

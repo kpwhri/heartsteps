@@ -1,0 +1,19 @@
+{
+    "meta": {
+        "version": 1,
+        "name": "sample configuration made by Junghwan Park, July 1 2021",
+        "contact": "jup014@eng.ucsd.edu"
+    },
+    "studies": [{
+        "name": "sample study",
+        "design": "./study/sample_study.json"
+    }],
+    "tests": [{
+        "name": "sample study test",
+        "study": "sample study",
+        "scenario": "./scenario/sample_test.json"
+    }],
+    "result": {
+        "basepath": "./result"
+    }
+}

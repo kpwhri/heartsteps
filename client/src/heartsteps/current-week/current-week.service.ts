@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { StorageService } from "@infrastructure/storage.service";
 import { WeekService } from "@heartsteps/weekly-survey/week.service";
 import { Week } from "@heartsteps/weekly-survey/week.model";
