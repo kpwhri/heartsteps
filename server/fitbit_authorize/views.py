@@ -96,7 +96,7 @@ def authorize_process(request):
         x = subscribe_to_fitbit.apply_async(kwargs = {
             'username': fitbit_user
         })
-        print('subscribe_to_fitbit.get(): ', x.get())
+        # print('subscribe_to_fitbit.get(): ', x.get())
         if session.redirect:
             return redirect(session.redirect)
         return redirect(reverse('fitbit-authorize-complete'))
