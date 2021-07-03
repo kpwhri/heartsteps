@@ -83,13 +83,13 @@ To explain the command above a little
 * bash is the command we want to run, which overrides the default startup command for the image
 
 
-While you are actively developing, you can use the following commands inside the server container:
+While you are actively developing, you can use the following commands **inside** the server container:
 
 ```
-$ keep-testing [app name]
+$ keep_testing [app name]
 ```
 
-It automatically rerun the following test command if *.py file changes.
+It automatically reruns the following test command if *.py file changes.
 ```
 $ python manage.py test [app name] --keepdb
 ```
