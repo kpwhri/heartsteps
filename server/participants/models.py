@@ -1,4 +1,5 @@
 import json
+from django.core.exceptions import ImproperlyConfigured
 import pytz
 from datetime import datetime
 from datetime import timedelta
@@ -44,7 +45,7 @@ class Study(models.Model):
 
     def __str__(self):
         return self.name
-
+        
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
     study = models.ForeignKey(
@@ -266,7 +267,7 @@ class Participant(models.Model):
             }
         )
         return task
-
+    
     def __str__(self):
         return self.heartsteps_id
 
