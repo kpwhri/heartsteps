@@ -1,16 +1,19 @@
 from django.test import TestCase
-
-from heartsteps.tests import HeartStepsTestCase
-
+from django.contrib.auth.models import User
 from configuration_manager.models import QueryString as qs, Configuration as Conf
 
+from datetime import datetime
 
-class Configuration_TestCase(HeartStepsTestCase):
+
+class Configuration_TestCase(TestCase):
     def setUp(self):
         super().setUp()
+        self.user = User.objects.create(username="test_user")
+        
 
     def tearDown(self):
         super().setUp()
+        self.user.delete()
         Conf.objects.all().delete()
 
     def test_create_conf_without_registering(self):
@@ -130,7 +133,7 @@ class Configuration_TestCase(HeartStepsTestCase):
             qs.RequiredFilterPatternDoesNotMatch,
             Conf.create,
             query_str,
-            {"study name": "nlm", "enrollment token": "test-1234"}, 
+            {"study name": "nlm", "enrollment token": "test-1234"},
             True
         )
 
@@ -145,3 +148,46 @@ class Configuration_TestCase(HeartStepsTestCase):
                          "study name": "nlm", "cohort name": "control"}), True)
         self.assertEqual(Conf.try_to_get(query_str, {
                          "study name": "nlm", "cohort name": "experiment"}), None)
+
+    def test_create_conf_7(self):
+        # complex case
+        query_str = "onboard:sequence"
+        onboard_screen_sequence = [
+            "system:contact_information",
+            "system:notification",
+            "system:weekly_reflection",
+            "custom:first_bout_planning_time",
+            "system:locations",
+            "system:fitbit_auth",
+            "system:fitbit_clockface"
+        ]
+        qs.register(query_str, self.user, ["study name"])
+        Conf.create(
+            query_str,
+            {"study name": "nlm"},
+            onboard_screen_sequence
+        )
+
+        self.assertEqual(Conf.try_to_get(query_str, {
+                         "study name": "nlm"}), onboard_screen_sequence)
+
+    # def test_create_conf_8(self):
+    #     # datespan case
+    #     query_str = "onboard:study_period"
+    #     datespan = {"start": datetime(2018, 1, 1),
+    #                 "end": datetime(2018, 6, 30)}
+        
+    #     qs.register(query_str, self.user, ["study name"])
+        
+    #     Conf.create(
+    #         query_str,
+    #         {"study name": "nlm"}, 
+    #         datespan
+    #     )
+        
+    #     returned_datespan = Conf.try_to_get(
+    #         query_str,
+    #         {"study name": "nlm"}
+    #     )
+        
+    #     print(returned_datespan)

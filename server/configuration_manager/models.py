@@ -5,6 +5,7 @@ from django.db.utils import IntegrityError
 
 import json
 
+import datetime
 
 class QueryString(models.Model):
     class QueryStringIsAlreadyTaken(Exception):
@@ -64,6 +65,15 @@ class QueryString(models.Model):
 
 
 class Configuration(models.Model):
+    # class DateTimeEncoder(json.JSONEncoder):
+    #     def default(self, obj):
+    #         if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
+    #             return obj.isoformat()
+    #         elif isinstance(obj, datetime.timedelta):
+    #             return (datetime.datetime.min + obj).time().isoformat()
+
+    #         return super(DateTimeEncoder, self).default(obj)
+    
     class MultipleConfigurationsAreNotAllowed(Exception):
         pass
 
