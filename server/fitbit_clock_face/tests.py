@@ -5,10 +5,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.test import TestCase
 from rest_framework.test import APITestCase
+from unittest.mock import patch
 
 from .models import ClockFace
 from .models import ClockFaceStepCount
 from .models import User
+from .signals import step_count_updated
 
 class RecordStepCountsView(APITestCase):
 
@@ -21,6 +23,10 @@ class RecordStepCountsView(APITestCase):
             'HTTP_CLOCK_FACE_PIN': self.clockface.pin,
             'HTTP_CLOCK_FACE_TOKEN': str(self.clockface.token)
         }
+
+        signal_send_patch = patch.object(step_count_updated, 'send')
+        self.addCleanup(signal_send_patch.stop)
+        self.step_count_updated = signal_send_patch.start()
 
     def test_creates_step_counts(self):
 
@@ -47,6 +53,7 @@ class RecordStepCountsView(APITestCase):
         step_counts = [step_count for step_count in ClockFaceStepCount.objects.filter(user=self.user).order_by('time')]
         self.assertEqual(len(step_counts), 10)
         self.assertEqual(step_counts[0].steps, 200)
+        self.step_count_updated.assert_called()
 
 class StepCountServiceTests(TestCase):
 

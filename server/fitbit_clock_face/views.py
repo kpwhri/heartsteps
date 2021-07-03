@@ -1,25 +1,20 @@
 from datetime import datetime
+from unittest import signals
 import pytz
-import random
 
-from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import serializers
-
-from watch_app.models import StepCount
-from watch_app.signals import step_count_updated
 
 from .models import ClockFace
 from .models import ClockFaceStepCount
+from .models import User
+from .signals import step_count_updated
 
 class CreateClockFace(APIView):
 
-    def post(self, request):
+    def post(self):
         clock_face = ClockFace.objects.create()
         return Response({
             'pin': clock_face.pin,
@@ -98,7 +93,7 @@ class ClockFacePair(APIView):
                 user = request.user
             )
             clock_face.delete()
-            return Response('Deleted', status=HTTP_200_OK)
+            return Response('Deleted', status=status.HTTP_200_OK)
         except ClockFace.DoesNotExist:
             return Response('Not found', status=status.HTTP_404_NOT_FOUND)
 
@@ -110,10 +105,9 @@ class ClockFaceStepCounts(APIView):
 
         if request.user.is_authenticated():
             step_counts = []
-            for step_count in StepCount.objects.filter(user=request.user).order_by('-end')[:10]:
+            for step_count in ClockFaceStepCount.objects.filter(user=request.user).order_by('-end')[:10]:
                 step_counts.append({
-                    'start': step_count.start.isoformat(),
-                    'end': step_count.end.isoformat(),
+                    'time': step_count.time.isoformat(),
                     'steps': step_count.steps
                 })
             return Response({
@@ -126,7 +120,7 @@ class ClockFaceStepCounts(APIView):
     def post(self, request):
         if 'HTTP_CLOCK_FACE_PIN' in request.META and 'HTTP_CLOCK_FACE_TOKEN' in request.META:
             try:
-                clock_face = ClockFace.objects.get(
+                clock_face = ClockFace.objects.prefetch_related('user').get(
                     pin = request.META['HTTP_CLOCK_FACE_PIN'],
                     token = request.META['HTTP_CLOCK_FACE_TOKEN']
                 )
@@ -141,6 +135,7 @@ class ClockFaceStepCounts(APIView):
                                     'steps': step_count['steps']
                                 }
                             )
+                        step_count_updated.send(User, username=clock_face.user.username)
                         return Response('', status=status.HTTP_201_CREATED)
                     return Response('step_counts not included', status=status.HTTP_400_BAD_REQUEST)
             except ClockFace.DoesNotExist:
