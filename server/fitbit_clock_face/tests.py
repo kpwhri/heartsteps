@@ -1,6 +1,9 @@
 import json
 from datetime import datetime, timedelta
+from fitbit_clock_face.services import StepCountService
 from django.urls import reverse
+from django.utils import timezone
+from django.test import TestCase
 from rest_framework.test import APITestCase
 
 from .models import ClockFace
@@ -44,4 +47,34 @@ class RecordStepCountsView(APITestCase):
         step_counts = [step_count for step_count in ClockFaceStepCount.objects.filter(user=self.user).order_by('time')]
         self.assertEqual(len(step_counts), 10)
         self.assertEqual(step_counts[0].steps, 200)
+
+class StepCountServiceTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test')
+
+    def test_step_count_service_gets_step_counts(self):
+        ClockFaceStepCount.objects.create(
+            user = self.user,
+            time = timezone.now() - timedelta(minutes=10),
+            steps = 150
+        )
+        ClockFaceStepCount.objects.create(
+            user = self.user,
+            time = timezone.now() - timedelta(minutes=5),
+            steps = 250
+        )
+        ClockFaceStepCount.objects.create(
+            user = self.user,
+            time = timezone.now(),
+            steps = 350
+        )
+
+        service = StepCountService(user=self.user)
+        step_count = service.get_step_count_between(
+            start = timezone.now()-timedelta(minutes=15),
+            end = timezone.now()
+        )
+
+        self.assertEqual(step_count, 200)
 

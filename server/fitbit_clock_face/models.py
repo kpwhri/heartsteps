@@ -58,3 +58,6 @@ class ClockFaceStepCount(models.Model):
     )
     steps = models.PositiveIntegerField()
     time = models.DateTimeField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
