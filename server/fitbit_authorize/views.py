@@ -92,11 +92,17 @@ def authorize_process(request):
                 account = fitbit_account,
                 user = user
             )
+        # TODO: re-enable async
+        # x = subscribe_to_fitbit.apply_async(kwargs = {
+        #     'username': fitbit_user
+        # })
+
+        subscription_result = subscribe_to_fitbit(username=fitbit_user)
+        
         # TODO: remove print debugging
-        x = subscribe_to_fitbit.apply_async(kwargs = {
-            'username': fitbit_user
-        })
-        # print('subscribe_to_fitbit.get(): ', x.get())
+        # print('subscribe_to_fitbit non-async return value: ', subscription_result)
+        # print('subscribe_to_fitbit async return value: ', subscription_result.get())
+
         if session.redirect:
             return redirect(session.redirect)
         return redirect(reverse('fitbit-authorize-complete'))
