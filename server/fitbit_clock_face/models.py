@@ -1,3 +1,4 @@
+from datetime import time, timedelta
 from random import choice
 import uuid
 
@@ -51,7 +52,7 @@ class ClockFace(models.Model):
         super().save(*args, **kwargs)
 
 
-class ClockFaceStepCount(models.Model):
+class ClockFaceLog(models.Model):
     user = models.ForeignKey(
         User,
         on_delete = models.CASCADE
@@ -61,3 +62,52 @@ class ClockFaceStepCount(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['time']
+
+    @property
+    def previous_log(self):
+        return ClockFaceLog.objects.filter(
+            time__lt = self.time,
+            time__gte = self.time - timedelta(minutes=5),
+            user = self.user
+        ) \
+        .order_by('time') \
+        .last()
+
+
+class StepCount(models.Model):
+    class StepCountSources(models.TextChoices):
+        FIRST = 'First Watch App'
+        SECOND = 'Second Watch App'
+
+    source = models.CharField(
+        choices = StepCountSources.choices,
+        db_index = True,
+        max_length = 150
+    )
+
+    user = models.ForeignKey(
+        User,
+        db_index = True,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+
+    steps = models.PositiveSmallIntegerField()
+    start = models.DateTimeField(
+        db_index = True
+    )
+    end = models.DateTimeField(
+        db_index = True
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['start']
+
+    def __str__(self):
+        return "%s steps %d @ %s" % (self.source, self.steps, self.end)

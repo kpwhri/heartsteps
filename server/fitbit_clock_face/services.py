@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .models import ClockFaceStepCount
+from .models import StepCount
 from .models import User
 
 class StepCountService:
@@ -24,10 +24,10 @@ class StepCountService:
         self.__user = user
 
     def get_step_count_query(self, start, end, created_before=None):
-        queryset = ClockFaceStepCount.objects.filter(
+        queryset = StepCount.objects.filter(
             user = self.__user,
-            time__gte = start,
-            time__lte = end
+            start__gte = start,
+            end__lte = end
         )
         if created_before:
             return queryset.filter(
@@ -41,16 +41,7 @@ class StepCountService:
         step_counts = [step_count.steps for step_count in queryset.all()]
         if not step_counts:
             raise StepCountService.NoStepCountRecorded('No steps')
-        total_steps = 0
-        last_step_count = None
-        for step_count in step_counts:
-            if last_step_count is None:
-                last_step_count = step_count
-                continue
-            difference = step_count - last_step_count
-            last_step_count = step_count
-            total_steps += difference
-        return total_steps
+        return sum(step_counts)
 
     def get_step_count_at(self, time):
         queryset = self.get_step_count_query(

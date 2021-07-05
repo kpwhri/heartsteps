@@ -1,5 +1,4 @@
 from datetime import datetime
-from unittest import signals
 import pytz
 
 from rest_framework.permissions import IsAuthenticated
@@ -8,8 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import ClockFace
-from .models import ClockFaceStepCount
+from .models import ClockFaceLog
 from .models import User
+from .tasks import update_step_counts
 from .signals import step_count_updated
 
 class CreateClockFace(APIView):
@@ -105,7 +105,7 @@ class ClockFaceStepCounts(APIView):
 
         if request.user.is_authenticated():
             step_counts = []
-            for step_count in ClockFaceStepCount.objects.filter(user=request.user).order_by('-end')[:10]:
+            for step_count in ClockFaceLog.objects.filter(user=request.user).order_by('-end')[:10]:
                 step_counts.append({
                     'time': step_count.time.isoformat(),
                     'steps': step_count.steps
@@ -120,7 +120,9 @@ class ClockFaceStepCounts(APIView):
     def post(self, request):
         if 'HTTP_CLOCK_FACE_PIN' in request.META and 'HTTP_CLOCK_FACE_TOKEN' in request.META:
             try:
-                clock_face = ClockFace.objects.prefetch_related('user').get(
+                clock_face = ClockFace.objects \
+                .prefetch_related('user') \
+                .get(
                     pin = request.META['HTTP_CLOCK_FACE_PIN'],
                     token = request.META['HTTP_CLOCK_FACE_TOKEN']
                 )
@@ -128,14 +130,16 @@ class ClockFaceStepCounts(APIView):
                     if 'step_counts' in request.data and isinstance(request.data['step_counts'], list):
                         for step_count in request.data['step_counts']:
                             time = datetime.utcfromtimestamp(step_count['time']/1000).astimezone(pytz.UTC)
-                            ClockFaceStepCount.objects.update_or_create(
+                            ClockFaceLog.objects.update_or_create(
                                 time = time,
                                 user = clock_face.user,
                                 defaults= {
                                     'steps': step_count['steps']
                                 }
                             )
-                        step_count_updated.send(User, username=clock_face.user.username)
+                        update_step_counts.delay(
+                            username = clock_face.user.username
+                        )
                         return Response('', status=status.HTTP_201_CREATED)
                     return Response('step_counts not included', status=status.HTTP_400_BAD_REQUEST)
             except ClockFace.DoesNotExist:

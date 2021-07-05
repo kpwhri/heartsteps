@@ -8,9 +8,10 @@ from rest_framework.test import APITestCase
 from unittest.mock import patch
 
 from .models import ClockFace
-from .models import ClockFaceStepCount
+from .models import ClockFaceLog
+from .models import StepCount
 from .models import User
-from .signals import step_count_updated
+from .tasks import update_step_counts
 
 class RecordStepCountsView(APITestCase):
 
@@ -24,12 +25,11 @@ class RecordStepCountsView(APITestCase):
             'HTTP_CLOCK_FACE_TOKEN': str(self.clockface.token)
         }
 
-        signal_send_patch = patch.object(step_count_updated, 'send')
-        self.addCleanup(signal_send_patch.stop)
-        self.step_count_updated = signal_send_patch.start()
+        update_step_counts_patch = patch.object(update_step_counts, 'delay')
+        self.addCleanup(update_step_counts_patch.stop)
+        self.update_step_counts = update_step_counts_patch.start()
 
     def test_creates_step_counts(self):
-
         step_counts = []
         base_step_count = 200
         for offset in range(10):
@@ -39,6 +39,7 @@ class RecordStepCountsView(APITestCase):
                 'steps': base_step_count + 50 * offset
             }
             step_counts.append(step_count)
+        
         response = self.client.post(
             path = reverse('clock-face-step-counts'),
             data = json.dumps({
@@ -50,10 +51,75 @@ class RecordStepCountsView(APITestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        step_counts = [step_count for step_count in ClockFaceStepCount.objects.filter(user=self.user).order_by('time')]
+        step_counts = [step_count for step_count in ClockFaceLog.objects.filter(user=self.user).order_by('time')]
         self.assertEqual(len(step_counts), 10)
         self.assertEqual(step_counts[0].steps, 200)
-        self.step_count_updated.assert_called()
+        self.update_step_counts.assert_called_with(
+            username='test'
+        )
+
+class UpdateStepCountTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username = 'test')
+
+    def create_clock_face_log(self, time, steps):
+        return ClockFaceLog.objects.create(
+            user = self.user,
+            time = time,
+            steps = steps
+        )
+
+    def test_create_step_counts_from_clock_face_logs(self):
+        now = timezone.now()
+        self.create_clock_face_log(now-timedelta(minutes=10), 100)
+        self.create_clock_face_log(now-timedelta(minutes=5), 150)
+        self.create_clock_face_log(now, 200)
+
+        update_step_counts(username=self.user.username)
+
+        self.assertEqual(StepCount.objects.filter(user=self.user).count(), 2)
+        last_step_count = StepCount.objects.filter(user=self.user).last()
+        self.assertEqual(last_step_count.steps, 50)
+
+    def test_does_not_create_step_count_from_single_log(self):
+        self.create_clock_face_log(timezone.now(), 200)
+
+        update_step_counts(username=self.user.username)
+
+        self.assertEqual(StepCount.objects.filter(user = self.user).count(), 0)
+
+    def test_does_not_create_step_count_intervals_greater_than_5_minutes(self):
+        now = timezone.now()
+        # older log that should not be counted
+        self.create_clock_face_log(now-timedelta(minutes=20), 100)
+        # create single step count for 5 minutes difference
+        self.create_clock_face_log(now-timedelta(minutes=5), 150)
+        self.create_clock_face_log(now, 200)
+
+        update_step_counts(username=self.user.username)
+
+        step_count_count = StepCount.objects.filter(user=self.user).count()
+        self.assertEqual(step_count_count, 1)
+
+    def test_updates_step_counts_from_clock_face_logs(self):
+        now = timezone.now()
+        self.create_clock_face_log(now - timedelta(minutes=10), 100)
+        self.create_clock_face_log(now - timedelta(minutes=5), 150)
+        last_log = self.create_clock_face_log(now, 200)
+        
+        update_step_counts(username=self.user.username)
+        last_log.steps = 250
+        last_log.save()
+        update_step_counts(username=self.user.username)
+
+        number_of_step_counts = StepCount.objects.filter(user=self.user).count()
+        self.assertEqual(2, number_of_step_counts)
+        last_step_count = StepCount.objects.filter(user=self.user).last()
+        self.assertEqual(last_step_count.steps, 100)
+
+
+
 
 class StepCountServiceTests(TestCase):
 
@@ -61,20 +127,18 @@ class StepCountServiceTests(TestCase):
         self.user = User.objects.create(username='test')
 
     def test_step_count_service_gets_step_counts(self):
-        ClockFaceStepCount.objects.create(
+        now = timezone.now()
+        StepCount.objects.create(
             user = self.user,
-            time = timezone.now() - timedelta(minutes=10),
-            steps = 150
+            start = now - timedelta(minutes=10),
+            end = now - timedelta(minutes=5),
+            steps = 100
         )
-        ClockFaceStepCount.objects.create(
+        StepCount.objects.create(
             user = self.user,
-            time = timezone.now() - timedelta(minutes=5),
-            steps = 250
-        )
-        ClockFaceStepCount.objects.create(
-            user = self.user,
-            time = timezone.now(),
-            steps = 350
+            start = now - timedelta(minutes=5),
+            end = now,
+            steps = 200
         )
 
         service = StepCountService(user=self.user)
@@ -83,5 +147,5 @@ class StepCountServiceTests(TestCase):
             end = timezone.now()
         )
 
-        self.assertEqual(step_count, 200)
+        self.assertEqual(step_count, 300)
 
