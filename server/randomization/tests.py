@@ -20,7 +20,7 @@ from locations.models import Location, Place
 from locations.services import LocationService
 from push_messages.models import Message as PushMessage, Device
 from push_messages.services import PushMessageService
-from watch_app.services import StepCountService as WatchAppStepCountService
+from fitbit_clock_face.services import StepCountService as WatchAppStepCountService
 from weather.models import WeatherForecast
 from weather.services import WeatherService
 
