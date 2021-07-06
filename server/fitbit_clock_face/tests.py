@@ -11,6 +11,7 @@ from .models import ClockFace
 from .models import ClockFaceLog
 from .models import StepCount
 from .models import User
+from .signals import step_count_updated
 from .tasks import update_step_counts
 
 class RecordStepCountsView(APITestCase):
@@ -63,6 +64,10 @@ class UpdateStepCountTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(username = 'test')
 
+        step_count_updated_patch = patch.object(step_count_updated, 'send')
+        self.addCleanup(step_count_updated_patch.stop)
+        self.step_count_updated_signal = step_count_updated_patch.start()
+
     def create_clock_face_log(self, time, steps):
         return ClockFaceLog.objects.create(
             user = self.user,
@@ -81,6 +86,8 @@ class UpdateStepCountTests(TestCase):
         self.assertEqual(StepCount.objects.filter(user=self.user).count(), 2)
         last_step_count = StepCount.objects.filter(user=self.user).last()
         self.assertEqual(last_step_count.steps, 50)
+
+        self.step_count_updated_signal.assert_called()
 
     def test_does_not_create_step_count_from_single_log(self):
         self.create_clock_face_log(timezone.now(), 200)

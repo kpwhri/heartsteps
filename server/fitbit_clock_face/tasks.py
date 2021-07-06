@@ -3,6 +3,7 @@ from celery import shared_task
 from .models import ClockFaceLog
 from .models import StepCount
 from .models import User
+from .signals import step_count_updated
 
 @shared_task
 def update_step_counts(username):
@@ -24,7 +25,7 @@ def update_step_counts(username):
             last_log = log.previous_log
             if last_log:
                 steps_difference = log.steps - last_log.steps
-                values = StepCount.objects.update_or_create(
+                StepCount.objects.update_or_create(
                     user = user,
                     start = last_log.time,
                     end = log.time,
@@ -33,6 +34,6 @@ def update_step_counts(username):
                         'steps': steps_difference
                     }
                 )
-
+        step_count_updated.send(User, username=username)
     except User.DoesNotExist:
         pass
