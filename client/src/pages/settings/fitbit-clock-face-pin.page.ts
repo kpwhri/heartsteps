@@ -5,6 +5,7 @@ import { LoadingService } from "@infrastructure/loading.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
+import { BrowserService } from '@infrastructure/browser.service';
 
 
 
@@ -23,6 +24,7 @@ export class FitbitClockFacePinPage implements OnInit {
         private heartstepsServer:HeartstepsServer,
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
+        private browserService: BrowserService,
         private router: Router
     ) {}
 
@@ -88,8 +90,7 @@ export class FitbitClockFacePinPage implements OnInit {
             if (data.step_counts && Array.isArray(data.step_counts)) {
                 this.stepCounts = data.step_counts.map((step_count) => { 
                     return {
-                        'start': moment(step_count.start).fromNow(),
-                        'end': moment(step_count.end).fromNow(),
+                        'time': moment(step_count.time).fromNow(),
                         'steps': step_count.steps
                     }
                 })
@@ -119,6 +120,10 @@ export class FitbitClockFacePinPage implements OnInit {
         .then(() => {
             this.loadingService.dismiss();
         });
+    }
+
+    public openFitbitGallery(): void {
+        this.browserService.open('https://gallery.fitbit.com/details/805f9d8b-98bc-4d93-8107-9b36b31d138d');
     }
 
 }

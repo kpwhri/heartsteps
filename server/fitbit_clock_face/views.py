@@ -103,9 +103,9 @@ class ClockFaceStepCounts(APIView):
 
     def get(self, request):
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             step_counts = []
-            for step_count in ClockFaceLog.objects.filter(user=request.user).order_by('-end')[:10]:
+            for step_count in ClockFaceLog.objects.filter(user=request.user).order_by('-time')[:10]:
                 step_counts.append({
                     'time': step_count.time.isoformat(),
                     'steps': step_count.steps
