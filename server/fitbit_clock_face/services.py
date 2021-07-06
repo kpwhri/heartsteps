@@ -38,13 +38,10 @@ class StepCountService:
 
     def get_step_count_between(self, start, end, created_before=None):
         queryset = self.get_step_count_query(start, end, created_before)
-        step_counts = list(queryset.all())
+        step_counts = [step_count.steps for step_count in queryset.all()]
         if not step_counts:
             raise StepCountService.NoStepCountRecorded('No steps')
-        total_steps = 0
-        for step_count in step_counts:
-            total_steps += step_count.steps
-        return total_steps
+        return sum(step_counts)
 
     def get_step_count_at(self, time):
         queryset = self.get_step_count_query(

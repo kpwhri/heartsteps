@@ -7,12 +7,13 @@ from import_export.admin import ExportMixin
 from import_export.fields import Field
 
 from behavioral_messages.admin import MessageTemplateAdmin
+from fitbit_activities.services import FitbitStepCountService
 from randomization.admin import DecisionAdmin
 from randomization.resources import DecisionResource
 from service_requests.admin import ServiceRequestAdmin
 
 from .models import Configuration, AntiSedentaryMessageTemplate, AntiSedentaryDecision, AntiSedentaryServiceRequest
-from .services import AntiSedentaryDecisionService, AntiSedentaryService, FitbitStepCountService
+from .services import AntiSedentaryDecisionService, AntiSedentaryService
 
 def send_anti_sedentary_message(admin, request, queryset):
     for configuration in queryset.all():

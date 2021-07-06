@@ -7,12 +7,10 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from days.services import DayService
-from fitbit_activities.services import FitbitStepCountService
-from fitbit_api.services import FitbitService
 from randomization.services import DecisionContextService
 from randomization.services import DecisionMessageService
 from walking_suggestion_times.models import SuggestionTime
-from watch_app.services import StepCountService
+from fitbit_clock_face.services import StepCountService
 
 from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision
@@ -199,10 +197,6 @@ class AntiSedentaryService:
         decision_times = []
         day_start = self.get_day_start(date)
         day_end = self.get_day_end(date)
-
-        steps_service = FitbitStepCountService(
-            user = self.__user
-        )
 
         decision_interval = self.decision_minute_interval
         current_time = day_start

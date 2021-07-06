@@ -22,8 +22,8 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
+from fitbit_clock_face.models import StepCount as WatchStepCount
 from page_views.models import PageView
-from watch_app.models import StepCount as WatchStepCount
 
 from walking_suggestions.services import WalkingSuggestionService, WalkingSuggestionDecisionService
 from walking_suggestions.models import Configuration, WalkingSuggestionDecision, SuggestionTime

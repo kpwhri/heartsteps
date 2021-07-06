@@ -82,6 +82,18 @@ To explain the command above a little
 * server is the name of the image
 * bash is the command we want to run, which overrides the default startup command for the image
 
+
+While you are actively developing, you can use the following commands **inside** the server container:
+
+```
+$ keep_testing [app name]
+```
+
+It automatically reruns the following test command if *.py file changes.
+```
+$ python manage.py test [app name] --keepdb
+```
+
 ### HeartSteps Client
 
 You would run the client like this

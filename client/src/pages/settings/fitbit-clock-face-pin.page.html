@@ -2,11 +2,14 @@
     title="Fitbit Clock Face Pin"
     (onDismiss)="goBack()"
     >
+    <section>
+        <button (click)="openFitbitGallery()">Install Fitbit Clock Face</button>
+    </section>
     <div *ngIf="pin">
         <p>Pair with clock face with pin <strong>{{pin}}.</strong></p>
         <ul *ngIf="stepCounts">
             <li *ngFor="let stepCount of stepCounts">
-                {{stepCount.steps}} steps {{stepCount.end}}
+                {{stepCount.steps}} steps {{stepCount.time}}
             </li>
         </ul>
     </div>

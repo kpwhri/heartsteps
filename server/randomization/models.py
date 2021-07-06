@@ -10,13 +10,10 @@ from django.contrib.auth.models import User
 
 from behavioral_messages.models import MessageTemplate
 from days.services import DayService
-from fitbit_activities.services import FitbitStepCountService
 from locations.models import Location
-from locations.models import Place
 from locations.services import LocationService
 from push_messages.models import Message
-from push_messages.services import PushMessageService
-from watch_app.services import StepCountService as WatchAppStepCountService
+from fitbit_clock_face.services import StepCountService as WatchAppStepCountService
 from weather.models import WeatherForecast
 
 class ContextTag(models.Model):

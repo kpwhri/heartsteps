@@ -14,6 +14,7 @@ import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 import { ParticipantInformationService } from './participant-information.service';
 import { WeatherModule } from '@heartsteps/weather/weather.module';
+import { BoutPlanningModule } from '@heartsteps/bout-planning/bout-planning.module';
 
 @NgModule({
     imports: [
@@ -26,7 +27,8 @@ import { WeatherModule } from '@heartsteps/weather/weather.module';
         WalkingSuggestionsModule,
         PlacesModule,
         WeeklySurveyModule,
-        WeatherModule
+        WeatherModule,
+        BoutPlanningModule
     ],
     providers: [
         ParticipantService,

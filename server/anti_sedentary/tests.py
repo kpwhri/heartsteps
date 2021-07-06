@@ -9,13 +9,10 @@ from django.utils import timezone
 
 from days.services import DayService 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
-from locations.services import LocationService
+from fitbit_clock_face.models import StepCount
 from push_messages.models import Device, Message
 from push_messages.services import PushMessageService
 from walking_suggestion_times.models import SuggestionTime
-from walking_suggestion_times.signals import suggestion_times_updated
-from watch_app.models import StepCount
-from watch_app.signals import step_count_updated
 
 from .clients import AntiSedentaryClient
 from .models import AntiSedentaryDecision, AntiSedentaryMessageTemplate, User, Configuration

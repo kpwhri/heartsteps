@@ -30,7 +30,7 @@ app.conf.beat_schedule = {
     'export-cohort-data': {
         'task': 'participants.tasks.export_cohort_data',
         'schedule': crontab(hour='11', minute='0')
-    },
+    }
 }
 app.conf.beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
 

@@ -4,6 +4,7 @@ import { WalkingSuggestionTimeService } from "@heartsteps/walking-suggestions/wa
 import { PlacesService } from "@heartsteps/places/places.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReflectionTimeService } from "@heartsteps/weekly-survey/reflection-time.service";
+import { FirstBoutPlanningTimeService } from "@heartsteps/bout-planning/first-bout-planning-time.service"
 import { FitbitService } from "@heartsteps/fitbit/fitbit.service";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { DailyTimeService } from "@heartsteps/daily-times/daily-times.service";
@@ -24,6 +25,7 @@ export class ProfileService {
         private placesService:PlacesService,
         private contactInformationService: ContactInformationService,
         private reflectionTimeService: ReflectionTimeService,
+        private firstBoutPlanningTimeService: FirstBoutPlanningTimeService,
         private fitbitService: FitbitService,
         private fitbitWatchService: FitbitWatchService,
         private currentWeekService: CurrentWeekService,
@@ -76,6 +78,7 @@ export class ProfileService {
             this.loadWalkingSuggestionTimes(),
             this.loadPlaces(),
             this.loadReflectionTime(),
+            this.loadFirstBoutPlanningTime(),
             this.loadContactInformation(),
             this.loadFitbit(),
             this.loadFitbitWatchStatus(),
@@ -97,6 +100,7 @@ export class ProfileService {
             this.walkingSuggestionTimeService.removeTimes(),
             this.placesService.remove(),
             this.reflectionTimeService.remove(),
+            this.firstBoutPlanningTimeService.remove(),
             this.contactInformationService.remove(),
             this.fitbitService.remove()
         ])
@@ -114,6 +118,7 @@ export class ProfileService {
             this.checkWalkingSuggestions(),
             this.checkPlacesSet(),
             this.checkReflectionTime(),
+            this.checkFirstBoutPlanningTime(),
             this.checkContactInformation(),
             this.checkFitbit(),
             this.checkFitbitWatch()
@@ -124,9 +129,10 @@ export class ProfileService {
                 walkingSuggestionTimes: results[1],
                 places: results[2],
                 weeklyReflectionTime: results[3],
-                contactInformation: results[4],
-                fitbitAuthorization: results[5],
-                fitbitWatch: results[6]
+                firstBoutPlanningTime: results[4],
+                contactInformation: results[5],
+                fitbitAuthorization: results[6],
+                fitbitWatch: results[7]
             }
         })
         .catch(() => {
@@ -151,8 +157,28 @@ export class ProfileService {
         })
     }
 
+    private checkFirstBoutPlanningTime():Promise<boolean> {
+        return this.firstBoutPlanningTimeService.getTime()
+        .then(() => {
+            return true
+        })
+        .catch(() => {
+            return Promise.resolve(false)
+        })
+    }
+
     private loadReflectionTime():Promise<boolean> {
         return this.reflectionTimeService.load()
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return Promise.resolve(false);
+        });
+    }
+
+    private loadFirstBoutPlanningTime():Promise<boolean> {
+        return this.firstBoutPlanningTimeService.load()
         .then(() => {
             return true;
         })

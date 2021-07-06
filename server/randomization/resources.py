@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from fitbit_activities.services import FitbitStepCountService
-from watch_app.services import StepCountService as WatchAppStepCountService
+from fitbit_clock_face.services import StepCountService as WatchAppStepCountService
 
 from import_export import resources
 from import_export.fields import Field

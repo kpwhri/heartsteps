@@ -143,7 +143,8 @@ INSTALLED_APPS = [
     'burst_periods',
     'fitbit_clock_face',
     'nlm',
-    'daily_step_goals'
+    'daily_step_goals',
+    'configuration_manager'
 ]
 
 MIDDLEWARE = [
