@@ -25,8 +25,7 @@ export class DailySummarySerializer {
             minutes: summary.minutes,
             steps: summary.steps,
             miles: summary.miles,
-            activitiesCompleted: summary.activitiesCompleted,
-            dailyStepGoal: summary.dailyStepGoal
+            activitiesCompleted: summary.activitiesCompleted
         }
     }
 
@@ -41,7 +40,6 @@ export class DailySummarySerializer {
         summary.steps = data.steps ? data.steps : 0;
         summary.miles = data.miles ? data.miles : 0;
         summary.activitiesCompleted = data.activitiesCompleted ? data.activitiesCompleted : 0;
-        summary.dailyStepGoal = data.dailyStepGoal ? data.dailyStepGoal : 0;
         return summary;
     }
 
