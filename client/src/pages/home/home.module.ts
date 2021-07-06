@@ -20,6 +20,7 @@ import { DashboardNotificationComponent } from "./dashboard-notifications.compon
 import { SettingsComponent } from "@pages/settings/settings.component";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
 import { NotificationCenterPage } from "./notification-center";
+import { DailyStepGoalModule } from "@heartsteps/daily-step-goal/daily-step-goal.module";
 
 const routes: Routes = [
     {
@@ -85,6 +86,7 @@ const routes: Routes = [
         NotificationCenterModule,
         IonicPageModule.forChild(HomePage),
         RouterModule.forChild(routes),
+        DailyStepGoalModule
     ],
     exports: [HomePage, RouterModule],
 })
