@@ -1,7 +1,6 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 
-
 @Component({
     selector: 'heartsteps-daily-step-goal',
     templateUrl: './daily-step-goal.html'
@@ -23,3 +22,4 @@ export class DailyStepGoalComponent {
         })
     }
 }
+

@@ -79,6 +79,7 @@ const routes: Routes = [
         ActivityLogPageModule,
         AnchorMessageModule,
         CurrentWeekModule,
+        DailyStepGoalModule,
         DailySummaryModule,
         ResourceLibraryModule,
         SettingsModule,
@@ -86,7 +87,6 @@ const routes: Routes = [
         NotificationCenterModule,
         IonicPageModule.forChild(HomePage),
         RouterModule.forChild(routes),
-        DailyStepGoalModule
     ],
     exports: [HomePage, RouterModule],
 })
