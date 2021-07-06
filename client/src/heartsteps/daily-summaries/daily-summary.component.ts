@@ -18,9 +18,9 @@ export class DailySummaryComponent implements OnDestroy {
     public moderateMinutes: number = 0;
     public steps: number = 0;
     public miles: number = 0;
-    public dailyStepGoal: number = 8000;
-    public dailyStepDiff: number = 8000;
-    public dailyStepMsg: string = "Steps to Go";
+//     public dailyStepGoal: number = 8000;
+//     public dailyStepDiff: number = 8000;
+//     public dailyStepMsg: string = "Steps to Go";
 
     private summary: DailySummary;
 
@@ -37,14 +37,6 @@ export class DailySummaryComponent implements OnDestroy {
                 this.update();
             }
         });
-
-        this.heartstepsServer.get('dailystepgoals')
-        .then(() => {
-            console.log('Got a response from the server')
-        })
-        .catch(() => {
-            console.log('Daily step count goal failed')
-        })
     }
 
     ngOnDestroy() {
@@ -68,14 +60,14 @@ export class DailySummaryComponent implements OnDestroy {
         
         this.formatDate();
 
-        this.dailyStepDiff = this.dailyStepGoal - this.steps;
-        if (this.dailyStepDiff < 0) {
-            this.dailyStepMsg = "Steps Beyond Goal";
-            this.dailyStepDiff *= -1;
-        }
-        else {
-            this.dailyStepMsg = "Steps to Go";
-        }
+//         this.dailyStepDiff = this.dailyStepGoal - this.steps;
+//         if (this.dailyStepDiff < 0) {
+//             this.dailyStepMsg = "Steps Beyond Goal";
+//             this.dailyStepDiff *= -1;
+//         }
+//         else {
+//             this.dailyStepMsg = "Steps to Go";
+//         }
     }
 
     private formatDate() {
