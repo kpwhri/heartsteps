@@ -14,6 +14,10 @@ export class FitbitClockFacePairPage {
         private fitbitClockFaceService: FitbitClockFaceService
     ) {}
 
+    public openFitbitGallery(){
+        this.fitbitClockFaceService.openFitbitGallery();
+    }
+
     public paired() {
         this.next.emit();
     }

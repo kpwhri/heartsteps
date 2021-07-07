@@ -1,13 +1,15 @@
 import * as moment from 'moment';
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { BrowserService } from '@infrastructure/browser.service';
 
 
 @Injectable()
 export class FitbitClockFaceService {
 
     constructor(
-        private heartstepsServer: HeartstepsServer
+        private heartstepsServer: HeartstepsServer,
+        private browserService: BrowserService
     ) {}
 
     public getClockFace(): Promise<any> {
@@ -55,5 +57,9 @@ export class FitbitClockFaceService {
         .catch((error) => {
             return Promise.reject('Http error');
         });
+    }
+
+    public openFitbitGallery() {
+        this.browserService.open('https://gallery.fitbit.com/details/805f9d8b-98bc-4d93-8107-9b36b31d138d');
     }
 }

@@ -113,7 +113,7 @@ export class FitbitClockFacePinPage implements OnInit {
     }
 
     public openFitbitGallery(): void {
-        this.browserService.open('https://gallery.fitbit.com/details/805f9d8b-98bc-4d93-8107-9b36b31d138d');
+        this.fitbitClockFaceService.openFitbitGallery();
     }
 
 }
