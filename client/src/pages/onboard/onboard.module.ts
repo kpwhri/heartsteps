@@ -12,6 +12,8 @@ import { HeartstepsComponentsModule } from '@infrastructure/components/component
 import { OnboardGaurd } from './onboard.gaurd';
 import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
 import { FitbitAuthPage } from './fitbit-auth.page';
+import { FitbitClockFacePairPage } from './fitbit-clock-face-pair.page';
+import { FitbitClockFaceModule } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.module';
 
 const onboardRoutes:Routes = [
     {
@@ -29,10 +31,12 @@ const onboardRoutes:Routes = [
 @NgModule({
     declarations: [
         FitbitAuthPage,
+        FitbitClockFacePairPage,
         OnboardPage,
     ],
     entryComponents: [
-        FitbitAuthPage
+        FitbitAuthPage,
+        FitbitClockFacePairPage
     ],
     imports: [
         HeartstepsComponentsModule,
@@ -42,6 +46,7 @@ const onboardRoutes:Routes = [
         NotificationsModule,
         FitbitModule,
         FitbitWatchModule,
+        FitbitClockFaceModule,
         ContactInformationModule,
         WalkingSuggestionsModule,
         RouterModule.forChild(onboardRoutes)

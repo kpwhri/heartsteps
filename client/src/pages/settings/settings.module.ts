@@ -26,6 +26,7 @@ import { ActivitySurveysModule } from "@heartsteps/activity-surveys/activity-sur
 import { FitbitClockFacePinPage } from "./fitbit-clock-face-pin.page";
 import { FormModule } from "@infrastructure/form/form.module";
 import { ReactiveFormsModule } from "@angular/forms";
+import { FitbitClockFaceModule } from "@heartsteps/fitbit-clock-face/fitbit-clock-face.module";
 
 const settingsRoutes: Routes = [
     {
@@ -111,6 +112,7 @@ const settingsRoutes: Routes = [
         WalkingSuggestionsModule,
         NotificationsModule,
         NotificationCenterModule,
+        FitbitClockFaceModule,
         RouterModule.forChild(settingsRoutes),
     ],
 })

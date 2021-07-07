@@ -3,9 +3,9 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoadingService } from "@infrastructure/loading.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { BrowserService } from '@infrastructure/browser.service';
+import { FitbitClockFaceService } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.service';
 
 
 
@@ -21,10 +21,10 @@ export class FitbitClockFacePinPage implements OnInit {
     public form: FormGroup;
 
     constructor(
-        private heartstepsServer:HeartstepsServer,
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
         private browserService: BrowserService,
+        private fitbitClockFaceService: FitbitClockFaceService,
         private router: Router
     ) {}
 
@@ -50,10 +50,9 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public submitForm() {
         if(this.form.valid) {
-            this.loadingService.show('Pairing Fitbit Clock Face')
-            this.heartstepsServer.post('fitbit-clock-face/pair', {
-                'pin': this.form.get('pin').value
-            })
+            this.loadingService.show('Pairing Fitbit Clock Face');
+            const pin = this.form.get('pin').value;
+            this.fitbitClockFaceService.pairWithPin(pin)
             .then(() => {
                 this.alertDialog.show('Successfully paired!')
                 .then(() => {
@@ -71,7 +70,7 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public updatePin(): Promise<void> {
         this.loadingService.show('Updating pin');
-        return this.heartstepsServer.get('fitbit-clock-face/pair')
+        return this.fitbitClockFaceService.getClockFace()
         .then((data) => {
             this.pin = data.pin;
         })
@@ -85,21 +84,12 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public getLastStepCounts(): Promise<void> {
         this.loadingService.show('Getting recent step count')
-        return this.heartstepsServer.get('fitbit-clock-face/step-counts')
-        .then((data) => {
-            if (data.step_counts && Array.isArray(data.step_counts)) {
-                this.stepCounts = data.step_counts.map((step_count) => { 
-                    return {
-                        'time': moment(step_count.time).fromNow(),
-                        'steps': step_count.steps
-                    }
-                })
-            } else {
-                this.stepCounts = undefined;
-            }
+        return this.fitbitClockFaceService.getLastClockFaceLogs()
+        .then((stepCounts) => {
+            this.stepCounts = stepCounts;
         })
-        .catch(() => {
-            this.alertDialog.show('Error step counts');
+        .catch((error) => {
+            this.alertDialog.show('Error: ' + error);
         })
         .then(() => {
             this.loadingService.dismiss()
@@ -108,7 +98,7 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public deletePin(): Promise<void> {
         this.loadingService.show("Deleting pin");
-        return this.heartstepsServer.delete('fitbit-clock-face/pair')
+        return this.fitbitClockFaceService.unpair()
         .then(() => {
             this.pin = undefined;
             this.stepCounts = undefined;

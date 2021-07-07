@@ -10,40 +10,47 @@ import { Step } from '@infrastructure/components/stepper.component';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
 import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
 import { FitbitAuthPage } from './fitbit-auth.page';
+import { FitbitClockFacePairPage } from './fitbit-clock-face-pair.page';
 
-const onboardingPages:Array<Step> = [{
-    key: 'contactInformation',
-    title: 'Contact Information',
-    component: ParticipantInformation
-}, {
-    key: 'notificationsEnabled',
-    title: 'Notifications',
-    component: NotificationsPermissionComponent
-}, {
-    key: 'weeklyReflectionTime',
-    title: 'Reflection Time',
-    component: WeeklyReflectionTimePage
-}, {
-    key: 'firstBoutPlanningTime',
-    title: 'First Bout Planning Time',
-    component: FirstBoutPlanningTimePage
-}, {
-    key: 'walkingSuggestionTimes',
-    title: 'Suggestion Times',
-    component: WalkingSuggestionTimesComponent
-}, {
-    key: 'places',
-    title: 'Places',
-    component: PlacesList
-}, {
-    key: 'fitbitAuthorization',
-    title: 'Fitbit',
-    component: FitbitAuthPage
-}, {
-    key: 'fitbitWatch',
-    title: 'HeartSteps Clock Face',
-    component: WatchSetupComponent
-}];
+const onboardingPages:Array<Step> = [
+    {
+        key: 'contactInformation',
+        title: 'Contact Information',
+        component: ParticipantInformation
+    }, {
+        key: 'notificationsEnabled',
+        title: 'Notifications',
+        component: NotificationsPermissionComponent
+    }, {
+        key: 'weeklyReflectionTime',
+        title: 'Reflection Time',
+        component: WeeklyReflectionTimePage
+    }, {
+        key: 'firstBoutPlanningTime',
+        title: 'First Bout Planning Time',
+        component: FirstBoutPlanningTimePage
+    }, {
+        key: 'walkingSuggestionTimes',
+        title: 'Suggestion Times',
+        component: WalkingSuggestionTimesComponent
+    }, {
+        key: 'places',
+        title: 'Places',
+        component: PlacesList
+    }, {
+        key: 'fitbitAuthorization',
+        title: 'Fitbit',
+        component: FitbitAuthPage
+    }, {
+        key: 'fitbitWatch',
+        title: 'HeartSteps Watch App',
+        component: WatchSetupComponent
+    }, {
+        key: 'fitbitClockFace',
+        title: 'HeartSteps Clock Face',
+        component: FitbitClockFacePairPage
+    }
+];
 
 @Component({
     selector: 'pages-onboarding',
