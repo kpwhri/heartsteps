@@ -12,15 +12,20 @@ export class DailyStepGoalComponent {
     constructor(
         private heartstepsServer: HeartstepsServer
     ){
+        this.update();
+    }
+
+    private update() {
         this.heartstepsServer.get('dailystepgoals')
         .then((data) => {
             console.log(data[0]["step_goal"]);
             console.log('Got a response from the server');
-            this.dailyStepGoal = data[1]["step_goal"];
+            this.dailyStepGoal = data[0]["step_goal"];
         })
         .catch(() => {
             console.log('Daily step count goal failed')
         })
+        this.dailyStepGoal = this.summary.minutes;
     }
 }
 
