@@ -25,7 +25,6 @@ export class DailyStepGoalComponent {
         .catch(() => {
             console.log('Daily step count goal failed')
         })
-        this.dailyStepGoal = this.summary.minutes;
     }
 }
 
