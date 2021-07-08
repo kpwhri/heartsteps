@@ -14,6 +14,20 @@ from .models import User
 from .signals import step_count_updated
 from .tasks import update_step_counts
 
+class CreatesClockFacePin(APITestCase):
+
+    def test_creates_pin(self):
+        response = self.client.post(
+            path = reverse('clock-face-create'),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        clock_face = ClockFace.objects.get()
+        self.assertEqual(response.data['pin'], clock_face.pin)
+        self.assertEqual(response.data['token'], clock_face.token)
+        self.assertNone(clock_face.user)
+
 class RecordStepCountsView(APITestCase):
 
     def setUp(self):

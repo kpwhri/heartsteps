@@ -14,11 +14,11 @@ from .signals import step_count_updated
 
 class CreateClockFace(APIView):
 
-    def post(self):
+    def post(self, request):
         clock_face = ClockFace.objects.create()
         return Response({
             'pin': clock_face.pin,
-            'token': clock_face.token
+            'token': str(clock_face.token)
         })
 
 class ClockFaceStatus(APIView):
