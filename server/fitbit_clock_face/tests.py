@@ -26,7 +26,7 @@ class CreatesClockFacePin(APITestCase):
         clock_face = ClockFace.objects.get()
         self.assertEqual(response.data['pin'], clock_face.pin)
         self.assertEqual(response.data['token'], clock_face.token)
-        self.assertNone(clock_face.user)
+        self.assertIsNone(clock_face.user)
 
 class RecordStepCountsView(APITestCase):
 
