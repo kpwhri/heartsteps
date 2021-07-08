@@ -16,7 +16,7 @@ export class DailyStepGoalComponent {
         .then((data) => {
             console.log(data[0]["step_goal"]);
             console.log('Got a response from the server');
-            dailyStepGoal = data[1]["step_goal"];
+            this.dailyStepGoal = data[1]["step_goal"];
         })
         .catch(() => {
             console.log('Daily step count goal failed')
