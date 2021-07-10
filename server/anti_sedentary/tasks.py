@@ -5,11 +5,44 @@ from import_export import resources
 from import_export.fields import Field
 
 from days.models import Day
+from days.services import DayService
 from service_requests.admin import ServiceRequestResource
 
 from .admin import AntiSedentaryDecisionResouce
 from .models import AntiSedentaryDecision
 from .models import AntiSedentaryServiceRequest
+from .models import Configuration
+
+def export_firsts_csv(users, directory='./', filename='firsts_exports.csv'):
+    headers = [[
+        'HeartSteps ID',
+        'Enrolled Date',
+        'Baseline Complete Date',
+        'First Anti-Sedentary Decision Date',
+        'First Anti-Sedentary Decision Service Request Date',
+        'First Anti-Sedentary Real-Time Sedentary Treated Decision Date'
+    ]]
+    rows = []
+    for first in Configuration.objects.filter(user__in=users).get_firsts():
+        day_service = DayService(username=first['username'])
+        enroll_date = day_service.get_date_at(first['date_joined']) if first['date_joined'] else None
+        baseline_complete_date = day_service.get_date_at(first['baseline_complete_date']) if first['baseline_complete_date'] else None
+        first_decision_date = day_service.get_date_at(first['first_decision'].time) if first['first_decision'] else None
+        first_decision_service_request_date = day_service.get_date_at(first['first_decision_service_request'].request_time) if first['first_decision_service_request'] else None
+        first_real_time_sedentary_treated_decision_date = day_service.get_date_at(first['first_real_time_sedentary_treated_decision'].time) if first['first_real_time_sedentary_treated_decision'] else None
+        rows.append([
+            first['username'],
+            enroll_date.strftime('%Y-%m-%d') if enroll_date else '',
+            baseline_complete_date.strftime('%Y-%m-%d') if baseline_complete_date else '',
+            first_decision_date.strftime('%Y-%m-%d') if first_decision_date else '',
+            first_decision_service_request_date.strftime('%Y-%m-%d') if first_decision_service_request_date else '',
+            first_real_time_sedentary_treated_decision_date.strftime('%Y-%m-%d') if first_real_time_sedentary_treated_decision_date else ''
+        ])
+
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(headers + rows)
+    _file.close()
 
 
 def export_anti_sedentary_decisions(username, directory=None, filename=None, start=None, end=None):
