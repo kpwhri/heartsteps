@@ -78,7 +78,14 @@ def authorize_process(request):
             refresh_token = token['refresh_token']
             expires_at = token['expires_at']
         except KeyError:
+           # print('KEYERROR in authorize_process on line 80 of fitbit_authorize/views')
             return redirect(reverse('fitbit-authorize-complete'))
+
+        # TODO: delete hardcode for test-fitbit-patrick user
+        # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM0I3VlciLCJzdWIiOiI5SDRURDkiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNjI1NTUzNjM2LCJpYXQiOjE2MjU1MjQ4MzZ9.jWXetIEkygPszhLaPQOLrMaTiaH-647MjnbCydTktp8"
+        # fitbit_user = '9H4TD9'
+        # refresh_token = "34c416bd0fc6279063ec52a8a2360b03e1d039307b17f4e8c409f356a19f49bc"
+        # expires_at = 1625553636.9566584
 
         fitbit_account, _ = FitbitAccount.objects.update_or_create(fitbit_user=fitbit_user, defaults={
             'access_token': access_token,
@@ -97,7 +104,9 @@ def authorize_process(request):
         #     'username': fitbit_user
         # })
 
+        print('before subscribe')
         subscription_result = subscribe_to_fitbit(username=fitbit_user)
+        print('after subscribe')
         
         # TODO: remove print debugging
         # print('subscribe_to_fitbit non-async return value: ', subscription_result)

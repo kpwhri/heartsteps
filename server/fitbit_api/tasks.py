@@ -13,9 +13,11 @@ def subscribe_to_fitbit(username):
         # print('fitbit client: ', fitbit_client)
         fitbit_client.subscriptions_update()
         if not fitbit_client.is_subscribed():
+            print('fitbit_client.is_subscribed is false')
             fitbit_client.subscribe()
+            print('fitbit client finished subscribing')
     except FitbitService.NoAccount:
-        # print('FitbitService.NoAccount exception')
+        print('FitbitService.NoAccount exception')
         return False
         
 @shared_task

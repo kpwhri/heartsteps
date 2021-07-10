@@ -178,6 +178,7 @@ class FitbitClient():
         else:
             return False
 
+    # TODO: delete print debugging
     def subscriptions_update(self):
         existing_subscription_ids = []
         for subscription in FitbitSubscription.objects.filter(fitbit_account = self.account).all():
@@ -206,16 +207,23 @@ class FitbitClient():
                 subscription_ids.append(subscription['subscriptionId'])
         return subscription_ids
 
+    # TODO: delete print debugging
     def subscribe(self):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
+            print('ERROR: no fitbit subscriber ID')
             raise ImproperlyConfigured('No FitBit Subscriber ID')
         try:
             self.subscription = FitbitSubscription.objects.get(fitbit_account=self.account)
+            print('found subscription: ', self.subscription)
         except FitbitSubscription.DoesNotExist:
+            print('ERROR: FitbitSubscription.DoesNotExist')
             self.subscription = FitbitSubscription.objects.create(
                 fitbit_account = self.account
             )
+            print('created new FitbitSubscription object: ', self.subscription)
+
         try:
+            # TODO: supposed to be self.subscription?
             self.client.subscription(
                 subscription_id = str(self.subscription.uuid),
                 subscriber_id = settings.FITBIT_SUBSCRIBER_ID,
