@@ -135,12 +135,9 @@ class ParticipantService:
     def is_enabled(self):
         return self.participant.active
 
-    # TODO: remove print debugging
     def is_baseline_complete(self):
         try:
-            # import pdb; pdb.set_trace()
             service = FitbitActivityService(user=self.user)
-            # print('is_baseline_complete service: ', service)
         except FitbitActivityService.NoAccount:
             return False
         if self.user.is_staff:
