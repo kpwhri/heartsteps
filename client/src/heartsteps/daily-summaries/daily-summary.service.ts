@@ -273,15 +273,6 @@ export class DailySummaryService {
         });
     }
 
-    private loadStepGoal(): Promise<DailySummary> {
-        //const dailyStepGoal = this.serializer.formatDate(date);
-        return this.heartstepsServer.get(`dailystepgoals`)
-        .then((data) => {
-            const summary = this.serializer.deserialize(data);
-            return this.store(summary);
-        });
-    }
-
     private loadRange(start: Date, end: Date): Promise<Array<DailySummary>> {
         const startFormatted = this.serializer.formatDate(start);
         const endFormatted = this.serializer.formatDate(end);
