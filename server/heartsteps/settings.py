@@ -144,6 +144,7 @@ INSTALLED_APPS = [
     'fitbit_clock_face',
     'nlm',
     'daily_step_goals',
+    'feature_flags',
     'configuration_manager'
 ]
 

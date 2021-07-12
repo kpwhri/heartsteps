@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/', include('weather.urls')),
     url(r'^api/', include('daily_step_goals.urls')),
+    url(r'^api/', include('feature_flags.urls')),
     url('accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(

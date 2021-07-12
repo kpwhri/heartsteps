@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import FeatureFlags
+
+class FeatureFlagsAdmin(admin.ModelAdmin):
+    search_fields = ['user__username']
+
+admin.site.register(FeatureFlags, FeatureFlagsAdmin)

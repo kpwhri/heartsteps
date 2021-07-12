@@ -135,8 +135,7 @@ class ParticipantNotificationEndpointView(APIView):
         return notifications
     
     def get(self, request):
-        # TODO: change back to days=1
-        start = timezone.now() - timedelta(days=7)
+        start = timezone.now() - timedelta(days=1)
         end = timezone.now()
         
         # check to see if the request is allowed (i.e. participant is logged in)
