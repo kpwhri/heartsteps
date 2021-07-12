@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .models import StepGoals
+from .models import StepGoals, Days
 
 def insertSteps():
     daily_step_goal_log = StepGoals()
@@ -18,10 +18,11 @@ def insertSteps():
     daily_step_goal_log.save()
 
 def getNewGoal():
-    last_ten = StepGoals.objects.all().order_by('-id')[:10]
+    # last_ten = StepGoals.objects.all().order_by('-id')[:10]
+    last_ten = Days.objects.all().order_by('-created')[:10]
     last_ten_in_ascending_order = reversed(last_ten)
 
-    new_goal = last_ten_in_ascending_order[5]
+    new_goal = last_ten_in_ascending_order[5].steps
 
     return new_goal
 
