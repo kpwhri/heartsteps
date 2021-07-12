@@ -45,3 +45,13 @@ class DailyStepGoalsList(APIView):
             return Response(serialized_step_goals)
         else:
             return Response('No step goals', status=status.HTTP_404_NOT_FOUND)
+
+class NewGoal(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        new_goal = getNewGoal()
+        if (new_goal):
+            return Response(getNewGoal())
+        else:
+            return Response('No new goal', status=status.HTTP_404_NOT_FOUND)
