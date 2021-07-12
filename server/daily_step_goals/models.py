@@ -7,7 +7,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 import uuid
 
-from activity_summaries.models import Day
+# from activity_summaries.models import Day
+from activity_summaries import models as activity_summaries_models
 
 # Create your models here.
 class StepGoals(models.Model):
@@ -22,6 +23,5 @@ class StepGoals(models.Model):
     def id(self):
         return str(self.uuid)
 
-# class Steps(Day):
-#     date = models.DateField()
-#     steps = models.PositiveIntegerField(default=0)
+class Days(models.Model):
+    day = models.ForeignKey(activity_summaries_models.Day, on_delete = models.CASCADE)
