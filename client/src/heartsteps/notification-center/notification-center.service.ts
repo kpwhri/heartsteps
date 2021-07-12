@@ -13,13 +13,6 @@ export class NotificationCenterService {
     private unreadStatus: BehaviorSubject<boolean> = new BehaviorSubject(true);
     public currentUnreadStatus = this.unreadStatus.asObservable();
 
-    private messageSource = new BehaviorSubject("default message");
-    currentMessage = this.messageSource.asObservable();
-
-    changeMessage(message: string) {
-        this.messageSource.next(message);
-    }
-
     constructor(
         private heartstepsServer: HeartstepsServer,
         private messageReceiptService: MessageReceiptService,
