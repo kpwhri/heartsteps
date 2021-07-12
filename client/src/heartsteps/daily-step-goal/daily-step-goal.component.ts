@@ -13,6 +13,7 @@ export class DailyStepGoalComponent {
         private heartstepsServer: HeartstepsServer
     ){
         this.update();
+        this.updateGoal();
     }
 
     private update() {
@@ -25,6 +26,18 @@ export class DailyStepGoalComponent {
         })
         .catch(() => {
             console.log('Daily step count goal failed')
+        })
+    }
+
+    private updateGoal() {
+        this.heartstepsServer.get('newgoal')
+        .then((data) => {
+            console.log(data);
+            console.log('Got a response from the server');
+
+        })
+        .catch(() => {
+            console.log('New goal failed')
         })
     }
 }
