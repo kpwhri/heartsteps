@@ -17,6 +17,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { NotificationsPage } from "./notifications.page";
 import { NotificationsModule } from "@heartsteps/notifications/notifications.module";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
+import { FeatureFlagModule } from "@heartsteps/feature-flags/feature-flags.module";
 import { SettingsComponent } from "./settings.component";
 import { FitbitAuthorizationPage } from "./fitbit-authorization.page";
 import { FitbitModule } from "@heartsteps/fitbit/fitbit.module";
@@ -112,6 +113,7 @@ const settingsRoutes: Routes = [
         WalkingSuggestionsModule,
         NotificationsModule,
         NotificationCenterModule,
+        FeatureFlagModule,
         FitbitClockFaceModule,
         RouterModule.forChild(settingsRoutes),
     ],
