@@ -9,6 +9,8 @@ import { Router, RouterEvent, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 class Tab {
     name: string;
@@ -35,7 +37,10 @@ export class HomePage implements OnInit, OnDestroy {
 
     private unreadStatusSubscription: Subscription;
     public haveUnread: boolean = true;
-    public interval: any;
+    private featureFlagSubscription: Subscription;
+    public featureFlags: FeatureFlags;
+    public notificationRefreshInterval: any;
+    public featureFlagRefreshInterval: any;
 
     public tabs: Array<Tab> = [
         {
@@ -60,7 +65,8 @@ export class HomePage implements OnInit, OnDestroy {
         private router: Router,
         private element: ElementRef,
         private participantService: ParticipantService,
-        private notificationCenterService: NotificationCenterService
+        private notificationCenterService: NotificationCenterService,
+        private featureFlagService: FeatureFlagService
     ) {}
 
     ngOnInit() {
@@ -80,18 +86,29 @@ export class HomePage implements OnInit, OnDestroy {
             this.notificationCenterService.currentUnreadStatus.subscribe(
                 (unreadStatus) => (this.haveUnread = unreadStatus)
             );
+
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
+            );
+
         this.notificationCenterService.refreshNotifications();
 
-        this.interval = setInterval(() => {
+        this.notificationRefreshInterval = setInterval(() => {
             this.notificationCenterService.refreshNotifications();
         }, 5000);
+        this.featureFlagRefreshInterval = setInterval(() => {
+            this.featureFlagService.refreshFeatureFlags();
+        }, 10000);
     }
 
     ngOnDestroy() {
         this.routerSubscription.unsubscribe();
         this.updatingParticipantSubscription.unsubscribe();
-        clearInterval(this.interval);
+        clearInterval(this.notificationRefreshInterval);
+        clearInterval(this.featureFlagRefreshInterval);
         this.unreadStatusSubscription.unsubscribe();
+        this.featureFlagSubscription.unsubscribe();
     }
 
     private updateFromUrl(url: string) {

@@ -17,6 +17,14 @@
     <li class="notification-list-item">{{notification.body }}</li>
 </ng-template>
 
+<!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
+<div *ngIf="featureFlags.notification_center_flag">
+    <h6>UUID: {{ featureFlags.uuid }}</h6>
+    <h6>
+        Notification Center Flag: {{ featureFlags.notification_center_flag }}
+    </h6>
+</div>
+
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">
         <ng-container *ngIf="isRead(notification) === true">

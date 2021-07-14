@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { Subscription } from "rxjs";
@@ -10,12 +12,19 @@ import { Subscription } from "rxjs";
 export class NotificationCenterPage implements OnInit, OnDestroy {
     public notifications: Message[] = [];
     public haveUnread: boolean = false;
-    public interval: any;
+    public featureFlags: FeatureFlags;
+    public notificationRefreshInterval: any;
+    public featureFlagRefreshInterval: any;
 
     private unreadStatusSubscription: Subscription;
     private notificationsSubscription: Subscription;
 
-    constructor(private notificationCenterService: NotificationCenterService) {}
+    private featureFlagSubscription: Subscription;
+
+    constructor(
+        private notificationCenterService: NotificationCenterService,
+        private featureFlagService: FeatureFlagService
+    ) {}
 
     // redirects message based on message.type
     public redirect(notification: Message) {
@@ -42,6 +51,11 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
             this.notificationCenterService.currentUnreadStatus.subscribe(
                 (unreadStatus) => (this.haveUnread = unreadStatus)
             );
+
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
+            );
         /* 
         TODO: bug where refreshNotification is called twice and only updates every other call
         bell icon updates 2.5 sec too late after data already arrives in inbox, should be synced
@@ -51,15 +65,21 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
         need to make notification-center.ts into own component to fix 
         */
         this.notificationCenterService.refreshNotifications();
-        this.interval = setInterval(() => {
+        this.notificationRefreshInterval = setInterval(() => {
             this.notificationCenterService.refreshNotifications();
         }, 5000);
+
+        this.featureFlagRefreshInterval = setInterval(() => {
+            this.featureFlagService.refreshFeatureFlags();
+        }, 10000);
     }
 
     ngOnDestroy() {
-        clearInterval(this.interval);
+        clearInterval(this.notificationRefreshInterval);
+        clearInterval(this.featureFlagRefreshInterval);
         this.notificationCenterService.updateAllNotifications();
         this.notificationsSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();
+        this.featureFlagSubscription.unsubscribe();
     }
 }

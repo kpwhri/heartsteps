@@ -5,8 +5,8 @@ import { FeatureFlags } from "./FeatureFlags";
 
 @Injectable()
 export class FeatureFlagService {
-    private featureFlags: BehaviorSubject<FeatureFlags[]> = new BehaviorSubject(
-        []
+    private featureFlags: BehaviorSubject<FeatureFlags> = new BehaviorSubject(
+        {}
     );
     public currentFeatureFlags = this.featureFlags.asObservable();
 
@@ -36,5 +36,9 @@ export class FeatureFlagService {
         flags.uuid = data.uuid;
         flags.notification_center_flag = data.notification_center_flag;
         return flags;
+    }
+
+    public refreshFeatureFlags() {
+        this.getFeatureFlags();
     }
 }
