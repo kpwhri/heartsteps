@@ -7,7 +7,7 @@ import { Subscription } from "rxjs";
 
 @Component({
     selector: "page-notification-center",
-    templateUrl: "notification-center.html",
+    templateUrl: "notification-center.html"
 })
 export class NotificationCenterPage implements OnInit, OnDestroy {
     public notifications: Message[] = [];
