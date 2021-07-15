@@ -133,4 +133,9 @@ export class HomePage implements OnInit, OnDestroy {
             }
         });
     }
+
+    public notificationCenterFlag(): boolean {
+        console.log("home.ts notification center flag called");
+        return this.featureFlagService.hasNotificationCenterFlag();
+    }
 }

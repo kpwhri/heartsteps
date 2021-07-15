@@ -35,10 +35,28 @@ export class FeatureFlagService {
 
     // explicitly declare FeatureFlags to avoid javascript type errors
     public deserializeFeatureFlags(data: any): FeatureFlags {
-        const flags = new FeatureFlags();
-        flags.uuid = data.uuid;
-        flags.notification_center_flag = data.notification_center_flag;
-        return flags;
+        const featureFlags = new FeatureFlags();
+        featureFlags.uuid = data.uuid;
+        featureFlags.flags = data.flags;
+        return featureFlags;
+    }
+
+    public hasNotificationCenterFlag(): boolean {
+        return this.hasFlag("notification_center");
+    }
+
+    public hasFlag(flag: string): boolean {
+        // console.log(
+        //     "this.featureFlags.value.flags: ",
+        //     this.featureFlags.value.flags
+        // );
+        if (this.featureFlags.value.flags !== "") {
+            let flags: string = this.featureFlags.value.flags;
+            if (flags.includes(flag)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public refreshFeatureFlags() {

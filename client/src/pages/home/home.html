@@ -1,7 +1,7 @@
 <header>
     <h2>
         {{pageTitle}}
-        <ng-container *ngIf="featureFlags.notification_center_flag">
+        <ng-container *ngIf="notificationCenterFlag()">
             <a routerLink="notification-center">
                 <ng-container *ngIf="haveUnread === false">
                     <img

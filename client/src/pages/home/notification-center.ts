@@ -7,7 +7,7 @@ import { Subscription } from "rxjs";
 
 @Component({
     selector: "page-notification-center",
-    templateUrl: "notification-center.html"
+    templateUrl: "notification-center.html",
 })
 export class NotificationCenterPage implements OnInit, OnDestroy {
     public notifications: Message[] = [];
@@ -38,6 +38,11 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
 
     public isRead(notification: Message): boolean {
         return this.notificationCenterService.isRead(notification);
+    }
+
+    public notificationCenterFlag(): boolean {
+        console.log("notification-center.ts notification center flag called");
+        return this.featureFlagService.hasNotificationCenterFlag();
     }
 
     ngOnInit() {
