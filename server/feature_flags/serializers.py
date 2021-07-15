@@ -4,4 +4,4 @@ from .models import FeatureFlags
 class FeatureFlagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = FeatureFlags
-        fields = [str('uuid'), 'notification_center_flag']
+        fields = [str('uuid'), 'flags']
