@@ -12,6 +12,7 @@ export class NotificationCenterService {
 
     private unreadStatus: BehaviorSubject<boolean> = new BehaviorSubject(true);
     public currentUnreadStatus = this.unreadStatus.asObservable();
+    public notificationRefreshInterval: any;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -21,6 +22,9 @@ export class NotificationCenterService {
         this.getNotifications();
         // TODO: DO I NEED THIS?
         this.notificationService.setup();
+        this.notificationRefreshInterval = setInterval(() => {
+            this.refreshNotifications();
+        }, 5000);
     }
 
     // pull notifications from django

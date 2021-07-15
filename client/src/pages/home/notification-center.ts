@@ -13,8 +13,6 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
     public notifications: Message[] = [];
     public haveUnread: boolean = false;
     public featureFlags: FeatureFlags;
-    public notificationRefreshInterval: any;
-    public featureFlagRefreshInterval: any;
 
     private unreadStatusSubscription: Subscription;
     private notificationsSubscription: Subscription;
@@ -65,18 +63,9 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
         need to make notification-center.ts into own component to fix 
         */
         this.notificationCenterService.refreshNotifications();
-        this.notificationRefreshInterval = setInterval(() => {
-            this.notificationCenterService.refreshNotifications();
-        }, 5000);
-
-        this.featureFlagRefreshInterval = setInterval(() => {
-            this.featureFlagService.refreshFeatureFlags();
-        }, 10000);
     }
 
     ngOnDestroy() {
-        clearInterval(this.notificationRefreshInterval);
-        clearInterval(this.featureFlagRefreshInterval);
         this.notificationCenterService.updateAllNotifications();
         this.notificationsSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();

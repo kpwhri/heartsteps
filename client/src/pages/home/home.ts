@@ -39,8 +39,6 @@ export class HomePage implements OnInit, OnDestroy {
     public haveUnread: boolean = true;
     private featureFlagSubscription: Subscription;
     public featureFlags: FeatureFlags;
-    public notificationRefreshInterval: any;
-    public featureFlagRefreshInterval: any;
 
     public tabs: Array<Tab> = [
         {
@@ -93,20 +91,11 @@ export class HomePage implements OnInit, OnDestroy {
             );
 
         this.notificationCenterService.refreshNotifications();
-
-        this.notificationRefreshInterval = setInterval(() => {
-            this.notificationCenterService.refreshNotifications();
-        }, 5000);
-        this.featureFlagRefreshInterval = setInterval(() => {
-            this.featureFlagService.refreshFeatureFlags();
-        }, 10000);
     }
 
     ngOnDestroy() {
         this.routerSubscription.unsubscribe();
         this.updatingParticipantSubscription.unsubscribe();
-        clearInterval(this.notificationRefreshInterval);
-        clearInterval(this.featureFlagRefreshInterval);
         this.unreadStatusSubscription.unsubscribe();
         this.featureFlagSubscription.unsubscribe();
     }

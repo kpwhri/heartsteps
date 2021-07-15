@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { BehaviorSubject } from "rxjs";
 import { FeatureFlags } from "./FeatureFlags";
@@ -9,10 +9,13 @@ export class FeatureFlagService {
         new FeatureFlags()
     );
     public currentFeatureFlags = this.featureFlags.asObservable();
+    public featureFlagRefreshInterval: any;
 
     constructor(private heartstepsServer: HeartstepsServer) {
-        // TODO: DO I NEED THIS?
         this.getFeatureFlags();
+        this.featureFlagRefreshInterval = setInterval(() => {
+            this.refreshFeatureFlags();
+        }, 10000);
     }
 
     // pull feature flags from django
@@ -24,7 +27,7 @@ export class FeatureFlagService {
     public getFeatureFlags(): FeatureFlags {
         this.getRecentFeatureFlags().then((data) => {
             let flags = this.deserializeFeatureFlags(data);
-            console.log("Feature Flags: ", flags);
+            // console.log("Feature Flags: ", flags);
             this.featureFlags.next(flags);
         });
         return this.featureFlags.value;
