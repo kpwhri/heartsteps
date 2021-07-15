@@ -6,7 +6,7 @@ import { FeatureFlags } from "./FeatureFlags";
 @Injectable()
 export class FeatureFlagService {
     private featureFlags: BehaviorSubject<FeatureFlags> = new BehaviorSubject(
-        {}
+        new FeatureFlags()
     );
     public currentFeatureFlags = this.featureFlags.asObservable();
 
