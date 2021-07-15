@@ -11,7 +11,7 @@ import uuid
 from activity_summaries import models as activity_summaries_models
 
 # Create your models here.
-class StepGoals(models.Model):
+class StepGoal(models.Model):
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete = models.CASCADE)
@@ -23,5 +23,5 @@ class StepGoals(models.Model):
     def id(self):
         return str(self.uuid)
 
-class Days(models.Model):
+class ActivityDay(models.Model):
     day = models.ForeignKey(activity_summaries_models.Day, on_delete = models.CASCADE)

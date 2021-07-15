@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import StepGoals, Days
+from .models import StepGoal, ActivityDay
 
 class StepGoalsAdmin(admin.ModelAdmin):
     pass
-admin.site.register(StepGoals, StepGoalsAdmin)
-admin.site.register(Days)
+admin.site.register(StepGoal, StepGoalsAdmin)
+admin.site.register(ActivityDay)
