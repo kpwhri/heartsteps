@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from datetime import datetime
+import operator
 
 from django.http import Http404
 
@@ -53,10 +54,11 @@ class NewGoal(APIView):
 
     def get(self, request):
         last_ten = Day.objects.all().order_by('-date')[:10]
+        ordered = sorted(last_ten, key=operator.attrgetter('steps'))
         serialized_step_counts = []
 
-        if last_ten:
-            for step in last_ten:
+        if ordered:
+            for step in ordered:
                 serialized_step_counts.append({
                     'date': step.date.strftime('%Y-%m-%d'),
                     'steps': step.steps

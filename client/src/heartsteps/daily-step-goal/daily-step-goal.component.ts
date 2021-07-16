@@ -20,7 +20,7 @@ export class DailyStepGoalComponent {
         this.heartstepsServer.get('dailystepgoals')
         .then((data) => {
             console.log(data);
-            console.log('Got a response from the server');
+            console.log('GET LATEST GOAL: Got a response from the server');
 
             this.dailyStepGoal = data[data.length - 1]["step_goal"];
         })
@@ -33,8 +33,9 @@ export class DailyStepGoalComponent {
         this.heartstepsServer.get('newgoal')
         .then((data) => {
             console.log(data);
-            console.log('Got a response from the server');
-
+            console.log('NEW GOAL: Got a response from the server');
+            var step_median = (data[4]["steps"] + data[5]["steps"])/2;
+            this.dailyStepDiff = Math.round(step_median);
         })
         .catch(() => {
             console.log('New goal failed')
