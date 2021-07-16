@@ -52,7 +52,7 @@ class NewGoal(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        last_ten = Day.objects.all().order_by('-id')[:10]
+        last_ten = Day.objects.all().order_by('-date')[:10]
         serialized_step_counts = []
 
         if last_ten:
