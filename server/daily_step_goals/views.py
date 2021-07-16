@@ -9,6 +9,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 
 from .models import StepGoal, ActivityDay
+from activity_summaries.models import Day
 
 def insertSteps():
     daily_step_goal_log = StepGoal()
@@ -18,11 +19,12 @@ def insertSteps():
     daily_step_goal_log.save()
 
 def getNewGoal():
-    # last_ten = StepGoals.objects.all().order_by('-id')[:10]
-    last_ten = ActivityDay.objects.all().order_by('-created')[:10]
-    last_ten_in_ascending_order = reversed(last_ten)
+    # last_ten = StepGoal.objects.all().order_by('-id')[:10]
+    # last_ten = Day.objects.all().order_by('-id')[:10]
+    # last_ten_in_ascending_order = reversed(last_ten)
+    # new_goal = last_ten_in_ascending_order[5].steps
 
-    new_goal = last_ten_in_ascending_order[5].steps
+    new_goal = 5
 
     return new_goal
 
@@ -50,8 +52,17 @@ class NewGoal(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        new_goal = getNewGoal()
-        if (new_goal):
-            return Response(getNewGoal())
+        last_ten = Day.objects.all().order_by('-id')[:10]
+        serialized_step_counts = []
+
+        if last_ten:
+            for step in last_ten:
+                serialized_step_counts.append({
+                    'date': step.date.strftime('%Y-%m-%d'),
+                    'steps': step.steps
+                })
+        # last_ten_in_ascending_order = reversed(last_ten)
+        # new_goal = last_ten_in_ascending_order[5].steps
+            return Response(serialized_step_counts)
         else:
             return Response('No new goal', status=status.HTTP_404_NOT_FOUND)

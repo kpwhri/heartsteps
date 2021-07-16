@@ -12,8 +12,8 @@ export class DailyStepGoalComponent {
     constructor(
         private heartstepsServer: HeartstepsServer
     ){
-        this.update();
         this.updateGoal();
+        this.update();
     }
 
     private update() {
