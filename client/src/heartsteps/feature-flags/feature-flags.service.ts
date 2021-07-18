@@ -13,6 +13,7 @@ export class FeatureFlagService {
 
     constructor(private heartstepsServer: HeartstepsServer) {
         this.getFeatureFlags();
+        // TODO: check to make sure we aren't making too many frequent, unnecessary requestss
         this.featureFlagRefreshInterval = setInterval(() => {
             this.refreshFeatureFlags();
         }, 10000);

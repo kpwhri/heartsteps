@@ -40,7 +40,7 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
     }
 
     public notificationCenterFlag(): boolean {
-        console.log("notification-center.ts notification center flag called");
+        // console.log("notification-center.ts notification center flag called");
         return this.featureFlagService.hasNotificationCenterFlag();
     }
 

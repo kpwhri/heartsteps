@@ -34,18 +34,14 @@ export class NotificationCenterService {
     // re-initialize this.notifications and returns current notifications in array
     public getNotifications(): Message[] {
         this.getRecentNotifications().then((data) => {
-            // console.log("unread status from API: ", data[0]);
-            // console.log("notifications from API: ", data[1]);
             let newStatus = data[0];
             let res = data[1];
             let notifications: Message[] = res.map(
                 this.deserializeMessage,
                 this
             );
-            // console.log("notifications: ", notifications);
             this.notifications.next(notifications);
             this.unreadStatus.next(newStatus);
-            // console.log("this.unreadStatus: ", this.unreadStatus.value);
         });
         return this.notifications.value;
     }

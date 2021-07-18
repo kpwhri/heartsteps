@@ -165,11 +165,5 @@ class ParticipantNotificationEndpointView(APIView):
 
         notifications = self.get_notifications(request.user, start, end)
         are_unread = self.are_unread_notifications(notifications)
-        print("are unread: ", are_unread)
         serialized = MessageSerializer(notifications, many=True)
-        # data = serialized.data
-        # data.update({'are_unread', are_unread})
-        # print(data)
-        # newdict = {'uuid': 'test'}
-        # newdict.update(serialized.data)
         return Response([are_unread, serialized.data], status=status.HTTP_200_OK)

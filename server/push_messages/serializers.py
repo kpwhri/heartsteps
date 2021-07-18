@@ -55,7 +55,6 @@ class MessageSerializer(serializers.ModelSerializer):
         del representation['data']
         representation['type'] = representation['message_type']
         del representation['message_type']
-        # representation['are_unread'] = instance.are_unread
         return representation
             
         
