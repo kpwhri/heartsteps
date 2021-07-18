@@ -20,7 +20,6 @@ export class NotificationCenterService {
         private notificationService: NotificationService
     ) {
         this.getNotifications();
-        // TODO: DO I NEED THIS?
         this.notificationService.setup();
         this.notificationRefreshInterval = setInterval(() => {
             this.refreshNotifications();
@@ -45,8 +44,6 @@ export class NotificationCenterService {
         return this.notifications.value;
     }
 
-    // TODO: IMPORTANT DESERIALIZE COPIED / REFACTORED FROM MESSAGE.SERVICE.TS
-    // explicitly declare Message to avoid javascript type errors
     public deserializeMessage(data: any): Message {
         const message = new Message(this.messageReceiptService);
         message.id = data.uuid;
@@ -66,7 +63,6 @@ export class NotificationCenterService {
 
     // mark a single notification as engaged (ignored)
     private updateNotification(notification: Message) {
-        // TODO: update to include toggleOpened when users open notification links
         notification.toggleEngaged();
     }
 
@@ -136,7 +132,6 @@ export class NotificationCenterService {
         // we have no notifications or no unread notifications
         return false;
 
-        // TODO: for testing, get rid
         // if (this.notifications.value.length % 2 === 0) {
         //     return true;
         // }

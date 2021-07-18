@@ -228,8 +228,6 @@ export class MessageService {
         });
     }
 
-    // TODO: IMPORTANT REFACTOR WITH NEW MESSAGE FIELDS
-    // TOUCHES MANY PARTS OF APP, CHANGING MAY BREAK MANY THINGS
     public serializeMessage(message: Message): any {
         return {
             id: message.id,
@@ -240,8 +238,6 @@ export class MessageService {
         };
     }
 
-    // TODO: IMPORTANT REFACTOR WITH NEW MESSAGE FIELDS
-    // TOUCHES MANY PARTS OF APP, CHANGING MAY BREAK MANY THINGS
     public deserializeMessage(data: any): Message {
         const message = new Message(this.messageReceiptService);
         message.id = data.id;

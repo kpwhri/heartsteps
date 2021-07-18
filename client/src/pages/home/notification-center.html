@@ -18,10 +18,8 @@
 </ng-template>
 
 <!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
-<!-- <div *ngIf="notificationCenterFlag()"> -->
 <h6>UUID: {{ featureFlags.uuid }}</h6>
 <h6>Notification Center Flag: {{ notificationCenterFlag() }}</h6>
-<!-- </div> -->
 
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">

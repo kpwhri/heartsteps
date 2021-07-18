@@ -26,7 +26,6 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
 
     // redirects message based on message.type
     public redirect(notification: Message) {
-        // TODO: so far only tested message.type == "notification", test other types
         return this.notificationCenterService.redirectNotification(
             notification
         );

@@ -27,7 +27,6 @@ export class FeatureFlagService {
     public getFeatureFlags(): FeatureFlags {
         this.getRecentFeatureFlags().then((data) => {
             let flags = this.deserializeFeatureFlags(data);
-            // console.log("Feature Flags: ", flags);
             this.featureFlags.next(flags);
         });
         return this.featureFlags.value;
@@ -42,14 +41,11 @@ export class FeatureFlagService {
     }
 
     public hasNotificationCenterFlag(): boolean {
+        // TODO: change magic string
         return this.hasFlag("notification_center");
     }
 
     public hasFlag(flag: string): boolean {
-        // console.log(
-        //     "this.featureFlags.value.flags: ",
-        //     this.featureFlags.value.flags
-        // );
         if (this.featureFlags.value.flags !== "") {
             let flags: string = this.featureFlags.value.flags;
             if (flags.includes(flag)) {
