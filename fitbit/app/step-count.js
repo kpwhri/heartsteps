@@ -9,10 +9,21 @@ bodyPresenceSensor.start();
 
 export class StepCounter {
 
+  updateTimer;
+
   constructor() {
     this.step_count_file_name = "step_count.json"
     this.interval_minutes = 5;
     this.cutoff_minutes = 40;
+
+    this.startStepCountTimer()
+  }
+
+  startStepCountTimer() {
+    const stepCounter = this;
+    this.updateTimer = setInterval(function() {
+      stepCounter.update();
+    }, this.interval_minutes * 60 * 1000);
   }
 
   update() {
@@ -45,7 +56,6 @@ export class StepCounter {
       }
     }
 
-    console.log(step_counts.length);
     fs.writeFileSync(this.step_count_file_name, step_counts, "json");
 
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {

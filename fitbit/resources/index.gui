@@ -4,5 +4,8 @@
   <text id="txtDate" class="text text-main">MON JANUARY 01</text>
   <text id="status" class="text text-main">Starting</text>
   <text id="pin" class="text text-bottom"></text>
-  <circle id="status-icon" class="status" pointer-events="visible" />
+  <text id="step-counts" class="text text-bottom"></text>
+  <circle id="status-icon-active" class="status-icon active" pointer-events="visible" />
+  <circle id="status-icon-connected" class="status-icon connected" pointer-events="visible" />
+  <circle id="status-icon-error" class="status-icon error" pointer-events="visible" />
 </svg>

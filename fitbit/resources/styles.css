@@ -12,7 +12,7 @@
   text-anchor: middle;
   text-length: 10;
   x: 50%;
-  y: 38%;
+  y: 45%;
   width: 92%;
   height: 25%;
   fill: #2490DD;
@@ -20,7 +20,7 @@
 
 .text {
   font-family: Seville-Regular;
-  font-size: 26;
+  font-size: 35;
   text-anchor: middle;
   text-length: 30;
   fill: #FFFFFF;
@@ -28,35 +28,34 @@
 
 .text-main {
   x: 50%;
-  y: 64%;
+  y: 65%;
   width: 92%;
-  height: 8%;
+  height: 10%;
 }
 
 .text-bottom {
   x: 50%;
-  y: 90%;
+  y: 85%;
   width: 92%;
   height: 10%;
-  fill: #2490DD;
 }
 
-#status-icon {
-  cx: 10%;
-  cy: 90%;
-  r: 25%;
+.status-icon {
+  cx: 90%;
+  cy: 80%;
+  r: 5%;
   fill: #FFFFFF;
 }
 
-#status-icon.active {
-  fill: #0000FF;
+.status-icon.active {
+  fill: #2490DD;
 }
 
-#status-icon.connected {
+.status-icon.connected {
   fill: #00FF00;
 }
 
-#status-icon.error {
+.status-icon.error {
   fill: #FF0000;
 }
 
