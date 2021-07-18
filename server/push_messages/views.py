@@ -133,6 +133,24 @@ class ParticipantNotificationEndpointView(APIView):
         .localize_datetimes() \
         .all()
         return notifications
+
+    def is_received(self, notification):
+        if notification.sent and notification.received:
+            return True
+        return False
+
+    def is_read(self, notification):
+        if self.is_received(notification):
+            if notification.engaged or notification.opened:
+                return True
+        return False
+    
+    def are_unread_notifications(self, notifications):
+        if notifications:
+            for notification in notifications:
+                if self.is_received(notification) and not self.is_read(notification):
+                    return True
+        return False
     
     def get(self, request):
         start = timezone.now() - timedelta(days=1)
@@ -146,5 +164,12 @@ class ParticipantNotificationEndpointView(APIView):
         self.setup_participant(request.user)
 
         notifications = self.get_notifications(request.user, start, end)
+        are_unread = self.are_unread_notifications(notifications)
+        print("are unread: ", are_unread)
         serialized = MessageSerializer(notifications, many=True)
-        return Response(serialized.data, status=status.HTTP_200_OK)
+        # data = serialized.data
+        # data.update({'are_unread', are_unread})
+        # print(data)
+        # newdict = {'uuid': 'test'}
+        # newdict.update(serialized.data)
+        return Response([are_unread, serialized.data], status=status.HTTP_200_OK)

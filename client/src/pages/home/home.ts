@@ -90,7 +90,7 @@ export class HomePage implements OnInit, OnDestroy {
                 (flags) => (this.featureFlags = flags)
             );
 
-        this.notificationCenterService.refreshNotifications();
+        this.notificationCenterService.getNotifications();
     }
 
     ngOnDestroy() {

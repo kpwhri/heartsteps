@@ -47,12 +47,16 @@ class MessageReceiptSerializer(serializers.Serializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        # TODO: clear up confusing mismatching names in frontend/backend using to_representation()
-        # str('uuid') is set to message.id
-        # i.e. message.id = data.uuid in frontend
-        # data is set to message.context
-        # i.e. message.context = data.data in frontend
-        # message_type is message.type
-        # i.e. message.type = data.message_type
         fields = [str('uuid'), 'created', 'title', 'body', 'sent', 'received', 'opened', 'engaged', 'data', 'message_type']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['context'] = representation['data']
+        del representation['data']
+        representation['type'] = representation['message_type']
+        del representation['message_type']
+        # representation['are_unread'] = instance.are_unread
+        return representation
+            
+        
 

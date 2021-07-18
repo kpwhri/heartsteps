@@ -58,15 +58,7 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
             this.featureFlagService.currentFeatureFlags.subscribe(
                 (flags) => (this.featureFlags = flags)
             );
-        /* 
-        TODO: bug where refreshNotification is called twice and only updates every other call
-        bell icon updates 2.5 sec too late after data already arrives in inbox, should be synced
-        problem is that i'm subscribing twice (here and home.ts)
-        but i need to subscribe here to render HTML template
-        and i need to subscribe on home.ts to get updated readStatus
-        need to make notification-center.ts into own component to fix 
-        */
-        this.notificationCenterService.refreshNotifications();
+        this.notificationCenterService.getNotifications();
     }
 
     ngOnDestroy() {

@@ -22,24 +22,30 @@ export class NotificationCenterService {
         this.getNotifications();
         this.notificationService.setup();
         this.notificationRefreshInterval = setInterval(() => {
-            this.refreshNotifications();
+            this.getNotifications();
         }, 5000);
     }
 
     // pull notifications from django
-    public getRecentNotifications(): Promise<Message[]> {
+    public getRecentNotifications(): Promise<any> {
         return this.heartstepsServer.get("/notification_center/", {});
     }
 
     // re-initialize this.notifications and returns current notifications in array
     public getNotifications(): Message[] {
         this.getRecentNotifications().then((data) => {
-            let notifications: Message[] = data.map(
+            // console.log("unread status from API: ", data[0]);
+            // console.log("notifications from API: ", data[1]);
+            let newStatus = data[0];
+            let res = data[1];
+            let notifications: Message[] = res.map(
                 this.deserializeMessage,
                 this
             );
-            console.log("notifications: ", notifications);
+            // console.log("notifications: ", notifications);
             this.notifications.next(notifications);
+            this.unreadStatus.next(newStatus);
+            // console.log("this.unreadStatus: ", this.unreadStatus.value);
         });
         return this.notifications.value;
     }
@@ -47,7 +53,7 @@ export class NotificationCenterService {
     public deserializeMessage(data: any): Message {
         const message = new Message(this.messageReceiptService);
         message.id = data.uuid;
-        message.type = data.message_type;
+        message.type = data.type;
         message.created = data.created;
         message.title = data.title;
         message.body = data.body;
@@ -55,8 +61,8 @@ export class NotificationCenterService {
         message.received = data.received;
         message.opened = data.opened;
         message.engaged = data.engaged;
-        if (data.data) {
-            message.context = data.data;
+        if (data.context) {
+            message.context = data.context;
         }
         return message;
     }
@@ -86,14 +92,6 @@ export class NotificationCenterService {
         }
     }
 
-    // update unread status based on if there are unread notifications
-    public updateUnreadStatus(): boolean {
-        let newStatus: boolean = this.areUnreadNotifications();
-        this.unreadStatus.next(newStatus);
-        console.log("this.unreadStatus: ", this.unreadStatus.value);
-        return newStatus;
-    }
-
     // checks to see if user has seen the push notification
     public isRead(notification: Message): boolean {
         if (this.isReceived(notification)) {
@@ -115,35 +113,5 @@ export class NotificationCenterService {
             return true;
         }
         return false;
-    }
-
-    private areUnreadNotifications(): boolean {
-        // if we have any notifications
-        if (this.notifications.value.length > 0) {
-            for (let i = 0; i < this.notifications.value.length; i++) {
-                if (
-                    this.isReceived(this.notifications.value[i]) &&
-                    this.isRead(this.notifications.value[i]) === false
-                ) {
-                    return true;
-                }
-            }
-        }
-        // we have no notifications or no unread notifications
-        return false;
-
-        // if (this.notifications.value.length % 2 === 0) {
-        //     return true;
-        // }
-        // return false;
-        // console.log(
-        //     "this.notifications.value.length: ",
-        //     this.notifications.value.length
-        // );
-    }
-
-    refreshNotifications() {
-        this.getNotifications();
-        this.updateUnreadStatus();
     }
 }
