@@ -10,8 +10,8 @@ import { StepCounter } from "./step-count";
 
 const timeElement = document.getElementById("txtTime");
 const dateElement = document.getElementById("txtDate");
-
 const statusElement = document.getElementById("status");
+const statusIconElement = document.getElementById("status-icon");
 const pinElement = document.getElementById("pin");
 
 simpleClock.initialize("minutes", "heartStepsDate", function(data) {
@@ -23,23 +23,25 @@ class AppState {
 
   stateFileName = 'watch-app-state.txt';
 
+  authorized = false;
+  pin = false;
+
+  status = 'Starting';
+  loading = false;
+
   constructor() {
     this.load();    
   }
 
   update() {
-    if (this.loading) {
+    statusElement.text = this.status;
+
+    if (this.loading || !this.authorized || !this.pin) {
       dateElement.style.opacity = 0;
       statusElement.style.opacity = 1;
-      statusElement.text = "Loading";
-    } else if (this.authorized) {
+    } else {
       dateElement.style.opacity = 1;
       statusElement.style.opacity = 0;
-      statusElement.text = "Authorized"
-    } else {
-      dateElement.style.opacity = 0;
-      statusElement.style.opacity = 1;
-      statusElement.text = "Unauthorized"
     }
 
     if (this.pin) {
@@ -49,30 +51,55 @@ class AppState {
     }
   }
 
+  getStatus() {
+    if (this.loading) {
+      return 'Loading'
+    }
+    if (this.authorized) {
+      return 'Authorized';
+    }
+    if (this.pin) {
+      return 'Enter Pin';
+    }
+    return 'Missing Pin'
+
+  }
+
   getAuthorization() {
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
       this.loading = true;
+      this.status = 'Fetching authorization';
       let data = {
         key: global.CHECK_AUTH
       }
       messaging.peerSocket.send(data);
+      console.log('App: Sent authrization request');
     } else {
+      console.log('App: get authorization failed');
       this.loading = false;
+      this.status = 'Not connected';
+      this.update();
     }
   }
 
   load() {
+    this.loading = true;
+    this.update();
     try {
       const state = fs.readFileSync(this.stateFileName, "json");
       this.authorized = state.authorized;
       this.pin = state.pin;
       this.loading = false;
+      this.status = this.getStatus();
       this.update();
     } catch(error) {
       console.log("This is an error");
       console.log(error);
       this.authorized = false;
       this.pin = undefined;
+      this.loading = false;
+      this.status = 'Loading failed'
+      this.update()
       this.getAuthorization();
     }
   }
@@ -91,10 +118,12 @@ class AppState {
 const stepCounter = new StepCounter();
 const app = new AppState();
 
-timeElement.onclick = function(evt) {
+
+statusIconElement.onclick = function(evt) {
   app.getAuthorization();
   stepCounter.update();
  }
+
 
  setInterval(function() {
    stepCounter.update()
@@ -102,32 +131,28 @@ timeElement.onclick = function(evt) {
 
  messaging.peerSocket.addEventListener("open", function (event) {
   console.log("messaging connected");
-  document.getElementById("status-icon").style.fill = "#00FF00";
-  app.update();
+  statusIconElement.style.fill = "#00FF00";
+  app.load();
  });
 
  messaging.peerSocket.addEventListener("error", function (error) {
    console.log("messaging disconnected");
    console.log(error)
-   document.getElementById("status-icon").style.fill = "#FF0000";
+   statusIconElement.style.fill = "#FF0000";
  });
-
- document.getElementById("status-icon").style.fill = "#0000FF";
+ statusIconElement.style.fill = "#0000FF";
 
 
 
  messaging.peerSocket.onmessage = function(event) {
-   console.log(event.data.pin)
-   console.log(event.data.authorized);
-  app.save(
-    event.data.authorized,
-    event.data.pin
-  );
-  if (!event.data.pin) {
-    console.log("No pin, update again");
-    setTimeout(function() {
-      app.update();
-      console.log("Updating");
-    }, 30 * 1000);
-  }
+    app.save(
+        event.data.authorized,
+        event.data.pin
+    );
+    if (!event.data.pin) {
+        console.log("No pin, update again");
+        setTimeout(function() {
+            app.getAuthorization();
+        }, 30 * 1000);
+    }
 }

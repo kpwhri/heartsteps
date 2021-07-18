@@ -1,10 +1,8 @@
 <svg>
   <rect id="background" />
   <text id="txtTime" class="clock-text" pointer-events="visible">13:37</text>
-  <rect class="divider divider-top" />
-  <text id="txtDate">MON JANUARY 01</text>
-  <rect class="divider divider-btm" />
-  <text id="status">Starting</text>
-  <text id="pin"></text>
-  <circle id="status-icon" />
+  <text id="txtDate" class="text text-main">MON JANUARY 01</text>
+  <text id="status" class="text text-main">Starting</text>
+  <text id="pin" class="text text-bottom"></text>
+  <circle id="status-icon" class="status" pointer-events="visible" />
 </svg>
