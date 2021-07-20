@@ -15,19 +15,9 @@ from activity_summaries.models import Day
 def insertSteps():
     daily_step_goal_log = StepGoal()
 
-    daily_step_goal_log.step_goal = getNewGoal()
+    # daily_step_goal_log.step_goal = getNewGoal()
     daily_step_goal_log.date = datetime.today()
     daily_step_goal_log.save()
-
-def getNewGoal():
-    # last_ten = StepGoal.objects.all().order_by('-id')[:10]
-    # last_ten = Day.objects.all().order_by('-id')[:10]
-    # last_ten_in_ascending_order = reversed(last_ten)
-    # new_goal = last_ten_in_ascending_order[5].steps
-
-    new_goal = 5
-
-    return new_goal
 
 class DailyStepGoalsList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
