@@ -20,6 +20,9 @@
 <!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
 <h6>UUID: {{ featureFlags.uuid }}</h6>
 <h6>Notification Center Flag: {{ notificationCenterFlag() }}</h6>
+<button (click)="this.featureFlagService.addFeatureFlag('flag_direct')">
+    Update Feature Flags
+</button>
 
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">

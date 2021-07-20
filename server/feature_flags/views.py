@@ -26,3 +26,18 @@ class FeatureFlagsList(APIView):
 
         serialized = FeatureFlagsSerializer(feature_flags)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        if not isinstance(request.data['flag'], str) or request.data['flag'] == "":
+            return Response({"Cannot add flag"}, status.HTTP_400_BAD_REQUEST)
+        
+        new_flag = request.data['flag']
+        current_flags = FeatureFlags.objects.filter(user=request.user).first()
+        flags_list = current_flags.flags.split(", ")
+
+        if not new_flag in flags_list:
+            updated_flags = current_flags.flags + ", " + new_flag
+            current_flags.flags = updated_flags
+            current_flags.save()
+            return Response({"Successfully added flag"}, status=status.HTTP_201_CREATED)
+        return Response({"Flag already exists, flag was not added"}, status.HTTP_202_ACCEPTED)

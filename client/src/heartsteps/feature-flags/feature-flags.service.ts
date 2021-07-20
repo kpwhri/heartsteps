@@ -33,6 +33,17 @@ export class FeatureFlagService {
         return this.featureFlags.value;
     }
 
+    public addFeatureFlag(new_flag: string): void {
+        this.heartstepsServer
+            .post("/feature-flags/", { flag: new_flag })
+            .catch(() => {
+                console.log("error from updating feature flags");
+            })
+            .then((response) => {
+                console.log(response);
+            });
+    }
+
     // explicitly declare FeatureFlags to avoid javascript type errors
     public deserializeFeatureFlags(data: any): FeatureFlags {
         const featureFlags = new FeatureFlags();
