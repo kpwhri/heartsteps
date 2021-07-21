@@ -20,9 +20,8 @@ class StepGoal(models.Model):
     step_goal = models.PositiveIntegerField()
 
     @property
-    def __str__(self):
-        # return str(self.uuid)
-        return '%s: %s' % (self.user.username, self.date.strftime('%Y-%m-%d'))
+    def id(self):
+        return str(self.uuid)
 
 class ActivityDay(models.Model):
     day = models.ForeignKey(activity_summaries_models.Day, on_delete = models.CASCADE)
