@@ -35,12 +35,23 @@ export class FeatureFlagService {
 
     public addFeatureFlag(new_flag: string): void {
         this.heartstepsServer
-            .post("/feature-flags/", { flag: new_flag })
+            .post("/feature-flags/", { add_flag: new_flag })
             .catch(() => {
-                console.log("error from updating feature flags");
+                // console.log("error adding feature flags");
             })
             .then((response) => {
-                console.log(response);
+                // console.log(response);
+            });
+    }
+
+    public removeFeatureFlag(to_remove: string): void {
+        this.heartstepsServer
+            .post("/feature-flags/", { remove_flag: to_remove })
+            .catch(() => {
+                // console.log("error removing feature flags");
+            })
+            .then((response) => {
+                // console.log(response);
             });
     }
 
