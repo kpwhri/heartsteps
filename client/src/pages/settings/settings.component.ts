@@ -15,6 +15,10 @@ import { ActivitySurveyService } from "@heartsteps/activity-surveys/activity-sur
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
+import { Subscription } from "rxjs";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+
 declare var process: {
     env: {
         BUILD_VERSION: string;
@@ -32,6 +36,9 @@ export class SettingsComponent {
     public participantName: string = "";
     public buildVersion: string = process.env.BUILD_VERSION;
     public buildDate: string = process.env.BUILD_DATE;
+    public featureFlags: FeatureFlags;
+    public featureFlagsString: string = "";
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -47,7 +54,8 @@ export class SettingsComponent {
         private antiSedentaryService: AntiSedentaryService,
         private genericMessagesService: GenericMessagesService,
         private participantService: ParticipantService,
-        private platform: Platform
+        private platform: Platform,
+        private featureFlagService: FeatureFlagService
     ) {
         this.participantService.participant
             .filter((participant) => participant !== undefined)
@@ -57,6 +65,18 @@ export class SettingsComponent {
                 this.participantTags = participant.participantTags;
                 this.participantName = participant.name;
             });
+
+        this.featureFlagSubscription =
+            this.featureFlagService
+                .currentFeatureFlags
+                .subscribe(
+                    (flags) => {
+                        this.featureFlags = flags;
+                        this.featureFlagsString = flags.flags;
+                    }
+                );
+
+
     }
 
     public goBack() {
