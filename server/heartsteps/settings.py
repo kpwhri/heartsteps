@@ -77,6 +77,7 @@ if 'ONESIGNAL_API_KEY' in os.environ:
     ONESIGNAL_API_KEY = env.str('ONESIGNAL_API_KEY')
 if 'ONESIGNAL_APP_ID' in os.environ:
     ONESIGNAL_APP_ID = env.str('ONESIGNAL_APP_ID')
+ONESIGNAL_REFRESH_INTERVAL = env.int('ONESIGNAL_REFRESH_INTERVAL', default=30)
 
 # Twilio Settings
 if 'TWILIO_ACCOUNT_SID' in os.environ:

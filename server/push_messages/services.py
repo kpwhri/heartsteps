@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
-from push_messages.tasks import onesignal_get_received
+from push_messages.tasks import onesignal_get_received, onesignal_refresh_interval
 
 
 class DeviceMissingError(Exception):
@@ -100,7 +100,7 @@ class PushMessageService():
             message.external_id = external_id
             message.save()
             onesignal_get_received.apply_async(
-                countdown=300,
+                countdown=onesignal_refresh_interval(),
                 kwargs={
                     'message_id': message.id
                 }

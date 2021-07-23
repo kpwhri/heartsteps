@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 from push_messages.models import Message, Device, MessageReceipt
 from push_messages.services import PushMessageService, ClientBase, FirebaseMessageService, DeviceMissingError
 from push_messages.clients import OneSignalClient
-from push_messages.tasks import onesignal_get_received
+from push_messages.tasks import onesignal_get_received, onesignal_refresh_interval
+
 
 class TestPushMessageService(TestCase):
 
@@ -22,10 +23,10 @@ class TestPushMessageService(TestCase):
     def make_user(self):
         user = User.objects.create(username="test")
         Device.objects.create(
-            user = user,
-            token = 'example-token',
-            type = Device.ANDROID,
-            active = True
+            user=user,
+            token='example-token',
+            type=Device.ANDROID,
+            active=True
         )
         return user
 
@@ -51,22 +52,23 @@ class TestPushMessageService(TestCase):
         user = self.make_user()
 
         Device.objects.create(
-            user = user,
-            token = 'newer-device-token',
-            type = Device.ANDROID,
-            active = True
+            user=user,
+            token='newer-device-token',
+            type=Device.ANDROID,
+            active=True
         )
         Device.objects.create(
-            user = user,
-            token = 'newer-deactivated-device-token',
-            type = Device.ANDROID,
-            active = False
+            user=user,
+            token='newer-deactivated-device-token',
+            type=Device.ANDROID,
+            active=False
         )
 
         push_message_service = PushMessageService(user)
 
         self.assertIsNotNone(push_message_service.device)
-        self.assertEqual(push_message_service.device.token, 'newer-device-token')
+        self.assertEqual(push_message_service.device.token,
+                         'newer-device-token')
 
     @patch.object(ClientBase, 'send', return_value="example-uuid")
     def test_sends_notification(self, send):
@@ -76,6 +78,7 @@ class TestPushMessageService(TestCase):
         result = push_message_service.send_notification("Example message")
 
         self.assertTrue(result)
+        self.assertEqual(onesignal_refresh_interval(), 30)
         message = Message.objects.get(recipient=user)
         send_kwargs = send.call_args[1]
         self.assertEqual(str(message.uuid), send_kwargs['data']['messageId'])
@@ -83,8 +86,8 @@ class TestPushMessageService(TestCase):
         self.assertEqual(message.body, "Example message")
         self.assertEqual(message.title, "HeartSteps")
         self.get_received_task.assert_called_with(
-            countdown = 300,
-            kwargs = {'message_id': message.id}
+            countdown=onesignal_refresh_interval(),
+            kwargs={'message_id': message.id}
         )
 
     @patch.object(ClientBase, 'send', return_value="example-uuid")
@@ -109,11 +112,11 @@ class TestPushMessageService(TestCase):
         push_message_service = PushMessageService(user)
 
         push_message_service.send_notification(
-            body = 'This is only a test',
-            collapse_subject = 'test-subject'
+            body='This is only a test',
+            collapse_subject='test-subject'
         )
 
-        message = Message.objects.get(recipient = user)
+        message = Message.objects.get(recipient=user)
         self.assertEqual(message.collapse_subject, 'test-subject')
         send_kwargs = send.call_args[1]
         self.assertEqual(send_kwargs['collapse_subject'], 'test-subject')
@@ -139,6 +142,7 @@ class TestPushMessageService(TestCase):
         with self.assertRaises(push_message_service.MessageSendError):
             result = push_message_service.send_notification("Hello World")
 
+
 @override_settings(ONESIGNAL_API_KEY=1234)
 @override_settings(ONESIGNAL_APP_ID=1234)
 class OneSignalClientTests(TestCase):
@@ -162,9 +166,10 @@ class OneSignalClientTests(TestCase):
                 else:
                     _status_code = 200
                 if errors:
-                    _return_json = {'id':'', 'errors': errors}
+                    _return_json = {'id': '', 'errors': errors}
                 else:
-                    _return_json = {'id':'example-message-id'}
+                    _return_json = {'id': 'example-message-id'}
+
                 class MockResponse:
                     status_code = _status_code
                     text = 'mock text'
@@ -183,15 +188,16 @@ class OneSignalClientTests(TestCase):
         }
 
         message_id = client.send(
-            body = 'test body',
-            title = 'test title',
-            collapse_subject = 'test collapse',
-            data = test_data
+            body='test body',
+            title='test title',
+            collapse_subject='test collapse',
+            data=test_data
         )
 
         self.assertEqual(message_id, 'example-message-id')
         request_json = self.request_post.call_args[1]['json']
-        self.assertEqual(request_json['include_player_ids'], [self.device.token])
+        self.assertEqual(request_json['include_player_ids'], [
+                         self.device.token])
         self.assertEqual(request_json['contents']['en'], 'test body')
         self.assertEqual(request_json['headings']['en'], 'test title')
         self.assertEqual(request_json['collapse_id'], 'test collapse')
@@ -211,7 +217,8 @@ class OneSignalClientTests(TestCase):
             pass
 
     def testErrors(self):
-        self.request_post.side_effect = self.set_mock_request(errors=['Mock error'])
+        self.request_post.side_effect = self.set_mock_request(errors=[
+                                                              'Mock error'])
         client = OneSignalClient(self.device)
 
         try:
@@ -231,24 +238,25 @@ class TestOneSignalMessageReceiptsUpdate(TestCase):
         self.user = User.objects.create(username='test')
         self.device = Device.objects.create(
             user=self.user,
-            type = Device.ONESIGNAL,
-            active = True
+            type=Device.ONESIGNAL,
+            active=True
         )
 
         task_patch = patch.object(onesignal_get_received, 'apply_async')
         self.get_received_task = task_patch.start()
         self.addCleanup(task_patch.stop)
 
-        get_message_receipts_patch = patch.object(OneSignalClient, 'get_message_receipts')
+        get_message_receipts_patch = patch.object(
+            OneSignalClient, 'get_message_receipts')
         self.addCleanup(get_message_receipts_patch.stop)
         self.get_message_receipts = get_message_receipts_patch.start()
         self.get_message_receipts.return_value = {}
 
-    def make_message(self, created = None):
+    def make_message(self, created=None):
         message = Message.objects.create(
-            recipient = self.user,
-            device = self.device,
-            message_type = Message.NOTIFICATION
+            recipient=self.user,
+            device=self.device,
+            message_type=Message.NOTIFICATION
         )
         if created:
             message.created = created
@@ -277,13 +285,15 @@ class TestOneSignalMessageReceiptsUpdate(TestCase):
 
         onesignal_get_received(message.id)
 
+        self.assertEqual(onesignal_refresh_interval(), 30)
         self.get_received_task.assert_called_with(
-            eta = 5*60,
-            kwargs = { 'message_id': message.id }
+            eta=onesignal_refresh_interval(),
+            kwargs={'message_id': message.id}
         )
 
     def test_will_not_recheck_received_if_message_created_1_hour_ago(self):
-        message = self.make_message(created=timezone.now() - timedelta(hours=1))
+        message = self.make_message(
+            created=timezone.now() - timedelta(hours=1))
         self.get_message_receipts.return_value = {
             MessageReceipt.SENT: message.created + timedelta(minutes=1)
         }

@@ -9,6 +9,14 @@ from django.utils import timezone
 from .models import Message, MessageReceipt
 
 
+def onesignal_refresh_interval():
+    if not hasattr(settings, 'ONESIGNAL_REFRESH_INTERVAL'):
+        # TODO: remove print, for debugging
+        print('ONESIGNAL REFRESH INTERVAL NOT CONFIGURED')
+        raise ImproperlyConfigured("No ONESIGNAL_REFRESH_INTERVAL")
+    return settings.ONESIGNAL_REFRESH_INTERVAL
+
+
 @shared_task
 def onesignal_get_received(message_id):
     try:
@@ -17,4 +25,5 @@ def onesignal_get_received(message_id):
         return False
     message.update_message_receipts()
     if not message.received and (timezone.now() - message.created).seconds < 5 * 60:
-        onesignal_get_received.apply_async(eta=5 * 60, kwargs={"message_id": message_id})
+        onesignal_get_received.apply_async(
+            eta=onesignal_refresh_interval(), kwargs={"message_id": message_id})
