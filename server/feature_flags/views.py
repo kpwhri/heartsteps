@@ -15,7 +15,8 @@ class FeatureFlagsList(APIView):
         # check to see if the request is allowed (i.e. participant is logged in)
         if not request.user or request.user.is_anonymous:
             # TODO: remove, only for testing purposes
-            feature_flags = FeatureFlags.objects.filter(user__username="test").first()
+            feature_flags = FeatureFlags.objects.filter(
+                user__username="test").first()
             serialized = FeatureFlagsSerializer(feature_flags)
             return Response(serialized.data, status=status.HTTP_200_OK)
             return Response({"No participant, please log in"}, status.HTTP_400_BAD_REQUEST)
