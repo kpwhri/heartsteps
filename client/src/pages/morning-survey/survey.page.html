@@ -1,7 +1,5 @@
 <div *ngIf="ready">
-    <heartsteps-weather *ngIf="showWeather"
-        [date]="today"
-        >
+    <heartsteps-weather *ngIf="showWeather" [date]="today">
         Today
     </heartsteps-weather>
     <app-form
@@ -9,8 +7,9 @@
         submitLabel="Complete"
         (onSubmit)="done()"
         [error]="error"
-        >
-        <app-range-field *ngFor="let question of questions"
+    >
+        <app-range-field
+            *ngFor="let question of questions"
             [formControlName]="question.name"
             [label]="question.label"
             [options]="question.options"
@@ -19,7 +18,7 @@
             formControlName="mood"
             label="Which of these best describes how you feel this morning?"
             [options]="moodChoices"
-            >
+        >
         </app-choice-field>
     </app-form>
 </div>
