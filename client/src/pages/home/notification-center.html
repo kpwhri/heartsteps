@@ -18,13 +18,13 @@
 </ng-template>
 
 <!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
-<h6>UUID: {{ featureFlags.uuid }}</h6>
+<!-- <h6>UUID: {{ featureFlags.uuid }}</h6> -->
 <h6>Notification Center Flag: {{ notificationCenterFlag() }}</h6>
-<button
+<!-- <button
     (click)="this.featureFlagService.removeFeatureFlag('new_flag_from_angular')"
 >
     Update Feature Flags
-</button>
+</button> -->
 
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">
@@ -34,9 +34,9 @@
                     <ng-template
                         *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
                     ></ng-template>
-                    <!-- <ng-template
+                    <ng-template
                         *ngTemplateOutlet="debugOutput; context: {notification : notification}"
-                    ></ng-template> -->
+                    ></ng-template>
                 </a>
             </ul>
         </ng-container>
@@ -46,9 +46,9 @@
                     <ng-template
                         *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
                     ></ng-template>
-                    <!-- <ng-template
+                    <ng-template
                         *ngTemplateOutlet="debugOutput; context: {notification : notification}"
-                    ></ng-template> -->
+                    ></ng-template>
                 </a>
             </ul>
         </ng-container>
