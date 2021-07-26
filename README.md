@@ -159,8 +159,36 @@ There is a test deployment that is available at https://dev.heartsteps.net
 This application is automatically tested and deployed to the google cloud by Travis-CI. 
 .travis-ci.yml runs unit tests for the heartsteps-server then runs deploy-gcloud-dev.sh
 
-The deployment of this application is based on [Google Cloud's "Running Django on Google Kubernetes" documentation.](https://cloud.google.com/python/django/kubernetes-engine)
+**To manually deploy HeartSteps,** simply execute [deploy-gcloud-dev.sh,](./deploy-gcloud-dev.sh) which will force authorization from your current credentials directory and rebuild all required docker-images.
+If you want to deploy using your own credentials or docker images, follow the instructions in deploy-gcloud-dev.sh
 
+The deployment of this application is based on [Google Cloud's "Running Django on Google Kubernetes" documentation.](https://cloud.google.com/python/django/kubernetes-engine)
+The deployment steps described in Google Cloud's documentation are roughly translated and automated in the deploy-gcloud-dev.sh script.
+
+The primary difference in our deployment as opposed to the documentation, is we use NGINX to act as a load balancer to serve static files through a reverse proxy.
+The nginx docker image only contains [a modified nginx.conf file.](./gcloud-dev-nginx.conf)
+All static files are still uploaded to a Google Storage Bucket.
+
+**Anti-Sedentary, Pooling, and Walking-Suggestion services** require a `privileged` docker environment to run a file system from a google storage bucket [(gcs-fuse.)](https://github.com/GoogleCloudPlatform/gcsfuse)
+Only the Anti-Sedentary and Walking-Suggestion services are currently deployed in the [KPW deployment.](./kpwhri-deployment.yaml)
+
+### Environment Variables
+The HeartSteps server uses many different environment variables to properly configure the system.
+**Our goal with evironment variables is that no settings are required to deploy HeartSteps.**
+As of this time, this isn't 100% true, but we are working on it.
+
+For each deployment there is a .env file that is reused in both the HeartSteps Server and Client to ensure both systems have matching configurations.
+
+Below is a list of environment variables that require values to run HeartSteps.
+Integration specific variables are described in the service integrations section below.
+
+* *DEBUG* makes Django run in debug mode. Only use debug in your local environment, not on a production machine.
+* *HEARTSTEPS_URL* is used by the heartsteps_client to access the heartsteps_server's api endpoint.
+* *HOST_NAME* is the host_name used by django on the heartsteps_server. A comma seperated list can be used to demarkate multiple host names.
+
+**This list is incomplete help!**
+
+### Debugging a Deployment
 It can be useful to setup kubectrl to directly access the Kubernentes cluster.
 To do this you need to use the gcloud command line to setup the needed certificates.
 
@@ -182,16 +210,6 @@ $ kubectl get pods
 $ kubectl exec -it heartsteps-worker-123456789-abc 
 
 ```
-
-
-## Environment Variables
-Here is a list of the environment variables that are used by HeartSteps. All docker containers in this project share the same environment variables at run time and during build time on Travis-CI. None of the heartsteps docker containers use all the environment variables. Below is a list of environment variables used in the project, and how the environment variable is used.
-* *GAE_PROJECT_ID* is the project ID for the google cloud project that Travis-CI deploys to.
-* *HEARTSTEPS_URL* is used by the heartsteps_client to access the heartsteps_server's api endpoint.
-* *HOST_NAME* is the host_name used by django on the heartsteps_server.
-* *DEBUG* makes Django run in debug mode.
-
-**This list is incomplete help!**
 
 ### HeartSteps Server Database
 The heartsteps-server uses a postgres database in Google Cloud's SQL Database. To access the database, you will need a credentials file with access permisisons.
