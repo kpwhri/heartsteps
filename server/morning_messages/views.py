@@ -14,6 +14,7 @@ from days.views import DayView
 from .services import MorningMessageService
 from .serializers import MorningMessageSerializer, MorningMessageSurveySerializer
 
+
 class AnchorMessageView(DayView):
     permission_classes = [IsAuthenticated]
 
@@ -21,12 +22,13 @@ class AnchorMessageView(DayView):
         date = self.parse_date(day)
         self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
-            user = request.user
+            user=request.user
         )
         morning_message, _ = morning_message_service.get_or_create(date)
         return Response({
             'message': morning_message.anchor
-        }, status = status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
+
 
 class MorningMessageView(DayView):
     permission_classes = (IsAuthenticated,)
@@ -35,7 +37,7 @@ class MorningMessageView(DayView):
         date = self.parse_date(day)
         self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
-            user = request.user
+            user=request.user
         )
         morning_message, _ = morning_message_service.get_or_create(date)
         serialized = MorningMessageSerializer(morning_message)
@@ -44,11 +46,12 @@ class MorningMessageView(DayView):
     def post(self, request, day):
         date = self.parse_date(day)
         self.validate_date(request.user, date)
-        morning_message_service = MorningMessageService(user = request.user)
+        morning_message_service = MorningMessageService(user=request.user)
         notification = morning_message_service.send_notification(date)
         return Response({
             'notificationId': str(notification.uuid)
         }, status=status.HTTP_201_CREATED)
+
 
 class MorningMessageSurveyView(DayView):
 
@@ -56,7 +59,7 @@ class MorningMessageSurveyView(DayView):
         date = self.parse_date(day)
         self.validate_date(request.user, date)
         morning_message_service = MorningMessageService(
-            user = request.user
+            user=request.user
         )
         morning_message, _ = morning_message_service.get_or_create(date)
         if morning_message.survey:
@@ -68,7 +71,7 @@ class MorningMessageSurveyView(DayView):
         survey = self.get_survey(request, day)
         serialized = MorningMessageSurveySerializer(survey)
         return Response(serialized.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, day):
         survey = self.get_survey(request, day)
 
@@ -77,11 +80,13 @@ class MorningMessageSurveyView(DayView):
                 selected_word = request.data['selected_word']
                 if selected_word in survey.word_set:
                     survey.selected_word = request.data['selected_word']
+                    # survey.answered = True
                     survey.save()
             else:
                 survey.save_response(key, request.data[key])
 
         return Response(survey.get_answers(), status=status.HTTP_200_OK)
+
 
 class MorningMessageSurveyResponseView(MorningMessageSurveyView):
 

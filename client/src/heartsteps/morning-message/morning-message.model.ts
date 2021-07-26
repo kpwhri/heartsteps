@@ -8,6 +8,13 @@ export class MorningMessage {
     response: any;
 
     public isComplete(): boolean {
+        console.log("MORNING MSG: from isComplete()");
+        if (this.survey) {
+            console.log(
+                "MORNING MSG: this.survey.completed: ",
+                this.survey.completed
+            );
+        }
         if (this.survey && this.survey.completed) {
             return true;
         } else {
