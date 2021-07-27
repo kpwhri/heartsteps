@@ -1,18 +1,15 @@
-import * as moment from 'moment';
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoadingService } from "@infrastructure/loading.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
-import { BrowserService } from '@infrastructure/browser.service';
 import { FitbitClockFaceService } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.service';
-
 
 
 @Component({
     templateUrl: './fitbit-clock-face-pin.page.html'
 })
-export class FitbitClockFacePinPage implements OnInit {
+export class FitbitClockFaceSettingsPage implements OnInit {
 
     public notificationsEnabled:boolean;
     public pin: string;
@@ -23,7 +20,6 @@ export class FitbitClockFacePinPage implements OnInit {
     constructor(
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
-        private browserService: BrowserService,
         private fitbitClockFaceService: FitbitClockFaceService,
         private router: Router
     ) {}
@@ -48,33 +44,16 @@ export class FitbitClockFacePinPage implements OnInit {
         }]);
     }
 
-    public submitForm() {
-        if(this.form.valid) {
-            this.loadingService.show('Pairing Fitbit Clock Face');
-            const pin = this.form.get('pin').value;
-            this.fitbitClockFaceService.pairWithPin(pin)
-            .then(() => {
-                this.alertDialog.show('Successfully paired!')
-                .then(() => {
-                    this.updatePin()
-                });
-            })
-            .catch(() => {
-                this.alertDialog.show('Error pairing');
-            })
-            .then(() => {
-                this.loadingService.dismiss()
-            });
-        }
-    }
-
     public updatePin(): Promise<void> {
         this.loadingService.show('Updating pin');
+        console.log('getting pin');
         return this.fitbitClockFaceService.getClockFace()
         .then((data) => {
+            console.log('got pin');
             this.pin = data.pin;
         })
         .catch(() => {
+            console.log('no pin');
             this.pin = undefined;
         })
         .then(() => {

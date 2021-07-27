@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
 import { ParticipantInformation } from '@heartsteps/contact-information/participant-information';
 import { Step } from '@infrastructure/components/stepper.component';
 import { ParticipantService } from '@heartsteps/participants/participant.service';
-import { WatchSetupComponent } from '@heartsteps/fitbit-watch/watch-setup.component';
 import { FitbitAuthPage } from './fitbit-auth.page';
 import { FitbitClockFacePairPage } from './fitbit-clock-face-pair.page';
 
@@ -41,10 +40,6 @@ const onboardingPages:Array<Step> = [
         key: 'fitbitAuthorization',
         title: 'Fitbit',
         component: FitbitAuthPage
-    }, {
-        key: 'fitbitWatch',
-        title: 'HeartSteps Watch App',
-        component: WatchSetupComponent
     }, {
         key: 'fitbitClockFace',
         title: 'HeartSteps Clock Face',

@@ -29,7 +29,7 @@ export class FitbitClockFaceService {
             'pin': pin
         })
         .then(() => {
-            return undefined;
+            return Promise.resolve();
         })
         .catch(() => {
             return Promise.reject('Pairing failed');

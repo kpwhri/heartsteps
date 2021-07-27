@@ -85,11 +85,11 @@ export class SettingsComponent {
         });
     }
 
-    public enterFitbitClockFacePin() {
+    public goToFitbitClockFaceSettings() {
         this.router.navigate([
             {
                 outlets: {
-                    modal: ["settings", "fitbit-clock-face-pin"].join("/"),
+                    modal: ["settings", "fitbit-clock-face"].join("/"),
                 },
             },
         ]);
@@ -298,16 +298,6 @@ export class SettingsComponent {
             {
                 outlets: {
                     modal: ["settings", "fitbit-authorization"].join("/"),
-                },
-            },
-        ]);
-    }
-
-    public editFitbitWatch() {
-        this.router.navigate([
-            {
-                outlets: {
-                    modal: ["settings", "fitbit-watch"].join("/"),
                 },
             },
         ]);

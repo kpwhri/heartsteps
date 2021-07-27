@@ -1,12 +1,18 @@
 <app-modal
-    title="Fitbit Clock Face Pin"
+    title="Fitbit Clock Settings"
     (onDismiss)="goBack()"
     >
-    <button (click)="openFitbitGallery()">Install Fitbit Clock Face</button>
-    <heartsteps-fitbit-clock-face-pair *ngIf="!pin"
-        (paired)="submitForm()"
-        >
-    </heartsteps-fitbit-clock-face-pair>
+    <section *ngIf="!pin">
+        <p class="warning">
+            No Fitbit Clock Face is paired with your account.
+            Please install and pair the Fitbit Clock Face.
+        </p>
+        <button (click)="openFitbitGallery()">Install Fitbit Clock Face</button>
+        <heartsteps-fitbit-clock-face-pair *ngIf="!pin"
+            (paired)="updatePin()"
+            >
+        </heartsteps-fitbit-clock-face-pair>
+    </section>
     <section *ngIf="pin">
         <p>Paired with clock face with pin <strong>{{pin}}.</strong></p>
         <ul *ngIf="stepCounts">
