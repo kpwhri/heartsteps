@@ -71,7 +71,8 @@ export class FeatureFlagService {
     public hasFlag(flag: string): boolean {
         if (this.featureFlags.value.flags !== "") {
             let flags: string = this.featureFlags.value.flags;
-            if (flags.includes(flag)) {
+            let flags_list: string[] = flags.split(", ");
+            if (flags_list.indexOf(flag) > -1) {
                 return true;
             }
         }
