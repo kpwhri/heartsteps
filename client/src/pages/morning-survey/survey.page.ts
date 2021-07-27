@@ -79,6 +79,7 @@ export class SurveyPageComponent implements OnInit {
     }
 
     public done() {
+        console.log("MORNING MSG: running done()");
         this.loadingService.show("Saving survey");
         const values = Object.assign({}, this.form.value);
         values["selected_word"] = values["mood"];
@@ -89,7 +90,7 @@ export class SurveyPageComponent implements OnInit {
                 this.next.emit();
             })
             .catch((error) => {
-                console.log(error);
+                console.log("Error from morning messages done(): ", error);
                 this.error = "There was an error";
             })
             .then(() => {

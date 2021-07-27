@@ -19,25 +19,41 @@ export class MorningMessageService {
 
     public get(): Promise<MorningMessage> {
         return this.getMessage().catch(() => {
+            console.log("running this.load() from get() catch");
             return this.load();
         });
     }
 
     public load(): Promise<MorningMessage> {
+        console.log("MORNING MSG: running this.load()");
         const today: string = moment().format("YYYY-MM-DD");
         return this.heartstepsServer
             .get("morning-messages/" + today)
             .then((data) => {
+                console.log("MORNING MSG: setting msg in load()");
                 const message = this.deserialize(data);
+                console.log(
+                    "MORNING MSG: django GET response from morning-messages in load()",
+                    data
+                );
+                console.log(
+                    "MORNING MSG: serialized msg from morning-messages/ GET: ",
+                    message
+                );
                 return this.set(message);
             })
             .then((morningMessage) => {
-                return this.heartstepsServer
+                let res = this.heartstepsServer
                     .get("morning-messages/" + today + "/survey/response")
                     .then((response) => {
                         morningMessage.response = response;
                         return this.set(morningMessage);
                     });
+                console.log(
+                    "MORNING MSG: django GET response from survey/response in load()",
+                    res
+                );
+                return res;
             });
     }
 
@@ -63,12 +79,20 @@ export class MorningMessageService {
                 const formattedDate: string = moment(
                     morningMessage.date
                 ).format("YYYY-MM-DD");
-                return this.heartstepsServer.post(
+                let response = this.heartstepsServer.post(
                     "morning-messages/" + formattedDate + "/survey",
                     values
                 );
+                console.log(
+                    "MORNING MSG: django POST response submitting survey",
+                    response
+                );
+                return response;
             })
             .then(() => {
+                console.log(
+                    "MORNING MSG: running this.load() from submitSurvey()"
+                );
                 return this.load();
             })
             .then(() => {
@@ -104,13 +128,22 @@ export class MorningMessageService {
         return this.storage
             .get(storageKey)
             .then((data) => {
-                return this.deserialize(data);
+                let serializedData = this.deserialize(data);
+                console.log(
+                    "MORNING MSG: morningMessages storageData: ",
+                    serializedData
+                );
+                return serializedData;
             })
             .then((morningMessage) => {
                 if (moment().isSame(morningMessage.date, "day")) {
+                    console.log("MORNING MSG: morning message IS from today");
                     return morningMessage;
                 } else {
                     this.clear().then(() => {
+                        console.log(
+                            "MORNING MSG: morning message NOT from today, msg expired"
+                        );
                         return Promise.reject("Morning message expired");
                     });
                 }
@@ -118,6 +151,10 @@ export class MorningMessageService {
     }
 
     public set(message: MorningMessage): Promise<MorningMessage> {
+        console.log(
+            "MORNING MSG: setting message to storage: ",
+            this.serialize(message)
+        );
         return this.storage
             .set(storageKey, this.serialize(message))
             .then(() => {
