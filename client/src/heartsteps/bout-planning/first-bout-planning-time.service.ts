@@ -3,13 +3,7 @@ import { Storage } from "@ionic/storage";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { DateFactory } from "@infrastructure/date.factory";
 
-// const storageKey = 'weeklyReflectionTime'
 const storageKey = 'firstBoutPlanningTime'
-
-// export class ReflectionTime {
-//     public day: string;
-//     public time: Date;
-// }
 
 export class FirstBoutPlanningTime {
     public time: Date;
@@ -18,7 +12,6 @@ export class FirstBoutPlanningTime {
 
 
 @Injectable()
-// export class ReflectionTimeService{
 export class FirstBoutPlanningTimeService {
 
     constructor(
@@ -27,7 +20,6 @@ export class FirstBoutPlanningTimeService {
         private dateFactory: DateFactory
     ) { }
 
-    // public getTime(): Promise<ReflectionTime> {
     public getTime(): Promise<FirstBoutPlanningTime> {
         return this.storage.get(storageKey)
             .then((data) => {
@@ -42,18 +34,14 @@ export class FirstBoutPlanningTimeService {
             })
     }
 
-    // public getDefaultReflectionTime(): Promise<ReflectionTime> {
     public getDefaultFirstBoutPlanningTime(): Promise<FirstBoutPlanningTime> {
         return Promise.resolve({
             time: this.dateFactory.parseTime('07:00')
         });
     }
 
-    // public setTime(reflectionTime: ReflectionTime): Promise<boolean> {
     public setTime(firstBoutPlanningTime: FirstBoutPlanningTime): Promise<boolean> {
-        // const data: any = this.serialize(reflectionTime);
         const data: any = this.serialize(firstBoutPlanningTime);
-        // return this.heartstepsServer.post('reflection-time', data)
         return this.heartstepsServer.post('first-bout-planning-time', data)
             .then(() => {
                 return this.set(data);
@@ -64,7 +52,6 @@ export class FirstBoutPlanningTimeService {
     }
 
     public load(): Promise<boolean> {
-        // return this.heartstepsServer.get('reflection-time')
         return this.heartstepsServer.get('first-bout-planning-time')
             .then((time) => {
                 return this.set(time);
@@ -85,23 +72,15 @@ export class FirstBoutPlanningTimeService {
         return this.storage.remove(storageKey);
     }
 
-    // private serialize(reflectionTime: ReflectionTime) {
     private serialize(firstBoutPlanningTime: FirstBoutPlanningTime) {
         return {
-            // day: reflectionTime.day,
-            // time: this.dateFactory.formatTime(reflectionTime.time)
             time: this.dateFactory.formatTime(firstBoutPlanningTime.time)
         }
     }
 
-    // private deserialize(data: any): ReflectionTime {
-    //     const reflectionTime = new ReflectionTime();
     private deserialize(data: any): FirstBoutPlanningTime {
         const firstBoutPlanningTime = new FirstBoutPlanningTime();
-        // reflectionTime.day = data.day;
-        // reflectionTime.time = this.dateFactory.parseTime(data.time);
         firstBoutPlanningTime.time = this.dateFactory.parseTime(data.time);
-        // return reflectionTime;
         return firstBoutPlanningTime;
     }
 
