@@ -1,21 +1,24 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoadingService } from "@infrastructure/loading.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { FitbitClockFaceService } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.service';
+import { Subscription } from "rxjs";
 
 
 @Component({
     templateUrl: './fitbit-clock-face-pin.page.html'
 })
-export class FitbitClockFaceSettingsPage implements OnInit {
+export class FitbitClockFaceSettingsPage implements OnInit, OnDestroy {
 
     public notificationsEnabled:boolean;
     public pin: string;
     public stepCounts: Array<any>;
 
     public form: FormGroup;
+
+    private clockFaceSubscription: Subscription;
 
     constructor(
         private loadingService: LoadingService,
@@ -28,12 +31,26 @@ export class FitbitClockFaceSettingsPage implements OnInit {
         this.form = new FormGroup({
             'pin': new FormControl('', Validators.required)
         });
-        this.updatePin()
-        .then(() => {
-            if(this.pin) {
+        this.clockFaceSubscription = this.fitbitClockFaceService.clockFace
+        .subscribe((clockFace) => {
+            if (clockFace) {
+                this.pin = clockFace.pin;
                 this.getLastStepCounts();
+            } else {
+                this.pin = undefined;
             }
+        })
+
+        this.fitbitClockFaceService.isPaired()
+        .then(() => {
+            this.getLastStepCounts();
         });
+    }
+
+    ngOnDestroy() {
+        if (this.clockFaceSubscription) {
+            this.clockFaceSubscription.unsubscribe();
+        }
     }
 
     public goBack() {
@@ -42,23 +59,6 @@ export class FitbitClockFaceSettingsPage implements OnInit {
                 modal: null
             }
         }]);
-    }
-
-    public updatePin(): Promise<void> {
-        this.loadingService.show('Updating pin');
-        console.log('getting pin');
-        return this.fitbitClockFaceService.getClockFace()
-        .then((data) => {
-            console.log('got pin');
-            this.pin = data.pin;
-        })
-        .catch(() => {
-            console.log('no pin');
-            this.pin = undefined;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
     }
 
     public getLastStepCounts(): Promise<void> {

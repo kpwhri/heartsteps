@@ -2,17 +2,72 @@ import * as moment from 'moment';
 import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { BrowserService } from '@infrastructure/browser.service';
+import { StorageService } from '@infrastructure/storage.service';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
+class ClockFace {
+    pin: string;
+}
 
 @Injectable()
 export class FitbitClockFaceService {
 
+    public clockFace: BehaviorSubject<ClockFace> = new BehaviorSubject(undefined);
+
     constructor(
         private heartstepsServer: HeartstepsServer,
-        private browserService: BrowserService
-    ) {}
+        private browserService: BrowserService,
+        private storageService: StorageService
+    ) {
+        this.load();
+    }
 
-    public getClockFace(): Promise<any> {
+    private save(clockFace: ClockFace): Promise<ClockFace> {
+        return this.storageService.set('fitbit-clock-face', {
+            'pin': clockFace.pin
+        });
+    }
+
+    private load(): Promise<ClockFace> {
+        return this.storageService.get('fitbit-clock-face')
+        .then((data) => {
+            const clockFace = new ClockFace();
+            clockFace.pin = data.pin;
+            
+            this.clockFace.next(clockFace);
+            return clockFace;
+        })
+        .catch(() => {
+            this.clockFace.next(undefined);
+            return Promise.reject('No clock face');
+        });
+    }
+
+    private remove(): Promise<void> {
+        return this.storageService.remove('fitbit-clock-face');
+    }
+
+    public isPaired(): Promise<void> {
+        return this.load()
+        .then(() => {
+            return undefined
+        });
+    }
+
+    public update(): Promise<void> {
+        return this.getClockFace()
+        .then((clockFace) => {
+            return this.save(clockFace)
+        })
+        .then(() => {
+            return this.load();
+        })
+        .then(() => {
+            return undefined;
+        });
+    }
+
+    public getClockFace(): Promise<ClockFace> {
         return this.heartstepsServer.get('fitbit-clock-face/pair')
         .then((data) => {
             return {
@@ -29,7 +84,7 @@ export class FitbitClockFaceService {
             'pin': pin
         })
         .then(() => {
-            return Promise.resolve();
+            return this.update();
         })
         .catch(() => {
             return Promise.reject('Pairing failed');
@@ -37,7 +92,10 @@ export class FitbitClockFaceService {
     }
 
     public unpair(): Promise<void> {
-        return this.heartstepsServer.delete('fitbit-clock-face/pair');
+        return this.heartstepsServer.delete('fitbit-clock-face/pair')
+        .then(() => {
+            this.remove()
+        });
     }
 
     public getLastClockFaceLogs(): Promise<Array<any>> {

@@ -3,13 +3,16 @@
     (onDismiss)="goBack()"
     >
     <section *ngIf="!pin">
-        <p class="warning">
+        <p class="error">
             No Fitbit Clock Face is paired with your account.
-            Please install and pair the Fitbit Clock Face.
+        </p>
+        <p>
+            Install the Fitbit Clock Face by clicking below,
+            then enter the pin shown on your Fitbit's clock face
+            to pair the clock face to your account.
         </p>
         <button (click)="openFitbitGallery()">Install Fitbit Clock Face</button>
         <heartsteps-fitbit-clock-face-pair *ngIf="!pin"
-            (paired)="updatePin()"
             >
         </heartsteps-fitbit-clock-face-pair>
     </section>
