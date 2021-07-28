@@ -11,7 +11,12 @@ import { ParticipantService } from '@heartsteps/participants/participant.service
 import { FitbitAuthPage } from './fitbit-auth.page';
 import { FitbitClockFacePairPage } from './fitbit-clock-face-pair.page';
 
-const onboardingPages:Array<Step> = [
+import { Subscription } from "rxjs";
+import { skip } from 'rxjs/operators';
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+
+const onboardingPages: Array<Step> = [
     {
         key: 'contactInformation',
         title: 'Contact Information',
@@ -59,35 +64,53 @@ const onboardingPages:Array<Step> = [
     ]
 })
 export class OnboardPage implements OnInit {
-    pages:Array<Step>;
+    pages: Array<Step>;
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private participantService: ParticipantService,
-        private router: Router
-    ) {}
+        private router: Router,
+        private featureFlagService: FeatureFlagService
+    ) { }
 
     ngOnInit() {
-        this.participantService.getProfile()
-        .then((profile) => {
-            this.pages = [];
-            onboardingPages.forEach((page) => {
-                if(!profile[page.key]) {
-                    this.pages.push(page);
-                }
-            });
-        });
+        this.featureFlagSubscription =
+            this.featureFlagService
+                .currentFeatureFlags
+                .pipe(skip(1))  // BehaviorSubject class provides the default value (in this case, an empty feature flag list). This line skip the default value
+                .subscribe(
+                    (flags) => {
+                        this.participantService.getProfile()
+                            .then((profile) => {
+                                this.pages = [];
+                                
+                                // TODO: how can we parameterize this? or make it database-driven?
+                                if (!this.featureFlagService.hasFlag('nlm')) {
+                                    onboardingPages.splice(3, 1);
+                                }
+                                
+                                onboardingPages.forEach((page) => {
+                                    if (!profile[page.key]) {
+                                        this.pages.push(page);
+                                    }
+                                });
+                            });
+                        this.featureFlagSubscription.unsubscribe();
+                    }
+                );
+        this.featureFlagService.getFeatureFlags();
     }
 
     public finish() {
         console.log('Onboarding finished!')
         this.participantService.markOnboardComplete()
-        .then(() => {
-            return this.participantService.markParticipantNotLoaded()
-        })
-        .then(() => {
-            console.log('Onboarding done: Navigate to home')
-            this.router.navigate(['/'])
-        });
+            .then(() => {
+                return this.participantService.markParticipantNotLoaded()
+            })
+            .then(() => {
+                console.log('Onboarding done: Navigate to home')
+                this.router.navigate(['/'])
+            });
     }
 
 }

@@ -24,6 +24,8 @@ class FeatureFlagsList(APIView):
         feature_flags = FeatureFlags.objects.filter(user=request.user).first()
 
         if not feature_flags or feature_flags == []:
+            return Response(FeatureFlagsSerializer([]).data, status.HTTP_200_OK)
+            
             return Response({"No feature flags object for user"}, status.HTTP_400_BAD_REQUEST)
 
         serialized = FeatureFlagsSerializer(feature_flags)
