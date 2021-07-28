@@ -161,7 +161,8 @@ INSTALLED_APPS = [
     'nlm',
     'daily_step_goals',
     'feature_flags',
-    'configuration_manager'
+    'configuration_manager',
+    'bout_planning_notification'
 ]
 
 MIDDLEWARE = [
