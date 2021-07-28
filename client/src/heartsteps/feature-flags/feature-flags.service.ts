@@ -69,7 +69,7 @@ export class FeatureFlagService {
     }
 
     public hasFlag(flag: string): boolean {
-        if (this.featureFlags.value.flags !== "") {
+        if (this.featureFlags.value.flags) {  // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
             let flags: string = this.featureFlags.value.flags;
             let flags_list: string[] = flags.split(", ");
             if (flags_list.indexOf(flag) > -1) {
