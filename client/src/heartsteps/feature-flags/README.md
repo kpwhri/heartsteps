@@ -155,34 +155,33 @@ See also:
     private featureFlagSubscription: Subscription;
     private flagX: boolean;
 
+    …
+    constructor(
+            ... ,
+            private featureFlagService: FeatureFlagService
+        ) {
+        ...
+        this.flagX = false; // or any other default value you want
+        this.featureFlagSubscription =
+                this.featureFlagService
+                    .currentFeatureFlags
+                    .pipe(skip(1))  // BehaviorSubject class provides the default value (in this case, an empty feature flag list). This line skip the default value
+                    .subscribe(
+                        (flags) => {
+                            this.flagX = this.featureFlagService.hasFlag('X');
+                        }
+                        this.featureFlagSubscription.unsubscribe();
+                    );
+                    ...
+            this.featureFlagService.getFeatureFlags();  // FeatureFlagService is singleton model. Thus, if the service is created somewhere else before, the flag handler described above will be called after a few seconds. To prevent unnecessary delay, we may force to reload the flag.
+        }
 
-```
-private featureFlagSubscription: Subscription;
-private flagX: boolean;
-…
-constructor(
-        ... ,
-        private featureFlagService: FeatureFlagService
-    ) {
-      ...
-      this.flagX = false; // or any other default value you want
-      this.featureFlagSubscription =
-            this.featureFlagService
-                .currentFeatureFlags
-                .subscribe(
-                    (flags) => {
-                        this.flagX = this.featureFlagService.hasFlag('X');
-                    }
-                    this.featureFlagSubscription.unsubscribe();
-                );
-                ...
-        this.featureFlagService.getFeatureFlags();  // FeatureFlagService is singleton model. Thus, if the service is created somewhere else before, the flag handler described above will be called after a few seconds. To prevent unnecessary delay, we may force to reload the flag.
-    }
-```
 
 Then you can use the ***this.flagX*** anywhere else in the class.
 
 Remember, fetching the flag is not "right away" task. Thus, you need to be prepared for the case you **don't** know the answer yet. For those cases, you might want to make the logic more complicated (i.e., creating another variable denoting if the fetch is complete or not).
+
+Unlike the usecase 1, this one-time assignment should be handled with care. Thus, you need to skip the first default update from the subscription. BehaviorSubject class always send the first default value (before any update). In our use case, the default value is critical since we use the value for the control, and we have to unsubscribe after that. This skipping ensures us to get the right value with slight delay. The reason why the delay is short is that we forcefully refresh the flag at the end of the constructor (***.getFeatureFlags()***).
 
 You might want to *some* initial tasks right after you got the flag result. In that case, unlike the optional UI usecase, you can prepare for only one direction (i.e., default -> !default).
 
