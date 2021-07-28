@@ -203,7 +203,7 @@ Let's say, you have an optional screen 'B' between 'A' and 'C'. The sequence wou
 
 If you use featureFlag in the B's constructor (i.e., usecase 1 or 2), it works. You can put something like "***this.skip()***" or "***this.go('C')*** in the ***subscribe()***. However, you will experience difficulties to control external navigation. For example, let's assume 'C' has ***back*** button. If the user doesn't have flag 'X', what would be the expected behavior of that button?
 
-Of course, the button has to reroute the user to screen A. But it is not easy. You might want to check if the previous screen is A or C then use it to decide the argument of 'skip' function in the subscribe. 
+Of course, the button has to reroute the user to screen A. But it is not easy. You might want to check if the previous screen is A or C then use it to decide the argument of 'skip' function in the subscribe. (e.g., if you proceed from A to B to C, skipping means B->C. if you came back from C to B by clicking the back button, skipping means B->A.)
 
 Another option would be changing C. If the flag 'X' is given, we can change the logic of 'back' button of C. However, most navigational tools are not argumentable. They are implemented simply in the directives. And, what if B is not the only previous screen of C? What if there's another sequence of D->C?
 
