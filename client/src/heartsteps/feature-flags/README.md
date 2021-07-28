@@ -52,7 +52,7 @@
 
 
 ### Design Pattern #2: one-time use
-* Include the following three lines at the top of the file:
+* Include the following four lines at the top of the file:
 
         import { Subscription } from "rxjs";
         import { skip } from 'rxjs/operators';
