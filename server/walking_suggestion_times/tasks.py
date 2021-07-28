@@ -2,7 +2,6 @@ from walking_suggestion_times.models import SuggestionTime
 
 
 def create_default_suggestion_times(participant):
-    print('hi FROM WALKING SUGGESTION SERVICES')
     existing_suggestion_times = SuggestionTime.objects.filter(
         user=participant.user
     ).count()
