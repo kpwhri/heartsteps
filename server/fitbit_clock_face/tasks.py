@@ -25,6 +25,8 @@ def update_step_counts(username):
             last_log = log.previous_log
             if last_log:
                 steps_difference = log.steps - last_log.steps
+                if steps_difference < 1:
+                    steps_difference = 0
                 StepCount.objects.update_or_create(
                     user = user,
                     start = last_log.time,

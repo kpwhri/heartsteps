@@ -40,7 +40,7 @@ class RecordStepCountsView(APITestCase):
             'HTTP_CLOCK_FACE_TOKEN': str(self.clockface.token)
         }
 
-        update_step_counts_patch = patch.object(update_step_counts, 'delay')
+        update_step_counts_patch = patch.object(update_step_counts, 'apply_async')
         self.addCleanup(update_step_counts_patch.stop)
         self.update_step_counts = update_step_counts_patch.start()
 
@@ -70,7 +70,9 @@ class RecordStepCountsView(APITestCase):
         self.assertEqual(len(step_counts), 10)
         self.assertEqual(step_counts[0].steps, 200)
         self.update_step_counts.assert_called_with(
-            username='test'
+            kwargs = {
+                'username': self.user.username
+            }
         )
 
 class UpdateStepCountTests(TestCase):
@@ -110,12 +112,11 @@ class UpdateStepCountTests(TestCase):
 
         self.assertEqual(StepCount.objects.filter(user = self.user).count(), 0)
 
-    def test_does_not_create_step_count_intervals_greater_than_5_minutes(self):
+    def test_does_not_create_step_count_if_log_from_yesterday(self):
         now = timezone.now()
         # older log that should not be counted
-        self.create_clock_face_log(now-timedelta(minutes=20), 100)
-        # create single step count for 5 minutes difference
-        self.create_clock_face_log(now-timedelta(minutes=5), 150)
+        self.create_clock_face_log(now-timedelta(days=1), 100)
+        self.create_clock_face_log(now-timedelta(minutes=25), 150)
         self.create_clock_face_log(now, 200)
 
         update_step_counts(username=self.user.username)

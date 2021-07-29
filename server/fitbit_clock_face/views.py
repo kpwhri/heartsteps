@@ -137,8 +137,10 @@ class ClockFaceStepCounts(APIView):
                                     'steps': step_count['steps']
                                 }
                             )
-                        update_step_counts.delay(
-                            username = clock_face.user.username
+                        update_step_counts.apply_async(
+                            kwargs = {
+                                'username': clock_face.user.username
+                            }
                         )
                         return Response('', status=status.HTTP_201_CREATED)
                     return Response('step_counts not included', status=status.HTTP_400_BAD_REQUEST)
