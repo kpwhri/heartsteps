@@ -14,6 +14,35 @@ export class FirstBoutPlanningTimePage {
 
   public firstBoutPlanningForm: FormGroup;
 
+  public times: Array<SelectOption> = [{
+    'name': '4:00 am',
+    'value': '4:00'
+  }, {
+    'name': '5:00 am',
+    'value': '5:00'
+  }, {
+    'name': '6:00 am',
+    'value': '6:00'
+  }, {
+    'name': '7:00 am',
+    'value': '7:00'
+  }, {
+    'name': '8:00 am',
+    'value': '8:00'
+  }, {
+    'name': '9:00 am',
+    'value': '9:00'
+  }, {
+    'name': '10:00 am',
+    'value': '10:00'
+  }, {
+    'name': '11:00 am',
+    'value': '11:00'
+  }, {
+    'name': '12:00 pm',
+    'value': '12:00'
+    }];
+
   @Output() saved = new EventEmitter<boolean>();
 
   constructor(
@@ -21,15 +50,15 @@ export class FirstBoutPlanningTimePage {
     private firstBoutPlanningTimeService: FirstBoutPlanningTimeService
   ) {
     this.firstBoutPlanningTimeService.getTime()
-              .catch(() => {
-                return this.firstBoutPlanningTimeService.getDefaultFirstBoutPlanningTime()
-              })
-              .then((firstBoutPlanningTime: FirstBoutPlanningTime) => {
-                this.createFirstBoutPlanningForm(firstBoutPlanningTime.time);
-              });
+      .catch(() => {
+        return this.firstBoutPlanningTimeService.getDefaultFirstBoutPlanningTime()
+      })
+      .then((firstBoutPlanningTime: FirstBoutPlanningTime) => {
+        this.createFirstBoutPlanningForm(firstBoutPlanningTime.time);
+      });
   }
 
-  createFirstBoutPlanningForm(time: Date) {
+  createFirstBoutPlanningForm(time: string) {
     this.firstBoutPlanningForm = new FormGroup({
       time: new FormControl(time, Validators.required)
     })

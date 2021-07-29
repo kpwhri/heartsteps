@@ -5,11 +5,11 @@
     >
     <fieldset>
         <legend>Set your first bout planning time</legend>
-        <app-time-field
+        <app-select-field
             formControlName="time"
-            label="Time"
-            increment="60"
+            label="When do you start your day?"
+            [options]="times"
             >
-        </app-time-field>
+        </app-select-field>
     </fieldset>
 </app-form>

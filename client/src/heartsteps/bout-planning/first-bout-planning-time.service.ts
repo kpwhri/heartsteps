@@ -6,7 +6,7 @@ import { DateFactory } from "@infrastructure/date.factory";
 const storageKey = 'firstBoutPlanningTime'
 
 export class FirstBoutPlanningTime {
-    public time: Date;
+    public time: string;
 }
 
 
@@ -36,7 +36,7 @@ export class FirstBoutPlanningTimeService {
 
     public getDefaultFirstBoutPlanningTime(): Promise<FirstBoutPlanningTime> {
         return Promise.resolve({
-            time: this.dateFactory.parseTime('07:00')
+            time: '7:00'
         });
     }
 
@@ -74,13 +74,13 @@ export class FirstBoutPlanningTimeService {
 
     private serialize(firstBoutPlanningTime: FirstBoutPlanningTime) {
         return {
-            time: this.dateFactory.formatTime(firstBoutPlanningTime.time)
+            time: firstBoutPlanningTime.time
         }
     }
 
     private deserialize(data: any): FirstBoutPlanningTime {
         const firstBoutPlanningTime = new FirstBoutPlanningTime();
-        firstBoutPlanningTime.time = this.dateFactory.parseTime(data.time);
+        firstBoutPlanningTime.time = data.time;
         return firstBoutPlanningTime;
     }
 
