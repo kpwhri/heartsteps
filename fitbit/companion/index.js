@@ -8,8 +8,7 @@ function removeItem(key) {
   try {
     localStorage.removeItem(key);
   } catch(error) {
-    console.log("Count not remove "+ key);
-    console.log(error)
+    console.log("Couldn't remove "+ key);
   }
 }
 
@@ -65,11 +64,11 @@ function checkPaired() {
 	})
   .then(function (response) {
     if(response.status == 401) {
-      console.log("checkPaired Unauthorized");
       clear();
-      sendWatchStatus()
+      return Promise.resolve({});
+    } else {
+      return response.json();
     }
-    return response.json();
   })
 	.then(function(data) {
     console.log('Check paied data');
@@ -80,36 +79,23 @@ function checkPaired() {
 }
 
 function updateWatchStatus() {
-  console.log('update  watch staus');
   const pin = getItem("PIN");
   const paired = getItem("PAIRED");
-  console.log("Watch status")
-  console.log(pin);
-  console.log(paired);
-  console.log(typeof(paired));
+
   if (!pin) {
-    console.log("Fetching pin");
     getNewPin().then(function() {
-      console.log("Got new pin");
-      sendWatchStatus();
-    })
-    .catch((error) => {
-      console.log("Getting new pin failed?");
-      console.log(error);
-      sendWatchStatus();
-    });
-  } else if (!paired) {
-    console.log("Check paired")
-    checkPaired().then(() => {
-      console.log("Checked pairing");
       sendWatchStatus();
     })
     .catch(() => {
-      console.log("Check pair failed");
+      sendWatchStatus();
+    });
+  } else {
+    checkPaired().then(() => {
       sendWatchStatus();
     })
-  } else {
-    sendWatchStatus();
+    .catch(() => {
+      sendWatchStatus();
+    })
   }
 }
 
@@ -123,8 +109,14 @@ function sendWatchStatus() {
       authorized: paired
     });
   } else {
-    console.log("No phone, should debounce");
+    debounceSendWatchStatus();
   }
+}
+
+function debounceSendWatchStatus() {
+  setTimeout(function() {
+    sendWatchStatus();
+  }, 5 * 1000);
 }
 
 function sendStepCounts(stepCounts) {
@@ -135,7 +127,7 @@ function sendStepCounts(stepCounts) {
     })
   }, function(error) {
     sendStepCountsAndLocation(stepCounts, undefined);
-  })
+  });
 }
 
 function sendStepCountsAndLocation(stepCounts, location) {
@@ -156,14 +148,12 @@ function sendStepCountsAndLocation(stepCounts, location) {
         'CLOCK-FACE-TOKEN': token
 	    }
     }).then(function(response) {
-      console.log("Send step counts response: " + response.status);
       if (response.status == 401) {
-        console.log("Unauthrized Response");
         clear();
         sendWatchStatus();
       }
     }).catch(function(error) {
-      console.error('Error in sendSteps: ', error);
+      console.log('Error in sendSteps: ', error);
     })
   } else {
     console.log("Not authorized to send step counts");
