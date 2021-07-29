@@ -1,7 +1,39 @@
 import * as messaging from "messaging";
 import { localStorage } from "local-storage";
+import { geolocation } from "geolocation";
 
 import * as global from "../common/globals.js";
+
+function removeItem(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch(error) {
+    console.log("Count not remove "+ key);
+    console.log(error)
+  }
+}
+
+function getItem(key) {
+  try {
+    const value = localStorage.getItem(key);
+    if (value == 'true') {
+      return true;
+    }
+    if (value == 'false') {
+      return false;
+    }
+    return value;
+  } catch(error) {
+    return undefined;
+  }
+}
+
+function clear() {
+  removeItem("PIN");
+  removeItem("TOKEN");
+  removeItem("PAIRED");
+  removeItem("USERNAME");
+}
 
 function getNewPin() {
   const url = `${global.BASE_URL}/api/fitbit-clock-face/create`;
@@ -74,40 +106,10 @@ function updateWatchStatus() {
     })
     .catch(() => {
       console.log("Check pair failed");
+      sendWatchStatus();
     })
   } else {
     sendWatchStatus();
-  }
-}
-
-function clear() {
-  removeItem("PIN");
-  removeItem("TOKEN");
-  removeItem("PAIRED");
-  removeItem("USERNAME");
-}
-
-function removeItem(key) {
-  try {
-    localStorage.removeItem(key);
-  } catch(error) {
-    console.log("Count not remove "+ key);
-    console.log(error)
-  }
-}
-
-function getItem(key) {
-  try {
-    const value = localStorage.getItem(key);
-    if (value == 'true') {
-      return true;
-    }
-    if (value == 'false') {
-      return false;
-    }
-    return value;
-  } catch(error) {
-    return undefined;
   }
 }
 
@@ -126,6 +128,17 @@ function sendWatchStatus() {
 }
 
 function sendStepCounts(stepCounts) {
+  geolocation.getCurrentPosition(function(position) {
+    sendStepCountsAndLocation(stepCounts, {
+      'latitude': position.coords.latitude,
+      'longitude': position.coords.longitude
+    })
+  }, function(error) {
+    sendStepCountsAndLocation(stepCounts, undefined);
+  })
+}
+
+function sendStepCountsAndLocation(stepCounts, location) {
   const url = `${global.BASE_URL}/api/fitbit-clock-face/step-counts`;
   const paired = getItem("PAIRED")
   const pin = getItem("PIN");
@@ -134,7 +147,8 @@ function sendStepCounts(stepCounts) {
     fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        "step_counts": stepCounts
+        "step_counts": stepCounts,
+        "location": location
       }),
 	    headers: {
         'Content-Type': 'application/json',
@@ -146,12 +160,14 @@ function sendStepCounts(stepCounts) {
       if (response.status == 401) {
         console.log("Unauthrized Response");
         clear();
-      } 
+        sendWatchStatus();
+      }
     }).catch(function(error) {
       console.error('Error in sendSteps: ', error);
     })
   } else {
-    console.log("Not authorized to send step counts")
+    console.log("Not authorized to send step counts");
+    sendWatchStatus();
   }
 }
 

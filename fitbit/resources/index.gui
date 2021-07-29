@@ -8,4 +8,5 @@
   <circle id="status-icon-active" class="status-icon active" pointer-events="visible" />
   <circle id="status-icon-connected" class="status-icon connected" pointer-events="visible" />
   <circle id="status-icon-error" class="status-icon error" pointer-events="visible" />
+  <image id="refresh" href="images/sync.png" pointer-events="visible" />
 </svg>

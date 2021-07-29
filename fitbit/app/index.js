@@ -1,6 +1,7 @@
 import document from "document";
 import * as fs from "fs";
 import * as messaging from "messaging";
+import { vibration } from "haptics";
 
 // Clock-specific imports
 import * as simpleClock from "./simple/clock";
@@ -16,10 +17,6 @@ const statusElement = document.getElementById("status");
 const pinElement = document.getElementById("pin");
 const stepCountElement = document.getElementById('step-counts');
 
-const statusIconActiveElement = document.getElementById("status-icon-active");
-const statusIconConnectedElement = document.getElementById("status-icon-connected");
-const statusIconErrorElement = document.getElementById("status-icon-error");
-
 simpleClock.initialize("minutes", "heartStepsDate", function(data) {
   timeElement.text = data.time;
   dateElement.text = data.date;
@@ -28,7 +25,8 @@ simpleClock.initialize("minutes", "heartStepsDate", function(data) {
 
 function updateStepCount() {
   const step_count = activity.adjusted.steps;
-  stepCountElement.text = step_count + ' steps';
+  const step_count_formatted = step_count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  stepCountElement.text = step_count_formatted.toString() + ' steps';
 }
 clock.granularity = "seconds";
 clock.addEventListener("tick", function(){
@@ -42,11 +40,8 @@ class AppState {
   authorized = false;
   pin = false;
 
-  status = 'Starting';
+  connected = false;
   loading = false;
-  error = false;
-
-  logs = [];
 
   stepCounter;
 
@@ -55,102 +50,61 @@ class AppState {
     this.load();
   }
 
-  log(message, status="log") {
-    const now = 123;
-    console.log('App:' + message + '(' + status + ':' + now + ')');
-  }
-
-  log_error(message) {
-    this.log(message, 'error');
-  }
-
-  set_status(message) {
-    this.status = message;
+  set_loading() {
+    this.loading = true;
     this.update();
   }
 
-  set_error(message) {
-    this.error = true;
-    this.set_status(message);
-  }
-
-  clear_error() {
-    this.error = false;
-    this.set_status();
-  }
-
-  show_loading(message) {
-    this.loading = true;
-    this.set_status(message);
-  }
-
-  stop_loading() {
+  set_not_loading() {
     this.loading = false;
-    this.set_status();
+    this.update();
+  }
+
+  set_connected() {
+    this.connected = true;
+    this.update();
+  }
+
+  set_disconnected() {
+    this.disconnected = true;
+    this.update();
   }
 
   update() {
-    if (!this.status && !this.pin) {
-      this.status = 'No Pin';
-    }
-    if (!this.status && !this.authorized) {
-      this.status = 'Enter Pin';
-    }
-    statusElement.text = this.status;
+    dateElement.style.opacity = 0;
+    statusElement.style.opacity = 1;
 
-    if (this.status) {
-      dateElement.style.opacity = 0;
-      statusElement.style.opacity = 1;
+    if (!this.connected) {
+      statusElement.text = 'Not Connected';
+    } else if (this.loading) {
+      statusElement.text = 'Loading';
+    } else if (!this.pin) {
+      statusElement.text = 'No Pin';
+    } else if (!this.authorized) {
+      statusElement.text = 'Enter Pin: ' + this.pin;
     } else {
+      statusElement.text = '';
+
       dateElement.style.opacity = 1;
       statusElement.style.opacity = 0;
     }
-    this.updatePin();
-    this.updateStatusIcon();
+
   }
 
-  updatePin() {
-    if (this.authorized || !this.pin) {
-      pinElement.style.opacity = 0;
-      stepCountElement.style.opacity = 1;
-    } else {
-      pinElement.text = this.pin;
-      pinElement.style.opacity = 1;
-      stepCountElement.style.opacity = 0;
-    }
-  }
-
-  updateStatusIcon() {
-    if(this.loading) {
-      statusIconActiveElement.style.opacity = 1;
-      statusIconConnectedElement.style.opacity = 0;
-      statusIconErrorElement.style.opacity = 0;
-    } else if(this.error || !this.authorized) {
-      statusIconActiveElement.style.opacity = 0;
-      statusIconConnectedElement.style.opacity = 0;
-      statusIconErrorElement.style.opacity = 1;
-    } else {
-      statusIconActiveElement.style.opacity = 0;
-      statusIconConnectedElement.style.opacity = 1;
-      statusIconErrorElement.style.opacity = 0;
-    }
-  }
-
-  updateStatus() {
-    this.show_loading('Updating');
+  requestStatus() {
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      this.set_loading();
       try {
         messaging.peerSocket.send({
           key: global.CHECK_AUTH
         });
         this.log('Sent authrization request');
       } catch(error) {
-        this.log_error(error);
-        this.set_error('Update failed');
+        this.set_not_loading();
+        this.set_disconnected();
       }
     } else {
-      this.log_error('Get authorization failed, peer socket not open');
-      this.set_error('No connection');
+      this.set_disconnected();
       this.retryUpdate();
     }
   }
@@ -158,31 +112,29 @@ class AppState {
   retryUpdate() {
     const app = this;
     setTimeout(function() {
-      app.updateStatus();
+      app.requestStatus();
     }, 5 * 1000);
   }
 
   load() {
-    this.show_loading('Loading app');
+    this.set_loading();
     try {
       const state = fs.readFileSync(this.stateFileName, "json");
 
       this.authorized = state.authorized;
       this.pin = state.pin;      
 
-      this.stop_loading();
+      this.set_not_loading();
     } catch(error) {
-      this.log_error(error);
-
       this.authorized = false;
       this.pin = undefined;
 
-      this.updateStatus();
+      this.requestStatus();
     }
   }
 
   refresh() {
-    this.updateStatus();
+    this.requestStatus();
     this.stepCounter.update();
   }
 
@@ -199,30 +151,30 @@ class AppState {
 
 const app = new AppState();
 
-document.getElementsByClassName('status-icon').map((element, index) => {
-  element.addEventListener("click", function() {
-    app.refresh();
-  });
+document.getElementById('#refresh').addEventListener('click', function() {
+  app.refresh();
+  vibration.start('bump');
+  setTimeout(function() {
+    vibration.stop();
+  }, 500);
 });
 
  messaging.peerSocket.addEventListener("open", function (event) {
-  app.log("peer socket open");
-  app.clear_error();
+  app.set_connected();
  });
 
  messaging.peerSocket.addEventListener("error", function (error) {
-   app.log_error("peer socket error " + error);
-   app.set_error('No connection');
+  app.set_disconnected();
  });
 
 messaging.peerSocket.onmessage = function(event) {
-  app.log('peer socket sent data')
+  app.set_not_loading();
   app.save(
     event.data.authorized,
     event.data.pin
   );
+
   if (!event.data.pin) {
-    app.log("No pin update again");
-    app.getAuthorization();
+    app.requestStatus();
   }
 }
