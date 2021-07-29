@@ -10,6 +10,8 @@ import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 import { SetupPageModule } from '@pages/setup/setup.module';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
 
+import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
+
 declare var process: {
     env: {
         PRODUCTION: boolean

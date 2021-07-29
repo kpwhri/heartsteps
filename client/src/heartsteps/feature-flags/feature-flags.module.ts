@@ -7,4 +7,4 @@ import { FeatureFlagService } from "./feature-flags.service";
     imports: [InfrastructureModule],
     providers: [FeatureFlagService],
 })
-export class FeatureFlagModule {}
+export class FeatureFlagsModule {}

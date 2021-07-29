@@ -30,7 +30,7 @@ import { AppReadyResolver } from "./app.resolver";
 import { LoadingPageComponent } from "./loading-page.component";
 import { HeartstepsComponentsModule } from "@infrastructure/components/components.module";
 
-import { FeatureFlagModule } from "@heartsteps/feature-flags/feature-flags.module";
+import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
 
 const routes: Routes = [
     {
@@ -52,7 +52,7 @@ const routes: Routes = [
         BaselineWeekModule,
         WelcomePageModule,
         NLMModule,
-        FeatureFlagModule,
+        FeatureFlagsModule,
         CurrentWeekModule,
         OnboardPageModule,
         SetupPageModule,
