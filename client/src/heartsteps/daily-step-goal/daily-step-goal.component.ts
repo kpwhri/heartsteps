@@ -14,7 +14,7 @@ export class DailyStepGoalComponent {
         private heartstepsServer: HeartstepsServer,
         private dailySummary: DailySummaryComponent
     ){
-        this.updateGoal();
+        this.updateAll();
 //         this.updateStepDiff();
     }
 
@@ -31,7 +31,7 @@ export class DailyStepGoalComponent {
         })
     }
 
-    private updateGoal() {
+    private updateAll() {
         this.heartstepsServer.get('newgoal')
         .then((data) => {
             console.log(data);
