@@ -23,17 +23,17 @@ class StepGoalsService():
         )
         return new_goal
 
-    def createMultiplierList():
-        data = open("step-multipliers.csv")
-
-        file = csv.dictReader(data)
-
-        multipliers = []
-
-        for col in file:
-            multipliers.append(col['multiplier'])
-
-        return multipliers
+    # def createMultiplierList(self):
+    #     data = open("step-multipliers.csv")
+    #
+    #     file = csv.dictReader(data)
+    #
+    #     multipliers = []
+    #
+    #     for col in file:
+    #         multipliers.append(col['multiplier'])
+    #
+    #     return multipliers
 
     def get_simple_step_goal(self, date=None):
         """returns step goal
@@ -77,7 +77,16 @@ class StepGoalsService():
         all_days = Day.objects.all().order_by('-date')
         index_of_today = len(all_days)
 
-        # multiplier =
+        data = open("step-multipliers.csv")
+
+        file = csv.dictReader(data)
+
+        multipliers = []
+
+        for col in file:
+            multipliers.append(col['multiplier'])
+
+        multiplier = multipliers[index_of_today]
 
         if ordered:
             for step in ordered:
@@ -86,7 +95,8 @@ class StepGoalsService():
                     'steps': step.steps
                 })
 
-            new_goal = (serialized_step_counts[4]["steps"] + serialized_step_counts[5]["steps"])/2;
+            new_goal = (serialized_step_counts[4]["steps"] + serialized_step_counts[5]["steps"])/2
+            new_goal *= multiplier
             return new_goal
         else:
             return None
