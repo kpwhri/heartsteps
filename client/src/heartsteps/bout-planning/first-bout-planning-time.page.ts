@@ -4,7 +4,7 @@ import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { LoadingService } from '@infrastructure/loading.service';
 import { FirstBoutPlanningTimeService, FirstBoutPlanningTime } from './first-bout-planning-time.service';
 
-
+import { SelectDialogController, SelectOption } from '@infrastructure/dialogs/select-dialog.controller';
 
 @Component({
   selector: 'first-bout-planning-time',
