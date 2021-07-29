@@ -20,4 +20,4 @@ class ServiceStepGoalsService(HeartStepsTestCase):
     def test_get_todays_step_goal_1(self):
         service = StepGoalsService(self.user)
         
-        today_step_goal = service.get_simple_step_goal()
+        today_step_goal = service.get_step_goal()

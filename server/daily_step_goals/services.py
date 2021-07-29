@@ -35,7 +35,7 @@ class StepGoalsService():
     #
     #     return multipliers
 
-    def get_simple_step_goal(self, date=None):
+    def get_step_goal(self, date=None):
         """returns step goal
 
         Args:
