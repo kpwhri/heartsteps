@@ -146,7 +146,7 @@ function sendStepCounts(stepCounts) {
       if (response.status == 401) {
         console.log("Unauthrized Response");
         clear();
-      } 
+      }
     }).catch(function(error) {
       console.error('Error in sendSteps: ', error);
     })

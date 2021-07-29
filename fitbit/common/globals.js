@@ -36,16 +36,3 @@ export function isNotNull(val) {
       &&  val != ""
       &&  val != null);
 }
-
-// Get the name component (value) of the newValue JSON settings object
-// evt (events) have properties key, newValue & oldValue (& isTrusted)
-// The value properties take the form {"name":"actual-value"}
-export function parseSettingsValue(jsonValue) {
-  let val;
-  if (isNotNull(jsonValue)) {
-    val = JSON.parse(jsonValue).name;
-  } else {
-    val = ""
-  }
-  return val;
-}

@@ -8,19 +8,19 @@
 
 .clock-text {
   font-family: Seville-Book;
-  font-size: 90;
+  font-size: 110;
   text-anchor: middle;
   text-length: 10;
   x: 50%;
-  y: 45%;
+  y: 40%;
   width: 92%;
-  height: 25%;
+  height: 30%;
   fill: #2490DD;
 }
 
 .text {
   font-family: Seville-Regular;
-  font-size: 35;
+  font-size: 30;
   text-anchor: middle;
   text-length: 30;
   fill: #FFFFFF;
@@ -34,28 +34,17 @@
 }
 
 .text-bottom {
-  x: 50%;
+  x: 5%;
   y: 85%;
-  width: 92%;
+  text-anchor: start;
+  width: 80%;
   height: 10%;
 }
 
-.status-icon {
-  cx: 90%;
-  cy: 80%;
-  r: 5%;
-  fill: #FFFFFF;
+#refresh {
+  width: 10%;
+  height: 10%;
+  y: 78%;
+  x: 85%;
+  fill: white;
 }
-
-.status-icon.active {
-  fill: #2490DD;
-}
-
-.status-icon.connected {
-  fill: #00FF00;
-}
-
-.status-icon.error {
-  fill: #FF0000;
-}
-
