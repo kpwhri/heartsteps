@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { DailySummaryComponent } from '@heartsteps/daily-summaries/daily-summary.component';
 
 @Component({
     selector: 'heartsteps-daily-step-goal',
@@ -10,10 +11,11 @@ export class DailyStepGoalComponent {
     public dailyStepDiff: number = 7;
 
     constructor(
-        private heartstepsServer: HeartstepsServer
+        private heartstepsServer: HeartstepsServer,
+        private dailySummary: DailySummaryComponent
     ){
         this.updateGoal();
-        this.update();
+//         this.updateStepDiff();
     }
 
     private update() {
@@ -35,7 +37,10 @@ export class DailyStepGoalComponent {
             console.log(data);
             console.log('NEW GOAL: Got a response from the server');
             var step_median = (data[4]["steps"] + data[5]["steps"])/2;
-            this.dailyStepDiff = Math.round(step_median);
+            this.dailyStepGoal = Math.round(step_median);
+            console.log("NEW STEP GOAL " + this.dailyStepGoal);
+            console.log("CURRENT STEPS " + this.dailySummary.steps);
+            this.dailyStepDiff = this.dailyStepGoal - this.dailySummary.steps;
         })
         .catch(() => {
             console.log('New goal failed')
