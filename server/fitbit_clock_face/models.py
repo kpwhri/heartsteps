@@ -5,6 +5,8 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
+from days.services import DayService
+
 class ClockFace(models.Model):
     pin = models.CharField(
         max_length = 10,
@@ -68,13 +70,22 @@ class ClockFaceLog(models.Model):
 
     @property
     def previous_log(self):
-        return ClockFaceLog.objects.filter(
+        previous_log = ClockFaceLog.objects.filter(
             time__lt = self.time,
-            time__gte = self.time - timedelta(minutes=5),
             user = self.user
         ) \
         .order_by('time') \
         .last()
+        if not previous_log:
+            return None
+        service = DayService(user=self.user)
+        log_date = service.get_date_at(self.time)
+        previous_log_date = service.get_date_at(previous_log.time)
+        if log_date == previous_log_date:
+            return previous_log
+        else:
+            return None
+
 
 
 class StepCount(models.Model):
