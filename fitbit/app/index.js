@@ -168,11 +168,12 @@ document.getElementById('#refresh').addEventListener('click', function() {
  });
 
 messaging.peerSocket.onmessage = function(event) {
+  app.set_not_loading();
   app.save(
     event.data.authorized,
     event.data.pin
   );
-  
+
   if (!event.data.pin) {
     app.requestStatus();
   }
