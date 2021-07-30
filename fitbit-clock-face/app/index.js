@@ -3,33 +3,53 @@ import * as fs from "fs";
 import * as messaging from "messaging";
 import { vibration } from "haptics";
 
-// Clock-specific imports
-import * as simpleClock from "./simple/clock";
+import { preferences } from "user-settings";
+import { zeroPad } from "./simple/utils";
+import { daysLong, months } from "./simple/locales/en.js";
 import clock from "clock";
 import { today as activity } from "user-activity";
 
 import { StepCounter } from "./step-count";
 
-const timeElement = document.getElementById("txtTime");
+const timeElement = document.getElementById("clock");
+const dayElement = document.getElementById("txtDay");
 const dateElement = document.getElementById("txtDate");
 const statusElement = document.getElementById("status");
 const pinElement = document.getElementById("pin");
 const stepCountElement = document.getElementById('step-counts');
 
-simpleClock.initialize("minutes", "heartStepsDate", function(data) {
-  timeElement.text = data.time;
-  dateElement.text = data.date;
-});
+function updateClock(date) {
+  let hours = date.getHours();
+  if (preferences.clockDisplay === "12h") {
+    // 12h format
+    hours = hours % 12 || 12;
+  }
+  timeElement.text = zeroPad(hours) + ":" + zeroPad(date.getMinutes());
+}
 
+function updateDate(today) {
+  const dayNameLong = daysLong[today.getDay()];
+  dayElement.text = dayNameLong;
+  
+  let dayNumber = zeroPad(today.getDate());
+  let monthName = months[today.getMonth()];
+  dateElement.text = monthName + " " + dayNumber
+
+}
 
 function updateStepCount() {
   const step_count = activity.adjusted.steps;
   const step_count_formatted = step_count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   stepCountElement.text = step_count_formatted.toString() + ' steps';
 }
+
 clock.granularity = "seconds";
-clock.addEventListener("tick", function(){
+clock.addEventListener("tick", function(event){
   updateStepCount();
+  if (event.date) {
+    updateClock(event.date);
+    updateDate(event.date);
+  }
 });
 
 class AppState {
@@ -71,7 +91,11 @@ class AppState {
 
   update() {
     dateElement.style.opacity = 0;
+    dayElement.style.opacity = 0;
     statusElement.style.opacity = 1;
+    pinElement.style.opacity = 1;
+
+    pinElement.text = this.pin;
 
     if (!this.connected) {
       statusElement.text = 'Not Connected';
@@ -80,12 +104,14 @@ class AppState {
     } else if (!this.pin) {
       statusElement.text = 'No Pin';
     } else if (!this.authorized) {
-      statusElement.text = 'Enter Pin: ' + this.pin;
+      statusElement.text = 'Enter Pin';
     } else {
       statusElement.text = '';
 
       dateElement.style.opacity = 1;
+      dayElement.style.opacity = 1;
       statusElement.style.opacity = 0;
+      pinElement.style.opacity = 0;
     }
 
   }
@@ -142,13 +168,22 @@ class AppState {
 
 const app = new AppState();
 
-document.getElementById('#refresh').addEventListener('click', function() {
-  app.refresh();
-  vibration.start('bump');
-  setTimeout(function() {
-    vibration.stop();
-  }, 500);
-});
+[
+  stepCountElement,
+  timeElement,
+  dayElement,
+  dateElement,
+  pinElement,
+  statusElement
+].map(function(element){
+  element.addEventListener('click', function() {
+    app.refresh();
+    vibration.start('bump');
+    // setTimeout(function() {
+    //   vibration.stop();
+    // }, 500);
+  });
+})
 
  messaging.peerSocket.addEventListener("open", function (event) {
   app.set_connected();

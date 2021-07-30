@@ -1,12 +1,9 @@
 <svg>
   <rect id="background" />
-  <text id="txtTime" class="clock-text" pointer-events="visible">13:37</text>
-  <text id="txtDate" class="text text-main">MON JANUARY 01</text>
-  <text id="status" class="text text-main">Starting</text>
-  <text id="pin" class="text text-bottom"></text>
-  <text id="step-counts" class="text text-bottom"></text>
-  <circle id="status-icon-active" class="status-icon active" pointer-events="visible" />
-  <circle id="status-icon-connected" class="status-icon connected" pointer-events="visible" />
-  <circle id="status-icon-error" class="status-icon error" pointer-events="visible" />
-  <image id="refresh" href="images/sync.png" pointer-events="visible" />
+  <text id="clock" class="clock-text" pointer-events="visible">13:37</text>
+  <text id="txtDay" class="text text-top" pointer-events="visible">Day of the Week</text>
+  <text id="txtDate" class="text text-middle" pointer-events="visible">01/01/1970</text>
+  <text id="status" class="text text-top" pointer-events="visible">Starting</text>
+  <text id="pin" class="text text-middle" pointer-events="visible">No Pin</text>
+  <text id="step-counts" class="text text-bottom" pointer-events="visible"></text>
 </svg>
