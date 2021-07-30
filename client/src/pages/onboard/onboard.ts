@@ -80,8 +80,6 @@ export class OnboardPage implements OnInit {
                             .then((profile) => {
                                 this.pages = [];
 
-                                console.log(onboardingPages);
-
                                 // TODO: how can we parameterize this? or make it database-driven?
                                 if (this.featureFlagService.hasFlag('nlm')) {
                                     let nlm_onboarding_page = {
@@ -93,10 +91,6 @@ export class OnboardPage implements OnInit {
                                 }
 
                                 let skipPageIDs: Array<string> = this.featureFlagService.getSubFlagsInNamespace('onboarding.skip');
-                                console.log(skipPageIDs);
-                                console.log(onboardingPages);
-                                console.log("profile:");
-                                console.log(profile);
                                 
                                 onboardingPages.forEach((page) => {
                                     if ((!profile[page.key]) && (skipPageIDs.indexOf(page.key) < 0)) {
