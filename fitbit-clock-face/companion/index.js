@@ -2,7 +2,7 @@ import * as messaging from "messaging";
 import { localStorage } from "local-storage";
 import { geolocation } from "geolocation";
 
-import * as global from "../common/globals.js";
+const BASE_URL = "https://heartsteps.net";
 
 function removeItem(key) {
   try {
@@ -35,7 +35,7 @@ function clear() {
 }
 
 function getNewPin() {
-  const url = `${global.BASE_URL}/api/fitbit-clock-face/create`;
+  const url = `${BASE_URL}/api/fitbit-clock-face/create`;
   clear();
 	return fetch(url, {
     method: "POST"
@@ -54,7 +54,7 @@ function getNewPin() {
 }
 
 function checkPaired() {
-  const url = `${global.BASE_URL}/api/fitbit-clock-face/status`;
+  const url = `${BASE_URL}/api/fitbit-clock-face/status`;
 	return fetch(url, {
 	    headers: {
         'Content-Type': 'application/json',
@@ -108,15 +108,7 @@ function sendWatchStatus() {
       pin: pin,
       authorized: paired
     });
-  } else {
-    debounceSendWatchStatus();
   }
-}
-
-function debounceSendWatchStatus() {
-  setTimeout(function() {
-    sendWatchStatus();
-  }, 5 * 1000);
 }
 
 function sendStepCounts(stepCounts) {
@@ -131,7 +123,7 @@ function sendStepCounts(stepCounts) {
 }
 
 function sendStepCountsAndLocation(stepCounts, location) {
-  const url = `${global.BASE_URL}/api/fitbit-clock-face/step-counts`;
+  const url = `${BASE_URL}/api/fitbit-clock-face/step-counts`;
   const paired = getItem("PAIRED")
   const pin = getItem("PIN");
   const token = getItem("TOKEN");
@@ -164,8 +156,7 @@ function sendStepCountsAndLocation(stepCounts, location) {
 messaging.peerSocket.onmessage = function(evt) {
   if (evt.data.steps) {
     sendStepCounts(evt.data.steps);
-  } else if (evt.data.key == global.CHECK_AUTH) {
-    updateWatchStatus();
   }
+  updateWatchStatus();
 }
 

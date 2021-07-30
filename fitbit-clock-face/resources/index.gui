@@ -1,0 +1,9 @@
+<svg>
+  <rect id="background" />
+  <text id="clock" class="clock-text" pointer-events="visible">13:37</text>
+  <text id="txtDay" class="text text-top" pointer-events="visible">Day of the Week</text>
+  <text id="txtDate" class="text text-middle" pointer-events="visible">01/01/1970</text>
+  <text id="status" class="text text-top" pointer-events="visible">Starting</text>
+  <text id="pin" class="text text-middle" pointer-events="visible">No Pin</text>
+  <text id="step-counts" class="text text-bottom" pointer-events="visible"></text>
+</svg>

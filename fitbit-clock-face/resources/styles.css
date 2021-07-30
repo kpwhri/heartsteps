@@ -20,31 +20,22 @@
 
 .text {
   font-family: Seville-Regular;
-  font-size: 30;
+  font-size: 40;
   text-anchor: middle;
-  text-length: 30;
+  text-length: 20;
   fill: #FFFFFF;
-}
-
-.text-main {
   x: 50%;
-  y: 65%;
   width: 92%;
   height: 10%;
 }
-
-.text-bottom {
-  x: 5%;
-  y: 85%;
-  text-anchor: start;
-  width: 80%;
-  height: 10%;
+.text-top {
+  y: 60%;
 }
 
-#refresh {
-  width: 10%;
-  height: 10%;
-  y: 78%;
-  x: 85%;
-  fill: white;
+.text-middle {
+  y: 75%;
+}
+
+.text-bottom {
+  y: 90%;
 }
