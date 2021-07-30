@@ -35,6 +35,9 @@ from burst_periods.models import BurstPeriod
 from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
 from days.models import Day
+from fitbit_clock_face.models import ClockFace
+from fitbit_clock_face.models import ClockFaceLog
+from fitbit_clock_face.models import StepCount
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpdate
 from fitbit_api.tasks import unauthorize_fitbit_account
@@ -2047,3 +2050,64 @@ class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
                 }
             )
         )
+
+class ClockFaceList(TemplateView):
+
+    template_name = 'dashboard/clock-face-list.html'
+
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+
+    def get_context_data(self):
+        clock_faces = ClockFace.objects \
+        .exclude(
+            user = None
+        ) \
+        .prefetch_related('user') \
+        .all()
+        users = [clock_face.user for clock_face in clock_faces if clock_face.user]
+        
+        logs_by_username = {}
+        clock_face_logs = ClockFaceLog.objects \
+        .filter(
+            user__in=users,
+            time__gte = timezone.now() - timedelta(days=7)
+        ) \
+        .prefetch_related('user') \
+        .all()
+        for log in clock_face_logs:
+            if log.user.username not in logs_by_username:
+                logs_by_username[log.user.username] = []
+            logs_by_username[log.user.username].append(log)
+        
+        step_counts_by_username = {}
+        step_counts = StepCount.objects.filter(
+            user__in=users,
+            start__gte = timezone.now() - timedelta(days=7)
+        ).prefetch_related('user')
+        for count in step_counts:
+            if count.user.username not in step_counts_by_username:
+                step_counts_by_username[count.user.username] = []
+            step_counts_by_username[count.user.username].append(count)
+        
+        for clock_face in clock_faces:
+            if not clock_face.user:
+                continue
+            if clock_face.user.username in logs_by_username:
+                logs = logs_by_username[clock_face.user.username]
+                clock_face.log_count = len(logs)
+                clock_face.last_log = logs[-1]
+            if clock_face.user.username in step_counts_by_username:
+                counts = step_counts_by_username[clock_face.user.username]
+                clock_face.step_count_count = len(counts)
+                clock_face.last_step_count = counts[-1]
+        return {
+            'clock_faces': clock_faces
+        }
+
