@@ -152,6 +152,7 @@ document.getElementById('#refresh').addEventListener('click', function() {
 
  messaging.peerSocket.addEventListener("open", function (event) {
   app.set_connected();
+  app.refresh();
  });
 
  messaging.peerSocket.addEventListener("error", function (error) {
@@ -169,8 +170,3 @@ messaging.peerSocket.onmessage = function(event) {
     app.requestStatus();
   }
 }
-
-app.refresh();
-setInterval(function() {
-  app.refresh();
-}, 60*60*1000);
