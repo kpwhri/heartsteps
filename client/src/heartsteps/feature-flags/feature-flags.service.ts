@@ -81,7 +81,11 @@ export class FeatureFlagService {
 
     public getSubFlagsInNamespace(namespace: string): Array<string> {
         let returnArray = new Array<string>();
-        let namespaceHeading = namespace + '.';
+        let namespaceHeading = namespace;
+
+        if (!namespaceHeading.endsWith('.')) {
+            namespaceHeading = namespaceHeading + ".";
+        }
 
         if (this.featureFlags.value.flags) {  // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
             let flags: string = this.featureFlags.value.flags;
