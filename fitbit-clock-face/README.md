@@ -24,6 +24,10 @@ $ npx fitbit
 # creates an app.fba file
 > install
 # runs the clockface in the simulator
+> build-and-install
+# Creates an app.fba file and run the clockface in the simulator
+> bi
+# Shortcut for BI
 > screenshot
 # takes screenshots of the app for the Fitbit App Gallery 
 
