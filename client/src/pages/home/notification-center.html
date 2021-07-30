@@ -19,12 +19,16 @@
 
 <!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
 <!-- <h6>UUID: {{ featureFlags.uuid }}</h6> -->
-<h6>Notification Center Flag: {{ notificationCenterFlag() }}</h6>
-<!-- <button
-    (click)="this.featureFlagService.removeFeatureFlag('new_flag_from_angular')"
->
-    Update Feature Flags
-</button> -->
+<h6>Notification Center Flag: {{ hasFlag("notification_center") }}</h6>
+<ng-container *ngIf="hasFlag('nlm')">
+    <button>Suggest Activity (NLM)</button>
+</ng-container>
+<ng-container *ngIf="hasFlag('u01')">
+    <button>Suggest Activity (U01)</button>
+</ng-container>
+<ng-container *ngIf="!hasFlag('u01') && !hasFlag('nlm')">
+    <button>Suggest Activity (Default)</button>
+</ng-container>
 
 <div *ngFor="let notification of notifications">
     <ng-container *ngIf="isReceived(notification)">

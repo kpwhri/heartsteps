@@ -39,9 +39,9 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
         return this.notificationCenterService.isRead(notification);
     }
 
-    public notificationCenterFlag(): boolean {
+    public hasFlag(flag: string): boolean {
         // console.log("notification-center.ts notification center flag called");
-        return this.featureFlagService.hasNotificationCenterFlag();
+        return this.featureFlagService.hasFlag(flag);
     }
 
     ngOnInit() {
