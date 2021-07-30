@@ -105,15 +105,7 @@ class AppState {
       }
     } else {
       this.set_disconnected();
-      this.retryUpdate();
     }
-  }
-
-  retryUpdate() {
-    const app = this;
-    setTimeout(function() {
-      app.requestStatus();
-    }, 5 * 1000);
   }
 
   load() {
@@ -178,3 +170,8 @@ messaging.peerSocket.onmessage = function(event) {
     app.requestStatus();
   }
 }
+
+app.refresh();
+setInterval(function() {
+  app.refresh();
+}, 60*60*1000);
