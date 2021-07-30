@@ -2,7 +2,7 @@ import * as messaging from "messaging";
 import { localStorage } from "local-storage";
 import { geolocation } from "geolocation";
 
-const BASE_URL = "https://dev.heartsteps.net";
+const BASE_URL = "https://heartsteps.net";
 
 function removeItem(key) {
   try {
