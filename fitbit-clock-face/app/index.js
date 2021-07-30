@@ -5,7 +5,6 @@ import { vibration } from "haptics";
 
 // Clock-specific imports
 import * as simpleClock from "./simple/clock";
-import * as global from "../common/globals";
 import clock from "clock";
 import { today as activity } from "user-activity";
 
@@ -96,7 +95,7 @@ class AppState {
       this.set_loading();
       try {
         messaging.peerSocket.send({
-          key: global.CHECK_AUTH
+
         });
         this.log('Sent authrization request');
       } catch(error) {
