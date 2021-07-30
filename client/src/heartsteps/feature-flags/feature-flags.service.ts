@@ -79,6 +79,23 @@ export class FeatureFlagService {
         return false;
     }
 
+    public getSubFlagsInNamespace(namespace: string): Array<string> {
+        let returnArray = new Array<string>();
+        let namespaceHeading = namespace + '.';
+
+        if (this.featureFlags.value.flags) {  // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
+            let flags: string = this.featureFlags.value.flags;
+            let flags_list: string[] = flags.split(",").map(function (x) { return x.trim();});
+
+            flags_list.forEach((flag) => {
+                if (flag.startsWith(namespaceHeading)) {
+                    returnArray.push(flag.substring(namespaceHeading.length));
+                }
+            });
+        }
+        return returnArray;
+    }
+
     public refreshFeatureFlags() {
         this.getFeatureFlags();
     }
