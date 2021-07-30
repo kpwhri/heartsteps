@@ -76,13 +76,14 @@ class NewGoalCalc(APIView):
         # csv_path = finders.find('data/step-multipliers.csv')
         # csv_reader = csv.reader(csv_path, delimiter=',')
 
-        with open('step-multipliers.csv', 'r', newline='') as csv_file:
-            fieldnames = ['day', 'multiplier']
-            csv_reader = csv.DictReader(csv_file, delimiter=',', fieldnames='fieldnames')
-            multipliers = list(csv_reader)
+        with open('step-multipliers.csv', 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=',')
+            # multipliers = list(csv_reader)
             # multiplier = multipliers[index_of_today]
 
-        multiplier = 5
+        multipliers = [['1', '1.25'], ['2', '1.94'], ['3', '1.09'], ['4', '1.15'], ['5', '1.24'], ['6', '1.35'], ['7', '1.35'], ['8', '1.42'], ['9', '1.67'], ['10', '1.88'], ['11', '1.80'], ['12', '1.80'], ['13', '1.80'], ['14', '1.80'], ['15', '1.80'], ['16', '1.80'], ['17', '1.80'], ['18', '1.80'], ['19', '1.80'], ['20', '1.80'], ['21', '1.80'], ['22', '1.80'], ['23', '1.80'], ['24', '1.80'], ['25', '1.60'], ['26', '1.50'], ['27', '1.40'], ['28', '1.30'], ['29', '1.90'], ['30', '1.90'], ['31', '1.90']]
+
+        multiplier = multipliers[index_of_today][1]
 
         if ordered:
             for step in ordered:
