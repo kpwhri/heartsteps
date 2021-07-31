@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant-clock-face' cohort.id participant.heartsteps_id %}" class="nav-link active">Fitbit Clock Face</a>
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <h2>Clock Face</h2>
+    {% if clock_face %}
+    <p>
+        Clock face pin is <strong>{{clock_face.pin}}.</strong>
+        Created on {{clock_face.created|date}} {{clock_face.created|time}}
+    </p>
+    <form action="" method="post">
+        {% csrf_token %}
+        <button type="submit">Unpair Clock Face</button>
+    </form>
+    {% else %}
+        <p>Participant is not paired with clock face</p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <fieldset>
+                <legend>Enter clock face pin to pair participant with clock face</legend>
+                {{pair_form.as_p}}
+            </fieldset>
+            <button type="submit">Pair</button>
+        </form>
+    {% endif %}
+</section>
+<section>
+    <h2>Clock Face Logs</h2>
+    <table>
+        <thead>
+            <td>Current</td>
+            <td>7 day stats</td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <dl>
+                        {% if last_log %}
+                        <dt>Last Log</dt>
+                        <dd>{{last_log.time | date}} {{last_log.time | time}}</dd>
+                        <dd>{{last_log.steps}} steps</dd>
+                        {% else %}
+                        <p>No logs recorded</p>
+                        {% endif %}
+                        {% if last_step_count %}
+                        <dt>Last Step Count</dt>
+                        <dd>{{last_step_count.start | date}} {{last_step_count.start | time}}</dd>
+                        <dd>{{last_step_count.steps}}</dd>
+                        {% endif %}
+                    </dl>
+                </td>
+                <td>
+                    <dl>
+                        <dt>Logs Recorded</dt>
+                        {% if log_count %}
+                        <dd>{{log_count}} logs</dd>
+                        {% else %}
+                        <dd>None</dd>
+                        {% endif %}
+                        <dt>Step Counts Recorded</dt>
+                        {% if step_count_count %}
+                        <dd>{{step_count_count}} records</dd>
+                        {% else %}
+                        <dd>None</dd>
+                        {% endif %}
+                    </dl>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}

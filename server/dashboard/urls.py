@@ -39,6 +39,7 @@ from .views import ParticipantBurstPeriodConfigurationView
 from .views import ParticipantPageViews
 from .views import ParticipantSendTestWalkingSuggestionSurvey
 from .views import ClockFaceList
+from .views import ParticipantClockFaceView
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -49,6 +50,7 @@ urlpatterns = [
         auth_views.PasswordResetConfirmView.as_view(success_url='dashboard-login'),
         name='password_reset_confirm'
     ),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/clock-face', ParticipantClockFaceView.as_view(), name='dashboard-cohort-participant-clock-face'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)/delete', ParticipantBurstPeriodDeleteView.as_view(), name='dashboard-cohort-participant-burst-period-delete'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)', ParticipantBurstPeriodView.as_view(), name='dashboard-cohort-participant-burst-period'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/configuration', ParticipantBurstPeriodConfigurationView.as_view(), name='dashboard-cohort-participant-burst-period-configuration'),

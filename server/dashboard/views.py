@@ -77,6 +77,7 @@ from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .forms import BurstPeriodForm
+from .forms import ClockFacePairForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
@@ -2111,3 +2112,82 @@ class ClockFaceList(TemplateView):
             'clock_faces': clock_faces
         }
 
+
+class ParticipantClockFaceView(ParticipantView):
+
+    template_name = 'dashboard/participant-clock-face.html'
+
+    def get_clock_face(self):
+        if not self.participant.user:
+            return None
+        try:
+            return ClockFace.objects.get(
+                user = self.participant.user
+            )
+        except ClockFace.DoesNotExist:
+            return None
+
+    def get_recent_clock_face_logs(self):
+        if not self.participant.user:
+            return []
+        clock_face_logs = ClockFaceLog.objects.filter(
+            user = self.participant.user,
+            time__gte = timezone.now() - timedelta(days=7)
+        ).all()
+        return list(clock_face_logs)
+
+    def get_recent_step_counts(self):
+        if not self.participant.user:
+            return []
+        step_counts = StepCount.objects.filter(
+            user = self.participant.user,
+            start__gte = timezone.now() - timedelta(days=7)
+        ).all()
+        return list(step_counts)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pair_form'] = ClockFacePairForm()
+        context['clock_face'] = self.get_clock_face()
+
+        clock_face_logs = self.get_recent_clock_face_logs()
+        if clock_face_logs:
+            context['last_log'] = clock_face_logs[-1]
+            context['log_count'] = len(clock_face_logs)
+            
+        step_counts = self.get_recent_step_counts()
+        if step_counts:
+            context['last_step_count'] = step_counts[-1]
+            context['step_count_count'] = len(step_counts)
+        return context
+
+    def post(self, request, **kwargs):
+        clock_face = self.get_clock_face()
+        if clock_face:
+            clock_face.delete()
+            messages.add_message(request, messages.SUCCESS, 'Unpaired clock face')
+        else:
+            pair_form = ClockFacePairForm(request.POST)
+            if pair_form.is_valid():
+                pin = pair_form.cleaned_data['pin']
+                try:
+                    clock_face = ClockFace.objects.get(
+                        pin = pin,
+                        user = None
+                    )
+                    clock_face.user = self.participant.user
+                    clock_face.save()
+                    messages.add_message(request, messages.SUCCESS, 'Paired participant')
+                except ClockFace.DoesNotExist:
+                    messages.add_message(request, messages.ERROR, 'Pin does not exist, or is deactivated')
+            else:
+                messages.add_message(request, messages.ERROR, 'Invalid form')
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant-clock-face',
+                kwargs = {
+                    'cohort_id':self.cohort.id,
+                    'participant_id': self.participant.heartsteps_id
+                }
+            )
+        )

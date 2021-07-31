@@ -32,4 +32,8 @@ class BurstPeriodForm(forms.ModelForm):
         model = BurstPeriod
         fields = ['start', 'end']
 
+class ClockFacePairForm(forms.Form):
+    pin = forms.CharField(
+        required=True
+    )
 
