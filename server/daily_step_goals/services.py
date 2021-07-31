@@ -77,16 +77,11 @@ class StepGoalsService():
         all_days = Day.objects.all().order_by('-date')
         index_of_today = len(all_days)
 
-        data = open("step-multipliers.csv")
+        with open('step-multipliers.csv', 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=',')
+            multipliers = list(csv_reader)
 
-        file = csv.dictReader(data)
-
-        multipliers = []
-
-        for col in file:
-            multipliers.append(col['multiplier'])
-
-        multiplier = multipliers[index_of_today]
+        multiplier = multipliers[index_of_today][1]
 
         if ordered:
             for step in ordered:
