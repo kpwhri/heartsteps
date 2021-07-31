@@ -29,6 +29,10 @@ from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
+
+
+from fitbit_clock_face.models import Summary as FitbitClockFaceSummary
+from fitbit_clock_face.models import StepCount as FitbitClockFaceStepCount
 from watch_app.models import StepCount as WatchAppStepCount
 from watch_app.models import WatchInstall
 
@@ -264,6 +268,7 @@ class DashboardParticipantQuerySet(models.QuerySet):
             'contact_information': self._fetch_contact_information,
             'page_views': self._fetch_page_views,
             'fitbit_account': self._fetch_fitbit_account,
+            'fitbit_clock_face_summary': self._fetch_fitbit_clock_face_summary,
             'walking_suggestion_survey_summary': self._fetch_walking_suggestion_survey_summary
         }
         updated_lookups = ()
@@ -278,7 +283,7 @@ class DashboardParticipantQuerySet(models.QuerySet):
         for lookup in secondary_lookups:
             lookup_functions[lookup]()
 
-    def prefetch_walking_suggestion_survey_summary():
+    def prefetch_walking_suggestion_survey_summary(self):
         return self.prefetch_related('walking_suggestion_survey_summary')
 
     def _fetch_walking_suggestion_survey_summary(self):
@@ -357,6 +362,39 @@ class DashboardParticipantQuerySet(models.QuerySet):
                 account_id = fitbit_account_id_by_user_id[participant.user.id]
                 if account_id in activity_summaries_by_account_id:
                     participant._fitbit_activity_summary = activity_summaries_by_account_id[fitbit_account_id_by_user_id[participant.user.id]]
+
+    def prefetch_clock_face_summary(self):
+        return self.prefetch_related('fitbit_clock_face_summary')
+
+    def _fetch_fitbit_clock_face_summary(self):
+        user_ids = [p.user.id for p in self._result_cache if p.user]
+        summary_by_user_id = {}
+        for user_id in user_ids:
+            summary_by_user_id[user_id] = {}
+
+        for watch_install in WatchInstall.objects.filter(user_id__in=user_ids).order_by('created').all():
+            summary_by_user_id[watch_install.user_id].update({
+                'installed': True,
+                'created': watch_install.created,
+                'last_paired': watch_install.updated,
+                'version': FitbitClockFaceStepCount.StepCountSources.FIRST
+            })        
+
+        for summary in FitbitClockFaceSummary.objects.filter(user_id__in = user_ids).all():
+            summary_by_user_id[summary.user_id].update({
+                'installed': True if summary.clock_face else False,
+                'pin': summary.clock_face.pin if summary.clock_face.pin else None,
+                'created': summary.clock_face.created if summary.clock_face else None,
+                'last_paired': None,
+                'version': FitbitClockFaceStepCount.StepCountSources.SECOND,
+                'last_log': summary.last_log,
+                'last_step_count': summary.last_step_count
+            })
+
+        for participant in self._result_cache:
+            if participant.user_id in summary_by_user_id:
+                participant._fitbit_clock_face_summary = summary_by_user_id[participant.user_id]
+
 
 class DashboardParticipant(Participant):
 
@@ -659,25 +697,51 @@ class DashboardParticipant(Participant):
             return morning_message.date
         return None
 
-    def watch_app_installed_date(self):
-        return None
-        install = WatchInstall.objects.filter(
-            user = self.user
-        ).order_by('created').last()
-        if install:
-            return install.created
-        else:
-            return None
+    @property
+    def fitbit_clock_face_summary(self):
+        return getattr(self, '_fitbit_clock_face_summary', None)
 
-    def last_watch_app_data(self):
+    @property
+    def fitbit_clock_face_installed(self):
+        if self.fitbit_clock_face_summary and 'installed' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['installed']
+        return False
+
+    @property
+    def fitbit_clock_face_created(self):
+        if self.fitbit_clock_face_summary and 'created' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['created']
         return None
-        last_step_count = WatchAppStepCount.objects.filter(
-            user = self.user
-        ).order_by('start').last()
-        if last_step_count:
-            return last_step_count.created
-        else:
-            return None
+
+    @property
+    def fitbit_clock_face_pin(self):
+        if self.fitbit_clock_face_summary and 'pin' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['pin']
+        return False
+
+    @property
+    def fitbit_clock_face_version(self):
+        if self.fitbit_clock_face_summary and 'version' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['version']
+        return False
+
+    @property
+    def fitbit_clock_face_last_paired(self):
+        if self.fitbit_clock_face_summary and 'last_paired' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['last_paired']
+        return False
+
+    @property
+    def last_fitbit_clock_face_log(self):
+        if self.fitbit_clock_face_summary and 'last_log' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['last_log']
+        return None
+
+    @property
+    def last_fitbit_clock_face_step_count(self):
+        if self.fitbit_clock_face_summary and 'last_step_count' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['last_step_count']
+        return None
 
     @property
     def last_text_sent(self):

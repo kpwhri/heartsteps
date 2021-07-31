@@ -7,6 +7,60 @@ from django.contrib.auth.models import User
 
 from days.services import DayService
 
+class Summary(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = '+'
+    )
+    clock_face = models.ForeignKey(
+        'ClockFace',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+    last_log = models.ForeignKey(
+        'ClockFaceLog',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name='+'
+    )
+    last_step_count = models.ForeignKey(
+        'StepCount',
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
+
+    def update(self):
+        self.clock_face = self.get_active_clock_face()
+        self.last_log = self.get_last_log()
+        self.last_step_count = self.get_last_step_count()
+        self.save()
+
+    def get_active_clock_face(self):
+        if not self.user:
+            return None
+        return ClockFace.objects.filter(user = self.user) \
+        .order_by('created') \
+        .last()
+
+    def get_last_log(self):
+        if not self.user:
+            return None
+        return ClockFaceLog.objects.filter(user = self.user) \
+        .order_by('time') \
+        .last()
+
+    def get_last_step_count(self):
+        if not self.user:
+            return None
+        return StepCount.objects.filter(
+            user = self.user
+        ) \
+        .order_by('start') \
+        .last()
+
 class ClockFace(models.Model):
     pin = models.CharField(
         max_length = 10,
