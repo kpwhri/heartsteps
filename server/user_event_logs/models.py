@@ -6,8 +6,10 @@ User = get_user_model()
 
 class EventLog(models.Model):
 
-    SUCCSESS = 'success'
+    SUCCESS = 'success'
     ERROR = 'error'
+    INFO = 'info'
+    DEBUG = 'debug'
 
     user = models.ForeignKey(
         User,
