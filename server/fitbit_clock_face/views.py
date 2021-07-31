@@ -6,7 +6,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import ClockFace
+from locations.services import LocationService
+
+from .models import ClockFace, StepCount
 from .models import ClockFaceLog
 from .models import User
 from .tasks import update_step_counts
@@ -127,6 +129,16 @@ class ClockFaceStepCounts(APIView):
                     token = request.META['HTTP_CLOCK_FACE_TOKEN']
                 )
                 if clock_face.user:
+                    if 'location' in request.data:
+                        latitude = request.data['location']['latitude'] if 'latitude' in request.data['location'] else None
+                        longitude = request.data['location']['longitude'] if 'longitude' in request.data['location'] else None
+                        if latitude and longitude:
+                            service = LocationService(user = clock_face.user)
+                            service.update_location({
+                                'latitude': latitude,
+                                'longitude': longitude,
+                                'source': StepCount.StepCountSources.SECOND
+                            })
                     if 'step_counts' in request.data and isinstance(request.data['step_counts'], list):
                         for step_count in request.data['step_counts']:
                             time = datetime.utcfromtimestamp(step_count['time']/1000).astimezone(pytz.UTC)
@@ -137,13 +149,12 @@ class ClockFaceStepCounts(APIView):
                                     'steps': step_count['steps']
                                 }
                             )
-                        update_step_counts.apply_async(
-                            kwargs = {
-                                'username': clock_face.user.username
-                            }
-                        )
-                        return Response('', status=status.HTTP_201_CREATED)
-                    return Response('step_counts not included', status=status.HTTP_400_BAD_REQUEST)
+                    update_step_counts.apply_async(
+                        kwargs = {
+                            'username': clock_face.user.username
+                        }
+                    )
+                    return Response('', status=status.HTTP_201_CREATED)
             except ClockFace.DoesNotExist:
                 pass
         return Response('Pin and Token Invalid', status=status.HTTP_401_UNAUTHORIZED)

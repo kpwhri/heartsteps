@@ -378,10 +378,7 @@ class CohortView(CohortListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cohort'] = {
-            'id': self.cohort.id,
-            'name': self.cohort.name
-        }
+        context['cohort'] = self.cohort
         return context
 
 class DashboardListView(CohortView):
@@ -405,6 +402,7 @@ class DashboardListView(CohortView):
         participants = self.query_participants() \
         .prefetch_contact_information() \
         .prefetch_fitbit_account() \
+        .prefetch_clock_face_summary() \
         .prefetch_page_views()
 
         context['participant_list'] = participants
