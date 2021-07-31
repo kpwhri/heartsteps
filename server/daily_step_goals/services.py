@@ -23,18 +23,6 @@ class StepGoalsService():
         )
         return new_goal
 
-    # def createMultiplierList(self):
-    #     data = open("step-multipliers.csv")
-    #
-    #     file = csv.dictReader(data)
-    #
-    #     multipliers = []
-    #
-    #     for col in file:
-    #         multipliers.append(col['multiplier'])
-    #
-    #     return multipliers
-
     def get_step_goal(self, date=None):
         """returns step goal
 
