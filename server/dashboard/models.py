@@ -388,7 +388,8 @@ class DashboardParticipantQuerySet(models.QuerySet):
                 'last_paired': None,
                 'version': FitbitClockFaceStepCount.StepCountSources.SECOND,
                 'last_log': summary.last_log,
-                'last_step_count': summary.last_step_count
+                'last_step_count': summary.last_step_count,
+                'last_location': summary.last_location
             })
 
         for participant in self._result_cache:
@@ -741,6 +742,12 @@ class DashboardParticipant(Participant):
     def last_fitbit_clock_face_step_count(self):
         if self.fitbit_clock_face_summary and 'last_step_count' in self.fitbit_clock_face_summary:
             return self.fitbit_clock_face_summary['last_step_count']
+        return None
+
+    @property
+    def last_location(self):
+        if self.fitbit_clock_face_summary and 'last_location' in self.fitbit_clock_face_summary:
+            return self.fitbit_clock_face_summary['last_location']
         return None
 
     @property
