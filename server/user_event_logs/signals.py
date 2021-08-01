@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save, post_save
 from .models import AuditEntry, EventLog
 from daily_step_goals.models import StepGoal
 from activity_summaries.models import Day
+from fitbit_api.models import FitbitSubscriptionUpdate, FitbitDeviceUpdate
 
 # The following signal receiver signals when the user logs in
 @receiver(user_logged_in)
@@ -34,6 +35,21 @@ def day_handler(sender, **kwargs):
     EventLog.objects.create(action='NEW DAY CREATED', status='SCS')
     print("New day created")
 
+# FITBIT UPDATE USER LOGGING
+
+# Fitbit Subscription Update
+@receiver(post_save, sender=FitbitSubscriptionUpdate)
+def fitbit_subscription_handler(sender, **kwargs):
+    EventLog.objects.create(action='FITBIT SUBSCRIPTION UPDATED', status='SCS')
+    print("Fitbit subscription updated")
+
+# Fitbit Device Update
+@receiver(post_save, sender=FitbitDeviceUpdate)
+def fitbit_subscription_handler(sender, **kwargs):
+    EventLog.objects.create(action='FITBIT DEVICE UPDATED', status='SCS')
+    print("Fitbit device updated")
+
+# TEST SIGNALS
 # The following signal receiver signals when a new audit entry is saved
 @receiver(post_save, sender=AuditEntry)
 def my_audit_handler(sender, **kwargs):
