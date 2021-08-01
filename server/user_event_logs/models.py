@@ -7,11 +7,12 @@ from django.dispatch import receiver
 User = get_user_model()
 
 class EventLog(models.Model):
-
-    SUCCESS = 'success'
-    ERROR = 'error'
-    INFO = 'info'
-    DEBUG = 'debug'
+    STATES = [
+        ('SCS', 'Success'),
+        ('ERR', 'Error'),
+        ('INF', 'Info'),
+        ('DBG', 'Debug'),
+    ]
 
     user = models.ForeignKey(
         User,
@@ -19,10 +20,9 @@ class EventLog(models.Model):
         related_name = '+',
         on_delete = models.CASCADE
     )
-    status = models.CharField(max_length=25)
-
-    message = models.CharField(max_length=250, null=True)
-    data = models.JSONField(null=True)
+    status = models.CharField(max_length=3, choices=STATES)
+    action = models.CharField(max_length=250, null=True)
+    # data = models.JSONField(null=True)
 
 class AuditEntry(models.Model):
     action = models.CharField(max_length=64)
