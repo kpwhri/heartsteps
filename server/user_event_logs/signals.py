@@ -3,8 +3,9 @@ from django.dispatch import receiver
 from django.core.signals import request_finished
 from django.db.models.signals import pre_save, post_save
 
-from daily_step_goals.models import StepGoal
 from .models import AuditEntry, EventLog
+from daily_step_goals.models import StepGoal
+from activity_summaries.models import Day
 
 # The following signal receiver signals when the user logs in
 @receiver(user_logged_in)
@@ -21,10 +22,17 @@ def log_user_login_failed(sender, credentials, request, **kwargs):
 def log_user_logout(sender, request, user, **kwargs):
     print('user {} logged out through page {}'.format(user.username, request.META.get('HTTP_REFERER')))
 
-# The following signal receiver signals when a new step goal is created
+# The following signal receiver signals when a new step goal is created in the database
 @receiver(post_save, sender=StepGoal)
-def my_handler(sender, **kwargs):
+def step_goal_handler(sender, **kwargs):
+    EventLog.objects.create(action='NEW STEP GOAL CREATED', status='SCS')
     print("New daily step goal saved")
+
+# The following signal receiver signals when a new Day is created in the database
+@receiver(post_save, sender=Day)
+def day_handler(sender, **kwargs):
+    EventLog.objects.create(action='NEW DAY CREATED', status='SCS')
+    print("New day created")
 
 # The following signal receiver signals when a new audit entry is saved
 @receiver(post_save, sender=AuditEntry)
