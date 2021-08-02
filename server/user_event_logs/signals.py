@@ -8,6 +8,7 @@ from daily_step_goals.models import StepGoal
 from activity_summaries.models import Day
 from fitbit_api.models import FitbitSubscriptionUpdate, FitbitDeviceUpdate
 from watch_app.models import StepCount
+from hourly_tasks.models import HourlyTask
 
 # The following signal receiver signals when the user logs in
 @receiver(user_logged_in)
@@ -55,6 +56,13 @@ def fitbit_subscription_handler(sender, **kwargs):
 def fitbit_subscription_handler(sender, **kwargs):
     EventLog.objects.create(action='WATCH APP STEP COUNT UPDATED', status='SCS')
     print("Watch app steps updated")
+
+# HOURLY TASK USER LOGGING
+
+@receiver(post_save, sender=HourlyTask)
+def fitbit_subscription_handler(sender, **kwargs):
+    EventLog.objects.create(action='HOURLY TASK UPDATED', status='SCS')
+    print("Hourly task updated")
 
 # TEST SIGNALS
 # The following signal receiver signals when a new audit entry is saved
