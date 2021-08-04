@@ -24,6 +24,20 @@ class EventLog(models.Model):
     action = models.CharField(max_length=250, null=True)
     # data = models.JSONField(null=True)
 
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def log(user, message, status='SCS'):
+        return EventLog.objects.create(user=user, status=status, message=message)
+
+    def get_logs(user, status=None):
+        base_query = EventLog.objects.filter(user=user).order_by('-created')
+
+        if not status is None:
+            base_query = base_query.filter(status=status)
+
+            return base_query.all()
+
+
 class AuditEntry(models.Model):
     action = models.CharField(max_length=64)
     ip = models.GenericIPAddressField(null=True)
