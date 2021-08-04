@@ -17,7 +17,6 @@ export class AppService {
         private analyticsService: AnalyticsService
     ) {
         this.participantService.participant.subscribe((participant) => {
-            console.log('AppService', 'got participant', participant);
             Promise.all([
                 this.setupAuthorization(participant),
                 this.setupNotifications(participant)

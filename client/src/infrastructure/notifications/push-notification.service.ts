@@ -238,7 +238,6 @@ export class PushNotificationService {
             this.initialized.next(true);
         } else {
             this.initialized.next(true);
-            console.log('Initialized!');
         }
     }
 

@@ -19,10 +19,8 @@ export class MyApp {
         private appService: AppService,
         private router: Router
     ) {
-        console.log('AppComponent', 'starting...')
         // subscribe to the participant service to get the participant info who is looking at the screen right now
         this.participantService.participant.subscribe((participant) => {
-            console.log('AppComponent', 'got participant', participant);
             this.updateRoute(participant);
         });
 
@@ -42,7 +40,6 @@ export class MyApp {
             return this.appService.setup()  // go to the initial app service setup logic
         })
         .then(() => {                   // after that
-            console.log('AppComponent', 'setup');
             statusBar.styleDefault();   // make the status bar appear
             splashScreen.hide();        // make the splashScreen go away
         });
