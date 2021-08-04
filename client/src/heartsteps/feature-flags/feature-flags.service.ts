@@ -1,7 +1,10 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
+import { StorageService } from "@infrastructure/storage.service";
 import { BehaviorSubject } from "rxjs";
 import { FeatureFlags } from "./FeatureFlags";
+
+const storageKey: string = "feature-flags";
 
 @Injectable()
 export class FeatureFlagService {
@@ -11,12 +14,22 @@ export class FeatureFlagService {
     public currentFeatureFlags = this.featureFlags.asObservable();
     public featureFlagRefreshInterval: any;
 
-    constructor(private heartstepsServer: HeartstepsServer) {
-        this.getFeatureFlags();
-        // TODO: check to make sure we aren't making too many frequent, unnecessary requestss
+    constructor(
+        private heartstepsServer: HeartstepsServer,
+        private storage: StorageService
+    ) {
+        // TODO: change pipe(1) to reflect new updates to currentFeatureFlags behaviorsubject
+
+        // this.get instantly returns local feature flags
+        // so there is no delay on client waiting for API request
+        this.get();
+        // once user has local flags, attempt to refresh flags with live db data
+        this.refreshFeatureFlags();
+        // TODO: CHANGE TO LARGER INTERVAL FOR LESS REQUESTS, DEBUGGING ONLY
         this.featureFlagRefreshInterval = setInterval(() => {
+            // console.log("FF: running interval");
             this.refreshFeatureFlags();
-        }, 10000);
+        }, 5000);
     }
 
     // pull feature flags from django
@@ -24,13 +37,53 @@ export class FeatureFlagService {
         return this.heartstepsServer.get("/feature-flags/", {});
     }
 
-    // re-initialize this.featureFlags and returns current flags in array
-    public getFeatureFlags(): FeatureFlags {
-        this.getRecentFeatureFlags().then((data) => {
+    // returns current flags in string form
+    public getFeatureFlagList(): string[] {
+        // console.log("FF: getFeatureFlags()");
+        if (this.featureFlags.value.flags) {
+            // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
+            let flags: string = this.featureFlags.value.flags;
+            let flags_list: string[] = flags.split(", ");
+            return flags_list;
+        }
+        return [];
+    }
+
+    // tries to get feature flags from local storage and if fails, pull from django db
+    public get(): Promise<FeatureFlags> {
+        // console.log("FF: get()");
+        return this.loadLocalFeatureFlags().catch(() => {
+            // console.log("FF: catch inside get()");
+            return this.refreshFeatureFlags();
+        });
+    }
+
+    // load feature flags on offline local storage
+    public loadLocalFeatureFlags(): Promise<FeatureFlags> {
+        // console.log("FF: loadLocalFeatureFlags()");
+        return this.storage.get(storageKey).then((data) => {
             let flags = this.deserializeFeatureFlags(data);
             this.featureFlags.next(flags);
+            return flags;
         });
-        return this.featureFlags.value;
+    }
+
+    // re-assign local feature flags to flagObject
+    public set(flagObject: FeatureFlags): Promise<FeatureFlags> {
+        // console.log("FF: set()");
+        return this.storage
+            .set(storageKey, this.serialize(flagObject))
+            .then(() => {
+                return flagObject;
+            });
+    }
+
+    // remove feature flag key and value from local storage
+    public clear(): Promise<boolean> {
+        // console.log("FF: clear()");
+        return this.storage.remove(storageKey).then(() => {
+            return true;
+        });
     }
 
     public addFeatureFlag(new_flag: string): void {
@@ -55,6 +108,14 @@ export class FeatureFlagService {
             });
     }
 
+    // serialize feature flag object into generic dictionary object
+    public serialize(flagObject: FeatureFlags) {
+        return {
+            uuid: flagObject.uuid,
+            flags: flagObject.flags,
+        };
+    }
+
     // explicitly declare FeatureFlags to avoid javascript type errors
     public deserializeFeatureFlags(data: any): FeatureFlags {
         const featureFlags = new FeatureFlags();
@@ -63,18 +124,10 @@ export class FeatureFlagService {
         return featureFlags;
     }
 
-    public hasNotificationCenterFlag(): boolean {
-        // TODO: change magic string
-        return this.hasFlag("notification_center");
-    }
-
     public hasFlag(flag: string): boolean {
-        if (this.featureFlags.value.flags) {  // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
-            let flags: string = this.featureFlags.value.flags;
-            let flags_list: string[] = flags.split(", ");
-            if (flags_list.indexOf(flag) > -1) {
-                return true;
-            }
+        let flags_list: string[] = this.getFeatureFlagList();
+        if (flags_list.indexOf(flag) > -1) {
+            return true;
         }
         return false;
     }
@@ -83,13 +136,15 @@ export class FeatureFlagService {
         let returnArray = new Array<string>();
         let namespaceHeading = namespace;
 
-        if (!namespaceHeading.endsWith('.')) {
+        if (!namespaceHeading.endsWith(".")) {
             namespaceHeading = namespaceHeading + ".";
         }
 
-        if (this.featureFlags.value.flags) {  // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
-            let flags: string = this.featureFlags.value.flags;
-            let flags_list: string[] = flags.split(",").map(function (x) { return x.trim();});
+        let flags_list: string[] = this.getFeatureFlagList();
+        if (flags_list !== []) {
+            flags_list = flags_list.map(function (x) {
+                return x.trim();
+            });
 
             flags_list.forEach((flag) => {
                 if (flag.startsWith(namespaceHeading)) {
@@ -100,7 +155,36 @@ export class FeatureFlagService {
         return returnArray;
     }
 
-    public refreshFeatureFlags() {
-        this.getFeatureFlags();
+    // TODO: implement better error checking to throw errors if API fails
+    // refreshes feature flags with django and if fails, load from local storage
+    public refreshFeatureFlags(): Promise<FeatureFlags> {
+        // console.log("FF: refreshFeatureFlags()");
+        let localFlags: FeatureFlags;
+        let areLocalFlags: boolean = false;
+        this.storage.get(storageKey).then((data) => {
+            localFlags = this.deserializeFeatureFlags(data);
+            areLocalFlags = true;
+        });
+
+        return this.getRecentFeatureFlags()
+            .then((data) => {
+                if (!data.uuid || data.uuid == "") {
+                    throw "Could not refresh feature flags: invalid UUID";
+                }
+                if (areLocalFlags) {
+                    if (localFlags.uuid !== data.uuid) {
+                        throw "Could not refresh feature flags: UUID does not match";
+                    }
+                }
+                // console.log("FF: refreshFeatureFlags promise SUCCESS", data);
+
+                let flags = this.deserializeFeatureFlags(data);
+                this.featureFlags.next(flags);
+                return this.set(flags);
+            })
+            .catch(() => {
+                // console.log("FF: catch inside refreshFeatureFlags()");
+                return this.loadLocalFeatureFlags();
+            });
     }
 }

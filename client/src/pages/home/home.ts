@@ -137,6 +137,6 @@ export class HomePage implements OnInit, OnDestroy {
     // TODO: IMPORTANT MAKE CALLS WAY LESS FREQUENTLY
     public notificationCenterFlag(): boolean {
         // console.log("home.ts notification center flag called");
-        return this.featureFlagService.hasNotificationCenterFlag();
+        return this.featureFlagService.hasFlag("notification_center");
     }
 }
