@@ -206,8 +206,8 @@ $ gcloud container clusters get-credentials dev-cluster --region=us-central1-a
 $ kubectl get pods
 
 # You'll get a long list of running pods
-# let's assume one is named heartsteps-worker-123456789-abc
-$ kubectl exec -it heartsteps-worker-123456789-abc 
+# let's assume one is named heartsteps-worker-123456789-abc. You can run `bash` in it by
+$ kubectl exec -it heartsteps-worker-123456789-abc bash
 
 ```
 
@@ -362,3 +362,5 @@ The purposes of the Project Kanban Board are:
 2. Managing the cards/issues/projects is not Junghwan's sole authority. Anybody can comment, categorize, or edit the decision.
 3. This is more than one man job. Please get involved if you find anything odd or unfinished.
 4. Overdocument everything. Information is vital.
+
+
