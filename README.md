@@ -314,3 +314,49 @@ The heartsteps client applications store data in the browser's localstorage whic
 A common issue is being logged in with an Authorization Token that was created for a different system.
 It's good practice to delete the localstorage occasionally. 
 
+## Github Management Rules
+
+### Issues
+1. Everything is managed as **issues**.
+  - Bugs, new feature, server setting change, etc.
+2. Most issues (except Bugs) are recommended to include the **prerequisites** (if needed) and the **completion requirements** in the form of checkbox lists.
+  - Bug issue may use "Bugs" issue template, but not required.
+3. As default, all issues are tagged with "needs initial review"
+4. Each issues are screened with the criteria including (but not limited):
+  - are the description and completion requirements detailed enough?
+  - is it a bug that causes serious operational problem?
+  - if it is handled now, is it possible to cause potential operational risks?
+  - are all prerequisites resolved?
+  - is it a long term vision?
+5. After review, the issue is marked with appropriate labels. See the label list.
+6. If the issue can be, and should be handled in a month, it is added to the current month's project kanban board.
+7. If the issue is resolved, the following should be done
+  - the issue should be closed
+  - if the issue is included as a prerequisite in other issues, go and check the tickbox.
+  - if the issue is included in last month's "leftover" issue, go and check the tickbox.
+  - if the issue is referred in any way, go and edit it appropritately.
+
+
+### Project Kanban Board: Timeline
+The purposes of the Project Kanban Board are:
+  - scheduling timeline (monthly project board)
+  - bird's eye view on who's working on what
+
+1. At the end of each month, a new kanban board (hereinafter, "project") is created: ***MonthName Year***
+2. Each project has three columns: To do, In progress, Done
+3. All new issues are triaged into "To do" column.
+4. Issues in "To do" can be moved to "In progress" **only if** all of the following conditions are met:
+  - the issue is assigned (unassigned issues cannot move) 
+  - the assignee began to work on it (if they haven't started yet (even if they want/plan to), the issue cannot move) 
+  - all prerequisites are resolved or equivalent
+5. Issues in "In progress" can be moved to "Done" **only if** all of the following conditions are met:
+  - the assignee thinks the issue is resolved
+  - the assignee does not work on it any more
+  - all completion criteria are checked or deleted
+6. At the end of each month, the issues in first two columns (i.e., To do, In progress) are summarized into a new issue to be put in the next month's "To Do" column. We don't add the issue again as a separate card.
+
+### Misc Rule
+1. Github issue management is not a task assignment but a collaborative process.
+2. Managing the cards/issues/projects is not Junghwan's sole authority. Anybody can comment, categorize, or edit the decision.
+3. This is more than one man job. Please get involved if you find anything odd or unfinished.
+4. Overdocument everything. Information is vital.
