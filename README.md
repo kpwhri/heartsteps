@@ -211,6 +211,43 @@ $ kubectl exec -it heartsteps-worker-123456789-abc bash
 
 ```
 
+### Debugging an iOS app locally
+
+Try to do the following and you can optimize workflow by yourself. You don't have to use docker, but for the ease of setting, docker is used.
+
+1. Run docker desktop
+2. Delete platform directory (for demo)
+3. Go into client container (through docker UI)
+4. Build ios app
+
+        $ ionic cordova prepare ios
+
+5. Go to platform/ios
+6. Update pod (OneSignal update) - one time thing (it’s because we deleted platform directory)
+
+        $ cd platform/ios
+        $ pod repo update
+        $ pod install
+
+7. Open platform/ios/HeartSteps.xcworkspace file. Not the project file.
+8. In XCode, go to File > Workspace Settings menu and Change “Build System” to “Legacy Build System”
+9. Click “HeartSteps” in the left pane (root of the tree)
+10. In the right pane, change identifier: net.heartsteps.kpw -> net.heartsteps.dev
+11. Change profile: Your own profile (if none, add one)
+12. Remove notification capability (See the bottom in the right pane)
+13. Build
+14. Open client/src/pages/welcome/welcome.ts
+15. Change code as you want in goToEnrollPage() (i.e., ```console.log("test");``` )
+16. Build iOS app again in the docker
+
+        $ ionic cordova prepare ios
+
+17. Open workspace file again
+18. Remove notification capability
+19. Build & Run
+20. See the console
+
+
 ### HeartSteps Server Database
 The heartsteps-server uses a postgres database in Google Cloud's SQL Database. To access the database, you will need a credentials file with access permisisons.
 
