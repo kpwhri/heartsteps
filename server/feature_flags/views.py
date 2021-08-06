@@ -19,16 +19,20 @@ class FeatureFlagsList(APIView):
                 user__username="test").first()
             serialized = FeatureFlagsSerializer(feature_flags)
             return Response(serialized.data, status=status.HTTP_200_OK)
-            return Response({"No participant, please log in"}, status.HTTP_400_BAD_REQUEST)
-
-        feature_flags = FeatureFlags.objects.filter(user=request.user).first()
-
-        if not feature_flags or feature_flags == []:
-            return Response(FeatureFlagsSerializer([]).data, status.HTTP_200_OK)
-            
-            return Response({"No feature flags object for user"}, status.HTTP_400_BAD_REQUEST)
-
+        
+        # if user has featureflag object
+        if FeatureFlags.exists(request.user):
+            # return the first object
+            # TODO: replace first() to get(). Because, it is controlled by unique user
+            feature_flags = FeatureFlags.objects.filter(user=request.user).first()
+        else:
+            # if not, create a blank one and return it
+            feature_flags = FeatureFlags.create(user=request.user)
+        
+        # serialize featureflags                    
         serialized = FeatureFlagsSerializer(feature_flags)
+        
+        # return serialized featureflags with 200
         return Response(serialized.data, status=status.HTTP_200_OK)
 
     def post(self, request):
