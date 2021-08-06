@@ -27,6 +27,7 @@ class FeatureFlagsTestCase(TestCase):
 
         # create function's arg 2 should be a string
         self.assertRaises(AssertionError, FeatureFlags.create, self.user, 1)
+        self.assertRaises(AssertionError, FeatureFlags.create, self.user.username, 1)
 
     def test_create_1_1(self):
         """Check if create function works fine - without flags"""
@@ -40,6 +41,22 @@ class FeatureFlagsTestCase(TestCase):
         """Check if create function works fine - with flags"""
         # create "test" featureflag
         obj = FeatureFlags.create(self.user, "test")
+
+        self.assertEquals(obj.user, self.user)
+        self.assertEquals(obj.flags, "test")
+        
+    def test_create_1_3(self):
+        """Check if create function works fine - without flags, with string username"""
+        # create blank featureflags
+        obj = FeatureFlags.create(self.user.username)
+
+        self.assertEquals(obj.user, self.user)
+        self.assertEquals(obj.flags, "")
+
+    def test_create_1_4(self):
+        """Check if create function works fine - with flags, with string username"""
+        # create "test" featureflag
+        obj = FeatureFlags.create(self.user.username, "test")
 
         self.assertEquals(obj.user, self.user)
         self.assertEquals(obj.flags, "test")

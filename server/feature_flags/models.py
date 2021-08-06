@@ -25,23 +25,28 @@ class FeatureFlags(models.Model):
     def __str__(self):
         return self.user.username
 
-    def create(user:User, flags:str=""):
+    def create(user, flags:str=""):
         """Create a new feature flag.
         
         Arguments: 
-            user(User)
+            user(User or str)
             flags(str) optional
         
         Raises:
             FeatureFlags.FeatureFlagsExistException : if the flag exists
         """
-        assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+        if isinstance(user, str):
+            user_obj = User.objects.get(username=user)
+        elif isinstance(user, User):
+            user_obj = user
+        else:
+            assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
         assert isinstance(flags, str), "flags argument should be a string: {}".format(type(flags))
         
-        if FeatureFlags.exists(user):
+        if FeatureFlags.exists(user_obj):
             raise FeatureFlags.FeatureFlagsExistException
         
-        return FeatureFlags.objects.create(user=user, flags=flags)
+        return FeatureFlags.objects.create(user=user_obj, flags=flags)
     
     def exists(user:User):
         """check if the feature flags exist
