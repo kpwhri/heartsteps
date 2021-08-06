@@ -318,7 +318,7 @@ class FeatureFlagsListViewTest(APITestCase):
         self.user.delete()
     
     def test_get_feature_flags_1(self):
-        """get empty feature flags
+        """get empty feature flags if we don't create feature flags before
         """
         
         # force authenticated as test user
@@ -334,14 +334,49 @@ class FeatureFlagsListViewTest(APITestCase):
         self.assertEqual(response.data['flags'], '')
         
     def test_get_feature_flags_2(self):
+        """try to get feature flags without authentication
+        """
         # self.client.force_authenticate(user=self.user)
 
         # request without authentication
         response = self.client.get(reverse('feature-flags-list', kwargs={
         }))
         
-        print(response.__dict__)
-        
         self.assertEqual(200, response.status_code)
         self.assertEqual(response.data['flags'], '')
+
+    def test_get_feature_flags_3(self):
+        """get empty feature flags by creating an empty feature flag
+        """
         
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+        # create feature flags
+        FeatureFlags.create(self.user)
+        # get response
+        response = self.client.get(reverse('feature-flags-list', kwargs={
+        }))
+        
+        # if response code is 200
+        self.assertEqual(200, response.status_code)
+        # if response data is ''
+        self.assertEqual(response.data['flags'], "")
+                
+    def test_get_feature_flags_4(self):
+        """get a specific feature flags if we make that feature flags previously
+        """
+        
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+        # create feature flags
+        FeatureFlags.create(self.user, "test1, test2")
+        # get response
+        response = self.client.get(reverse('feature-flags-list', kwargs={
+        }))
+        
+        # if response code is 200
+        self.assertEqual(200, response.status_code)
+        # if response data is ''
+        self.assertEqual(response.data['flags'], "test1, test2")

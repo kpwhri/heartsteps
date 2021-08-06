@@ -16,6 +16,8 @@ class FeatureFlagsList(APIView):
         if not request.user or request.user.is_anonymous:
             # TODO: remove, only for testing purposes
             # for now, create an empty featureflag for user "test" and use it
+            # there is a test code for this logic. (test_get_feature_flags_2)
+            # if anybody change the logic here, it will make the test failing
             test_user, _ = User.objects.get_or_create(username="test")
             feature_flags = FeatureFlags.create(test_user, "")
             serialized = FeatureFlagsSerializer(feature_flags)
