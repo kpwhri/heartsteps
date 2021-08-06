@@ -101,6 +101,50 @@ You would run the client like this
 docker-compose run --service-ports client bash
 ```
 
+#### Debugging Client
+
+You might want to make a user for debugging. This is how. (I'll assume you already loaded up the docker containers)
+
+1. Create a superuser [do this in server container]
+
+        $ python manage.py createsuperuser
+
+2. Connect to staff dashboard (http://localhost:8080/dashboard)
+    - use the id and password of a superuser that you just created in step 1.
+
+3. Select a test cohort
+
+4. Select "Add participant" at the top of the screen
+
+5. Put anything as you want in those three fields. HeartSteps ID will be used as User.username (alphanumiric). Enrollment token should be "xxxx-xxxx" form. Birthyear should be normal years (such as 1980 or 2021). I recommend something with serial number. (i.e., test-01) Because you will do this again and again and you might not want to be confused. Use different prefixes for heartstep id and token, so that you can distinguish them just by looking (It will help you at some point)
+
+Now you can log in with that ***token*** and ***birthyear*** in client (http://localhost:8100)
+
+Then you can proceed the onboarding screens. At the "Fitbit" screen (the one with "Connect to Fitbit" button), you may pause and make the user enabled to bypass Fitbit connection.
+
+6. Go to Django admin page. (localhost:8080/admin) You would be authenticated already, because you logged in step 2. If not, please use the id/pw used in step 1 & 2.
+
+7. In the left section, Select Fitbit_Api > Fitbit accounts.
+
+8. On the top right corner, hit "ADD FITBIT ACCOUNT" button. 
+
+9. Fill random alphanumeric text in **Fitbit user**, **Access Token**, **Refresh Token**, and fill random 5 digit numbers in **Expires at** field.
+
+10. Click + sign under FITBIT ACCOUNT USERS (Add another fitbit account user). This will make a connection with a HeartSteps user and Fitbit Account that you are creating right now.
+
+11. Select the User you created in step 4. Technically speaking, you created a participant in step 4, and you created a User by logging in through the client app between step 5 & 6. 
+
+Now you can go back to your client (app) screen, and click "Next", then click "Skip" in the next screen (Fitbit clockface).
+
+Then you will reach to baseline screen.
+
+12. Go back to Django admin page. (localhost:8080/admin). Go to AUTHENTICATION AND AUTHORIZATION > Users. Find the user you just created. Click the ID.
+
+13. In the "Change user" page, check "Staff Status". Then click "Save".
+
+14. Go back to client app (localhost:8100) and refresh the page. It will lead you to client home. (bypassing baseline)
+
+
 ### HeartSteps FitBit
 The fitbit application is created with the [fitbit command line tools,](https://dev.fitbit.com/blog/2018-08-23-cli-tools/) and should be usable if the files are imported into [fitbit studio.](https://studio.fitbit.com)
 
