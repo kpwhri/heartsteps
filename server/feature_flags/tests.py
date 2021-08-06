@@ -380,3 +380,5 @@ class FeatureFlagsListViewTest(APITestCase):
         self.assertEqual(200, response.status_code)
         # if response data is ''
         self.assertEqual(response.data['flags'], "test1, test2")
+    
+    # TODO: make post test cases

@@ -52,7 +52,7 @@ class FeatureFlagsList(APIView):
                 return Response({"Cannot add flag"}, status.HTTP_400_BAD_REQUEST)
             remove_op = True
 
-        current_flags = FeatureFlags.objects.filter(user=request.user).first()
+        current_flags = FeatureFlags.get(request.user)
         flags_list = current_flags.flags.split(", ")
 
         # we are adding a flag
