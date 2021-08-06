@@ -12,6 +12,9 @@ class FeatureFlags(models.Model):
     class FeatureFlagsDoNotExistException(Exception):
         pass
     
+    class NoSuchUserException(Exception):
+        pass
+    
     class Meta:
         verbose_name = 'Feature Flags'
         verbose_name_plural = 'Feature Flags'
@@ -34,9 +37,13 @@ class FeatureFlags(models.Model):
         
         Raises:
             FeatureFlags.FeatureFlagsExistException : if the flag exists
+            FeatureFlags.NoSuchUserException : if the username is wrong
         """
         if isinstance(user, str):
-            user_obj = User.objects.get(username=user)
+            try:
+                user_obj = User.objects.get(username=user)
+            except User.DoesNotExist:
+                raise FeatureFlags.NoSuchUserException
         elif isinstance(user, User):
             user_obj = user
         else:
@@ -52,14 +59,25 @@ class FeatureFlags(models.Model):
         """check if the feature flags exist
 
         Args:
-            user (User)
+            user (User or str)
+            
+        Raises:
+            FeatureFlags.NoSuchUserException : if the username is wrong
 
         Returns:
             boolean: if the feature flags exist
         """
-        assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+        if isinstance(user, str):
+            try:
+                user_obj = User.objects.get(username=user)
+            except User.DoesNotExist:
+                raise FeatureFlags.NoSuchUserException
+        elif isinstance(user, User):
+            user_obj = user
+        else:
+            assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
         
-        return FeatureFlags.objects.filter(user=user).exists()
+        return FeatureFlags.objects.filter(user=user_obj).exists()
     
     def update(user:User, flags:str):
         """updates if the feature flags exist

@@ -20,7 +20,7 @@ class FeatureFlagsTestCase(TestCase):
         # create function shouldn't be called without argument
         self.assertRaises(TypeError, FeatureFlags.create)
 
-        # create function's arg 1 should be User model
+        # create function's arg 1 should be User model or string username
         self.assertRaises(AssertionError, FeatureFlags.create, 1)
         self.assertRaises(AssertionError, FeatureFlags.create, 1, "test")
         self.assertRaises(AssertionError, FeatureFlags.create, 1, 1)
@@ -60,8 +60,18 @@ class FeatureFlagsTestCase(TestCase):
 
         self.assertEquals(obj.user, self.user)
         self.assertEquals(obj.flags, "test")
+        
+    def test_create_1_5(self):
+        """Check if create function works fine - without flags, with a wrong string username"""
+        # create blank featureflags
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.create, self.user.username + "abc")
 
-    def test_create_2(self):
+    def test_create_1_6(self):
+        """Check if create function works fine - with flags, with string username"""
+        # create "test" featureflag
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.create, self.user.username + "abc", "test")
+
+    def test_create_2_1(self):
         """Check if create function's exceptions are raised correctly"""
         # create a featureFlag for the first time
         FeatureFlags.create(self.user)
@@ -69,15 +79,42 @@ class FeatureFlagsTestCase(TestCase):
         # if we create again, FeatureFlagExistsError is raised
         self.assertRaises(FeatureFlags.FeatureFlagsExistException,
                           FeatureFlags.create, self.user)
+    
+    def test_create_2_2(self):
+        """Check if create function's exceptions are raised correctly with string username: case 1"""
+        # create a featureFlag for the first time
+        FeatureFlags.create(self.user.username)
+
+        # if we create again, FeatureFlagExistsError is raised
+        self.assertRaises(FeatureFlags.FeatureFlagsExistException,
+                          FeatureFlags.create, self.user)
+
+    def test_create_2_3(self):
+        """Check if create function's exceptions are raised correctly with string username: case 2"""
+        # create a featureFlag for the first time
+        FeatureFlags.create(self.user)
+
+        # if we create again, FeatureFlagExistsError is raised
+        self.assertRaises(FeatureFlags.FeatureFlagsExistException,
+                          FeatureFlags.create, self.user.username)
+
+    def test_create_2_4(self):
+        """Check if create function's exceptions are raised correctly with string username: case 3"""
+        # create a featureFlag for the first time
+        FeatureFlags.create(self.user.username)
+
+        # if we create again, FeatureFlagExistsError is raised
+        self.assertRaises(FeatureFlags.FeatureFlagsExistException,
+                          FeatureFlags.create, self.user.username)
 
     def test_exists_0(self):
         """Check exists function's prototype"""
         # exists function shouldn't be called without argument
         self.assertRaises(TypeError, FeatureFlags.exists)
-        # exists function's arg 1 should be User model
+        # exists function's arg 1 should be User model or string username
         self.assertRaises(AssertionError, FeatureFlags.exists, 1)
 
-    def test_exists_1(self):
+    def test_exists_1_1(self):
         """Check if exists function works fine"""
         # check if it exists
         ret1 = FeatureFlags.exists(self.user)
@@ -88,6 +125,46 @@ class FeatureFlagsTestCase(TestCase):
         # returns true
         ret2 = FeatureFlags.exists(self.user)
         self.assertTrue(ret2)
+        
+    def test_exists_1_2(self):
+        """Check if exists function works fine with string username: case 1"""
+        # check if it exists
+        ret1 = FeatureFlags.exists(self.user.username)
+        # returns false
+        self.assertFalse(ret1)
+        # once create it
+        FeatureFlags.create(self.user.username)
+        # returns true
+        ret2 = FeatureFlags.exists(self.user.username)
+        self.assertTrue(ret2)
+    
+    def test_exists_1_3(self):
+        """Check if exists function works fine with string username: case 2"""
+        # check if it exists
+        ret1 = FeatureFlags.exists(self.user)
+        # returns false
+        self.assertFalse(ret1)
+        # once create it
+        FeatureFlags.create(self.user.username)
+        # returns true
+        ret2 = FeatureFlags.exists(self.user)
+        self.assertTrue(ret2)
+
+    def test_exists_1_4(self):
+        """Check if exists function works fine with string username: case 3"""
+        # check if it exists
+        ret1 = FeatureFlags.exists(self.user.username)
+        # returns false
+        self.assertFalse(ret1)
+        # once create it
+        FeatureFlags.create(self.user)
+        # returns true
+        ret2 = FeatureFlags.exists(self.user.username)
+        self.assertTrue(ret2)
+
+    def test_exists_2(self):
+        """Check if exists() raises exception when username is wrong"""
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.exists, self.user.username + "abc")
 
     def test_update_0(self):
         """Check update()'s prototype"""
