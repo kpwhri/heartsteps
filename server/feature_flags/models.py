@@ -6,7 +6,10 @@ import uuid
 User = get_user_model()
 
 class FeatureFlags(models.Model):
-    class FeatureFlagExistsError(Exception):
+    class FeatureFlagExistsException(Exception):
+        pass
+    
+    class FeatureFlagsDoNotExistException(Exception):
         pass
     
     class Meta:
@@ -27,7 +30,7 @@ class FeatureFlags(models.Model):
         assert isinstance(flags, str), "flags argument should be a string: {}".format(type(flags))
         
         if FeatureFlags.exists(user):
-            raise FeatureFlags.FeatureFlagExistsError
+            raise FeatureFlags.FeatureFlagExistsException
         
         return FeatureFlags.objects.create(user=user, flags=flags)
     
@@ -35,3 +38,14 @@ class FeatureFlags(models.Model):
         assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
         
         return FeatureFlags.objects.filter(user=user).exists()
+    
+    def update(user, flags):
+        assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+        assert isinstance(flags, str), "flags argument should be a string: {}".format(type(flags))
+        
+        if not FeatureFlags.exists(user):
+            raise FeatureFlags.FeatureFlagsDoNotExistException
+        
+        FeatureFlags.objects.filter(user=user).update(flags=flags)
+        
+        return FeatureFlags.objects.filter(user=user).first()
