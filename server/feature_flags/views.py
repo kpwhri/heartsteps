@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http.response import Http404
 
 from .serializers import FeatureFlagsSerializer
-from .models import FeatureFlags
+from .models import FeatureFlags, User
 
 
 class FeatureFlagsList(APIView):
@@ -15,8 +15,9 @@ class FeatureFlagsList(APIView):
         # check to see if the request is allowed (i.e. participant is logged in)
         if not request.user or request.user.is_anonymous:
             # TODO: remove, only for testing purposes
-            feature_flags = FeatureFlags.objects.filter(
-                user__username="test").first()
+            # for now, create an empty featureflag for user "test" and use it
+            test_user, _ = User.objects.get_or_create(username="test")
+            feature_flags = FeatureFlags.create(test_user, "")
             serialized = FeatureFlagsSerializer(feature_flags)
             return Response(serialized.data, status=status.HTTP_200_OK)
         
@@ -24,7 +25,7 @@ class FeatureFlagsList(APIView):
         if FeatureFlags.exists(request.user):
             # return the first object
             # TODO: replace first() to get(). Because, it is controlled by unique user
-            feature_flags = FeatureFlags.objects.filter(user=request.user).first()
+            feature_flags = FeatureFlags.get(request.user)
         else:
             # if not, create a blank one and return it
             feature_flags = FeatureFlags.create(user=request.user)

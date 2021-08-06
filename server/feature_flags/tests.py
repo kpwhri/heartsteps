@@ -1,8 +1,9 @@
 from django.test import TestCase
 from .models import User
+from rest_framework.test import APITestCase
+from django.urls import reverse
 
 from feature_flags.models import FeatureFlags
-
 
 # Create your tests here.
 class FeatureFlagsTestCase(TestCase):
@@ -305,3 +306,42 @@ class FeatureFlagsTestCase(TestCase):
         self.assertEquals(obj4.flags, "test2")
 
         self.assertEquals(str(obj1.uuid), obj4.uuid)
+
+class FeatureFlagsListViewTest(APITestCase):
+    
+    def setUp(self):
+        """Create testing user"""
+        self.user = User.objects.create(username="test_user")
+
+    def tearDown(self):
+        """Destroying testing user"""
+        self.user.delete()
+    
+    def test_get_feature_flags_1(self):
+        """get empty feature flags
+        """
+        
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+        # get response
+        response = self.client.get(reverse('feature-flags-list', kwargs={
+        }))
+        
+        # if response code is 200
+        self.assertEqual(200, response.status_code)
+        # if response data is ''
+        self.assertEqual(response.data['flags'], '')
+        
+    def test_get_feature_flags_2(self):
+        # self.client.force_authenticate(user=self.user)
+
+        # request without authentication
+        response = self.client.get(reverse('feature-flags-list', kwargs={
+        }))
+        
+        print(response.__dict__)
+        
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.data['flags'], '')
+        
