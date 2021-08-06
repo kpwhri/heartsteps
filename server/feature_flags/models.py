@@ -83,24 +83,33 @@ class FeatureFlags(models.Model):
         """updates if the feature flags exist
 
         Args:
-            user (User)
+            user (User or str)
             flags (str): new feature flags
 
         Raises:
             FeatureFlags.FeatureFlagsDoNotExistException: if the featureFlags do not exist
+            FeatureFlags.NoSuchUserException: if the user does not exist
 
         Returns:
             FeatureFlags object: updated feature flags
         """
-        assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+        if isinstance(user, str):
+            try:
+                user_obj = User.objects.get(username=user)
+            except User.DoesNotExist:
+                raise FeatureFlags.NoSuchUserException
+        elif isinstance(user, User):
+            user_obj = user
+        else:
+            assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
         assert isinstance(flags, str), "flags argument should be a string: {}".format(type(flags))
         
-        if not FeatureFlags.exists(user):
+        if not FeatureFlags.exists(user_obj):
             raise FeatureFlags.FeatureFlagsDoNotExistException
         
-        FeatureFlags.objects.filter(user=user).update(flags=flags)
+        FeatureFlags.objects.filter(user=user_obj).update(flags=flags)
         
-        return FeatureFlags.get(user)
+        return FeatureFlags.get(user_obj)
     
     def get(user:User):
         """tries to get the feature flags

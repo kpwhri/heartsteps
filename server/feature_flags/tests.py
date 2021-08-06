@@ -176,6 +176,7 @@ class FeatureFlagsTestCase(TestCase):
 
         # update function shouldn't be called without argument 2
         self.assertRaises(TypeError, FeatureFlags.update, self.user)
+        self.assertRaises(TypeError, FeatureFlags.update, self.user.username)
 
         # update function's arg 1 should be User model
         self.assertRaises(AssertionError, FeatureFlags.update, 1, 1)
@@ -183,9 +184,10 @@ class FeatureFlagsTestCase(TestCase):
 
         # update function's arg 2 should be a string
         self.assertRaises(AssertionError, FeatureFlags.update, self.user, 1)
+        self.assertRaises(AssertionError, FeatureFlags.update, self.user.username, 1)
 
-    def test_update_1(self):
-        """Check if create function works fine"""
+    def test_update_1_1(self):
+        """Check if update function works fine"""
         # create "test" featureflag
         obj = FeatureFlags.create(self.user, "test")
 
@@ -195,6 +197,28 @@ class FeatureFlagsTestCase(TestCase):
         obj2 = FeatureFlags.update(self.user, "test2")
         self.assertEquals(obj2.user, self.user)
         self.assertEquals(obj2.flags, "test2")
+
+    def test_update_1_2(self):
+        """Check if update function works fine with string username"""
+        # create "test" featureflag
+        obj = FeatureFlags.create(self.user, "test")
+
+        self.assertEquals(obj.user, self.user)
+        self.assertEquals(obj.flags, "test")
+
+        obj2 = FeatureFlags.update(self.user.username, "test2")
+        self.assertEquals(obj2.user, self.user)
+        self.assertEquals(obj2.flags, "test2")
+    
+    def test_update_2(self):
+        """Check if update() raises right exception with wrong string username"""
+        # create "test" featureflag
+        obj = FeatureFlags.create(self.user, "test")
+
+        self.assertEquals(obj.user, self.user)
+        self.assertEquals(obj.flags, "test")
+
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.update, self.user.username + "abc", "test2")
 
     def test_get_0(self):
         """Check get()'s prototype"""
