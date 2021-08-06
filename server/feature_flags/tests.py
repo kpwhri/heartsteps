@@ -50,14 +50,14 @@ class FeatureFlagsTestCase(TestCase):
         FeatureFlags.create(self.user)
 
         # if we create again, FeatureFlagExistsError is raised
-        self.assertRaises(FeatureFlags.FeatureFlagExistsException,
+        self.assertRaises(FeatureFlags.FeatureFlagsExistException,
                           FeatureFlags.create, self.user)
 
     def test_exists_0(self):
         """Check exists function's prototype"""
-        # create function shouldn't be called without argument
+        # exists function shouldn't be called without argument
         self.assertRaises(TypeError, FeatureFlags.exists)
-        # create function's arg 1 should be User model
+        # exists function's arg 1 should be User model
         self.assertRaises(AssertionError, FeatureFlags.exists, 1)
 
     def test_exists_1(self):
@@ -86,10 +86,10 @@ class FeatureFlagsTestCase(TestCase):
         # update function's arg 1 should be User model
         self.assertRaises(AssertionError, FeatureFlags.update, 1, 1)
         self.assertRaises(AssertionError, FeatureFlags.update, 1, "test")
-        
+
         # update function's arg 2 should be a string
         self.assertRaises(AssertionError, FeatureFlags.update, self.user, 1)
-        
+
     def test_update_1(self):
         """Check if create function works fine"""
         # create "test" featureflag
@@ -97,8 +97,52 @@ class FeatureFlagsTestCase(TestCase):
 
         self.assertEquals(obj.user, self.user)
         self.assertEquals(obj.flags, "test")
-        
+
         obj2 = FeatureFlags.update(self.user, "test2")
         self.assertEquals(obj2.user, self.user)
         self.assertEquals(obj2.flags, "test2")
-        
+
+    def test_get_0(self):
+        """Check get()'s prototype"""
+        # get() shouldn't be called without argument
+        self.assertRaises(TypeError, FeatureFlags.get)
+        # get()'s arg 1 should be User model
+        self.assertRaises(AssertionError, FeatureFlags.get, 1)
+
+    def test_get_1(self):
+        """Check if get function works fine"""
+        # trying to get() leads to exception if it doesn't exists
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException,
+                          FeatureFlags.get, self.user)
+
+        # if we create one
+        obj1 = FeatureFlags.create(self.user, "test")
+
+        self.assertEquals(obj1.user, self.user)
+        self.assertEquals(obj1.flags, "test")
+
+        # we would get the same object
+        obj2 = FeatureFlags.get(self.user)
+
+        self.assertEquals(obj2.user, self.user)
+        self.assertEquals(obj2.flags, "test")
+
+        # Junghwan: I don't know why but when you create a new instance, you get UUID instance for .uuid field.
+        # But when you fetches it from the database, you get a UUID string.
+        self.assertEquals(str(obj1.uuid), obj2.uuid)
+
+        # if we update it
+        obj3 = FeatureFlags.update(self.user, "test2")
+
+        self.assertEquals(obj3.user, self.user)
+        self.assertEquals(obj3.flags, "test2")
+
+        self.assertEquals(str(obj1.uuid), obj3.uuid)
+
+        # we would get the same object
+        obj4 = FeatureFlags.get(self.user)
+
+        self.assertEquals(obj4.user, self.user)
+        self.assertEquals(obj4.flags, "test2")
+
+        self.assertEquals(str(obj1.uuid), obj4.uuid)
