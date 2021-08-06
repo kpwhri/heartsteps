@@ -115,7 +115,7 @@ class FeatureFlags(models.Model):
         """tries to get the feature flags
 
         Args:
-            user (User)
+            user (User or str)
 
         Raises:
             FeatureFlags.FeatureFlagsDoNotExistException: if the feature flags do not exist.
@@ -123,9 +123,17 @@ class FeatureFlags(models.Model):
         Returns:
             FeatureFlag object
         """
-        assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+        if isinstance(user, str):
+            try:
+                user_obj = User.objects.get(username=user)
+            except User.DoesNotExist:
+                raise FeatureFlags.NoSuchUserException
+        elif isinstance(user, User):
+            user_obj = user
+        else:
+            assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
         
-        if not FeatureFlags.exists(user):
+        if not FeatureFlags.exists(user_obj):
             raise FeatureFlags.FeatureFlagsDoNotExistException
         
-        return FeatureFlags.objects.filter(user=user).get()
+        return FeatureFlags.objects.get(user=user_obj)

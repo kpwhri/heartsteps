@@ -227,7 +227,7 @@ class FeatureFlagsTestCase(TestCase):
         # get()'s arg 1 should be User model
         self.assertRaises(AssertionError, FeatureFlags.get, 1)
 
-    def test_get_1(self):
+    def test_get_1_1(self):
         """Check if get function works fine"""
         # trying to get() leads to exception if it doesn't exists
         self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException,
@@ -259,6 +259,47 @@ class FeatureFlagsTestCase(TestCase):
 
         # we would get the same object
         obj4 = FeatureFlags.get(self.user)
+
+        self.assertEquals(obj4.user, self.user)
+        self.assertEquals(obj4.flags, "test2")
+
+        self.assertEquals(str(obj1.uuid), obj4.uuid)
+    
+    def test_get_1_2(self):
+        """Check if get function works fine with string username"""
+        # trying to get() leads to exception if it doesn't exists
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException,
+                          FeatureFlags.get, self.user)
+        
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException,
+                          FeatureFlags.get, self.user.username)
+
+        # if we create one
+        obj1 = FeatureFlags.create(self.user.username, "test")
+
+        self.assertEquals(obj1.user, self.user)
+        self.assertEquals(obj1.flags, "test")
+
+        # we would get the same object
+        obj2 = FeatureFlags.get(self.user.username)
+
+        self.assertEquals(obj2.user, self.user)
+        self.assertEquals(obj2.flags, "test")
+
+        # Junghwan: I don't know why but when you create a new instance, you get UUID instance for .uuid field.
+        # But when you fetches it from the database, you get a UUID string.
+        self.assertEquals(str(obj1.uuid), obj2.uuid)
+
+        # if we update it
+        obj3 = FeatureFlags.update(self.user.username, "test2")
+
+        self.assertEquals(obj3.user, self.user)
+        self.assertEquals(obj3.flags, "test2")
+
+        self.assertEquals(str(obj1.uuid), obj3.uuid)
+
+        # we would get the same object
+        obj4 = FeatureFlags.get(self.user.username)
 
         self.assertEquals(obj4.user, self.user)
         self.assertEquals(obj4.flags, "test2")
