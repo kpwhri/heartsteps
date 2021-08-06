@@ -171,10 +171,8 @@ export class FeatureFlagService {
                 if (!data.uuid || data.uuid == "") {
                     throw "Could not refresh feature flags: invalid UUID";
                 }
-                if (areLocalFlags) {
-                    if (localFlags.uuid !== data.uuid) {
-                        throw "Could not refresh feature flags: UUID does not match";
-                    }
+                if (areLocalFlags && localFlags.uuid !== data.uuid) {
+                    throw "Could not refresh feature flags: UUID does not match";
                 }
                 // console.log("FF: refreshFeatureFlags promise SUCCESS", data);
 

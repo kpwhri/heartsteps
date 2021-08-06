@@ -4,6 +4,9 @@ import { BehaviorSubject } from "rxjs";
 import { Message } from "@heartsteps/notifications/message.model";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
 import { NotificationService } from "@app/notification.service";
+import { StorageService } from "@infrastructure/storage.service";
+
+const storageKey: string = "notification-center";
 
 @Injectable()
 export class NotificationCenterService {
@@ -17,13 +20,15 @@ export class NotificationCenterService {
     constructor(
         private heartstepsServer: HeartstepsServer,
         private messageReceiptService: MessageReceiptService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private storage: StorageService
     ) {
-        this.getNotifications();
+        this.get();
+        this.refreshNotifications();
         this.notificationService.setup();
         this.notificationRefreshInterval = setInterval(() => {
-            this.getNotifications();
-        }, 5000);
+            this.refreshNotifications();
+        }, 4000);
     }
 
     // pull notifications from django
@@ -32,18 +37,106 @@ export class NotificationCenterService {
     }
 
     // re-initialize this.notifications and returns current notifications in array
-    public getNotifications(): Message[] {
-        this.getRecentNotifications().then((data) => {
-            let newStatus = data[0];
-            let res = data[1];
-            let notifications: Message[] = res.map(
+    public refreshNotifications(): Promise<Message[]> {
+        // let localNotifications: Message[];
+        // let areLocal: boolean = false;
+        // this.storage.get(storageKey).then((data) => {
+        //     localNotifications = data.map(this.deserializeMessage, this);
+        //     areLocal = true;
+        // });
+
+        // TODO: DO MORE PROMISE REJECT FOR .CATCH TO SEE IF API CALL FAILS
+
+        return this.getRecentNotifications()
+            .then((data) => {
+                let newStatus = data[0];
+                let res = data[1];
+
+                let notifications: Message[] = res.map(
+                    this.deserializeMessage,
+                    this
+                );
+                this.notifications.next(notifications);
+                this.unreadStatus.next(newStatus);
+                this.set(notifications);
+                return notifications;
+            })
+            .catch(() => {
+                return this.loadLocalNotifications();
+            });
+    }
+
+    // tries to get notifications from local storage and if fails, pull from django db
+    public get(): Promise<Message[]> {
+        // console.log("FF: get()");
+        return this.loadLocalNotifications().catch(() => {
+            // console.log("FF: catch inside get()");
+            return this.refreshNotifications();
+        });
+    }
+
+    // load notifications on offline local storage
+    public loadLocalNotifications(): Promise<Message[]> {
+        // TODO: implement unreadStatus
+        return this.storage.get(storageKey).then((data) => {
+            let notifications: Message[] = data.map(
                 this.deserializeMessage,
                 this
             );
             this.notifications.next(notifications);
-            this.unreadStatus.next(newStatus);
+            return notifications;
         });
-        return this.notifications.value;
+    }
+
+    // re-assign local notifications to notificationList
+    public set(notificationsList: Message[]): Promise<Message[]> {
+        // console.log("FF: set()");
+        return this.storage
+            .set(storageKey, this.serializeMany(notificationsList))
+            .then(() => {
+                return notificationsList;
+            });
+    }
+
+    // serialize Message[] object into generic dictionary object
+    // TODO: test to make sure it works
+    public serializeMany(notificationsList: Message[]) {
+        return notificationsList.map(this.serializeOne, this);
+    }
+
+    public serializeOne(obj: Message) {
+        if (obj.context) {
+            return {
+                uuid: obj.id,
+                type: obj.type,
+                created: obj.created,
+                title: obj.title,
+                body: obj.body,
+                sent: obj.sent,
+                received: obj.received,
+                opened: obj.opened,
+                engaged: obj.engaged,
+                context: obj.context,
+            };
+        }
+        return {
+            uuid: obj.id,
+            type: obj.type,
+            created: obj.created,
+            title: obj.title,
+            body: obj.body,
+            sent: obj.sent,
+            received: obj.received,
+            opened: obj.opened,
+            engaged: obj.engaged,
+        };
+    }
+
+    // remove notification-center key and value from local storage
+    public clear(): Promise<boolean> {
+        return this.storage.remove(storageKey).then(() => {
+            return true;
+        });
     }
 
     public deserializeMessage(data: any): Message {

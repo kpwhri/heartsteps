@@ -58,7 +58,7 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
             this.featureFlagService.currentFeatureFlags.subscribe(
                 (flags) => (this.featureFlags = flags)
             );
-        this.notificationCenterService.getNotifications();
+        this.notificationCenterService.refreshNotifications();
     }
 
     ngOnDestroy() {
