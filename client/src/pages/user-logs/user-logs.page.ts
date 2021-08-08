@@ -3,6 +3,7 @@ import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.s
 import { LoadingService } from '@infrastructure/loading.service';
 import moment from 'moment';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
+import { Router } from '@angular/router';
 
 class Log {
     public date: Date;
@@ -29,8 +30,6 @@ export class UserLogsPage {
         .then((data) => {
             console.log(data);
             console.log('GET LATEST GOAL: Got a response from the server');
-
-            this.dailyStepGoal = data;
         })
         .catch(() => {
             console.log('User logs failed')
