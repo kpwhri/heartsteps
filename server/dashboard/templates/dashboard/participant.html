@@ -151,6 +151,13 @@
                 Page Views
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link"
+                href="{% url 'dashboard-cohort-participant-user-logs' cohort.id participant.heartsteps_id %}"
+                >
+                User Logs
+            </a>
+        </li>
     </ul>
 </nav>
 <form action="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}" method="POST">

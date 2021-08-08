@@ -1,0 +1,28 @@
+<table class="table">
+        <thead>
+            <tr>
+                <th>Time range</th>
+                <th>Availability</th>
+                <th>Anti-Sedentary Suggestions</th>
+                <th>Walking Suggestions</th>
+            </tr>
+        </thead>
+        <tbody>
+<!--            {% for range in time_ranges %}-->
+            <tr>
+                <td>
+<!--                    {{range.title}}-->
+                </td>
+                <td>
+<!--                    {{range.watch_app_availability_summary.hours_available | floatformat:2}} hours ({{range.watch_app_availability_summary.availability | floatformat:2 }})-->
+                </td>
+                <td>
+<!--                    {% include 'dashboard/intervention-summary.html' with summary=range.anti_sedentary_suggestion_summary %}-->
+                </td>
+                <td>
+<!--                    {% include 'dashboard/intervention-summary.html' with summary=range.walking_suggestion_summary %}-->
+                </td>
+            </tr>
+<!--            {% endfor %}-->
+        </tbody>
+    </table>

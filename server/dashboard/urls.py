@@ -40,6 +40,7 @@ from .views import ParticipantPageViews
 from .views import ParticipantSendTestWalkingSuggestionSurvey
 from .views import ClockFaceList
 from .views import ParticipantClockFaceView
+from .views import ParticipantUserLogs
 
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='dashboard-login'),
@@ -69,6 +70,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/messages', ParticipantSMSMessagesView.as_view(), name='dashboard-cohort-participant-sms-messages'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/activity', ParticipantActivitySummaryView.as_view(), name='dashboard-cohort-participant-activity-summary'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/page-views', ParticipantPageViews.as_view(), name='dashboard-cohort-participant-page-views'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/user-logs', ParticipantUserLogs.as_view(), name='dashboard-cohort-participant-user-logs'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/edit', ParticipantEditView.as_view(), name='dashboard-cohort-participant-edit'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/export', ParticipantExportView.as_view(), name='dashboard-cohort-participant-export'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/send-walking-suggestion-survey', ParticipantSendTestWalkingSuggestionSurvey.as_view(), name='dashboard-cohort-participant-send-walking-suggestion-survey'),

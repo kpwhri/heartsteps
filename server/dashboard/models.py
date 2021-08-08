@@ -29,6 +29,7 @@ from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
 from walking_suggestions.models import WalkingSuggestionDecision
 from walking_suggestion_surveys.models import Configuration as WalkingSuggestionSurveyConfiguration
+from user_event_logs.models import EventLog
 
 
 from fitbit_clock_face.models import Summary as FitbitClockFaceSummary

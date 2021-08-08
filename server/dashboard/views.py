@@ -1344,6 +1344,21 @@ class ParticipantPageViews(ParticipantView):
             context['page_views'] = page_views
         return context
 
+class ParticipantUserLogs(ParticipantView):
+    template_name = 'dashboard/participant-user-logs.html'
+
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     if self.participant.user:
+    #         page_views = PageView.objects.filter(
+    #             user = self.participant.user,
+    #             time__gte = timezone.now() - timedelta(days=7)
+    #         ) \
+    #         .order_by('-time') \
+    #         .all()
+    #         context['page_views'] = page_views
+    #     return context
+
 class ParticipantFeatureToggleView(ParticipantView):
     template_name = 'dashboard/participant-feature-toggle.html'
 

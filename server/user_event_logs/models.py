@@ -26,7 +26,8 @@ class EventLog(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def log(user, message, status='SCS'):
+    # Creates a user log. Status can be any of the four STATES listed above, with a max length of 3 characters.
+    def log(user, message, status):
         return EventLog.objects.create(user=user, status=status, message=message)
 
     def get_logs(user, status=None):
