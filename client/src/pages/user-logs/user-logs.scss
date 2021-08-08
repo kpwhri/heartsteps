@@ -1,0 +1,74 @@
+baseline-week-page {
+
+    article > header {
+        height: 70px;
+        background-color: $background-primary;
+        border-bottom-width: 0px;
+        overflow: hidden;
+    }
+
+    article > header > h2 {
+        @extend .heartsteps-logo;
+        margin: 1em auto;
+        height: 50px;
+
+        &:after {
+            background-color: $color-primary;
+            mask-position: 50% 0%;
+        }
+    }
+
+    button.settings {
+        &:before {
+            content: ' ';
+            mask-image: url('../assets/settings.svg');
+            mask-repeat: no-repeat;
+            mask-position: 50% 50%;
+            background-color: $color-primary;
+            display: inline-block;
+            height: 1em;
+            width: 1em;
+            margin-right: 0.5em;
+        }
+    }
+
+
+    ul.bubbles {
+        display:flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+
+        overflow: hidden;
+
+        > li {
+            @extend .label;
+            text-align: center;
+            flex: 0 1 auto;
+            margin: 0em;
+            padding: 0.5em;
+        }
+
+        > li:before {
+            content: "";
+            display: block;
+            margin: 0em auto 0.5em;
+            width: 2em;
+            height: 2em;
+            border: $color-black 1px solid;
+            border-radius: 1em;
+            background-color: $color-white;
+        }
+
+        > li.wore:before {
+            background-color: $color-primary;
+            border-color: $color-primary;
+        }
+
+        > li.today {
+            border-bottom: $color-secondary 3px solid;
+            color: $text-color;
+        }
+    }
+}
+
