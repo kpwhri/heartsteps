@@ -293,6 +293,10 @@ export class SettingsComponent {
         this.router.navigate(["baseline"]);
     }
 
+    public testUserLogsPage() {
+        this.router.navigate(["userLogs"]);
+    }
+
     public editFitbitAuthorization() {
         this.router.navigate([
             {
