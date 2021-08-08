@@ -25,6 +25,16 @@ export class UserLogsPage {
     }
 
     private update() {
+        this.heartstepsServer.get('userlogs')
+        .then((data) => {
+            console.log(data);
+            console.log('GET LATEST GOAL: Got a response from the server');
+
+            this.dailyStepGoal = data;
+        })
+        .catch(() => {
+            console.log('User logs failed')
+        })
     }
 
     private dateToDay(date: Date): Day {
