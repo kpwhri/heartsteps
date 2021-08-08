@@ -4,11 +4,13 @@ import { ParticipantModule } from '@heartsteps/participants/participant.module';
 import { Routes, RouterModule } from '@angular/router';
 import { HeartstepsComponentsModule } from '@infrastructure/components/components.module';
 import { BrowserModule } from '@angular/platform-browser';
+import { UserLogsGuard } from './user-logs.guard'
 
 
 const userLogRoutes: Routes = [{
     path: 'userLogs',
-    component: UserLogsPage
+    component: UserLogsPage,
+    canActivate: [UserLogsGuard]
 }]
 
 @NgModule({
