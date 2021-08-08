@@ -241,6 +241,10 @@ export class SettingsPage {
         this.router.navigate(["baseline"]);
     }
 
+    public testUserLogsPage() {
+        this.router.navigate(["userLogs"]);
+    }
+
     public testActivitySurvey() {
         this.loadingService.show("Requesting activity survey");
         this.activitySurveyService
