@@ -11,6 +11,7 @@ from .serializers import DeviceSerializer, MessageReceiptSerializer, MessageSeri
 
 from django.utils import timezone
 
+
 class DeviceView(APIView):
     """
     Manage a user's Firebase Cloud Messaging Device
@@ -25,23 +26,24 @@ class DeviceView(APIView):
         serialized_device = DeviceSerializer(device)
         return Response(serialized_device.data, status=status.HTTP_200_OK)
 
-
     def post(self, request):
         serialized_device = DeviceSerializer(data=request.data, context={
             'user': request.user
         })
         if serialized_device.is_valid():
-            Device.objects.filter(user=request.user, active=True).update(active=False)
+            Device.objects.filter(
+                user=request.user, active=True).update(active=False)
 
             Device.objects.create(
-                user = request.user,
-                token = serialized_device.validated_data['token'],
-                type = serialized_device.validated_data['type'],
-                active = True
+                user=request.user,
+                token=serialized_device.validated_data['token'],
+                type=serialized_device.validated_data['type'],
+                active=True
             )
             return Response(serialized_device.data, status=status.HTTP_201_CREATED)
 
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MessageView(APIView):
 
@@ -50,12 +52,12 @@ class MessageView(APIView):
     def get(self, request, message_id):
         try:
             message = Message.objects.get(
-                uuid = message_id
+                uuid=message_id
             )
         except Message.DoesNotExist:
-            return Response({}, status = status.HTTP_404_NOT_FOUND)
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
         if request.user.id != message.recipient.id:
-            return Response({}, status = status.HTTP_401_UNAUTHORIZED)
+            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(
             {
                 'id': str(message.uuid),
@@ -64,7 +66,7 @@ class MessageView(APIView):
                 'body': message.body,
                 'context': message.data
             },
-            status = status.HTTP_200_OK
+            status=status.HTTP_200_OK
         )
 
 
@@ -81,14 +83,14 @@ class RecievedMessageView(APIView):
     def create_message_receipt(self, message, receipt_type, time):
         try:
             MessageReceipt.objects.get(
-                message = message,
-                type = receipt_type
+                message=message,
+                type=receipt_type
             )
         except MessageReceipt.DoesNotExist:
             MessageReceipt.objects.create(
-                message = message,
-                type = receipt_type,
-                time = time
+                message=message,
+                type=receipt_type,
+                time=time
             )
 
     def post(self, request):
@@ -107,13 +109,15 @@ class RecievedMessageView(APIView):
             return Response({}, status.HTTP_200_OK)
         return Response(serialized_receipts.errors, status.HTTP_400_BAD_REQUEST)
 
+
 class ParticipantNotificationEndpointView(APIView):
     permissions_classes = (permissions.IsAuthenticated,)
 
     def setup_participant(self, participant_id_setup):
         if participant_id_setup is not None:
             try:
-                participant = DashboardParticipant.objects.get(heartsteps_id=participant_id_setup)
+                participant = DashboardParticipant.objects.get(
+                    heartsteps_id=participant_id_setup)
                 return participant
             except Participant.DoesNotExist:
                 raise Http404('No matching participant')
@@ -124,14 +128,14 @@ class ParticipantNotificationEndpointView(APIView):
         if not user:
             return []
         notifications = Message.objects.filter(
-            recipient = user,
-            message_type = Message.NOTIFICATION,
-            created__gte = start,
-            created__lte = end
+            recipient=user,
+            message_type=Message.NOTIFICATION,
+            created__gte=start,
+            created__lte=end
         ) \
-        .order_by('-created') \
-        .localize_datetimes() \
-        .all()
+            .order_by('-created') \
+            .localize_datetimes() \
+            .all()
         return notifications
 
     def is_received(self, notification):
@@ -144,18 +148,18 @@ class ParticipantNotificationEndpointView(APIView):
             if notification.engaged or notification.opened:
                 return True
         return False
-    
+
     def are_unread_notifications(self, notifications):
         if notifications:
             for notification in notifications:
                 if self.is_received(notification) and not self.is_read(notification):
                     return True
         return False
-    
+
     def get(self, request):
         start = timezone.now() - timedelta(days=1)
         end = timezone.now()
-        
+
         # check to see if the request is allowed (i.e. participant is logged in)
         if request.user.is_anonymous:
             raise Http404('No participant, please log in')

@@ -49,6 +49,7 @@ export class NotificationCenterService {
 
         return this.getRecentNotifications()
             .then((data) => {
+                // console.log("NC: data from django", data);
                 let newStatus = data[0];
                 let res = data[1];
 
@@ -58,8 +59,10 @@ export class NotificationCenterService {
                 );
                 this.notifications.next(notifications);
                 this.unreadStatus.next(newStatus);
-                this.set(notifications);
                 return notifications;
+            })
+            .then((notifications) => {
+                return this.set(notifications);
             })
             .catch(() => {
                 return this.loadLocalNotifications();
@@ -68,9 +71,9 @@ export class NotificationCenterService {
 
     // tries to get notifications from local storage and if fails, pull from django db
     public get(): Promise<Message[]> {
-        // console.log("FF: get()");
+        // console.log("NC: get()");
         return this.loadLocalNotifications().catch(() => {
-            // console.log("FF: catch inside get()");
+            // console.log("NC: catch inside get()");
             return this.refreshNotifications();
         });
     }
@@ -78,6 +81,7 @@ export class NotificationCenterService {
     // load notifications on offline local storage
     public loadLocalNotifications(): Promise<Message[]> {
         // TODO: implement unreadStatus
+        // console.log("NC: loadLocalNotifcations()");
         return this.storage.get(storageKey).then((data) => {
             let notifications: Message[] = data.map(
                 this.deserializeMessage,
@@ -90,12 +94,12 @@ export class NotificationCenterService {
 
     // re-assign local notifications to notificationList
     public set(notificationsList: Message[]): Promise<Message[]> {
-        // console.log("FF: set()");
-        return this.storage
-            .set(storageKey, this.serializeMany(notificationsList))
-            .then(() => {
-                return notificationsList;
-            });
+        // console.log("NC: set()");
+        let serialized = this.serializeMany(notificationsList);
+        return this.storage.set(storageKey, serialized).then((value) => {
+            // console.log("NC: storage sucess", value);
+            return value;
+        });
     }
 
     // serialize Message[] object into generic dictionary object
