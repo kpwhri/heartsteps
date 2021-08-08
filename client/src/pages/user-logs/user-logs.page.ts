@@ -20,7 +20,8 @@ export class UserLogsPage {
     public logs: Array<Log>;
 
     constructor(
-        private heartstepsServer: HeartstepsServer
+        private heartstepsServer: HeartstepsServer,
+        private router: Router
     ) {
         this.update()
     }
