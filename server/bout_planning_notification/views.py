@@ -10,7 +10,8 @@ from bout_planning_notification.models import FirstBoutPlanningTime
 class FirstBoutPlanningTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FirstBoutPlanningTime
-        fields = ('time',)
+        fields = ('id','time')
+
 
 class FirstBoutPlanningTimeView(APIView):
     """
@@ -19,29 +20,29 @@ class FirstBoutPlanningTimeView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        try:
-            first_bout_planning_time = FirstBoutPlanningTime.objects.get(user=request.user, active=True)
-        except FirstBoutPlanningTime.DoesNotExist:
-            first_bout_planning_time = FirstBoutPlanningTime(user=request.user, active=True, time="07:00")
-            first_bout_planning_time.save()
-        print(first_bout_planning_time.__dict__)
+        if not request.user or not request.user.is_authenticated:
+            return Response("Not authenticated", status=status.HTTP_UNAUTHORIZED)
+        
+        if FirstBoutPlanningTime.exists(request.user):
+            first_bout_planning_time = FirstBoutPlanningTime.get(user=request.user)
+        else:
+            first_bout_planning_time = FirstBoutPlanningTime.create(user=request.user)
         
         serialized = FirstBoutPlanningTimeSerializer(first_bout_planning_time)
-        if serialized.is_valid():
-            return Response(serialized.data, status=status.HTTP_200_OK)
-        else:
-            return Response("Serialization failed: {}".format(serialized.errors), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        print(request.data)
-        serialized = FirstBoutPlanningTimeSerializer(data=request.data)
-        if serialized.is_valid():
-            FirstBoutPlanningTime.objects.update_or_create(
-                user = request.user,
-                defaults = {
-                    'time': serialized.validated_data['time']
-                }
-            )
-            return Response(serialized.validated_data, status=status.HTTP_200_OK)
+        if not request.user or not request.user.is_authenticated:
+            return Response("Not authenticated", status=status.HTTP_UNAUTHORIZED)
+        
+        time = request.data['time']
+        
+        if FirstBoutPlanningTime.exists(request.user):
+            first_bout_planning_time = FirstBoutPlanningTime.update(user=request.user, time=time)
         else:
-            return Response("Deserialization failed: {}".format(serialized.errors), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            first_bout_planning_time = FirstBoutPlanningTime.create(user=request.user, time=time)
+        
+        serialized = FirstBoutPlanningTimeSerializer(first_bout_planning_time)
+        
+        return Response(serialized.data, status=status.HTTP_200_OK)
