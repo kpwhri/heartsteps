@@ -7,11 +7,15 @@ from django.dispatch import receiver
 User = get_user_model()
 
 class EventLog(models.Model):
+    SUCCESS = 'SCS'
+    ERROR = 'ERR'
+    INFO = 'INF'
+    DEBUG = 'DBG'
     STATES = [
-        ('SCS', 'Success'),
-        ('ERR', 'Error'),
-        ('INF', 'Info'),
-        ('DBG', 'Debug'),
+        (SUCCESS, SUCCESS),
+        (ERROR, ERROR),
+        (INFO, INFO),
+        (DEBUG, DEBUG),
     ]
 
     user = models.ForeignKey(
@@ -27,8 +31,8 @@ class EventLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     # Creates a user log. Status can be any of the four STATES listed above, with a max length of 3 characters.
-    def log(user, message, status):
-        return EventLog.objects.create(user=user, status=status, message=message)
+    def log(user, action, status):
+        return EventLog.objects.create(user=user, status=status, action=action)
 
     def get_logs(user, status=None):
         base_query = EventLog.objects.filter(user=user).order_by('-created')
