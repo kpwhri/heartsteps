@@ -95,6 +95,9 @@ class EventLogViewTest(APITestCase):
 
         # generate 10 logs
         n = 10
+        page = 1
+        pagesize = 10
+        
         
         for i in range(n):
             EventLog.log(self.user, str(i), EventLog.DEBUG)
@@ -109,7 +112,7 @@ class EventLogViewTest(APITestCase):
         logs = []
         for logline in response.data['logs']:
             logs.append(logline['action'])
-        self.assertEqual(logs, list(map(lambda x: str(x), range(n))))
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
         
     def test_get_3(self):
         """try to make 100 logs and fetch the first page"""
@@ -120,6 +123,9 @@ class EventLogViewTest(APITestCase):
 
         # generate 100 logs
         n = 100
+        page = 1
+        pagesize = 10
+        
         
         for i in range(n):
             EventLog.log(self.user, str(i), EventLog.DEBUG)
@@ -135,7 +141,7 @@ class EventLogViewTest(APITestCase):
         for logline in response.data['logs']:
             logs.append(logline['action'])
             
-        self.assertEqual(logs, list(map(lambda x: str(x), range(10))))
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
         
     
     def test_get_4(self):
@@ -148,11 +154,14 @@ class EventLogViewTest(APITestCase):
         # generate 100 logs
         n = 100
         
+        page = 2
+        pagesize = 10
+        
         for i in range(n):
             EventLog.log(self.user, str(i), EventLog.DEBUG)
         
         # get response
-        response = self.client.get(reverse(self.url, kwargs={}), {'page': 2})
+        response = self.client.get(reverse(self.url, kwargs={}), {'page': page})
         
         # if response code is 200
         self.assertEqual(200, response.status_code)
@@ -162,7 +171,7 @@ class EventLogViewTest(APITestCase):
         for logline in response.data['logs']:
             logs.append(logline['action'])
             
-        self.assertEqual(logs, list(map(lambda x: str(x), range(10, 20))))
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
     
     def test_get_5(self):
         """try to make 100 logs and fetch the second page with page size of 20"""
@@ -173,12 +182,14 @@ class EventLogViewTest(APITestCase):
 
         # generate 100 logs
         n = 100
+        page = 2
+        pagesize = 20
         
         for i in range(n):
             EventLog.log(self.user, str(i), EventLog.DEBUG)
         
         # get response
-        response = self.client.get(reverse(self.url, kwargs={}), {'page': 2, 'pagesize': 20})
+        response = self.client.get(reverse(self.url, kwargs={}), {'page': page, 'pagesize': pagesize})
         
         # if response code is 200
         self.assertEqual(200, response.status_code)
@@ -188,7 +199,7 @@ class EventLogViewTest(APITestCase):
         for logline in response.data['logs']:
             logs.append(logline['action'])
             
-        self.assertEqual(logs, list(map(lambda x: str(x), range(20, 40))))
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
         
     def test_get_6(self):
         """try to make 100 logs and fetch the whole thing with page size of 15"""
@@ -199,12 +210,12 @@ class EventLogViewTest(APITestCase):
 
         # generate 100 logs
         n = 100
+        page = 1
+        pagesize = 15
         
         for i in range(n):
             EventLog.log(self.user, str(i), EventLog.DEBUG)
         
-        current_page = 1
-        pagesize = 15
         
         logs = []
         
@@ -212,7 +223,7 @@ class EventLogViewTest(APITestCase):
         
         while condition:
             # get response
-            response = self.client.get(reverse(self.url, kwargs={}), {'page': current_page, 'pagesize': pagesize})
+            response = self.client.get(reverse(self.url, kwargs={}), {'page': page, 'pagesize': pagesize})
             
             # if response code is 200
             self.assertEqual(200, response.status_code)
@@ -222,9 +233,9 @@ class EventLogViewTest(APITestCase):
             for logline in response.data['logs']:
                 logs.append(logline['action'])
 
-            if current_page < response.data['max_page']:
-                current_page += 1
+            if page < response.data['max_page']:
+                page += 1
             else:
                 condition = False
         
-        self.assertEqual(logs, list(map(lambda x: str(x), range(n))))
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n - 1, -1, -1))))

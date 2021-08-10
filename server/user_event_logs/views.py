@@ -37,7 +37,7 @@ class UserLogsList(APIView):
         
         user_logs = EventLog.objects.filter(
             user = request.user
-        ).order_by('timestamp') \
+        ).order_by('-timestamp') \
         .all()
         
         paginator = Paginator(user_logs, pagesize) 
