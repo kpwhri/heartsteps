@@ -23,8 +23,17 @@ class UserLogsList(APIView):
         if not request.user or not request.user.is_authenticated:
             return Response("Not authenticated", status=status.HTTP_UNAUTHORIZED)
         
-        pagesize = in_range(request.GET.get('pagesize', 10), 10, 100)
-        pageindex = request.GET.get('pageindex', 1)
+        # default page size is 10
+        try:
+            pagesize = in_range(int(request.GET.get('pagesize', 10)), 10, 100)
+        except:
+            pagesize = 10
+        
+        # default page number is 1
+        try:
+            page = int(request.GET.get('page', 1))
+        except:
+            page = 1
         
         user_logs = EventLog.objects.filter(
             user = request.user
@@ -33,7 +42,7 @@ class UserLogsList(APIView):
         
         paginator = Paginator(user_logs, pagesize) 
 
-        page_obj = paginator.get_page(pageindex)
+        page_obj = paginator.get_page(page)
         
         # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
         serialized_user_logs = []
@@ -43,5 +52,5 @@ class UserLogsList(APIView):
                 'status': user_log.status,
                 'action': user_log.action
             })
-        return Response({'logs': serialized_user_logs, 'page': pageindex, 'max_page': paginator.num_pages})
+        return Response({'logs': serialized_user_logs, 'page': page, 'max_page': paginator.num_pages})
 

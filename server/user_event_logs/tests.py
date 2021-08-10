@@ -92,3 +92,56 @@ class FirstBoutPlanningTimeViewTest(APITestCase):
             logs.append(logline['action'])
             
         self.assertEqual(logs, list(map(lambda x: str(x), range(10))))
+        
+    
+    def test_get_4(self):
+        """try to make 100 logs and fetch the second page"""
+        
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+
+        # generate 100 logs
+        n = 100
+        
+        for i in range(n):
+            EventLog.log(self.user, str(i), EventLog.DEBUG)
+        
+        # get response
+        response = self.client.get(reverse(self.url, kwargs={}), {'page': 2})
+        
+        # if response code is 200
+        self.assertEqual(200, response.status_code)
+        
+        # if response data is ''
+        logs = []
+        for logline in response.data['logs']:
+            logs.append(logline['action'])
+            
+        self.assertEqual(logs, list(map(lambda x: str(x), range(10, 20))))
+    
+    def test_get_5(self):
+        """try to make 100 logs and fetch the second page with page size of 20"""
+        
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+
+        # generate 100 logs
+        n = 100
+        
+        for i in range(n):
+            EventLog.log(self.user, str(i), EventLog.DEBUG)
+        
+        # get response
+        response = self.client.get(reverse(self.url, kwargs={}), {'page': 2, 'pagesize': 20})
+        
+        # if response code is 200
+        self.assertEqual(200, response.status_code)
+        
+        # if response data is ''
+        logs = []
+        for logline in response.data['logs']:
+            logs.append(logline['action'])
+            
+        self.assertEqual(logs, list(map(lambda x: str(x), range(20, 40))))
