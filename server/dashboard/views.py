@@ -2204,6 +2204,7 @@ class UserLogsList(TemplateView):
         context['page'] = page
         context['pagesize'] = pagesize
         context['num_pages'] = paginator.num_pages
+        context['pages'] = range(1, paginator.num_pages + 1)
         
         return TemplateResponse(request, self.template_name, context)
     
