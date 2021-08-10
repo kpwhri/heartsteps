@@ -73,6 +73,8 @@ from nlm.models import CohortAssignment
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
 
+from user_event_logs.models import EventLog
+
 from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
@@ -2125,6 +2127,86 @@ class ClockFaceList(TemplateView):
             'clock_faces': clock_faces
         }
 
+
+class UserLogsList(TemplateView):
+    template_name = 'dashboard/userlogs-list.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+                
+        context["is_staff"] = self.request.user.is_staff
+        context["users"] = list(User.objects.order_by("username").all())
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        default_pagesize = 20
+        
+        
+        context = self.get_context_data(**kwargs)
+        
+        context["is_staff"] = self.request.user.is_staff
+        context["users"] = list(User.objects.order_by("username").all())
+        
+        selected_user = self.request.POST["selected_user"]
+        context["selected_user"] = selected_user
+        selected_user_obj = User.objects.get(username=selected_user)
+        
+        
+        # use this thing if you need to generate debugging logs
+        # for i in range(100):
+        #     EventLog.log(User.objects.get(username=selected_user), "test {}".format(i), EventLog.DEBUG)
+        
+        # use this thing if you need system log testing
+        # EventLog.log(None, "system log test", EventLog.DEBUG)
+        
+        def in_range(value, min, max):
+            if value > max:
+                return max
+            elif value < min:
+                return min
+            else:
+                return value
+            
+        # default page size is default_pagesize
+        try:
+            pagesize = in_range(int(request.POST.get('pagesize', default_pagesize)), 10, 100)
+        except:
+            pagesize = default_pagesize
+        
+        # default page number is 1
+        try:
+            page = int(request.POST.get('page', 1))
+        except:
+            page = 1
+        
+        user_logs = EventLog.objects.filter(
+            user = selected_user_obj
+        ).order_by('-timestamp') \
+        .all()
+        
+        paginator = Paginator(user_logs, pagesize) 
+
+        page = in_range(page, 1, paginator.num_pages)
+        
+        page_obj = paginator.get_page(page)
+        
+        # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
+        serialized_user_logs = []
+        for user_log in page_obj:
+            serialized_user_logs.append({
+                'timestamp': user_log.timestamp,
+                'status': user_log.status,
+                'action': user_log.action
+            })
+        
+        context['logs'] = serialized_user_logs
+        context['page'] = page
+        context['pagesize'] = pagesize
+        context['num_pages'] = paginator.num_pages
+        
+        return TemplateResponse(request, self.template_name, context)
+    
 
 class ParticipantClockFaceView(ParticipantView):
 

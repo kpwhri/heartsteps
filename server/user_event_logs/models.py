@@ -33,7 +33,7 @@ class EventLog(models.Model):
     # Creates a user log. Status can be any of the four STATES listed above, with a max length of 3 characters.
     def log(user, action, status):
         if user is None:
-            user, _ = User.objects.get_or_create("__system_log")
+            user, _ = User.objects.get_or_create(username="__system_log")
         else:
             assert isinstance(user, User), "user argument must be None or an instance of User"
         if not isinstance(action, str):
@@ -53,7 +53,7 @@ class EventLog(models.Model):
         return list(base_query.all())
     
     def __str__(self):
-        return "{} {} {}".format(self.timestamp, self.status, self.action)
+        return "{} {} {} {}".format(str(self.user), self.timestamp, self.status, self.action)
 
 
 class AuditEntry(models.Model):

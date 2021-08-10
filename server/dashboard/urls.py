@@ -39,6 +39,7 @@ from .views import ParticipantBurstPeriodConfigurationView
 from .views import ParticipantPageViews
 from .views import ParticipantSendTestWalkingSuggestionSurvey
 from .views import ClockFaceList
+from .views import UserLogsList
 from .views import ParticipantClockFaceView
 from .views import ParticipantUserLogs
 
@@ -89,6 +90,7 @@ urlpatterns = [
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)', ParticipantView.as_view(), name='dashboard-cohort-participant'),
     url('(?P<cohort_id>[\d]+)', DashboardListView.as_view(), name='dashboard-cohort-participants'),
     url('clock-faces', ClockFaceList.as_view(), name='dashboard-clock-face-list'),
+    url('userlogs', UserLogsList.as_view(), name='dashboard-userlogs-list'),
     url('dev/front', DevFrontView.as_view(), name='dashboard-dev-front'),
     url('dev/generic', DevGenericView.as_view(), name='dashboard-dev-generic'),
     url('', CohortListView.as_view(), name='dashboard-cohorts')

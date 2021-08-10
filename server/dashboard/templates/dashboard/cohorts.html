@@ -14,7 +14,11 @@
     </ul>
 {% endfor %}
 <nav>
-    <a href="{% url 'dashboard-clock-face-list'%}">View all clock faces</a>
+    <h3>Staff Links</h3>
+    <ul>
+        <li><a href="{% url 'dashboard-clock-face-list'%}">View all clock faces</a></li>
+        <li><a href="{% url 'dashboard-userlogs-list'%}">View all userlogs</a></li>
+    </ul>
 </nav>
 
 {% endblock %}
