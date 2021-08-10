@@ -10,7 +10,7 @@
 
 * Any modern web browser
 
-### Start
+### Steps
 
 * If you are logged in, go to settings and log out.
 
