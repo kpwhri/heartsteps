@@ -145,3 +145,42 @@ class FirstBoutPlanningTimeViewTest(APITestCase):
             logs.append(logline['action'])
             
         self.assertEqual(logs, list(map(lambda x: str(x), range(20, 40))))
+        
+    def test_get_6(self):
+        """try to make 100 logs and fetch the whole thing with page size of 15"""
+        
+        # force authenticated as test user
+        self.client.force_authenticate(user=self.user)
+
+
+        # generate 100 logs
+        n = 100
+        
+        for i in range(n):
+            EventLog.log(self.user, str(i), EventLog.DEBUG)
+        
+        current_page = 1
+        pagesize = 15
+        
+        logs = []
+        
+        condition = True
+        
+        while condition:
+            # get response
+            response = self.client.get(reverse(self.url, kwargs={}), {'page': current_page, 'pagesize': pagesize})
+            
+            # if response code is 200
+            self.assertEqual(200, response.status_code)
+            
+            # if response data is ''
+            
+            for logline in response.data['logs']:
+                logs.append(logline['action'])
+
+            if current_page < response.data['max_page']:
+                current_page += 1
+            else:
+                condition = False
+        
+        self.assertEqual(logs, list(map(lambda x: str(x), range(n))))
