@@ -3,8 +3,52 @@ from .models import User, EventLog
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
+class EventLogTest(TestCase):
+    def setUp(self):
+        """Create testing user"""
+        self.user = User.objects.create(username="test_user")
 
-class FirstBoutPlanningTimeViewTest(APITestCase):
+    def tearDown(self):
+        """Destroying testing user"""
+        self.user.delete()
+    
+    def test_log_0(self):
+        # insufficient arguments
+        self.assertRaises(TypeError, EventLog.log)
+        self.assertRaises(TypeError, EventLog.log, self.user)
+        self.assertRaises(TypeError, EventLog.log, self.user, "test msg")
+        
+        # user argument
+        self.assertRaises(AssertionError, EventLog.log, 1, "test msg", EventLog.DEBUG)
+        # user argument can be None (system log)
+        EventLog.log(None, "test msg", EventLog.DEBUG)
+        
+        # action argument
+        # if action argument is not str, it is converted to string
+        EventLog.log(self.user, 1, EventLog.DEBUG)
+        
+        # status argument
+        # the status argument should be called via EventLog.XXXX
+        self.assertRaises(ValueError, EventLog.log, self.user, 1, "abc")
+        
+    def test_log_1(self):
+        
+        # generate 10 logs
+        n = 10
+        
+        for i in range(n):
+            EventLog.log(self.user, str(i), EventLog.DEBUG)
+        
+        # get logs
+        logs = EventLog.get_logs(self.user)
+        logs_msg = list(map(lambda x: x.action, logs))
+        
+        self.assertEqual(logs_msg, list(map(lambda x: str(x), range(n-1, -1, -1))))
+        
+        
+        
+
+class EventLogViewTest(APITestCase):
     def setUp(self):
         """Create testing user"""
         self.user = User.objects.create(username="test_user")

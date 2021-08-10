@@ -32,15 +32,28 @@ class EventLog(models.Model):
 
     # Creates a user log. Status can be any of the four STATES listed above, with a max length of 3 characters.
     def log(user, action, status):
+        if user is None:
+            user, _ = User.objects.get_or_create("__system_log")
+        else:
+            assert isinstance(user, User), "user argument must be None or an instance of User"
+        if not isinstance(action, str):
+            action = str(action)
+        
+        if not (status, status) in EventLog.STATES:
+            raise ValueError("status should be called via EventLog.XXXX")
+        
         return EventLog.objects.create(user=user, status=status, action=action)
 
     def get_logs(user, status=None):
-        base_query = EventLog.objects.filter(user=user).order_by('-created')
+        base_query = EventLog.objects.filter(user=user).order_by('-timestamp')
 
         if not status is None:
             base_query = base_query.filter(status=status)
 
-            return base_query.all()
+        return list(base_query.all())
+    
+    def __str__(self):
+        return "{} {} {}".format(self.timestamp, self.status, self.action)
 
 
 class AuditEntry(models.Model):
