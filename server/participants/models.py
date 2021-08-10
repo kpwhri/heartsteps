@@ -22,20 +22,22 @@ TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
 User = get_user_model()
 
+
 class Study(models.Model):
     name = models.CharField(
-        max_length = 75,
-        unique = True
+        max_length=75,
+        unique=True
     )
     contact_name = models.CharField(
-        max_length = 150,
-        null = True
+        max_length=150,
+        null=True
     )
     contact_number = models.CharField(
-        max_length = 20,
-        null = True
+        max_length=20,
+        null=True
     )
     baseline_period = models.PositiveIntegerField(default=7)
+    studywide_feature_flags = models.TextField(default="")
 
     admins = models.ManyToManyField(User)
 
@@ -45,43 +47,45 @@ class Study(models.Model):
 
     def __str__(self):
         return self.name
-        
+
+
 class Cohort(models.Model):
     name = models.CharField(max_length=75)
     study = models.ForeignKey(
         Study,
-        null = True,
-        on_delete = models.CASCADE
+        null=True,
+        on_delete=models.CASCADE
     )
 
     study_length = models.PositiveIntegerField(
-        null = True
+        null=True
     )
 
     export_data = models.BooleanField(default=False)
     export_bucket_url = models.CharField(
-        max_length = 500,
-        null = True
+        max_length=500,
+        null=True
     )
 
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \
             .exclude(
-                archived = True,
-                user = None
-            ).all()
+                archived=True,
+                user=None
+        ).all()
         return TimezoneService.get_timezones(
-            users = [p.user for p in participants if p.user],
-            start = start,
-            end = end
+            users=[p.user for p in participants if p.user],
+            start=start,
+            end=end
         )
-    
+
     @property
     def slug(self):
         return slugify(self.name)
 
     def __str__(self):
         return self.name
+
 
 class Participant(models.Model):
     """
@@ -97,15 +101,16 @@ class Participant(models.Model):
     enrollment_token = models.CharField(max_length=10, unique=True)
     birth_year = models.CharField(max_length=4, null=True, blank=True)
 
-    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, blank=True, null=True, on_delete=models.CASCADE)
     cohort = models.ForeignKey(
         Cohort,
-        null = True,
-        on_delete = models.SET_NULL
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     study_start_date = models.DateField(
-        null = True
+        null=True
     )
 
     active = models.BooleanField(default=True)
@@ -116,13 +121,13 @@ class Participant(models.Model):
 
     def delete(self):
         if self.user:
-            Day.objects.filter(user = self.user).delete()
+            Day.objects.filter(user=self.user).delete()
             self.user.delete()
         super().delete()
 
     def enroll(self):
         user, created = User.objects.get_or_create(
-            username = self.heartsteps_id
+            username=self.heartsteps_id
         )
         self.user = user
         if self.study_start_date is None:
@@ -148,7 +153,8 @@ class Participant(models.Model):
         if not hasattr(self, '_fitbit_account'):
             if self.user:
                 try:
-                    fitbit_account_user = FitbitAccountUser.objects.prefetch_related('account').get(user = self.user)
+                    fitbit_account_user = FitbitAccountUser.objects.prefetch_related(
+                        'account').get(user=self.user)
                     self._fitbit_account = fitbit_account_user.account
                 except FitbitAccountUser.DoesNotExist:
                     self._fitbit_account = None
@@ -161,14 +167,14 @@ class Participant(models.Model):
             return self.fitbit_account.first_updated
         else:
             return None
-    
+
     def get_study_start_date(self):
         if self.user and self.user.date_joined:
             study_start_datetime = self.user.date_joined
         else:
             study_start_datetime = self.get_fitbit_start_datetime()
         if study_start_datetime:
-            day_service = DayService(user = self.user)
+            day_service = DayService(user=self.user)
             return day_service.get_date_at(study_start_datetime)
         else:
             return None
@@ -176,7 +182,7 @@ class Participant(models.Model):
     def get_study_start_datetime(self):
         study_start_date = self.get_study_start_date()
         if study_start_date:
-            day_service = DayService(user = self.user)
+            day_service = DayService(user=self.user)
             return day_service.get_start_of_day(study_start_date)
         return None
 
@@ -184,7 +190,7 @@ class Participant(models.Model):
         study_start_date = self.get_study_start_date()
         if study_start_date and self.study_length:
             end_date = self.study_start + timedelta(days=self.study_length)
-            service = DayService(user = self.user)
+            service = DayService(user=self.user)
             return service.get_end_of_day(end_date)
         else:
             return None
@@ -224,7 +230,7 @@ class Participant(models.Model):
             self.user.save()
         self.active = True
         self.save()
-    
+
     def disable(self):
         if self.user:
             self.user.is_active = False
@@ -240,15 +246,16 @@ class Participant(models.Model):
     def daily_task(self):
         try:
             return DailyTask.objects.get(
-                user = self.user,
-                category = TASK_CATEGORY
+                user=self.user,
+                category=TASK_CATEGORY
             )
         except DailyTask.DoesNotExist:
             return None
 
     def set_daily_task(self):
         if not hasattr(settings, 'PARTICIPANT_NIGHTLY_UPDATE_TIME'):
-            raise ImproperlyConfigured('Participant nightly update time not configured')
+            raise ImproperlyConfigured(
+                'Participant nightly update time not configured')
         hour, minute = settings.PARTICIPANT_NIGHTLY_UPDATE_TIME.split(':')
         if not self.daily_task:
             self.__create_daily_task()
@@ -256,33 +263,34 @@ class Participant(models.Model):
 
     def __create_daily_task(self):
         task = DailyTask.objects.create(
-            user = self.user,
-            category = TASK_CATEGORY
+            user=self.user,
+            category=TASK_CATEGORY
         )
         task.create_task(
-            task = 'participants.tasks.daily_update',
-            name = self.daily_task_name,
-            arguments = {
+            task='participants.tasks.daily_update',
+            name=self.daily_task_name,
+            arguments={
                 'username': self.user.username
             }
         )
         return task
-    
+
     def __str__(self):
         return self.heartsteps_id
+
 
 class NightlyUpdateRecord(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete = models.CASCADE,
-        related_name = '+'
+        on_delete=models.CASCADE,
+        related_name='+'
     )
     date = models.DateField()
     start = models.DateTimeField()
     end = models.DateTimeField()
 
     error = models.TextField(
-        null = True
+        null=True
     )
 
     class Meta:
@@ -290,10 +298,11 @@ class NightlyUpdateRecord(models.Model):
             models.Index(fields=['user', 'date'])
         ]
 
+
 class DataExport(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
 
     filename = models.CharField(max_length=150)
@@ -301,7 +310,7 @@ class DataExport(models.Model):
     end = models.DateTimeField()
 
     error_message = models.TextField(
-        null = True
+        null=True
     )
 
     def __str__(self):
@@ -324,40 +333,42 @@ class DataExport(models.Model):
         diff = self.end - self.start
         return diff.seconds
 
+
 class DataExportSummary(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete = models.CASCADE,
-        related_name = '+'
+        on_delete=models.CASCADE,
+        related_name='+'
     )
     category = models.CharField(
-        max_length = 150
+        max_length=150
     )
 
     last_data_export = models.ForeignKey(
         DataExport,
-        null = True,
-        on_delete = models.SET_NULL,
-        related_name = '+'
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
     )
 
     updated = models.DateTimeField(
-        auto_now = True
+        auto_now=True
     )
+
 
 class DataExportQueue(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete = models.CASCADE,
-        related_name = '+'
+        on_delete=models.CASCADE,
+        related_name='+'
     )
 
     created = models.DateTimeField(
-        auto_now_add = True
+        auto_now_add=True
     )
     started = models.DateTimeField(
-        null = True
+        null=True
     )
     completed = models.DateTimeField(
-        null = True
+        null=True
     )
