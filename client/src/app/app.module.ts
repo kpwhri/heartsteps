@@ -20,6 +20,9 @@ import { BoutPlanningModule } from "@pages/bout-planning/bout-planning.module";
 import { WeeklySurveyModule } from "@pages/weekly-survey/weekly-survey.module";
 import { MorningSurveyPageModule } from "@pages/morning-survey/morning-survey.module";
 import { CurrentWeekModule } from "@heartsteps/current-week/current-week.module";
+
+import { UserLogsModule } from "@pages/user-logs/user-logs.module"
+
 import { HeartstepsInfrastructureModule } from "@infrastructure/heartsteps/heartsteps.module";
 import { AnalyticsService } from "@infrastructure/heartsteps/analytics.service";
 import { SetupPageModule } from "@pages/setup/setup.module";
@@ -57,6 +60,7 @@ const routes: Routes = [
         OnboardPageModule,
         SetupPageModule,
         HomePageModule,
+        UserLogsModule,
         HeartstepsInfrastructureModule,
         HeartstepsComponentsModule,
         NotificationsModule,

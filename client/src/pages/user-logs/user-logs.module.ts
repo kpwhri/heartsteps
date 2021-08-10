@@ -20,7 +20,11 @@ const userLogRoutes: Routes = [{
     imports: [
         BrowserModule,
         ParticipantModule,
-        HeartstepsComponentsModule
+        HeartstepsComponentsModule,
+        RouterModule.forRoot(userLogRoutes)
+    ],
+    providers: [
+        UserLogsGuard
     ]
 })
 export class UserLogsModule {}
