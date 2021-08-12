@@ -8,12 +8,12 @@
     
     <table class="table-fit">
         <tr>
-            <form action="{% url 'dashboard-userlogs-list' %}" method="POST" role="form">
-                {% csrf_token %}
-                <td>
+            <td>
                     Select a User:
                 </td>
                 <td>
+                    <form action="{% url 'dashboard-userlogs-list' %}" method="POST" role="form">
+                    {% csrf_token %}
                     <select class="form-select form-control m-1" style="width:auto;" id="selected_user" name="selected_user" onchange="this.form.submit()">
                         {% if selected_user %}
                             
@@ -25,6 +25,7 @@
                             <option value="{{ user.username }}" {% if selected_user %} {% if selected_user == user.username %}selected{%endif%}{%endif%}>{{ user.username }}</option>
                         {% endfor %}
                     </select>
+                    </form>
                 </td>
                 <td>
                 <form action="{% url 'dashboard-userlogs-list' %}" method="POST" role="form">
@@ -34,10 +35,7 @@
                     <button type="submit" class="btn btn-primary mb-2 m-1">Refresh</button>
                 </form>
                 </td>
-                <td>
-                    <p>Server time: {{server_time}}
-                </td>
-            </form>
+            
             <td style="width: auto;">&nbsp;</td>
             {% if num_pages > 1 %}
             <form action="{% url 'dashboard-userlogs-list' %}" method="POST" role="form">
@@ -49,8 +47,15 @@
                         <option value="{{ page_x }}" {% if page_x == page %} selected{% endif %}>p. {{ page_x }}</option>
                         {% endfor %}
                     </select>
+                </form>
                 </td>
-            </form>
+
+            
+
+
+                <td>
+                    <p>Server time: {{server_time}}
+                </td>
             {% endif %}        
         </tr>
     </table>
