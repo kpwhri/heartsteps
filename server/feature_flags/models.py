@@ -118,3 +118,29 @@ class FeatureFlags(models.Model):
             raise FeatureFlags.FeatureFlagsDoNotExistException
         
         return FeatureFlags.objects.get(user=user_obj)
+    
+    def search_users(flag:str):
+        """try to get all users with a certain flag #279
+        
+        Args: flag (str) : flag to search
+        
+        Returns:
+            User[] : list of users with a certain flag
+        """
+        
+        assert isinstance(flag,str), "flag argument should be a string: {}".format(type(flag))
+        assert len(flag) > 0, "flag argument should not be an empty string"
+        assert flag.find(",") == -1, "flag argument should not contain a comma"
+        
+        # limits the number of users by "contain" search. It will include similar flags with suffix and prefix
+        query = FeatureFlags.objects.filter(flags__contains=flag)
+        
+        user_list = []
+        
+        for feature_flags in query.all():
+            flag_list = feature_flags.flags.split(",")
+            
+            if flag in flag_list:
+                user_list.append(feature_flags.user)
+        
+        return user_list

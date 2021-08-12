@@ -306,6 +306,45 @@ class FeatureFlagsTestCase(TestCase):
         self.assertEquals(obj4.flags, "test2")
 
         self.assertEquals(str(obj1.uuid), obj4.uuid)
+        
+    def test_search_users_0(self):
+        """Check search_users()'s prototype"""
+        # search_users() shouldn't be called without argument
+        self.assertRaises(TypeError, FeatureFlags.search_users)
+        # search_users()'s arg 1 should be a string
+        self.assertRaises(AssertionError, FeatureFlags.search_users, 1)
+        # search_users()'s arg 1 shouldn't be an empty string
+        self.assertRaises(AssertionError, FeatureFlags.search_users, "")
+        
+    def test_search_users_1(self):
+        """Check if search_users() is working well"""
+        
+        for i in range(5):
+            user = User.objects.create(username="testuser_{}".format(i))
+            if i in range(2,5):
+                # user 2,3,4
+                FeatureFlags.create(user, "flag,flag1")
+            else:
+                # user 0,1
+                FeatureFlags.create(user, "flag2,flag")
+        
+        user_list = FeatureFlags.search_users("flag1")        
+        user_list_str = list(map(lambda x: x.username, user_list))
+        
+        for i in range(2):
+            self.assertNotIn("testuser_{}".format(i), user_list_str)
+        for i in range(2,5):
+            self.assertIn("testuser_{}".format(i), user_list_str)
+            
+        user_list2 = FeatureFlags.search_users("flag")        
+        user_list_str2 = list(map(lambda x: x.username, user_list2))
+        
+        for i in range(5):
+            self.assertIn("testuser_{}".format(i), user_list_str2)
+        
+            
+        
+        
 
 class FeatureFlagsListViewTest(APITestCase):
     
