@@ -37,7 +37,7 @@ class FeatureFlags(models.Model):
         elif isinstance(user, User):
             user_obj = user
         else:
-            assert isinstance(user, User), "user argument should be an instance of User class: {}".format(type(user))
+            assert isinstance(user, User), "user argument should be an instance of User class or a string: {}".format(type(user))
         return user_obj
     
     def create(user, flags:str=""):
@@ -138,9 +138,39 @@ class FeatureFlags(models.Model):
         user_list = []
         
         for feature_flags in query.all():
-            flag_list = feature_flags.flags.split(",")
-            
-            if flag in flag_list:
+            if feature_flags.has_flag(flag):
                 user_list.append(feature_flags.user)
         
         return user_list
+    
+    def has_flag(obj, flag):
+        """this is weird, but intentional function polymorphism.
+        You can call this as an instance method or static method.
+        
+        If you call this function as instance method, this will return if there's a matching flag.
+        
+            obj = FeatureFlags.get("username")
+            print(obj.has_flag("test_flag"))
+        
+        If you call this function as static method, this will return if the user has a matching flag.
+        
+            print(FeatureFlags.has_flag("username", "test_flag"))
+            print(FeatureFlags.has_flag(self.user, "test_flag"))
+        """
+        assert flag != "", "You can't check if an empty flag exists."
+        if isinstance(obj, FeatureFlags):
+            flag_list = list(map(lambda x: x.strip(), obj.flags.split(",")))
+            
+            return flag in flag_list
+        elif isinstance(obj, User):
+            if FeatureFlags.exists(obj):
+                feature_flags = FeatureFlags.get(obj)
+                return feature_flags.has_flag(flag)
+            else:
+                raise FeatureFlags.FeatureFlagsDoNotExistException()
+        elif isinstance(obj, str):
+            user_obj = FeatureFlags.convert_to_user_obj(obj)
+            feature_flags = FeatureFlags.get(user_obj)
+            return feature_flags.has_flag(flag)    
+        else:
+            raise AssertionError("has_flag has two prototypes: FeatureFlags.has_flag(User, str) and feature_flags.has_flag(FeatureFlags, str)")       

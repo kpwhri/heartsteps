@@ -323,10 +323,10 @@ class FeatureFlagsTestCase(TestCase):
             user = User.objects.create(username="testuser_{}".format(i))
             if i in range(2,5):
                 # user 2,3,4
-                FeatureFlags.create(user, "flag,flag1")
+                FeatureFlags.create(user, "flag ,flag1")
             else:
                 # user 0,1
-                FeatureFlags.create(user, "flag2,flag")
+                FeatureFlags.create(user, "flag2, flag")
         
         user_list = FeatureFlags.search_users("flag1")        
         user_list_str = list(map(lambda x: x.username, user_list))
@@ -341,8 +341,35 @@ class FeatureFlagsTestCase(TestCase):
         
         for i in range(5):
             self.assertIn("testuser_{}".format(i), user_list_str2)
+    
+    def test_has_flag_0(self):
+        self.assertRaises(TypeError, FeatureFlags.has_flag)
+        self.assertRaises(TypeError, FeatureFlags.has_flag, 1)
+        self.assertRaises(TypeError, FeatureFlags.has_flag, 1)
+        self.assertRaises(TypeError, FeatureFlags.has_flag, "x")
+        self.assertRaises(AssertionError, FeatureFlags.has_flag, self.user, "")
+    
+    def test_has_flag_1(self):
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException, FeatureFlags.has_flag, self.user, "test")
+        obj = FeatureFlags.create(self.user, "test1, test2,test3,test4")
+        self.assertEqual(obj.has_flag("test1"), True)
+        self.assertEqual(obj.has_flag("test2"), True)
+        self.assertEqual(obj.has_flag("test3"), True)
+        self.assertEqual(obj.has_flag("test4"), True)
+        self.assertEqual(obj.has_flag("test5"), False)
         
-            
+        self.assertEqual(FeatureFlags.has_flag(self.user, "test1"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user, "test2"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user, "test3"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user, "test4"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user, "test5"), False)
+        
+        self.assertEqual(FeatureFlags.has_flag(self.user.username, "test1"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user.username, "test2"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user.username, "test3"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user.username, "test4"), True)
+        self.assertEqual(FeatureFlags.has_flag(self.user.username, "test5"), False)
+        
         
         
 
