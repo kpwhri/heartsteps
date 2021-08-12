@@ -1,6 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 {% load template_filters %}
+{% load humanize %}
 
 {% block content %}
 
@@ -70,7 +71,7 @@
     <tbody>
         {% for log in logs %}
         <tr style="min-height: 25px; height: 25px;">
-            <td>{{ log.timestamp }}</td>
+            <td>{{ log.timestamp | naturaltime }}</td>
             <td>{{ log.status }}</td>
             <td>{{ log.action }}</td>
         </tr>

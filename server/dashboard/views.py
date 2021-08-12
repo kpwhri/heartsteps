@@ -2193,9 +2193,12 @@ class UserLogsList(TemplateView):
         
         # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
         serialized_user_logs = []
+        server_time = datetime.now()
+                
         for user_log in page_obj:
             serialized_user_logs.append({
-                'timestamp': user_log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                # 'timestamp': user_log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                'timestamp': user_log.timestamp,
                 'status': user_log.status,
                 'action': user_log.action
             })
@@ -2205,7 +2208,7 @@ class UserLogsList(TemplateView):
         context['pagesize'] = pagesize
         context['num_pages'] = paginator.num_pages
         context['pages'] = range(1, paginator.num_pages + 1)
-        context['server_time'] = str(datetime.now())
+        context['server_time'] = str(server_time)
         
         return TemplateResponse(request, self.template_name, context)
     
