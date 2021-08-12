@@ -383,6 +383,12 @@ class FeatureFlagsListViewTest(APITestCase):
         
         self.assertEqual(200, response.status_code)
         self.assertEqual(response.data['flags'], '')
+        
+        response = self.client.get(reverse('feature-flags-list', kwargs={
+        }))
+        
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.data['flags'], '')
 
     def test_get_feature_flags_3(self):
         """get empty feature flags by creating an empty feature flag
