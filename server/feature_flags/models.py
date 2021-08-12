@@ -188,7 +188,7 @@ class FeatureFlags(models.Model):
             return feature_flags.has_flag(flag)
         else:
             raise AssertionError(
-                "has_flag has two prototypes: FeatureFlags.has_flag(User, str) and feature_flags.has_flag(FeatureFlags, str)"
+                "has_flag has two prototypes: FeatureFlags.has_flag(User, str) and feature_flags.has_flag(str)"
             )
 
     def create_or_get(user):
@@ -242,7 +242,7 @@ class FeatureFlags(models.Model):
             return feature_flags.add_flag(flag)
         else:
             raise AssertionError(
-                "add_flag has two prototypes: FeatureFlags.add_flag(User, str) and feature_flags.add_flag(FeatureFlags, str)"
+                "add_flag has two prototypes: FeatureFlags.add_flag(User, str) and feature_flags.add_flag(str)"
             )
 
     def remove_flag(obj, flag):
@@ -271,5 +271,30 @@ class FeatureFlags(models.Model):
             return feature_flags.remove_flag(flag)
         else:
             raise AssertionError(
-                "remove_flag has two prototypes: FeatureFlags.remove_flag(User, str) and feature_flags.remove_flag(FeatureFlags, str)"
+                "remove_flag has two prototypes: FeatureFlags.remove_flag(User, str) and feature_flags.remove_flag(str)"
+            )
+    
+    def sort_flags(obj):
+        """This function sorts flags. No actual functionality.
+        Returns:
+            new sorted feature flags object
+        """
+        if isinstance(obj, FeatureFlags):
+            flag_list = list(map(lambda x: x.strip(), obj.flags.split(',')))
+            obj.flags = ", ".join(sorted(flag_list, key=str.lower))
+            obj.save()
+            return obj
+        elif isinstance(obj, User):
+            if FeatureFlags.exists(obj):
+                feature_flags = FeatureFlags.get(obj)
+                return feature_flags.sort_flags()
+            else:
+                raise FeatureFlags.FeatureFlagsDoNotExistException()
+        elif isinstance(obj, str):
+            user_obj = FeatureFlags.convert_to_user_obj(obj)
+            feature_flags = FeatureFlags.get(user_obj)
+            return feature_flags.sort_flags()
+        else:
+            raise AssertionError(
+                "remove_flag has two prototypes: FeatureFlags.sort_flags(User) and feature_flags.sort_flags()"
             )

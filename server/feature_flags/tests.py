@@ -466,6 +466,26 @@ class FeatureFlagsTestCase(TestCase):
         
         self.assertRaises(FeatureFlags.NoSuchFlagException, new_obj.remove_flag, "test2")
         self.assertRaises(FeatureFlags.NoSuchFlagException, new_obj.remove_flag, "test3")
+    
+    def test_sort_flags_0(self):
+        """prototype check"""
+        self.assertRaises(TypeError, FeatureFlags.sort_flags)
+        
+    def test_sort_flags_1(self):
+        """functionality check"""
+        
+        FeatureFlags.create(self.user, "test2, test1")
+        obj = FeatureFlags.sort_flags(self.user)
+        self.assertEquals(obj.flags, "test1, test2")
+        
+    def test_sort_flags_2(self):
+        """functionality check"""
+        
+        obj = FeatureFlags.create(self.user, "test2, test1")
+        obj.sort_flags()
+        self.assertEquals(obj.flags, "test1, test2")
+        
+        
         
         
 class FeatureFlagsListViewTest(APITestCase):
