@@ -31,28 +31,21 @@
 </ng-container>
 
 <div *ngFor="let notification of notifications">
+
     <ng-container *ngIf="isReceived(notification)">
         <ng-container *ngIf="isRead(notification) === true">
             <ul class="notification">
                 <a role="button" (click)="redirect(notification)">
-                    <ng-template
-                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
-                    ></ng-template>
-                    <ng-template
-                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
-                    ></ng-template>
+                    <ng-template *ngTemplateOutlet="notificationDetails; context: {notification : notification}"></ng-template>
+                    <ng-template *ngTemplateOutlet="debugOutput; context: {notification : notification}"></ng-template>
                 </a>
             </ul>
         </ng-container>
         <ng-container *ngIf="isRead(notification) === false">
             <ul class="notification notification-unread">
                 <a role="button" (click)="redirect(notification)">
-                    <ng-template
-                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
-                    ></ng-template>
-                    <ng-template
-                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
-                    ></ng-template>
+                    <ng-template *ngTemplateOutlet="notificationDetails; context: {notification : notification}"></ng-template>
+                    <ng-template *ngTemplateOutlet="debugOutput; context: {notification : notification}"></ng-template>
                 </a>
             </ul>
         </ng-container>
@@ -83,3 +76,9 @@
         </a>
     </ul>
 </div> -->
+
+<!-- Created by Junghwan: I'm using this for debugging purposes. I'll delete them after the debugging. Sorry about that.-->
+<ul>
+    <li *ngFor="let notification of notifications">{{notification.title}} | {{notification.body}} | {{notification.sent}} | <a href="/#/notification/{{notification.id}}">Link</a></li>
+</ul>
+<!-- End of Junghwan Block -->
