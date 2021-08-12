@@ -4,7 +4,8 @@
 
 {% block navigation %}
 <a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
-<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}" class="nav-link active">{{participant.heartsteps_id}}</a>
+<a href="{% url 'dashboard-cohort-participant' cohort.id participant.heartsteps_id %}"
+    class="nav-link active">{{participant.heartsteps_id}}</a>
 {% endblock %}
 
 {% block content %}
@@ -17,8 +18,7 @@
     <dt>Birth year</dt>
     <dd>{{participant.birth_year}}</dd>
 </dl>
-<a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}"
-    >
+<a href="{% url 'dashboard-cohort-participant-edit' cohort.id participant.heartsteps_id %}">
     Edit participant information
 </a>
 <h3>Participant Status</h3>
@@ -36,14 +36,15 @@
         Disabled
         <a href="{% url 'dashboard-cohort-participant-enable' cohort.id participant.heartsteps_id %}">
             Enable Participant
-        </a>                    
+        </a>
     </dd>
     {% endif %}
     <dt>Fitbit Status</dt>
     <dd>
         {% if fitbit_authorized %}
         Authorized
-        <a href="{% url 'dashboard-cohort-participant-fitbit-disable' cohort.id participant.heartsteps_id %}">Disable fitbit account</a>
+        <a href="{% url 'dashboard-cohort-participant-fitbit-disable' cohort.id participant.heartsteps_id %}">Disable
+            fitbit account</a>
         {% else %}
         Unauthorized
         {% endif %}
@@ -76,7 +77,7 @@
 </dl>
 <h3>Interventions</h3>
 <dl>
-{% for configuration in configurations %}
+    {% for configuration in configurations %}
     <dt>{{configuration.title}}</dt>
     <dd>
         {% if configuration.enabled %}
@@ -98,63 +99,55 @@
         {% endfor %}
     </dd>
     {% endif %}
-{% endfor %}
+    {% endfor %}
 </dl>
 <nav>
     <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-intervention-summary' cohort.id participant.heartsteps_id %}">
                 Intervention Summary
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-activity-summary' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-activity-summary' cohort.id participant.heartsteps_id %}">
                 Activity Summary
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-morning-messages' cohort.id participant.heartsteps_id %}">
                 Morning Messages
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-sms-messages' cohort.id participant.heartsteps_id %}">
                 Text Messages
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-notifications' cohort.id participant.heartsteps_id %}">
                 Notifications
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-export' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-export' cohort.id participant.heartsteps_id %}">
                 Data Exports
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-page-views' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-page-views' cohort.id participant.heartsteps_id %}">
                 Page Views
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link"
-                href="{% url 'dashboard-cohort-participant-user-logs' cohort.id participant.heartsteps_id %}"
-                >
+                href="{% url 'dashboard-cohort-participant-user-logs' cohort.id participant.heartsteps_id %}">
                 User Logs
             </a>
         </li>
@@ -173,7 +166,8 @@
     <input type="submit" value="Send test notification with generic_messages app" />
 </form>
 
-<form method="POST" action="{% url 'dashboard-cohort-participant-send-walking-suggestion-survey' cohort.id participant.heartsteps_id %}">
+<form method="POST"
+    action="{% url 'dashboard-cohort-participant-send-walking-suggestion-survey' cohort.id participant.heartsteps_id %}">
     {% csrf_token %}
     <input type="submit" value="Send Walking Suggestion Survey" />
 </form>
