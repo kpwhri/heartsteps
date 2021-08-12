@@ -398,7 +398,34 @@ class FeatureFlagsTestCase(TestCase):
         self.assertEqual(obj3.flags, "abc")
         self.assertFalse(boolean3)
         
-
+    def test_create_or_update_0(self):
+        self.assertRaises(TypeError, FeatureFlags.create_or_update)
+        self.assertRaises(TypeError, FeatureFlags.create_or_update, 1)
+        self.assertRaises(TypeError, FeatureFlags.create_or_update, "x")
+        self.assertRaises(TypeError, FeatureFlags.create_or_update, self.user)
+        self.assertRaises(AssertionError, FeatureFlags.create_or_update, 1, "x")
+        self.assertRaises(AssertionError, FeatureFlags.create_or_update, self.user, 1)
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.create_or_update, self.user.username + "abc", "abc")
+    
+    def test_create_or_update_1(self):
+        self.assertFalse(FeatureFlags.exists(self.user))
+        
+        # if you didn't have a FeatureFlags object, it will create a FeatureFlags object and the boolean will be true
+        obj1, boolean1, old_value1 = FeatureFlags.create_or_update(self.user, "test")
+        self.assertEqual(obj1.flags, "test")
+        self.assertTrue(boolean1)
+        self.assertIsNone(old_value1)
+        
+        self.assertTrue(FeatureFlags.exists(self.user))
+        
+        # if you have a FeatureFlags object, it will get the FeatureFlags object and the boolean will be false
+        obj2, boolean2, old_value2 = FeatureFlags.create_or_update(self.user, "test2")
+        self.assertEqual(obj2.flags, "test2")
+        self.assertFalse(boolean2)
+        self.assertEqual(old_value2, "test")
+        # but the uuid will be the same
+        self.assertEqual(str(obj1.uuid), str(obj2.uuid))
+        
 class FeatureFlagsListViewTest(APITestCase):
     
     def setUp(self):
