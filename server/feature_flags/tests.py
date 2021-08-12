@@ -370,7 +370,33 @@ class FeatureFlagsTestCase(TestCase):
         self.assertEqual(FeatureFlags.has_flag(self.user.username, "test4"), True)
         self.assertEqual(FeatureFlags.has_flag(self.user.username, "test5"), False)
         
+    def test_create_or_get_0(self):
+        self.assertRaises(TypeError, FeatureFlags.create_or_get)
+        self.assertRaises(AssertionError, FeatureFlags.create_or_get, 1)
+        self.assertRaises(FeatureFlags.NoSuchUserException, FeatureFlags.create_or_get, "x")
+    
+    def test_create_or_get_1(self):
+        self.assertFalse(FeatureFlags.exists(self.user))
         
+        # if you didn't have a FeatureFlags object, it will create a FeatureFlags object and the boolean will be true
+        obj1, boolean1 = FeatureFlags.create_or_get(self.user)
+        self.assertEqual(obj1.flags, "")
+        self.assertTrue(boolean1)
+        
+        self.assertTrue(FeatureFlags.exists(self.user))
+        
+        # if you have a FeatureFlags object, it will get the FeatureFlags object and the boolean will be false
+        obj2, boolean2 = FeatureFlags.create_or_get(self.user)
+        self.assertEqual(obj2.flags, "")
+        self.assertFalse(boolean2)
+        
+        # if you update the feature flag,
+        FeatureFlags.update(self.user, "abc")
+        
+        # it will get the updated FeatureFlags object and the boolean will be false
+        obj3, boolean3 = FeatureFlags.create_or_get(self.user)
+        self.assertEqual(obj3.flags, "abc")
+        self.assertFalse(boolean3)
         
 
 class FeatureFlagsListViewTest(APITestCase):

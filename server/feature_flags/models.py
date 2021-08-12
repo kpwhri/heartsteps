@@ -174,3 +174,14 @@ class FeatureFlags(models.Model):
             return feature_flags.has_flag(flag)    
         else:
             raise AssertionError("has_flag has two prototypes: FeatureFlags.has_flag(User, str) and feature_flags.has_flag(FeatureFlags, str)")       
+
+    def create_or_get(user):
+        """this function only makes it easier to call create when you don't care if the feature flags of the user exist or not. This keeps the original value. So it's not that dangerous.
+
+        Returns:
+            true: FeatureFlags object is created, false: FeatureFlags object is just retrieved
+        """
+        if FeatureFlags.exists(user):
+            return (FeatureFlags.get(user), False)
+        else:
+            return (FeatureFlags.create(user), True)
