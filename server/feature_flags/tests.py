@@ -444,6 +444,29 @@ class FeatureFlagsTestCase(TestCase):
         self.assertTrue(new_obj.has_flag("test2"))
         self.assertTrue(FeatureFlags.has_flag(self.user, "test1"))
         self.assertTrue(FeatureFlags.has_flag(self.user, "test2"))
+    
+    def test_remove_flag_0(self):
+        """prototype check"""
+        self.assertRaises(TypeError, FeatureFlags.remove_flag)
+        
+        feature_flags = FeatureFlags.create(self.user)
+        self.assertRaises(TypeError, feature_flags.remove_flag)
+        
+    def test_remove_flag_1(self):
+        """functionality check"""
+        
+        # it will raise an exception if you call it before the creation of feature flags
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException, FeatureFlags.remove_flag, self.user, "test")
+        
+        FeatureFlags.create(self.user, "test1, test2")
+        new_obj = FeatureFlags.remove_flag(self.user, "test2")
+        
+        self.assertTrue(new_obj.has_flag("test1"))
+        self.assertFalse(new_obj.has_flag("test2"))
+        
+        self.assertRaises(FeatureFlags.NoSuchFlagException, new_obj.remove_flag, "test2")
+        self.assertRaises(FeatureFlags.NoSuchFlagException, new_obj.remove_flag, "test3")
+        
         
 class FeatureFlagsListViewTest(APITestCase):
     

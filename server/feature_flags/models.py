@@ -16,6 +16,9 @@ class FeatureFlags(models.Model):
     class NoSuchUserException(Exception):
         pass
 
+    class NoSuchFlagException(Exception):
+        pass
+    
     class Meta:
         verbose_name = 'Feature Flags'
         verbose_name_plural = 'Feature Flags'
@@ -240,4 +243,33 @@ class FeatureFlags(models.Model):
         else:
             raise AssertionError(
                 "add_flag has two prototypes: FeatureFlags.add_flag(User, str) and feature_flags.add_flag(FeatureFlags, str)"
+            )
+
+    def remove_flag(obj, flag):
+        """This function removes an existing flag from the flags.
+        Returns:
+            new object without the flag
+        """
+        if isinstance(obj, FeatureFlags):
+            if obj.has_flag(flag):
+                flag_list = list(map(lambda x: x.strip(), obj.flags.split(',')))
+                flag_list.remove(flag)
+                obj.flags = ", ".join(flag_list)
+                obj.save()
+                return obj
+            else:
+                raise FeatureFlags.NoSuchFlagException()
+        elif isinstance(obj, User):
+            if FeatureFlags.exists(obj):
+                feature_flags = FeatureFlags.get(obj)
+                return feature_flags.remove_flag(flag)
+            else:
+                raise FeatureFlags.FeatureFlagsDoNotExistException()
+        elif isinstance(obj, str):
+            user_obj = FeatureFlags.convert_to_user_obj(obj)
+            feature_flags = FeatureFlags.get(user_obj)
+            return feature_flags.remove_flag(flag)
+        else:
+            raise AssertionError(
+                "remove_flag has two prototypes: FeatureFlags.remove_flag(User, str) and feature_flags.remove_flag(FeatureFlags, str)"
             )
