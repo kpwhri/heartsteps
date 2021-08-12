@@ -121,12 +121,10 @@ class ActivitySummaryViewTests(TestBase):
         self.assertEqual(Day.objects.count(), 4)
 
     def test_date_range_misformatted(self):
-        response = self.client.get(reverse('activity-summary-date-range', kwargs={
+        self.assertRaises(ValueError, self.client.get, reverse('activity-summary-date-range', kwargs={
             'start': '2018/10/16',
             'end': 'misformatted date'
         }))
-
-        self.assertEqual(response.status_code, 404)
 
     @patch.object(FitbitClient, 'get_timezone', return_value=pytz.UTC)
     @patch.object(FitbitDayService, 'update')

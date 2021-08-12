@@ -19,7 +19,14 @@ export class FitbitClockFaceService {
         private browserService: BrowserService,
         private storageService: StorageService
     ) {
-        this.load();
+        this.load()
+            .then(() => {
+                console.log("Fitbit clock face loading success.");
+            })
+            .catch(() => {
+                //TODO: handling fitbit clock face error should be implemented
+                console.log("Fitbit clock face loading error. This should be further implemented (TODO #278)");
+            });
     }
 
     private save(clockFace: ClockFace): Promise<ClockFace> {
