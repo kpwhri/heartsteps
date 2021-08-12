@@ -26,7 +26,7 @@ class FeatureFlags(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     flags = models.TextField(default="")
-
+        
     def __str__(self):
         return self.user.username
 
@@ -216,3 +216,28 @@ class FeatureFlags(models.Model):
             return (FeatureFlags.update(user, flags), False, old_flag)
         else:
             return (FeatureFlags.create(user, flags), True, None)
+        
+    def add_flag(obj, flag):
+        """This function adds a new flag to the flags.
+        Returns:
+            new object with the flag
+        """
+        if isinstance(obj, FeatureFlags):
+            if not obj.has_flag(flag):
+                obj.flags = "{}, {}".format(obj.flags, flag)
+                obj.save()
+            return obj
+        elif isinstance(obj, User):
+            if FeatureFlags.exists(obj):
+                feature_flags = FeatureFlags.get(obj)
+                return feature_flags.add_flag(flag)
+            else:
+                raise FeatureFlags.FeatureFlagsDoNotExistException()
+        elif isinstance(obj, str):
+            user_obj = FeatureFlags.convert_to_user_obj(obj)
+            feature_flags = FeatureFlags.get(user_obj)
+            return feature_flags.add_flag(flag)
+        else:
+            raise AssertionError(
+                "add_flag has two prototypes: FeatureFlags.add_flag(User, str) and feature_flags.add_flag(FeatureFlags, str)"
+            )

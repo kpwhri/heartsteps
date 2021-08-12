@@ -426,6 +426,25 @@ class FeatureFlagsTestCase(TestCase):
         # but the uuid will be the same
         self.assertEqual(str(obj1.uuid), str(obj2.uuid))
         
+    def test_add_flag_0(self):
+        """prototype check"""
+        self.assertRaises(TypeError, FeatureFlags.add_flag)
+        
+        feature_flags = FeatureFlags.create(self.user)
+        self.assertRaises(TypeError, feature_flags.add_flag)
+        
+    def test_add_flag_1(self):
+        # it will raise an exception if you call it before the creation of feature flags
+        self.assertRaises(FeatureFlags.FeatureFlagsDoNotExistException, FeatureFlags.add_flag, self.user, "test")
+        
+        FeatureFlags.create(self.user, "test1")
+        new_obj = FeatureFlags.add_flag(self.user, "test2")
+        
+        self.assertTrue(new_obj.has_flag("test1"))
+        self.assertTrue(new_obj.has_flag("test2"))
+        self.assertTrue(FeatureFlags.has_flag(self.user, "test1"))
+        self.assertTrue(FeatureFlags.has_flag(self.user, "test2"))
+        
 class FeatureFlagsListViewTest(APITestCase):
     
     def setUp(self):
