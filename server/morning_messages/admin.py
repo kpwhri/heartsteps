@@ -23,7 +23,8 @@ def send_morning_message(modeladmin, request, queryset):
 class MorningMessageConfigurationAdmin(admin.ModelAdmin):
     list_display = ['username', 'enabled']
     fields = ['user', 'enabled', 'next_morning_message']
-    readonly_fields = ['user', 'next_morning_message']
+    # readonly_fields = ['user', 'next_morning_message']
+    readonly_fields = ['next_morning_message']
     actions = [send_morning_message]
 
     def username(self, instance):

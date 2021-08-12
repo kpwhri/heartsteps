@@ -18,6 +18,8 @@ from fitbit_api.models import FitbitSubscription
 from fitbit_api.models import FitbitSubscriptionUpdate
 from fitbit_api.models import User
 
+import oauthlib
+
 class FitbitService:
 
     class AccountNeverUpdated(RuntimeError):
@@ -257,7 +259,9 @@ class FitbitClient():
             timezone = response['user']['timezone']
             self.__timezone = pytz.timezone(timezone)
             return self.__timezone
-        except HTTPUnauthorized:
+        except (HTTPUnauthorized, oauthlib.oauth2.rfc6749.errors.InvalidGrantError) as e:
+            from user_event_logs.models import EventLog
+            EventLog.log(None, e, EventLog.ERROR)
             raise FitbitClient.Unauthorized()
 
     def __request_activities(self, date):
