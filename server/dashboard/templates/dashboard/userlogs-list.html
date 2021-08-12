@@ -26,6 +26,17 @@
                         {% endfor %}
                     </select>
                 </td>
+                <td>
+                <form action="{% url 'dashboard-userlogs-list' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" name="selected_user" value="{{ selected_user }}"/>
+                    <input type="hidden" name="page" value="{{ page }}"/>
+                    <button type="submit" class="btn btn-primary mb-2 m-1">Refresh</button>
+                </form>
+                </td>
+                <td>
+                    <p>Server time: {{server_time}}
+                </td>
             </form>
             <td style="width: auto;">&nbsp;</td>
             {% if num_pages > 1 %}

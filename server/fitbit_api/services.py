@@ -261,7 +261,8 @@ class FitbitClient():
             return self.__timezone
         except (HTTPUnauthorized, oauthlib.oauth2.rfc6749.errors.InvalidGrantError) as e:
             from user_event_logs.models import EventLog
-            EventLog.log(None, e, EventLog.ERROR)
+            import pprint
+            EventLog.log(None, "server/fitbit_api/services.py:264/{}".format(pprint.pformat(e.__dict__)), EventLog.ERROR)
             raise FitbitClient.Unauthorized()
 
     def __request_activities(self, date):

@@ -2195,7 +2195,7 @@ class UserLogsList(TemplateView):
         serialized_user_logs = []
         for user_log in page_obj:
             serialized_user_logs.append({
-                'timestamp': user_log.timestamp,
+                'timestamp': user_log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                 'status': user_log.status,
                 'action': user_log.action
             })
@@ -2205,6 +2205,7 @@ class UserLogsList(TemplateView):
         context['pagesize'] = pagesize
         context['num_pages'] = paginator.num_pages
         context['pages'] = range(1, paginator.num_pages + 1)
+        context['server_time'] = str(datetime.now())
         
         return TemplateResponse(request, self.template_name, context)
     
