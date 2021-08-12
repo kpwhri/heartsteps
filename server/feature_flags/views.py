@@ -19,7 +19,10 @@ class FeatureFlagsList(APIView):
             # there is a test code for this logic. (test_get_feature_flags_2)
             # if anybody change the logic here, it will make the test failing
             test_user, _ = User.objects.get_or_create(username="test")
-            feature_flags = FeatureFlags.create(test_user, "")
+            if FeatureFlags.exists(test_user):
+                feature_flags = FeatureFlags.get(test_user)
+            else:
+                feature_flags = FeatureFlags.create(test_user, "")
             serialized = FeatureFlagsSerializer(feature_flags)
             return Response(serialized.data, status=status.HTTP_200_OK)
         
