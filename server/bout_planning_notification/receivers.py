@@ -43,6 +43,3 @@ def FeatureFlags_updated(instance, created, **kwargs):
         # four DailyTasks will be newly made by three hour gap
         for i in range(first_bout_planning_time.hour, first_bout_planning_time.hour + 12, 3):
             create_daily_task(instance.user, i)
-
-    for i in range(15, 25):
-        create_daily_task(instance.user, 21, i)

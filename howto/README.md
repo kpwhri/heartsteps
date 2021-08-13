@@ -1,6 +1,6 @@
 # HOW-TOs
 
-This page will contain a list of HOW-TO documentations.
+This page will contain a list of HOW-TO documentations. Please order the docs easy->difficult order.
 
 ## Development Environment & Debugging
 
@@ -12,6 +12,7 @@ This page will contain a list of HOW-TO documentations.
 
 ## Server-side Programming
 
+* [How to convert server time to user's local datetime](server/manage_user_local_time.md)
 * [How to create/manage/delete a new daily task](server/create_daily_tasks.md)
 
 
