@@ -1,16 +1,14 @@
-# HOWTO's 
+# How to create an hello world landing page
 
-## How to create an hello world landing page
-
-### Goal
+## Goal
 
 * Create a "hello-world" page with direct access url of "http://localhost:8100/#/hello"
 
-### Requirements
+## Requirements
 
 * Any modern web browser
 
-### Steps
+## Steps
 
 * If you are logged in, go to settings and log out.
 
@@ -275,3 +273,5 @@ export class HelloPage {
   ) {}
 }
 ```
+
+----
