@@ -74,5 +74,8 @@ app.conf.task_routes = {
     },
     'nlm.tasks.*': {
         'queue': 'messages'
+    },
+    'bout_planning_notification.tasks.*': {
+        'queue': 'messages'
     }
 }

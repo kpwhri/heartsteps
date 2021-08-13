@@ -372,3 +372,33 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         self.assertEquals(obj4.minute, 0)
 
         self.assertEquals(obj1.id, obj4.id)
+
+    def test_create_daily_task_1(self):
+        # The following statement will create a FirstBoutPlanningTime as 8:00.
+        # This means, 4 Daily Tasks will be created at 8am, 11am, 2pm, and 5pm
+        FirstBoutPlanningTime.create(self.user, time="08:00")
+        
+        daily_task_list = FirstBoutPlanningTime.get_daily_tasks(self.user)
+        
+        self.assertEquals(len(daily_task_list), 4)
+        self.assertEquals(daily_task_list[0].time, "08:00")
+        self.assertEquals(daily_task_list[1].time, "11:00")
+        self.assertEquals(daily_task_list[2].time, "14:00")
+        self.assertEquals(daily_task_list[3].time, "17:00")
+
+    def test_create_daily_task_2(self):
+        # The following statement will create a FirstBoutPlanningTime as 8:00.
+        # This means, 4 Daily Tasks will be created at 8am, 11am, 2pm, and 5pm
+        FirstBoutPlanningTime.create(self.user, time="08:00")
+        
+        # Then, change the first_bout_planning_time to 09:00.
+        # This means, existing 4 Daily Tasks will be deleted, and it will create new daily tasks at 9am, 12am, 3pm, and 6pm
+        FirstBoutPlanningTime.update(self.user, time="09:00")
+        
+        daily_task_list = FirstBoutPlanningTime.get_daily_tasks(self.user)
+        
+        self.assertEquals(len(daily_task_list), 4)
+        self.assertEquals(daily_task_list[0].time, "09:00")
+        self.assertEquals(daily_task_list[1].time, "12:00")
+        self.assertEquals(daily_task_list[2].time, "15:00")
+        self.assertEquals(daily_task_list[3].time, "18:00")

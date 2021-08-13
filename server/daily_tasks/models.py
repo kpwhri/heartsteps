@@ -9,6 +9,7 @@ from django.utils import timezone
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from days.services import DayService
+from user_event_logs.models import EventLog
 
 DAYS_OF_WEEK = [
     'monday',
@@ -48,6 +49,10 @@ class DailyTask(models.Model):
 
     def __str__(self):
         if self.task:
+            return "{} | {} | {} | {} | {}".format(self.user, self.category, self.task, self.day, self.time)
+        else:
+            return "{} | {} | {} | {}".format(self.user, self.category, self.day, self.time)
+        if self.task:
             return self.task.name
         else:
             return "%s (no task)" % (self.user)
@@ -86,9 +91,13 @@ class DailyTask(models.Model):
             hour = hour,
             minute = minute
         )
+        
+        EventLog.log(user, "DailyTasks at {} is created: {}({})".format(daily_task.time, name, task), EventLog.INFO)
+        
         return daily_task
 
     def create_task(self, task, name, arguments):
+        # print("Creating task: {}|{}|{}".format(task, name, arguments))
         try:
             self.task = PeriodicTask.objects.get(name=name)
         except PeriodicTask.DoesNotExist:
@@ -107,6 +116,10 @@ class DailyTask(models.Model):
         self.task.kwargs = json.dumps(arguments)
         self.task.save()
 
+    @property
+    def time(self):
+        return "{:02}:{:02}".format(self.hour, self.minute)
+    
     def set_time(self, hour, minute, day=None):
         time = datetime.now(self.timezone).replace(
             hour = hour,
@@ -140,12 +153,34 @@ class DailyTask(models.Model):
 
     def delete_task(self):
         try:
+            msg = "DailyTasks({}) at {} is deleted: {}".format(self.user.username, self.time, self)
+        except PeriodicTask.DoesNotExist as e:
+            msg = "DailyTasks({}) at {} is deleted: {}".format(self.user.username, self.time, self.category)
+            
+        try:
             if self.task:
                 self.task.crontab.delete()
                 self.task.delete()
         except PeriodicTask.DoesNotExist:
             pass
+        EventLog.log(None, msg, EventLog.INFO)
 
+    def search(user=None, category=None):
+        """Search for tasks by user and category
+        
+        Returns: list of daily tasks
+        """
+        
+        query = DailyTask.objects
+        
+        if user is not None:
+            query = query.filter(user=user)
+        if category is not None:
+            query = query.filter(category=category)
+        
+        return list(query.order_by("hour", "minute").all())
+        
+    
     def get_next_run_time(self):
         if not self.enabled:
             return None
