@@ -171,15 +171,17 @@ AssertionError: 0 != 4
 
   * Put the following somewhere safe before FeatureFlags_updated()
 
-        def create_daily_task(user, hour):
+        def create_daily_task(user, hour, minute=0):
           return DailyTask.create_daily_task(user=user,
                                       category='BOUT_PLANNING',
                                       task='bout_planning_notification.tasks.bout_planning_decision_making',
-                                      name='BoutPlanningNotificationDecisionMaking',
+                                      name='{} BoutPlanningNotificationDecisionMaking {:02} {:02}'.format(user.username, hour, minute),
                                       arguments={"username": user.username},
                                       day=None,
                                       hour=hour,
-                                      minute=0)
+                                      minute=minute)
+
+  * Let's use current 'bout_planning_notification.tasks.bout_planning_decision_making'. If you'd like, you can use your own task.
 
 * Save everything, then let's see how the test works:
 

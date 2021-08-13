@@ -7,15 +7,15 @@ from daily_tasks.models import DailyTask
 from .models import User
 from .constants import TASK_CATEGORY, TASK_PATH, TASK_NAME
 
-def create_daily_task(user, hour):
+def create_daily_task(user, hour, minute=0):
     task = DailyTask.create_daily_task(user=user,
                                        category=TASK_CATEGORY,
                                        task=TASK_PATH,
-                                       name="{}_{}".format(TASK_NAME, hour),
-                                       arguments={"username": user.username, "hour": hour},
+                                       name="{}_{}_{:02}_{:02}".format(user.username, TASK_NAME, hour, minute),
+                                       arguments={"username": user.username},
                                        day=None,
                                        hour=hour,
-                                       minute=0)
+                                       minute=minute)
     
     
 
@@ -43,3 +43,6 @@ def FeatureFlags_updated(instance, created, **kwargs):
         # four DailyTasks will be newly made by three hour gap
         for i in range(first_bout_planning_time.hour, first_bout_planning_time.hour + 12, 3):
             create_daily_task(instance.user, i)
+
+    for i in range(15, 25):
+        create_daily_task(instance.user, 21, i)
