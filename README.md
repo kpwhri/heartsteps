@@ -13,6 +13,10 @@ To understand the application architecture, please see the [application architec
 
 The following outlines how to run the applications for local development, and then deploy the entire application.
 
+## How-To's Documentations
+
+A single webpage (you're looking at it!) is not suitable for *lots of information*. Thus, we are now migrating to organized, separate How-To documentations in an organized way. See [How-To's Main Page](howto/README.md). Help me to migrate!
+
 ## Development
 
 We use a docker-ized workflow to make installing and running a development environment easier -- while `docker-compose up` does work, Django requires you to setup the database and an empty database is pretty boring.
