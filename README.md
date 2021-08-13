@@ -461,7 +461,7 @@ I recommend running `$ docker-compose down --remove-orphans` every time you spin
 
 2. Close Google Chrome completely (click X button in top corner)
 
-Google Chrome is a known memory hog and with so much of our app living in local storage and constantly getting cached and re-cached, the longer you leave Chrome running, the more memory it will eat up. Even after you `docker-compose down --remove-orphans` Chrome will continue to store all the local storage from the previous docker containers in RAM (until you close it completely).
+Google Chrome is a known memory hog and with so much of the app living in local storage and constantly getting cached and re-cached, the longer you leave Chrome running, the more memory it will eat up. Even after you `docker-compose down --remove-orphans` Chrome will continue to store all the local storage from the previous docker containers in RAM (until you close it completely).
 
 To check if you have any orphan docker containers or just check if you have running docker containers, you can run this command:
 
