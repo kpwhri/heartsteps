@@ -24,6 +24,10 @@ User = get_user_model()
 
 
 class Study(models.Model):
+    class Meta:
+        verbose_name = 'Study'
+        verbose_name_plural = 'Studies'
+
     name = models.CharField(
         max_length=75,
         unique=True
