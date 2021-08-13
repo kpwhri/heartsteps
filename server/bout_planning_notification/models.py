@@ -11,8 +11,6 @@ User = get_user_model()
 
 from django.db import models
 
-# Create your models here.
-
 
 class FirstBoutPlanningTime(models.Model):
     class FirstBoutPlanningTimeExistException(Exception):
@@ -31,6 +29,12 @@ class FirstBoutPlanningTime(models.Model):
 
     active = models.BooleanField(default=True)
 
+    def __str__(self):
+        if self.active:
+            return "FirstBoutPlanningTime = {} ({})".format(self.time, self.user)
+        else:
+            return "Not active ({})".format(self.user)
+    
     @property
     def time(self):
         return "{:02}:{:02}".format(self.hour, self.minute)

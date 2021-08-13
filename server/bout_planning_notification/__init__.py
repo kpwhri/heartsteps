@@ -1,0 +1,1 @@
+default_app_config = 'bout_planning_notification.apps.BoutPlanningNotificationConfig'

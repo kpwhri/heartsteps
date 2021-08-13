@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import FirstBoutPlanningTime
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
-    list_display = ['user', 'time', 'active']
-    fields = ['user', 'time', 'active']
+    list_display = ['user', 'hour', 'minute', 'active']
+    fields = ['user', 'hour', 'minute', 'active']
 
 admin.site.register(FirstBoutPlanningTime, FirstBoutPlanningTimeAdmin)
