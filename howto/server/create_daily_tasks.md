@@ -272,4 +272,8 @@ Preserving test database for alias 'default'...
 
 * https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html
 
+* https://github.com/kpwhri/heartsteps/blob/master/server/bout_planning_notification/receivers.py
 
+* https://github.com/kpwhri/heartsteps/blob/master/server/bout_planning_notification/models.py#L185
+
+* https://github.com/kpwhri/heartsteps/tree/master/server/daily_tasks
