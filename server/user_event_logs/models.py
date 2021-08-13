@@ -25,7 +25,7 @@ class EventLog(models.Model):
         on_delete = models.CASCADE
     )
     status = models.CharField(max_length=3, choices=STATES)
-    action = models.CharField(max_length=250, null=True)
+    action = models.TextField(null=True, blank=True)
     # data = models.JSONField(null=True)
 
     timestamp = models.DateTimeField(auto_now_add=True)
