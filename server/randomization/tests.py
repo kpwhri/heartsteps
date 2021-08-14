@@ -305,13 +305,13 @@ class DecisionContextTest(TestCase):
         Place.objects.create(
             user = decision_service.user,
             type = 'home',
-            latitude = 123.456,
+            latitude = 23.456,
             longitude = 42.42
         )
         Place.objects.create(
             user = decision_service.user,
             type = 'work',
-            latitude = 123.123,
+            latitude = 23.123,
             longitude = 42.05
         )
 

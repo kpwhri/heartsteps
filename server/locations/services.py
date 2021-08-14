@@ -145,6 +145,7 @@ class LocationService:
             user = self.__user,
             type = Place.HOME
         ).first()
+        
         if home:
             location = Location(
                 user = self.__user,

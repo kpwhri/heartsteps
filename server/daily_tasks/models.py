@@ -91,13 +91,11 @@ class DailyTask(models.Model):
             hour = hour,
             minute = minute
         )
-        
         EventLog.log(user, "DailyTasks at {} is created: {}({})".format(daily_task.time, name, task), EventLog.INFO)
         
         return daily_task
 
     def create_task(self, task, name, arguments):
-        # print("Creating task: {}|{}|{}".format(task, name, arguments))
         try:
             self.task = PeriodicTask.objects.get(name=name)
         except PeriodicTask.DoesNotExist:

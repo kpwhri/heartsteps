@@ -1,8 +1,10 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from .models import FirstBoutPlanningTime
+from locations.models import Place
 from user_event_logs.models import EventLog
-
+from days.services import DayService
+from django.db import transaction
 from daily_tasks.models import DailyTask
 from .models import User
 from .constants import TASK_CATEGORY, TASK_PATH, TASK_NAME
@@ -29,7 +31,7 @@ def delete_daily_task(user):
 
 
 @receiver(post_save, sender=FirstBoutPlanningTime)
-def FeatureFlags_updated(instance, created, **kwargs):
+def FirstBoutPlanningTime_updated(instance, created, **kwargs):
     if created:
         EventLog.log(instance.user, "FirstBoutPlanningTime created: {}".format(instance), EventLog.INFO)
         
@@ -43,3 +45,19 @@ def FeatureFlags_updated(instance, created, **kwargs):
         # four DailyTasks will be newly made by three hour gap
         for i in range(first_bout_planning_time.hour, first_bout_planning_time.hour + 12, 3):
             create_daily_task(instance.user, i)
+            
+@receiver(post_save, sender=Place)
+@transaction.atomic
+def Place_updated(instance, created, **kwargs):
+    if instance.type == 'home':
+        user = instance.user
+        service = DayService(user=user)
+        service.update_current_day_timezone_to_default()
+        
+        EventLog.log(user, "Place is created/updated: {}".format(instance), EventLog.INFO)
+        if FirstBoutPlanningTime.exists(user):
+            delete_daily_task(user)
+            first_bout_planning_time = FirstBoutPlanningTime.get(user)
+            # four DailyTasks will be newly made by three hour gap
+            for i in range(first_bout_planning_time.hour, first_bout_planning_time.hour + 12, 3):
+                create_daily_task(user, i)

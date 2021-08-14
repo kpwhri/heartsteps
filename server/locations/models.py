@@ -47,7 +47,7 @@ class Place(models.Model):
 
     def __str__(self):
         return "%s (%s)" % (self.user, self.type)
-
+    
 class Location(models.Model):
     user = models.ForeignKey(
         User,

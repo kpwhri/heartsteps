@@ -25,7 +25,23 @@
       server_time = datetime.now()
       user_local_time = service.localize(server_time)
 
-* to be updated
+* Using timezone
+      
+      from datetime import datetime
+      from days.services import DayService
+
+      ...
+
+      service = DayService(self.user)
+
+      # what timezone is the user in?
+      tz = service.service.get_current_timezone()
+      
+      # getting local time
+      time = datetime.now(self.timezone).replace(
+            hour = hour,
+            minute = minute
+        )      
 
 ## See Also
 * to be updated

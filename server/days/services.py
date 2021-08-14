@@ -41,6 +41,9 @@ class DayService:
         self.__user = user
 
     def get_day(self, dt):
+        """Returns the first(?) Day object of a particular day.
+        If there's none, create one.
+        """
         if type(dt) is datetime.date:
             return self.get_day_for_date(dt)
         day = Day.objects.filter(
@@ -62,6 +65,14 @@ class DayService:
             return self.create_day_for(date)
 
     def create_day_for(self, dt):
+        """create a Day object for a particular date object
+
+        Args:
+            dt (datetime)
+
+        Returns:
+            Day object
+        """
         tz = self.get_best_timezone(dt)
         if type(dt) is datetime.datetime:
             dt = dt.astimezone(tz)
@@ -81,6 +92,11 @@ class DayService:
             return self.get_best_timezone_for_datetime(dt)
 
     def get_best_timezone_for_date(self, dt):
+        """returns the best guess for the timezone
+            - if the last observed day exists, returns its timezone
+            - if not, the first observed day from the date is returned
+            - if not, return the default timezone
+        """
         previous_day = Day.objects.filter(
             user = self.__user,
             date__lte = dt
@@ -110,15 +126,30 @@ class DayService:
             return next_day.get_timezone()
         return self.get_default_timezone()
 
+    def update_current_day_timezone_to_default(self):
+        """update Day object with default timezone
+
+        Returns:
+            updated timezone str
+        """
+        tz = self.get_default_timezone()
+        day = self.get_day(timezone.now())
+        day.timezone = tz
+        day.save()
+        
+        return tz
+        
     def get_default_timezone(self):
         service = LocationService(user = self.__user)
         return service.get_home_timezone()
 
     def get_timezone_at(self, dt):
+        """Returns the time zone according to the location at a particular timepoint"""
         day = self.get_day(dt)
         return day.get_timezone()
 
     def get_current_timezone(self):
+        """Returns the current time zone according to the latest location"""
         return self.get_timezone_at(timezone.now())
 
     def get_datetime_at(self, dt):
