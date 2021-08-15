@@ -15,6 +15,12 @@ export class NotificationCenterService {
 
     private unreadStatus: BehaviorSubject<boolean> = new BehaviorSubject(true);
     public currentUnreadStatus = this.unreadStatus.asObservable();
+
+    private offlineStatus: BehaviorSubject<boolean> = new BehaviorSubject(
+        false
+    );
+    public currentOfflineStatus = this.offlineStatus.asObservable();
+
     public notificationRefreshInterval: any;
 
     constructor(
@@ -57,6 +63,7 @@ export class NotificationCenterService {
                     this.deserializeMessage,
                     this
                 );
+                this.offlineStatus.next(false);
                 this.notifications.next(notifications);
                 this.unreadStatus.next(newStatus);
                 return notifications;
@@ -65,6 +72,7 @@ export class NotificationCenterService {
                 return this.set(notifications);
             })
             .catch(() => {
+                this.offlineStatus.next(true);
                 return this.loadLocalNotifications();
             });
     }

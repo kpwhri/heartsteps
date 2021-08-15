@@ -40,6 +40,9 @@ export class HomePage implements OnInit, OnDestroy {
     private featureFlagSubscription: Subscription;
     public featureFlags: FeatureFlags;
 
+    private offlineStatusSubscription: Subscription;
+    public offlineStatus: boolean = false;
+
     public tabs: Array<Tab> = [
         {
             name: "Dashboard",
@@ -85,6 +88,11 @@ export class HomePage implements OnInit, OnDestroy {
                 (unreadStatus) => (this.haveUnread = unreadStatus)
             );
 
+        this.offlineStatusSubscription =
+            this.notificationCenterService.currentOfflineStatus.subscribe(
+                (offlineStatus) => (this.offlineStatus = offlineStatus)
+            );
+
         this.featureFlagSubscription =
             this.featureFlagService.currentFeatureFlags.subscribe(
                 (flags) => (this.featureFlags = flags)
@@ -97,6 +105,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.routerSubscription.unsubscribe();
         this.updatingParticipantSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();
+        this.offlineStatusSubscription.unsubscribe();
         this.featureFlagSubscription.unsubscribe();
     }
 

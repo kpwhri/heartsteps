@@ -1,7 +1,18 @@
 <header>
     <h2>
-        {{pageTitle}}
-        <!-- <ng-container *ngIf="notificationCenterFlag()"> -->
+        <ng-container *ngIf="offlineStatus === true">
+            <span id="page-title-offline">{{pageTitle}}</span>
+        </ng-container>
+        <ng-container *ngIf="offlineStatus === false">
+            <span id="page-title">{{pageTitle}}</span>
+        </ng-container>
+        <ng-container *ngIf="offlineStatus">
+            <img
+                class="airplane-mode"
+                src="../../assets/icon/outline_airplanemode_active_black_24dp.png"
+                alt="OFFLINE"
+            />
+        </ng-container>
         <a routerLink="notification-center">
             <ng-container *ngIf="haveUnread === false">
                 <img
@@ -18,7 +29,6 @@
                 />
             </ng-container>
         </a>
-        <!-- </ng-container> -->
     </h2>
     <span *ngIf="updatingParticipant" class="loading">
         Updating participant
