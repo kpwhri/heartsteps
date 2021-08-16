@@ -86,7 +86,7 @@ export class OnboardPage implements OnInit {
                         this.pages = [];
 
                         // TODO: how can we parameterize this? or make it database-driven?
-                        if (this.featureFlagService.hasFlag("nlm")) {
+                        if (this.featureFlagService.hasFlag("bout_planning")) {
                             let nlm_onboarding_page = {
                                 key: "firstBoutPlanningTime",
                                 title: "First Bout Planning Time",
@@ -108,8 +108,6 @@ export class OnboardPage implements OnInit {
                                 this.pages.push(page);
                             }
                         });
-
-                        console.log(this.pages);
                     });
                     this.featureFlagSubscription.unsubscribe();
                 });

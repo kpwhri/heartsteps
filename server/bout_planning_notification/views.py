@@ -26,7 +26,7 @@ class FirstBoutPlanningTimeView(APIView):
         if FirstBoutPlanningTime.exists(request.user):
             first_bout_planning_time = FirstBoutPlanningTime.get(user=request.user)
         else:
-            first_bout_planning_time = FirstBoutPlanningTime.create(user=request.user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         
         serialized = FirstBoutPlanningTimeSerializer(first_bout_planning_time)
         
