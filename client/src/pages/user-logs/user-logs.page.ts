@@ -35,16 +35,8 @@ export class UserLogsPage {
 
             for (let i = 0; i < data.logs.length; i++) {
 
-//                 console.log(data.logs[i].action);
-//                 console.log(data.logs[i].timestamp);
-//                 console.log(data.logs[i].status);
-//
-//                 serializeduserlogs[i].action = data.logs[i].action;
-//                 serializeduserlogs[i].timestamp = data.logs[i].timestamp;
-//                 serializeduserlogs[i].status = data.logs[i].status;
 
                 var temp = {timestamp: data.logs[i].timestamp, status: data.logs[i].status, action: data.logs[i].action};
-//                 serializeduserlogs.push(temp);
                 temparray.push(temp);
             }
             console.log(temparray);
@@ -55,36 +47,6 @@ export class UserLogsPage {
             console.log('User logs failed')
         })
     }
-
-//     private getArray() {
-//         var array = [1,2,3];  // As an example
-//
-//         var ans = "<TABLE><TR>";
-//         for(i=0; i<array.length; i++) {
-//             ans += "<TD>" + array[i] + "</TD>";
-//         }
-//         ans += "</TR></TABLE>"
-//
-//         document.write(ans);
-//     }
-
-//     private dateToDay(date: Date): Day {
-//         day.date = date;
-//         day.isToday = moment().isSame(moment(day.date), 'day');
-//         return day;
-//     }
-
-//     public format_short_date(date: Date): string {
-//         return moment(date).format('MM/DD');
-//     }
-//
-//     public format_date(date: Date): string {
-//         return moment(date).format("dddd, M/D");
-//     }
-//
-//     public format_time_ago(date: Date): string {
-//         return moment(date).fromNow();
-//     }
 
     public goToSettings() {
         this.router.navigate(['settings']);
