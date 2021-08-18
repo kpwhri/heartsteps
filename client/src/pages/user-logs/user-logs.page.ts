@@ -34,11 +34,10 @@ export class UserLogsPage {
             var temparray = [];
 
             for (let i = 0; i < data.logs.length; i++) {
-
-
                 var temp = {timestamp: data.logs[i].timestamp, status: data.logs[i].status, action: data.logs[i].action};
                 temparray.push(temp);
             }
+
             console.log(temparray);
             this.serializeduserlogs = temparray.slice();
             console.log(this.serializeduserlogs);
