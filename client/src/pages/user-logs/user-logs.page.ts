@@ -16,7 +16,7 @@ class Log {
     selector: 'user-logs-page'
 })
 export class UserLogsPage {
-        public serializeduserlogs: Array;
+        public serializeduserlogs: Array<Log>;
     constructor(
         private heartstepsServer: HeartstepsServer,
         private router: Router
