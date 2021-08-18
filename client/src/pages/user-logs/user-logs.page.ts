@@ -6,9 +6,9 @@ import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 import { Router } from '@angular/router';
 
 class Log {
-    public date: Date;
-    public message: string;
-    public type: string;
+    public timestamp: string;
+    public status: string;
+    public action: string;
 }
 
 @Component({
@@ -16,44 +16,36 @@ class Log {
     selector: 'user-logs-page'
 })
 export class UserLogsPage {
-
-    public logs: Array<Log>;
-
+        public serializeduserlogs: Array<Log>;
     constructor(
         private heartstepsServer: HeartstepsServer,
         private router: Router
     ) {
-        this.update()
+        this.update();
     }
 
     private update() {
+        this.serializeduserlogs = []
         this.heartstepsServer.get('userlogs')
         .then((data) => {
             console.log(data);
-            console.log('GET LATEST GOAL: Got a response from the server');
+            console.log('GET LATEST USER LOGS: Got a response from the server');
+
+            var temparray = [];
+
+            for (let i = 0; i < data.logs.length; i++) {
+                var temp = {timestamp: data.logs[i].timestamp, status: data.logs[i].status, action: data.logs[i].action};
+                temparray.push(temp);
+            }
+
+            console.log(temparray);
+            this.serializeduserlogs = temparray.slice();
+            console.log(this.serializeduserlogs);
         })
         .catch(() => {
             console.log('User logs failed')
         })
     }
-
-//     private dateToDay(date: Date): Day {
-//         day.date = date;
-//         day.isToday = moment().isSame(moment(day.date), 'day');
-//         return day;
-//     }
-
-//     public format_short_date(date: Date): string {
-//         return moment(date).format('MM/DD');
-//     }
-//
-//     public format_date(date: Date): string {
-//         return moment(date).format("dddd, M/D");
-//     }
-//
-//     public format_time_ago(date: Date): string {
-//         return moment(date).fromNow();
-//     }
 
     public goToSettings() {
         this.router.navigate(['settings']);

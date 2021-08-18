@@ -1347,7 +1347,7 @@ class ParticipantPageViews(ParticipantView):
         return context
 
 class ParticipantUserLogs(ParticipantView):
-    template_name = 'dashboard/participant-user-logs.html'
+    template_name = 'dashboard/userlogs-list.html'
 
     # def get_context_data(self, *args, **kwargs):
     #     context = super().get_context_data(*args, **kwargs)
