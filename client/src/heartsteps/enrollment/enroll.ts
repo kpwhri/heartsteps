@@ -30,6 +30,7 @@ export class EnrollmentModal {
     }
 
     public enroll() {
+        console.log('enrollment/enroll.ts', 'enroll()');
         this.error = undefined;
         this.loadingService.show('Authenticating');
 
