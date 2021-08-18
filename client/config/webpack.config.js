@@ -9,6 +9,38 @@ var BUILD_NUMBER = '2.0.0';
 var BUILD_VERSION = '123';
 var BUILD_DATE = moment().format('MMMM Do, YYYY');
 
+const env = process.env.IONIC_ENV;
+
+var production = true;
+if (env === 'dev') {
+    production = false;
+}
+
+
+// #256 This part should be tested thoroughly with the live production build/deply environment
+console.log("* Setting config.xml bundle id");
+
+var bundle_id = (production) ? "net.heartsteps.kpw" : "net.heartsteps.dev";
+
+fs.readFile('./config.xml', 'utf8', function(err, data) {
+    var parser = new xml2js.Parser();
+    parser.parseString(data, function(err, obj) {
+        obj['widget']['$']['id'] = bundle_id;
+
+        var builder = new xml2js.Builder();
+        xml = builder.buildObject(obj);
+        fs.writeFile('./config.xml', xml, function() {
+            console.log('* Updated config.xml');
+        });
+    });
+});
+////////////////////////
+
+
+
+
+
+
 if (process.env.BUILD_NUMBER && process.env.BUILD_VERSION) {
     console.log('* Setting config.xml build number and version');
     BUILD_NUMBER = process.env.BUILD_NUMBER;
@@ -29,7 +61,7 @@ if (process.env.BUILD_NUMBER && process.env.BUILD_VERSION) {
     });
 }
 
-const env = process.env.IONIC_ENV;
+
 
 webpackConfig[env].resolve = {
     extensions: ['.ts', '.js'],
@@ -41,14 +73,10 @@ webpackConfig[env].resolve = {
     }
 }
 
-var production = true;
-if (env === 'dev') {
-    production = false;
-}
-
 var envs = new webpack.EnvironmentPlugin({
     PRODUCTION: production,
-    HEARTSTEPS_URL: (production) ? '/api' : 'http://localhost:8080/api',
+    // HEARTSTEPS_URL: (production) ? '/api' : 'http://localhost:8080/api',
+    HEARTSTEPS_URL: (production) ? '/api' : 'http://dev.heartsteps.net/api',
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',
