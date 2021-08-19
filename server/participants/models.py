@@ -70,6 +70,7 @@ class Cohort(models.Model):
         max_length=500,
         null=True
     )
+    cohort_feature_flags = models.TextField(default="")
 
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \

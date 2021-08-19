@@ -23,11 +23,16 @@ class ParticipantCreateForm(forms.ModelForm):
         return heartsteps_id
 
 
-# TODO: make custom form fields
-class FeatureFlagEditForm(forms.ModelForm):
+class StudyFeatureFlagEditForm(forms.ModelForm):
     class Meta:
         model = Study
         fields = ['studywide_feature_flags']
+
+
+class ParticipantFeatureFlagEditForm(forms.ModelForm):
+    class Meta:
+        model = FeatureFlags
+        fields = ['flags']
 
 
 class ParticipantEditForm(forms.ModelForm):

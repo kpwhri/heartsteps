@@ -75,7 +75,7 @@ from django_celery_results.models import TaskResult
 
 from user_event_logs.models import EventLog
 
-from .forms import FeatureFlagEditForm, SendSMSForm
+from .forms import ParticipantFeatureFlagEditForm, SendSMSForm, StudyFeatureFlagEditForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .forms import BurstPeriodForm
@@ -1259,16 +1259,32 @@ class FeatureFlagView(CohortView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # TODO: change form view
-        context['form'] = FeatureFlagEditForm(initial={
+        participants = DashboardParticipant.objects \
+            .filter(
+                archived=False,
+                cohort=self.cohort,
+            ) \
+            .order_by('heartsteps_id') \
+            .prefetch_related('user') \
+            .all()
+
+        context['participants'] = participants
+
+        context['study_form'] = StudyFeatureFlagEditForm(initial={
             'studywide_feature_flags': self.cohort.study.studywide_feature_flags
+        })
+
+        # TODO: change initial value
+        context['participant_form'] = ParticipantFeatureFlagEditForm(initial={
+            'flags': ""
         })
         return context
 
     def post(self, request, *args, **kwargs):
-        form = FeatureFlagEditForm(request.POST, instance=self.cohort.study)
-        if form.is_valid():
-            form.save()
+        study_form = StudyFeatureFlagEditForm(
+            request.POST, instance=self.cohort.study)
+        if study_form.is_valid():
+            study_form.save()
             messages.add_message(request, messages.SUCCESS, 'Updated feature flags for study: %s' % (
                 self.cohort.study))
             return HttpResponseRedirect(
@@ -1281,7 +1297,7 @@ class FeatureFlagView(CohortView):
             )
         else:
             context = self.get_context_data(**kwargs)
-            context['form'] = form
+            context['study_form'] = study_form
             return TemplateResponse(
                 request,
                 self.template_name,

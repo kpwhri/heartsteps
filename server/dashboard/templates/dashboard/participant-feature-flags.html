@@ -2,7 +2,7 @@
 <form action="" method="POST" novalidate>
   {% csrf_token %}
   <legend>Update feature flags</legend>
-  {% for field in form %}
+  {% for field in study_form %}
   <div class="form-group">
     {{ field.label_tag }} {{ field }} {{ field.errors }}
   </div>
