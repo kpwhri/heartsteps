@@ -17,6 +17,7 @@ class Log {
 })
 export class UserLogsPage {
         public serializeduserlogs: Array<Log>;
+        public numLogs: number;
     constructor(
         private heartstepsServer: HeartstepsServer,
         private router: Router
@@ -41,6 +42,7 @@ export class UserLogsPage {
             console.log(temparray);
             this.serializeduserlogs = temparray.slice();
             console.log(this.serializeduserlogs);
+            this.numLogs = data.logs.length;
         })
         .catch(() => {
             console.log('User logs failed')
