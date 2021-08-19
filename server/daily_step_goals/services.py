@@ -35,7 +35,7 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
-        user = User.objects.get(self.user.username)
+        user = User.objects.get(self.__user.username)
 
         last_ten = Day.objects.all().order_by('-date')[:10]
         ordered = sorted(last_ten, key=operator.attrgetter('steps'))
@@ -66,7 +66,7 @@ class StepGoalsService():
             [int]: step goal of the day
         """
 
-        user = User.objects.get(self.user.username)
+        user = User.objects.get(self.__user.username)
 
         last_ten = Day.objects.all().order_by('-date')[:10]
         ordered = sorted(last_ten, key=operator.attrgetter('steps'))
