@@ -1,0 +1,12 @@
+{% extends 'dashboard/participants.html'%} {% block content %}
+<form action="" method="POST" novalidate>
+  {% csrf_token %}
+  <legend>Update feature flags</legend>
+  {% for field in form %}
+  <div class="form-group">
+    {{ field.label_tag }} {{ field }} {{ field.errors }}
+  </div>
+  {% endfor %}
+  <input type="submit" value="Update" />
+</form>
+{% endblock %}
