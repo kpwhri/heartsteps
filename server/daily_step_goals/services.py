@@ -5,6 +5,9 @@ from django.core.exceptions import ImproperlyConfigured
 from .models import StepGoal, ActivityDay
 from activity_summaries.models import Day
 
+from .models import User
+from user_event_logs.models import EventLog
+
 class StepGoalsService():
 
     class NotEnabled(ImproperlyConfigured):
@@ -32,6 +35,8 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
+        user = User.objects.get(self.user.username)
+
         last_ten = Day.objects.all().order_by('-date')[:10]
         ordered = sorted(last_ten, key=operator.attrgetter('steps'))
         serialized_step_counts = []
@@ -45,8 +50,10 @@ class StepGoalsService():
         # last_ten_in_ascending_order = reversed(last_ten)
         # new_goal = last_ten_in_ascending_order[5].steps
             new_goal = (serialized_step_counts[4]["steps"] + serialized_step_counts[5]["steps"])/2;
+            EventLog.log(user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
             return new_goal
         else:
+            EventLog.log(user, "Step goal could not be fetched. Ordered list could not be defined.", EventLog.ERROR)
             return None
 
     def get_heartsteps_step_goal(self, date=None):
@@ -58,6 +65,9 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
+
+        user = User.objects.get(self.user.username)
+
         last_ten = Day.objects.all().order_by('-date')[:10]
         ordered = sorted(last_ten, key=operator.attrgetter('steps'))
         serialized_step_counts = []
@@ -80,6 +90,10 @@ class StepGoalsService():
 
             new_goal = (serialized_step_counts[4]["steps"] + serialized_step_counts[5]["steps"])/2
             new_goal *= multiplier
+
+            EventLog.log(user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
+
             return new_goal
         else:
+            EventLog.log(user, "Step goal could not be fetched. Ordered list could not be defined.", EventLog.ERROR)
             return None
