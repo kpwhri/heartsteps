@@ -5,6 +5,8 @@ import random
 from celery import shared_task
 from datetime import timedelta, datetime, date
 import requests
+from .models import User
+from user_event_logs.models import EventLog
 
 from .services import StepGoalsService
 
