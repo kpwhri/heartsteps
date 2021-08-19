@@ -6,6 +6,10 @@
   <div class="form-group">
     {{ field.label_tag }} {{ field }} {{ field.errors }}
   </div>
+  {% endfor %} {% for field in cohort_form %}
+  <div class="form-group">
+    {{ field.label_tag }} {{ field }} {{ field.errors }}
+  </div>
   {% endfor %}
   <input type="submit" value="Update" />
 </form>

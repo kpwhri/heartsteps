@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import validate_slug
 
-from participants.models import Participant, Study
+from participants.models import Cohort, Participant, Study
 from sms_messages.models import Message
 from burst_periods.models import BurstPeriod
 from feature_flags.models import FeatureFlags
@@ -33,6 +33,12 @@ class ParticipantFeatureFlagEditForm(forms.ModelForm):
     class Meta:
         model = FeatureFlags
         fields = ['flags']
+
+
+class CohortFeatureFlagEditForm(forms.ModelForm):
+    class Meta:
+        model = Cohort
+        fields = ['cohort_feature_flags']
 
 
 class ParticipantEditForm(forms.ModelForm):

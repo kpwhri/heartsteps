@@ -75,7 +75,7 @@ from django_celery_results.models import TaskResult
 
 from user_event_logs.models import EventLog
 
-from .forms import ParticipantFeatureFlagEditForm, SendSMSForm, StudyFeatureFlagEditForm
+from .forms import CohortFeatureFlagEditForm, ParticipantFeatureFlagEditForm, SendSMSForm, StudyFeatureFlagEditForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .forms import BurstPeriodForm
@@ -1278,13 +1278,29 @@ class FeatureFlagView(CohortView):
         context['participant_form'] = ParticipantFeatureFlagEditForm(initial={
             'flags': ""
         })
+
+        context['cohort_form'] = CohortFeatureFlagEditForm(initial={
+            'cohort_feature_flags': self.cohort.cohort_feature_flags
+        })
+
         return context
 
     def post(self, request, *args, **kwargs):
         study_form = StudyFeatureFlagEditForm(
             request.POST, instance=self.cohort.study)
-        if study_form.is_valid():
+
+        cohort_form = CohortFeatureFlagEditForm(
+            request.POST, instance=self.cohort)
+
+        study_form_valid = study_form.is_valid()
+        cohort_form_valid = cohort_form.is_valid()
+
+        if study_form_valid and cohort_form_valid:
             study_form.save()
+            cohort_form.save(commit=False)
+            cohort_form.study = self.cohort.study
+            cohort_form.save()
+
             messages.add_message(request, messages.SUCCESS, 'Updated feature flags for study: %s' % (
                 self.cohort.study))
             return HttpResponseRedirect(
