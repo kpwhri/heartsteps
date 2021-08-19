@@ -12,58 +12,64 @@
             </thead>
             <tbody>
 
-<!--                {{'{'}}% for i in serializeduserlogs %{{'}'}}-->
+                {% for i in serializeduserlogs %}
                 <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[0].timestamp }}</td>
-                    <td>{{ serializeduserlogs[0].status }}</td>
-                    <td>{{ serializeduserlogs[0].action }}</td>
+                    <td>{{ i.timestamp }}</td>
+                    <td>{{ i.status }}</td>
+                    <td>{{ i.action }}</td>
                 </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[1].timestamp }}</td>
-                    <td>{{ serializeduserlogs[1].status }}</td>
-                    <td>{{ serializeduserlogs[1].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[2].timestamp }}</td>
-                    <td>{{ serializeduserlogs[2].status }}</td>
-                    <td>{{ serializeduserlogs[2].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[3].timestamp }}</td>
-                    <td>{{ serializeduserlogs[3].status }}</td>
-                    <td>{{ serializeduserlogs[3].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[4].timestamp }}</td>
-                    <td>{{ serializeduserlogs[4].status }}</td>
-                    <td>{{ serializeduserlogs[4].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[5].timestamp }}</td>
-                    <td>{{ serializeduserlogs[5].status }}</td>
-                    <td>{{ serializeduserlogs[5].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[6].timestamp }}</td>
-                    <td>{{ serializeduserlogs[6].status }}</td>
-                    <td>{{ serializeduserlogs[6].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[7].timestamp }}</td>
-                    <td>{{ serializeduserlogs[7].status }}</td>
-                    <td>{{ serializeduserlogs[7].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[8].timestamp }}</td>
-                    <td>{{ serializeduserlogs[8].status }}</td>
-                    <td>{{ serializeduserlogs[8].action }}</td>
-                </tr>
-                <tr style="min-height: 25px; height: 25px;">
-                    <td>{{ serializeduserlogs[9].timestamp }}</td>
-                    <td>{{ serializeduserlogs[9].status }}</td>
-                    <td>{{ serializeduserlogs[9].action }}</td>
-                </tr>
-<!--                {{'{'}}% endfor %{{'}'}}-->
+                {% endfor %}
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[1].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[1].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[1].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[0].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[0].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[0].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[2].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[2].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[2].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[3].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[3].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[3].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[4].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[4].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[4].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[5].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[5].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[5].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[6].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[6].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[6].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[7].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[7].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[7].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[8].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[8].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[8].action }}</td>-->
+<!--                </tr>-->
+<!--                <tr style="min-height: 25px; height: 25px;">-->
+<!--                    <td>{{ serializeduserlogs[9].timestamp }}</td>-->
+<!--                    <td>{{ serializeduserlogs[9].status }}</td>-->
+<!--                    <td>{{ serializeduserlogs[9].action }}</td>-->
+<!--                </tr>-->
+
 
             </tbody>
         </table>
