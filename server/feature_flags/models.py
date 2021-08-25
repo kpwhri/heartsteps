@@ -18,7 +18,7 @@ class FeatureFlags(models.Model):
 
     class NoSuchFlagException(Exception):
         pass
-    
+
     class Meta:
         verbose_name = 'Feature Flags'
         verbose_name_plural = 'Feature Flags'
@@ -29,7 +29,7 @@ class FeatureFlags(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     flags = models.TextField(default="")
-        
+
     def __str__(self):
         return self.user.username
 
@@ -50,11 +50,11 @@ class FeatureFlags(models.Model):
 
     def create(user, flags: str = ""):
         """Create a new feature flag.
-        
+
         Arguments: 
             user(User or str)
             flags(str) optional
-        
+
         Raises:
             FeatureFlags.FeatureFlagsExistException : if the flag exists
             FeatureFlags.NoSuchUserException : if the username is wrong
@@ -74,7 +74,7 @@ class FeatureFlags(models.Model):
 
         Args:
             user (User or str)
-            
+
         Raises:
             FeatureFlags.NoSuchUserException : if the username is wrong
 
@@ -120,7 +120,7 @@ class FeatureFlags(models.Model):
         Raises:
             FeatureFlags.FeatureFlagsDoNotExistException: if the feature flags do not exist.
             FeatureFlags.NoSuchUserException : if the username is wrong
-            
+
         Returns:
             FeatureFlag object
         """
@@ -133,9 +133,9 @@ class FeatureFlags(models.Model):
 
     def search_users(flag: str):
         """try to get all users with a certain flag #279
-        
+
         Args: flag (str) : flag to search
-        
+
         Returns:
             User[] : list of users with a certain flag
         """
@@ -160,14 +160,14 @@ class FeatureFlags(models.Model):
     def has_flag(obj, flag):
         """this is weird, but intentional function polymorphism.
         You can call this as an instance method or static method.
-        
+
         If you call this function as instance method, this will return if there's a matching flag.
-        
+
             obj = FeatureFlags.get("username")
             print(obj.has_flag("test_flag"))
-        
+
         If you call this function as static method, this will return if the user has a matching flag.
-        
+
             print(FeatureFlags.has_flag("username", "test_flag"))
             print(FeatureFlags.has_flag(self.user, "test_flag"))
         """
@@ -208,7 +208,7 @@ class FeatureFlags(models.Model):
         """This function makes it easier to call update() when you don't care if the feature flags of the user exist or not. 
         WARNING: This DOES NOT keep the original value. (It overwrite it).
                 So this is dangerous!!!
-        
+
         Returns:
             FeatureFlags: overwritten FeatureFlags object or newly-created one
             boolean: true-newly created, false-overwritten
@@ -219,7 +219,8 @@ class FeatureFlags(models.Model):
             return (FeatureFlags.update(user, flags), False, old_flag)
         else:
             return (FeatureFlags.create(user, flags), True, None)
-        
+
+    # TODO: add invariant checking for SFFs & CFFs overlap
     def add_flag(obj, flag):
         """This function adds a new flag to the flags.
         Returns:
@@ -245,6 +246,7 @@ class FeatureFlags(models.Model):
                 "add_flag has two prototypes: FeatureFlags.add_flag(User, str) and feature_flags.add_flag(str)"
             )
 
+    # TODO: add invariant checking for SFFs & CFFs overlap
     def remove_flag(obj, flag):
         """This function removes an existing flag from the flags.
         Returns:
@@ -252,7 +254,8 @@ class FeatureFlags(models.Model):
         """
         if isinstance(obj, FeatureFlags):
             if obj.has_flag(flag):
-                flag_list = list(map(lambda x: x.strip(), obj.flags.split(',')))
+                flag_list = list(
+                    map(lambda x: x.strip(), obj.flags.split(',')))
                 flag_list.remove(flag)
                 obj.flags = ", ".join(flag_list)
                 obj.save()
@@ -273,7 +276,7 @@ class FeatureFlags(models.Model):
             raise AssertionError(
                 "remove_flag has two prototypes: FeatureFlags.remove_flag(User, str) and feature_flags.remove_flag(str)"
             )
-    
+
     def sort_flags(obj):
         """This function sorts flags. No actual functionality.
         Returns:

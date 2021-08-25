@@ -1,5 +1,5 @@
 import json
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 import pytz
 from datetime import datetime
 from datetime import timedelta
@@ -45,6 +45,22 @@ class Study(models.Model):
 
     admins = models.ManyToManyField(User)
 
+    def clean_fields(self, exclude=['contact_name', 'contact_number']):
+        super().clean_fields(exclude=exclude)
+        studywide_feature_flags_list = self.studywide_feature_flags.split(
+            ", ")
+        cohorts = Cohort.objects.filter(study=self)
+        for cohort in cohorts:
+            cohort_feature_flags_list = cohort.cohort_feature_flags.split(", ")
+            for cohort_flag in cohort_feature_flags_list:
+                if cohort_flag in studywide_feature_flags_list:
+                    raise ValidationError(
+                        'Cannot add flag because it is already a study feature flag')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Study, self).save(*args, **kwargs)
+
     @property
     def slug(self):
         return slugify(self.name)
@@ -62,15 +78,31 @@ class Cohort(models.Model):
     )
 
     study_length = models.PositiveIntegerField(
-        null=True
+        null=True,
+        blank=True
     )
 
     export_data = models.BooleanField(default=False)
     export_bucket_url = models.CharField(
         max_length=500,
-        null=True
+        null=True,
+        blank=True
     )
     cohort_feature_flags = models.TextField(default="")
+
+    def clean_fields(self, exclude=['study_length', 'export_bucket_url']):
+        super().clean_fields(exclude=exclude)
+        studywide_feature_flags_list = self.study.studywide_feature_flags.split(
+            ", ")
+        cohort_feature_flags_list = self.cohort_feature_flags.split(", ")
+        for cohort_flag in cohort_feature_flags_list:
+            if cohort_flag in studywide_feature_flags_list:
+                raise ValidationError(
+                    'Cannot add flag because it is already a study feature flag')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Cohort, self).save(*args, **kwargs)
 
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \

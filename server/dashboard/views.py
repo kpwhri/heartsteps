@@ -1259,7 +1259,7 @@ class FeatureFlagView(CohortView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        participants = DashboardParticipant.objects \
+        participants = Participant.objects \
             .filter(
                 archived=False,
                 cohort=self.cohort,
@@ -1292,6 +1292,7 @@ class FeatureFlagView(CohortView):
         cohort_form = CohortFeatureFlagEditForm(
             request.POST, instance=self.cohort)
 
+        # TODO: add custom validation
         study_form_valid = study_form.is_valid()
         cohort_form_valid = cohort_form.is_valid()
 
@@ -1314,6 +1315,7 @@ class FeatureFlagView(CohortView):
         else:
             context = self.get_context_data(**kwargs)
             context['study_form'] = study_form
+            context['cohort_form'] = cohort_form
             return TemplateResponse(
                 request,
                 self.template_name,
