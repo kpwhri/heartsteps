@@ -75,4 +75,25 @@ class BoutPlanningNotificationServiceTest(TestCase):
         self.assertEqual(message2.body, sample_body)
         self.assertEqual(message2.title, sample_title)
         self.assertEqual(message2.collapse_subject, sample_collapse_subject)
+    
+    @patch('push_messages.clients.OneSignalClient.send')
+    def test_send_notification_3(self, mock___send):
+        Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
+        
+        sample_body = 'test_body'
+        sample_title = 'test_title'
+        sample_collapse_subject = 'test_cs'
+        sample_external_id = "abc123"
+        
+        mock___send.return_value = sample_external_id
+        service = BoutPlanningNotificationService(self.user)
+        
+        message2 = service.send_notification(title=sample_title, body=sample_body, collapse_subject=sample_collapse_subject)
+        
+        self.assertEqual(message2.recipient, self.user)
+        self.assertEqual(message2.message_type, Message.NOTIFICATION)
+        self.assertEqual(message2.body, sample_body)
+        self.assertEqual(message2.title, sample_title)
+        self.assertEqual(message2.collapse_subject, sample_collapse_subject)
+        self.assertEqual(message2.external_id, sample_external_id)
         
