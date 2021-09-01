@@ -26,18 +26,12 @@ class BoutPlanningTaskTest(TestCase):
         # bout_planning_decision_making() should be called with a string
         self.assertRaises(AssertionError, bout_planning_decision_making, 1)
 
-    @patch('push_messages.services.PushMessageService.send_notification')
-    def test_task_2(self, mock_send_notification):
+    @patch('push_messages.clients.OneSignalClient.send')
+    def test_task_2(self, mock_send):
         Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
-        message1 = Message.objects.create(
-            recipient=self.user,
-            message_type=Message.NOTIFICATION,
-            body='Sample Bout Planning Body.',
-            title='Sample Bout Planning Title',
-            collapse_subject='bout_planninng'
-        )
+        sample_external_id = "abc123"
         
-        mock_send_notification.return_value = message1
+        mock_send.return_value = sample_external_id
         
         # if there's no feature flag for the user, BoutPlanningFlagException is raised
         self.assertRaises(BoutPlanningFlagException,
