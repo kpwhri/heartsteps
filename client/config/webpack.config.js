@@ -9,6 +9,10 @@ var BUILD_NUMBER = '2.0.0';
 var BUILD_VERSION = '123';
 var BUILD_DATE = moment().format('MMMM Do, YYYY');
 
+// If you want to use dev.heartsteps.server, set this to false
+// If you want to use localhost, set this to true
+var LOCAL = false;
+
 const env = process.env.IONIC_ENV;
 
 var production = true;
@@ -76,7 +80,7 @@ webpackConfig[env].resolve = {
 var envs = new webpack.EnvironmentPlugin({
     PRODUCTION: production,
     // HEARTSTEPS_URL: (production) ? '/api' : 'http://localhost:8080/api',
-    HEARTSTEPS_URL: (production) ? '/api' : 'http://dev.heartsteps.net/api',
+    HEARTSTEPS_URL: (production) ? '/api' : ((LOCAL) ? 'http://localhost:8080/api' : 'http://dev.heartsteps.net/api'),
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',

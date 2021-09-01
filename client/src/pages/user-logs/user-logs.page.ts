@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { DailySummaryService } from '@heartsteps/daily-summaries/daily-summary.service';
 import { LoadingService } from '@infrastructure/loading.service';
 import moment from 'moment';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
@@ -16,8 +15,8 @@ class Log {
     selector: 'user-logs-page'
 })
 export class UserLogsPage {
-        public serializeduserlogs: Array<Log>;
-        public numLogs: number;
+    public serializeduserlogs: Array<Log>;
+    public numLogs: number;
     constructor(
         private heartstepsServer: HeartstepsServer,
         private router: Router
@@ -26,7 +25,7 @@ export class UserLogsPage {
     }
 
     private update() {
-        this.serializeduserlogs = []
+        this.serializeduserlogs = [];
         this.heartstepsServer.get('userlogs')
         .then((data) => {
             console.log(data);
@@ -35,7 +34,7 @@ export class UserLogsPage {
             var temparray = [];
 
             for (let i = 0; i < data.logs.length; i++) {
-                var temp = {timestamp: data.logs[i].timestamp, status: data.logs[i].status, action: data.logs[i].action};
+                var temp = { timestamp: data.logs[i].timestamp, status: data.logs[i].status, action: data.logs[i].action };
                 temparray.push(temp);
             }
 
@@ -44,13 +43,13 @@ export class UserLogsPage {
             console.log(this.serializeduserlogs);
             this.numLogs = data.logs.length;
         })
-        .catch(() => {
-            console.log('User logs failed')
-        })
+            .catch(() => {
+                console.log('User logs failed')
+            })
     }
 
-    public goToSettings() {
-        this.router.navigate(['settings']);
+    public dismiss() {
+        this.router.navigate(['home', 'settings']);
     }
 
 }
