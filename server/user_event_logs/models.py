@@ -44,6 +44,19 @@ class EventLog(models.Model):
         
         return EventLog.objects.create(user=user, status=status, action=action)
 
+    def debug(user, action):
+        EventLog.log(user, action, EventLog.DEBUG)
+    
+    def info(user, action):
+        EventLog.log(user, action, EventLog.INFO)
+    
+    def error(user, action):
+        EventLog.log(user, action, EventLog.ERROR)
+    
+    def success(user, action):
+        EventLog.log(user, action, EventLog.SUCCESS)
+        
+
     def get_logs(user, status=None):
         base_query = EventLog.objects.filter(user=user).order_by('-timestamp')
 

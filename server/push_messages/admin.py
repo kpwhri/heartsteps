@@ -4,7 +4,7 @@ from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
 
-from push_messages.models import Message
+from push_messages.models import Message, Device
 
 message_resource_fields = [
     'id',
@@ -78,3 +78,5 @@ class MessageAdmin(ExportMixin, admin.ModelAdmin):
         ]
 
 admin.site.register(Message, MessageAdmin)
+
+admin.site.register(Device, admin.ModelAdmin)

@@ -1,11 +1,14 @@
 from django.test import TestCase
-from bout_planning_notification.models import User, FirstBoutPlanningTime
+from unittest.mock import patch
 from rest_framework.test import APITestCase
 from django.urls import reverse
+
+from bout_planning_notification.models import User, FirstBoutPlanningTime
 from bout_planning_notification.tasks import bout_planning_decision_making, BoutPlanningFlagException
-from feature_flags.models import FeatureFlags
 from bout_planning_notification.receivers import FirstBoutPlanningTime_updated
+from push_messages.models import Device, Message
 from locations.models import Place
+from feature_flags.models import FeatureFlags
 
 
 class BoutPlanningTaskTest(TestCase):
@@ -23,7 +26,19 @@ class BoutPlanningTaskTest(TestCase):
         # bout_planning_decision_making() should be called with a string
         self.assertRaises(AssertionError, bout_planning_decision_making, 1)
 
-    def test_task_2(self):
+    @patch('push_messages.services.PushMessageService.send_notification')
+    def test_task_2(self, mock_send_notification):
+        Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
+        message1 = Message.objects.create(
+            recipient=self.user,
+            message_type=Message.NOTIFICATION,
+            body='Sample Bout Planning Body.',
+            title='Sample Bout Planning Title',
+            collapse_subject='bout_planninng'
+        )
+        
+        mock_send_notification.return_value = message1
+        
         # if there's no feature flag for the user, BoutPlanningFlagException is raised
         self.assertRaises(BoutPlanningFlagException,
                           bout_planning_decision_making, self.user.username)

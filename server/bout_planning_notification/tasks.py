@@ -1,5 +1,8 @@
 from celery import shared_task
+
 from .models import User
+from .services import BoutPlanningNotificationService
+
 from user_event_logs.models import EventLog
 from feature_flags.models import FeatureFlags
 from datetime import datetime
@@ -18,6 +21,8 @@ def bout_planning_decision_making(username):
     if FeatureFlags.exists(user):
         if FeatureFlags.has_flag(user, "bout_planning"):
             # do something
+            service = BoutPlanningNotificationService(user)
+            notification = service.send_notification()
             EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
