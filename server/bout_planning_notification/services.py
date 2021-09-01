@@ -12,6 +12,12 @@ class BoutPlanningNotificationService:
         self.user = user
         EventLog.debug(self.user, "Starting BoutPlanningNotificationService")
 
+    def is_necessary(self):
+        EventLog.debug(self.user, "is_necessary() is called")
+        
+        EventLog.debug(self.user, "returning True")
+        return True
+    
     def send_notification(self,
                           title='Sample Bout Planning Title',
                           body='Sample Bout Planning Body.',

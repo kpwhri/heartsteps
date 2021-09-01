@@ -20,10 +20,15 @@ def bout_planning_decision_making(username):
     
     if FeatureFlags.exists(user):
         if FeatureFlags.has_flag(user, "bout_planning"):
-            # do something
-            service = BoutPlanningNotificationService(user)
-            notification = service.send_notification()
             EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
+            
+            service = BoutPlanningNotificationService(user)
+            
+            if service.is_necessary():
+                message = service.send_notification()
+                EventLog.success(user, "bout planning notification is sent.")
+            else:
+                EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)

@@ -20,8 +20,12 @@ class BoutPlanningNotificationServiceTest(TestCase):
         self.assertRaises(AssertionError, BoutPlanningNotificationService, None)
     
     def test_init_1(self):
+        BoutPlanningNotificationService(self.user)
+    
+    def test_is_necessary_1(self):
         service = BoutPlanningNotificationService(self.user)
-        
+        self.assertTrue(service.is_necessary)
+
     @patch('push_messages.services.PushMessageService.send_notification')
     def test_send_notification_1(self, mock_send_notification):
         Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
