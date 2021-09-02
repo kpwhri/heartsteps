@@ -1,6 +1,7 @@
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
+from .models import Level
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -14,6 +15,8 @@ class BoutPlanningNotificationService:
 
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
+        
+        level = Level.get(self.user)
         
         EventLog.debug(self.user, "returning True")
         return True

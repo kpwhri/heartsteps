@@ -1,10 +1,16 @@
+from datetime import datetime
+import pytz
 
-from django.db import models
+from django.db import models, IntegrityError
+
 from django.contrib.auth import get_user_model
 # from django_celery_beat.models import PeriodicTask, PeriodicTasks
 from daily_tasks.models import DailyTask
+from days.services import DayService
 from .constants import TASK_CATEGORY
 from django.db import models
+
+
 
 User = get_user_model()
 
@@ -196,3 +202,54 @@ class FirstBoutPlanningTime(models.Model):
                                      category=TASK_CATEGORY)
 
         return list(task_list)
+    
+class Level(models.Model):
+    
+    RECOVERY = 'RE'
+    RANDOM = 'RA'
+    NO = 'NO'
+    NR = 'NR'
+    FULL = 'FULL'
+    
+    DEFAULT = FULL
+    
+    LEVELS = [
+        (RECOVERY, 'RECOVERY'),
+        (RANDOM, 'RANDOM'),
+        (NO, 'N+O'),
+        (NR, 'N+R'),
+        (FULL, 'Full'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    level = models.CharField(max_length=20, choices=LEVELS)
+    date = models.DateField()
+    
+    def create(user, level, date=None):
+        """Create a new Level"""
+        if date is None:
+            day_service = DayService(user)
+      
+            # what date is it now there?
+            date = day_service.get_current_date()
+        if Level.exists(user, date):
+            raise IntegrityError('Level already exists')
+        else:
+            return Level.objects.create(user=user, date=date, level=level)
+        
+    def get(user, date=None):
+        """Get a Level object"""
+        if date is None:
+            day_service = DayService(user)
+      
+            # what date is it now there?
+            date = day_service.get_current_date()
+            
+        if Level.exists(user, date):
+            return Level.objects.get(user=user, date=date)
+        else:
+            return Level.objects.create(user=user, date=date, level=Level.DEFAULT)
+    
+    def exists(user, date):
+        """Check if the Level object"""
+        return Level.objects.filter(user=user, date=date).exists()

@@ -9,7 +9,7 @@
 * Smartphone's world time app (or similar)
 
 ## Short Answer
-* Use DayService class and service.localize()
+* Use DayService class and service.get_current_datetime()
 
 ## Long Answer
 * It's not that long. 
@@ -22,8 +22,7 @@
       service = DayService(self.user)
       
       # what time is it now there?
-      server_time = datetime.now()
-      user_local_time = service.localize(server_time)
+      user_local_time = service.get_current_datetime()
 
 * Using timezone
       
