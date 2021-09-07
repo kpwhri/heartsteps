@@ -85,7 +85,7 @@ class AppState {
   }
 
   set_disconnected() {
-    this.disconnected = true;
+    this.connected = false;
     this.update();
   }
 
