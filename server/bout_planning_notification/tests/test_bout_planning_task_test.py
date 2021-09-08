@@ -9,6 +9,7 @@ from bout_planning_notification.receivers import FirstBoutPlanningTime_updated
 from push_messages.models import Device, Message
 from locations.models import Place
 from feature_flags.models import FeatureFlags
+from participants.models import Study, Cohort, Participant
 
 from freezegun import freeze_time
 from datetime import datetime
@@ -31,6 +32,10 @@ class BoutPlanningTaskTest(TestCase):
 
     @patch('push_messages.clients.OneSignalClient.send')
     def test_task_2(self, mock_send):
+        study = Study.objects.create()
+        cohort = Cohort.objects.create(study=study)
+        participant = Participant.objects.create(user=self.user, cohort=cohort, study_start_date=datetime(2021, 9, 1, 0, 0, 0).date())
+        
         FirstBoutPlanningTime.create(self.user)
         Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
         sample_external_id = "abc123"
@@ -43,7 +48,10 @@ class BoutPlanningTaskTest(TestCase):
                             bout_planning_decision_making, self.user.username)
 
             # if there's a feature flag for the user, but it doesn't contain "bout_planning" feature flag, BoutPlanningFlagException is raised
-            FeatureFlags.create(self.user)
+            if FeatureFlags.exists(self.user):
+                FeatureFlags.update(self.user, "")
+            else:
+                FeatureFlags.create(self.user)
             self.assertRaises(BoutPlanningFlagException,
                             bout_planning_decision_making, self.user.username)
 

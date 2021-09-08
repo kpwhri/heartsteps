@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 from django.db import models, IntegrityError
@@ -11,6 +11,7 @@ from .constants import TASK_CATEGORY
 from django.db import models
 
 from user_event_logs.models import EventLog
+from participants.models import Participant
 
 import random
 
@@ -200,21 +201,21 @@ class FirstBoutPlanningTime(models.Model):
         # It converts username to user object (if provided) If User object is provided, it will return the user itself.
         user_obj = FirstBoutPlanningTime.convert_to_user_obj(user)
 
-        task_list = DailyTask.search(user=user_obj,
-                                     category=TASK_CATEGORY)
+        task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
 
         return list(task_list)
-    
+
+
 class Level(models.Model):
-    
+
     RECOVERY = 'RE'
     RANDOM = 'RA'
     NO = 'NO'
     NR = 'NR'
     FULL = 'FU'
-    
+
     DEFAULT = FULL
-    
+
     LEVELS = [
         (RECOVERY, 'RE'),
         (RANDOM, 'RA'),
@@ -222,82 +223,91 @@ class Level(models.Model):
         (NR, 'NR'),
         (FULL, 'FU'),
     ]
-    
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     level = models.CharField(max_length=20, choices=LEVELS)
     date = models.DateField()
-    
+
     def __str__(self):
         return "{} @ {}".format(self.level, self.date)
-    
+
     def create(user, level, date=None):
         """Create a new Level"""
         if date is None:
             day_service = DayService(user)
-      
+
             # what date is it now there?
             date = day_service.get_current_date()
         if Level.exists(user, date):
             raise IntegrityError('Level already exists')
         else:
             return Level.objects.create(user=user, date=date, level=level)
-        
+
     def get(user, date=None):
         """Get a Level object"""
         EventLog.debug(user, "get({}) is called".format(date))
         if date is None:
             day_service = DayService(user)
-      
+
             # what date is it now there?
             date = day_service.get_current_date()
-        
+
         if Level.exists(user, date):
             return_object = Level.objects.get(user=user, date=date)
         else:
-            return_object = Level.objects.create(user=user, date=date, level=Level.DEFAULT)
+            return_object = Level.objects.create(user=user,
+                                                 date=date,
+                                                 level=Level.DEFAULT)
         EventLog.debug(user, "get({}) returns: {}".format(date, return_object))
-        
+
         return return_object
-    
+
     def exists(user, date):
         """Check if the Level object"""
         return Level.objects.filter(user=user, date=date).exists()
-    
-    
+
+
 class RandomDecision(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     random_value = models.FloatField(blank=True, null=True)
     return_bool = models.BooleanField(null=True, default=None)
-    
+
     def create(user):
-        obj = RandomDecision.objects.create(user=user, random_value = random.random())
+        obj = RandomDecision.objects.create(user=user,
+                                            random_value=random.random())
         return obj
-        
+
     def decide(self):
         self.return_bool = (self.random_value < 0.5)
         self.save()
         return self.return_bool
 
+
 class BoutPlanningDecision(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    WEEKDAY_WEEKEND = 'weekday/weekend'
+    DAY_BY_DAY = 'day by day'
+    DAY_OF_A_WEEK = 'day of a week'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     N = models.BooleanField(null=True, default=None)
     O = models.BooleanField(null=True, default=None)
     R = models.BooleanField(null=True, default=None)
     return_bool = models.BooleanField(null=True, default=None)
-    
+    data = models.JSONField(null=True, default=None)
+
     def create(user):
         obj = BoutPlanningDecision.objects.create(user=user)
         return obj
-        
+
     def apply_N(self):
         decision_point_index = self.__get_decision_point_index()
-        
+
         if decision_point_index == 0:
             # TODO: This should be changed to the actual implementation
             yesterday_step_goal = 8000
             # TODO: This should be changed to the actual implementation
             yesterday_step_count = 7999
-            
+
             if yesterday_step_goal <= yesterday_step_count:
                 self.N = False
             else:
@@ -305,44 +315,61 @@ class BoutPlanningDecision(models.Model):
         else:
             # TODO: This should be changed to the actual implementation
             today_step_goal = 8000
-            
-            day_service = DayService(self.user)
-            user_local_time = day_service.get_current_datetime()
-            prorated_today_step_goal = today_step_goal * (user_local_time.hour * 60 + user_local_time.minute) / 1440
-            
+
+            user_local_time = self.__get_user_local_time()
+            prorated_today_step_goal = today_step_goal * (
+                user_local_time.hour * 60 + user_local_time.minute) / 1440
+
             # TODO: This should be changed to the actual implementation
             today_step_count = 0
-            
+
             if prorated_today_step_goal <= today_step_count:
                 self.N = False
             else:
                 self.N = True
-        
+
         self.save()
 
-    def __get_decision_point_index(self):
-        day_service = DayService(self.user)
-        # what date & time is it now there?
-        user_local_time = day_service.get_current_datetime()
-        first_bout_planning_time_obj = FirstBoutPlanningTime.get(self.user)
-        diff_in_minutes = (user_local_time.hour * 60 + user_local_time.minute) - first_bout_planning_time_obj.hour * 60
-        diff_by_three_hours = round(diff_in_minutes / 180, 0)
-        
-        if diff_by_three_hours >= 0 and diff_by_three_hours < 4:
-            decision_point_index = diff_by_three_hours
-        else:
-            raise RuntimeError("Unusual time diff: user_local[{}], first_hour[{}]".format(user_local_time, first_bout_planning_time_obj))
-        
-        return decision_point_index
-    
     def apply_O(self):
-        self.O = True
+        criteria = [{
+            'minimum': 0,
+            'maximum': 7,
+            'mode': BoutPlanningDecision.WEEKDAY_WEEKEND,
+            'fetch_period': 3,
+            'window_size': 3,
+            'threshold1': 0.55,
+            'threshold2': 0.5
+        }, {
+            'minimum': 8,
+            'maximum': 21,
+            'mode': BoutPlanningDecision.WEEKDAY_WEEKEND,
+            'fetch_period': 8,
+            'window_size': 3,
+            'threshold1': 0.55,
+            'threshold2': 0.6
+        }, {
+            'minimum': 22,
+            'maximum': 9999,
+            'mode': BoutPlanningDecision.DAY_BY_DAY,
+            'fetch_period': 5,
+            'window_size': 3,
+            'threshold1': 0.55,
+            'threshold2': 0.55
+        }]
+
+        study_day_index = self.__get_study_day_index()
+        criterion = self.__get_criterion(study_day_index, criteria)
+
+        fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
+        walkdata_list = self.__fetch_walkdata(fetch_periods)
+        self.O = self.__process_walkdata(criterion, walkdata_list)
+
         self.save()
-    
+
     def apply_R(self):
         self.R = True
         self.save()
-    
+
     def decide(self):
         self.return_bool = True
         if self.N is not None:
@@ -351,6 +378,211 @@ class BoutPlanningDecision(models.Model):
             self.return_bool = self.return_bool & self.O
         if self.R is not None:
             self.return_bool = self.return_bool & self.R
-        
+
         self.save()
         return self.return_bool
+
+    def __get_user_local_time(self):
+        day_service = DayService(self.user)
+        user_local_time = day_service.get_current_datetime()
+        return user_local_time
+
+    def __get_decision_point_index(self):
+        user_local_time = self.__get_user_local_time()
+        first_bout_planning_time_obj = FirstBoutPlanningTime.get(self.user)
+        diff_in_minutes = (user_local_time.hour * 60 + user_local_time.minute
+                           ) - first_bout_planning_time_obj.hour * 60
+        diff_by_three_hours = round(diff_in_minutes / 180, 0)
+
+        if diff_by_three_hours >= 0 and diff_by_three_hours < 4:
+            decision_point_index = diff_by_three_hours
+        else:
+            raise RuntimeError(
+                "Unusual time diff: user_local[{}], first_hour[{}]".format(
+                    user_local_time, first_bout_planning_time_obj))
+
+        return decision_point_index
+
+    def __get_study_day_index(self):
+        def get_study_start_date():
+            participant = Participant.objects.filter(user=self.user)
+            if participant and participant.exists():
+                return participant.first().study_start_date
+            else:
+                raise ValueError("No Participant under user: {}".format(
+                    self.user))
+
+        study_start_date = get_study_start_date()
+        user_local_date = self.__get_user_local_time().date()
+
+        date_diff = user_local_date - study_start_date
+
+        return date_diff.days
+
+    def __get_criterion(self, study_day_index, criteria):
+        for criterion in criteria:
+            if 'minimum' in criterion:
+                if criterion['minimum'] > study_day_index:
+                    continue
+            if 'maximum' in criterion:
+                if criterion['maximum'] < study_day_index:
+                    continue
+
+            # returning a new copy in the memory of the criterion
+            return dict(criterion)
+        raise ValueError(
+            "Could not find criterion that matches study_day_index: {}".format(
+                study_day_index))
+
+    def __get_fetch_periods(self, study_day_index, criterion):
+        def is_weekday(a_day):
+            return a_day.weekday() in (5, 6)
+
+        user_local_date = self.__get_user_local_time().date()
+
+        if criterion['mode'] == BoutPlanningDecision.WEEKDAY_WEEKEND:
+            is_today_weekday = is_weekday(user_local_date)
+
+            days_list = []
+            date_cursor = user_local_date - timedelta(days=1)
+
+            if 'fetch_period' in criterion:
+                while True:
+                    if is_weekday(date_cursor) == is_today_weekday:
+                        days_list.append(date_cursor)
+                    if len(days_list) == criterion['fetch_period']:
+                        break
+                    if len(days_list) > 99:  # it is fetching too many days
+                        raise ValueError(
+                            'fetch_period should be lower than 99: {}'.format(
+                                criterion['fetch_period']))
+                    date_cursor = date_cursor - timedelta(days=1)
+            else:
+                raise ValueError('fetch_period must be in the criteria')
+
+        elif criterion['mode'] == BoutPlanningDecision.DAY_BY_DAY:
+            days_list = []
+            date_cursor = user_local_date - timedelta(days=1)
+
+            if 'fetch_period' in criterion:
+                while True:
+                    days_list.append(date_cursor)
+                    if len(days_list) == criterion['fetch_period']:
+                        break
+                    if len(days_list) > 99:  # it is fetching too many days
+                        raise ValueError(
+                            'fetch_period should be lower than 99: {}'.format(
+                                criterion['fetch_period']))
+                    date_cursor = date_cursor - timedelta(days=1)
+            else:
+                raise ValueError('fetch_period must be in the criteria')
+        elif criterion['mode'] == BoutPlanningDecision.DAY_OF_A_WEEK:
+            todays_weekday = user_local_date.weekday()
+
+            days_list = []
+            date_cursor = user_local_date - timedelta(days=1)
+
+            if 'fetch_period' in criterion:
+                while True:
+                    if date_cursor.weekday() == todays_weekday:
+                        days_list.append(date_cursor)
+                    if len(days_list) == criterion['fetch_period']:
+                        break
+                    if len(days_list) > 99:  # it is fetching too many days
+                        raise ValueError(
+                            'fetch_period should be lower than 99: {}'.format(
+                                criterion['fetch_period']))
+                    date_cursor = date_cursor - timedelta(days=1)
+            else:
+                raise ValueError('fetch_period must be in the criteria')
+        else:
+            raise ValueError("Unknown criterion mode: {}".format(
+                criterion['mode']))
+
+        return days_list
+
+    def __fetch_walkdata(self, fetch_periods):
+        def fetch_walkdata(a_day):
+            # TODO: This should be changed to the actual implementation
+            walkdata_list = []
+            for i in range(0, 100):
+                walkdata_list.append({
+                    'when': {
+                        'hour': random.randint(0, 24),
+                        'minute': random.randint(0, 60)
+                    },
+                    'steps': random.randint(30, 150)
+                })
+
+            return walkdata_list
+
+        raw_walk_data = []
+        for a_day in fetch_periods:
+            raw_walk_data.append({
+                'date': a_day,
+                'raw_data': fetch_walkdata(a_day)
+            })
+
+        return raw_walk_data
+
+    def __process_walkdata(self, criterion, walkdata_list):
+        def ifthisthenthat(this, that, it):
+            if this:
+                return that
+            else:
+                return it
+
+        activity_list = []
+
+        # 0. Prepare to Pick the right 3-hour window
+        decision_point_index = self.__get_decision_point_index()
+        first_bout_planning_time = FirstBoutPlanningTime.get(self.user).hour
+        start_index = int((first_bout_planning_time +
+                       decision_point_index * 3) * 60)
+        finish_index = start_index + 180
+        # 1. padding with zeros, reorganizing overlapped step data
+        # sometimes, Fitbit overlapses/jump minute step data when the timezone changes
+        for walkdata in walkdata_list:
+            padded_walkdata = [0] * 1440  # total number of minutes in a day
+            for minute_data in walkdata['raw_data']:
+                when = minute_data['when']
+                steps = minute_data['steps']
+                
+                minute_index = when['hour'] * 24 + when['minute']
+                padded_walkdata[minute_index] += steps
+
+            # 2. moving-averaging and applying threshold 1
+            moving_averaged_walkdata = [0] * 1440
+            half_window_size = criterion['window_size']
+            window_size = half_window_size * 2 + 1
+            # average should be over threshold1. instead of dividing
+            # by window size, the threshold is pre-calculated for the speed
+            threshold1 = criterion['threshold1'] * window_size
+
+            # for time complexity of O(n), moving average became more complex
+            current_sum = sum(padded_walkdata[0:window_size])
+            moving_averaged_walkdata[half_window_size - 1] = ifthisthenthat(
+                current_sum > threshold1, 1, 0)
+
+            for i in range(half_window_size, 1440 - half_window_size):
+                current_sum = current_sum + padded_walkdata[
+                    i + half_window_size -
+                    1] - padded_walkdata[i - half_window_size]
+                moving_averaged_walkdata[i] = ifthisthenthat(
+                    current_sum > threshold1, 1, 0)
+
+            # 3. Pick up proper timespan, check if there's an activity
+            if_activity_exists = max(
+                moving_averaged_walkdata[start_index:finish_index])
+            activity_list.append(if_activity_exists)
+
+        # 4. If we average all activities, is the three-hour window active?
+        if len(activity_list) > 0:
+            average_activity = sum(activity_list) / len(activity_list)
+            if average_activity > criterion['threshold2']:
+                return True
+            else:
+                return False
+        else:
+            # TODO: Discuss about this case - what if there is no data available?
+            return True
