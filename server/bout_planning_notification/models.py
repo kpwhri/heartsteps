@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import pytz
+import math
 
 from django.db import models, IntegrityError
 
@@ -367,7 +368,91 @@ class BoutPlanningDecision(models.Model):
         self.save()
 
     def apply_R(self):
-        self.R = True
+        def fetch_bout_planning_notification_logs(days=3):
+            # TODO: This should be changed to the actual implementation
+            return [
+                {
+                    "when": datetime(2021, 9, 8, 7, 0, 0)
+                },
+                {
+                    "when": datetime(2021, 9, 8, 10, 0, 0)
+                },
+                {
+                    "when": datetime(2021, 9, 8, 13, 0, 0)
+                },
+                {
+                    "when": datetime(2021, 9, 9, 7, 0, 0)
+                }
+            ]
+
+        def convert_logs_to_time_list(logs):
+            time_list = []
+            
+            for log_item in logs:
+                time_list.append({
+                    "start": log_item['when'],
+                    "end": log_item['when'] + timedelta(minutes=180)
+                })
+            return time_list
+
+        def count_receptive_activity(activity_list, log_time_list):
+            consecutive_minutes_criteria = 5    # activity consists of 5 consecutive minutes of ...
+            active_minute_criteria = 100    # 100 steps per minute
+            
+            number_of_receptive_activity = 0
+            
+            for index, activity in enumerate(activity_list):
+                padded_walkdata = self.__pad_walkdata(activity['raw_data'])
+                
+                current_log_time = log_time_list[index]
+                
+                if activity['date']['start'].date() == current_log_time['start'].date():
+                    start_index = current_log_time['start'].hour * 60 + current_log_time['start'].minute
+                    end_index = start_index + 180
+                    
+                    cumulative_active_minutes = 0
+                    for i in range(start_index, end_index):
+                        if padded_walkdata[i] > active_minute_criteria: # if they walked 100 steps or more
+                            cumulative_active_minutes += 1
+                            if cumulative_active_minutes >= consecutive_minutes_criteria:
+                                number_of_receptive_activity += 1
+                                break
+                        else:
+                            cumulative_active_minutes = 0   # reset
+            
+            return number_of_receptive_activity
+
+        budget = 0.5  # 50% of decision points
+        receptive_criteria = 0.3  # +30% of notification is responded favorably
+        # # of notification | minimum # of favorable response to be marked as "receptive"
+        #                 1 | 1
+        #                 2 | 1
+        #                 3 | 1
+        #                 4 | 2
+        #                 5 | 2
+        #                 6 | 2
+        #                 7 | 3
+        #                 8 | 3
+        #                 9 | 3
+        #                10 | 3
+        #                11 | 4
+        #                12 | 4
+
+        logs = fetch_bout_planning_notification_logs(days=3)
+        if len(logs) >= budget * 12:
+            # the budget is all used up.
+            self.R = False
+        else:
+            log_time_list = convert_logs_to_time_list(logs)
+            activity_list = self.__fetch_walkdata(log_time_list)
+            number_of_receptive_activity = count_receptive_activity(
+                activity_list, log_time_list)
+            minimum_number_of_activity = math.ceil(
+                len(log_time_list) * receptive_criteria)
+            if number_of_receptive_activity >= minimum_number_of_activity:
+                self.R = True
+            else:
+                self.R = False
         self.save()
 
     def decide(self):
@@ -532,44 +617,43 @@ class BoutPlanningDecision(models.Model):
             else:
                 return it
 
+        def calculate_moving_average(criterion, padded_walkdata):
+            half_window_size = criterion['window_size']
+            window_size = half_window_size * 2 + 1
+                # average should be over threshold1. instead of dividing
+                # by window size, the threshold is pre-calculated for the speed
+            threshold1 = criterion['threshold1'] * window_size
+
+            moving_averaged_walkdata = [0] * 1440
+                # for time complexity of O(n), moving average became more complex
+            current_sum = sum(padded_walkdata[0:window_size])
+            moving_averaged_walkdata[half_window_size - 1] = ifthisthenthat(
+                    current_sum > threshold1, 1, 0)
+
+            for i in range(half_window_size, 1440 - half_window_size):
+                current_sum = current_sum + padded_walkdata[
+                        i + half_window_size -
+                        1] - padded_walkdata[i - half_window_size]
+                moving_averaged_walkdata[i] = ifthisthenthat(
+                        current_sum > threshold1, 1, 0)
+                    
+            return moving_averaged_walkdata
+    
         activity_list = []
 
         # 0. Prepare to Pick the right 3-hour window
         decision_point_index = self.__get_decision_point_index()
         first_bout_planning_time = FirstBoutPlanningTime.get(self.user).hour
-        start_index = int((first_bout_planning_time +
-                       decision_point_index * 3) * 60)
+        start_index = int(
+            (first_bout_planning_time + decision_point_index * 3) * 60)
         finish_index = start_index + 180
         # 1. padding with zeros, reorganizing overlapped step data
         # sometimes, Fitbit overlapses/jump minute step data when the timezone changes
         for walkdata in walkdata_list:
-            padded_walkdata = [0] * 1440  # total number of minutes in a day
-            for minute_data in walkdata['raw_data']:
-                when = minute_data['when']
-                steps = minute_data['steps']
-                
-                minute_index = when['hour'] * 24 + when['minute']
-                padded_walkdata[minute_index] += steps
+            padded_walkdata = self.__pad_walkdata(walkdata['raw_data'])
 
             # 2. moving-averaging and applying threshold 1
-            moving_averaged_walkdata = [0] * 1440
-            half_window_size = criterion['window_size']
-            window_size = half_window_size * 2 + 1
-            # average should be over threshold1. instead of dividing
-            # by window size, the threshold is pre-calculated for the speed
-            threshold1 = criterion['threshold1'] * window_size
-
-            # for time complexity of O(n), moving average became more complex
-            current_sum = sum(padded_walkdata[0:window_size])
-            moving_averaged_walkdata[half_window_size - 1] = ifthisthenthat(
-                current_sum > threshold1, 1, 0)
-
-            for i in range(half_window_size, 1440 - half_window_size):
-                current_sum = current_sum + padded_walkdata[
-                    i + half_window_size -
-                    1] - padded_walkdata[i - half_window_size]
-                moving_averaged_walkdata[i] = ifthisthenthat(
-                    current_sum > threshold1, 1, 0)
+            moving_averaged_walkdata = calculate_moving_average(criterion, padded_walkdata)
 
             # 3. Pick up proper timespan, check if there's an activity
             if_activity_exists = max(
@@ -586,3 +670,13 @@ class BoutPlanningDecision(models.Model):
         else:
             # TODO: Discuss about this case - what if there is no data available?
             return True
+
+    def __pad_walkdata(self, walkdata):
+        padded_walkdata = [0] * 1440  # total number of minutes in a day
+        for minute_data in walkdata:
+            when = minute_data['when']
+            steps = minute_data['steps']
+
+            minute_index = when['hour'] * 24 + when['minute']
+            padded_walkdata[minute_index] += steps
+        return padded_walkdata
