@@ -1,7 +1,7 @@
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
-from .models import Level
+from .models import Level, RandomDecision, BoutPlanningDecision
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -18,8 +18,32 @@ class BoutPlanningNotificationService:
         
         level = Level.get(self.user)
         
+        if level.level == Level.RECOVERY:
+            return_bool = False
+        elif level.level == Level.RANDOM:
+            decision = RandomDecision.create(self.user)
+            return_bool = decision.decide()
+        elif level.level == Level.NO:
+            decision = BoutPlanningDecision.create(self.user)
+            decision.apply_N()
+            decision.apply_O()
+            return_bool = decision.decide()
+        elif level.level == Level.NR:
+            decision = BoutPlanningDecision.create(self.user)
+            decision.apply_N()
+            decision.apply_R()
+            return_bool = decision.decide()
+        elif level.level == Level.FULL:
+            decision = BoutPlanningDecision.create(self.user)
+            decision.apply_N()
+            decision.apply_O()
+            decision.apply_R()
+            return_bool = decision.decide()
+        else:
+            raise RuntimeError("Unsupported decision type: {}".format(level.level))
+        
         EventLog.debug(self.user, "returning True")
-        return True
+        return return_bool
     
     def send_notification(self,
                           title='Sample Bout Planning Title',

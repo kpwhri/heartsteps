@@ -10,7 +10,9 @@ from days.services import DayService
 from .constants import TASK_CATEGORY
 from django.db import models
 
+from user_event_logs.models import EventLog
 
+import random
 
 User = get_user_model()
 
@@ -209,21 +211,24 @@ class Level(models.Model):
     RANDOM = 'RA'
     NO = 'NO'
     NR = 'NR'
-    FULL = 'FULL'
+    FULL = 'FU'
     
     DEFAULT = FULL
     
     LEVELS = [
-        (RECOVERY, 'RECOVERY'),
-        (RANDOM, 'RANDOM'),
-        (NO, 'N+O'),
-        (NR, 'N+R'),
-        (FULL, 'Full'),
+        (RECOVERY, 'RE'),
+        (RANDOM, 'RA'),
+        (NO, 'NO'),
+        (NR, 'NR'),
+        (FULL, 'FU'),
     ]
     
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     level = models.CharField(max_length=20, choices=LEVELS)
     date = models.DateField()
+    
+    def __str__(self):
+        return "{} @ {}".format(self.level, self.date)
     
     def create(user, level, date=None):
         """Create a new Level"""
@@ -239,17 +244,71 @@ class Level(models.Model):
         
     def get(user, date=None):
         """Get a Level object"""
+        EventLog.debug(user, "get({}) is called".format(date))
         if date is None:
             day_service = DayService(user)
       
             # what date is it now there?
             date = day_service.get_current_date()
-            
+        
         if Level.exists(user, date):
-            return Level.objects.get(user=user, date=date)
+            return_object = Level.objects.get(user=user, date=date)
         else:
-            return Level.objects.create(user=user, date=date, level=Level.DEFAULT)
+            return_object = Level.objects.create(user=user, date=date, level=Level.DEFAULT)
+        EventLog.debug(user, "get({}) returns: {}".format(date, return_object))
+        
+        return return_object
     
     def exists(user, date):
         """Check if the Level object"""
         return Level.objects.filter(user=user, date=date).exists()
+    
+    
+class RandomDecision(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    random_value = models.FloatField(blank=True, null=True)
+    return_bool = models.BooleanField(null=True, default=None)
+    
+    def create(user):
+        obj = RandomDecision.objects.create(user=user, random_value = random.random())
+        return obj
+        
+    def decide(self):
+        self.return_bool = (self.random_value < 0.5)
+        self.save()
+        return self.return_bool
+
+class BoutPlanningDecision(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    N = models.BooleanField(null=True, default=None)
+    O = models.BooleanField(null=True, default=None)
+    R = models.BooleanField(null=True, default=None)
+    return_bool = models.BooleanField(null=True, default=None)
+    
+    def create(user):
+        obj = BoutPlanningDecision.objects.create(user=user)
+        return obj
+        
+    def apply_N(self):
+        self.N = True
+        self.save()
+    
+    def apply_O(self):
+        self.O = True
+        self.save()
+    
+    def apply_R(self):
+        self.R = True
+        self.save()
+    
+    def decide(self):
+        self.return_bool = True
+        if self.N is not None:
+            self.return_bool = self.return_bool & self.N
+        if self.O is not None:
+            self.return_bool = self.return_bool & self.O
+        if self.R is not None:
+            self.return_bool = self.return_bool & self.R
+        
+        self.save()
+        return self.return_bool
