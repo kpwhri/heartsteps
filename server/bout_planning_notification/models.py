@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 import math
 
@@ -17,6 +17,20 @@ from participants.models import Participant
 import random
 
 User = get_user_model()
+
+def force_str(obj):
+    if isinstance(obj, str):
+        return "\"{}\"".format(obj)
+    elif isinstance(obj, datetime):
+        return obj.strftime('%Y-%m-%d %H:%M:%S')
+    elif isinstance(obj, date):
+        return obj.strftime('%Y-%m-%d')
+    elif isinstance(obj, list):
+        return "[{}]".format(",".join(list(map(lambda x: force_str(x), obj))))
+    elif isinstance(obj, dict):
+        return "{{{}}}".format(",".join(list(map(lambda x: "\"{}\": {}".format(x, force_str(obj[x])), obj))))
+    else:
+        return str(obj)
 
 
 class FirstBoutPlanningTime(models.Model):
@@ -295,19 +309,23 @@ class BoutPlanningDecision(models.Model):
     R = models.BooleanField(null=True, default=None)
     return_bool = models.BooleanField(null=True, default=None)
     data = models.JSONField(null=True, default=None)
-
+    when_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    
     def create(user):
-        obj = BoutPlanningDecision.objects.create(user=user)
+        obj = BoutPlanningDecision.objects.create(user=user, data={})
         return obj
 
     def apply_N(self):
         decision_point_index = self.__get_decision_point_index()
+        self.data['decision_point_index'] = decision_point_index
 
         if decision_point_index == 0:
             # TODO: This should be changed to the actual implementation
             yesterday_step_goal = 8000
+            self.data['yesterday_step_goal'] = yesterday_step_goal
             # TODO: This should be changed to the actual implementation
             yesterday_step_count = 7999
+            self.data['yesterday_step_count'] = yesterday_step_count
 
             if yesterday_step_goal <= yesterday_step_count:
                 self.N = False
@@ -316,14 +334,19 @@ class BoutPlanningDecision(models.Model):
         else:
             # TODO: This should be changed to the actual implementation
             today_step_goal = 8000
-
+            self.data['today_step_goal'] = today_step_goal
+            
             user_local_time = self.__get_user_local_time()
+            self.data['user_local_time'] = str(user_local_time)
+            
             prorated_today_step_goal = today_step_goal * (
                 user_local_time.hour * 60 + user_local_time.minute) / 1440
-
+            self.data['prorated_today_step_goal'] = prorated_today_step_goal
+            
             # TODO: This should be changed to the actual implementation
             today_step_count = 0
-
+            self.data['today_step_count'] = today_step_count
+            
             if prorated_today_step_goal <= today_step_count:
                 self.N = False
             else:
@@ -359,10 +382,17 @@ class BoutPlanningDecision(models.Model):
         }]
 
         study_day_index = self.__get_study_day_index()
+        self.data['study_day_index'] = study_day_index
+        
         criterion = self.__get_criterion(study_day_index, criteria)
-
+        self.data['criterion'] = criterion
+        
         fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
+        
+        self.data['fetch_periods'] = force_str(fetch_periods)
+        
         walkdata_list = self.__fetch_walkdata(fetch_periods)
+        
         self.O = self.__process_walkdata(criterion, walkdata_list)
 
         self.save()
@@ -423,7 +453,11 @@ class BoutPlanningDecision(models.Model):
             return number_of_receptive_activity
 
         budget = 0.5  # 50% of decision points
+        self.data['budget'] = budget
+        
         receptive_criteria = 0.3  # +30% of notification is responded favorably
+        self.data['receptive_criteria'] = receptive_criteria
+        
         # # of notification | minimum # of favorable response to be marked as "receptive"
         #                 1 | 1
         #                 2 | 1
@@ -439,16 +473,26 @@ class BoutPlanningDecision(models.Model):
         #                12 | 4
 
         logs = fetch_bout_planning_notification_logs(days=3)
+        self.data['logs'] = force_str(logs)
+        
         if len(logs) >= budget * 12:
             # the budget is all used up.
             self.R = False
         else:
             log_time_list = convert_logs_to_time_list(logs)
+            self.data['log_time_list'] = force_str(log_time_list)
+            
             activity_list = self.__fetch_walkdata(log_time_list)
+            self.data['activity_list'] = force_str(activity_list)
+            
             number_of_receptive_activity = count_receptive_activity(
                 activity_list, log_time_list)
+            self.data['number_of_receptive_activity'] = number_of_receptive_activity
+            
             minimum_number_of_activity = math.ceil(
                 len(log_time_list) * receptive_criteria)
+            self.data['minimum_number_of_activity'] = minimum_number_of_activity
+            
             if number_of_receptive_activity >= minimum_number_of_activity:
                 self.R = True
             else:
