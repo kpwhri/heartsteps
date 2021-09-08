@@ -28,6 +28,7 @@ class BoutPlanningTaskTest(TestCase):
 
     @patch('push_messages.clients.OneSignalClient.send')
     def test_task_2(self, mock_send):
+        FirstBoutPlanningTime.create(self.user)
         Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
         sample_external_id = "abc123"
         

@@ -290,8 +290,35 @@ class BoutPlanningDecision(models.Model):
         return obj
         
     def apply_N(self):
-        self.N = True
+        decision_point_index = self.__get_decision_point_index()
+        
+        if decision_point_index == 0:
+            # TODO: This should be changed to the actual implementation
+            yesterday_step_goal = 8000
+            # TODO: This should be changed to the actual implementation
+            yesterday_step_count = 7999
+            
+            if yesterday_step_goal <= yesterday_step_count:
+                self.N = False
+            else:
+                self.N = True
+        
         self.save()
+
+    def __get_decision_point_index(self):
+        day_service = DayService(self.user)
+        # what date & time is it now there?
+        user_local_time = day_service.get_current_datetime()
+        first_bout_planning_time_obj = FirstBoutPlanningTime.get(self.user)
+        diff_in_minutes = (user_local_time.hour * 60 + user_local_time.minute) - first_bout_planning_time_obj.hour * 60
+        diff_by_three_hours = round(diff_in_minutes / 180, 0)
+        
+        if diff_by_three_hours >= 0 and diff_by_three_hours < 4:
+            decision_point_index = diff_by_three_hours
+        else:
+            raise RuntimeError("Unusual time diff: user_local[{}], first_hour[{}]".format(user_local_time, first_bout_planning_time_obj))
+        
+        return decision_point_index
     
     def apply_O(self):
         self.O = True
