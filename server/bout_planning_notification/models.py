@@ -302,6 +302,21 @@ class BoutPlanningDecision(models.Model):
                 self.N = False
             else:
                 self.N = True
+        else:
+            # TODO: This should be changed to the actual implementation
+            today_step_goal = 8000
+            
+            day_service = DayService(self.user)
+            user_local_time = day_service.get_current_datetime()
+            prorated_today_step_goal = today_step_goal * (user_local_time.hour * 60 + user_local_time.minute) / 1440
+            
+            # TODO: This should be changed to the actual implementation
+            today_step_count = 0
+            
+            if prorated_today_step_goal <= today_step_count:
+                self.N = False
+            else:
+                self.N = True
         
         self.save()
 

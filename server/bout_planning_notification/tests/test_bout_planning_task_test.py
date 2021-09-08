@@ -10,6 +10,9 @@ from push_messages.models import Device, Message
 from locations.models import Place
 from feature_flags.models import FeatureFlags
 
+from freezegun import freeze_time
+from datetime import datetime
+import pytz
 
 class BoutPlanningTaskTest(TestCase):
     def setUp(self):
@@ -34,17 +37,18 @@ class BoutPlanningTaskTest(TestCase):
         
         mock_send.return_value = sample_external_id
         
-        # if there's no feature flag for the user, BoutPlanningFlagException is raised
-        self.assertRaises(BoutPlanningFlagException,
-                          bout_planning_decision_making, self.user.username)
+        with freeze_time(lambda: datetime.strptime("2021-09-08 07:05-0700", "%Y-%m-%d %H:%M%z")):
+            # if there's no feature flag for the user, BoutPlanningFlagException is raised
+            self.assertRaises(BoutPlanningFlagException,
+                            bout_planning_decision_making, self.user.username)
 
-        # if there's a feature flag for the user, but it doesn't contain "bout_planning" feature flag, BoutPlanningFlagException is raised
-        FeatureFlags.create(self.user)
-        self.assertRaises(BoutPlanningFlagException,
-                          bout_planning_decision_making, self.user.username)
+            # if there's a feature flag for the user, but it doesn't contain "bout_planning" feature flag, BoutPlanningFlagException is raised
+            FeatureFlags.create(self.user)
+            self.assertRaises(BoutPlanningFlagException,
+                            bout_planning_decision_making, self.user.username)
 
-        FeatureFlags.update(self.user, "bout_planning")
-        bout_planning_decision_making(self.user.username)
+            FeatureFlags.update(self.user, "bout_planning")
+            bout_planning_decision_making(self.user.username)
 
     def test_FirstBoutPlanningTime_updated_1(self):
         user1 = User.objects.create(username="user1")
