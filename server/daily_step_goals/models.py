@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from daily_tasks.models import DailyTask
+from .constants import TASK_CATEGORY
 import uuid
 
 # from activity_summaries.models import Day
@@ -47,6 +49,9 @@ class StepGoalPRBScsv(models.Model):
 
 class StepGoal(models.Model):
 
+    class NoSuchUserException(Exception):
+        pass
+
     uuid = models.UUIDField(primary_key=True,
                             default=uuid.uuid4,
                             editable=False)
@@ -58,6 +63,35 @@ class StepGoal(models.Model):
     @property
     def id(self):
         return str(self.uuid)
+
+    def convert_to_user_obj(user):
+        if isinstance(user, str):
+            try:
+                user_obj = User.objects.get(username=user)
+            except User.DoesNotExist:
+                raise StepGoal.NoSuchUserException
+        elif isinstance(user, User):
+            user_obj = user
+        else:
+            assert isinstance(
+                user, User
+            ), "user argument should be an instance of User class: {}".format(
+                type(user))
+        return user_obj
+
+    def get_daily_tasks(user):
+        """This will fetch all daily tasks for the user.
+
+        Returns:
+            DailyTask[]
+        """
+
+        # It converts username to user object (if provided) If User object is provided, it will return the user itself.
+        user_obj = StepGoal.convert_to_user_obj(user)
+
+        task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
+
+        return list(task_list)
 
 
 class ActivityDay(models.Model):

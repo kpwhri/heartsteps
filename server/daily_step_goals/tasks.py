@@ -11,9 +11,10 @@ from user_event_logs.models import EventLog
 from .services import StepGoalsService
 
 @shared_task
-def update_goal():
+def update_goal(username):
     # dt = datetime.strptime(day_string, '%Y-%m-%d')
     # day = date(dt.year, dt.month, dt.day)
+    assert isinstance(username, str), "username must be a string: {}".format(type(username))
     try:
         service = StepGoalsService()
         service.create(date.today())
