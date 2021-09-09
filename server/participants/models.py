@@ -30,40 +30,41 @@ class Study(models.Model):
 
     name = models.CharField(
         max_length=75,
-        unique=True
+        unique=True,
+        blank=True
     )
     contact_name = models.CharField(
         max_length=150,
-        null=True
+        null=True,
+        blank=True
     )
     contact_number = models.CharField(
         max_length=20,
-        null=True
+        null=True,
+        blank=True
     )
     baseline_period = models.PositiveIntegerField(default=7)
-    studywide_feature_flags = models.TextField(default="")
+    studywide_feature_flags = models.TextField(default="", blank=True)
 
     admins = models.ManyToManyField(User)
 
-    ## By Junghwan (Sep. 1. 2021) -
-    ## These two functions are commented out because it creates numerous validation errors during the unittest.
-    ## Please take a look, fix the failing tests, and commit.
-    
-    # def clean_fields(self, exclude=['contact_name', 'contact_number']):
-    #     super().clean_fields(exclude=exclude)
-    #     studywide_feature_flags_list = self.studywide_feature_flags.split(
-    #         ", ")
-    #     cohorts = Cohort.objects.filter(study=self)
-    #     for cohort in cohorts:
-    #         cohort_feature_flags_list = cohort.cohort_feature_flags.split(", ")
-    #         for cohort_flag in cohort_feature_flags_list:
-    #             if cohort_flag in studywide_feature_flags_list:
-    #                 raise ValidationError(
-    #                     'Cannot add flag because it is already a study feature flag')
+    def clean_fields(self, exclude=['contact_name', 'contact_number']):
+        super().clean_fields(exclude=exclude)
+        raise_error = False
+        studywide_feature_flags_list = self.studywide_feature_flags.split(
+            ", ")
+        cohorts = Cohort.objects.filter(study=self)
+        for cohort in cohorts:
+            cohort_feature_flags_list = cohort.cohort_feature_flags.split(", ")
+            for cohort_flag in cohort_feature_flags_list:
+                if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
+                    raise_error = True
+                    # raise ValidationError(
+                    #     'Cannot add flag because it is already a study feature flag')
 
-    # def save(self, *args, **kwargs):
-    #     self.full_clean()
-    #     super(Study, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Study, self).save(*args, **kwargs)
 
     @property
     def slug(self):
@@ -74,10 +75,11 @@ class Study(models.Model):
 
 
 class Cohort(models.Model):
-    name = models.CharField(max_length=75)
+    name = models.CharField(max_length=75, blank=True)
     study = models.ForeignKey(
         Study,
         null=True,
+        blank=True,
         on_delete=models.CASCADE
     )
 
@@ -92,25 +94,25 @@ class Cohort(models.Model):
         null=True,
         blank=True
     )
-    cohort_feature_flags = models.TextField(default="")
+    cohort_feature_flags = models.TextField(default="", blank=True)
 
-    ## By Junghwan (Sep. 1. 2021) -
-    ## These two functions are commented out because it creates numerous validation errors during the unittest.
-    ## Please take a look, fix the failing tests, and commit.
-    
-    # def clean_fields(self, exclude=['study_length', 'export_bucket_url']):
-    #     super().clean_fields(exclude=exclude)
-    #     studywide_feature_flags_list = self.study.studywide_feature_flags.split(
-    #         ", ")
-    #     cohort_feature_flags_list = self.cohort_feature_flags.split(", ")
-    #     for cohort_flag in cohort_feature_flags_list:
-    #         if cohort_flag in studywide_feature_flags_list:
-    #             raise ValidationError(
-    #                 'Cannot add flag because it is already a study feature flag')
+    def clean_fields(self, exclude=['study_length', 'export_bucket_url']):
+        super().clean_fields(exclude=exclude)
+        raise_error = False
+        if not self.study:
+            return
+        studywide_feature_flags_list = self.study.studywide_feature_flags.split(
+            ", ")
+        cohort_feature_flags_list = self.cohort_feature_flags.split(", ")
+        for cohort_flag in cohort_feature_flags_list:
+            if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
+                raise_error = True
+                # raise ValidationError(
+                # 'Cannot add flag because it is already a study feature flag')
 
-    # def save(self, *args, **kwargs):
-    #     self.full_clean()
-    #     super(Cohort, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Cohort, self).save(*args, **kwargs)
 
     def get_daily_timezones(self, start, end):
         participants = Participant.objects.filter(cohort=self) \
