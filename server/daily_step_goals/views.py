@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from .models import StepGoal, ActivityDay
 from activity_summaries.models import Day
 
+from user_event_logs.models import EventLog
+
 def insertSteps():
     daily_step_goal_log = StepGoal()
 
@@ -24,6 +26,9 @@ class DailyStepGoalsList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
+        msg = "daily_step_goal get() is called"
+        print(msg)
+        EventLog.debug(request.user, msg)
         step_goals = StepGoal.objects.filter(
             user = request.user
         ).order_by('date') \

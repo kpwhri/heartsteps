@@ -7,17 +7,19 @@ import { DailySummaryComponent } from '@heartsteps/daily-summaries/daily-summary
     templateUrl: './daily-step-goal.html'
 })
 export class DailyStepGoalComponent {
-    public dailyStepGoal: number = 8000;
+    public dailyStepGoal: number = 7890;
     public dailyStepDiff: number = 8000;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
         private dailySummary: DailySummaryComponent
     ){
-        this.testUpdate();
+        // this.testUpdate();
+        this.update();
     }
 
     private update() {
+        console.log("trying to update daily step goal (old)");
         this.heartstepsServer.get('dailystepgoals')
         .then((data) => {
             console.log(data);
@@ -33,6 +35,7 @@ export class DailyStepGoalComponent {
     // The following function is used to test if the new method of calculation by multiplying the median of the last 5
     // step counts by a defined multiplier is correctly implemented.
     private testUpdate() {
+        console.log("trying to update daily step goal (new)");
         this.heartstepsServer.get('newmultipliergoal')
         .then((data) => {
             console.log(data);

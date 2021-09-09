@@ -5,11 +5,13 @@ from django.core.exceptions import ImproperlyConfigured
 from .models import StepGoal, ActivityDay
 from activity_summaries.models import Day
 
-from .models import User
+from .models import User, StepGoalPRBScsv
 from user_event_logs.models import EventLog
 
 class StepGoalsService():
-
+    number_of_previous_days = 10
+    magnitude = 2000    # 2000 steps x PRBS
+    
     class NotEnabled(ImproperlyConfigured):
         pass
 
@@ -26,6 +28,39 @@ class StepGoalsService():
         )
         return new_goal
 
+    def generate_dump_goal_sequence(self):
+        from participants.models import Participant
+        
+        query = Participant.objects.filter(user=self.user)
+        if query.exists():
+            cohort = query.get().cohort
+            
+            PRBS_list = StepGoalPRBScsv.get_seq(cohort)
+            
+            base = self.get_median_steps()
+            
+            goal_sequence = [int(base + (self.magnitude * x)) for x in PRBS_list]
+            
+            return goal_sequence
+        else:
+            raise RuntimeError("No matching Participant for {}".format(self.user))
+    
+    def get_median_steps(self):
+        steps_list = Day.objects.filter(user=self.user).order_by('-date').all()[:(self.number_of_previous_days)]
+        ordered = sorted(steps_list, key=operator.attrgetter('steps'))
+        
+        len_steps_list = len(steps_list)
+        if len_steps_list > 0:
+            if len_steps_list % 2 == 0:
+                half = int(len_steps_list / 2)
+                median = int((ordered[half].steps + ordered[half+1].steps)/2)
+            else:
+                half = int((len_steps_list - 1)/ 2)
+                median = ordered[half].steps
+            return median
+        else:
+            raise RuntimeError("No Step Data")
+    
     def get_step_goal(self, date=None):
         """returns step goal
 
@@ -35,26 +70,14 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
-        # user = User.objects.get(self.__user.username)
         
-        last_ten = Day.objects.all().order_by('-date')[:10]
-        ordered = sorted(last_ten, key=operator.attrgetter('steps'))
-        serialized_step_counts = []
+        median = self.get_median_steps()
+        EventLog.log(self.user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
+        
+        # TODO: This should be changed to the actual implementation
+        return median
 
-        if ordered:
-            for step in ordered:
-                serialized_step_counts.append({
-                    'date': step.date.strftime('%Y-%m-%d'),
-                    'steps': step.steps
-                })
-        # last_ten_in_ascending_order = reversed(last_ten)
-        # new_goal = last_ten_in_ascending_order[5].steps
-            new_goal = (serialized_step_counts[4]["steps"] + serialized_step_counts[5]["steps"])/2;
-            EventLog.log(self.user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
-            return new_goal
-        else:
-            EventLog.log(self.user, "Step goal could not be fetched. Ordered list could not be defined.", EventLog.ERROR)
-            return None
+        
 
     def get_heartsteps_step_goal(self, date=None):
         """returns step goal
