@@ -7,6 +7,9 @@ from activity_summaries.models import Day
 
 from .models import User, StepGoalPRBScsv
 from user_event_logs.models import EventLog
+from days.services import DayService
+from participants.models import Participant
+
 
 class StepGoalsService():
     number_of_previous_days = 10
@@ -28,16 +31,14 @@ class StepGoalsService():
         )
         return new_goal
 
-    def generate_dump_goal_sequence(self):
-        from participants.models import Participant
-        
+    def generate_dump_goal_sequence(self, date=None):
         query = Participant.objects.filter(user=self.user)
         if query.exists():
             cohort = query.get().cohort
             
             PRBS_list = StepGoalPRBScsv.get_seq(cohort)
             
-            base = self.get_median_steps()
+            base = self.get_median_steps(date=date)
             
             goal_sequence = [int(base + (self.magnitude * x)) for x in PRBS_list]
             
@@ -45,8 +46,12 @@ class StepGoalsService():
         else:
             raise RuntimeError("No matching Participant for {}".format(self.user))
     
-    def get_median_steps(self):
-        steps_list = Day.objects.filter(user=self.user).order_by('-date').all()[:(self.number_of_previous_days)]
+    def get_median_steps(self, date=None):
+        if date is None:
+            day_service = DayService(self.user)
+            date = day_service.get_current_date()
+            
+        steps_list = Day.objects.filter(user=self.user, date__lte=date).order_by('-date').all()[:(self.number_of_previous_days)]
         ordered = sorted(steps_list, key=operator.attrgetter('steps'))
         
         len_steps_list = len(steps_list)
@@ -70,8 +75,7 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
-        
-        median = self.get_median_steps()
+        median = self.get_median_steps(date=date)
         EventLog.log(self.user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
         
         # TODO: This should be changed to the actual implementation

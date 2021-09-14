@@ -88,9 +88,6 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
         
-        self.assertEqual(today_step_goal, 1015)
-        
-        goal_sequence = service.generate_dump_goal_sequence()
+        goal_sequence = service.generate_dump_goal_sequence(date=datetime(2021, 9, 20).date())
         self.assertEqual(goal_sequence, [1615, 1815, 2015, 1615, 1815, 2015])

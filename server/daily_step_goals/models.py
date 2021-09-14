@@ -64,6 +64,17 @@ class StepGoal(models.Model):
     def id(self):
         return str(self.uuid)
 
+    def get(user, date=None):
+        query = StepGoal.objects.filter(user=user).order_by('-date')
+        
+        if date is not None:
+            query = query.filter(date=date)
+        
+        if query.exists():
+            return query.first().step_goal
+        else:
+            raise ValueError("Step Goal does not exist")
+
     def convert_to_user_obj(user):
         if isinstance(user, str):
             try:

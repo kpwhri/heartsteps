@@ -24,3 +24,8 @@ def delete_daily_task(user):
 
     for daily_task in daily_task_list:
         daily_task.delete_task()
+
+
+# create_task should be called by
+# user.post_save
+# Place.post_save + other Day things
