@@ -14,12 +14,14 @@ from feature_flags.models import FeatureFlags
 from participants.models import Study, Cohort, Participant
 
 from freezegun import freeze_time
-from datetime import datetime, date
+from datetime import datetime, date, time, timedelta
 import pytz
+import random
 
 from activity_summaries.models import Day
 from fitbit_api.models import FitbitAccountUser, FitbitAccount
 from fitbit_activities.models import FitbitMinuteStepCount
+from fitbit_activities.services import FitbitStepCountService
             
 class BoutPlanningDecisionModelTest(HeartStepsTestCase):
     def test_create(self):
@@ -71,8 +73,51 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
                 decision.apply_N()
         return decision
 
-    # def test_apply_O_1(self):
-    #     pass
+    def test_apply_O_1(self):
+        today = date(2021, 9, 14)
+        
+        account = self.create_fitbit_account()
+        
+        self.fake_fitbit_minutes(today, account)
+        self.fake_fitbit_minutes(today, account, hour=9)
+        self.fake_fitbit_minutes(today, account, hour=11)
+        self.fake_fitbit_minutes(today, account, hour=13)
+        
+        step_count_service = FitbitStepCountService(self.user)
+        
+        step_data_list = step_count_service.get_all_step_data_list_between(
+            datetime.combine(today, time(0,0)).astimezone(pytz.UTC), 
+            datetime.combine(today+timedelta(days=1), time(0,0)).astimezone(pytz.UTC)
+            )
+        
+        step_data_list = step_count_service.get_all_step_data_list_between(
+            datetime.combine(today, time(7,0)).astimezone(pytz.UTC), 
+            datetime.combine(today, time(14,0)).astimezone(pytz.UTC)
+            )
+        
+        decision = BoutPlanningDecision.create(self.user)
+        
+        # decision.apply_O()
+        
+
+    def create_fitbit_account(self):
+        account = FitbitAccount.objects.create(
+            fitbit_user = 'test'
+        )
+        FitbitAccountUser.objects.create(
+            account = account,
+            user = self.user
+        )
+        
+        return account
+
+    def fake_fitbit_minutes(self, today, account, hour=7, minute=5, duration=10, steps_base=100, steps_randmax=0):
+        for i in range(0, duration):
+            FitbitMinuteStepCount.objects.create(
+                account=account,
+                steps=steps_base + random.randint(0, steps_randmax),
+                time=datetime.combine(today, time(hour, minute+i)).astimezone(pytz.UTC)
+            )
     
     # def test_fetch_walk_data(self):
     #     decision = BoutPlanningDecision.create(self.user)

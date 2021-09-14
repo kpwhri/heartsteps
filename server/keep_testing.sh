@@ -1,1 +1,1 @@
-watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python manage.py test $1 --keepdb
+watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python manage.py test $1 $2 --keepdb

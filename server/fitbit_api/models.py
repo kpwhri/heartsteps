@@ -154,12 +154,6 @@ class FitbitAccount(models.Model):
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE, unique=True)
     account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
-    
-    def get_account(user):
-        return FitbitAccountUser.objects.get(user=user)
-    
-    def get_user(account):
-        return FitbitAccountUser.objects.get(account=account)
 
 class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, unique=True, primary_key=True)    
