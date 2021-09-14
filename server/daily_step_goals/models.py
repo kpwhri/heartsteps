@@ -60,9 +60,9 @@ class StepGoal(models.Model):
     date = models.DateField()
     step_goal = models.PositiveIntegerField()
 
-    @property
-    def id(self):
-        return str(self.uuid)
+    # @property
+    # def id(self):
+    #     return str(self.uuid)
 
     def get(user, date=None):
         query = StepGoal.objects.filter(user=user).order_by('-date')

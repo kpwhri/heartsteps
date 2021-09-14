@@ -55,9 +55,11 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
+        median = service.get_median_steps(date=datetime(2021, 9, 20).date())
+        self.assertEqual(median, 1015)
         
-        self.assertEqual(today_step_goal, 1015)
+        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
+        self.assertEqual(today_step_goal, 1615)
 
     def test_get_todays_step_goal_2(self):
         service = StepGoalsService(self.user)
@@ -69,9 +71,11 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
+        median = service.get_median_steps(date=datetime(2021, 9, 20).date())
+        self.assertEqual(median, 1016)
         
-        self.assertEqual(today_step_goal, 1016)
+        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
+        self.assertEqual(today_step_goal, 1616)
 
 
     def test_get_todays_step_goal_3(self):

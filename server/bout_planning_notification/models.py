@@ -13,7 +13,7 @@ from django.db import models
 
 from user_event_logs.models import EventLog
 from participants.models import Participant
-
+from daily_step_goals.services import StepGoalsService
 import random
 
 User = get_user_model()
@@ -319,10 +319,17 @@ class BoutPlanningDecision(models.Model):
         decision_point_index = self.__get_decision_point_index()
         self.data['decision_point_index'] = decision_point_index
 
+        day_service = DayService(user=self.user)
+        today = day_service.get_current_date()
+        yesterday = today - timedelta(days=1)
+        self.data['today'] = force_str(today)
+        self.data['yesterday'] = force_str(yesterday)
+        
         if decision_point_index == 0:
-            # TODO: This should be changed to the actual implementation
-            yesterday_step_goal = 8000
+            step_goals_service = StepGoalsService(self.user)
+            yesterday_step_goal = step_goals_service.get_step_goal(date=yesterday)
             self.data['yesterday_step_goal'] = yesterday_step_goal
+            
             # TODO: This should be changed to the actual implementation
             yesterday_step_count = 7999
             self.data['yesterday_step_count'] = yesterday_step_count
@@ -518,10 +525,11 @@ class BoutPlanningDecision(models.Model):
 
     def __get_decision_point_index(self):
         user_local_time = self.__get_user_local_time()
+        self.data['user_local_time'] = force_str(user_local_time)
         first_bout_planning_time_obj = FirstBoutPlanningTime.get(self.user)
         diff_in_minutes = (user_local_time.hour * 60 + user_local_time.minute
                            ) - first_bout_planning_time_obj.hour * 60
-        diff_by_three_hours = round(diff_in_minutes / 180, 0)
+        diff_by_three_hours = int(round(diff_in_minutes / 180, 0))
 
         if diff_by_three_hours >= 0 and diff_by_three_hours < 4:
             decision_point_index = diff_by_three_hours

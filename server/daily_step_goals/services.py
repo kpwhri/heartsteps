@@ -10,6 +10,7 @@ from user_event_logs.models import EventLog
 from days.services import DayService
 from participants.models import Participant
 
+from datetime import timedelta
 
 class StepGoalsService():
     number_of_previous_days = 10
@@ -34,7 +35,7 @@ class StepGoalsService():
     def generate_dump_goal_sequence(self, date=None):
         query = Participant.objects.filter(user=self.user)
         if query.exists():
-            cohort = query.get().cohort
+            cohort = query.first().cohort
             
             PRBS_list = StepGoalPRBScsv.get_seq(cohort)
             
@@ -75,13 +76,26 @@ class StepGoalsService():
         Returns:
             [int]: step goal of the day
         """
-        median = self.get_median_steps(date=date)
-        EventLog.log(self.user, "Step goal could fetched and calculated correctly.", EventLog.INFO)
         
-        # TODO: This should be changed to the actual implementation
-        return median
-
         
+        try:
+            goal = StepGoal.get(user=self.user, date=date)
+            EventLog.info(self.user, "Returning goal: {}".format(goal))
+            return goal
+        except ValueError:
+            median = self.get_median_steps(date=date)
+            EventLog.info(self.user, "Step goal is not found. Calculating... date={}".format(date))
+            prbs_list = self.generate_dump_goal_sequence(date=date)
+            if date is None:
+                day_service = DayService(user = self.user)
+                date = day_service.get_current_date()
+                
+            for i in range(0, len(prbs_list)):
+                StepGoal.objects.create(user=self.user, step_goal=prbs_list[i], date=(date + (timedelta(days=1) * i)))
+            
+            step_goal = StepGoal.objects.filter(user=self.user, date=date).first().step_goal
+            EventLog.log(self.user, "Step goal could fetched and calculated correctly: {}".format(step_goal), EventLog.INFO)
+            return step_goal
 
     def get_heartsteps_step_goal(self, date=None):
         """returns step goal
