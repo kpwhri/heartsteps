@@ -50,17 +50,25 @@ class Study(models.Model):
 
     def clean_fields(self, exclude=['contact_name', 'contact_number']):
         super().clean_fields(exclude=exclude)
-        raise_error = False
         studywide_feature_flags_list = self.studywide_feature_flags.split(
             ", ")
+        if studywide_feature_flags_list == [''] and len(studywide_feature_flags_list) == 1:
+            # weird python django test case broken logic
+            # removing this if statement will cause 50+ test cases to fail
+            return
+
         cohorts = Cohort.objects.filter(study=self)
         for cohort in cohorts:
             cohort_feature_flags_list = cohort.cohort_feature_flags.split(", ")
+            if cohort_feature_flags_list == [''] and len(cohort_feature_flags_list) == 1:
+                # weird python django test case broken logic
+                # removing this if statement will cause 50+ test cases to fail
+                return
+
             for cohort_flag in cohort_feature_flags_list:
                 if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
-                    raise_error = True
-                    # raise ValidationError(
-                    #     'Cannot add flag because it is already a study feature flag')
+                    raise ValidationError(
+                        'Cannot add flag because it is already a study feature flag')
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -98,17 +106,23 @@ class Cohort(models.Model):
 
     def clean_fields(self, exclude=['study_length', 'export_bucket_url']):
         super().clean_fields(exclude=exclude)
-        raise_error = False
         if not self.study:
             return
         studywide_feature_flags_list = self.study.studywide_feature_flags.split(
             ", ")
         cohort_feature_flags_list = self.cohort_feature_flags.split(", ")
+        if studywide_feature_flags_list == [''] and len(studywide_feature_flags_list) == 1:
+            # weird python django test case broken logic
+            # removing this if statement will cause 50+ test cases to fail
+            return
+        if cohort_feature_flags_list == [''] and len(cohort_feature_flags_list) == 1:
+            # weird python django test case broken logic
+            # removing this if statement will cause 50+ test cases to fail
+            return
         for cohort_flag in cohort_feature_flags_list:
             if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
-                raise_error = True
-                # raise ValidationError(
-                # 'Cannot add flag because it is already a study feature flag')
+                raise ValidationError(
+                    'Cannot add flag because it is already a study feature flag')
 
     def save(self, *args, **kwargs):
         self.full_clean()
