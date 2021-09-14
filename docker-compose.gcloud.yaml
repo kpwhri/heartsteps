@@ -57,6 +57,28 @@ services:
             - ./credentials:/credentials
             - cloudsql:/cloudsql
         working_dir: /server-gcloud
+        
+    data_export:
+      build: 
+        context: ./
+        dockerfile: data_export.Dockerfile
+      environment:
+        - ALLOWED_HOSTS=localhost,server,192.168.99.100
+        - DEBUG=True
+        - DATABASE_URL=psql://heartsteps:heartsteps@/heartsteps?host=/cloudsql/heartsteps-kpwhri:us-west1:heartsteps-kpw
+      volumes:
+        - ./server:/server
+        - ./data-export:/data-export
+        - ./credentials:/credentials
+        - cloudsql:/cloudsql
+      ports:
+        - "8080:8080"
+      depends_on:
+        - cloudsql
+        - rabbitmq
+      working_dir: /data-export
+        
+        
 volumes: 
     cloudsql:
     client-platforms:

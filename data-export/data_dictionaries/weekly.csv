@@ -1,0 +1,26 @@
+ElementName,DataType,Size,Required,ElementDescription,ValueRange,Notes,Aliases
+Subject ID,String,,Required,Subject identification string,,,Subject ID
+study_week,Integer,,Required,Study week number,,,number
+start_date,Date,,Required,Start date for the week,,,start_date
+end_date,Date,,Required,End date for the week,,,end_date
+activity_goal,Integer,,Required,Physical activity goal for the week (minutes),,,goal
+goal_confidence,Float,,Required,Confidence in achieving the physical activity minute goal ,"[0,1]",,confidence
+activty_enjoyment,Ordinal,,Required,How much are you enjoying the physical activities you did this week?,"{1,2,3,4,5}",,enjoy_activities_this_week
+social_support,Ordinal,,Required,People in my life supported me in my efforts to be more active this part week,"{1,2,3,4,5}",,support
+intrinsic_motivation,Ordinal,,Required,"This past week, I walked or exercised because it’s important to my life","{1,2,3,4,5}",,important
+fit_with_routine,Ordinal,,Required,How well is physical activity currently fitting into your daily routine?,"{1,2,3,4,5}",,daily_routine
+extrinsic_motivation,Ordinal,,Required,"This past week, I walked or exercised because other people think I should","{1,2,3,4,5}",,other_people
+negative_reinforcement,Ordinal,,Required,"This week, I walked or exercised because I felt restless, stressed, or in a bad mood","{1,2,3,4,5}",,restless
+lonliness,Ordinal,,Required,"Over the past week, how lonely have you felt?","{1,2,3,4,5}",,lonely
+social_connectedness,Ordinal,,Required,"Over the past week, how socially connected have you felt?","{1,2,3,4,5}",,socially_connected
+barriers,String,,Required,Self-reported barriers to physical activity,"{1,2,3,4,5}",,barriers
+made_plan,Boolean,,Required,Did the participant plan to perform at least one activity during the week? True: yes. False: No.,,,made_plan
+number_of_days_with_planning,Integer,,Required,Number of days on which the participant entered at least one planned activity.,,,number_of_days_with_planning
+number_of_days_with_planned_activities,Integer,,Required,Number of days on which the participant planned to perform at least one activity.,,,number_of_days_with_planned_activities
+number_of_planned_activities,Integer,,Required,Number of activities planned during the week.,,,number_of_planned_activities
+duration_of_planned_activities,Integer,,Required,Total duration of planned activities during the week.,,,duration_of_planned_activities
+number_of_activity_bouts,Integer,,Required,Total number of bouts of activity completed during the week as reported by fitbit ,,,number_of_activity_bouts
+duration_of_activity_bouts,Integer,,Required,Total minutes of activity bouts completed during the week as reported by fitbit,,,duration_of_activity_bouts
+number_of_planned_activities_marked_completed,Integer,,Required,Number of planned activities marked as completed during the week.,,,number_of_planned_activities_marked_completed
+duration_of_activity_bouts_on_plan_days,Integer,,Required,Total duration in minutes of fitbit activities on days where at least one activity was planned during the week.,,,duration_of_activity_bouts_on_plan_days
+duration_of_activity_bouts_on_marked_completed_plan_days,Integer,,Required,Total duration in minutes of fitbit activities on days with at least one plan marked as completed during the week.,,,duration_of_activity_bouts_on_marked_completed_plan_days
