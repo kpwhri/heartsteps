@@ -3,7 +3,7 @@ from django.contrib import messages
 
 from fitbit_api.services import FitbitClient
 
-from .models import FitbitDay, FitbitActivity
+from .models import FitbitDay, FitbitActivity, FitbitMinuteStepCount
 from .services import FitbitDayService
 
 def update_fitbit_day(modeladmin, request, queryset):
@@ -40,3 +40,13 @@ class FitbitDayAdmin(admin.ModelAdmin):
         return fitbit_day.updated.strftime("%Y-%m-%d %H:%M")
 
 admin.site.register(FitbitDay, FitbitDayAdmin)
+
+
+
+class FitbitMinuteStepCountAdmin(admin.ModelAdmin):
+    ordering = ["account", "-time"]
+    list_display = ("account", "time", "steps")
+
+    readonly_fields = ['account', 'time', 'steps']
+
+admin.site.register(FitbitMinuteStepCount, FitbitMinuteStepCountAdmin)
