@@ -4,7 +4,7 @@ from participants.models import Study, Cohort, Participant
 from push_messages.models import Device
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from activity_summaries.models import ActivitySummary, Day
-
+from datetime import date
 from uuid import UUID
 
 class HeartStepsTestCase(TestCase):
@@ -51,7 +51,8 @@ class HeartStepsTestCase(TestCase):
             cohort=self.cohort, 
             user=self.user, 
             enrollment_token='test',
-            heartsteps_id='test'
+            heartsteps_id='test',
+            study_start_date=date(2021, 9, 1)
             )
         
         self.device, _ = Device.objects.get_or_create(

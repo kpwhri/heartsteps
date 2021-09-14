@@ -34,5 +34,5 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
             FeatureFlags.create_or_update(self.user, "bout_planning")
             decision.apply_N()
-                   
+            
             self.assertEqual(decision.N, False)

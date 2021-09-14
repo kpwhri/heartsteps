@@ -12,17 +12,20 @@ from feature_flags.models import FeatureFlags
 from participants.models import Study, Cohort, Participant
 
 from freezegun import freeze_time
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 
-class BoutPlanningTaskTest(TestCase):
-    def setUp(self):
-        """Create testing user"""
-        self.user = User.objects.create(username="test")
+from activity_summaries.models import Day
+from heartsteps.tests import HeartStepsTestCase
 
-    def tearDown(self):
-        """Destroying testing user"""
-        self.user.delete()
+class BoutPlanningTaskTest(HeartStepsTestCase):
+    # def setUp(self):
+    #     """Create testing user"""
+    #     self.user = User.objects.create(username="test")
+
+    # def tearDown(self):
+    #     """Destroying testing user"""
+    #     self.user.delete()
 
     def test_task_1(self):
         # bout_planning_decision_making() should be called with username
@@ -32,17 +35,20 @@ class BoutPlanningTaskTest(TestCase):
 
     @patch('push_messages.clients.OneSignalClient.send')
     def test_task_2(self, mock_send):
-        study = Study.objects.create()
-        cohort = Cohort.objects.create(study=study)
-        participant = Participant.objects.create(user=self.user, cohort=cohort, study_start_date=datetime(2021, 9, 1, 0, 0, 0).date())
+        # study = Study.objects.create()
+        # cohort = Cohort.objects.create(study=study)
+        # participant = Participant.objects.create(user=self.user, cohort=cohort, study_start_date=datetime(2021, 9, 1, 0, 0, 0).date())
         
         FirstBoutPlanningTime.create(self.user)
-        Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
+        # Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
         sample_external_id = "abc123"
         
         mock_send.return_value = sample_external_id
         
-        with freeze_time(lambda: datetime.strptime("2021-09-08 07:05-0700", "%Y-%m-%d %H:%M%z")):
+        for i in range(0, 10):
+            Day.objects.create(user=self.user, date=date(2021, 9, 10+i), steps=4567)
+        
+        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
             # if there's no feature flag for the user, BoutPlanningFlagException is raised
             self.assertRaises(BoutPlanningFlagException,
                             bout_planning_decision_making, self.user.username)

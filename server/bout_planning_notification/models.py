@@ -324,9 +324,9 @@ class BoutPlanningDecision(models.Model):
         yesterday = today - timedelta(days=1)
         self.data['today'] = force_str(today)
         self.data['yesterday'] = force_str(yesterday)
-        
+        step_goals_service = StepGoalsService(self.user)
+            
         if decision_point_index == 0:
-            step_goals_service = StepGoalsService(self.user)
             yesterday_step_goal = step_goals_service.get_step_goal(date=yesterday)
             self.data['yesterday_step_goal'] = yesterday_step_goal
             
@@ -339,8 +339,7 @@ class BoutPlanningDecision(models.Model):
             else:
                 self.N = True
         else:
-            # TODO: This should be changed to the actual implementation
-            today_step_goal = 8000
+            today_step_goal = step_goals_service.get_step_goal(date=today)
             self.data['today_step_goal'] = today_step_goal
             
             user_local_time = self.__get_user_local_time()
