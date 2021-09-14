@@ -17,6 +17,9 @@ from daily_step_goals.services import StepGoalsService
 from activity_summaries.models import Day
 import random
 
+from fitbit_api.models import FitbitAccountUser
+from fitbit_activities.models import FitbitMinuteStepCount
+            
 
 
 User = get_user_model()
@@ -649,8 +652,27 @@ class BoutPlanningDecision(models.Model):
         return days_list
 
     def __fetch_walkdata(self, fetch_periods):
-        def fetch_walkdata(a_day):
+        def fetch_walkdata(date=None):
+            # day_service = DayService(self.user)
+            # if date is None:
+            #     date = day_service.get_current_date()
+            
+            # day_start = day_service.get_start_of_day(date)
+            # day_end = day_service.get_end_of_day(date)
+            
             # TODO: This should be changed to the actual implementation
+            
+            # fitbit_account = FitbitAccountUser.get_account(self.user)
+            # walkdata_list = [
+            #     {
+            #         'when': {
+            #             'hour': x.time.hour, 
+            #             'minute': x.time.minute
+            #         },
+            #         'steps': x.steps
+            #     } for x in FitbitMinuteStepCount.objects.filter(account=fitbit_account, time__gte=day_start, time__lte=day_end).order_by('time').all()
+            # ]
+            
             walkdata_list = []
             for i in range(0, 100):
                 walkdata_list.append({

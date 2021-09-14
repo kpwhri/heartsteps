@@ -18,7 +18,9 @@ from datetime import datetime, date
 import pytz
 
 from activity_summaries.models import Day
-
+from fitbit_api.models import FitbitAccountUser, FitbitAccount
+from fitbit_activities.models import FitbitMinuteStepCount
+            
 class BoutPlanningDecisionModelTest(HeartStepsTestCase):
     def test_create(self):
         BoutPlanningDecision.create(self.user)
@@ -68,3 +70,14 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
                 FeatureFlags.create_or_update(self.user, "bout_planning")
                 decision.apply_N()
         return decision
+
+    # def test_apply_O_1(self):
+    #     pass
+    
+    # def test_fetch_walk_data(self):
+    #     decision = BoutPlanningDecision.create(self.user)
+        
+    #     fitbit_account = FitbitAccount.objects.create(fitbit_user="abcd")
+    #     FitbitAccountUser.objects.create(account=fitbit_account, user=self.user)
+    #     decision.apply_O()
+        
