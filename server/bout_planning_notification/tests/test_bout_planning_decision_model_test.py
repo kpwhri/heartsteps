@@ -23,7 +23,24 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
     def test_create(self):
         BoutPlanningDecision.create(self.user)
     
-    def test_apply_N(self):
+    def test_apply_N_1(self):
+        decision = self.apply_N_case(True)
+        self.assertEqual(decision.N, False)
+    
+    def test_apply_N_2(self):
+        decision = self.apply_N_case(False)
+        self.assertEqual(decision.N, True)
+
+    def test_apply_N_3(self):
+        decision = self.apply_N_case(True, False)
+        self.assertEqual(decision.N, False)
+    
+    def test_apply_N_4(self):
+        decision = self.apply_N_case(False, False)
+        self.assertEqual(decision.N, True)
+
+
+    def apply_N_case(self, step_over, morning=True):
         decision = BoutPlanningDecision.create(self.user)
         
         FirstBoutPlanningTime.create(self.user, time="07:00")
@@ -31,10 +48,23 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         for i in range(0, 9):
             Day.objects.create(user=self.user, date=date(2021, 9, 10+i), steps=4567)
         
-        Day.objects.create(user=self.user, date=date(2021, 9, 19), steps=8000)
+        if step_over:
+            if morning:
+                Day.objects.create(user=self.user, date=date(2021, 9, 19), steps=8000)
+            else:
+                Day.objects.create(user=self.user, date=date(2021, 9, 20), steps=8000)
+        else:
+            if morning:
+                Day.objects.create(user=self.user, date=date(2021, 9, 19), steps=1000)
+            else:
+                Day.objects.create(user=self.user, date=date(2021, 9, 20), steps=1000)
         
-        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
-            FeatureFlags.create_or_update(self.user, "bout_planning")
-            decision.apply_N()
-            
-            self.assertEqual(decision.N, False)
+        if morning:
+            with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+                FeatureFlags.create_or_update(self.user, "bout_planning")
+                decision.apply_N()
+        else:
+            with freeze_time(lambda: datetime.strptime("2021-09-20 10:05", "%Y-%m-%d %H:%M")):
+                FeatureFlags.create_or_update(self.user, "bout_planning")
+                decision.apply_N()
+        return decision
