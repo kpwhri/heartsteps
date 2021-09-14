@@ -134,3 +134,8 @@ class Day(models.Model):
             user = user,
             date = date
         ).order_by('updated')
+    
+    def get(user, date):
+        return_day = Day.get_all_days_query(user, date).all().last()
+        
+        return return_day

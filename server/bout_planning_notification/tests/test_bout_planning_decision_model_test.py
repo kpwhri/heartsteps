@@ -28,8 +28,10 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         
         FirstBoutPlanningTime.create(self.user, time="07:00")
 
-        for i in range(0, 10):
+        for i in range(0, 9):
             Day.objects.create(user=self.user, date=date(2021, 9, 10+i), steps=4567)
+        
+        Day.objects.create(user=self.user, date=date(2021, 9, 19), steps=8000)
         
         with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
             FeatureFlags.create_or_update(self.user, "bout_planning")

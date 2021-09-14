@@ -14,7 +14,10 @@ from django.db import models
 from user_event_logs.models import EventLog
 from participants.models import Participant
 from daily_step_goals.services import StepGoalsService
+from activity_summaries.models import Day
 import random
+
+
 
 User = get_user_model()
 
@@ -330,8 +333,11 @@ class BoutPlanningDecision(models.Model):
             yesterday_step_goal = step_goals_service.get_step_goal(date=yesterday)
             self.data['yesterday_step_goal'] = yesterday_step_goal
             
-            # TODO: This should be changed to the actual implementation
-            yesterday_step_count = 7999
+            yesterday_activity_summary = Day.get(user=self.user, date=yesterday)
+            if yesterday_activity_summary:
+                yesterday_step_count = yesterday_activity_summary.steps
+            else:
+                yesterday_step_count = 0
             self.data['yesterday_step_count'] = yesterday_step_count
 
             if yesterday_step_goal <= yesterday_step_count:
