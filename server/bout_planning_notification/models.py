@@ -355,8 +355,13 @@ class BoutPlanningDecision(models.Model):
                 user_local_time.hour * 60 + user_local_time.minute) / 1440
             self.data['prorated_today_step_goal'] = prorated_today_step_goal
             
-            # TODO: This should be changed to the actual implementation
-            today_step_count = 0
+            # TODO: Check if this works during the day
+            today_activity_summary = Day.get(user=self.user, date=today)
+            if today_activity_summary:
+                today_step_count = today_activity_summary.steps
+            else:
+                today_step_count = 0
+            
             self.data['today_step_count'] = today_step_count
             
             if prorated_today_step_goal <= today_step_count:
