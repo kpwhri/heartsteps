@@ -204,14 +204,18 @@ return_immediately<-function(){
                 N = c(0.0,1.8); lambda = 0.0; eta = 0.0
                 
                 if( any(past.sedentary)) {
-                    current.run.length = min(which(cumprod(past.sedentary)==0))
+                    if (sum(past.sedentary) == length(past.sedentary)){
+                        current.run.length = length(past.sedentary)
+                    }else{
+                        current.run.length = min(which(cumprod(past.sedentary)==0))
+                    }
                 } else {
                     current.run.length = 0
                 }
                 
                 # remaining.time = length(time.steps) - (decision.time-1)
                 max.remaining.time = nrow(r_min_x.table)
-                max.run.length = ncol(r_min_x.table)
+                max.run.length = ncol(r_min_x.table) - 1
                 remaining.time.in.block = stop.block - (decision.time - 1)
                 if(any(H.t$old.A[H.t$time.diff< 60] == 1) | input$available == 0) {
                     rho.t = 0
