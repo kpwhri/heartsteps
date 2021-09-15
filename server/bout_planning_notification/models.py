@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 import pytz
 import math
 
@@ -19,7 +19,7 @@ import random
 
 from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitMinuteStepCount
-            
+from fitbit_activities.services import FitbitStepCountService            
 
 
 User = get_user_model()
@@ -304,6 +304,12 @@ class RandomDecision(models.Model):
         return self.return_bool
 
 
+def ifthisthenthat(this, that, it):
+    if this:
+        return that
+    else:
+        return it
+
 class BoutPlanningDecision(models.Model):
     WEEKDAY_WEEKEND = 'weekday/weekend'
     DAY_BY_DAY = 'day by day'
@@ -376,6 +382,7 @@ class BoutPlanningDecision(models.Model):
 
     def apply_O(self):
         criteria = [{
+            'walk_heuristic': 60,
             'minimum': 0,
             'maximum': 7,
             'mode': BoutPlanningDecision.WEEKDAY_WEEKEND,
@@ -384,6 +391,7 @@ class BoutPlanningDecision(models.Model):
             'threshold1': 0.55,
             'threshold2': 0.5
         }, {
+            'walk_heuristic': 60,
             'minimum': 8,
             'maximum': 21,
             'mode': BoutPlanningDecision.WEEKDAY_WEEKEND,
@@ -392,6 +400,7 @@ class BoutPlanningDecision(models.Model):
             'threshold1': 0.55,
             'threshold2': 0.6
         }, {
+            'walk_heuristic': 60,
             'minimum': 22,
             'maximum': 9999,
             'mode': BoutPlanningDecision.DAY_BY_DAY,
@@ -408,10 +417,9 @@ class BoutPlanningDecision(models.Model):
         self.data['criterion'] = criterion
         
         fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
-        
         self.data['fetch_periods'] = force_str(fetch_periods)
         
-        walkdata_list = self.__fetch_walkdata(fetch_periods)
+        walkdata_list = self.__fetch_walkdata(fetch_periods, criterion)
         
         self.O = self.__process_walkdata(criterion, walkdata_list)
 
@@ -502,21 +510,22 @@ class BoutPlanningDecision(models.Model):
             log_time_list = convert_logs_to_time_list(logs)
             self.data['log_time_list'] = force_str(log_time_list)
             
-            activity_list = self.__fetch_walkdata(log_time_list)
-            self.data['activity_list'] = force_str(activity_list)
+            # activity_list = self.__fetch_walkdata(log_time_list)
+            # self.data['activity_list'] = force_str(activity_list)
             
-            number_of_receptive_activity = count_receptive_activity(
-                activity_list, log_time_list)
-            self.data['number_of_receptive_activity'] = number_of_receptive_activity
+            # number_of_receptive_activity = count_receptive_activity(
+            #     activity_list, log_time_list)
+            # self.data['number_of_receptive_activity'] = number_of_receptive_activity
             
-            minimum_number_of_activity = math.ceil(
-                len(log_time_list) * receptive_criteria)
-            self.data['minimum_number_of_activity'] = minimum_number_of_activity
+            # minimum_number_of_activity = math.ceil(
+            #     len(log_time_list) * receptive_criteria)
+            # self.data['minimum_number_of_activity'] = minimum_number_of_activity
             
-            if number_of_receptive_activity >= minimum_number_of_activity:
-                self.R = True
-            else:
-                self.R = False
+            # if number_of_receptive_activity >= minimum_number_of_activity:
+            #     self.R = True
+            # else:
+            #     self.R = False
+            self.R = True
         self.save()
 
     def decide(self):
@@ -585,122 +594,97 @@ class BoutPlanningDecision(models.Model):
                 study_day_index))
 
     def __get_fetch_periods(self, study_day_index, criterion):
-        def is_weekday(a_day):
-            return a_day.weekday() in (5, 6)
+        """returns the list of dates to fetch step data depending on how long it has been since the start of the study
 
+        Args:
+            study_day_index (int): how long it has been since the start of the study
+            criterion (dictionary): opportunity condition criterion parameter
+        """
+        def is_weekend(a_day):
+            """return if the date is a weekend
+
+            Args:
+                a_day (date): a date to check
+
+            Returns:
+                boolean: True if the date is weekend
+            """
+            return a_day.weekday() in (5, 6)
+        
+        def always_true(_):
+            return True
+
+        def get_weekday(date):
+            return date.weekday()
+        
         user_local_date = self.__get_user_local_time().date()
 
-        if criterion['mode'] == BoutPlanningDecision.WEEKDAY_WEEKEND:
-            is_today_weekday = is_weekday(user_local_date)
-
-            days_list = []
-            date_cursor = user_local_date - timedelta(days=1)
-
-            if 'fetch_period' in criterion:
-                while True:
-                    if is_weekday(date_cursor) == is_today_weekday:
-                        days_list.append(date_cursor)
-                    if len(days_list) == criterion['fetch_period']:
-                        break
-                    if len(days_list) > 99:  # it is fetching too many days
-                        raise ValueError(
-                            'fetch_period should be lower than 99: {}'.format(
-                                criterion['fetch_period']))
-                    date_cursor = date_cursor - timedelta(days=1)
+        days_list = []
+        date_cursor = user_local_date - timedelta(days=1)
+            
+        if 'fetch_period' in criterion:
+            if criterion['mode'] == BoutPlanningDecision.WEEKDAY_WEEKEND:
+                diag_fx = is_weekend                
+            elif criterion['mode'] == BoutPlanningDecision.DAY_BY_DAY:
+                diag_fx = always_true
+            elif criterion['mode'] == BoutPlanningDecision.DAY_OF_A_WEEK:
+                diag_fx = get_weekday
             else:
-                raise ValueError('fetch_period must be in the criteria')
+                raise ValueError("Unknown criterion mode: {}".format(criterion['mode']))
+                
+            reference_value = diag_fx(user_local_date)
 
-        elif criterion['mode'] == BoutPlanningDecision.DAY_BY_DAY:
-            days_list = []
-            date_cursor = user_local_date - timedelta(days=1)
-
-            if 'fetch_period' in criterion:
-                while True:
+            while True:
+                if diag_fx(date_cursor) == reference_value:
                     days_list.append(date_cursor)
-                    if len(days_list) == criterion['fetch_period']:
-                        break
-                    if len(days_list) > 99:  # it is fetching too many days
-                        raise ValueError(
-                            'fetch_period should be lower than 99: {}'.format(
-                                criterion['fetch_period']))
-                    date_cursor = date_cursor - timedelta(days=1)
-            else:
-                raise ValueError('fetch_period must be in the criteria')
-        elif criterion['mode'] == BoutPlanningDecision.DAY_OF_A_WEEK:
-            todays_weekday = user_local_date.weekday()
-
-            days_list = []
-            date_cursor = user_local_date - timedelta(days=1)
-
-            if 'fetch_period' in criterion:
-                while True:
-                    if date_cursor.weekday() == todays_weekday:
-                        days_list.append(date_cursor)
-                    if len(days_list) == criterion['fetch_period']:
-                        break
-                    if len(days_list) > 99:  # it is fetching too many days
-                        raise ValueError(
-                            'fetch_period should be lower than 99: {}'.format(
-                                criterion['fetch_period']))
-                    date_cursor = date_cursor - timedelta(days=1)
-            else:
-                raise ValueError('fetch_period must be in the criteria')
+                if len(days_list) == criterion['fetch_period']:
+                    break
+                if len(days_list) > 99:  # it is fetching too many days
+                    raise ValueError(
+                        'fetch_period should be lower than 99: {}'.format(
+                            criterion['fetch_period']))
+                date_cursor = date_cursor - timedelta(days=1)
         else:
-            raise ValueError("Unknown criterion mode: {}".format(
-                criterion['mode']))
+            raise ValueError('fetch_period must be in the criteria')
 
         return days_list
 
-    def __fetch_walkdata(self, fetch_periods):
-        def fetch_walkdata(date=None):
-            # day_service = DayService(self.user)
-            # if date is None:
-            #     date = day_service.get_current_date()
+    def __fetch_walkdata(self, fetch_periods, criterion):
+        def fetch_walkdata(criterion, date=None):
+            day_service = DayService(self.user)
+            step_count_service = FitbitStepCountService(self.user)
+        
+            step_data_list = step_count_service.get_all_step_data_list_between(
+                day_service.get_start_of_day(date),
+                day_service.get_end_of_day(date)
+                )
             
-            # day_start = day_service.get_start_of_day(date)
-            # day_end = day_service.get_end_of_day(date)
-            
-            # TODO: This should be changed to the actual implementation
-            
-            # fitbit_account = FitbitAccountUser.get_account(self.user)
-            # walkdata_list = [
-            #     {
+            # walkdata_list = []
+            # for i in range(0, 100):
+            #     walkdata_list.append({
             #         'when': {
-            #             'hour': x.time.hour, 
-            #             'minute': x.time.minute
+            #             'hour': random.randint(0, 24),
+            #             'minute': random.randint(0, 60)
             #         },
-            #         'steps': x.steps
-            #     } for x in FitbitMinuteStepCount.objects.filter(account=fitbit_account, time__gte=day_start, time__lte=day_end).order_by('time').all()
-            # ]
-            
-            walkdata_list = []
-            for i in range(0, 100):
-                walkdata_list.append({
-                    'when': {
-                        'hour': random.randint(0, 24),
-                        'minute': random.randint(0, 60)
-                    },
-                    'steps': random.randint(30, 150)
-                })
+            #         'steps': random.randint(30, 150)
+            #     })
 
-            return walkdata_list
+            # return walkdata_list
+            for i in range(0, len(step_data_list)):
+                step_data_list[i] = ifthisthenthat(step_data_list[i] > criterion['walk_heuristic'], 1, 0)
+            
+            return step_data_list
 
         raw_walk_data = []
         for a_day in fetch_periods:
             raw_walk_data.append({
                 'date': a_day,
-                'raw_data': fetch_walkdata(a_day)
+                'raw_data': fetch_walkdata(criterion, a_day)
             })
 
         return raw_walk_data
 
     def __process_walkdata(self, criterion, walkdata_list):
-        def ifthisthenthat(this, that, it):
-            if this:
-                return that
-            else:
-                return it
-
         def calculate_moving_average(criterion, padded_walkdata):
             half_window_size = criterion['window_size']
             window_size = half_window_size * 2 + 1
@@ -709,7 +693,7 @@ class BoutPlanningDecision(models.Model):
             threshold1 = criterion['threshold1'] * window_size
 
             moving_averaged_walkdata = [0] * 1440
-                # for time complexity of O(n), moving average became more complex
+            # for time complexity of O(n), moving average became more complex
             current_sum = sum(padded_walkdata[0:window_size])
             moving_averaged_walkdata[half_window_size - 1] = ifthisthenthat(
                     current_sum > threshold1, 1, 0)
@@ -727,22 +711,31 @@ class BoutPlanningDecision(models.Model):
 
         # 0. Prepare to Pick the right 3-hour window
         decision_point_index = self.__get_decision_point_index()
+        
         first_bout_planning_time = FirstBoutPlanningTime.get(self.user).hour
+        self.data['first_bout_planning_time'] = first_bout_planning_time
+        
         start_index = int(
             (first_bout_planning_time + decision_point_index * 3) * 60)
+        self.data['start_index'] = start_index
         finish_index = start_index + 180
+        self.data['finish_index'] = finish_index
+        
         # 1. padding with zeros, reorganizing overlapped step data
         # sometimes, Fitbit overlapses/jump minute step data when the timezone changes
         for walkdata in walkdata_list:
-            padded_walkdata = self.__pad_walkdata(walkdata['raw_data'])
-
+            # padded_walkdata = self.__pad_walkdata(walkdata['raw_data'])
+            padded_walkdata = walkdata['raw_data']
+            
             # 2. moving-averaging and applying threshold 1
             moving_averaged_walkdata = calculate_moving_average(criterion, padded_walkdata)
-
+            
             # 3. Pick up proper timespan, check if there's an activity
             if_activity_exists = max(
                 moving_averaged_walkdata[start_index:finish_index])
             activity_list.append(if_activity_exists)
+
+        # print('activity_list: {}'.format(activity_list))
 
         # 4. If we average all activities, is the three-hour window active?
         if len(activity_list) > 0:

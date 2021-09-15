@@ -17,6 +17,7 @@ import pytz
 
 from activity_summaries.models import Day
 from heartsteps.tests import HeartStepsTestCase
+from fitbit_api.models import FitbitAccountUser, FitbitAccount
 
 class BoutPlanningTaskTest(HeartStepsTestCase):
     # def setUp(self):
@@ -33,12 +34,25 @@ class BoutPlanningTaskTest(HeartStepsTestCase):
         # bout_planning_decision_making() should be called with a string
         self.assertRaises(AssertionError, bout_planning_decision_making, 1)
 
+    def create_fitbit_account(self):
+        account = FitbitAccount.objects.create(
+            fitbit_user = 'test'
+        )
+        FitbitAccountUser.objects.create(
+            account = account,
+            user = self.user
+        )
+        
+        return account
+
     @patch('push_messages.clients.OneSignalClient.send')
     def test_task_2(self, mock_send):
         # study = Study.objects.create()
         # cohort = Cohort.objects.create(study=study)
         # participant = Participant.objects.create(user=self.user, cohort=cohort, study_start_date=datetime(2021, 9, 1, 0, 0, 0).date())
-        
+
+        account = self.create_fitbit_account()
+                
         FirstBoutPlanningTime.create(self.user)
         # Device.objects.create(user=self.user, token="abc", type="onesignal", active=True)
         sample_external_id = "abc123"

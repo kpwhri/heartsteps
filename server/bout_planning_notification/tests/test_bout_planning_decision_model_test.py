@@ -1,3 +1,5 @@
+import pprint
+
 from django.test import TestCase
 from unittest.mock import patch
 from rest_framework.test import APITestCase
@@ -94,11 +96,46 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
             datetime.combine(today, time(7,0)).astimezone(pytz.UTC), 
             datetime.combine(today, time(14,0)).astimezone(pytz.UTC)
             )
+    
+    
+    def test_apply_O_2(self):
+        start_day = date(2021, 9, 8)
+        
+        account = self.create_fitbit_account()
+        
+        for i in range(0, 10):
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=9)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=11)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=13)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=15)
+            
+        FirstBoutPlanningTime.create(self.user, "07:00")
+        self.participant.study_start_date = date(2021, 9, 5)
         
         decision = BoutPlanningDecision.create(self.user)
+        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+            decision.apply_O()
+            self.assertEqual(decision.O, True)
+        # pprint.pprint(decision.data)
         
-        # decision.apply_O()
+    def test_apply_O_3(self):
+        start_day = date(2021, 9, 8)
         
+        account = self.create_fitbit_account()
+        
+        for i in range(0, 10):
+            # self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=9)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=11)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=13)
+            self.fake_fitbit_minutes(start_day + timedelta(days=1) * i, account, hour=15)
+            
+        FirstBoutPlanningTime.create(self.user, "07:00")
+        self.participant.study_start_date = date(2021, 9, 5)
+        
+        decision = BoutPlanningDecision.create(self.user)
+        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+            decision.apply_O()
+            self.assertEqual(decision.O, False)
 
     def create_fitbit_account(self):
         account = FitbitAccount.objects.create(
