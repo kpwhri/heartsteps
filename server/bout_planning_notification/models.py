@@ -659,17 +659,6 @@ class BoutPlanningDecision(models.Model):
                 day_service.get_end_of_day(date)
                 )
             
-            # walkdata_list = []
-            # for i in range(0, 100):
-            #     walkdata_list.append({
-            #         'when': {
-            #             'hour': random.randint(0, 24),
-            #             'minute': random.randint(0, 60)
-            #         },
-            #         'steps': random.randint(30, 150)
-            #     })
-
-            # return walkdata_list
             for i in range(0, len(step_data_list)):
                 step_data_list[i] = ifthisthenthat(step_data_list[i] > criterion['walk_heuristic'], 1, 0)
             
