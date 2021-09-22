@@ -1,18 +1,20 @@
 from django.test import TestCase
 from unittest.mock import patch
 
+from heartsteps.tests import HeartStepsTestCase
 from bout_planning_notification.models import User
 from bout_planning_notification.services import BoutPlanningNotificationService
 from push_messages.models import Device, Message
 
-class BoutPlanningNotificationServiceTest(TestCase):
-    def setUp(self):
-        """Create testing user"""
-        self.user = User.objects.create(username="test")
 
-    def tearDown(self):
-        """Destroying testing user"""
-        self.user.delete()
+class BoutPlanningNotificationServiceTest(HeartStepsTestCase):
+    # def setUp(self):
+    #     """Create testing user"""
+    #     self.user = User.objects.create(username="test")
+
+    # def tearDown(self):
+    #     """Destroying testing user"""
+    #     self.user.delete()
 
     def test_init_0(self):
         """Create testing service"""

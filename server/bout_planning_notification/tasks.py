@@ -5,7 +5,6 @@ from .services import BoutPlanningNotificationService
 
 from user_event_logs.models import EventLog
 from feature_flags.models import FeatureFlags
-from datetime import datetime
 
 class BoutPlanningFlagException(Exception):
     pass

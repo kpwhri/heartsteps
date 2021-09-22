@@ -19,24 +19,29 @@ import random
 
 from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitMinuteStepCount
-from fitbit_activities.services import FitbitStepCountService            
-
+from fitbit_activities.services import FitbitStepCountService
+from push_messages.models import Message
 
 User = get_user_model()
 
-def force_str(obj):
-    if isinstance(obj, str):
-        return "\"{}\"".format(obj)
-    elif isinstance(obj, datetime):
-        return obj.strftime('%Y-%m-%d %H:%M:%S')
-    elif isinstance(obj, date):
-        return obj.strftime('%Y-%m-%d')
-    elif isinstance(obj, list):
-        return "[{}]".format(",".join(list(map(lambda x: force_str(x), obj))))
-    elif isinstance(obj, dict):
-        return "{{{}}}".format(",".join(list(map(lambda x: "\"{}\": {}".format(x, force_str(obj[x])), obj))))
-    else:
-        return str(obj)
+
+class BoutPlanningNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, null=True, blank=True)
+    level = models.ForeignKey('Level', on_delete=models.CASCADE, null=True, blank=True)
+    decision = models.ForeignKey('BoutPlanningDecision',
+                                 on_delete=models.CASCADE, null=True, blank=True)
+    when = models.DateTimeField(auto_now_add=True)
+
+    def create(user, message, level, decision):
+        day_service = DayService(user)
+        current_time = day_service.get_current_datetime()
+
+        BoutPlanningNotification.objects.create(user=user,
+                                            message=message,
+                                            level=level,
+                                            decision=decision,
+                                            when=current_time)
 
 
 class FirstBoutPlanningTime(models.Model):
@@ -288,45 +293,89 @@ class Level(models.Model):
         return Level.objects.filter(user=user, date=date).exists()
 
 
-class RandomDecision(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    random_value = models.FloatField(blank=True, null=True)
-    return_bool = models.BooleanField(null=True, default=None)
-
-    def create(user):
-        obj = RandomDecision.objects.create(user=user,
-                                            random_value=random.random())
-        return obj
-
-    def decide(self):
-        self.return_bool = (self.random_value < 0.5)
-        self.save()
-        return self.return_bool
-
-
 def ifthisthenthat(this, that, it):
     if this:
         return that
     else:
         return it
 
+
+def force_str(obj):
+    if isinstance(obj, str):
+        return "\"{}\"".format(obj)
+    elif isinstance(obj, datetime):
+        return obj.strftime('%Y-%m-%d %H:%M:%S')
+    elif isinstance(obj, date):
+        return obj.strftime('%Y-%m-%d')
+    elif isinstance(obj, list):
+        return "[{}]".format(",".join(list(map(lambda x: force_str(x), obj))))
+    elif isinstance(obj, dict):
+        return "{{{}}}".format(",".join(
+            list(map(lambda x: "\"{}\": {}".format(x, force_str(obj[x])),
+                     obj))))
+    else:
+        return str(obj)
+
+def find_consecutive_active_mins(step_list, active=60, mins=5):
+    cursor = 0
+    cumulative_sum = 0
+    for i in range(len(step_list)):
+        if step_list[i] >= active:
+            cumulative_sum += 1
+            if cumulative_sum == mins:
+                return cursor
+            else:
+                pass
+        else:
+            cumulative_sum = 0
+            cursor = i + 1
+    
+    return None # no cumulative active minutes are found
+
+# class RandomDecision(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     random_value = models.FloatField(blank=True, null=True)
+#     return_bool = models.BooleanField(null=True, default=None)
+
+#     def create(user):
+#         obj = RandomDecision.objects.create(user=user,
+#                                             random_value=random.random())
+#         return obj
+
+#     def decide(self):
+#         self.return_bool = (self.random_value < 0.5)
+#         self.save()
+#         return self.return_bool
+
+
 class BoutPlanningDecision(models.Model):
     WEEKDAY_WEEKEND = 'weekday/weekend'
     DAY_BY_DAY = 'day by day'
     DAY_OF_A_WEEK = 'day of a week'
 
+    RANDOM_CRITERIA = 0.5
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     N = models.BooleanField(null=True, default=None)
     O = models.BooleanField(null=True, default=None)
     R = models.BooleanField(null=True, default=None)
     return_bool = models.BooleanField(null=True, default=None)
     data = models.JSONField(null=True, default=None)
-    when_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    
+    when_created = models.DateTimeField(auto_now_add=True,
+                                        null=True,
+                                        blank=True)
+
     def create(user):
         obj = BoutPlanningDecision.objects.create(user=user, data={})
         return obj
 
+    def apply_random(self):
+        random_value = random.random()
+        self.data['random_value'] = random_value
+        
+        self.return_bool = random_value < BoutPlanningDecision.RANDOM_CRITERIA
+        self.save()
+        
     def apply_N(self):
         decision_point_index = self.__get_decision_point_index()
         self.data['decision_point_index'] = decision_point_index
@@ -337,12 +386,14 @@ class BoutPlanningDecision(models.Model):
         self.data['today'] = force_str(today)
         self.data['yesterday'] = force_str(yesterday)
         step_goals_service = StepGoalsService(self.user)
-            
+
         if decision_point_index == 0:
-            yesterday_step_goal = step_goals_service.get_step_goal(date=yesterday)
+            yesterday_step_goal = step_goals_service.get_step_goal(
+                date=yesterday)
             self.data['yesterday_step_goal'] = yesterday_step_goal
-            
-            yesterday_activity_summary = Day.get(user=self.user, date=yesterday)
+
+            yesterday_activity_summary = Day.get(user=self.user,
+                                                 date=yesterday)
             if yesterday_activity_summary:
                 yesterday_step_count = yesterday_activity_summary.steps
             else:
@@ -356,23 +407,23 @@ class BoutPlanningDecision(models.Model):
         else:
             today_step_goal = step_goals_service.get_step_goal(date=today)
             self.data['today_step_goal'] = today_step_goal
-            
+
             user_local_time = self.__get_user_local_time()
             self.data['user_local_time'] = str(user_local_time)
-            
+
             prorated_today_step_goal = today_step_goal * (
                 user_local_time.hour * 60 + user_local_time.minute) / 1440
             self.data['prorated_today_step_goal'] = prorated_today_step_goal
-            
+
             # TODO: Check if this works during the day
             today_activity_summary = Day.get(user=self.user, date=today)
             if today_activity_summary:
                 today_step_count = today_activity_summary.steps
             else:
                 today_step_count = 0
-            
+
             self.data['today_step_count'] = today_step_count
-            
+
             if prorated_today_step_goal <= today_step_count:
                 self.N = False
             else:
@@ -412,133 +463,169 @@ class BoutPlanningDecision(models.Model):
 
         study_day_index = self.__get_study_day_index()
         self.data['study_day_index'] = study_day_index
-        
+
         criterion = self.__get_criterion(study_day_index, criteria)
         self.data['criterion'] = criterion
-        
+
         fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
         self.data['fetch_periods'] = force_str(fetch_periods)
-        
+
         walkdata_list = self.__fetch_walkdata(fetch_periods, criterion)
-        
+
         self.O = self.__process_walkdata(criterion, walkdata_list)
 
         self.save()
 
     def apply_R(self):
         def fetch_bout_planning_notification_logs(days=3):
-            # TODO: This should be changed to the actual implementation
-            return [
-                {
-                    "when": datetime(2021, 9, 8, 7, 0, 0)
-                },
-                {
-                    "when": datetime(2021, 9, 8, 10, 0, 0)
-                },
-                {
-                    "when": datetime(2021, 9, 8, 13, 0, 0)
-                },
-                {
-                    "when": datetime(2021, 9, 9, 7, 0, 0)
-                }
-            ]
+            day_service = DayService(self.user)
+            when_startpoint = day_service.get_current_datetime() - timedelta(
+                days=days)
+            query = BoutPlanningNotification.objects.filter(
+                user=self.user, when__gte=when_startpoint).order_by('when')
 
-        def convert_logs_to_time_list(logs):
-            time_list = []
+            return [{"when": x.when} for x in query]
+        
+        def fetch_last_decision_point_result():
+            query = BoutPlanningDecision.objects.filter(user=self.user).order_by('-when_created')
             
-            for log_item in logs:
-                time_list.append({
-                    "start": log_item['when'],
-                    "end": log_item['when'] + timedelta(minutes=180)
-                })
-            return time_list
+            if query.exists():
+                return query.first().return_bool
+            else:
+                return False
+            
+        def favorable_response_in(howlong):
+            logs = fetch_bout_planning_notification_logs(days=1)
+            now = datetime.now()
+            starttime = now - howlong
+            day_service = DayService(self.user)
+            step_count_service = FitbitStepCountService(self.user)
 
-        def count_receptive_activity(activity_list, log_time_list):
-            consecutive_minutes_criteria = 5    # activity consists of 5 consecutive minutes of ...
-            active_minute_criteria = 100    # 100 steps per minute
-            
-            number_of_receptive_activity = 0
-            
-            for index, activity in enumerate(activity_list):
-                padded_walkdata = self.__pad_walkdata(activity['raw_data'])
+            for log in logs:
+                starttime = log["when"]
+                endtime = starttime + timedelta(minutes=180)
                 
-                current_log_time = log_time_list[index]
+                step_list = step_count_service.get_all_step_data_list_between(starttime, endtime)
                 
-                if activity['date']['start'].date() == current_log_time['start'].date():
-                    start_index = current_log_time['start'].hour * 60 + current_log_time['start'].minute
-                    end_index = start_index + 180
-                    
-                    cumulative_active_minutes = 0
-                    for i in range(start_index, end_index):
-                        if padded_walkdata[i] > active_minute_criteria: # if they walked 100 steps or more
-                            cumulative_active_minutes += 1
-                            if cumulative_active_minutes >= consecutive_minutes_criteria:
-                                number_of_receptive_activity += 1
-                                break
-                        else:
-                            cumulative_active_minutes = 0   # reset
+
+                
+                if find_consecutive_active_mins(step_list, active=60, mins=5):
+                    return True
             
-            return number_of_receptive_activity
+            return False
+        
+        # def convert_logs_to_time_list(logs):
+        #     time_list = []
+
+        #     for log_item in logs:
+        #         time_list.append({
+        #             "start": log_item['when'],
+        #             "end": log_item['when'] + timedelta(minutes=180)
+        #         })
+        #     return time_list
+
+        # def count_receptive_activity(activity_list, log_time_list):
+        #     consecutive_minutes_criteria = 5  # activity consists of 5 consecutive minutes of ...
+        #     active_minute_criteria = 100  # 100 steps per minute
+
+        #     number_of_receptive_activity = 0
+
+        #     for index, activity in enumerate(activity_list):
+        #         padded_walkdata = self.__pad_walkdata(activity['raw_data'])
+
+        #         current_log_time = log_time_list[index]
+
+        #         if activity['date']['start'].date(
+        #         ) == current_log_time['start'].date():
+        #             start_index = current_log_time[
+        #                 'start'].hour * 60 + current_log_time['start'].minute
+        #             end_index = start_index + 180
+
+        #             cumulative_active_minutes = 0
+        #             for i in range(start_index, end_index):
+        #                 if padded_walkdata[
+        #                         i] > active_minute_criteria:  # if they walked 100 steps or more
+        #                     cumulative_active_minutes += 1
+        #                     if cumulative_active_minutes >= consecutive_minutes_criteria:
+        #                         number_of_receptive_activity += 1
+        #                         break
+        #                 else:
+        #                     cumulative_active_minutes = 0  # reset
+
+        #     return number_of_receptive_activity
+
+        # If (under budget) THEN
+        #     If (last decision point was “Sent”) THEN RECEPTIVITY = FALSE
+        #     ELSE RECEPTIVITY = TRUE
+        # ELSE          # over budget
+        #     IF (
+        #         participant responded favorably once or more for the last 24 hours AND
+        #         last decision point was “Not Sent”) THEN
+        #         RECEPTIVITY = TRUE
+        #     ELSE RECEPTIVITY = FALSE.
 
         budget = 0.5  # 50% of decision points
         self.data['budget'] = budget
-        
-        receptive_criteria = 0.3  # +30% of notification is responded favorably
-        self.data['receptive_criteria'] = receptive_criteria
-        
-        # # of notification | minimum # of favorable response to be marked as "receptive"
-        #                 1 | 1
-        #                 2 | 1
-        #                 3 | 1
-        #                 4 | 2
-        #                 5 | 2
-        #                 6 | 2
-        #                 7 | 3
-        #                 8 | 3
-        #                 9 | 3
-        #                10 | 3
-        #                11 | 4
-        #                12 | 4
 
-        logs = fetch_bout_planning_notification_logs(days=3)
-        self.data['logs'] = force_str(logs)
-        
-        if len(logs) >= budget * 12:
-            # the budget is all used up.
-            self.R = False
+        last_decision_point_result = fetch_last_decision_point_result()
+        self.data['last_decision_point_result'] = last_decision_point_result
+
+        logs = fetch_bout_planning_notification_logs()
+        self.data['logs'] = logs
+
+        if len(logs) < budget * 12:  # under budget
+            if last_decision_point_result == True:
+                self.R = False
+            else:
+                self.R = True
         else:
-            log_time_list = convert_logs_to_time_list(logs)
-            self.data['log_time_list'] = force_str(log_time_list)
-            
-            # activity_list = self.__fetch_walkdata(log_time_list)
-            # self.data['activity_list'] = force_str(activity_list)
-            
-            # number_of_receptive_activity = count_receptive_activity(
-            #     activity_list, log_time_list)
-            # self.data['number_of_receptive_activity'] = number_of_receptive_activity
-            
-            # minimum_number_of_activity = math.ceil(
-            #     len(log_time_list) * receptive_criteria)
-            # self.data['minimum_number_of_activity'] = minimum_number_of_activity
-            
-            # if number_of_receptive_activity >= minimum_number_of_activity:
-            #     self.R = True
-            # else:
-            #     self.R = False
-            self.R = True
+            condition1 = favorable_response_in(timedelta(hours=24))
+            condition2 = (last_decision_point_result == False)
+
+            if condition1 and condition2:
+                self.R = True
+            else:
+                self.R = False
+
+        # if len(logs) >= budget * 12:
+        #     # the budget is all used up.
+        #     self.R = False
+        # else:
+        #     log_time_list = convert_logs_to_time_list(logs)
+        #     self.data['log_time_list'] = force_str(log_time_list)
+
+        #     # activity_list = self.__fetch_walkdata(log_time_list)
+        #     # self.data['activity_list'] = force_str(activity_list)
+
+        #     # number_of_receptive_activity = count_receptive_activity(
+        #     #     activity_list, log_time_list)
+        #     # self.data['number_of_receptive_activity'] = number_of_receptive_activity
+
+        #     # minimum_number_of_activity = math.ceil(
+        #     #     len(log_time_list) * receptive_criteria)
+        #     # self.data['minimum_number_of_activity'] = minimum_number_of_activity
+
+        #     # if number_of_receptive_activity >= minimum_number_of_activity:
+        #     #     self.R = True
+        #     # else:
+        #     #     self.R = False
+        #     self.R = True
         self.save()
 
     def decide(self):
-        self.return_bool = True
-        if self.N is not None:
-            self.return_bool = self.return_bool & self.N
-        if self.O is not None:
-            self.return_bool = self.return_bool & self.O
-        if self.R is not None:
-            self.return_bool = self.return_bool & self.R
+        if self.N is None and self.O is None and self.R is None and self.return_bool is not None:
+            return self.return_bool
+        else:
+            self.return_bool = True
+            if self.N is not None:
+                self.return_bool = self.return_bool & self.N
+            if self.O is not None:
+                self.return_bool = self.return_bool & self.O
+            if self.R is not None:
+                self.return_bool = self.return_bool & self.R
 
-        self.save()
-        return self.return_bool
+            self.save()
+            return self.return_bool
 
     def __get_user_local_time(self):
         day_service = DayService(self.user)
@@ -610,28 +697,29 @@ class BoutPlanningDecision(models.Model):
                 boolean: True if the date is weekend
             """
             return a_day.weekday() in (5, 6)
-        
+
         def always_true(_):
             return True
 
         def get_weekday(date):
             return date.weekday()
-        
+
         user_local_date = self.__get_user_local_time().date()
 
         days_list = []
         date_cursor = user_local_date - timedelta(days=1)
-            
+
         if 'fetch_period' in criterion:
             if criterion['mode'] == BoutPlanningDecision.WEEKDAY_WEEKEND:
-                diag_fx = is_weekend                
+                diag_fx = is_weekend
             elif criterion['mode'] == BoutPlanningDecision.DAY_BY_DAY:
                 diag_fx = always_true
             elif criterion['mode'] == BoutPlanningDecision.DAY_OF_A_WEEK:
                 diag_fx = get_weekday
             else:
-                raise ValueError("Unknown criterion mode: {}".format(criterion['mode']))
-                
+                raise ValueError("Unknown criterion mode: {}".format(
+                    criterion['mode']))
+
             reference_value = diag_fx(user_local_date)
 
             while True:
@@ -653,15 +741,15 @@ class BoutPlanningDecision(models.Model):
         def fetch_walkdata(criterion, date=None):
             day_service = DayService(self.user)
             step_count_service = FitbitStepCountService(self.user)
-        
+
             step_data_list = step_count_service.get_all_step_data_list_between(
                 day_service.get_start_of_day(date),
-                day_service.get_end_of_day(date)
-                )
-            
+                day_service.get_end_of_day(date))
+
             for i in range(0, len(step_data_list)):
-                step_data_list[i] = ifthisthenthat(step_data_list[i] > criterion['walk_heuristic'], 1, 0)
-            
+                step_data_list[i] = ifthisthenthat(
+                    step_data_list[i] > criterion['walk_heuristic'], 1, 0)
+
             return step_data_list
 
         raw_walk_data = []
@@ -677,48 +765,49 @@ class BoutPlanningDecision(models.Model):
         def calculate_moving_average(criterion, padded_walkdata):
             half_window_size = criterion['window_size']
             window_size = half_window_size * 2 + 1
-                # average should be over threshold1. instead of dividing
-                # by window size, the threshold is pre-calculated for the speed
+            # average should be over threshold1. instead of dividing
+            # by window size, the threshold is pre-calculated for the speed
             threshold1 = criterion['threshold1'] * window_size
 
             moving_averaged_walkdata = [0] * 1440
             # for time complexity of O(n), moving average became more complex
             current_sum = sum(padded_walkdata[0:window_size])
             moving_averaged_walkdata[half_window_size - 1] = ifthisthenthat(
-                    current_sum > threshold1, 1, 0)
+                current_sum > threshold1, 1, 0)
 
             for i in range(half_window_size, 1440 - half_window_size):
                 current_sum = current_sum + padded_walkdata[
-                        i + half_window_size -
-                        1] - padded_walkdata[i - half_window_size]
+                    i + half_window_size -
+                    1] - padded_walkdata[i - half_window_size]
                 moving_averaged_walkdata[i] = ifthisthenthat(
-                        current_sum > threshold1, 1, 0)
-                    
+                    current_sum > threshold1, 1, 0)
+
             return moving_averaged_walkdata
-    
+
         activity_list = []
 
         # 0. Prepare to Pick the right 3-hour window
         decision_point_index = self.__get_decision_point_index()
-        
+
         first_bout_planning_time = FirstBoutPlanningTime.get(self.user).hour
         self.data['first_bout_planning_time'] = first_bout_planning_time
-        
+
         start_index = int(
             (first_bout_planning_time + decision_point_index * 3) * 60)
         self.data['start_index'] = start_index
         finish_index = start_index + 180
         self.data['finish_index'] = finish_index
-        
+
         # 1. padding with zeros, reorganizing overlapped step data
         # sometimes, Fitbit overlapses/jump minute step data when the timezone changes
         for walkdata in walkdata_list:
             # padded_walkdata = self.__pad_walkdata(walkdata['raw_data'])
             padded_walkdata = walkdata['raw_data']
-            
+
             # 2. moving-averaging and applying threshold 1
-            moving_averaged_walkdata = calculate_moving_average(criterion, padded_walkdata)
-            
+            moving_averaged_walkdata = calculate_moving_average(
+                criterion, padded_walkdata)
+
             # 3. Pick up proper timespan, check if there's an activity
             if_activity_exists = max(
                 moving_averaged_walkdata[start_index:finish_index])

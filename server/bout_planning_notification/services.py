@@ -1,7 +1,7 @@
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
-from .models import Level, RandomDecision, BoutPlanningDecision
+from .models import Level, BoutPlanningDecision, BoutPlanningNotification
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -11,36 +11,39 @@ class BoutPlanningNotificationService:
         assert user is not None, "User must be specified"
 
         self.user = user
+        self.level = None
+        self.decision = None
         EventLog.debug(self.user, "Starting BoutPlanningNotificationService")
 
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
         
-        level = Level.get(self.user)
+        self.level = Level.get(self.user)
         
-        if level.level == Level.RECOVERY:
+        if self.level.level == Level.RECOVERY:
             return_bool = False
-        elif level.level == Level.RANDOM:
-            decision = RandomDecision.create(self.user)
-            return_bool = decision.decide()
-        elif level.level == Level.NO:
-            decision = BoutPlanningDecision.create(self.user)
-            decision.apply_N()
-            decision.apply_O()
-            return_bool = decision.decide()
-        elif level.level == Level.NR:
-            decision = BoutPlanningDecision.create(self.user)
-            decision.apply_N()
-            decision.apply_R()
-            return_bool = decision.decide()
-        elif level.level == Level.FULL:
-            decision = BoutPlanningDecision.create(self.user)
-            decision.apply_N()
-            decision.apply_O()
-            decision.apply_R()
-            return_bool = decision.decide()
+        elif self.level.level == Level.RANDOM:
+            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.apply_random()
+            return_bool = self.decision.decide()
+        elif self.level.level == Level.NO:
+            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.apply_N()
+            self.decision.apply_O()
+            return_bool = self.decision.decide()
+        elif self.level.level == Level.NR:
+            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.apply_N()
+            self.decision.apply_R()
+            return_bool = self.decision.decide()
+        elif self.level.level == Level.FULL:
+            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.apply_N()
+            self.decision.apply_O()
+            self.decision.apply_R()
+            return_bool = self.decision.decide()
         else:
-            raise RuntimeError("Unsupported decision type: {}".format(level.level))
+            raise RuntimeError("Unsupported decision type: {}".format(self.level.level))
         
         EventLog.debug(self.user, "returning True")
         return return_bool
@@ -57,6 +60,7 @@ class BoutPlanningNotificationService:
                 title=title,
                 collapse_subject=collapse_subject,
                 data=data)
+            BoutPlanningNotification.create(user=self.user, message=message, level=self.level, decision=self.decision)
             return message
         except (PushMessageService.MessageSendError,
                 PushMessageService.DeviceMissingError) as e:

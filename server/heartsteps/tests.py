@@ -6,6 +6,7 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from activity_summaries.models import ActivitySummary, Day
 from datetime import date
 from uuid import UUID
+from django.db import transaction
 
 class HeartStepsTestCase(TestCase):
     
