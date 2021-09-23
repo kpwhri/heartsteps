@@ -1,7 +1,9 @@
 version: '2'
 services:
     client:
-        build: ./client
+        build: 
+            context: ./
+            dockerfile: client.Dockerfile
         env_file:
           - credentials/.env-gcloud-dev
         command: npm run serve:app

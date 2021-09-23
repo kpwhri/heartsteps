@@ -80,7 +80,7 @@ webpackConfig[env].resolve = {
 var envs = new webpack.EnvironmentPlugin({
     PRODUCTION: production,
     // HEARTSTEPS_URL: (production) ? '/api' : 'http://localhost:8080/api',
-    HEARTSTEPS_URL: (production) ? '/api' : ((LOCAL) ? 'http://localhost:8080/api' : 'http://dev.heartsteps.net/api'),
+    HEARTSTEPS_URL: (production) ? '/api' : ((LOCAL) ? 'http://localhost:8080/api' : 'https://dev.heartsteps.net/api'),
     FCM_SENDER_ID: 'firebase-id', // kpwhri heartsteps firebase ID
     ONESIGNAL_APP_ID: 'onesignal-app-id',
     PUSH_NOTIFICATION_DEVICE_TYPE: 'onesignal',
