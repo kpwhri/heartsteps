@@ -87,12 +87,15 @@ export class OnboardPage implements OnInit {
 
                         // TODO: how can we parameterize this? or make it database-driven?
                         if (this.featureFlagService.hasFlag("bout_planning")) {
+                            console.log("the user has 'bout_planning' flag.");
                             let nlm_onboarding_page = {
                                 key: "firstBoutPlanningTime",
                                 title: "First Bout Planning Time",
                                 component: FirstBoutPlanningTimePage,
                             };
                             onboardingPages.splice(3, 0, nlm_onboarding_page);
+                        } else {
+                            console.log("the user doesn't have 'bout_planning' flag.");
                         }
 
                         let skipPageIDs: Array<string> =
