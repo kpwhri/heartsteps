@@ -13,6 +13,10 @@ var BUILD_DATE = moment().format('MMMM Do, YYYY');
 // If you want to use localhost, set this to true
 var LOCAL = false;
 
+
+// If this is JustWalk Jitai (led by UCSD) build, set this True
+var JustWalkJITAI = true
+
 const env = process.env.IONIC_ENV;
 
 var production = true;
@@ -24,7 +28,16 @@ if (env === 'dev') {
 // #256 This part should be tested thoroughly with the live production build/deply environment
 console.log("* Setting config.xml bundle id");
 
-var bundle_id = (production) ? "net.heartsteps.kpw" : "net.heartsteps.dev";
+var default_bundle_id = "net.heartsteps.kpw";
+
+var bundle_id = default_bundle_id;
+if (!production) {
+    bundle_id = "net.heartsteps.dev";
+}
+if (JustWalkJITAI) {
+    bundle_id = "edu.ucsd.justwalk.jitai";
+}
+
 
 fs.readFile('./config.xml', 'utf8', function(err, data) {
     var parser = new xml2js.Parser();
