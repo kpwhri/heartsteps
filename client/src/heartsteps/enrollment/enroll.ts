@@ -41,7 +41,8 @@ export class EnrollmentModal {
         .then(() => {
             this.enrolled.emit(true);
         })
-        .catch((error) => {
+            .catch((error) => {
+                console.log(error);
             this.error = error;
         })
         .then(() => {

@@ -40,8 +40,10 @@ export class HeartstepsServer {
         }
     }
 
-    makeUrl(uri:string):string {
-        return urljoin(this.heartstepsUrl, uri);
+    makeUrl(uri: string): string {
+        var return_url = urljoin(this.heartstepsUrl, uri);
+        console.log("makeUrl(uri: string): ", return_url);
+        return return_url;
     }
 
     get(url:string, params?:any):Promise<any> {
