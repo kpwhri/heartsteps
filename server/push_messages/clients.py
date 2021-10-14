@@ -84,7 +84,7 @@ class OneSignalClient(ClientBase):
         # return settings.ONESIGNAL_API_KEY
 
     def get_app_id(self):
-        (id, key) = OneSignalInfo.get(user=self.user)
+        (id, key) = push_messages.models.OneSignalInfo.get(user=self.user)
         
         return id
         # if not hasattr(settings, 'ONESIGNAL_APP_ID'):

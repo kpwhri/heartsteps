@@ -20,21 +20,24 @@ class OneSignalInfo(models.Model):
             if not hasattr(settings, 'ONESIGNAL_APP_ID'):
                 raise ImproperlyConfigured('No OneSignal APP ID')
             app_id = settings.ONESIGNAL_APP_ID
-            if not hasattr(settings, 'ONESIGNAL_APP_KEY'):
-                raise ImproperlyConfigured('No OneSignal APP KEY')
-            app_key = settings.ONESIGNAL_APP_KEY
+            if not hasattr(settings, 'ONESIGNAL_API_KEY'):
+                raise ImproperlyConfigured('No OneSignal API KEY')
+            app_key = settings.ONESIGNAL_API_KEY
                 
             return (app_id, app_key)
         
         if user is not None:
-            study = Participant.objects.filter(user=user).first().cohort.study
-            query = OneSignalInfo.objects.filter(study=study)
+            study_query = Participant.objects.filter(user=user)
+            if study_query.exists():
+                study = study_query.first().cohort.study
+                info_query = OneSignalInfo.objects.filter(study=study)
             
-            if query.exists():
-                one_signal_info = OneSignalInfo.objects.filter(study=study).first()
-                return (one_signal_info.app_id, one_signal_info.app_key)
-            else:
-                return get_default_key_id()
+                if info_query.exists():
+                    one_signal_info = OneSignalInfo.objects.filter(study=study).first()
+                    return (one_signal_info.app_id, one_signal_info.app_key)
+            
+            return get_default_key_id()
+                
         elif study is not None:            
             query = OneSignalInfo.objects.filter(study=study)
             

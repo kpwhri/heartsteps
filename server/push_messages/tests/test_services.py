@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.test import override_settings
 from django.utils import timezone
+from django.conf import settings
 import requests
 
 from django.contrib.auth.models import User
@@ -19,6 +20,8 @@ class TestPushMessageService(TestCase):
         task_patch = patch.object(onesignal_get_received, 'apply_async')
         self.get_received_task = task_patch.start()
         self.addCleanup(task_patch.stop)
+        settings.ONESIGNAL_APP_ID = 'abc'
+        settings.ONESIGNAL_APP_KEY = '123'
 
     def make_user(self):
         user = User.objects.create(username="test")
