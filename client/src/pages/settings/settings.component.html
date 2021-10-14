@@ -1,57 +1,127 @@
 <article>
-    <h1><p>Welcome, {{participantName}}!</p></h1>
+    <h1>
+        <p>Welcome, {{ participantName }}!</p>
+    </h1>
     <nav>
         <ul>
-            <li><button (click)="editContactInformation()">Contact information</button></li>
+            <li>
+                <button (click)="editContactInformation()">
+                    Contact information
+                </button>
+            </li>
             <li><button (click)="editPlaces()">Places</button></li>
-            <li><button (click)="editWeeklyReflectionTime()">Weekly reflection time</button></li>
-            <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
-            <li><button (click)="editDailyTimes()">Activity suggestion time</button></li>
+            <li>
+                <button (click)="editWeeklyReflectionTime()">
+                    Weekly reflection time
+                </button>
+            </li>
+            <ng-container *ngIf="!hasFlag('nlm')">
+                <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
+                <li>
+                    <button (click)="editDailyTimes()">
+                        Activity suggestion time
+                    </button>
+                </li>
+            </ng-container>
         </ul>
     </nav>
     <nav>
         <ul>
-            <li><button (click)="editFitbitAuthorization()">Fitbit Authorization</button></li>
-            <li><button (click)="goToFitbitClockFaceSettings()">Fitbit Clock Face</button></li>
+            <li>
+                <button (click)="editFitbitAuthorization()">
+                    Fitbit Authorization
+                </button>
+            </li>
+            <li>
+                <button (click)="goToFitbitClockFaceSettings()">
+                    Fitbit Clock Face
+                </button>
+            </li>
         </ul>
     </nav>
-    <p>HeartSteps {{buildVersion}}, built on {{buildDate}}</p>
+    <p>HeartSteps {{ buildVersion }}, built on {{ buildDate }}</p>
 </article>
 <article *ngIf="staffParticipant">
     <h3>Testing Area</h3>
-    <p>This area is only visible to staff members, and is used to test functionality in the application.</p>
+    <p>
+        This area is only visible to staff members, and is used to test
+        functionality in the application.
+    </p>
     <nav>
         <ul>
-            <li><button (click)="testBaselineWeekPage()">View Baseline Week Page</button></li>
+            <li>
+                <button (click)="testBaselineWeekPage()">
+                    View Baseline Week Page
+                </button>
+            </li>
         </ul>
     </nav>
     <h4>Feature Flags</h4>
-    <p>{{featureFlagsString}}</p>
+    <p>{{ featureFlagsString }}</p>
     <h4>Notification Testing</h4>
     <ul>
-        <li><button (click)="testActivitySurvey()">Send Activity Survey</button></li>
-        <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>
-        <li><button (click)="testMorningMessage()">Send Morning Message</button></li>
-        <li><button (click)="testWalkingSuggestion()">Send Walking Suggestion</button></li>
-        <li><button (click)="testWalkingSuggestionSurvey()">Send Walking Suggestion Survey</button></li>
-        <li><button (click)="testWeeklySurveyMessage()">Send Weekly Survey</button></li>
-        <article *ngIf="participantTags.includes('NLM')" >
-        <ul>
-            <h4>NLM-related</h4>
-            <li><button (click)="testNLMBlank()">Test NLM Blank Modal</button></li>
-            <li><button (click)="genericMessagesModal()">Open up generic messages modal</button></li>
-            <li><button (click)="genericMessagesSendTest()">Open up generic messages notification</button></li>
-        </ul>
+        <li>
+            <button (click)="testActivitySurvey()">Send Activity Survey</button>
+        </li>
+        <li>
+            <button (click)="testAntisedentaryMessage()">
+                Send Anti Sedentary Message
+            </button>
+        </li>
+        <li>
+            <button (click)="testMorningMessage()">Send Morning Message</button>
+        </li>
+        <li>
+            <button (click)="testWalkingSuggestion()">
+                Send Walking Suggestion
+            </button>
+        </li>
+        <li>
+            <button (click)="testWalkingSuggestionSurvey()">
+                Send Walking Suggestion Survey
+            </button>
+        </li>
+        <li>
+            <button (click)="testWeeklySurveyMessage()">
+                Send Weekly Survey
+            </button>
+        </li>
+        <article *ngIf="participantTags.includes('NLM')">
+            <ul>
+                <h4>NLM-related</h4>
+                <li>
+                    <button (click)="testNLMBlank()">
+                        Test NLM Blank Modal
+                    </button>
+                </li>
+                <li>
+                    <button (click)="genericMessagesModal()">
+                        Open up generic messages modal
+                    </button>
+                </li>
+                <li>
+                    <button (click)="genericMessagesSendTest()">
+                        Open up generic messages notification
+                    </button>
+                </li>
+            </ul>
         </article>
     </ul>
     <br />
     <h4>USER LOGS</h4>
     <ul>
-        <li><button (click)="testUserLogsPage()">User Logs for {{participantName}}</button></li>
+        <li>
+            <button (click)="testUserLogsPage()">
+                User Logs for {{ participantName }}
+            </button>
+        </li>
     </ul>
 </article>
 <article>
     <h3>Logout</h3>
-    <p>This will remove all data from your phone, and stop all push notifications.</p>
+    <p>
+        This will remove all data from your phone, and stop all push
+        notifications.
+    </p>
     <button class="danger" (click)="logout()">Logout</button>
 </article>

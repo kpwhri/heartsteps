@@ -7,6 +7,9 @@ import { Subscription } from "rxjs";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { AnchorMessageService } from "@heartsteps/anchor-message/anchor-message.service";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { skip } from "rxjs/operators";
 
 @Component({
     templateUrl: "dashboard.page.html",
@@ -19,8 +22,10 @@ export class DashboardPage implements OnDestroy {
     public weeklyGoal: number;
 
     public anchorMessage: string;
+    public featureFlags: FeatureFlags;
 
     private resumeSubscription: Subscription;
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private anchorMessageService: AnchorMessageService,
@@ -28,7 +33,8 @@ export class DashboardPage implements OnDestroy {
         private currentWeekService: CurrentWeekService,
         // tslint:disable-next-line:no-unused-variable
         private participantService: ParticipantService,
-        private platform: Platform
+        private platform: Platform,
+        private featureFlagService: FeatureFlagService
     ) {
         this.today = new Date();
         this.formattedDate = moment().format("dddd, M/D");
@@ -64,9 +70,23 @@ export class DashboardPage implements OnDestroy {
             });
     }
 
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlag(flag);
+    }
+
+    ngOnInit() {
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags
+                .pipe(skip(1))
+                .subscribe((flags) => (this.featureFlags = flags));
+    }
+
     ngOnDestroy() {
         if (this.resumeSubscription) {
             this.resumeSubscription.unsubscribe();
+        }
+        if (this.featureFlagSubscription) {
+            this.featureFlagSubscription.unsubscribe();
         }
     }
 }
