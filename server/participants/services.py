@@ -27,10 +27,12 @@ from walking_suggestions.tasks import nightly_update as walking_suggestions_nigh
 from weather.services import WeatherService
 
 from nlm.services import StudyTypeService
+from feature_flags.models import FeatureFlags
 
 from .models import Participant, User
 from .models import NightlyUpdateRecord
 
+from user_event_logs.models import EventLog
 
 class ParticipantService:
 
@@ -132,6 +134,16 @@ class ParticipantService:
         self.participant.set_daily_task()
         create_default_suggestion_times(participant=self.participant)
         self.enable()
+        
+        if not self.user is None:
+            if not FeatureFlags.exists(self.user):
+                # not to overwrite the manual featureflags
+                study_feature_flags = self.participant.cohort.study.studywide_feature_flags
+                FeatureFlags.create(self.user, study_feature_flags)
+            else:
+                EventLog.info("Feature flags exist: {}".format(FeatureFlags.get(self.user)))
+        else:
+            EventLog.info("self.user is still None: {}".format(self.participant))
 
     def is_enabled(self):
         return self.participant.active
