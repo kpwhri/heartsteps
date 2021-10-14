@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from warnings import warn
 
+from django import forms
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -67,8 +68,8 @@ class Study(models.Model):
 
             for cohort_flag in cohort_feature_flags_list:
                 if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
-                    raise ValidationError(
-                        'Cannot add flag because it is already a study feature flag')
+                    raise forms.ValidationError(
+                        {"studywide_feature_flags": 'Cannot create study flag that matches cohort flag'})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -121,8 +122,10 @@ class Cohort(models.Model):
             return
         for cohort_flag in cohort_feature_flags_list:
             if cohort_flag in studywide_feature_flags_list and cohort_flag != '__all__':
-                raise ValidationError(
-                    'Cannot add flag because it is already a study feature flag')
+                raise forms.ValidationError(
+                    {"cohort_feature_flags": 'Cannot create cohort flag that matches study flag'})
+                # raise ValidationError(
+                # 'Cannot add flag because it is already a study feature flag')
 
     def save(self, *args, **kwargs):
         self.full_clean()
