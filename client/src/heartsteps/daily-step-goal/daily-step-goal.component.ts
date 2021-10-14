@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 import { DailySummaryComponent } from '@heartsteps/daily-summaries/daily-summary.component';
 
@@ -14,7 +14,6 @@ export class DailyStepGoalComponent {
         private heartstepsServer: HeartstepsServer,
         private dailySummary: DailySummaryComponent
     ){
-        // this.testUpdate();
         this.update();
     }
 
@@ -34,41 +33,41 @@ export class DailyStepGoalComponent {
 
     // The following function is used to test if the new method of calculation by multiplying the median of the last 5
     // step counts by a defined multiplier is correctly implemented.
-    private testUpdate() {
-        console.log("trying to update daily step goal (new)");
-        this.heartstepsServer.get('newmultipliergoal')
-        .then((data) => {
-            console.log(data);
-            console.log('GET LATEST MULTI GOAL: Got a response from the server');
+//     private testUpdate() {
+//         console.log("trying to update daily step goal (new)");
+//         this.heartstepsServer.get('newmultipliergoal')
+//         .then((data) => {
+//             console.log(data);
+//             console.log('GET LATEST MULTI GOAL: Got a response from the server');
+//
+//             //this.dailyStepGoal = data[0]["goal"];
+//
+//             var step_median = (data[4]["steps"] + data[5]["steps"])/2;
+// //             this.dailyStepGoal = Math.round(step_median)*data[0]["multiplier"];
+//             this.dailyStepGoal = Math.round(step_median);
+//         })
+//         .catch(() => {
+//             console.log('Daily step count goal failed')
+//         })
+//     }
 
-            //this.dailyStepGoal = data[0]["goal"];
-
-            var step_median = (data[4]["steps"] + data[5]["steps"])/2;
-//             this.dailyStepGoal = Math.round(step_median)*data[0]["multiplier"];
-            this.dailyStepGoal = Math.round(step_median);
-        })
-        .catch(() => {
-            console.log('Daily step count goal failed')
-        })
-    }
-
-    private updateAll() {
-        this.heartstepsServer.get('newgoal')
-        .then((data) => {
-            console.log(data);
-            console.log('NEW GOAL: Got a response from the server');
-
-            var step_median = (data[4]["steps"] + data[5]["steps"])/2;
-            this.dailyStepGoal = Math.round(step_median);
-
-            console.log("NEW STEP GOAL: " + this.dailyStepGoal);
-            console.log("CURRENT STEPS: " + this.dailySummary.steps);
-
-            this.dailyStepDiff = this.dailyStepGoal - this.dailySummary.steps;
-        })
-        .catch(() => {
-            console.log('New goal failed');
-        })
-    }
+//     private updateAll() {
+//         this.heartstepsServer.get('newgoal')
+//         .then((data) => {
+//             console.log(data);
+//             console.log('NEW GOAL: Got a response from the server');
+//
+//             var step_median = (data[4]["steps"] + data[5]["steps"])/2;
+//             this.dailyStepGoal = Math.round(step_median);
+//
+//             console.log("NEW STEP GOAL: " + this.dailyStepGoal);
+//             console.log("CURRENT STEPS: " + this.dailySummary.steps);
+//
+//             this.dailyStepDiff = this.dailyStepGoal - this.dailySummary.steps;
+//         })
+//         .catch(() => {
+//             console.log('New goal failed');
+//         })
+//     }
 }
 
