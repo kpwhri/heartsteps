@@ -136,24 +136,20 @@ class ParticipantService:
         self.enable()
         
         if not self.user is None:
-            if not FeatureFlags.exists(self.user):
-                # not to overwrite the manual featureflags
-                if self.participant is not None:
-                    if self.participant.cohort is not None:
-                        if self.participant.cohort.study is not None:
-                            if self.participant.cohort.study.studywide_feature_flags is not None:
-                                study_feature_flags = self.participant.cohort.study.studywide_feature_flags
-                                FeatureFlags.create_or_update(self.user, study_feature_flags)
-                            else:
-                                EventLog.error(self.user, "Studywide feature flag doesn't exist: {}".format(self.participant.cohort.study))
+            if self.participant is not None:
+                if self.participant.cohort is not None:
+                    if self.participant.cohort.study is not None:
+                        if self.participant.cohort.study.studywide_feature_flags is not None:
+                            study_feature_flags = self.participant.cohort.study.studywide_feature_flags
+                            FeatureFlags.create_or_update(self.user, study_feature_flags)
                         else:
-                            EventLog.error(self.user, "Study doesn't exist: {}".format(self.participant.cohort))
+                            EventLog.error(self.user, "Studywide feature flag doesn't exist: {}".format(self.participant.cohort.study))
                     else:
-                        EventLog.error(self.user, "Cohort doesn't exist: {}".format(self.participant))
+                        EventLog.error(self.user, "Study doesn't exist: {}".format(self.participant.cohort))
                 else:
-                    EventLog.error(self.user, "Participant doesn't exist: {}".format(self))
+                    EventLog.error(self.user, "Cohort doesn't exist: {}".format(self.participant))
             else:
-                EventLog.info(self.user, "Feature flags exist: {}".format(FeatureFlags.get(self.user)))
+                EventLog.error(self.user, "Participant doesn't exist: {}".format(self))
         else:
             EventLog.info(None, "self.user is still None: {}".format(self.participant))
 
