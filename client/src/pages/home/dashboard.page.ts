@@ -9,6 +9,7 @@ import { ParticipantService } from "@heartsteps/participants/participant.service
 import { AnchorMessageService } from "@heartsteps/anchor-message/anchor-message.service";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { skip } from "rxjs/operators";
 
 @Component({
     templateUrl: "dashboard.page.html",
@@ -70,15 +71,14 @@ export class DashboardPage implements OnDestroy {
     }
 
     public hasFlag(flag: string): boolean {
-        // console.log("notification-center.ts notification center flag called");
         return this.featureFlagService.hasFlag(flag);
     }
 
     ngOnInit() {
         this.featureFlagSubscription =
-            this.featureFlagService.currentFeatureFlags.subscribe(
-                (flags) => (this.featureFlags = flags)
-            );
+            this.featureFlagService.currentFeatureFlags
+                .pipe(skip(1))
+                .subscribe((flags) => (this.featureFlags = flags));
     }
 
     ngOnDestroy() {

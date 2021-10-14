@@ -18,6 +18,7 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Subscription } from "rxjs";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { skip } from "rxjs/operators";
 
 declare var process: {
     env: {
@@ -67,10 +68,12 @@ export class SettingsComponent {
             });
 
         this.featureFlagSubscription =
-            this.featureFlagService.currentFeatureFlags.subscribe((flags) => {
-                this.featureFlags = flags;
-                this.featureFlagsString = flags.flags;
-            });
+            this.featureFlagService.currentFeatureFlags
+                .pipe(skip(1))
+                .subscribe((flags) => {
+                    this.featureFlags = flags;
+                    this.featureFlagsString = flags.flags;
+                });
     }
 
     public hasFlag(flag: string): boolean {
