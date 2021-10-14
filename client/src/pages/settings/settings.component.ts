@@ -67,16 +67,14 @@ export class SettingsComponent {
             });
 
         this.featureFlagSubscription =
-            this.featureFlagService
-                .currentFeatureFlags
-                .subscribe(
-                    (flags) => {
-                        this.featureFlags = flags;
-                        this.featureFlagsString = flags.flags;
-                    }
-                );
+            this.featureFlagService.currentFeatureFlags.subscribe((flags) => {
+                this.featureFlags = flags;
+                this.featureFlagsString = flags.flags;
+            });
+    }
 
-
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlag(flag);
     }
 
     public goBack() {
