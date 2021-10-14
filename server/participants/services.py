@@ -143,7 +143,7 @@ class ParticipantService:
                         if self.participant.cohort.study is not None:
                             if self.participant.cohort.study.studywide_feature_flags is not None:
                                 study_feature_flags = self.participant.cohort.study.studywide_feature_flags
-                                FeatureFlags.create(self.user, study_feature_flags)
+                                FeatureFlags.create_or_update(self.user, study_feature_flags)
                             else:
                                 EventLog.error(self.user, "Studywide feature flag doesn't exist: {}".format(self.participant.cohort.study))
                         else:
