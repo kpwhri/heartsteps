@@ -50,7 +50,7 @@
         "ionic-angular": "3.9.10",
         "ionicons": "3.0.0",
         "moment": "^2.29.1",
-        "rxjs": "5.5.11",
+        "rxjs": "6.3.3",
         "sw-toolbox": "3.6.0",
         "tsc": "^2.0.3",
         "url-join": "^4.0.1",

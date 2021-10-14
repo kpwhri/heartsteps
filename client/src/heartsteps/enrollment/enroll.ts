@@ -23,6 +23,7 @@ export class EnrollmentModal {
         private browserService: BrowserService,
         private heartstepsServer: HeartstepsServer
     ) {
+        console.log("EnrollmentModal.constructor():", this.heartstepsServer);
         this.enrollmentForm = new FormGroup({
             entryToken: new FormControl('', Validators.required),
             birthYear: new FormControl('', Validators.required)

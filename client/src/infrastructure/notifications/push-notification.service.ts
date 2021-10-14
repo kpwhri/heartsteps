@@ -197,9 +197,10 @@ export class PushNotificationService {
     }
 
     private getDeviceFromOneSignal(): Promise<Device> {
+        console.log('getDeviceFromOneSignal')
         return new Promise((resolve, reject) => {
             window.plugins.OneSignal.getPermissionSubscriptionState((status) => {
-                console.log(status)
+                console.log('window.plugins.OneSignal.getPermissionSubscriptionState', status)
                 const token = status.subscriptionStatus.userId;
                 if(token) {
                     console.log('PushNotificationService: Got token ' + token);
@@ -216,7 +217,9 @@ export class PushNotificationService {
     }
 
     private initialize() {
-        if(this.platform.is('cordova')) {
+        console.log('initialize');
+        if (this.platform.is('cordova')) {
+            console.log('initialize', 'is cordova')
             window.plugins.OneSignal.addSubscriptionObserver(() => {
                 this.zone.run(() => {
                     this.handleOneSignalSubscription();

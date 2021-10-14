@@ -88,7 +88,7 @@ webpackConfig[env].resolve = {
         '@infrastructure': path.resolve('./src/infrastructure/'),
         '@pages': path.resolve('./src/pages/')
     }
-}
+};
 
 var envs = new webpack.EnvironmentPlugin({
     PRODUCTION: production,

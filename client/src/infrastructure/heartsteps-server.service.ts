@@ -22,7 +22,7 @@ export class HeartstepsServer {
 
     constructor(private authorizationService:AuthorizationService, private platform:Platform) {
         this.heartstepsUrl = process.env.HEARTSTEPS_URL;
-
+        console.log("HeartstepsServer.constructor()", this.heartstepsUrl);
         this.unauthorized = new Subject();
 
         if(this.isNativeDevice()) {
@@ -30,6 +30,10 @@ export class HeartstepsServer {
         } else {
             this.http = axios.create()
         }
+    }
+
+    public toString = () : string => {
+        return `HeartstepsServer: heartstepsUrl=${this.heartstepsUrl}, http=${this.http}, unauthorized=${this.unauthorized}`;
     }
 
     private isNativeDevice() {

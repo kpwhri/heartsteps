@@ -2,12 +2,53 @@ import json
 import uuid
 
 from django.db import models
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 
 from days.models import LocalizeTimezoneQuerySet
-
+from participants.models import Study, Participant
 from .clients import OneSignalClient
 
+class OneSignalInfo(models.Model):
+    study = models.ForeignKey(Study, on_delete=models.CASCADE, null=False)
+    app_id = models.CharField(max_length=255, null=False)
+    app_key = models.CharField(max_length=255, null=False)
+    
+    def get(user=None, study=None):
+        def get_default_key_id():
+            if not hasattr(settings, 'ONESIGNAL_APP_ID'):
+                raise ImproperlyConfigured('No OneSignal APP ID')
+            app_id = settings.ONESIGNAL_APP_ID
+            if not hasattr(settings, 'ONESIGNAL_APP_KEY'):
+                raise ImproperlyConfigured('No OneSignal APP KEY')
+            app_key = settings.ONESIGNAL_APP_KEY
+                
+            return (app_id, app_key)
+        
+        app_id = None
+        app_key = None
+        if user is not None:
+            study = Participant.objects.filter(user=user).first().cohort.study
+            query = OneSignalInfo.objects.filter(study=study)
+            
+            if query.exists():
+                one_signal_info = OneSignalInfo.objects.filter(study=study).first()
+                return (one_signal_info.app_id, one_signal_info.app_key)
+            else:
+                return get_default_key_id()
+        elif study is not None:            
+            query = OneSignalInfo.objects.filter(study=study)
+            
+            if query.exists():
+                one_signal_info = OneSignalInfo.objects.filter(study=study).first()
+                return (one_signal_info.app_id, one_signal_info.app_key)
+            else:
+                return get_default_key_id()
+        else:
+            return get_default_key_id()
+            
+            
 class Device(models.Model):
 
     ANDROID = 'android'

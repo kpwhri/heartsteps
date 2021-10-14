@@ -9,6 +9,8 @@ services:
       - ./client:/client
       - ./credentials:/credentials
       - client-node-modules:/client/node_modules
+    env_file:
+      - credentials/.env-development
     ports:
       - "8101:8101"
       - "8100:8100"

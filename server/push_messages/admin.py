@@ -4,7 +4,7 @@ from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
 
-from push_messages.models import Message, Device
+from push_messages.models import Message, Device, OneSignalInfo
 
 message_resource_fields = [
     'id',
@@ -80,3 +80,9 @@ class MessageAdmin(ExportMixin, admin.ModelAdmin):
 admin.site.register(Message, MessageAdmin)
 
 admin.site.register(Device, admin.ModelAdmin)
+
+class OneSignalInfoAdmin(admin.ModelAdmin):
+    list_display = ['study', 'app_id', 'app_key']
+    fields = ['study', 'app_id', 'app_key']
+
+admin.site.register(OneSignalInfo, OneSignalInfoAdmin)

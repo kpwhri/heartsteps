@@ -8,6 +8,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
+from .models import OneSignalInfo
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -68,19 +69,26 @@ class OneSignalClient(ClientBase):
 
     def __init__(self, device):
         self.device = device
+        self.user = device.user
 
     def get_one_signal_notification_url(self):
         return 'https://onesignal.com/api/v1/notifications'
 
     def get_api_key(self):
-        if not hasattr(settings, 'ONESIGNAL_API_KEY'):
-            raise ImproperlyConfigured('No OneSignal API KEY')
-        return settings.ONESIGNAL_API_KEY
+        (id, key) = OneSignalInfo.get(user=self.user)
+        
+        return key
+        # if not hasattr(settings, 'ONESIGNAL_API_KEY'):
+        #     raise ImproperlyConfigured('No OneSignal API KEY')
+        # return settings.ONESIGNAL_API_KEY
 
     def get_app_id(self):
-        if not hasattr(settings, 'ONESIGNAL_APP_ID'):
-            raise ImproperlyConfigured('No OneSignal APP ID')
-        return settings.ONESIGNAL_APP_ID
+        (id, key) = OneSignalInfo.get(user=self.user)
+        
+        return id
+        # if not hasattr(settings, 'ONESIGNAL_APP_ID'):
+        #     raise ImproperlyConfigured('No OneSignal APP ID')
+        # return settings.ONESIGNAL_APP_ID
 
     def get_message_receipts(self, message_id):
             url = 'https://onesignal.com/api/v1/notifications/{message_id}?app_id={app_id}'.format(
