@@ -26,8 +26,6 @@ class OneSignalInfo(models.Model):
                 
             return (app_id, app_key)
         
-        app_id = None
-        app_key = None
         if user is not None:
             study = Participant.objects.filter(user=user).first().cohort.study
             query = OneSignalInfo.objects.filter(study=study)

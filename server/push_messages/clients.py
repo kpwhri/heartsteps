@@ -8,7 +8,8 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
-from .models import OneSignalInfo
+# from .models import OneSignalInfo
+import push_messages
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -75,7 +76,7 @@ class OneSignalClient(ClientBase):
         return 'https://onesignal.com/api/v1/notifications'
 
     def get_api_key(self):
-        (id, key) = OneSignalInfo.get(user=self.user)
+        (id, key) = push_messages.models.OneSignalInfo.get(user=self.user)
         
         return key
         # if not hasattr(settings, 'ONESIGNAL_API_KEY'):
