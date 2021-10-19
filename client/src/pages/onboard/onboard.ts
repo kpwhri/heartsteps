@@ -47,11 +47,6 @@ const onboardingPages: Array<Step> = [
         title: "Fitbit",
         component: FitbitAuthPage,
     },
-    {
-        key: "fitbitClockFace",
-        title: "HeartSteps Clock Face",
-        component: FitbitClockFacePairPage,
-    },
 ];
 
 @Component({
@@ -96,6 +91,18 @@ export class OnboardPage implements OnInit {
                             onboardingPages.splice(3, 0, nlm_onboarding_page);
                         } else {
                             console.log("the user doesn't have 'bout_planning' flag.");
+                        }
+
+                        if (this.featureFlagService.hasFlag("fitbit_clockface")) {
+                            console.log("the user has 'fitbit_clockface' flag.");
+                            let fitbit_clockface_onboarding_page = {
+                                key: "fitbitClockFace",
+                                title: "HeartSteps Clock Face",
+                                component: FitbitClockFacePairPage,
+                            };
+                            onboardingPages.splice(onboardingPages.length - 1, 0, fitbit_clockface_onboarding_page);
+                        } else {
+                            console.log("the user doesn't have 'fitbit_clockface' flag.");
                         }
 
                         let skipPageIDs: Array<string> =
