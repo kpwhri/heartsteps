@@ -43,6 +43,10 @@ function updateStepCount() {
   stepCountElement.text = step_count_formatted.toString() + ' steps';
 }
 
+function updateDailyStepGoal() {
+  const test_daily_step_goal = 5000;
+}
+
 clock.granularity = "seconds";
 clock.addEventListener("tick", function(event){
   updateStepCount();
