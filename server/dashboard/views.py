@@ -1364,6 +1364,7 @@ class ParticipantNotificationsView(ParticipantView):
                     request, messages.SUCCESS, 'Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
             else:
                 try:
+                    self.user = self.participant.user
                     EventLog.debug(self.user, "ParticipantNotificationsView.post():1")
                     service = PushMessageService(
                         username=self.participant.heartsteps_id)
