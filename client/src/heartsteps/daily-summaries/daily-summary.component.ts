@@ -4,7 +4,6 @@ import { Component, Input, OnDestroy } from '@angular/core';
 import { DailySummary } from './daily-summary.model';
 import { DailySummaryService } from './daily-summary.service';
 import { Subscription } from 'rxjs';
-import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 
 @Component({
     selector: 'heartsteps-daily-summary',
@@ -24,8 +23,7 @@ export class DailySummaryComponent implements OnDestroy {
     private updateSubscription: Subscription;
 
     constructor(
-        private dailySummaryService: DailySummaryService,
-        private heartstepsServer: HeartstepsServer
+        private dailySummaryService: DailySummaryService
     ) {
         this.updateSubscription = this.dailySummaryService.updated
         .subscribe((summary) => {

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
-import { DailySummaryComponent } from '@heartsteps/daily-summaries/daily-summary.component';
 
 @Component({
     selector: 'heartsteps-daily-step-goal',
@@ -12,7 +11,7 @@ export class DailyStepGoalComponent {
 
     constructor(
         private heartstepsServer: HeartstepsServer,
-        private dailySummary: DailySummaryComponent
+//         private dailySummary: DailySummaryComponent
     ){
         this.update();
     }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { LoadingService } from '@infrastructure/loading.service';
-import moment from 'moment';
+// import { LoadingService } from '@infrastructure/loading.service';
+// import moment from 'moment';
 import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 import { Router } from '@angular/router';
 
