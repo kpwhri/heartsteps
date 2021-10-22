@@ -12,15 +12,17 @@ from django.db import models
 from django.db import IntegrityError
 from django.db.models.query import Prefetch
 from django.http import Http404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.http import UnreadablePostError
+from django.http import JsonResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage as PaginatorEmptyPage
 from django.core.paginator import PageNotAnInteger as PatinatorPageNotAnInteger
+
 import pytz
 from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
@@ -2484,3 +2486,75 @@ class ParticipantClockFaceView(ParticipantView):
                 }
             )
         )
+
+class ChartView(TemplateView):
+    template_name = 'dashboard/chart-view.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["is_staff"] = self.request.user.is_staff
+        context["users"] = list(User.objects.order_by("username").all())
+
+        return context
+    
+class ChartDataView:
+    def dashboard_chart_data_json(request):
+        print(request.__dict__)
+        if request.user:
+            if request.user.is_anonymous:
+                print("I'm anonymous")
+            else:
+                if request.user.is_staff:
+                    print("I'm staff")
+                elif request.user.is_superuser:
+                    print("I'm superuser")
+                else:
+                    print(request.user)
+                    
+                admin_for_studies = Study.objects.filter(admins=request.user)
+                admin_for_studies = list(admin_for_studies)
+                
+                if admin_for_studies:
+                    print("my studies: {}".format(admin_for_studies))
+                else:
+                    print("I have no study")
+        else:
+            print("request.user is None: {}".format(request.user))
+            
+        data = [
+            {
+                "id": 1,
+                "content": "item 1",
+                "start": "2014-04-20 14:00"
+            },
+            {
+                "id": 2,
+                "content": "item 2",
+                "start": "2014-04-20 07:31"
+            },
+            {
+                "id": 3,
+                "content": "item 3",
+                "start": "2014-04-20 11:22"
+            },
+            {
+                "id": 4,
+                "content": "item 4",
+                "start": "2014-04-20 10:00",
+                "end": "2014-04-20 10:30"
+            },
+            {
+                "id": 5,
+                "content": "item 5",
+                "start": "2014-04-20 15:00"
+            },
+            {
+                "id": 6,
+                "content": "item 6",
+                "start": "2014-04-20 17:00",
+                "type": "point"
+            }
+        ]
+        
+        return JsonResponse(data, safe=False)

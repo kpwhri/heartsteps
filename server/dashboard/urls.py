@@ -43,6 +43,9 @@ from .views import UserLogsList
 from .views import ParticipantClockFaceView
 from .views import ParticipantUserLogs
 
+from .views import ChartView
+from .views import ChartDataView
+
 urlpatterns = [
     url('^login/$', auth_views.LoginView.as_view(template_name='dashboard/login.html'),
         name='dashboard-login'),
@@ -135,7 +138,9 @@ urlpatterns = [
     url('clock-faces', ClockFaceList.as_view(),
         name='dashboard-clock-face-list'),
     url('userlogs', UserLogsList.as_view(), name='dashboard-userlogs-list'),
+    url('chart/data', ChartDataView.dashboard_chart_data_json, name='dashboard-chart-data'),
+    url('chart', ChartView.as_view(), name='dashboard-chart'),
     url('dev/front', DevFrontView.as_view(), name='dashboard-dev-front'),
     url('dev/generic', DevGenericView.as_view(), name='dashboard-dev-generic'),
-    url('', CohortListView.as_view(), name='dashboard-cohorts')
+    url('', CohortListView.as_view(), name='dashboard-cohorts')    
 ]
