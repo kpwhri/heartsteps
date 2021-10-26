@@ -2643,7 +2643,7 @@ class ChartDataView:
                     fitbit_account = fitbit_account_user.account
 
                     data = [{
-                        "x": obj["time"],
+                        "x": obj["time"].strftime("%Y-%m-%d %H:%M:%S"),
                         "y": obj["steps"]
                     }
                             for obj in FitbitMinuteStepCount.objects.filter(
@@ -2685,6 +2685,8 @@ class ChartDataView:
             else:
                 raise NotImplementedError('{} is not supported'.format(
                     context["item"]))
+
+
             return JsonResponse(data, safe=False)
         else:
             raise NotImplementedError('"item" is not found')

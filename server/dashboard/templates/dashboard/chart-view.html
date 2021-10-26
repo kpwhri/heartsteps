@@ -52,34 +52,19 @@
 </div>
 
 <script>
-    const labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-    ];
-    const data = {
-        labels: labels,
-        datasets: [{
-            label: 'My First dataset',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [0, 10, 5, 2, 20, 30, 45],
-        }]
-    };
-
-
-
     var ctx = document.getElementById('myChart');
     var myChart = new Chart(ctx, {
         type: 'bar',
-        data: {},
+        data: {
+            datasets: [{
+                label: 'steps',
+                data: []
+            }]
+        },
         options: {
             scales: {
                 x: {
-                    type: 'time',
+                    type: 'timeseries',
                     time: {
                         unit: 'minute'
                     }
@@ -103,16 +88,13 @@
         success: function (data) {
             console.log(data);
             // remove all current data
-            myChart.data.datasets.forEach((dataset) => {
-                dataset.data.pop();
-            });
+            myChart.data.datasets[0].data = [];
 
             // add all new data
-            myChart.data.datasets.forEach((dataset) => {
-                dataset.data.push(data);
-            })
+            myChart.data.datasets[0].data = data;
 
             myChart.update();
+
         },
         error: function (err) {
             console.log('Error', err);
