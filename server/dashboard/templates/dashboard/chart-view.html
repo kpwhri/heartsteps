@@ -1,58 +1,125 @@
-<html>
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"
-        integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+{% load humanize %}
 
-    <script type="text/javascript"
-        src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
-    <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet"
-        type="text/css" />
-</head>
-<body>
-    <ul class="nav">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Active</a>
-        </li>
-    </ul>
-    <div id="visualization"></div>
-    <div id="loading">loading...</div>
-    <script type="text/javascript">
-        // load data via an ajax request. When the data is in, load the timeline
-        $.ajax({
-            url: '/dashboard/chart/data',
-            success: function (data) {
-                // hide the "loading..." message
-                document.getElementById('loading').style.display = 'none';
+{% block content %}
 
-                // DOM element where the Timeline will be attached
-                var container = document.getElementById('visualization');
+{% if is_staff %}
 
-                console.log(data);
-                // Create a DataSet (allows two way data-binding)
-                var items = new vis.DataSet(data);
+<table class="table-fit">
+    <tr>
+        <td>
+            Select a User:
+        </td>
+        <td>
+            <form action="{% url 'dashboard-chart' %}" method="POST" role="form">
+                {% csrf_token %}
+                <select class="form-select form-control m-1" style="width:auto;" id="selected_user" name="selected_user"
+                    onchange="this.form.submit()">
+                    {% if selected_user %}
 
-                // Configuration for the Timeline
-                var options = {};
+                    {% else %}
+                    <option selected>Select a User:</option>
+                    {% endif %}
 
-                // Create a Timeline
-                var timeline = new vis.Timeline(container, items, options);
-            },
-            error: function (err) {
-                console.log('Error', err);
-                if (err.status === 0) {
-                    alert('Failed to load data/basic.json.\nPlease run this example on a server.');
-                } else {
-                    alert('Failed to load data/basic.json.');
+                    {% for user in users %}
+                    <option value="{{ user.username }}" {% if selected_user %}
+                        {% if selected_user == user.username %}selected{%endif%}{%endif%}>{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'dashboard-chart' %}" method="POST" role="form">
+                {% csrf_token %}
+                <input type="hidden" name="selected_user" value="{{ selected_user }}" />
+                <button type="submit" class="btn btn-primary mb-2 m-1">Refresh</button>
+            </form>
+        </td>
+
+        <td>
+            <p>Server time: {{server_time}}
+        </td>
+    </tr>
+</table>
+
+<div id="visualization"></div>
+<div id="loading">loading...</div>
+
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    const labels = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+    ];
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'My First dataset',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [0, 10, 5, 2, 20, 30, 45],
+        }]
+    };
+
+
+
+    var ctx = document.getElementById('myChart');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {},
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'minute'
+                    }
+                },
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-    </script>
-</body>
-</html>
+        }
+    });
+
+    // load data via an ajax request. When the data is in, load the timeline
+    $.ajax({
+        url: '/dashboard/chart/data',
+        method: 'POST',
+        data: {
+            item: 'steps',
+            selected_user: $('#selected_user').find('option:selected').val(),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (err) {
+            console.log('Error', err);
+            alert('Failed to load chart/data?item=steps');
+        }
+    });
+</script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+</script>
+
+
+{% else %}
+You're not a staff.
+{% endif %}
+
+{% endblock %}

@@ -19,7 +19,7 @@ services:
     environment: 
       - BUILD_PLATFORM=android
       - BUILD_VERSION=2.2.4
-      - HEARTSTEPS_URL=https://heartsteps.net/api
+      - HEARTSTEPS_URL=https://dev.heartsteps.net/api
     volumes:
       - ./client:/client
       - ./credentials:/credentials

@@ -4,20 +4,21 @@
 
 {% block content %}
 {% for study in studies %}
-    <h3>{{study.name}}</h3>
-    <ul>
+<h3>{{study.name}}</h3>
+<ul>
     {% for cohort in study.cohorts %}
-        <li>
-            <a href="{% url 'dashboard-cohort-participants' cohort.id %}">{{cohort.name}}</a>
-        </li>
+    <li>
+        <a href="{% url 'dashboard-cohort-participants' cohort.id %}">{{cohort.name}}</a>
+    </li>
     {% endfor %}
-    </ul>
+</ul>
 {% endfor %}
 <nav>
     <h3>Staff Links</h3>
     <ul>
         <li><a href="{% url 'dashboard-clock-face-list'%}">View all clock faces</a></li>
         <li><a href="{% url 'dashboard-userlogs-list'%}">View all userlogs</a></li>
+        <li><a href="{% url 'dashboard-chart'%}">View all charts</a></li>
     </ul>
 </nav>
 

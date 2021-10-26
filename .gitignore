@@ -81,3 +81,4 @@ dev-credentials/.env-development
 dev-credentials/.env-gcloud-dev
 dev-credentials/gcloud-dev-service-account.json
 dev-credentials.tar.gpg
+client/app-debug.apk

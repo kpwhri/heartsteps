@@ -1,3 +1,5 @@
+import pprint
+
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -75,6 +77,7 @@ from nlm.models import CohortAssignment
 from daily_tasks.models import DailyTask
 from django_celery_results.models import TaskResult
 
+from days.services import DayService
 from user_event_logs.models import EventLog
 
 from .forms import CohortFeatureFlagEditForm, ParticipantFeatureFlagEditForm, SendSMSForm, StudyFeatureFlagEditForm
@@ -114,12 +117,14 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         nlm_service = StudyTypeService("NLM", self.request.user)
 
         study_query = dev_service.get_all_studies_query()
-        context['studies'] = dev_service.get_study_cohort_participant_device_dict(
-            study_query)
+        context[
+            'studies'] = dev_service.get_study_cohort_participant_device_dict(
+                study_query)
 
         debug_studies_query = dev_service.get_all_studies_query(debug=True)
-        context['debug_studies'] = dev_service.get_study_cohort_participant_device_dict(
-            debug_studies_query)
+        context[
+            'debug_studies'] = dev_service.get_study_cohort_participant_device_dict(
+                debug_studies_query)
 
         colleagues = dev_service.get_colleague_dict()
         context['colleagues'] = colleagues
@@ -142,19 +147,11 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
         context['hourly_tasks'] = hourly_tasks
 
         context['generic_command_list'] = [
-            "insert_test_log",
-            "dump_log",
-            'clear_log',
-            'view_crontabs',
-            'view_periodic_tasks',
-            'view_hourly_tasks',
-            'create_sample_hourly_tasks',
-            "delete_all_hourly_tasks",
-            'design_test_study',
-            'view_test_study',
-            'clear_test_study',
-            'view_preloaded_seq',
-            'clear_preloaded_seq',
+            "insert_test_log", "dump_log", 'clear_log', 'view_crontabs',
+            'view_periodic_tasks', 'view_hourly_tasks',
+            'create_sample_hourly_tasks', "delete_all_hourly_tasks",
+            'design_test_study', 'view_test_study', 'clear_test_study',
+            'view_preloaded_seq', 'clear_preloaded_seq',
             'view_cohort_assignment'
         ]
 
@@ -230,7 +227,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             elif dev_command == 'clear-debug-participant':
                 context["results"] = self.dev_service.clear_debug_participant()
             elif dev_command == 'clear-orphan-debug-participant':
-                context["results"] = self.dev_service.clear_orphan_debug_participant()
+                context[
+                    "results"] = self.dev_service.clear_orphan_debug_participant(
+                    )
             elif dev_command == 'send-notification-to-user':
                 username = request.POST['username']
                 user = self.dev_service.get_user_by_username(username)
@@ -267,14 +266,17 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     if (level_csv_file.multiple_chunks()):
                         raise UnreadablePostError("too long")
                     else:
-                        csv_file_content = level_csv_file.read().decode("utf-8-sig")
+                        csv_file_content = level_csv_file.read().decode(
+                            "utf-8-sig")
                         lines = csv_file_content.split("\n")
                         try:
-                            context["results"] = self.nlm_service.upload_level_csv(
-                                level_csv_file.name, nickname, lines)
+                            context[
+                                "results"] = self.nlm_service.upload_level_csv(
+                                    level_csv_file.name, nickname, lines)
                         except IntegrityError:
-                            context["results"] = "The nickname {} is already used.".format(
-                                nickname)
+                            context[
+                                "results"] = "The nickname {} is already used.".format(
+                                    nickname)
                 else:
                     raise UnreadablePostError
             elif dev_command == 'generic-command':
@@ -322,8 +324,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                         [CohortAssignment])
                     context["results"] = self.prettyprint(objlist)
                 else:
-                    context["results"] = "Unsupported generic command: {}".format(
-                        generic_command)
+                    context[
+                        "results"] = "Unsupported generic command: {}".format(
+                            generic_command)
             else:
                 context["results"] = "Unsupported command: {}".format(
                     dev_command)
@@ -360,10 +363,7 @@ class CohortListView(UserPassesTestMixin, TemplateView):
         for study in study_query.all():
             cohorts = []
             for cohort in study.cohort_set.all():
-                cohorts.append({
-                    'id': cohort.id,
-                    'name': cohort.name
-                })
+                cohorts.append({'id': cohort.id, 'name': cohort.name})
             studies.append({
                 'id': study.id,
                 'name': study.name,
@@ -374,7 +374,6 @@ class CohortListView(UserPassesTestMixin, TemplateView):
 
 
 class CohortView(CohortListView):
-
     def test_func(self):
         result = super().test_func()
         if not result:
@@ -454,33 +453,38 @@ class DailyTaskSummaryView(CohortView):
             task_name = dt.task.task
             if task_name not in task_names:
                 task_names.append(task_name)
-            if task_name not in daily_tasks_by_username_then_task_name[dt.user.username]:
-                daily_tasks_by_username_then_task_name[dt.user.username][task_name] = {
-                    'run_times': []
-                }
+            if task_name not in daily_tasks_by_username_then_task_name[
+                    dt.user.username]:
+                daily_tasks_by_username_then_task_name[
+                    dt.user.username][task_name] = {
+                        'run_times': []
+                    }
             if dt.day:
                 run_time = '%s %d:%d' % (dt.day, dt.hour, dt.minute)
             else:
                 run_time = '%d:%d' % (dt.hour, dt.minute)
-            daily_tasks_by_username_then_task_name[dt.user.username][task_name]['run_times'].append(
-                run_time)
+            daily_tasks_by_username_then_task_name[
+                dt.user.username][task_name]['run_times'].append(run_time)
 
             if dt.task.last_run_at:
                 task_last_run_at = dt.task.last_run_at.astimezone(
                     pytz.timezone('US/Pacific'))
-                if 'last_run_at' in daily_tasks_by_username_then_task_name[dt.user.username][task_name]:
+                if 'last_run_at' in daily_tasks_by_username_then_task_name[
+                        dt.user.username][task_name]:
                     last_run_at = daily_tasks_by_username_then_task_name[
                         dt.user.username][task_name]['last_run_at']
                     if last_run_at < task_last_run_at:
-                        daily_tasks_by_username_then_task_name[dt.user.username][
-                            task_name]['last_run_at'] = task_last_run_at
+                        daily_tasks_by_username_then_task_name[
+                            dt.user.username][task_name][
+                                'last_run_at'] = task_last_run_at
                 else:
                     daily_tasks_by_username_then_task_name[dt.user.username][
                         task_name]['last_run_at'] = task_last_run_at
 
         task_names.sort()
-        context['task_names'] = [tn.replace(
-            '.tasks.', ' ').replace('_', ' ') for tn in task_names]
+        context['task_names'] = [
+            tn.replace('.tasks.', ' ').replace('_', ' ') for tn in task_names
+        ]
         serialized_participants = []
         for participant in participants:
             serialized_tasks = []
@@ -488,8 +492,10 @@ class DailyTaskSummaryView(CohortView):
                 if participant.user:
                     username = participant.user.username
                     if username in daily_tasks_by_username_then_task_name:
-                        if task in daily_tasks_by_username_then_task_name[username]:
-                            st = daily_tasks_by_username_then_task_name[participant.user.username][task]
+                        if task in daily_tasks_by_username_then_task_name[
+                                username]:
+                            st = daily_tasks_by_username_then_task_name[
+                                participant.user.username][task]
                             if 'last_run_at' in st:
                                 st['last_run_at'] = st['last_run_at'].strftime(
                                     '%Y-%m-%d %H:%M;%S')
@@ -526,7 +532,8 @@ class BurstPeriodSummaryView(CohortView):
             .all()
 
         context['participants'] = [
-            p for p in participants if p.burst_period_enabled]
+            p for p in participants if p.burst_period_enabled
+        ]
         return context
 
 
@@ -544,35 +551,35 @@ class InterventionSummaryView(CohortView):
         anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
             users=users,
             start=timezone.now() - timedelta(days=28),
-            end=timezone.now()
-        )
+            end=timezone.now())
         walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
             users=users,
             start=timezone.now() - timedelta(days=28),
-            end=timezone.now()
-        )
+            end=timezone.now())
 
         time_ranges = []
         for offset in [3, 7, 14, 28]:
             time_ranges.append({
-                'title': 'Last %d days' % (offset),
-                'walking_suggestion_summary': DashboardParticipant.summaries.summarize_walking_suggestions(
+                'title':
+                'Last %d days' % (offset),
+                'walking_suggestion_summary':
+                DashboardParticipant.summaries.summarize_walking_suggestions(
                     users=users,
                     end=timezone.now(),
                     start=timezone.now() - timedelta(days=offset),
-                    decisions=walking_suggestion_decisions
-                ),
-                'anti_sedentary_suggestion_summary': DashboardParticipant.summaries.summarize_anti_sedentary_suggestions(
+                    decisions=walking_suggestion_decisions),
+                'anti_sedentary_suggestion_summary':
+                DashboardParticipant.summaries.
+                summarize_anti_sedentary_suggestions(
                     users=users,
                     end=timezone.now(),
                     start=timezone.now() - timedelta(days=offset),
-                    decisions=anti_sedentary_decisions
-                ),
-                'watch_app_availability_summary': DashboardParticipant.watch_app_step_counts.summary(
+                    decisions=anti_sedentary_decisions),
+                'watch_app_availability_summary':
+                DashboardParticipant.watch_app_step_counts.summary(
                     users=users,
                     start=timezone.now() - timedelta(days=offset),
-                    end=timezone.now()
-                )
+                    end=timezone.now())
             })
 
         context['time_ranges'] = time_ranges
@@ -612,8 +619,10 @@ class DownloadView(CohortView):
             for _filename in categories:
                 if _participant.user:
                     username = _participant.user.username
-                    if username in export_summaries_by_username and _filename in export_summaries_by_username[username]:
-                        summary = export_summaries_by_username[username][_filename]
+                    if username in export_summaries_by_username and _filename in export_summaries_by_username[
+                            username]:
+                        summary = export_summaries_by_username[username][
+                            _filename]
                         last_updated = None
                         duration = None
                         error = None
@@ -641,7 +650,8 @@ class DownloadView(CohortView):
                             if export.error_message:
                                 total_errors += 1
                                 export_types[export.export_type]['errors'] += 1
-                            if export.start > timezone.now() - timedelta(days=3):
+                            if export.start > timezone.now() - timedelta(
+                                    days=3):
                                 export_types[export.export_type]['recent'] += 1
                 else:
                     exports.append(None)
@@ -675,20 +685,13 @@ class DownloadView(CohortView):
         users = [p.user for p in participants if p.user]
         export_count = 0
         for user in users:
-            DataExportQueue.objects.create(
-                user=user
-            )
+            DataExportQueue.objects.create(user=user)
             export_count += 1
         messages.add_message(request, messages.SUCCESS,
                              'Queued %d data exports' % (export_count))
         return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-download',
-                kwargs={
-                    'cohort_id': self.cohort.id
-                }
-            )
-        )
+            reverse('dashboard-cohort-download',
+                    kwargs={'cohort_id': self.cohort.id}))
 
 
 class DataSummaryView(CohortView):
@@ -701,16 +704,17 @@ class DataSummaryView(CohortView):
         fitbit_data_by_username = {}
         fitbit_authorized_by_username = {}
         account_users = FitbitAccountUser.objects.filter(
-            user__in=users
-        ).prefetch_related('user').prefetch_related('account').all()
+            user__in=users).prefetch_related('user').prefetch_related(
+                'account').all()
         username_by_fitbit_account = {}
         for au in account_users:
-            username_by_fitbit_account[au.account.fitbit_user] = au.user.username
-            fitbit_authorized_by_username[au.user.username] = au.account.authorized
+            username_by_fitbit_account[
+                au.account.fitbit_user] = au.user.username
+            fitbit_authorized_by_username[
+                au.user.username] = au.account.authorized
         fitbit_days = FitbitDay.objects.filter(
             account__fitbit_user__in=username_by_fitbit_account.keys(),
-            date__lte=date.today()
-        ).prefetch_related('account').all()
+            date__lte=date.today()).prefetch_related('account').all()
         for _day in fitbit_days:
             _username = username_by_fitbit_account[_day.account.fitbit_user]
             if _username not in fitbit_data_by_username:
@@ -725,22 +729,27 @@ class DataSummaryView(CohortView):
             if _day.completely_updated:
                 fitbit_data_by_username[_username]['total_days_complete'] += 1
         fitbit_devices = FitbitDevice.objects.filter(
-            account__fitbit_user__in=username_by_fitbit_account.keys()
-        ).prefetch_related('account').all()
+            account__fitbit_user__in=username_by_fitbit_account.keys(
+            )).prefetch_related('account').all()
         for _fitbit_device in fitbit_devices:
-            _username = username_by_fitbit_account[_fitbit_device.account.fitbit_user]
+            _username = username_by_fitbit_account[
+                _fitbit_device.account.fitbit_user]
             last_updated = _fitbit_device.last_updated
             if 'last_device_update' in fitbit_data_by_username[_username]:
-                if last_updated > fitbit_data_by_username[_username]['last_device_update']:
-                    fitbit_data_by_username[_username]['last_device_update'] = last_updated
+                if last_updated > fitbit_data_by_username[_username][
+                        'last_device_update']:
+                    fitbit_data_by_username[_username][
+                        'last_device_update'] = last_updated
             else:
-                fitbit_data_by_username[_username]['last_device_update'] = last_updated
+                fitbit_data_by_username[_username][
+                    'last_device_update'] = last_updated
         walking_suggestion_last_updated_by_username = {}
         nightly_updates = WalkingSuggestionNightlyUpdate.objects.filter(
             user__in=users).prefetch_related('user').all()
         for _update in nightly_updates:
             _username = _update.user.username
-            walking_suggestion_last_updated_by_username[_username] = _update.day
+            walking_suggestion_last_updated_by_username[
+                _username] = _update.day
 
         recently_updated_date = date.today() - timedelta(days=4)
         recently_updated_walking_suggestions_count = 0
@@ -762,22 +771,29 @@ class DataSummaryView(CohortView):
             fitbit_days_worn = 0
             fitbit_days_complete = 0
             if username and username in fitbit_data_by_username:
-                fitbit_days_total = fitbit_data_by_username[username]['total_days']
-                fitbit_days_worn = fitbit_data_by_username[username]['total_days_worn']
-                fitbit_days_complete = fitbit_data_by_username[username]['total_days_complete']
+                fitbit_days_total = fitbit_data_by_username[username][
+                    'total_days']
+                fitbit_days_worn = fitbit_data_by_username[username][
+                    'total_days_worn']
+                fitbit_days_complete = fitbit_data_by_username[username][
+                    'total_days_complete']
             last_walking_suggestion_update = "None"
             if username and username in walking_suggestion_last_updated_by_username:
-                last_walking_suggestion_update = walking_suggestion_last_updated_by_username[username].strftime(
-                    '%Y-%m-%d')
+                last_walking_suggestion_update = walking_suggestion_last_updated_by_username[
+                    username].strftime('%Y-%m-%d')
             if username and username in walking_suggestion_last_updated_by_username:
-                if recently_updated_date <= walking_suggestion_last_updated_by_username[username]:
+                if recently_updated_date <= walking_suggestion_last_updated_by_username[
+                        username]:
                     recently_updated_walking_suggestions_count += 1
             fitbit_last_updated = None
-            if username and username in fitbit_data_by_username and 'last_device_update' in fitbit_data_by_username[username]:
-                last_update = fitbit_data_by_username[username]['last_device_update']
+            if username and username in fitbit_data_by_username and 'last_device_update' in fitbit_data_by_username[
+                    username]:
+                last_update = fitbit_data_by_username[username][
+                    'last_device_update']
                 try:
-                    _last_fitbit_update_date = date(
-                        last_update.year, last_update.month, last_update.day)
+                    _last_fitbit_update_date = date(last_update.year,
+                                                    last_update.month,
+                                                    last_update.day)
                     fitbit_last_updated = _last_fitbit_update_date.strftime(
                         '%Y-%m-%d')
                     if recently_updated_date <= _last_fitbit_update_date:
@@ -791,21 +807,31 @@ class DataSummaryView(CohortView):
                 else:
                     fitbit_authorized = 'Unauthorized'
             serialized_participants.append({
-                'heartsteps_id': _participant.heartsteps_id,
-                'status': status,
-                'study_start': study_start_date,
-                'fitbit_days_total': fitbit_days_total,
-                'fitbit_days_worn': fitbit_days_worn,
-                'fitbit_days_complete': fitbit_days_complete,
-                'last_walking_suggestion_update': last_walking_suggestion_update,
-                'fitbit_last_updated': fitbit_last_updated,
-                'fitbit_authorized': fitbit_authorized
+                'heartsteps_id':
+                _participant.heartsteps_id,
+                'status':
+                status,
+                'study_start':
+                study_start_date,
+                'fitbit_days_total':
+                fitbit_days_total,
+                'fitbit_days_worn':
+                fitbit_days_worn,
+                'fitbit_days_complete':
+                fitbit_days_complete,
+                'last_walking_suggestion_update':
+                last_walking_suggestion_update,
+                'fitbit_last_updated':
+                fitbit_last_updated,
+                'fitbit_authorized':
+                fitbit_authorized
             })
 
         context['participants'] = serialized_participants
         context['total_participants'] = len(serialized_participants)
         context['recently_updated_fitbit'] = recently_updated_fitbit_data
-        context['recently_updated_walking_suggestion_service'] = recently_updated_walking_suggestions_count
+        context[
+            'recently_updated_walking_suggestion_service'] = recently_updated_walking_suggestions_count
         return context
 
 
@@ -834,28 +860,35 @@ class CloseoutSummaryView(CohortView):
         contact_number_by_username = {}
         username_by_contact_number = {}
         for _contact in contacts:
-            contact_number_by_username[_contact.user.username] = _contact.number
-            username_by_contact_number[_contact.number] = _contact.user.username
+            contact_number_by_username[
+                _contact.user.username] = _contact.number
+            username_by_contact_number[
+                _contact.number] = _contact.user.username
         sms_message_query = None
         for _configuration in [_c for _c in configurations if _c.message]:
             if _configuration.user.username in contact_number_by_username:
-                number = contact_number_by_username[_configuration.user.username]
+                number = contact_number_by_username[
+                    _configuration.user.username]
                 if not sms_message_query:
                     sms_message_query = models.Q(
-                        sender=number, created__gt=_configuration.message.created)
+                        sender=number,
+                        created__gt=_configuration.message.created)
                 else:
                     sms_message_query = sms_message_query | models.Q(
-                        sender=number, created__gt=_configuration.message.created)
+                        sender=number,
+                        created__gt=_configuration.message.created)
         usernames_that_responded = []
         if sms_message_query:
-            for _sms_message in SMSMessage.objects.filter(sms_message_query).all():
+            for _sms_message in SMSMessage.objects.filter(
+                    sms_message_query).all():
                 username = username_by_contact_number[_sms_message.sender]
                 if username not in usernames_that_responded:
                     usernames_that_responded.append(username)
 
         list_items = []
         for _configuration in configurations.all():
-            _participant = participants_by_username[_configuration.user.username]
+            _participant = participants_by_username[
+                _configuration.user.username]
             end_date = _configuration.closeout_date
             message_sent_date = False
             if _configuration.message:
@@ -865,12 +898,18 @@ class CloseoutSummaryView(CohortView):
             if _participant.enabled:
                 status = "Active"
             list_items.append({
-                'heartsteps_id': _participant.heartsteps_id,
-                'status': status,
-                'study_start': _participant.study_start_date.strftime('%Y-%m-%d'),
-                'study_end': end_date.strftime('%Y-%m-%d'),
-                'message_sent_date': message_sent_date,
-                'participant_responded': _configuration.user.username in usernames_that_responded
+                'heartsteps_id':
+                _participant.heartsteps_id,
+                'status':
+                status,
+                'study_start':
+                _participant.study_start_date.strftime('%Y-%m-%d'),
+                'study_end':
+                end_date.strftime('%Y-%m-%d'),
+                'message_sent_date':
+                message_sent_date,
+                'participant_responded':
+                _configuration.user.username in usernames_that_responded
             })
         context['participants'] = list_items
         return context
@@ -883,9 +922,7 @@ class MessagesReceivedView(CohortView):
         context = super().get_context_data()
         participants = self.query_participants()
         users = [p.user for p in participants if p.user]
-        contacts = SMSContact.objects.filter(
-            user__in=users
-        ).all()
+        contacts = SMSContact.objects.filter(user__in=users).all()
         numbers = [c.number for c in contacts if c.number]
 
         messages = []
@@ -951,64 +988,71 @@ class ParticipantView(CohortView):
         context['participant'] = self.participant
 
         adherence_messages_enabled = AdherenceMessageConfiguration.objects.filter(
-            user=self.participant.user,
-            enabled=True
-        ).count()
+            user=self.participant.user, enabled=True).count()
 
         context['fitbit_authorized'] = self.participant.fitbit_authorized
         context['fitbit_last_updated'] = self.participant.fitbit_last_updated
 
-        context['configurations'] = [
-            {
-                'title': 'Adherence Message',
-                'enabled': adherence_messages_enabled,
-                'url': reverse(
-                    'dashboard-cohort-participant-adherence-messages',
+        context['configurations'] = [{
+            'title':
+            'Adherence Message',
+            'enabled':
+            adherence_messages_enabled,
+            'url':
+            reverse('dashboard-cohort-participant-adherence-messages',
                     kwargs={
                         'cohort_id': self.cohort.id,
                         'participant_id': self.participant.heartsteps_id
-                    }
-                )
-            },
-            {
-                'title': 'Anti-Sedentary Suggestions',
-                'enabled': self.participant.anti_sedentary_suggestions_enabled
-            },
-            {
-                'title': 'Walking Suggestions',
-                'enabled': self.participant.walking_suggestions_enabled
-            },
-            {
-                'title': 'Morning Messages',
-                'enabled': self.participant.morning_messages_enabled
-            }
-        ]
+                    })
+        }, {
+            'title':
+            'Anti-Sedentary Suggestions',
+            'enabled':
+            self.participant.anti_sedentary_suggestions_enabled
+        }, {
+            'title':
+            'Walking Suggestions',
+            'enabled':
+            self.participant.walking_suggestions_enabled
+        }, {
+            'title':
+            'Morning Messages',
+            'enabled':
+            self.participant.morning_messages_enabled
+        }]
 
         _config = self.participant.activity_survey_configuration
         context['configurations'].append({
-            'title': 'Activity Surveys',
-            'enabled': _config.enabled if _config else None,
-            'treatment_probability': _config.treatment_probability if _config else None
+            'title':
+            'Activity Surveys',
+            'enabled':
+            _config.enabled if _config else None,
+            'treatment_probability':
+            _config.treatment_probability if _config else None
         })
 
         _config = self.participant.walking_suggestion_survey_configuration
         context['configurations'].append({
-            'title': 'Walking Suggestion Surveys',
-            'enabled': _config.enabled if _config else None,
-            'treatment_probability': _config.treatment_probability if _config else None
+            'title':
+            'Walking Suggestion Surveys',
+            'enabled':
+            _config.enabled if _config else None,
+            'treatment_probability':
+            _config.treatment_probability if _config else None
         })
 
         burst_period_actions = []
         burst_period_actions.append({
-            'name': 'Disable' if self.participant.burst_period_enabled else 'Enable',
-            'value': 'disable' if self.participant.burst_period_enabled else 'enable',
-            'url': reverse(
-                'dashboard-cohort-participant-burst-period-configuration',
-                kwargs={
-                    'cohort_id': self.cohort.id,
-                    'participant_id': self.participant.heartsteps_id
-                }
-            )
+            'name':
+            'Disable' if self.participant.burst_period_enabled else 'Enable',
+            'value':
+            'disable' if self.participant.burst_period_enabled else 'enable',
+            'url':
+            reverse('dashboard-cohort-participant-burst-period-configuration',
+                    kwargs={
+                        'cohort_id': self.cohort.id,
+                        'participant_id': self.participant.heartsteps_id
+                    })
         })
 
         context['configurations'].append({
@@ -1057,9 +1101,7 @@ class ParticipantBurstPeriodConfigurationView(ParticipantView):
         if 'create' in request.POST:
             if config:
                 config.delete()
-            BurstPeriodConfiguration.objects.create(
-                user=self.participant.user
-            )
+            BurstPeriodConfiguration.objects.create(user=self.participant.user)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -1072,17 +1114,15 @@ class ParticipantActivitySummaryView(ParticipantView):
         dates.sort()
         account = None
         try:
-            au = FitbitAccountUser.objects.prefetch_related(
-                'account').get(user=self.participant.user)
+            au = FitbitAccountUser.objects.prefetch_related('account').get(
+                user=self.participant.user)
             account = au.account
         except FitbitAccountUser.DoesNotExist:
             pass
         fitbit_activity_by_date = {}
         if account:
-            fitbit_days = FitbitDay.objects.filter(
-                account=account,
-                date__in=dates
-            ).all()
+            fitbit_days = FitbitDay.objects.filter(account=account,
+                                                   date__in=dates).all()
             for _fitbit_day in fitbit_days:
                 fitbit_activity_by_date[_fitbit_day.date] = {
                     'wore_fitbit': _fitbit_day.wore_fitbit,
@@ -1092,14 +1132,14 @@ class ParticipantActivitySummaryView(ParticipantView):
         watch_app_updates_by_date = {}
         watch_app_step_counts = WatchAppStepCount.objects.filter(
             user=self.participant.user,
-            created__gte=timezone.now() - timedelta(days=14)
-        ).order_by('created').all()
+            created__gte=timezone.now() -
+            timedelta(days=14)).order_by('created').all()
         watch_app_step_counts = list(watch_app_step_counts)
         if account:
             fitbit_account_updates = FitbitAccountUpdate.objects.filter(
                 account=account,
-                created__gte=timezone.now() - timedelta(days=14)
-            ).order_by('created').all()
+                created__gte=timezone.now() -
+                timedelta(days=14)).order_by('created').all()
             fitbit_account_updates = list(fitbit_account_updates)
         else:
             fitbit_account_updates = []
@@ -1107,27 +1147,31 @@ class ParticipantActivitySummaryView(ParticipantView):
         for _date in dates:
             watch_app_record_count = 0
             end_datetime = datetime(
-                _date.year, _date.month, _date.day, tzinfo=pytz.UTC) + timedelta(days=1)
-            while len(watch_app_step_counts) and watch_app_step_counts[0].created < end_datetime:
+                _date.year, _date.month, _date.day,
+                tzinfo=pytz.UTC) + timedelta(days=1)
+            while len(watch_app_step_counts
+                      ) and watch_app_step_counts[0].created < end_datetime:
                 watch_app_record_count += 1
                 _step_count = watch_app_step_counts.pop(0)
             watch_app_updates_by_date[_date] = watch_app_record_count
             fitbit_update_count = 0
-            while len(fitbit_account_updates) and fitbit_account_updates[0].created < end_datetime:
+            while len(fitbit_account_updates
+                      ) and fitbit_account_updates[0].created < end_datetime:
                 fitbit_update_count += 1
                 fitbit_account_updates.pop(0)
             fitbit_account_updates_by_date[_date] = fitbit_update_count
         serialized_days = []
         for _date in sorted(dates):
-            _serialized = {
-                'date': _date.strftime('%Y-%m-%d')
-            }
+            _serialized = {'date': _date.strftime('%Y-%m-%d')}
             if _date in fitbit_activity_by_date:
                 _serialized.update(fitbit_activity_by_date[_date])
             if _date in watch_app_updates_by_date:
-                _serialized['watch_app_step_counts'] = watch_app_updates_by_date[_date]
+                _serialized[
+                    'watch_app_step_counts'] = watch_app_updates_by_date[_date]
             if _date in fitbit_account_updates_by_date:
-                _serialized['fitbit_account_updates'] = fitbit_account_updates_by_date[_date]
+                _serialized[
+                    'fitbit_account_updates'] = fitbit_account_updates_by_date[
+                        _date]
             serialized_days.append(_serialized)
         serialized_days.reverse()
         context['days'] = serialized_days
@@ -1147,35 +1191,35 @@ class ParticipantInterventionSummaryView(ParticipantView):
         anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
             users=users,
             start=timezone.now() - timedelta(days=28),
-            end=timezone.now()
-        )
+            end=timezone.now())
         walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
             users=users,
             start=timezone.now() - timedelta(days=28),
-            end=timezone.now()
-        )
+            end=timezone.now())
 
         time_ranges = []
         for offset in [3, 7, 14, 28]:
             time_ranges.append({
-                'title': 'Last %d days' % (offset),
-                'walking_suggestion_summary': DashboardParticipant.summaries.summarize_walking_suggestions(
+                'title':
+                'Last %d days' % (offset),
+                'walking_suggestion_summary':
+                DashboardParticipant.summaries.summarize_walking_suggestions(
                     users=users,
                     end=timezone.now(),
                     start=timezone.now() - timedelta(days=offset),
-                    decisions=walking_suggestion_decisions
-                ),
-                'anti_sedentary_suggestion_summary': DashboardParticipant.summaries.summarize_anti_sedentary_suggestions(
+                    decisions=walking_suggestion_decisions),
+                'anti_sedentary_suggestion_summary':
+                DashboardParticipant.summaries.
+                summarize_anti_sedentary_suggestions(
                     users=users,
                     end=timezone.now(),
                     start=timezone.now() - timedelta(days=offset),
-                    decisions=anti_sedentary_decisions
-                ),
-                'watch_app_availability_summary': DashboardParticipant.watch_app_step_counts.summary(
+                    decisions=anti_sedentary_decisions),
+                'watch_app_availability_summary':
+                DashboardParticipant.watch_app_step_counts.summary(
                     users=users,
                     start=timezone.now() - timedelta(days=offset),
-                    end=timezone.now()
-                )
+                    end=timezone.now())
             })
 
         context['time_ranges'] = time_ranges
@@ -1193,33 +1237,26 @@ class ParticipantEditView(ParticipantView):
                 'heartsteps_id': self.participant.heartsteps_id,
                 'enrollment_token': self.participant.enrollment_token,
                 'birth_year': self.participant.birth_year
-            }
-        )
+            })
         return context
 
     def post(self, request, *args, **kwargs):
         form = ParticipantEditForm(request.POST, instance=self.participant)
         if form.is_valid():
             form.save()
-            messages.add_message(request, messages.SUCCESS, 'Updated participant %s' % (
-                self.participant.heartsteps_id))
+            messages.add_message(
+                request, messages.SUCCESS,
+                'Updated participant %s' % (self.participant.heartsteps_id))
             return HttpResponseRedirect(
-                reverse(
-                    'dashboard-cohort-participant',
-                    kwargs={
-                        'cohort_id': self.cohort.id,
-                        'participant_id': self.participant.heartsteps_id
-                    }
-                )
-            )
+                reverse('dashboard-cohort-participant',
+                        kwargs={
+                            'cohort_id': self.cohort.id,
+                            'participant_id': self.participant.heartsteps_id
+                        }))
         else:
             context = self.get_context_data(**kwargs)
             context['form'] = form
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context
-            )
+            return TemplateResponse(request, self.template_name, context)
 
 
 class ParticipantCreateView(CohortView):
@@ -1236,24 +1273,16 @@ class ParticipantCreateView(CohortView):
             participant = form.save()
             participant.cohort = self.cohort
             participant.save()
-            messages.add_message(request, messages.SUCCESS, 'Created participant %s' % (
-                participant.heartsteps_id))
+            messages.add_message(
+                request, messages.SUCCESS,
+                'Created participant %s' % (participant.heartsteps_id))
             return HttpResponseRedirect(
-                reverse(
-                    'dashboard-cohort-participants',
-                    kwargs={
-                        'cohort_id': self.cohort.id
-                    }
-                )
-            )
+                reverse('dashboard-cohort-participants',
+                        kwargs={'cohort_id': self.cohort.id}))
         else:
             context = self.get_context_data(**kwargs)
             context['form'] = form
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context
-            )
+            return TemplateResponse(request, self.template_name, context)
 
 
 class FeatureFlagView(CohortView):
@@ -1273,26 +1302,25 @@ class FeatureFlagView(CohortView):
         context['participants'] = participants
 
         context['study_form'] = StudyFeatureFlagEditForm(initial={
-            'studywide_feature_flags': self.cohort.study.studywide_feature_flags
+            'studywide_feature_flags':
+            self.cohort.study.studywide_feature_flags
         })
 
         # TODO: change initial value
-        context['participant_form'] = ParticipantFeatureFlagEditForm(initial={
-            'flags': ""
-        })
+        context['participant_form'] = ParticipantFeatureFlagEditForm(
+            initial={'flags': ""})
 
-        context['cohort_form'] = CohortFeatureFlagEditForm(initial={
-            'cohort_feature_flags': self.cohort.cohort_feature_flags
-        })
+        context['cohort_form'] = CohortFeatureFlagEditForm(
+            initial={'cohort_feature_flags': self.cohort.cohort_feature_flags})
 
         return context
 
     def post(self, request, *args, **kwargs):
-        study_form = StudyFeatureFlagEditForm(
-            request.POST, instance=self.cohort.study)
+        study_form = StudyFeatureFlagEditForm(request.POST,
+                                              instance=self.cohort.study)
 
-        cohort_form = CohortFeatureFlagEditForm(
-            request.POST, instance=self.cohort)
+        cohort_form = CohortFeatureFlagEditForm(request.POST,
+                                                instance=self.cohort)
 
         # TODO: add custom validation
         study_form_valid = study_form.is_valid()
@@ -1304,25 +1332,17 @@ class FeatureFlagView(CohortView):
             cohort_form.study = self.cohort.study
             cohort_form.save()
 
-            messages.add_message(request, messages.SUCCESS, 'Updated feature flags for study: %s' % (
-                self.cohort.study))
+            messages.add_message(
+                request, messages.SUCCESS,
+                'Updated feature flags for study: %s' % (self.cohort.study))
             return HttpResponseRedirect(
-                reverse(
-                    'dashboard-cohort-participants',
-                    kwargs={
-                        'cohort_id': self.cohort.id
-                    }
-                )
-            )
+                reverse('dashboard-cohort-participants',
+                        kwargs={'cohort_id': self.cohort.id}))
         else:
             context = self.get_context_data(**kwargs)
             context['study_form'] = study_form
             context['cohort_form'] = cohort_form
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context
-            )
+            return TemplateResponse(request, self.template_name, context)
 
 
 class ParticipantNotificationsView(ParticipantView):
@@ -1348,8 +1368,7 @@ class ParticipantNotificationsView(ParticipantView):
         context['notifications'] = self.get_notifications(
             user=self.participant.user,
             start=timezone.now() - timedelta(days=7),
-            end=timezone.now()
-        )
+            end=timezone.now())
         return context
 
     def post(self, request, *args, **kwargs):
@@ -1357,41 +1376,56 @@ class ParticipantNotificationsView(ParticipantView):
             print("request.POST['{}']: {}".format(k, v))
 
         if 'message' in request.POST and request.POST['message'] is not '':
-            if 'module' in request.POST and request.POST['module'] == 'generic_messages':
+            if 'module' in request.POST and request.POST[
+                    'module'] == 'generic_messages':
                 generic_messages_service = GenericMessagesService.create_service(
                     username=self.participant.user.username)
                 sent_message = generic_messages_service.send_message(
-                    "test intervention", "Notification.GenericMessagesTest", "Sample Title", "Sample Body", True)
+                    "test intervention", "Notification.GenericMessagesTest",
+                    "Sample Title", "Sample Body", True)
                 messages.add_message(
-                    request, messages.SUCCESS, 'Message sent using generic_messages: /notification/{}'.format(sent_message.data["messageId"]))
+                    request, messages.SUCCESS,
+                    'Message sent using generic_messages: /notification/{}'.
+                    format(sent_message.data["messageId"]))
             else:
                 try:
                     self.user = self.participant.user
-                    EventLog.debug(self.user, "ParticipantNotificationsView.post():1")
+                    EventLog.debug(self.user,
+                                   "ParticipantNotificationsView.post():1")
                     service = PushMessageService(
                         username=self.participant.heartsteps_id)
-                    EventLog.debug(self.user, "ParticipantNotificationsView.post():2:{}".format(service))
-                    EventLog.debug(self.user, "ParticipantNotificationsView.post():3:{}".format(request.POST['message']))
+                    EventLog.debug(
+                        self.user,
+                        "ParticipantNotificationsView.post():2:{}".format(
+                            service))
+                    EventLog.debug(
+                        self.user,
+                        "ParticipantNotificationsView.post():3:{}".format(
+                            request.POST['message']))
                     sent_message = service.send_notification(
                         request.POST['message'])
-                    EventLog.debug(self.user, "ParticipantNotificationsView.post():4:{}".format(sent_message))
+                    EventLog.debug(
+                        self.user,
+                        "ParticipantNotificationsView.post():4:{}".format(
+                            sent_message))
                     messages.add_message(
-                        request, messages.SUCCESS, 'Message sent: /notification/{}'.format(sent_message.data["messageId"]))
+                        request, messages.SUCCESS,
+                        'Message sent: /notification/{}'.format(
+                            sent_message.data["messageId"]))
                 except Exception as e:
-                    EventLog.debug(self.user, "ParticipantNotificationsView.post():e1:{}".format(e))
-                    messages.add_message(
-                        request, messages.ERROR, 'Could not send message')
+                    EventLog.debug(
+                        self.user,
+                        "ParticipantNotificationsView.post():e1:{}".format(e))
+                    messages.add_message(request, messages.ERROR,
+                                         'Could not send message')
         else:
             messages.add_message(request, messages.ERROR, 'No message to send')
         return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs={
-                    'participant_id': self.participant.heartsteps_id,
-                    'cohort_id': self.cohort.id
-                }
-            )
-        )
+            reverse('dashboard-cohort-participant',
+                    kwargs={
+                        'participant_id': self.participant.heartsteps_id,
+                        'cohort_id': self.cohort.id
+                    }))
 
 
 class ParticipantNotificationDetailView(ParticipantView):
@@ -1408,8 +1442,8 @@ class ParticipantNotificationDetailView(ParticipantView):
         try:
             self.notification = PushMessage.objects.get(
                 id=self.kwargs['notification_id'],
-                recipient=self.participant.user if self.participant.user else None
-            )
+                recipient=self.participant.user
+                if self.participant.user else None)
         except PushMessage.DoesNotExist:
             raise Http404('Notification does not exist')
 
@@ -1464,11 +1498,7 @@ class ParticipantSMSMessagesView(ParticipantView):
             service.send(body)
         context = self.get_context_data()
         context['form'] = form
-        return TemplateResponse(
-            request,
-            self.template_name,
-            context
-        )
+        return TemplateResponse(request, self.template_name, context)
 
 
 class ParticipantPageViews(ParticipantView):
@@ -1508,28 +1538,17 @@ class ParticipantFeatureToggleView(ParticipantView):
 
     def redirect(self, request):
         return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs={
-                    'participant_id': self.participant.heartsteps_id,
-                    'cohort_id': self.cohort.id
-                }
-            )
-        )
+            reverse('dashboard-cohort-participant',
+                    kwargs={
+                        'participant_id': self.participant.heartsteps_id,
+                        'cohort_id': self.cohort.id
+                    }))
 
     def add_success_message(self, request, message):
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            message
-        )
+        messages.add_message(request, messages.SUCCESS, message)
 
     def add_error_message(self, request, message):
-        messages.add_message(
-            request,
-            messages.ERROR,
-            message
-        )
+        messages.add_message(request, messages.ERROR, message)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1543,14 +1562,12 @@ class ParticipantFeatureToggleView(ParticipantView):
 
 
 class ParticipantToggleAdherenceMessagesView(ParticipantFeatureToggleView):
-
     def is_configuration_enabled(self):
         if not self.participant.user:
             return False
         try:
             configuration = AdherenceMessageConfiguration.objects.get(
-                user=self.participant.user
-            )
+                user=self.participant.user)
             return configuration.enabled
         except AdherenceMessageConfiguration.DoesNotExist:
             return False
@@ -1571,15 +1588,13 @@ class ParticipantToggleAdherenceMessagesView(ParticipantFeatureToggleView):
             return self.redirect(request)
         if self.is_configuration_enabled():
             config = AdherenceMessageConfiguration.objects.get(
-                user=self.participant.user
-            )
+                user=self.participant.user)
             config.enabled = False
             config.save()
             self.add_success_message(request, 'Disabled adherence messages')
         else:
             config, _ = AdherenceMessageConfiguration.objects.get_or_create(
-                user=self.participant.user
-            )
+                user=self.participant.user)
             config.enabled = True
             config.save()
             self.add_success_message(request, 'Disabled adherence messages')
@@ -1587,7 +1602,6 @@ class ParticipantToggleAdherenceMessagesView(ParticipantFeatureToggleView):
 
 
 class ParticipantDisableFitbitAccountView(ParticipantFeatureToggleView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['title'] = 'Disable Fitbit Account'
@@ -1604,7 +1618,6 @@ class ParticipantDisableFitbitAccountView(ParticipantFeatureToggleView):
 
 
 class ParticipantArchiveView(ParticipantFeatureToggleView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['title'] = 'Archive %s' % (self.participant.heartsteps_id)
@@ -1619,7 +1632,6 @@ class ParticipantArchiveView(ParticipantFeatureToggleView):
 
 
 class ParticipantUnarchiveView(ParticipantFeatureToggleView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['title'] = 'Unarchive %s' % (self.participant.heartsteps_id)
@@ -1634,7 +1646,6 @@ class ParticipantUnarchiveView(ParticipantFeatureToggleView):
 
 
 class ParticipantDisableView(ParticipantFeatureToggleView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['title'] = 'Disable %s' % (self.participant.heartsteps_id)
@@ -1642,17 +1653,14 @@ class ParticipantDisableView(ParticipantFeatureToggleView):
         return context
 
     def post(self, request, *args, **kwargs):
-        service = ParticipantService(
-            participant=self.participant
-        )
+        service = ParticipantService(participant=self.participant)
         service.disable()
-        self.add_success_message(request, 'Disabled %s' %
-                                 (self.participant.user.username))
+        self.add_success_message(
+            request, 'Disabled %s' % (self.participant.user.username))
         return self.redirect(request)
 
 
 class ParticipantEnableView(ParticipantFeatureToggleView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['title'] = 'Enable %s' % (self.participant.heartsteps_id)
@@ -1660,14 +1668,10 @@ class ParticipantEnableView(ParticipantFeatureToggleView):
         return context
 
     def post(self, request, *args, **kwargs):
-        service = ParticipantService(
-            participant=self.participant
-        )
+        service = ParticipantService(participant=self.participant)
         service.enable()
         self.add_success_message(
-            request,
-            'Enabled %s' % (self.participant.user.username)
-        )
+            request, 'Enabled %s' % (self.participant.user.username))
         return self.redirect(request)
 
 
@@ -1679,9 +1683,7 @@ class ParticipantAdherenceView(ParticipantView):
         context = super().get_context_data(**kwargs)
 
         adherence_summaries = self.participant.get_adherence_during(
-            start=date.today() - timedelta(days=14),
-            end=date.today()
-        )
+            start=date.today() - timedelta(days=14), end=date.today())
         metric_names = []
         metric_categories = []
         for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
@@ -1703,24 +1705,23 @@ class ParticipantAdherenceView(ParticipantView):
 
 
 class ParticipantSendTestWalkingSuggestionSurvey(ParticipantView):
-
     def post(self, request, *args, **kwargs):
         if self.participant.user:
             try:
                 configuration = WalkingSuggestionSurveyConfiguration.objects.get(
-                    user=self.participant.user
-                )
+                    user=self.participant.user)
                 survey = configuration.create_survey()
                 try:
                     survey.send_notification()
-                    messages.add_message(
-                        request, messages.SUCCESS, 'Survey sent')
+                    messages.add_message(request, messages.SUCCESS,
+                                         'Survey sent')
                 except survey.NotificationSendError:
-                    messages.add_message(
-                        request, messages.ERROR, 'Could not send survey')
+                    messages.add_message(request, messages.ERROR,
+                                         'Could not send survey')
             except WalkingSuggestionSurveyConfiguration.DoesNotExist:
                 messages.add_message(
-                    request, messages.ERROR, 'Walking suggestion configuration does not exist')
+                    request, messages.ERROR,
+                    'Walking suggestion configuration does not exist')
         else:
             messages.add_message(request, messages.ERROR, 'Not enabled')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -1734,8 +1735,10 @@ class CohortAddStudyTypeView(CohortView):
         if self.cohort.id:
             study_type_service = StudyTypeService("NLM", user=request.user)
             study_type_service.assign_cohort(self.cohort)
-            messages.add_message(request, messages.SUCCESS, 'cohort is flagged as "NLM" cohort: cohort_id={}, cohort_name={}'.format(
-                self.cohort.id, self.cohort.name))
+            messages.add_message(
+                request, messages.SUCCESS,
+                'cohort is flagged as "NLM" cohort: cohort_id={}, cohort_name={}'
+                .format(self.cohort.id, self.cohort.name))
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -1758,21 +1761,19 @@ class CohortWalkingSuggestionSurveyView(CohortView):
             end_datetime = datetime.now()
 
         time_difference = end_datetime - start_datetime
-        dates = [end_datetime.date() - timedelta(days=offset)
-                 for offset in range(time_difference.days + 1)]
+        dates = [
+            end_datetime.date() - timedelta(days=offset)
+            for offset in range(time_difference.days + 1)
+        ]
         dates.sort()
-        start_datetime = datetime(
-            dates[0].year,
-            dates[0].month,
-            dates[0].day,
-            tzinfo=pytz.timezone('America/Los_Angeles')
-        )
+        start_datetime = datetime(dates[0].year,
+                                  dates[0].month,
+                                  dates[0].day,
+                                  tzinfo=pytz.timezone('America/Los_Angeles'))
         end_datetime = start_datetime + timedelta(days=len(dates))
 
-        participants = self.query_participants().filter(
-            archived=False,
-            active=True
-        ).all()
+        participants = self.query_participants().filter(archived=False,
+                                                        active=True).all()
         users = [p.user for p in participants if p.user]
 
         summary_by_date = {}
@@ -1789,8 +1790,7 @@ class CohortWalkingSuggestionSurveyView(CohortView):
         decisions = WalkingSuggestionSurveyDecision.objects.filter(
             user__in=users,
             created__gte=start_datetime,
-            created__lte=end_datetime
-        ).all()
+            created__lte=end_datetime).all()
         for decision in decisions:
             decision_date = decision.created.astimezone(
                 pytz.timezone('America/Los_Angeles')).date()
@@ -1799,17 +1799,17 @@ class CohortWalkingSuggestionSurveyView(CohortView):
                 summary_by_date[decision_date]['decisions_to_treat'] += 1
             if decision.user_id not in decisions_by_user_id_by_date:
                 decisions_by_user_id_by_date[decision.user_id] = {}
-            if decision_date not in decisions_by_user_id_by_date[decision.user_id]:
-                decisions_by_user_id_by_date[decision.user_id][decision_date] = [
-                ]
-            decisions_by_user_id_by_date[decision.user_id][decision_date].append(
-                decision)
+            if decision_date not in decisions_by_user_id_by_date[
+                    decision.user_id]:
+                decisions_by_user_id_by_date[
+                    decision.user_id][decision_date] = []
+            decisions_by_user_id_by_date[
+                decision.user_id][decision_date].append(decision)
 
         walking_suggestion_surveys = WalkingSuggestionSurvey.objects.filter(
             user__in=users,
             created__gte=start_datetime,
-            created__lte=end_datetime
-        ).all()
+            created__lte=end_datetime).all()
         walking_suggestion_surveys_by_user_id = {}
         for survey in walking_suggestion_surveys:
             survey_date = survey.created.astimezone(
@@ -1828,8 +1828,7 @@ class CohortWalkingSuggestionSurveyView(CohortView):
             recipient__in=users,
             collapse_subject='walking_suggestion_survey',
             created__gte=start_datetime,
-            created__lte=end_datetime
-        )
+            created__lte=end_datetime)
         for message in messages:
             message_date = message.created.astimezone(
                 pytz.timezone('America/Los_Angeles')).date()
@@ -1846,8 +1845,7 @@ class CohortWalkingSuggestionSurveyView(CohortView):
 
         configurations_by_user_id = {}
         configurations = WalkingSuggestionSurveyConfiguration.objects.filter(
-            user__in=users
-        ).all()
+            user__in=users).all()
         for configuration in configurations:
             configurations_by_user_id[configuration.user_id] = configuration
 
@@ -1856,29 +1854,49 @@ class CohortWalkingSuggestionSurveyView(CohortView):
             serialized_dates = []
             for _date in dates:
                 serialized_decisions = []
-                if participant.user and participant.user.id in decisions_by_user_id_by_date and _date in decisions_by_user_id_by_date[participant.user.id]:
-                    for _decision in decisions_by_user_id_by_date[participant.user.id][_date]:
+                if participant.user and participant.user.id in decisions_by_user_id_by_date and _date in decisions_by_user_id_by_date[
+                        participant.user.id]:
+                    for _decision in decisions_by_user_id_by_date[
+                            participant.user.id][_date]:
                         serialized_decisions.append({
-                            'time': _decision.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S'),
-                            'treatment_probability': _decision.treatment_probability,
-                            'treated': _decision.treated
+                            'time':
+                            _decision.created.astimezone(
+                                pytz.timezone('America/Los_Angeles')).strftime(
+                                    '%H:%M:%S'),
+                            'treatment_probability':
+                            _decision.treatment_probability,
+                            'treated':
+                            _decision.treated
                         })
                 serialized_surveys = []
                 if participant.user and participant.user.id in walking_suggestion_surveys_by_user_id:
-                    for survey in walking_suggestion_surveys_by_user_id[participant.user.id]:
-                        if survey._date.strftime('%Y-%m-%d') != _date.strftime('%Y-%m-%d'):
+                    for survey in walking_suggestion_surveys_by_user_id[
+                            participant.user.id]:
+                        if survey._date.strftime('%Y-%m-%d') != _date.strftime(
+                                '%Y-%m-%d'):
                             continue
                         serialized_surveys.append({
-                            'id': survey.id,
-                            'time': survey.created.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S'),
-                            'answered': survey.answered
+                            'id':
+                            survey.id,
+                            'time':
+                            survey.created.astimezone(
+                                pytz.timezone('America/Los_Angeles')).strftime(
+                                    '%H:%M:%S'),
+                            'answered':
+                            survey.answered
                         })
                 serialized_messages = []
-                if participant.user and participant.user.id in messages_by_user_id_by_date and _date in messages_by_user_id_by_date[participant.user.id]:
-                    for message in messages_by_user_id_by_date[participant.user.id][_date]:
+                if participant.user and participant.user.id in messages_by_user_id_by_date and _date in messages_by_user_id_by_date[
+                        participant.user.id]:
+                    for message in messages_by_user_id_by_date[
+                            participant.user.id][_date]:
                         serialized_messages.append({
-                            'id': str(message.uuid),
-                            'sent': message.sent.astimezone(pytz.timezone('America/Los_Angeles')).strftime('%H:%M:%S') if message.sent else None
+                            'id':
+                            str(message.uuid),
+                            'sent':
+                            message.sent.astimezone(
+                                pytz.timezone('America/Los_Angeles')).strftime(
+                                    '%H:%M:%S') if message.sent else None
                         })
                 serialized_dates.append({
                     'decisions': serialized_decisions,
@@ -1894,8 +1912,7 @@ class CohortWalkingSuggestionSurveyView(CohortView):
                     configured = 'No Treatment Probability'
                 else:
                     configured = 'Treatment Probability: {probability:.0%}'.format(
-                        probability=configuration.treatment_probability
-                    )
+                        probability=configuration.treatment_probability)
             serialized_participants.append({
                 'heartsteps_id': participant.heartsteps_id,
                 'dates': serialized_dates,
@@ -1904,17 +1921,23 @@ class CohortWalkingSuggestionSurveyView(CohortView):
         context['participants'] = serialized_participants
         context['dates'] = [_date.strftime('%Y-%m-%d') for _date in dates]
         context['decisions_by_date'] = [
-            summary_by_date[_date]['decisions'] for _date in dates]
+            summary_by_date[_date]['decisions'] for _date in dates
+        ]
         context['decisions_to_treat_by_date'] = [
-            summary_by_date[_date]['decisions_to_treat'] for _date in dates]
-        context['surveys_by_date'] = [summary_by_date[_date]['surveys']
-                                      for _date in dates]
+            summary_by_date[_date]['decisions_to_treat'] for _date in dates
+        ]
+        context['surveys_by_date'] = [
+            summary_by_date[_date]['surveys'] for _date in dates
+        ]
         context['surveys_answered_by_date'] = [
-            summary_by_date[_date]['surveys_answered'] for _date in dates]
+            summary_by_date[_date]['surveys_answered'] for _date in dates
+        ]
         context['messages_sent_by_date'] = [
-            summary_by_date[_date]['messages_sent'] for _date in dates]
+            summary_by_date[_date]['messages_sent'] for _date in dates
+        ]
         context['messages_opened_by_date'] = [
-            summary_by_date[_date]['messages_opened'] for _date in dates]
+            summary_by_date[_date]['messages_opened'] for _date in dates
+        ]
         return context
 
 
@@ -1925,13 +1948,12 @@ class CohortMorningMessagesView(CohortView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
 
-        last_week = [date.today() - timedelta(days=offset)
-                     for offset in range(7)]
+        last_week = [
+            date.today() - timedelta(days=offset) for offset in range(7)
+        ]
 
-        participants = self.query_participants().filter(
-            archived=False,
-            active=True
-        ).all()
+        participants = self.query_participants().filter(archived=False,
+                                                        active=True).all()
         users = [p.user for p in participants if p.user]
 
         morning_messages = MorningMessage.objects.filter(user__in=users, date__in=last_week) \
@@ -1953,15 +1975,18 @@ class CohortMorningMessagesView(CohortView):
             _user_id = morning_message.user_id
             if _user_id not in morning_messages_by_user_id_by_date:
                 morning_messages_by_user_id_by_date[_user_id] = {}
-            morning_messages_by_user_id_by_date[_user_id][_date] = morning_message
+            morning_messages_by_user_id_by_date[_user_id][
+                _date] = morning_message
             if morning_message.message and morning_message.message.sent:
                 counts_by_date[_date]['sent'] += 1
             if morning_message.message and morning_message.message.opened:
                 counts_by_date[_date]['opened'] += 1
             if morning_message.message and morning_message.survey.answered:
                 counts_by_date[_date]['answered'] += 1
-            if hasattr(morning_message.survey, '_answers') and hasattr(morning_message.survey, '_questions'):
-                if len(morning_message.survey._answers) == len(morning_message.survey._questions):
+            if hasattr(morning_message.survey, '_answers') and hasattr(
+                    morning_message.survey, '_questions'):
+                if len(morning_message.survey._answers) == len(
+                        morning_message.survey._questions):
                     counts_by_date[_date]['answered_fully'] += 1
 
         configurations = MorningMessageConfiguration.objects \
@@ -1973,14 +1998,18 @@ class CohortMorningMessagesView(CohortView):
             configuration_by_user_id[configuration.user_id] = configuration
 
         context['dates'] = [_date.strftime('%Y-%m-%d') for _date in last_week]
-        context['sent_by_date'] = [counts_by_date[_date]['sent']
-                                   for _date in last_week]
-        context['opened_by_date'] = [counts_by_date[_date]['opened']
-                                     for _date in last_week]
-        context['answered_by_date'] = [counts_by_date[_date]['answered']
-                                       for _date in last_week]
+        context['sent_by_date'] = [
+            counts_by_date[_date]['sent'] for _date in last_week
+        ]
+        context['opened_by_date'] = [
+            counts_by_date[_date]['opened'] for _date in last_week
+        ]
+        context['answered_by_date'] = [
+            counts_by_date[_date]['answered'] for _date in last_week
+        ]
         context['answered_fully_by_date'] = [
-            counts_by_date[_date]['answered_fully'] for _date in last_week]
+            counts_by_date[_date]['answered_fully'] for _date in last_week
+        ]
 
         serialized_participants = []
         for participant in participants:
@@ -1998,37 +2027,57 @@ class CohortMorningMessagesView(CohortView):
                 if configuraiton.daily_task:
                     pass
                     if configuraiton.daily_task.task.last_run_at:
-                        serialized_participant['daily_task'] = "Last run at %s" % (
-                            configuraiton.daily_task.task.last_run_at.strftime('%Y-%m-%d %H:%M:%S'))
+                        serialized_participant[
+                            'daily_task'] = "Last run at %s" % (
+                                configuraiton.daily_task.task.last_run_at.
+                                strftime('%Y-%m-%d %H:%M:%S'))
                     else:
                         serialized_participant['daily_task'] = "Never run"
             if participant.user and participant.user.id in morning_messages_by_user_id_by_date:
                 serialized_morning_messages = []
                 for _date in last_week:
-                    if _date in morning_messages_by_user_id_by_date[participant.user.id]:
-                        morning_message = morning_messages_by_user_id_by_date[participant.user.id][_date]
+                    if _date in morning_messages_by_user_id_by_date[
+                            participant.user.id]:
+                        morning_message = morning_messages_by_user_id_by_date[
+                            participant.user.id][_date]
                         survey_answered_fully = None
                         number_of_questions = 0
                         number_of_answers = 0
                         if morning_message.survey:
                             number_of_answers = len(
-                                getattr(morning_message.survey, '_answers', []))
+                                getattr(morning_message.survey, '_answers',
+                                        []))
                             number_of_questions = len(
-                                getattr(morning_message.survey, '_questions', []))
+                                getattr(morning_message.survey, '_questions',
+                                        []))
                             if morning_message.survey.answered and number_of_answers == number_of_questions:
                                 survey_answered_fully = True
                         serialized_morning_messages.append({
-                            'id': morning_message.id if morning_message.survey else None,
-                            'sent': morning_message.message.sent.strftime('%Y-%m-%d %H:%M:%S') if morning_message.message and morning_message.message.sent else None,
-                            'opened': morning_message.message.opened.strftime('%Y-%m-%d %H:%M:%S') if morning_message.message and morning_message.message.opened else None,
-                            'survey_answered': morning_message.survey.answered if morning_message.survey else None,
-                            'survey_answered_fully': survey_answered_fully,
-                            'number_of_questions': number_of_questions,
-                            'number_of_answers': number_of_answers
+                            'id':
+                            morning_message.id
+                            if morning_message.survey else None,
+                            'sent':
+                            morning_message.message.sent.strftime(
+                                '%Y-%m-%d %H:%M:%S') if morning_message.message
+                            and morning_message.message.sent else None,
+                            'opened':
+                            morning_message.message.opened.strftime(
+                                '%Y-%m-%d %H:%M:%S') if morning_message.message
+                            and morning_message.message.opened else None,
+                            'survey_answered':
+                            morning_message.survey.answered
+                            if morning_message.survey else None,
+                            'survey_answered_fully':
+                            survey_answered_fully,
+                            'number_of_questions':
+                            number_of_questions,
+                            'number_of_answers':
+                            number_of_answers
                         })
                     else:
                         serialized_morning_messages.append({})
-                serialized_participant['morning_messages'] = serialized_morning_messages
+                serialized_participant[
+                    'morning_messages'] = serialized_morning_messages
             serialized_participants.append(serialized_participant)
         context['participants'] = serialized_participants
         return context
@@ -2106,8 +2155,11 @@ class ParticipantMorningMessagesView(ParticipantView):
                 if _morning_message.survey._questions:
                     for _question in _morning_message.survey._questions:
                         answer_value = None
-                        if hasattr(_morning_message.survey, '_answers') and _question.id in _morning_message.survey._answers:
-                            answer = _morning_message.survey._answers[_question.id]
+                        if hasattr(
+                                _morning_message.survey, '_answers'
+                        ) and _question.id in _morning_message.survey._answers:
+                            answer = _morning_message.survey._answers[
+                                _question.id]
                             answer_value = answer.label
                         questions.append({
                             'answer': answer_value,
@@ -2115,16 +2167,26 @@ class ParticipantMorningMessagesView(ParticipantView):
                             'name': _question.name
                         })
             serialized_morning_messages.append({
-                'date': _morning_message.date.strftime('%Y-%m-%d'),
-                'notification': _morning_message.notification,
-                'anchor': _morning_message.anchor,
-                'completed': completed,
-                'sent': sent,
-                'opened': opened,
-                'received': received,
-                'message_frame': message_frame,
-                'survey_status': survey_status,
-                'questions': questions
+                'date':
+                _morning_message.date.strftime('%Y-%m-%d'),
+                'notification':
+                _morning_message.notification,
+                'anchor':
+                _morning_message.anchor,
+                'completed':
+                completed,
+                'sent':
+                sent,
+                'opened':
+                opened,
+                'received':
+                received,
+                'message_frame':
+                message_frame,
+                'survey_status':
+                survey_status,
+                'questions':
+                questions
             })
 
         context['morning_messages'] = serialized_morning_messages
@@ -2138,20 +2200,19 @@ class ParticipantMorningMessagesView(ParticipantView):
                 if not configuration.daily_task:
                     configuration.create_daily_task()
                 if configuration.enabled:
-                    messages.add_message(
-                        request, messages.SUCCESS, 'Morning messages disabled')
+                    messages.add_message(request, messages.SUCCESS,
+                                         'Morning messages disabled')
                     configuration.enabled = False
                 else:
-                    messages.add_message(
-                        request, messages.SUCCESS, 'Morning messages enabled')
+                    messages.add_message(request, messages.SUCCESS,
+                                         'Morning messages enabled')
                     configuration.enabled = True
                 configuration.save()
             except MorningMessageConfiguration.DoesNotExist:
                 MorningMessageConfiguration.objects.create(
-                    user=self.participant.user
-                )
-                messages.add_message(
-                    request, messages.SUCCESS, 'Morning message configuration created')
+                    user=self.participant.user)
+                messages.add_message(request, messages.SUCCESS,
+                                     'Morning message configuration created')
         else:
             messages.add_message(request, messages.ERROR,
                                  'Participant disabled')
@@ -2169,10 +2230,14 @@ class ParticipantExportView(ParticipantView):
         serialized_exports = []
         for _export in exports:
             serialized_exports.append({
-                'error': _export.error_message,
-                'filename': _export.filename,
-                'time': _export.start.strftime('%Y-%m-%d %H:%M:%S'),
-                'duration': '%d seconds' % (_export.duration)
+                'error':
+                _export.error_message,
+                'filename':
+                _export.filename,
+                'time':
+                _export.start.strftime('%Y-%m-%d %H:%M:%S'),
+                'duration':
+                '%d seconds' % (_export.duration)
             })
         context['export_logs'] = serialized_exports
         return context
@@ -2186,10 +2251,8 @@ class ParticipantBurstPeriodView(ParticipantView):
         if burst_period_id is None:
             return BurstPeriod()
         try:
-            return BurstPeriod.objects.get(
-                id=burst_period_id,
-                user=self.participant.user
-            )
+            return BurstPeriod.objects.get(id=burst_period_id,
+                                           user=self.participant.user)
         except BurstPeriod.DoesNotExist:
             raise Http404('Not found')
 
@@ -2220,26 +2283,18 @@ class ParticipantBurstPeriodView(ParticipantView):
             messages.add_message(request, messages.SUCCESS,
                                  'Created burst period')
             return HttpResponseRedirect(
-                reverse(
-                    'dashboard-cohort-participant',
-                    kwargs={
-                        'cohort_id': self.cohort.id,
-                        'participant_id': self.participant.heartsteps_id
-                    }
-                )
-            )
+                reverse('dashboard-cohort-participant',
+                        kwargs={
+                            'cohort_id': self.cohort.id,
+                            'participant_id': self.participant.heartsteps_id
+                        }))
         else:
             context = self.get_context_data(**kwargs)
             context['form'] = form
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context
-            )
+            return TemplateResponse(request, self.template_name, context)
 
 
 class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
-
     def post(self, request, burst_period_id, **kwargs):
         burst_period = self.get_burst_period(burst_period_id)
         burst_period.delete()
@@ -2251,14 +2306,11 @@ class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
             pass
         messages.add_message(request, messages.SUCCESS, 'Deleted burst period')
         return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant',
-                kwargs={
-                    'cohort_id': self.cohort.id,
-                    'participant_id': self.participant.heartsteps_id
-                }
-            )
-        )
+            reverse('dashboard-cohort-participant',
+                    kwargs={
+                        'cohort_id': self.cohort.id,
+                        'participant_id': self.participant.heartsteps_id
+                    }))
 
 
 class ClockFaceList(TemplateView):
@@ -2280,7 +2332,9 @@ class ClockFaceList(TemplateView):
             ) \
             .prefetch_related('user') \
             .all()
-        users = [clock_face.user for clock_face in clock_faces if clock_face.user]
+        users = [
+            clock_face.user for clock_face in clock_faces if clock_face.user
+        ]
 
         logs_by_username = {}
         clock_face_logs = ClockFaceLog.objects \
@@ -2297,9 +2351,8 @@ class ClockFaceList(TemplateView):
 
         step_counts_by_username = {}
         step_counts = StepCount.objects.filter(
-            user__in=users,
-            start__gte=timezone.now() - timedelta(days=7)
-        ).prefetch_related('user')
+            user__in=users, start__gte=timezone.now() -
+            timedelta(days=7)).prefetch_related('user')
         for count in step_counts:
             if count.user.username not in step_counts_by_username:
                 step_counts_by_username[count.user.username] = []
@@ -2316,9 +2369,7 @@ class ClockFaceList(TemplateView):
                 counts = step_counts_by_username[clock_face.user.username]
                 clock_face.step_count_count = len(counts)
                 clock_face.last_step_count = counts[-1]
-        return {
-            'clock_faces': clock_faces
-        }
+        return {'clock_faces': clock_faces}
 
 
 class UserLogsList(TemplateView):
@@ -2361,8 +2412,8 @@ class UserLogsList(TemplateView):
 
         # default page size is default_pagesize
         try:
-            pagesize = in_range(int(request.POST.get(
-                'pagesize', default_pagesize)), 10, 100)
+            pagesize = in_range(
+                int(request.POST.get('pagesize', default_pagesize)), 10, 100)
         except:
             pagesize = default_pagesize
 
@@ -2413,9 +2464,7 @@ class ParticipantClockFaceView(ParticipantView):
         if not self.participant.user:
             return None
         try:
-            return ClockFace.objects.get(
-                user=self.participant.user
-            )
+            return ClockFace.objects.get(user=self.participant.user)
         except ClockFace.DoesNotExist:
             return None
 
@@ -2424,17 +2473,15 @@ class ParticipantClockFaceView(ParticipantView):
             return []
         clock_face_logs = ClockFaceLog.objects.filter(
             user=self.participant.user,
-            time__gte=timezone.now() - timedelta(days=7)
-        ).all()
+            time__gte=timezone.now() - timedelta(days=7)).all()
         return list(clock_face_logs)
 
     def get_recent_step_counts(self):
         if not self.participant.user:
             return []
-        step_counts = StepCount.objects.filter(
-            user=self.participant.user,
-            start__gte=timezone.now() - timedelta(days=7)
-        ).all()
+        step_counts = StepCount.objects.filter(user=self.participant.user,
+                                               start__gte=timezone.now() -
+                                               timedelta(days=7)).all()
         return list(step_counts)
 
     def get_context_data(self, **kwargs):
@@ -2464,97 +2511,180 @@ class ParticipantClockFaceView(ParticipantView):
             if pair_form.is_valid():
                 pin = pair_form.cleaned_data['pin']
                 try:
-                    clock_face = ClockFace.objects.get(
-                        pin=pin,
-                        user=None
-                    )
+                    clock_face = ClockFace.objects.get(pin=pin, user=None)
                     clock_face.user = self.participant.user
                     clock_face.save()
-                    messages.add_message(
-                        request, messages.SUCCESS, 'Paired participant')
+                    messages.add_message(request, messages.SUCCESS,
+                                         'Paired participant')
                 except ClockFace.DoesNotExist:
                     messages.add_message(
-                        request, messages.ERROR, 'Pin does not exist, or is deactivated')
+                        request, messages.ERROR,
+                        'Pin does not exist, or is deactivated')
             else:
                 messages.add_message(request, messages.ERROR, 'Invalid form')
         return HttpResponseRedirect(
-            reverse(
-                'dashboard-cohort-participant-clock-face',
-                kwargs={
-                    'cohort_id': self.cohort.id,
-                    'participant_id': self.participant.heartsteps_id
-                }
-            )
-        )
+            reverse('dashboard-cohort-participant-clock-face',
+                    kwargs={
+                        'cohort_id': self.cohort.id,
+                        'participant_id': self.participant.heartsteps_id
+                    }))
+
+
+def fill_context(request, context):
+    if request.method == 'POST':
+        request_dict = request.POST
+    elif request.method == 'GET':
+        request_dict = request.GET
+    else:
+        raise NotImplementedError('{} method is not supported'.format(
+            request.method))
+
+    pprint.pprint("fill_context():")
+    pprint.pprint(">> request:")
+    pprint.pprint(">>>> {}".format(request))
+    pprint.pprint(">> request_dict:")
+    pprint.pprint(">>>> {}".format(request_dict))
+    pprint.pprint(">> context (before):")
+    pprint.pprint(">>>> {}".format(context))
+
+    if hasattr(request, 'user'):
+        context["user"] = request.user
+        context["is_staff"] = request.user.is_staff
+        context["is_superuser"] = request.user.is_superuser
+
+        if context["is_staff"]:
+            context["my_studies"] = list(
+                Study.objects.filter(admins=request.user))
+
+    context["users"] = list(User.objects.order_by("username").all())
+    context['server_time'] = str(datetime.now())
+
+    selected_user_obj = None
+    if 'selected_user' in request_dict:
+        selected_username = request_dict["selected_user"]
+        if isinstance(selected_username, list) and len(selected_username) == 1:
+            selected_username = selected_username[0]
+        if selected_username != '':
+            context["selected_user"] = selected_username
+            selected_user_obj = User.objects.get(username=selected_username)
+
+    if 'selected_date' in request_dict:
+        selected_date = request_dict['selected_date']
+    elif selected_user_obj:
+        day_service = DayService(user=selected_user_obj)
+        selected_date = day_service.get_current_date()
+        context["day_service"] = day_service
+    else:
+        selected_date = datetime.today()
+    context["selected_date"] = selected_date
+
+    if 'item' in request_dict:
+        item_list = request_dict['item']
+        if len(item_list) == 1:
+            context["item"] = item_list[0]
+        else:
+            context["item"] = item_list
+
+    if 'start_time' in request_dict:
+        start_time = request_dict['start_time']
+        if 'end_time' in request_dict:
+            end_time = request_dict['end_time']
+        else:
+            end_time = start_time + timedelta(days=1)
+    else:
+        if "day_service" in context:
+            day_service = context["day_service"]
+            start_time = day_service.get_start_of_day(selected_date)
+        else:
+            start_time = datetime(selected_date.year, selected_date.month,
+                                  selected_date.day)
+        end_time = start_time + timedelta(days=1)
+
+    context["start_time"] = start_time
+    context["end_time"] = end_time
+
+    print(">> context (after):")
+    print(">>>> {}".format(context))
+
 
 class ChartView(TemplateView):
     template_name = 'dashboard/chart-view.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["is_staff"] = self.request.user.is_staff
-        context["users"] = list(User.objects.order_by("username").all())
+        fill_context(self.request, context)
 
         return context
-    
+
+    def post(self, request, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        fill_context(self.request, context)
+
+        return TemplateResponse(request, self.template_name, context)
+
+
 class ChartDataView:
     def dashboard_chart_data_json(request):
-        print(request.__dict__)
-        if request.user:
-            if request.user.is_anonymous:
-                print("I'm anonymous")
+        context = {}
+
+        fill_context(request, context)
+
+        if "item" in context:
+            if context["item"] == 'steps':
+                from fitbit_activities.models import FitbitMinuteStepCount
+                from fitbit_api.models import FitbitAccount
+
+                fitbit_account_user = FitbitAccountUser.objects.filter(
+                    user__username=context["selected_user"]).first()
+
+                if fitbit_account_user:
+                    fitbit_account = fitbit_account_user.account
+
+                    data = [{
+                        "x": obj["time"],
+                        "y": obj["steps"]
+                    }
+                            for obj in FitbitMinuteStepCount.objects.filter(
+                                account=fitbit_account,
+                                time__gte=context["start_time"],
+                                time__lt=context["end_time"]).values(
+                                    'time', 'steps').all()]
+                else:
+                    print("No connected Fitbit Account")
+                    data = []
+            elif context["item"] == 'logs':
+                data = [{
+                    "id": 1,
+                    "content": "item 1",
+                    "start": "2014-04-20 14:00"
+                }, {
+                    "id": 2,
+                    "content": "item 2",
+                    "start": "2014-04-20 07:31"
+                }, {
+                    "id": 3,
+                    "content": "item 3",
+                    "start": "2014-04-20 11:22"
+                }, {
+                    "id": 4,
+                    "content": "item 4",
+                    "start": "2014-04-20 10:00",
+                    "end": "2014-04-20 10:30"
+                }, {
+                    "id": 5,
+                    "content": "item 5",
+                    "start": "2014-04-20 15:00"
+                }, {
+                    "id": 6,
+                    "content": "item 6",
+                    "start": "2014-04-20 17:00",
+                    "type": "point"
+                }]
             else:
-                if request.user.is_staff:
-                    print("I'm staff")
-                elif request.user.is_superuser:
-                    print("I'm superuser")
-                else:
-                    print(request.user)
-                    
-                admin_for_studies = Study.objects.filter(admins=request.user)
-                admin_for_studies = list(admin_for_studies)
-                
-                if admin_for_studies:
-                    print("my studies: {}".format(admin_for_studies))
-                else:
-                    print("I have no study")
+                raise NotImplementedError('{} is not supported'.format(
+                    context["item"]))
+            return JsonResponse(data, safe=False)
         else:
-            print("request.user is None: {}".format(request.user))
-            
-        data = [
-            {
-                "id": 1,
-                "content": "item 1",
-                "start": "2014-04-20 14:00"
-            },
-            {
-                "id": 2,
-                "content": "item 2",
-                "start": "2014-04-20 07:31"
-            },
-            {
-                "id": 3,
-                "content": "item 3",
-                "start": "2014-04-20 11:22"
-            },
-            {
-                "id": 4,
-                "content": "item 4",
-                "start": "2014-04-20 10:00",
-                "end": "2014-04-20 10:30"
-            },
-            {
-                "id": 5,
-                "content": "item 5",
-                "start": "2014-04-20 15:00"
-            },
-            {
-                "id": 6,
-                "content": "item 6",
-                "start": "2014-04-20 17:00",
-                "type": "point"
-            }
-        ]
-        
-        return JsonResponse(data, safe=False)
+            raise NotImplementedError('"item" is not found')
