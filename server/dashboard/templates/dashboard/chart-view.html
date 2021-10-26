@@ -102,6 +102,17 @@
         },
         success: function (data) {
             console.log(data);
+            // remove all current data
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.pop();
+            });
+
+            // add all new data
+            myChart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            })
+
+            myChart.update();
         },
         error: function (err) {
             console.log('Error', err);
