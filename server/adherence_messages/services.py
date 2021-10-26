@@ -9,6 +9,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
+from user_event_logs.models import EventLog
 
 from .models import Configuration
 from .models import AdherenceMessage
@@ -302,28 +303,43 @@ class AdherenceFitbitUpdatedService(AdherenceServiceBase):
 class AdherenceFitbitWornService(AdherenceServiceBase):
 
     def update_fitbit_worn(self, date):
+        EventLog.info(self._user, "update_fitbit_worn() is called")
         if self.wore_fitbit_on(date):
+            EventLog.info(self._user, "wore_fitbit_on({}) is true".format(date))
             self.mark_adherent(
                 category = AdherenceMetric.FITBIT_WORN,
                 date = date
             )
+            EventLog.info(self._user, "mark_adherent()")
         else:
+            EventLog.info(self._user, "wore_fitbit_on({}) is false".format(date))
             self.mark_non_adherent(
                 category = AdherenceMetric.FITBIT_WORN,
                 date = date
             )
+            EventLog.info(self._user, "mark_non_adherent()")
     
     def wore_fitbit_on(self, date):
-        fitbit_service = FitbitService(user = self._user)
+        EventLog.info(self._user, "wore_fitbit_on(self, date) is called")
+        try:
+            fitbit_service = FitbitService(user = self._user)
+        except FitbitService.NoAccount:
+            EventLog.error(self._user, "Fitbit Account doesn't exist")    
+            return False
+        EventLog.info(self._user, "FitbitService is created")
+
         try:
             day = FitbitDay.objects.get(
                 account = fitbit_service.account,
                 date = date
             )
+            EventLog.info(self._user, "FitbitDay is fetched: {}".format(day))
             if day.wore_fitbit:
+                EventLog.info(self._user, "User wore Fitbit during the Day")
                 return True
         except FitbitDay.DoesNotExist:
-            pass
+            EventLog.error(self._user, "Fitbit Day doesn't exist")    
+        EventLog.info(self._user, "User didn't Fitbit during the Day")
         return False
 
     def last_fitbit_wear_time(self):
@@ -377,12 +393,19 @@ class AdherenceService(
     ):
 
     def update_adherence(self, date = None):
+        EventLog.info(self._user, "update_adherence({}) is called".format(date))
         if not date:
+            EventLog.info(self._user, "date is None")
             date = self._get_current_date()
+            EventLog.info(self._user, "date is replaced with {}".format(date))
         self.update_app_installed(date)
+        EventLog.info(self._user, "update_app_installed() is called".format(date))
         self.update_app_used(date)
+        EventLog.info(self._user, "update_app_used() is called".format(date))
         self.update_fitbit_updated(date)
+        EventLog.info(self._user, "update_fitbit_updated() is called".format(date))
         self.update_fitbit_worn(date) 
+        EventLog.info(self._user, "update_fitbit_worn() is called".format(date))
 
     def send_adherence_message(self):
         self.send_app_install_message()

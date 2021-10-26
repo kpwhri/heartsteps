@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from days.models import LocalizeTimezoneQuerySet
 from participants.models import Study, Participant
+from user_event_logs.models import EventLog
 from .clients import OneSignalClient
 
 class OneSignalInfo(models.Model):
@@ -177,10 +178,14 @@ class Message(models.Model):
             return None
 
     def update_message_receipts(self):
+        EventLog.info(self.recipient.username, "update_message_receipts() is called")
         if self.device.type != 'onesignal':
+            EventLog.info(self.recipient.username, "self.device.type is not onesignal")
             raise RuntimeError('No client for message device')
         client = OneSignalClient(self.device)
+        EventLog.info(self.recipient.username, "client is initialized")
         receipts = client.get_message_receipts(self.external_id)
+        EventLog.info(self.recipient.username, "message receipts are fetched")
         for receipt_type, receipt_datetime in receipts.items():
             try:
                 receipt = MessageReceipt.objects.get(

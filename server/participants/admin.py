@@ -166,7 +166,7 @@ admin.site.register(Study, StudyAdmin)
 
 
 class NightlyUpdateRecordAdmin(admin.ModelAdmin):
-    list_display = ['user', 'date', 'error']
+    list_display = ['user', 'date', 'start', 'end', 'error']
     
     readonly_fields = ['user', 'date', 'start', 'end', 'error']
 

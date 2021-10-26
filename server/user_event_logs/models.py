@@ -35,7 +35,16 @@ class EventLog(models.Model):
         if user is None:
             user, _ = User.objects.get_or_create(username="__system_log")
         else:
-            assert isinstance(user, User), "user argument must be None or an instance of User"
+            if isinstance(user, str):
+                user_q = User.objects.filter(username=user)
+                if user_q.exists():
+                    user = user_q.get()
+                else:
+                    raise User.DoesNotExist()
+            elif isinstance(user, User):
+                pass
+            else:
+                assert isinstance(user, User), "user argument must be None or an instance of User"
         if not isinstance(action, str):
             action = str(action)
         
