@@ -15,6 +15,7 @@ from fitbit_api.services import FitbitService
 from .models import Cohort
 from .models import Participant
 from .models import Study
+from .models import NightlyUpdateRecord
 from .services import ParticipantService
 from .tasks import export_user_data
 
@@ -162,3 +163,12 @@ admin.site.register(Cohort, CohortAdmin)
 class StudyAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Study, StudyAdmin)
+
+
+class NightlyUpdateRecordAdmin(admin.ModelAdmin):
+    list_display = ['user', 'date', 'error']
+    
+    readonly_fields = ['user', 'date', 'start', 'end', 'error']
+
+
+admin.site.register(NightlyUpdateRecord, NightlyUpdateRecordAdmin)
