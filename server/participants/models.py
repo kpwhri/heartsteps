@@ -19,6 +19,8 @@ from fitbit_api.models import FitbitAccountUser
 from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
 
+from user_event_logs.models import EventLog
+
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
 User = get_user_model()
@@ -190,13 +192,21 @@ class Participant(models.Model):
         super().delete()
 
     def enroll(self):
+        EventLog.debug(None)
         user, created = User.objects.get_or_create(
             username=self.heartsteps_id
         )
+        EventLog.debug(user)
         self.user = user
+        EventLog.debug(user)
         if self.study_start_date is None:
+            EventLog.debug(user)
             self.study_start_date = self.get_study_start_date()
+            EventLog.debug(user)
+        else:
+            EventLog.debug(user)
         self.save()
+        EventLog.debug(user)
 
     @property
     def enrolled(self):
@@ -317,19 +327,29 @@ class Participant(models.Model):
             return None
 
     def set_daily_task(self):
+        EventLog.debug(self.user)
         if not hasattr(settings, 'PARTICIPANT_NIGHTLY_UPDATE_TIME'):
+            EventLog.debug(self.user)
             raise ImproperlyConfigured(
                 'Participant nightly update time not configured')
+        EventLog.debug(self.user)
         hour, minute = settings.PARTICIPANT_NIGHTLY_UPDATE_TIME.split(':')
+        EventLog.debug(self.user)
         if not self.daily_task:
+            EventLog.debug(self.user)
             self.__create_daily_task()
+            EventLog.debug(self.user)
+        EventLog.debug(self.user)
         self.daily_task.set_time(int(hour), int(minute))
+        EventLog.debug(self.user)
 
     def __create_daily_task(self):
+        EventLog.debug(self.user)
         task = DailyTask.objects.create(
             user=self.user,
             category=TASK_CATEGORY
         )
+        EventLog.debug(self.user)
         task.create_task(
             task='participants.tasks.daily_update',
             name=self.daily_task_name,
@@ -337,6 +357,7 @@ class Participant(models.Model):
                 'username': self.user.username
             }
         )
+        EventLog.debug(self.user)
         return task
 
     def __str__(self):

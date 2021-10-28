@@ -47,7 +47,7 @@ class EventLog(models.Model):
         else:
             return "{}(static {}())".format(file_pos, func_name)
 
-    def __ancestor():
+    def __ancestor(max_depth=7):
         stack = inspect.stack()
         
         stack.pop(0) # __ancestor()
@@ -67,6 +67,9 @@ class EventLog(models.Model):
             else:
                 stack_str = "{}({}:{})".format(func_name, file_name, line_no)
             stack_str_arr.append(stack_str)
+            
+            if len(stack_str_arr) > max_depth:
+                break
     
         return " <- ".join(stack_str_arr)
     

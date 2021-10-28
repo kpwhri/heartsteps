@@ -131,16 +131,25 @@ class ParticipantService:
         return self.participant.heartsteps_id
 
     def initialize(self):
+        EventLog.debug(self.participant.user)
         self.participant.enroll()
+        EventLog.debug(self.participant.user)
         self.participant.set_daily_task()
+        EventLog.debug(self.participant.user)
         create_default_suggestion_times(participant=self.participant)
+        EventLog.debug(self.participant.user)
         self.enable()
-        
+        EventLog.debug(self.participant.user)
         if not self.user is None:
+            EventLog.debug(self.participant.user)
             if self.participant is not None:
+                EventLog.debug(self.participant.user)
                 if self.participant.cohort is not None:
+                    EventLog.debug(self.participant.user)
                     if self.participant.cohort.study is not None:
+                        EventLog.debug(self.participant.user)
                         if self.participant.cohort.study.studywide_feature_flags is not None:
+                            EventLog.debug(self.participant.user)
                             study_feature_flags = self.participant.cohort.study.studywide_feature_flags
                             FeatureFlags.create_or_update(self.user, study_feature_flags)
                         else:
@@ -153,6 +162,7 @@ class ParticipantService:
                 EventLog.error(self.user, "Participant doesn't exist: {}".format(self))
         else:
             EventLog.info(None, "self.user is still None: {}".format(self.participant))
+        EventLog.debug(self.user)
 
     def is_enabled(self):
         return self.participant.active
@@ -172,7 +182,7 @@ class ParticipantService:
         EventLog.info(self.user, "participant.get_study_start_date(): {}".format(start_date))
         if start_date:
             days_worn = service.get_days_worn(start_date)
-            EventLog.info(self.user, "start_date is not None. service.get_days_worn(): {}".format(days_worn))
+            EventLog.info(self.user, "start_date is {}. service.get_days_worn(): {}".format(start_date, days_worn))
         else:
             days_worn = service.get_days_worn()
             EventLog.info(self.user, "start_date is None. service.get_days_worn(): {}".format(days_worn))
@@ -186,69 +196,97 @@ class ParticipantService:
             return False
 
     def enable(self):
+        EventLog.debug(self.user)
         self.participant.active = True
         self.participant.save()
-
+        EventLog.debug(self.user)
         adherence_message_configuration, _ = AdherenceMessageConfiguration.objects.update_or_create(
             user=self.participant.user
         )
+        EventLog.debug(self.user)
         adherence_message_configuration.enabled = True
         adherence_message_configuration.save()
-
+        EventLog.debug(self.user)
         try:
+            EventLog.debug(self.user)
             burst_period_configuration = BurstPeriodConfiguration.objects.get(
                 user=self.participant.user
             )
+            EventLog.debug(self.user)
         except BurstPeriodConfiguration.DoesNotExist:
+            EventLog.debug(self.user)
             burst_period_configuration = BurstPeriodConfiguration.objects.create(
                 user=self.participant.user
             )
-
+            EventLog.debug(self.user)
+        EventLog.debug(self.user)
         if self.is_baseline_complete():
+            EventLog.debug(self.user)
             anti_sedentary_configuration, _ = AntiSedentaryConfiguration.objects.update_or_create(
                 user=self.participant.user
             )
+            EventLog.debug(self.user)
             anti_sedentary_configuration.enabled = True
+            EventLog.debug(self.user)
             anti_sedentary_configuration.save()
-
+            EventLog.debug(self.user)
             morning_message_configuration, _ = MorningMessagesConfiguration.objects.update_or_create(
                 user=self.participant.user
             )
+            EventLog.debug(self.user)
             morning_message_configuration.enabled = True
+            EventLog.debug(self.user)
             morning_message_configuration.save()
+            EventLog.debug(self.user)
 
             try:
+                EventLog.debug(self.user)
                 walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
                     user=self.participant.user
                 )
+                EventLog.debug(self.user)
                 walking_suggestion_configuration.enabled = True
                 walking_suggestion_configuration.save()
+                EventLog.debug(self.user)
             except WalkingSuggestionConfiguration.MultipleObjectsReturned:
+                EventLog.debug(self.user)
                 pass
 
             try:
+                EventLog.debug(self.user)
                 activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
                     user=self.participant.user
                 )
+                EventLog.debug(self.user)
                 activity_survey_configuration.enabled = True
                 activity_survey_configuration.save()
+                EventLog.debug(self.user)
             except ActivitySurveyConfiguration.DoesNotExist:
+                EventLog.debug(self.user)
                 ActivitySurveyConfiguration.objects.create(
                     user=self.participant.user,
                     enabled=True
                 )
+                EventLog.debug(self.user)
 
             try:
+                EventLog.debug(self.user)
                 walking_suggestion_survey_configuration = WalkingSuggestionSurveyConfiguration.objects.get(
                     user=self.participant.user
                 )
+                EventLog.debug(self.user)
                 walking_suggestion_survey_configuration.enabled = True
                 walking_suggestion_survey_configuration.save()
+                EventLog.debug(self.user)
             except WalkingSuggestionSurveyConfiguration.DoesNotExist:
+                EventLog.debug(self.user)
                 WalkingSuggestionSurveyConfiguration.objects.create(
                     user=self.participant.user,
                     enabled=True
                 )
+            EventLog.debug(self.user)
+        else:
+            EventLog.debug(self.user)
 
     def disable(self):
         self.participant.active = False
