@@ -147,6 +147,7 @@ class ClockFaceLog(models.Model):
     )
     steps = models.PositiveIntegerField()
     time = models.DateTimeField()
+    step_goal = models.PositiveIntegerField()
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
