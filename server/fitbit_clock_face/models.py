@@ -90,7 +90,7 @@ class Summary(models.Model):
         return StepGoal.objects.filter(
             user = self.user
         ) \
-        .order_by('start') \
+        .order_by('date') \
         .last()
 
 class ClockFace(models.Model):
