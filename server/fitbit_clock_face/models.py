@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from days.services import DayService
 from locations.models import Location
+from daily_step_goals.models import StepGoal
 
 class Summary(models.Model):
     user = models.ForeignKey(
@@ -38,12 +39,19 @@ class Summary(models.Model):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+    last_step_goal = models.ForeignKey(
+        StepGoal,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = '+'
+    )
 
     def update(self):
         self.clock_face = self.get_active_clock_face()
         self.last_log = self.get_last_log()
         self.last_step_count = self.get_last_step_count()
         self.last_location = self.get_last_location()
+        self.last_step_goal = self.get_last_step_goal()
         self.save()
 
     def get_active_clock_face(self):
@@ -74,6 +82,15 @@ class Summary(models.Model):
             return None
         return Location.objects.filter(user = self.user) \
         .order_by('time') \
+        .last()
+
+    def get_last_step_goal(self):
+        if not self.user:
+            return None
+        return StepGoal.objects.filter(
+            user = self.user
+        ) \
+        .order_by('start') \
         .last()
 
 class ClockFace(models.Model):
