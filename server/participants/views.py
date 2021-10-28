@@ -45,7 +45,7 @@ class LoginView(APIView):
                 token = enrollment_token,
                 birth_year = birth_year
             )
-            EventLog.debug(None, "79a459ba-e4c8-4391-9bc4-f2ae1c58d187")
+            EventLog.debug(None, "token: {}, birth_year: {} 79a459ba-e4c8-4391-9bc4-f2ae1c58d187".format(enrollment_token, birth_year))
         except ParticipantService.NoParticipant:
             EventLog.debug(None, "05c28a14-b582-4299-a1f5-a2e47d5b3133")
             return Response({}, status.HTTP_401_UNAUTHORIZED)
@@ -67,20 +67,36 @@ class ParticipantInformationView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        EventLog.debug(request.user, "4dfb1f9f-2970-4db5-8185-6d9ea4f17fdf")
         try:
+            EventLog.debug(request.user, "77ee7a7c-0c66-4e32-b7ba-5a69e053a56a")
             service = ParticipantService(user = request.user)
+            EventLog.debug(request.user, "ee51e8ef-36f8-44ff-ba26-2008c6954893")
         except ParticipantService.NoParticipant:
+            EventLog.debug(request.user, "d3f281fd-bd95-469a-89fa-8519756e3397")
             return Response('No participant for user', status=status.HTTP_404_NOT_FOUND)
-        return Response({
-            'heartstepsId': service.get_heartsteps_id(),
-            'staff': request.user.is_staff,
-            'date_enrolled': service.participant.date_joined.strftime('%Y-%m-%d'),
-            'studyContactName': service.get_study_contact_name(),
-            'studyContactNumber': service.get_study_contact_number(),
-            'baselinePeriod': service.get_baseline_period(),
-            'baselineComplete': service.is_baseline_complete(),
-            'participantTags': []
-        })
+        EventLog.debug(request.user, "ede2faac-2687-407e-8777-050f5a3d3d10")
+        
+        return_dict = {}
+        
+        EventLog.debug(request.user, "constructing return_dict")
+        return_dict['heartstepsId'] = service.get_heartsteps_id()
+        EventLog.debug(request.user)
+        return_dict['staff'] = request.user.is_staff
+        EventLog.debug(request.user)
+        return_dict['date_enrolled'] = service.participant.date_joined.strftime('%Y-%m-%d')
+        EventLog.debug(request.user)
+        return_dict['studyContactName'] = service.get_study_contact_name()
+        EventLog.debug(request.user)
+        return_dict['studyContactNumber'] = service.get_study_contact_number()
+        EventLog.debug(request.user)
+        return_dict['baselinePeriod'] = service.get_baseline_period()
+        EventLog.debug(request.user)
+        return_dict['baselineComplete'] = service.is_baseline_complete()
+        EventLog.debug(request.user)
+        return_dict['participantTags'] = []
+        EventLog.debug(request.user)
+        return Response(return_dict)
 
 
 class ParticipantAddView(APIView):

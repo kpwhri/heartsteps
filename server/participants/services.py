@@ -127,6 +127,7 @@ class ParticipantService:
         Token.objects.filter(user=self.participant.user).delete()
 
     def get_heartsteps_id(self):
+        EventLog.debug(self.participant.user, "e19fe10c-1d46-4a74-a427-29130725c7f9")
         return self.participant.heartsteps_id
 
     def initialize(self):
@@ -157,7 +158,7 @@ class ParticipantService:
         return self.participant.active
 
     def is_baseline_complete(self):
-        EventLog.info(self.user, "is_baseline_complete() initialized.")
+        EventLog.info(self.user, "is_baseline_complete() initialized. b894c128-c29f-4eda-ab16-02623eb93d3f")
         try:
             service = FitbitActivityService(user=self.user)
             EventLog.info(self.user, "FitbitActivityService is initialized.")

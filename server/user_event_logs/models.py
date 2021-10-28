@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.admin.models import ADDITION, LogEntry
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
+import inspect, os
 
 User = get_user_model()
 
@@ -30,6 +31,45 @@ class EventLog(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def whoami():
+        stack = inspect.stack()
+    
+        parent_stack = stack[1][0]
+        func_name = parent_stack.f_code.co_name
+        line_no = parent_stack.f_lineno
+        file_name =  parent_stack.f_code.co_filename
+        file_pos = "{}:{}".format(file_name, line_no)
+        
+        if 'self' in parent_stack.f_locals:
+            class_name = parent_stack.f_locals['self'].__class__.__name__
+            
+            return "{}({}.{}())".format(file_pos, class_name, func_name)
+        else:
+            return "{}(static {}())".format(file_pos, func_name)
+
+    def __ancestor():
+        stack = inspect.stack()
+        
+        stack.pop(0) # __ancestor()
+        stack.pop(0) # debug()
+        
+        stack_str_arr = []
+        
+        for a_stack in stack:
+            a_stack = a_stack[0]
+            func_name = a_stack.f_code.co_name
+            line_no = a_stack.f_lineno
+            full_file_name = a_stack.f_code.co_filename
+            file_path, file_name = os.path.split(full_file_name)
+            if 'self' in a_stack.f_locals:
+                class_name = a_stack.f_locals['self'].__class__.__name__
+                stack_str = "{}.{}({}:{})".format(class_name, func_name, file_name, line_no)
+            else:
+                stack_str = "{}({}:{})".format(func_name, file_name, line_no)
+            stack_str_arr.append(stack_str)
+    
+        return " <- ".join(stack_str_arr)
+    
     # Creates a user log. Status can be any of the four STATES listed above, with a max length of 3 characters.
     def log(user, action, status):
         if user is None:
@@ -53,8 +93,10 @@ class EventLog(models.Model):
         
         return EventLog.objects.create(user=user, status=status, action=action)
 
-    def debug(user, action):
-        EventLog.log(user, action, EventLog.DEBUG)
+    def debug(user, action=""):
+        msg = "{} ({})".format(action, EventLog.__ancestor())
+            
+        EventLog.log(user, msg, EventLog.DEBUG)
     
     def info(user, action):
         EventLog.log(user, action, EventLog.INFO)
