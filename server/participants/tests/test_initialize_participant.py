@@ -14,7 +14,7 @@ from morning_messages.models import Configuration as MorningMessageConfiguration
 from walking_suggestion_times.models import SuggestionTime
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 
-from participants.models import Cohort
+from participants.models import Cohort, Study
 from participants.models import Participant, User, TASK_CATEGORY
 from participants.services import ParticipantService
 
@@ -112,10 +112,13 @@ class ParticipantConfiguration(TestCase):
 class InitializeTask(TestCase):
 
     def setUp(self):
+        self.study = Study.objects.create()
+        self.cohort = Cohort.objects.create(study=self.study)
         self.user = User.objects.create(username='test')
         self.participant = Participant.objects.create(
             heartsteps_id = 'test',
-            user = self.user
+            user = self.user,
+            cohort = self.cohort
         )
 
         baseline_complete_patch = patch.object(ParticipantService, 'is_baseline_complete')
