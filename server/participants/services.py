@@ -140,28 +140,26 @@ class ParticipantService:
         EventLog.debug(self.participant.user)
         self.enable()
         EventLog.debug(self.participant.user)
-        if not self.user is None:
-            EventLog.debug(self.participant.user)
-            if self.participant is not None:
-                EventLog.debug(self.participant.user)
-                if self.participant.cohort is not None:
-                    EventLog.debug(self.participant.user)
-                    if self.participant.cohort.study is not None:
-                        EventLog.debug(self.participant.user)
-                        if self.participant.cohort.study.studywide_feature_flags is not None:
-                            EventLog.debug(self.participant.user)
-                            study_feature_flags = self.participant.cohort.study.studywide_feature_flags
-                            FeatureFlags.create_or_update(self.user, study_feature_flags)
-                        else:
-                            EventLog.error(self.user, "Studywide feature flag doesn't exist: {}".format(self.participant.cohort.study))
-                    else:
-                        EventLog.error(self.user, "Study doesn't exist: {}".format(self.participant.cohort))
-                else:
-                    EventLog.error(self.user, "Cohort doesn't exist: {}".format(self.participant))
-            else:
-                EventLog.error(self.user, "Participant doesn't exist: {}".format(self))
+        
+        if self.user is None:
+            raise ValueError("self.user is None")
+        
+        if self.participant is None:
+            raise ValueError("self.participant is None")
+        
+        if self.participant.cohort is None:
+            raise ValueError("self.participant.cohort is None")
         else:
-            EventLog.info(None, "self.user is still None: {}".format(self.participant))
+            self.cohort = self.participant.cohort
+        
+        if self.cohort.study is None:
+            raise ValueError("self.cohort.study is None")
+        else:
+            self.study = self.cohort.study
+        
+        if self.study.studywide_feature_flags is None:
+            self.study.studywide_feature_flags = ""
+        FeatureFlags.create_or_update(self.participant.user, self.study.studywide_feature_flags)
         EventLog.debug(self.user)
 
     def is_enabled(self):

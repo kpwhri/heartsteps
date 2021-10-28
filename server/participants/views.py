@@ -50,7 +50,10 @@ class LoginView(APIView):
             EventLog.debug(None, "05c28a14-b582-4299-a1f5-a2e47d5b3133")
             return Response({}, status.HTTP_401_UNAUTHORIZED)
         EventLog.debug(None, "acfe92ad-1a34-4d9d-8b4d-b2c836bc323e")
-        service.initialize()
+        try:
+            service.initialize()
+        except Exception as e:
+            EventLog.debug(None, e)
         EventLog.debug(None, "e34818d7-8f67-4319-ba62-a2291b580863")
 
         return Response(
