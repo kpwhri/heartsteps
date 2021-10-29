@@ -15,9 +15,9 @@ var LOCAL = false;
 
 
 // If this is JustWalk Jitai (led by UCSD) build, set this True
-var JustWalkJITAI = true
+var JustWalkJITAI = true;
 
-const env = process.env.IONIC_ENV;
+env = process.env.IONIC_ENV;
 
 var production = true;
 if (env === 'dev') {

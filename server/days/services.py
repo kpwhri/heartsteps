@@ -56,13 +56,18 @@ class DayService:
         return self.create_day_for(dt)
 
     def get_day_for_date(self, date):
-        try:
-            return Day.objects.get(
-                user = self.__user,
-                date = date
-            )
-        except Day.DoesNotExist:
+        query = Day.objects.filter(
+            user = self.__user,
+            date = date
+        ) 
+        if query.exists():
+            if query.count() == 1:
+                return query.get()
+            else:
+                return query.first()
+        else:
             return self.create_day_for(date)
+            
 
     def create_day_for(self, dt):
         """create a Day object for a particular date object
