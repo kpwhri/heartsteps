@@ -1,0 +1,32 @@
+<div class="card">
+    <div class="card-header" id="heading7">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse7" aria-expanded="true"
+            aria-controls="collapse7">
+            <h4>Fitbit</h4>
+        </button>
+    </div>
+    <div id="collapse7" class="collapse cardmargin show" aria-labelledby="heading7" data-parent="#accordion">
+        <ul>
+            <li>
+                <form action="{% url 'dashboard-dev-fitbit' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="generic_fitbit_command" name="dev-command" />
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control m-1" id="fitbit_account" name="fitbit_account"
+                                placeholder="fitbit account">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control m-1" id="url_part" name="url_part"
+                                placeholder="url_part">
+                            <button type="submit" class="btn btn-primary mb-2 m-1">Set</button>
+                        </div>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+</div>
+</div>

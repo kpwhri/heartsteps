@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from days.views import DayView
 from fitbit_activities.services import FitbitDayService
 
+from user_event_logs.models import EventLog
+
 from .models import ActivitySummary
 from .models import Day
 
@@ -84,18 +86,27 @@ class DateRangeSummaryView(DayView):
 class DaySummaryUpdateView(DayView):
 
     def get(self, request, day):
+        EventLog.debug(request.user)
         date = self.parse_date(day)
+        EventLog.debug(request.user)
         self.validate_date(request.user, date)
+        EventLog.debug(request.user)
         try:
             service = FitbitDayService(
                 date = date,
                 user = request.user
                 )
+            EventLog.debug(request.user)
             service.update()
+            EventLog.debug(request.user)
         except:
+            EventLog.debug(request.user)
             return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
+        EventLog.debug(request.user)
         summary = get_summary(request.user, date)
+        EventLog.debug(request.user)
         serialized = DaySerializer(summary)
+        EventLog.debug(request.user)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
 class ActivitySummaryView(APIView):

@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
 from .views import DevFrontView, FeatureFlagView
-from .views import DevGenericView
+from .views import DevGenericView, DevFitbitView
 
 from .views import CohortListView
 from .views import CohortAddStudyTypeView
@@ -142,5 +142,6 @@ urlpatterns = [
     url('chart', ChartView.as_view(), name='dashboard-chart'),
     url('dev/front', DevFrontView.as_view(), name='dashboard-dev-front'),
     url('dev/generic', DevGenericView.as_view(), name='dashboard-dev-generic'),
+    url('dev/fitbit', DevFitbitView.as_view(), name='dashboard-dev-fitbit'),
     url('', CohortListView.as_view(), name='dashboard-cohorts')    
 ]

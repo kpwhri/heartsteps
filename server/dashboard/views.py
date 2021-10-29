@@ -145,6 +145,8 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
 
         hourly_tasks = dev_service.get_hourly_tasks_dict()
         context['hourly_tasks'] = hourly_tasks
+        
+        context['fitbit_account'] = list(FitbitAccount.objects.all())
 
         context['generic_command_list'] = [
             "insert_test_log", "dump_log", 'clear_log', 'view_crontabs',
@@ -157,7 +159,47 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
 
         return context
 
+class DevFitbitView(UserPassesTestMixin, TemplateView):
+    template_name = 'dashboard/dev-message.html'
+    
+    def get_login_url(self):
+        return reverse('dashboard-login')
 
+
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        if self.request.user and self.request.user.is_superuser:
+            dev_command = request.POST['dev-command']
+
+            if dev_command == 'generic_fitbit_command':
+                from fitbit_api.services import FitbitClient
+                
+                url_part = request.POST['url_part']
+                fitbit_account = request.POST['fitbit_account']
+                
+                fitbit_account_obj = FitbitAccount.objects.filter(fitbit_user=fitbit_account).first()
+                client = FitbitClient(account=fitbit_account_obj)
+                
+                response = client.make_request(url_part)
+                from pprint import pformat
+                context["results"] = pformat(response, indent=2)
+            else:
+                context["results"] = "Unsupported command: {}".format(
+                    dev_command)
+
+            return TemplateResponse(request, self.template_name, context)
+        else:
+            return TemplateResponse(request, self.template_name, context)
+    
 class DevGenericView(UserPassesTestMixin, TemplateView):
     template_name = 'dashboard/dev-message.html'
 

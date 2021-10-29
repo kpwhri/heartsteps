@@ -11,15 +11,19 @@
     {% include 'dashboard/dev-front-card2.html' %}
     {% include 'dashboard/dev-front-card3.html' %}
     {% include 'dashboard/dev-front-card4.html' %}
-    {% include 'dashboard/dev-front-card5.html' %}      <!-- Tools -->
-    {% include 'dashboard/dev-front-card6.html' %}      <!-- NLM Card -->
+    {% include 'dashboard/dev-front-card5.html' %}
+    <!-- Tools -->
+    {% include 'dashboard/dev-front-card6.html' %}
+    <!-- NLM Card -->
+    {% include 'dashboard/dev-front-card7.html' %}
+    <!-- Fitbit Card -->
 
-{% else %}
+    {% else %}
 
-<h4>You are not a super user!</h4>
-<a href="{% url 'dashboard-cohorts' %}">Go back to Dashboard</a>
+    <h4>You are not a super user!</h4>
+    <a href="{% url 'dashboard-cohorts' %}">Go back to Dashboard</a>
 
-{% endif %}
+    {% endif %}
 
 
-{% endblock %}
+    {% endblock %}

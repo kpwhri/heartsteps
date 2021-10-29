@@ -11,22 +11,22 @@ import { LoadingService } from "@infrastructure/loading.service";
     templateUrl: './daily-activities-update.html'
 })
 export class DailyActivitiesUpdateComponent {
-    
+
     public loading: boolean = false;
-    public updateTimeFormatted:string;
+    public updateTimeFormatted: string;
     private summary: DailySummary;
 
-    public date:Date;
+    public date: Date;
 
     constructor(
         private dailySummaryService: DailySummaryService,
         private alertDialog: AlertDialogController,
         private loadingService: LoadingService
-    ) {}
+    ) { }
 
     @Input('summary')
     set setSummary(summary: DailySummary) {
-        if(summary) {
+        if (summary) {
             this.update(summary)
         }
     }
@@ -37,15 +37,15 @@ export class DailyActivitiesUpdateComponent {
             this.date = date;
             this.loading = true;
             this.dailySummaryService.get(date)
-            .then((summary) => {
-                this.update(summary);
-            })
-            .catch(() => {
-                console.log('Could not get daily summary');
-            })
-            .then(() => {
-                this.loading = false;
-            });
+                .then((summary) => {
+                    this.update(summary);
+                })
+                .catch(() => {
+                    console.log('Could not get daily summary');
+                })
+                .then(() => {
+                    this.loading = false;
+                });
         }
     }
 
@@ -59,15 +59,22 @@ export class DailyActivitiesUpdateComponent {
     }
 
     public refresh() {
+        console.log("DailyActivitiesUpdateComponent.refresh() - point 1");
         this.loadingService.show('Requesting data from Fitbit');
+        console.log("DailyActivitiesUpdateComponent.refresh() - point 2: this.summary.date=", this.summary.date);
         this.dailySummaryService.updateFromFitbit(this.summary.date)
-        .then((summary) => {
-            this.update(summary);
-            this.loadingService.dismiss();
-        })
-        .catch(() => {
-            this.loadingService.dismiss();
-            this.alertDialog.show('Update failed');
-        });
+            .then((summary) => {
+                console.log("DailyActivitiesUpdateComponent.refresh() - point 3: summary.date=", summary.date);
+                this.update(summary);
+                console.log("DailyActivitiesUpdateComponent.refresh() - point 4");
+                this.loadingService.dismiss();
+            })
+            .catch(() => {
+                console.log("DailyActivitiesUpdateComponent.refresh() - point 5");
+                this.loadingService.dismiss();
+                console.log("DailyActivitiesUpdateComponent.refresh() - point 6");
+                this.alertDialog.show('Update failed');
+            });
+        console.log("DailyActivitiesUpdateComponent.refresh() - point 7");
     }
 }
