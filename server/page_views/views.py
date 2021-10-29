@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
+from user_event_logs.models import EventLog
+
 from .models import PageView
 
 class PageViewSerializer(serializers.ModelSerializer):

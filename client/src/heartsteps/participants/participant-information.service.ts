@@ -20,6 +20,7 @@ export class ParticipantInformationService {
     public load(): Promise<boolean> {
         return this.heartstepsServer.get('information')
             .then((data) => {
+                console.log("ParticipantInformationService.load()", data)
             return Promise.all([
                 this.setDateEnrolled(data['date_enrolled']),
                 this.setStaff(data['staff']),

@@ -14,6 +14,7 @@ from fitbit_activities.models import FitbitActivityType
 from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitDailyUnprocessedData
+from user_event_logs.models import EventLog
 
 
 class FitbitDayService(FitbitService):
@@ -154,7 +155,6 @@ class FitbitDayService(FitbitService):
     def update_steps(self):
         data = self.__client.get_steps(self.date)
         self._save_unprocessed_data('steps', data)
-
         step_intervals = []
         total_steps = 0
         for interval in self._process_minute_data(data):

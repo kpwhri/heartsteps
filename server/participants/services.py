@@ -158,7 +158,9 @@ class ParticipantService:
             self.study = self.cohort.study
         
         if self.study.studywide_feature_flags is None:
+            EventLog.debug(self.user, "self.study.studywide_feature_flags is None")
             self.study.studywide_feature_flags = ""
+        EventLog.debug(self.user, "studywide_feature_flags is {}".format(self.study.studywide_feature_flags))
         FeatureFlags.create_or_update(self.participant.user, self.study.studywide_feature_flags)
         EventLog.debug(self.user)
 

@@ -12,20 +12,27 @@ export class OnboardGaurd implements CanActivate {
         private router: Router
     ){}
 
-    canActivate():Promise<boolean> {
+    canActivate(): Promise<boolean> {
+        console.log("OnboardGaurd.canActivate() case 1");
         return this.authorizationService.isAuthorized()
-        .catch(() => {
-            this.router.navigate(['welcome']);
+            .catch(() => {
+                console.log("OnboardGaurd.canActivate() case 2");
+                this.router.navigate(['welcome']);
+                console.log("OnboardGaurd.canActivate() case 3");
             return false;
         })
-        .then(() => {
+            .then(() => {
+                console.log("OnboardGaurd.canActivate() case 4");
             return this.profileService.isComplete()
         })
-        .then(() => {
-            this.router.navigate(['/']);
+            .then(() => {
+                console.log("OnboardGaurd.canActivate() case 5");
+                this.router.navigate(['/']);
+                console.log("OnboardGaurd.canActivate() case 6");
             return false;
         })
-        .catch(() => {
+            .catch(() => {
+                console.log("OnboardGaurd.canActivate() case 7");
             return true;
         });
     }

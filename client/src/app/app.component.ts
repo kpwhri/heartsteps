@@ -50,7 +50,7 @@ export class MyApp {
         // no participant | not loaded | not setup | not baselineCompleted | everything is set
         // welcome        | loading    | onboard   | baseline              | home/dashboard
         if(this.router.url === "/") { 
-            if(participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
+            if (participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
                 this.router.navigate(['home', 'dashboard']);
             } else if (participant && participant.isLoaded && participant.isSetup) {
                 this.router.navigate(['baseline']);
