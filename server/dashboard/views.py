@@ -192,6 +192,19 @@ class DevFitbitView(UserPassesTestMixin, TemplateView):
                 response = client.make_request(url_part)
                 from pprint import pformat
                 context["results"] = pformat(response, indent=2)
+            elif dev_command == 'set_daily_step_goal':
+                from fitbit_api.services import FitbitClient
+                
+                steps = request.POST['steps']
+                fitbit_account = request.POST['fitbit_account']
+                
+                fitbit_account_obj = FitbitAccount.objects.filter(fitbit_user=fitbit_account).first()
+                client = FitbitClient(account=fitbit_account_obj)
+                
+                response = client.update_step_goals(steps)
+                
+                from pprint import pformat
+                context["results"] = pformat(response, indent=2)
             else:
                 context["results"] = "Unsupported command: {}".format(
                     dev_command)

@@ -27,6 +27,29 @@
                     </div>
                 </form>
             </li>
+            <li>
+                Change daily step goal
+                <form action="{% url 'dashboard-dev-fitbit' %}" method="POST" role="form">
+                    {% csrf_token %}
+                    <input type="hidden" id="dev-command" value="set_daily_step_goal" name="dev-command" />
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control m-1" id="fitbit_account" name="fitbit_account"
+                                placeholder="fitbit account">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control m-1" id="steps" name="steps" placeholder="steps">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary mb-2 m-1">Set</button>
+                        </div>
+                    </div>
+                </form>
+            </li>
         </ul>
     </div>
 </div>

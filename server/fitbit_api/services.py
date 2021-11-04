@@ -181,6 +181,9 @@ class FitbitClient():
         except Exception as e:
             raise FitbitClient.ClientError('Unknown error')
 
+    def update_step_goals(self, steps):
+        return self.client.activities_daily_goal(steps=steps)
+        
     def is_subscribed(self):
         subscriptions = FitbitSubscription.objects.filter(fitbit_account = self.account).all()
         if len(subscriptions) > 0:
