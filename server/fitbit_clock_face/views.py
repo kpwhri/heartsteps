@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from locations.services import LocationService
-from daily_step_goals.services import StepGoalsService
 
 from .models import ClockFace, StepCount
 from .models import ClockFaceLog
@@ -149,14 +148,6 @@ class ClockFaceStepCounts(APIView):
                                 defaults= {
                                     'steps': step_count['steps']
                                 }
-                            )
-                    if 'step_goals' in request.data:
-                        goal_service = StepGoalsService(user = clock_face.user)
-                        latest_goal = goal_service.get_step_goal()
-                        ClockFaceLog.objects.update_or_create(
-                                time = time,
-                                user = clock_face.user,
-                                step_goal = latest_goal
                             )
                     update_step_counts.apply_async(
                         kwargs = {
