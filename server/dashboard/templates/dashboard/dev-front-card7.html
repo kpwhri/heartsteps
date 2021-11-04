@@ -8,6 +8,7 @@
     <div id="collapse7" class="collapse cardmargin show" aria-labelledby="heading7" data-parent="#accordion">
         <ul>
             <li>
+                Generic Fitbit Command (GET)
                 <form action="{% url 'dashboard-dev-fitbit' %}" method="POST" role="form">
                     {% csrf_token %}
                     <input type="hidden" id="dev-command" value="generic_fitbit_command" name="dev-command" />

@@ -1,4 +1,4 @@
-from activity_summaries.models import Day
+from activity_summaries.models import Day as ActivitySummaryDay
 from datetime import datetime
 
 from django.test import TestCase
@@ -43,18 +43,18 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         
         
         service = StepGoalsService(self.user)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         median = service.get_median_steps(date=datetime(2021, 9, 20).date())
         self.assertEqual(median, 1015)
         
@@ -64,13 +64,13 @@ class ServiceStepGoalsService(HeartStepsTestCase):
     def test_get_todays_step_goal_2(self):
         service = StepGoalsService(self.user)
         
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) # median = this
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) # median = this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         median = service.get_median_steps(date=datetime(2021, 9, 20).date())
         self.assertEqual(median, 1016)
         
@@ -80,18 +80,18 @@ class ServiceStepGoalsService(HeartStepsTestCase):
 
     def test_get_todays_step_goal_3(self):
         service = StepGoalsService(self.user)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        Day.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         
         goal_sequence = service.generate_dump_goal_sequence(date=datetime(2021, 9, 20).date())
         self.assertEqual(goal_sequence, [1615, 1815, 2015, 1615, 1815, 2015])

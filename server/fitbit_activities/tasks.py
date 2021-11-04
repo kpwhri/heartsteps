@@ -9,6 +9,7 @@ from import_export.fields import Field
 
 from fitbit_api.services import FitbitClient
 from fitbit_api.models import FitbitAccountUser
+from user_event_logs.models import EventLog
 
 from .models import FitbitAccount
 from .models import FitbitDay
@@ -17,6 +18,7 @@ from .services import FitbitActivityService
 
 @shared_task
 def update_fitbit_data(fitbit_user, date_string):
+    EventLog.debug(None, "shared_task: update_fitbit_data [fitbit_user={}, date_string={}]".format(fitbit_user, date_string))
     service = FitbitActivityService(
         fitbit_user = fitbit_user,
     )

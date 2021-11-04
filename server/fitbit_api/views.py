@@ -15,6 +15,7 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitUpdate
 from fitbit_api.models import FitbitSubscription
 from fitbit_api.models import FitbitAccountUpdate
+from user_event_logs.models import EventLog
 
 from .serializers import FitbitAccountSerializer
 
@@ -37,12 +38,14 @@ def fitbit_subscription(request):
             return Response('', status=status.HTTP_204_NO_CONTENT)
         return Response('', status=status.HTTP_404_NOT_FOUND)
     
+    EventLog.debug(None, "Fitbit subscription arrived: payload={}".format(request.data))
     fitbit_update = FitbitUpdate.objects.create(
         payload = request.data
     )
     for update in request.data:
         if 'ownerId' in update:
             try:
+                EventLog.debug(None, "Fitbit subscription arrived [FitbitAccount={}]: date={}".format(update['ownerId'], update['date']))
                 account = FitbitAccount.objects.get(
                     fitbit_user = update['ownerId']
                 )

@@ -3,7 +3,8 @@ import csv
 from django.core.exceptions import ImproperlyConfigured
 
 from .models import StepGoal
-# from activity_summaries.models import Day
+# from activity_summaries.models import Day as ActivitySummaryDay
+import activity_summaries.models
 
 from .models import User, StepGoalPRBScsv
 from user_event_logs.models import EventLog
@@ -52,7 +53,7 @@ class StepGoalsService():
             day_service = DayService(self.user)
             date = day_service.get_current_date()
             
-        steps_list = Day.objects.filter(user=self.user, date__lte=date).order_by('-date').all()[:(self.number_of_previous_days)]
+        steps_list = activity_summaries.models.Day.objects.filter(user=self.user, date__lte=date).order_by('-date').all()[:(self.number_of_previous_days)]
         ordered = sorted(steps_list, key=operator.attrgetter('steps'))
         
         len_steps_list = len(steps_list)
@@ -109,11 +110,11 @@ class StepGoalsService():
 
         user = User.objects.get(self.__user.username)
 
-        last_ten = Day.objects.all().order_by('-date')[:10]
+        last_ten = activity_summaries.models.Day.objects.all().order_by('-date')[:10]
         ordered = sorted(last_ten, key=operator.attrgetter('steps'))
         serialized_step_counts = []
 
-        all_days = Day.objects.all().order_by('-date')
+        all_days = activity_summaries.models.Day.objects.all().order_by('-date')
         index_of_today = len(all_days)
 
         with open('step-multipliers.csv', 'r') as csv_file:
