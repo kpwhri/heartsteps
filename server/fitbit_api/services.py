@@ -11,6 +11,7 @@ from fitbit.exceptions import HTTPTooManyRequests
 from fitbit.exceptions import HTTPUnauthorized
 
 from days.services import DayService
+from daily_step_goals.services import StepGoalsService
 
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
@@ -70,6 +71,12 @@ class FitbitService:
             }
         )
         return account
+
+    def get_latest_step_goal(self):
+        step_goal_service = StepGoalsService(user=self.__user)
+        goal = step_goal_service.get_step_goal()
+
+        return goal
 
     @property
     def fitbit_user(self):
