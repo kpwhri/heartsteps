@@ -353,3 +353,6 @@ class FitbitClient():
                     'device_version': device.get('deviceVersion', None)
                 })
         return devices
+
+    def set_daily_stepgoal(self, date, goal):
+        return 0
