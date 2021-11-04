@@ -132,7 +132,7 @@ class FitbitClient():
 
     class Unauthorized(ClientError):
         pass
-    
+
     class TooManyRequests(ClientError):
         pass
 
@@ -308,10 +308,10 @@ class FitbitClient():
 
     def parse_date(self, date):
         return parse_fitbit_date(date)
-    
+
     def format_datetime(self, dt):
         return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
-    
+
     def parse_datetime(self, string):
         dt = datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%f')
         return dt.replace(tzinfo = self.get_timezone())
@@ -362,4 +362,7 @@ class FitbitClient():
         return devices
 
     def set_daily_stepgoal(self, date, goal):
-        return 0
+        new_goal = 5000
+        response = self.client.activities_daily_goal(calories_out=None, active_minutes=None, floors=None, distance=None, steps=new_goal)
+
+        return response
