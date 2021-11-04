@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .models import StepGoal, ActivityDay
+from .models import StepGoal
 from activity_summaries.models import Day
 
 from user_event_logs.models import EventLog

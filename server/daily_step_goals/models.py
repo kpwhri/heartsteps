@@ -105,6 +105,6 @@ class StepGoal(models.Model):
         return list(task_list)
 
 
-class ActivityDay(models.Model):
-    day = models.ForeignKey(activity_summaries_models.Day,
-                            on_delete=models.CASCADE)
+# class ActivityDay(models.Model):
+#     day = models.ForeignKey(activity_summaries_models.Day,
+#                             on_delete=models.CASCADE)

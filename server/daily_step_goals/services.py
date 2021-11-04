@@ -2,8 +2,8 @@ import operator
 import csv
 from django.core.exceptions import ImproperlyConfigured
 
-from .models import StepGoal, ActivityDay
-from activity_summaries.models import Day
+from .models import StepGoal
+# from activity_summaries.models import Day
 
 from .models import User, StepGoalPRBScsv
 from user_event_logs.models import EventLog
