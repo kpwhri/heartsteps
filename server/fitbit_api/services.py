@@ -361,8 +361,8 @@ class FitbitClient():
                 })
         return devices
 
-    def set_daily_stepgoal(self, date, goal):
+    def set_daily_step_goal(self, date, goal):
         new_goal = 5000
-        response = self.client.activities_daily_goal(calories_out=None, active_minutes=None, floors=None, distance=None, steps=new_goal)
+        response = self.client.activities_daily_goal(steps=new_goal)
 
         return response
