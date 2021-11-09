@@ -17,38 +17,55 @@ class OneSignalInfo(models.Model):
     app_key = models.CharField(max_length=255, null=False)
     
     def get(user=None, study=None):
-        def get_default_key_id():
+        def get_default_key_id(user):
+            EventLog.debug(user)
             if not hasattr(settings, 'ONESIGNAL_APP_ID'):
+                EventLog.debug(user)
                 raise ImproperlyConfigured('No OneSignal APP ID')
+            EventLog.debug(user)
             app_id = settings.ONESIGNAL_APP_ID
+            EventLog.debug(user, "default app_id: {}".format(app_id))
             if not hasattr(settings, 'ONESIGNAL_API_KEY'):
+                EventLog.debug(user)
                 raise ImproperlyConfigured('No OneSignal API KEY')
+            EventLog.debug(user)
             app_key = settings.ONESIGNAL_API_KEY
+            EventLog.debug(user, "default api_key: {}".format(app_key))
                 
             return (app_id, app_key)
-        
+        EventLog.debug(user)
         if user is not None:
+            EventLog.debug(user)
             study_query = Participant.objects.filter(user=user)
+            EventLog.debug(user)
             if study_query.exists():
+                EventLog.debug(user)
                 study = study_query.first().cohort.study
                 info_query = OneSignalInfo.objects.filter(study=study)
-            
+                EventLog.debug(user)
                 if info_query.exists():
+                    EventLog.debug(user)
                     one_signal_info = OneSignalInfo.objects.filter(study=study).first()
+                    EventLog.debug(user)
                     return (one_signal_info.app_id, one_signal_info.app_key)
-            
-            return get_default_key_id()
+            EventLog.debug(user)
+            return get_default_key_id(user)
                 
-        elif study is not None:            
+        elif study is not None: 
+            EventLog.debug(user)           
             query = OneSignalInfo.objects.filter(study=study)
-            
+            EventLog.debug(user)
             if query.exists():
+                EventLog.debug(user)
                 one_signal_info = OneSignalInfo.objects.filter(study=study).first()
+                EventLog.debug(user)
                 return (one_signal_info.app_id, one_signal_info.app_key)
             else:
-                return get_default_key_id()
+                EventLog.debug(user)
+                return get_default_key_id(user)
         else:
-            return get_default_key_id()
+            EventLog.debug(user)
+            return get_default_key_id(user)
             
             
 class Device(models.Model):
