@@ -10,6 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 # from .models import OneSignalInfo
 import push_messages
+from user_event_logs.models import EventLog
 
 FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send'
 
@@ -73,6 +74,7 @@ class OneSignalClient(ClientBase):
         self.user = device.user
 
     def get_one_signal_notification_url(self):
+        EventLog.debug(self.user)
         return 'https://onesignal.com/api/v1/notifications'
 
     def get_api_key(self):
@@ -116,7 +118,7 @@ class OneSignalClient(ClientBase):
                 raise RuntimeError('OneSignal message status request failed')
 
     def send(self, body=None, title=None, collapse_subject=None, data={}):
-        
+        EventLog.debug(self.user)
         response = requests.post(
             self.get_one_signal_notification_url(),
             headers = {
@@ -136,11 +138,16 @@ class OneSignalClient(ClientBase):
                 'data': data
             }
         )
-
+        EventLog.debug(self.user)
         if response.status_code == 200:
+            import pprint
+            EventLog.debug(self.user, pprint.pformat(response.__dict__))
             response_data = response.json()
+            EventLog.debug(self.user, pprint.pformat(response_data))
             if 'errors' in response_data and response_data['errors'] and len(response_data['errors']) > 0:
+                EventLog.debug(self.user, response_data['errors'][0])
                 raise self.MessageSendError(response_data['errors'][0])
             return response_data['id']
         else:
+            EventLog.debug(self.user)
             raise self.MessageSendError(response.text)

@@ -7,6 +7,7 @@ from django.utils import timezone
 from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
 from push_messages.tasks import onesignal_get_received, onesignal_refresh_interval
+from user_event_logs.models import EventLog
 
 
 class DeviceMissingError(Exception):
@@ -64,6 +65,7 @@ class PushMessageService():
             raise DeviceMissingError()
 
     def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}, send_message_id_only=False):
+        EventLog.debug(self.user)
         message = Message.objects.create(
             recipient=self.user,
             device=self.device,
@@ -72,30 +74,37 @@ class PushMessageService():
             title=title,
             collapse_subject=collapse_subject
         )
+        EventLog.debug(self.user)
         data['messageId'] = str(message.uuid)
         message.data = data
         message.save()
-
+        EventLog.debug(self.user)
+        
         data_to_send = message.data
         if send_message_id_only:
             data_to_send = {
                 'messageId': data['messageId']
             }
-
+        EventLog.debug(self.user)
         try:
+            EventLog.debug(self.user)
             external_id = self.__client.send(
                 body=message.body,
                 title=message.title,
                 collapse_subject=message.collapse_subject,
                 data=data_to_send
             )
+            EventLog.debug(self.user)
         except self.__client.MessageSendError as error:
+            EventLog.debug(self.user)
             raise PushMessageService.MessageSendError(error)
+        EventLog.debug(self.user)
         MessageReceipt.objects.create(
             message=message,
             time=timezone.now(),
             type=MessageReceipt.SENT
         )
+        EventLog.debug(self.user)
         if external_id:
             message.external_id = external_id
             message.save()
@@ -105,15 +114,17 @@ class PushMessageService():
                     'message_id': message.id
                 }
             )
+        EventLog.debug(self.user)
         return message
 
     def send_notification(self, body, title=None, collapse_subject=None, data={}, send_message_id_only=False):
+        EventLog.debug(self.user)
         if title is None:
             title = "HeartSteps"
         data['body'] = body
         data['title'] = title
         data['collapse_subject'] = collapse_subject
-
+        EventLog.debug(self.user)
         return self.__send(
             message_type=Message.NOTIFICATION,
             body=body,
