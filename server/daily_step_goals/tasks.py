@@ -9,7 +9,7 @@ from .models import User
 from user_event_logs.models import EventLog
 
 from .services import StepGoalsService
-from fitbit_api.services import FitbitService
+from fitbit_api.services import FitbitClient
 
 @shared_task
 def update_goal(username):
@@ -18,12 +18,12 @@ def update_goal(username):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     try:
         service = StepGoalsService()
-        fitbit_service = FitbitService()
+        fitbit_service = FitbitClient()
         user = User.objects.get(username=username)
         from days.services import DayService
         day_service = DayService(user)
         today = day_service.get_current_date()
         service.create(today)
-        fitbit_service.get_latest_step_goal()
+        fitbit_service.update_step_goal()
     except StepGoalsService.NotEnabled():
         return None
