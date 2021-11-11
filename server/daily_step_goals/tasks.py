@@ -23,7 +23,8 @@ def update_goal(username):
         from days.services import DayService
         day_service = DayService(user)
         today = day_service.get_current_date()
+        step_goal = service.get_step_goal(today)
         service.create(today)
-        fitbit_service.update_step_goal()
+        fitbit_service.update_step_goal(step_goal)
     except StepGoalsService.NotEnabled():
         return None
