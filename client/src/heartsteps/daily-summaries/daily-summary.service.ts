@@ -148,6 +148,36 @@ export class DailySummaryService {
             });
     }
 
+    public updateFromFitbitWeek(end_date: Date): Promise<Array<DailySummary>> {
+        const endFormatted = this.serializer.formatDate(end_date);
+        let start_date: Date;
+        start_date.setDate(end_date.getDate() - 7);
+        const startFormatted = this.serializer.formatDate(start_date);
+        console.log("end_date=", end_date);
+        console.log("start_date=", start_date);
+        this.heartstepsServer
+            .get(`activity/summary/update/${startFormatted}/${endFormatted}`)
+            .then((response: Array<any>) => {
+                const summaries: Array<DailySummary> = [];
+                let promise = Promise.resolve();
+
+                response.forEach((item) => {
+                    const summary = this.serializer.deserialize(item);
+                    summaries.push(summary);
+
+                    promise = promise.then(() => {
+                        return this.store(summary).then(() => {
+                            return undefined;
+                        });
+                    });
+                });
+                return promise.then(() => {
+                    return summaries;
+                });
+            });
+        return this.updateCurrentWeek();
+    }
+
     public update(date: Date): Promise<DailySummary> {
         console.log("DailySummaryService.update() point 1");
         return this.loadDate(date).then((summary) => {

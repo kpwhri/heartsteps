@@ -34,6 +34,7 @@ from .models import NightlyUpdateRecord
 
 from user_event_logs.models import EventLog
 
+
 class ParticipantService:
 
     class NoParticipant(Participant.DoesNotExist):
@@ -127,7 +128,8 @@ class ParticipantService:
         Token.objects.filter(user=self.participant.user).delete()
 
     def get_heartsteps_id(self):
-        EventLog.debug(self.participant.user, "e19fe10c-1d46-4a74-a427-29130725c7f9")
+        EventLog.debug(self.participant.user,
+                       "e19fe10c-1d46-4a74-a427-29130725c7f9")
         return self.participant.heartsteps_id
 
     def initialize(self):
@@ -140,59 +142,69 @@ class ParticipantService:
         EventLog.debug(self.participant.user)
         self.enable()
         EventLog.debug(self.participant.user)
-        
+
         if self.user is None:
             raise ValueError("self.user is None")
-        
+
         if self.participant is None:
             raise ValueError("self.participant is None")
-        
+
         if self.participant.cohort is None:
             raise ValueError("self.participant.cohort is None")
         else:
             self.cohort = self.participant.cohort
-        
+
         if self.cohort.study is None:
             raise ValueError("self.cohort.study is None")
         else:
             self.study = self.cohort.study
-        
+
         if self.study.studywide_feature_flags is None:
-            EventLog.debug(self.user, "self.study.studywide_feature_flags is None")
+            EventLog.debug(
+                self.user, "self.study.studywide_feature_flags is None")
             self.study.studywide_feature_flags = ""
-        EventLog.debug(self.user, "studywide_feature_flags is {}".format(self.study.studywide_feature_flags))
-        FeatureFlags.create_or_update(self.participant.user, self.study.studywide_feature_flags)
+        EventLog.debug(self.user, "studywide_feature_flags is {}".format(
+            self.study.studywide_feature_flags))
+        FeatureFlags.create_or_update(
+            self.participant.user, self.study.studywide_feature_flags)
         EventLog.debug(self.user)
 
     def is_enabled(self):
         return self.participant.active
 
     def is_baseline_complete(self):
-        EventLog.info(self.user, "is_baseline_complete() initialized. b894c128-c29f-4eda-ab16-02623eb93d3f")
+        EventLog.info(
+            self.user, "is_baseline_complete() initialized. b894c128-c29f-4eda-ab16-02623eb93d3f")
         try:
             service = FitbitActivityService(user=self.user)
             EventLog.info(self.user, "FitbitActivityService is initialized.")
         except FitbitActivityService.NoAccount:
-            EventLog.info(self.user, "FitbitActivityService is not initialized. No FitbitAccount.")
+            EventLog.info(
+                self.user, "FitbitActivityService is not initialized. No FitbitAccount.")
             return False
         if self.user.is_staff:
             EventLog.info(self.user, "is_staff is true. returning true...")
             return True
         start_date = self.participant.get_study_start_date()
-        EventLog.info(self.user, "participant.get_study_start_date(): {}".format(start_date))
+        EventLog.info(
+            self.user, "participant.get_study_start_date(): {}".format(start_date))
         if start_date:
             days_worn = service.get_days_worn(start_date)
-            EventLog.info(self.user, "start_date is {}. service.get_days_worn(): {}".format(start_date, days_worn))
+            EventLog.info(self.user, "start_date is {}. service.get_days_worn(): {}".format(
+                start_date, days_worn))
         else:
             days_worn = service.get_days_worn()
-            EventLog.info(self.user, "start_date is None. service.get_days_worn(): {}".format(days_worn))
+            EventLog.info(
+                self.user, "start_date is None. service.get_days_worn(): {}".format(days_worn))
         baseline_period = self.get_baseline_period()
         EventLog.info(self.user, "baseline_period: {}".format(baseline_period))
         if days_worn >= baseline_period:
-            EventLog.info(self.user, "days_worn >= basline_period. returning true")
+            EventLog.info(
+                self.user, "days_worn >= basline_period. returning true")
             return True
         else:
-            EventLog.info(self.user, "days_worn < basline_period. returning false")
+            EventLog.info(
+                self.user, "days_worn < basline_period. returning false")
             return False
 
     def enable(self):
@@ -317,13 +329,15 @@ class ParticipantService:
             user=self.participant.user).update(enabled=False)
 
     def update(self, date=None):
-        EventLog.info(self.participant.user, "ParticipantService.update() initiated.")
-        
+        EventLog.info(self.participant.user,
+                      "ParticipantService.update() initiated.")
+
         if date is None:
-            EventLog.info(self.participant.user, "  date is None. Replacing with yesterday.")
+            EventLog.info(self.participant.user,
+                          "  date is None. Replacing with yesterday.")
             day_service = DayService(user=self.participant.user)
             date = day_service.get_current_date() - timedelta(days=1)
-            
+
         update_record = NightlyUpdateRecord(
             user=self.participant.user,
             date=date,
@@ -331,123 +345,155 @@ class ParticipantService:
         )
         try:
             if self.is_baseline_complete():
-                EventLog.info(self.participant.user, "  self.is_baseline_complete is true.")
+                EventLog.info(self.participant.user,
+                              "  self.is_baseline_complete is true.")
                 try:
                     AntiSedentaryConfiguration.objects.get(
                         user=self.participant.user)
-                    EventLog.info(self.participant.user, "  AntiSedentaryConfiguration object is found.")
+                    EventLog.info(self.participant.user,
+                                  "  AntiSedentaryConfiguration object is found.")
                 except AntiSedentaryConfiguration.DoesNotExist:
                     AntiSedentaryConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  AntiSedentaryConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  AntiSedentaryConfiguration object is created.")
                 try:
                     MorningMessagesConfiguration.objects.get(
                         user=self.participant.user)
-                    EventLog.info(self.participant.user, "  MorningMessagesConfiguration object is found.")
+                    EventLog.info(
+                        self.participant.user, "  MorningMessagesConfiguration object is found.")
                 except MorningMessagesConfiguration.DoesNotExist:
                     MorningMessagesConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  MorningMessagesConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  MorningMessagesConfiguration object is created.")
                 try:
                     WalkingSuggestionConfiguration.objects.get(
                         user=self.participant.user)
-                    EventLog.info(self.participant.user, "  WalkingSuggestionConfiguration object is found.")
+                    EventLog.info(
+                        self.participant.user, "  WalkingSuggestionConfiguration object is found.")
                 except WalkingSuggestionConfiguration.DoesNotExist:
                     WalkingSuggestionConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  WalkingSuggestionConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  WalkingSuggestionConfiguration object is created.")
                 try:
                     ActivitySurveyConfiguration.objects.get(
                         user=self.participant.user
                     )
-                    EventLog.info(self.participant.user, "  ActivitySurveyConfiguration object is found.")
+                    EventLog.info(
+                        self.participant.user, "  ActivitySurveyConfiguration object is found.")
                 except ActivitySurveyConfiguration.DoesNotExist:
                     ActivitySurveyConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  ActivitySurveyConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  ActivitySurveyConfiguration object is created.")
                 try:
                     wss_config = WalkingSuggestionSurveyConfiguration.objects.get(
                         user=self.participant.user
                     )
-                    EventLog.info(self.participant.user, "  WalkingSuggestionSurveyConfiguration object is found.")
+                    EventLog.info(
+                        self.participant.user, "  WalkingSuggestionSurveyConfiguration object is found.")
                 except WalkingSuggestionSurveyConfiguration.DoesNotExist:
                     wss_config = WalkingSuggestionSurveyConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  WalkingSuggestionSurveyConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  WalkingSuggestionSurveyConfiguration object is created.")
                 try:
                     GenericMessagesConfiguration.objects.get(
                         user=self.participant.user
                     )
-                    EventLog.info(self.participant.user, "  GenericMessagesConfiguration object is found.")
+                    EventLog.info(
+                        self.participant.user, "  GenericMessagesConfiguration object is found.")
                 except GenericMessagesConfiguration.DoesNotExist:
                     GenericMessagesConfiguration.objects.create(
                         user=self.participant.user,
                         enabled=True
                     )
-                    EventLog.info(self.participant.user, "  GenericMessagesConfiguration object is created.")
+                    EventLog.info(
+                        self.participant.user, "  GenericMessagesConfiguration object is created.")
             else:
-                EventLog.info(self.participant.user, "  self.is_baseline_complete is false.")
+                EventLog.info(self.participant.user,
+                              "  self.is_baseline_complete is false.")
 
-            EventLog.info(self.participant.user, "  ParticipantService.update_fitbit() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_fitbit() is running")
             self.update_fitbit(date)
-            EventLog.info(self.participant.user, "  ParticipantService.update_message_receipts() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_message_receipts() is running")
             self.update_message_receipts(date)
-            EventLog.info(self.participant.user, "  ParticipantService.update_adherence() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_adherence() is running")
             self.update_adherence(date)
-            EventLog.info(self.participant.user, "  ParticipantService.update_weather_forecasts() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_weather_forecasts() is running")
             self.update_weather_forecasts(date)
-            EventLog.info(self.participant.user, "  ParticipantService.update_anti_sedentary() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_anti_sedentary() is running")
             self.update_anti_sedentary(date)
-            EventLog.info(self.participant.user, "  ParticipantService.update_walking_suggestions() is running")
+            EventLog.info(self.participant.user,
+                          "  ParticipantService.update_walking_suggestions() is running")
             self.update_walking_suggestions(date)
         except Exception as e:
             update_record.error = e
-            EventLog.error(self.participant.user, "  ParticipantService.update() error: {}".format(e))
+            EventLog.error(self.participant.user,
+                           "  ParticipantService.update() error: {}".format(e))
         update_record.end = timezone.now()
         update_record.save()
-        EventLog.info(self.participant.user, "ParticipantService.update() finished.")
+        EventLog.info(self.participant.user,
+                      "ParticipantService.update() finished.")
 
     def update_fitbit(self, date):
-        EventLog.info(self.participant.user, "ParticipantService.update_fitbit() is called")
+        EventLog.info(self.participant.user,
+                      "ParticipantService.update_fitbit() is called")
         try:
             service = FitbitActivityService(
                 user=self.participant.user
             )
-            EventLog.info(self.participant.user, "FitbitActivityService is created")
+            EventLog.info(self.participant.user,
+                          "FitbitActivityService is created")
 
             # temporary to update minutes worn
             days_with_no_minutes_worn = FitbitDay.objects.filter(
                 account=service.account,
                 minutes_worn=None
             ).prefetch_related('account').all()
-            EventLog.info(self.participant.user, "FitbitDays with no minutes are fetched: {}".format(days_with_no_minutes_worn))
+            EventLog.info(self.participant.user, "FitbitDays with no minutes are fetched: {}".format(
+                days_with_no_minutes_worn))
             for _day in days_with_no_minutes_worn:
-                EventLog.info(self.participant.user, "This FitbitDay has no minutes. Refreshing: {}".format(_day))
+                EventLog.info(
+                    self.participant.user, "This FitbitDay has no minutes. Refreshing: {}".format(_day))
                 _day.save()
-                EventLog.info(self.participant.user, "---> refreshed: {}".format(_day))
+                EventLog.info(self.participant.user,
+                              "---> refreshed: {}".format(_day))
 
             incomplete_dates = [_d.date for _d in FitbitDay.objects.filter(
                 account=service.account, completely_updated=False).all()]
-            EventLog.info(self.participant.user, "FitbitDays with incomplete minutes are fetched: {}".format(incomplete_dates))
+            EventLog.info(self.participant.user, "FitbitDays with incomplete minutes are fetched: {}".format(
+                incomplete_dates))
             if date not in incomplete_dates:
-                EventLog.info(self.participant.user, "This FitbitDay is incomplete. Refreshing: {}".format(date))
+                EventLog.info(
+                    self.participant.user, "This FitbitDay is incomplete. Refreshing: {}".format(date))
                 incomplete_dates.append(date)
-                EventLog.info(self.participant.user, "---> refreshed: {}".format(date))
+                EventLog.info(self.participant.user,
+                              "---> refreshed: {}".format(date))
             for _date in sorted(incomplete_dates):
                 service.update(_date)
-            EventLog.info(self.participant.user, "All incomplete days have been filled.")
+            EventLog.info(self.participant.user,
+                          "All incomplete days have been filled.")
         except FitbitActivityService.TooManyRequests:
-            EventLog.info(self.participant.user, "Fitbit server rejected due to too many requests. Retrying in 90 minutes.")
+            EventLog.info(self.participant.user,
+                          "Fitbit server rejected due to too many requests. Retrying in 90 minutes.")
             update_incomplete_days.apply_async(
                 eta=timezone.now() + timedelta(minutes=90),
                 kwargs={
@@ -455,17 +501,21 @@ class ParticipantService:
                 }
             )
         except FitbitActivityService.Unauthorized:
-            EventLog.info(self.participant.user, "Fitbit server rejected due to unauthorized requests. Not going to retry.")
+            EventLog.info(self.participant.user,
+                          "Fitbit server rejected due to unauthorized requests. Not going to retry.")
         except FitbitActivityService.NoAccount:
-            EventLog.info(self.participant.user, "Fitbit server rejected due to no account. Not going to retry.")
+            EventLog.info(self.participant.user,
+                          "Fitbit server rejected due to no account. Not going to retry.")
 
     def update_adherence(self, date):
         EventLog.info(self.user, "update_adherence() is called")
         try:
             service = AdherenceService(user=self.user)
-            EventLog.info(self.user, "AdherenceService is initialized: {}".format(service))
+            EventLog.info(
+                self.user, "AdherenceService is initialized: {}".format(service))
             service.update_adherence(date)
-            EventLog.info(self.user, "service.update_adherence({}) is called".format(date))
+            EventLog.info(
+                self.user, "service.update_adherence({}) is called".format(date))
         except AdherenceService.NoConfiguration:
             EventLog.error(self.user, "AdherenceService.NoConfiguration")
 
@@ -475,14 +525,18 @@ class ParticipantService:
             anti_sedentary_service = AntiSedentaryService(
                 user=self.user
             )
-            EventLog.info(self.user, "AntiSedentaryService is initialized: {}".format(anti_sedentary_service))
+            EventLog.info(self.user, "AntiSedentaryService is initialized: {}".format(
+                anti_sedentary_service))
             if self.is_enabled() and self.is_baseline_complete():
                 anti_sedentary_service.enable()
-                EventLog.info(self.user, "AntiSedentaryService is turned on: {}".format(anti_sedentary_service))
+                EventLog.info(self.user, "AntiSedentaryService is turned on: {}".format(
+                    anti_sedentary_service))
             anti_sedentary_service.update(date)
-            EventLog.info(self.user, "AntiSedentaryService is updated: {}".format(anti_sedentary_service))
+            EventLog.info(self.user, "AntiSedentaryService is updated: {}".format(
+                anti_sedentary_service))
         except (AntiSedentaryService.NoConfiguration, AntiSedentaryService.Unavailable, AntiSedentaryService.RequestError) as e:
-            EventLog.error(self.user, "AntiSedentaryService error: {}".format(e))
+            EventLog.error(
+                self.user, "AntiSedentaryService error: {}".format(e))
 
     def update_walking_suggestions(self, date):
         EventLog.info(self.user, "update_walking_suggestions() is called")
@@ -495,21 +549,27 @@ class ParticipantService:
                 walking_suggestion_service.enable()
                 EventLog.info(self.user, "Walking suggestion is turned on")
             walking_suggestion_service.nightly_update(date)
-            EventLog.info(self.user, "walking_suggestion_service.nightly_update({})".format(date))
+            EventLog.info(
+                self.user, "walking_suggestion_service.nightly_update({})".format(date))
         except (WalkingSuggestionService.Unavailable, WalkingSuggestionService.UnableToInitialize, WalkingSuggestionService.RequestError) as e:
-            EventLog.error(self.user, "walking_suggestion_service error: {}".format(e))
+            EventLog.error(
+                self.user, "walking_suggestion_service error: {}".format(e))
 
     def update_weather_forecasts(self, date):
         EventLog.info(self.user, "Update weather forecast is called")
         try:
             weather_service = WeatherService(user=self.user)
-            EventLog.info(self.user, "Weather service is created: {}".format(weather_service))
+            EventLog.info(
+                self.user, "Weather service is created: {}".format(weather_service))
             weather_service.update_daily_forecast(date)
-            EventLog.info(self.user, "Daily Forecast is updated: {}".format(weather_service))
+            EventLog.info(
+                self.user, "Daily Forecast is updated: {}".format(weather_service))
             weather_service.update_forecasts()
-            EventLog.info(self.user, "Forecasts are updated: {}".format(weather_service))
+            EventLog.info(
+                self.user, "Forecasts are updated: {}".format(weather_service))
         except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable) as e:
-            EventLog.error(self.user, "Exception during Forecast update: {}".format(e))
+            EventLog.error(
+                self.user, "Exception during Forecast update: {}".format(e))
 
     def update_message_receipts(self, date):
         EventLog.info(self.user, "Update message receipt initialized.")
@@ -525,5 +585,6 @@ class ParticipantService:
         ).all()
         EventLog.info(self.user, "All messages sent today are fetched.")
         for message in messages:
-            EventLog.info(self.user, "Updating message receipt: {}".format(message))
+            EventLog.info(
+                self.user, "Updating message receipt: {}".format(message))
             message.update_message_receipts()

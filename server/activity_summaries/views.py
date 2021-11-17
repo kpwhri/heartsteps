@@ -19,17 +19,18 @@ from .models import Day
 from .serializers import ActivitySummarySerializer
 from .serializers import DaySerializer
 
+
 def get_summary(user, date):
     day_query = Day.objects.filter(
-        user = user,
-        date = date
+        user=user,
+        date=date
     ).order_by('updated')
     if day_query.count() > 0:
         return day_query.last()
     else:
         day = Day.objects.create(
-            user = user,
-            date = date
+            user=user,
+            date=date
         )
         day.update_from_activities()
         day.update_from_fitbit()
@@ -44,6 +45,7 @@ class DaySummaryView(DayView):
         summary = get_summary(request.user, day)
         serialized = DaySerializer(summary)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
 
 class DateRangeSummaryView(DayView):
 
@@ -61,7 +63,7 @@ class DateRangeSummaryView(DayView):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         results = Day.objects.filter(
-            user = request.user,
+            user=request.user,
             date__range=[start_date, end_date]
         ).order_by('date').all()
         results = list(results)
@@ -73,8 +75,8 @@ class DateRangeSummaryView(DayView):
                 summaries.append(results.pop(0))
             else:
                 day = Day.objects.create(
-                    user = request.user,
-                    date = index_date
+                    user=request.user,
+                    date=index_date
                 )
                 day.update_from_fitbit()
                 day.update_from_activities()
@@ -82,6 +84,7 @@ class DateRangeSummaryView(DayView):
             index_date = index_date + timedelta(days=1)
         serialized = DaySerializer(summaries, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)
+
 
 class DaySummaryUpdateView(DayView):
 
@@ -93,9 +96,9 @@ class DaySummaryUpdateView(DayView):
         EventLog.debug(request.user)
         try:
             service = FitbitDayService(
-                date = date,
-                user = request.user
-                )
+                date=date,
+                user=request.user
+            )
             EventLog.debug(request.user)
             service.update()
             EventLog.debug(request.user)
@@ -109,17 +112,68 @@ class DaySummaryUpdateView(DayView):
         EventLog.debug(request.user)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
+
+class DateRangeSummaryUpdateView(DayView):
+
+    def get(self, request, start, end):
+        start_date = self.parse_date(start)
+        end_date = self.parse_date(end)
+        day_joined = self.get_day_joined(request.user)
+
+        if start_date < day_joined:
+            start_date = day_joined
+        if end_date < day_joined:
+            raise Http404()
+
+        if start_date > end_date:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+        index_date = start_date
+        while index_date <= end_date:
+            try:
+                service = FitbitDayService(
+                    date=index_date,
+                    user=request.user
+                )
+                service.update()
+            except:
+                return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
+            index_date = index_date + timedelta(days=1)
+
+        results = Day.objects.filter(
+            user=request.user,
+            date__range=[start_date, end_date]
+        ).order_by('date').all()
+        results = list(results)
+
+        summaries = []
+        index_date = start_date
+        while index_date <= end_date:
+            if results and results[0].date == index_date:
+                summaries.append(results.pop(0))
+            else:
+                day = Day.objects.create(
+                    user=request.user,
+                    date=index_date
+                )
+                day.update_from_fitbit()
+                day.update_from_activities()
+                summaries.append(day)
+            index_date = index_date + timedelta(days=1)
+        serialized = DaySerializer(summaries, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
+
 class ActivitySummaryView(APIView):
 
     def get(self, request):
         summary = ActivitySummary.objects.filter(
-            user = request.user
+            user=request.user
         ).last()
         if not summary:
             summary = ActivitySummary.objects.create(
-                user = request.user
+                user=request.user
             )
             summary.update()
         serialized = ActivitySummarySerializer(summary)
         return Response(serialized.data, status.HTTP_200_OK)
-

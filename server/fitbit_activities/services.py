@@ -53,6 +53,7 @@ class FitbitDayService(FitbitService):
         self.day._distance = self.update_distance()
         self.update_heart_rate()
         self.update_activities()
+        update_devices(self.account)
         last_tracker_update = self.account.get_last_tracker_sync_time()
         if last_tracker_update and last_tracker_update > self.day.get_end_datetime(
         ):
@@ -204,21 +205,21 @@ class FitbitStepCountService:
         step_data_list = self.get_all_step_data_between(start, end)
 
         return [{"time": x.time, "steps": x.steps} for x in step_data_list]
-    
+
     def get_all_step_data_list_between(self, start, end):
         assert end > start, "end must be greater than start"
-        
+
         def get_index(start, time_):
             return int(round((time_-start).total_seconds()/60))
-        
+
         number_of_minutes = get_index(start, end)
-        
+
         step_list = [0] * number_of_minutes
-        
+
         for a_minute in self.get_all_step_data_between(start, end):
             index = get_index(start, a_minute.time)
             step_list[index] += a_minute.steps
-        
+
         return step_list
 
     def is_sedentary_at(self, time):
@@ -230,6 +231,23 @@ class FitbitStepCountService:
     def steps_at(self, time):
         return self.get_step_count_between(start=time - timedelta(minutes=5),
                                            end=time)
+
+
+def update_devices(account):
+    client = FitbitClient(account=account)
+    for device in client.get_devices():
+        fitbit_device, _ = FitbitDevice.objects.update_or_create(
+            account=account,
+            fitbit_id=device['id'],
+            defaults={
+                'device_type': device.get('type', None),
+                'device_version': device.get('device_version', None),
+                'mac': device.get('mac', None)
+            })
+        if 'last_sync_time' in device:
+            fitbit_device.add_update(time=device['last_sync_time'],
+                                     battery_level=device.get(
+                'battery_level', None))
 
 
 class FitbitActivityService(FitbitService):
@@ -255,21 +273,6 @@ class FitbitActivityService(FitbitService):
         else:
             return FitbitDay.objects.filter(account=self.account,
                                             wore_fitbit=True).count()
-
-    def update_devices(self):
-        for device in self.__client.get_devices():
-            fitbit_device, _ = FitbitDevice.objects.update_or_create(
-                account=self.account,
-                fitbit_id=device['id'],
-                defaults={
-                    'device_type': device.get('type', None),
-                    'device_version': device.get('device_version', None),
-                    'mac': device.get('mac', None)
-                })
-            if 'last_sync_time' in device:
-                fitbit_device.add_update(time=device['last_sync_time'],
-                                         battery_level=device.get(
-                                             'battery_level', None))
 
     def update(self, date):
         try:

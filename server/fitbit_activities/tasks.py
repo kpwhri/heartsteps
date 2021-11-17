@@ -20,21 +20,21 @@ from .services import FitbitActivityService
 def update_fitbit_data(fitbit_user, date_string):
     EventLog.debug(None, "shared_task: update_fitbit_data [fitbit_user={}, date_string={}]".format(fitbit_user, date_string))
     service = FitbitActivityService(
-        fitbit_user = fitbit_user,
+        fitbit_user=fitbit_user,
     )
-    service.update_devices()
     date = service.parse_date(date_string)
     service.update(date)
+
 
 @shared_task
 def update_incomplete_days(fitbit_user):
     try:
         service = FitbitActivityService(
-            fitbit_user = fitbit_user
+            fitbit_user=fitbit_user
         )
         query = FitbitDay.objects.filter(
-            account = service.account,
-            completely_updated = False
+            account=service.account,
+            completely_updated=False
         ).order_by('date')
         for day in query.all():
             service.update(day.date)
@@ -42,24 +42,24 @@ def update_incomplete_days(fitbit_user):
         pass
     except FitbitClient.TooManyRequests:
         update_incomplete_days.apply_async(
-            eta = timezone.now() + timedelta(minutes=90),
-            kwargs = {
+            eta=timezone.now() + timedelta(minutes=90),
+            kwargs={
                 'fitbit_user': fitbit_user
             }
         )
 
+
 @shared_task
 def update_all_fitbit_data(fitbit_user):
-    service = FitbitAccount(fitbit_user = fitbit_user)
+    service = FitbitAccount(fitbit_user=fitbit_user)
     FitbitDay.objects.filter(
-        account = account
+        account=account
     ).update(
-        completely_updated = False
+        completely_updated=False
     )
     update_incomplete_days.apply_async(kwargs={
         'fitbit_user': fitbit_user
     })
-
 
 
 class FitbitMinuteDataResource(resources.Resource):
@@ -82,12 +82,13 @@ class FitbitMinuteDataResource(resources.Resource):
             'heart_rate'
         ]
 
-def export_fitbit_data(username, directory = None, filename = None, start=None, end=None):
+
+def export_fitbit_data(username, directory=None, filename=None, start=None, end=None):
     if not directory:
         directory = './'
     if not filename:
         filename = '{username}.fitbit_minutes.csv'.format(
-            username = username
+            username=username
         )
     fitbit_service = FitbitActivityService(username=username)
     fitbit_account = fitbit_service.account
@@ -116,7 +117,8 @@ def export_fitbit_data(username, directory = None, filename = None, start=None, 
 
     dates = sorted(list(days_by_date.keys()))
     date_range = (dates[-1] - dates[0]).days
-    all_days = [dates[0] + timedelta(days=offset) for offset in range(date_range)]
+    all_days = [dates[0] + timedelta(days=offset)
+                for offset in range(date_range)]
 
     for _date in all_days:
         if _date in days_by_date:
@@ -134,7 +136,8 @@ def export_fitbit_data(username, directory = None, filename = None, start=None, 
                     _m.heart_rate = minute['heart_rate']
                 minute_level_data.append(_m)
         else:
-            start_datetime = datetime(_date.year, _date.month, _date.day, 0, 0, 0)
+            start_datetime = datetime(
+                _date.year, _date.month, _date.day, 0, 0, 0)
             end_datetime = start_datetime + timedelta(days=1)
             current_minute = start_datetime
             while current_minute < end_datetime:
@@ -146,12 +149,13 @@ def export_fitbit_data(username, directory = None, filename = None, start=None, 
                 _m.time = current_minute.strftime('%H:%M:S')
                 minute_level_data.append(_m)
                 current_minute = current_minute + timedelta(minutes=1)
-    
+
     dataset = FitbitMinuteDataResource().export(minute_level_data)
 
     _file = open(os.path.join(directory, filename), 'w')
     _file.write(dataset.csv)
     _file.close()
+
 
 def export_missing_fitbit_data(users, filename=None, directory=None, start=None, end=None):
     if not filename:
@@ -164,7 +168,7 @@ def export_missing_fitbit_data(users, filename=None, directory=None, start=None,
     ).prefetch_related('user').prefetch_related('account')
     accounts = []
     username_by_fitbit_account = {}
-    account_id_by_username = {}        
+    account_id_by_username = {}
     for au in account_user_query.all():
         username_by_fitbit_account[au.account.fitbit_user] = au.user.username
         account_id_by_username[au.user.username] = au.account.fitbit_user
@@ -172,7 +176,8 @@ def export_missing_fitbit_data(users, filename=None, directory=None, start=None,
             accounts.append(au.account)
     account_ids = [account.fitbit_user for account in accounts]
     complete_data_dates = {}
-    days = FitbitDay.objects.filter(account__fitbit_user__in=account_ids).prefetch_related('account').all()
+    days = FitbitDay.objects.filter(
+        account__fitbit_user__in=account_ids).prefetch_related('account').all()
     all_dates = []
     for _day in days:
         account_id = _day.account.fitbit_user
