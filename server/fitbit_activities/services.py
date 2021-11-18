@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import pytz
 from dateutil import parser as dateutil_parser
+from django.core.exceptions import ImproperlyConfigured
 
 from django.utils import timezone
 
