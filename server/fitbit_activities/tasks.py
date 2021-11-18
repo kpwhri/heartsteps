@@ -20,7 +20,7 @@ def update_fitbit_data(fitbit_user, date_string):
     service = FitbitActivityService(
         fitbit_user = fitbit_user,
     )
-    service.update_devices()
+    # service.update_devices()
     date = service.parse_date(date_string)
     service.update(date)
 

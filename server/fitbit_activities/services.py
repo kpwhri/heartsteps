@@ -53,6 +53,7 @@ class FitbitDayService(FitbitService):
         self.day._distance = self.update_distance()
         self.update_heart_rate() 
         self.update_activities()
+        update_devices(self.account)
         last_tracker_update = self.account.get_last_tracker_sync_time()
         if last_tracker_update and last_tracker_update > self.day.get_end_datetime():
             self.day.completely_updated = True
