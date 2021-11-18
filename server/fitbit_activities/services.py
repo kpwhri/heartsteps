@@ -221,6 +221,23 @@ class FitbitStepCountService:
         )
 
 
+def update_devices(account):
+    client = FitbitClient(account=account)
+    for device in client.get_devices():
+        fitbit_device, _ = FitbitDevice.objects.update_or_create(
+            account=account,
+            fitbit_id=device['id'],
+            defaults={
+                'device_type': device.get('type', None),
+                'device_version': device.get('device_version', None),
+                'mac': device.get('mac', None)
+            })
+        if 'last_sync_time' in device:
+            fitbit_device.add_update(time=device['last_sync_time'],
+                                     battery_level=device.get(
+                'battery_level', None))
+
+
 class FitbitActivityService(FitbitService):
 
     class Unauthorized(FitbitClient.Unauthorized):
