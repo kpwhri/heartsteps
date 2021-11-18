@@ -18,7 +18,6 @@ from user_event_logs.models import EventLog
 def insertSteps():
     daily_step_goal_log = StepGoal()
 
-    # daily_step_goal_log.step_goal = getNewGoal()
     daily_step_goal_log.date = datetime.today()
     daily_step_goal_log.save()
 

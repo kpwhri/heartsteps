@@ -9,7 +9,6 @@ from daily_tasks.models import DailyTask
 from .constants import TASK_CATEGORY
 import uuid
 
-# from activity_summaries.models import Day
 from activity_summaries import models as activity_summaries_models
 
 from participants.models import Cohort
@@ -60,10 +59,6 @@ class StepGoal(models.Model):
     date = models.DateField()
     step_goal = models.PositiveIntegerField()
 
-    # @property
-    # def id(self):
-    #     return str(self.uuid)
-
     def get(user, date=None):
         query = StepGoal.objects.filter(user=user).order_by('-date')
         
@@ -103,8 +98,3 @@ class StepGoal(models.Model):
         task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
 
         return list(task_list)
-
-
-# class ActivityDay(models.Model):
-#     day = models.ForeignKey(activity_summaries_models.Day,
-#                             on_delete=models.CASCADE)
