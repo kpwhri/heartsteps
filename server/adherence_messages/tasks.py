@@ -1,25 +1,18 @@
 from celery import shared_task
 from datetime import timedelta
-from datetime import date
 from import_export import resources
 from import_export.fields import Field
 import os
-import pytz
 
-from anti_sedentary.models import AntiSedentaryDecision
 from days.models import Day
-from days.services import DayService
 from locations.models import Location
-from walking_suggestions.models import WalkingSuggestionDecision
 from fitbit_activities.models import FitbitDay
 from fitbit_api.services import FitbitService
 from fitbit_api.models import FitbitSubscriptionUpdate
 from fitbit_api.models import FitbitAccountUpdate
 from push_messages.models import Message
 from page_views.models import PageView
-from watch_app.services import StepCountService as WatchAppStepCountService
 
-from .models import AdherenceMetric
 from .services import AdherenceService
 
 @shared_task

@@ -187,6 +187,7 @@ class FitbitMinuteStepCount(models.Model):
     steps = models.IntegerField()
 
 class FitbitMinuteHeartRate(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, serialize=False, unique=True, null=False)
     account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
     time = models.DateTimeField()
     heart_rate = models.IntegerField()

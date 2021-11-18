@@ -7,6 +7,7 @@ __pycache__/
 
 credentials
 credentials.tar
+credentials.tar.gpg
 
 .sourcemaps
 node_modules

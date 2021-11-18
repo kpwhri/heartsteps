@@ -1,30 +1,70 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
-import { Notification } from "@heartsteps/notification-center/Notification";
+import { Message } from "@heartsteps/notifications/message.model";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: "page-notification-center",
     templateUrl: "notification-center.html",
 })
-export class NotificationCenterPage implements OnInit {
-    public notifications: Notification[] = [];
-    // TODO: remove hardocode
-    private cohortId: number = 12345;
-    private userId: string = "garbage";
+export class NotificationCenterPage implements OnInit, OnDestroy {
+    public notifications: Message[] = [];
+    public haveUnread: boolean = false;
+    public featureFlags: FeatureFlags;
 
-    constructor(private notificationService: NotificationCenterService) {
-        this.notifications;
+    private unreadStatusSubscription: Subscription;
+    private notificationsSubscription: Subscription;
+
+    private featureFlagSubscription: Subscription;
+
+    constructor(
+        private notificationCenterService: NotificationCenterService,
+        private featureFlagService: FeatureFlagService
+    ) {}
+
+    // redirects message based on message.type
+    public redirect(notification: Message) {
+        return this.notificationCenterService.redirectNotification(
+            notification
+        );
     }
 
-    private getNotifications(): Promise<Notification[]> {
-        return this.notificationService
-            .getRecentNotifications(this.cohortId, this.userId)
-            .then((notifications) => {
-                return (this.notifications = notifications);
-            });
+    public isReceived(notification: Message): boolean {
+        return this.notificationCenterService.isReceived(notification);
+    }
+
+    public isRead(notification: Message): boolean {
+        return this.notificationCenterService.isRead(notification);
+    }
+
+    public hasFlag(flag: string): boolean {
+        // console.log("notification-center.ts notification center flag called");
+        return this.featureFlagService.hasFlag(flag);
     }
 
     ngOnInit() {
-        this.getNotifications();
+        this.notificationsSubscription =
+            this.notificationCenterService.currentNotifications.subscribe(
+                (notifications) => (this.notifications = notifications)
+            );
+        this.unreadStatusSubscription =
+            this.notificationCenterService.currentUnreadStatus.subscribe(
+                (unreadStatus) => (this.haveUnread = unreadStatus)
+            );
+
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
+            );
+        this.notificationCenterService.getNotifications();
+    }
+
+    ngOnDestroy() {
+        this.notificationCenterService.updateAllNotifications();
+        this.notificationsSubscription.unsubscribe();
+        this.unreadStatusSubscription.unsubscribe();
+        this.featureFlagSubscription.unsubscribe();
     }
 }

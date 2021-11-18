@@ -1,0 +1,166 @@
+{
+    "meta": {
+        "version": 1,
+        "name": "sample study design made by Junghwan Park, July 1 2021",
+        "contact": "jup014@eng.ucsd.edu"
+        "prefix": "edu.ucsd.ehekler"
+    },
+    "info": {
+        "study_name": "SCH: INT: Control Systems Engineering for Counteracting Notification Fatigue: An Examination of Health Behavior Change.",
+        "PI": [{
+                "name": {
+                    "firstname": "Eric",
+                    "middlename": "B.",
+                    "lastname": "Hekler"
+                },
+                "title": "Dr.",
+                "institute": "University of California, San Diego",
+                "contact": "ehekler@ucsd.edu"
+            },
+            {
+                "name": {
+                    "firstname": "Daniel",
+                    "middlename": "E.",
+                    "lastname": "Rivera"
+                },
+                "title": "Dr.",
+                "institute": "Arizona State University",
+                "contact": "daniel.rivera@asu.edu"
+            },
+            {
+                "name": {
+                    "firstname": "Predrag",
+                    "middlename": "",
+                    "lastname": "Klasnja"
+                },
+                "title": "Dr.",
+                "institute": "University of Michigan",
+                "contact": "klasnja@umich.edu"
+            }
+        ],
+        "funding": [{
+            "institute": "NIH - NLM"
+        }]
+    },
+    "definitions": {
+        "cohorts": [{
+            "id": "cohort_01",
+            "name": "Cohort A",
+            "target N": 50,
+            "description": "Since this study is a microrandomization study, there is only one cohort."
+        }],
+        "intervention mode group": [{
+                "id": "intervention_group_01",
+                "name": "Daily step goal",
+                "children": [
+                    "intervention_mode_01",
+                    "intervention_mode_02"
+                ]
+            },
+            {
+                "name": "Bout planning notification",
+                "children": [
+                    "intervention_mode_03",
+                    "intervention_mode_04",
+                    "intervention_mode_05",
+                    "intervention_mode_06",
+                    "intervention_mode_07"
+                ]
+            }
+        ],
+        "intervention mode": [{
+                "id": "intervention_mode_01",
+                "name": "Baseline",
+                "description": "does not consider the previous daily steps"
+            },
+            {
+                "id": "intervention_mode_02",
+                "name": "Adaptive",
+                "description": "consider the previous daily steps of 2?3? weeks"
+            },
+            {
+                "id": "intervention_mode_03",
+                "name": "Recovery",
+                "description": "Do nothing under this mode"
+            },
+            {
+                "id": "intervention_mode_04",
+                "name": "Random",
+                "description": "50:50 chance to get a bout planning message"
+            },
+            {
+                "id": "intervention_mode_05",
+                "name": "Need + Opportunity",
+                "description": "Considers 'Need' and 'Opportunity' conditionalities"
+            },
+            {
+                "id": "intervention_mode_06",
+                "name": "Need + Receptivity",
+                "description": "Considers 'Need' and 'Receptivity' conditionalities"
+            },
+            {
+                "id": "intervention_mode_07",
+                "name": "Full System ID",
+                "description": "Considers 'Need', 'Opportunity', and 'Receptivity' conditionalities"
+            }
+        ],
+        "onboarding screen sequence": [
+            "system:contact_information",
+            "system:notification",
+            "system:weekly_reflection",
+            "custom:first_bout_planning_time",
+            "system:locations",
+            "system:fitbit_auth",
+            "system:fitbit_clockface"
+        ],
+        "onboarding screen": [{
+            "id": "first_bout_planning_time",
+            "name": "First Bout Planning Time",
+            "description": "It only allows users to select from midnight to noon"
+        }]
+    },
+    "configurations": {
+        "study-wide configuration": [{
+                "type": "on_off",
+                "key": "system:notification_center",
+                "value": "on"
+            },
+            {
+                "type": "on_off",
+                "key": "system:show_daily_step_goal",
+                "value": "on"
+            },
+            {
+                "type": "on_off",
+                "key": "system:anti_sedentary_notification",
+                "value": "off"
+            },
+            {
+                "type": "int_value",
+                "key": "default:first_bout_planning_time",
+                "value": "8"
+            }
+        ],
+        "cohort-wide configuration": [{
+            "cohort_id": "cohort_01",
+            "configurations": [{
+                    "type": "on_off",
+                    "key": "sample_cohort_configuration_key1",
+                    "value": "on"
+                },
+                {
+                    "type": "float_value",
+                    "key": "sample_cohort_configuration_key2",
+                    "value": "0.1"
+                }
+            ]
+        }],
+        "period configuration": [{
+            "date_start": "2021-09-01",
+            "date_end": "2022-08-31",
+            "type": "int_value",
+            "key": "sample_period_configuration_key1",
+            "value": "123"
+        }]
+    }
+}

@@ -4,9 +4,8 @@ import { SelectOption } from "@infrastructure/dialogs/select-dialog.controller";
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { LoadingService } from "@infrastructure/loading.service";
 
-
 @Component({
-    templateUrl: './survey.page.html'
+    templateUrl: "./survey.page.html",
 })
 export class SurveyPageComponent implements OnInit {
     public form: FormGroup;
@@ -17,10 +16,10 @@ export class SurveyPageComponent implements OnInit {
 
     public showWeather: boolean;
     public today: Date;
-    
-    @Output('next') next:EventEmitter<boolean> = new EventEmitter();
 
-    public ready:boolean = false;
+    @Output("next") next: EventEmitter<boolean> = new EventEmitter();
+
+    public ready: boolean = false;
 
     constructor(
         private morningMessageService: MorningMessageService,
@@ -28,48 +27,50 @@ export class SurveyPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.morningMessageService.get()
-        .then((morningMessage) => {
+        this.morningMessageService.get().then((morningMessage) => {
             this.today = morningMessage.date;
-        
+
             if (morningMessage.anchor) {
                 this.showWeather = false;
             } else {
                 this.showWeather = true;
             }
-    
-            let response = {}
-            if(morningMessage.response) {
+
+            let response = {};
+            if (morningMessage.response) {
                 response = morningMessage.response;
             }
-    
+
             this.form = new FormGroup({
-                mood: new FormControl(response['selected_word'])
+                mood: new FormControl(response["selected_word"]),
             });
-    
-            if(morningMessage.survey.wordSet) {
-                morningMessage.survey.wordSet.forEach((word:string) => {
+
+            if (morningMessage.survey.wordSet) {
+                morningMessage.survey.wordSet.forEach((word: string) => {
                     this.moodChoices.push({
                         name: word,
-                        value: word
+                        value: word,
                     });
                 });
             }
-    
-            if(morningMessage.survey.questions) {
+
+            if (morningMessage.survey.questions) {
                 const questions = [];
                 morningMessage.survey.questions.forEach((question) => {
                     questions.push({
                         name: question.name,
                         label: question.label,
-                        options: question.options.map((option:any) => {
+                        options: question.options.map((option: any) => {
                             return {
                                 name: option.label,
-                                value: option.value
+                                value: option.value,
                             };
-                        })
+                        }),
                     });
-                    this.form.addControl(question.name, new FormControl(response[question.name]));
+                    this.form.addControl(
+                        question.name,
+                        new FormControl(response[question.name])
+                    );
                 });
                 this.questions = questions;
             }
@@ -78,21 +79,22 @@ export class SurveyPageComponent implements OnInit {
     }
 
     public done() {
-        this.loadingService.show('Saving survey');
+        console.log("MORNING MSG: running done()");
+        this.loadingService.show("Saving survey");
         const values = Object.assign({}, this.form.value);
-        values['selected_word'] = values['mood'];
-        delete values['mood'];
-        this.morningMessageService.submitSurvey(values)
-        .then(() => {
-            this.next.emit();
-        })
-        .catch((error) => {
-            console.log(error);
-            this.error = 'There was an error'
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        values["selected_word"] = values["mood"];
+        delete values["mood"];
+        this.morningMessageService
+            .submitSurvey(values)
+            .then(() => {
+                this.next.emit();
+            })
+            .catch((error) => {
+                console.log("Error from morning messages done(): ", error);
+                this.error = "There was an error";
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
     }
-
 }

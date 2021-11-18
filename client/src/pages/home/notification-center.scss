@@ -1,18 +1,29 @@
 page-notification-center {
-    // TODO: talk about overriding default margin of 1em in pages.scss
-    margin: 0;
-}
-
-li {
-    color: black;
-}
-
-:root {
-    --padding-top: 0px;
-    --padding-bottom: 0px;
-}
-
-.notification-list {
-    padding-top: var(--padding-top);
-    padding-bottom: var(--padding-bottom);
+    li {
+        color: black;
+    }
+    
+    .notification-unread {
+        border-left: 5px solid red;
+    }
+    
+    .notification {
+        background-color: #f1f1f1;
+        list-style-type: none;
+        padding: 10px 20px;
+    }
+    
+    ul {
+        list-style-type: none;
+        padding: 0;
+        border: 1px solid #ddd;
+    }
+    
+    .notification-list-item {
+        margin-top: 0;
+    }
+    
+    .time-list-item {
+        float: right;
+    }
 }

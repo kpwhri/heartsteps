@@ -178,19 +178,24 @@ class FitbitClient():
         else:
             return False
 
+    # TODO: delete print debugging
     def subscriptions_update(self):
         existing_subscription_ids = []
         for subscription in FitbitSubscription.objects.filter(fitbit_account = self.account).all():
             existing_subscription_ids.append(subscription.uuid)
         fitbit_subscription_ids = self.list_subscriptions()
+        print('existing subscription ids', existing_subscription_ids, flush=True)
+        print('fitbit subscription ids: ', fitbit_subscription_ids)
         for subscription_id in fitbit_subscription_ids:
             if not subscription_id in existing_subscription_ids:
+                print('creating subscription, id num: ', subscription_id)
                 FitbitSubscription.objects.create(
                     uuid = subscription_id,
                     fitbit_account = self.account
                 )
         for existing_id in existing_subscription_ids:
             if existing_id not in fitbit_subscription_ids:
+                print('deleting subscription, id num: ', existing_id)
                 FitbitSubscription.objects.filter(uuid=existing_id).delete()
         return False
 
@@ -202,16 +207,23 @@ class FitbitClient():
                 subscription_ids.append(subscription['subscriptionId'])
         return subscription_ids
 
+    # TODO: delete print debugging
     def subscribe(self):
         if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
+            print('ERROR: no fitbit subscriber ID')
             raise ImproperlyConfigured('No FitBit Subscriber ID')
         try:
             self.subscription = FitbitSubscription.objects.get(fitbit_account=self.account)
+            print('found subscription: ', self.subscription)
         except FitbitSubscription.DoesNotExist:
+            print('ERROR: FitbitSubscription.DoesNotExist')
             self.subscription = FitbitSubscription.objects.create(
                 fitbit_account = self.account
             )
+            print('created new FitbitSubscription object: ', self.subscription)
+
         try:
+            # TODO: supposed to be self.subscription?
             self.client.subscription(
                 subscription_id = str(self.subscription.uuid),
                 subscriber_id = settings.FITBIT_SUBSCRIBER_ID,

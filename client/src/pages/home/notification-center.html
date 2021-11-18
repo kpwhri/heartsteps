@@ -1,5 +1,85 @@
-<ul *ngFor="let notification of notifications" class="notification-list">
-    <li>{{ notification.created | date:'h:mm a' }}</li>
-    <li><strong>{{notification.title }}</strong></li>
-    <li>{{notification.body }}</li>
-</ul>
+<ng-template #debugOutput let-notification="notification">
+    <li *ngIf="notification.received" class="notification-list-item">
+        RECEIVED
+    </li>
+    <li *ngIf="notification.engaged" class="notification-list-item">ENGAGED</li>
+    <li *ngIf="notification.opened" class="notification-list-item">OPENED</li>
+    <li class="notification-list-item">{{notification.id }}</li>
+</ng-template>
+
+<ng-template #notificationDetails let-notification="notification">
+    <li class="notification-list-item time-list-item">
+        {{ notification.created | date:'h:mm a' }}
+    </li>
+    <li class="notification-list-item">
+        <strong>{{notification.title }}</strong>
+    </li>
+    <li class="notification-list-item">{{notification.body }}</li>
+</ng-template>
+
+<!-- TODO: REMOVE IN PRODUCTION, ONLY FOR DEBUGGING PURPOSES -->
+<!-- <h6>UUID: {{ featureFlags.uuid }}</h6> -->
+<h6>Notification Center Flag: {{ hasFlag("notification_center") }}</h6>
+<ng-container *ngIf="hasFlag('nlm')">
+    <button>Suggest Activity (NLM)</button>
+</ng-container>
+<ng-container *ngIf="hasFlag('u01')">
+    <button>Suggest Activity (U01)</button>
+</ng-container>
+<ng-container *ngIf="!hasFlag('u01') && !hasFlag('nlm')">
+    <button>Suggest Activity (Default)</button>
+</ng-container>
+
+<div *ngFor="let notification of notifications">
+    <ng-container *ngIf="isReceived(notification)">
+        <ng-container *ngIf="isRead(notification) === true">
+            <ul class="notification">
+                <a role="button" (click)="redirect(notification)">
+                    <ng-template
+                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
+                    ></ng-template>
+                    <ng-template
+                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
+                    ></ng-template>
+                </a>
+            </ul>
+        </ng-container>
+        <ng-container *ngIf="isRead(notification) === false">
+            <ul class="notification notification-unread">
+                <a role="button" (click)="redirect(notification)">
+                    <ng-template
+                        *ngTemplateOutlet="notificationDetails; context: {notification : notification}"
+                    ></ng-template>
+                    <ng-template
+                        *ngTemplateOutlet="debugOutput; context: {notification : notification}"
+                    ></ng-template>
+                </a>
+            </ul>
+        </ng-container>
+    </ng-container>
+</div>
+
+<!-- <div><h2>Unread Status: {{ haveUnread }}</h2></div>
+<div *ngFor="let notification of notifications">
+    <ul class="notification">
+        <a role="button" (click)="redirect(notification)">
+            <li class="notification-list-item time-list-item">
+                {{ notification.created | date:'h:mm a' }}
+            </li>
+            <li class="notification-list-item">
+                <strong>{{notification.title }}</strong>
+            </li>
+            <li class="notification-list-item">{{notification.body }}</li>
+            <li class="notification-list-item">{{notification.sent }}</li>
+            <li class="notification-list-item">{{notification.received }}</li>
+            <li class="notification-list-item">{{notification.opened }}</li>
+            <li *ngIf="notification.engaged" class="notification-list-item">
+                ENGAGED
+            </li>
+            <li *ngIf="notification.opened" class="notification-list-item">
+                OPENED
+            </li>
+            <li class="notification-list-item">{{notification.id }}</li>
+        </a>
+    </ul>
+</div> -->

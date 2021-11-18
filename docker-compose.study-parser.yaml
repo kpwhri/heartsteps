@@ -1,0 +1,8 @@
+version: '3'
+services:
+  study-parser:
+    build: 
+      context: ./
+      dockerfile: study-parser.Dockerfile
+    volumes:
+      - ./study-parser:/study-parser

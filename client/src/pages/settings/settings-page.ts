@@ -17,16 +17,15 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
 declare var process: {
     env: {
-        BUILD_VERSION: string,
-        BUILD_DATE: string
-    }
-}
+        BUILD_VERSION: string;
+        BUILD_DATE: string;
+    };
+};
 
 @Component({
-    templateUrl: 'settings-page.html',
+    templateUrl: "settings-page.html",
 })
 export class SettingsPage {
-
     public staffParticipant: boolean = false;
     public participantTags: string[] = [];
     public buildVersion: string = process.env.BUILD_VERSION;
@@ -35,9 +34,9 @@ export class SettingsPage {
     constructor(
         private heartstepsServer: HeartstepsServer,
         private messageService: MessageService,
-        private walkingSuggestionService:WalkingSuggestionService,
-        private enrollmentService:EnrollmentService,
-        private router:Router,
+        private walkingSuggestionService: WalkingSuggestionService,
+        private enrollmentService: EnrollmentService,
+        private router: Router,
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
         private weeklySurveyService: WeeklySurveyService,
@@ -49,79 +48,81 @@ export class SettingsPage {
         private activitySurveyService: ActivitySurveyService
     ) {
         this.participantService.participant
-        .filter(participant => participant !== undefined)
-        .first()
-        .subscribe((participant) => {
-            this.staffParticipant = participant.staff;
-            this.participantTags = participant.participantTags;
-        })
+            .filter((participant) => participant !== undefined)
+            .first()
+            .subscribe((participant) => {
+                this.staffParticipant = participant.staff;
+                this.participantTags = participant.participantTags;
+            });
     }
 
     public goBack() {
-        this.router.navigate(['/'])
-        .then(() => {
+        this.router.navigate(["/"]).then(() => {
             return this.participantService.update();
         });
     }
 
     public testWalkingSuggestion() {
-        this.loadingService.show('Requesting walking suggestion message');
-        this.walkingSuggestionService.createTestDecision()
-        .catch(() => {
-            this.alertDialog.show('Error sending test message');
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        this.loadingService.show("Requesting walking suggestion message");
+        this.walkingSuggestionService
+            .createTestDecision()
+            .catch(() => {
+                this.alertDialog.show("Error sending test message");
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
     }
 
     public testAntisedentaryMessage() {
         this.loadingService.show("Requesting anti-sedentary message");
-        this.antiSedentaryService.sendTestMessage()
-        .then((message) => {
-            this.loadingService.dismiss();
-            if(!this.platform.is('cordova')) {
-                return this.openMessage(message);
-            }
-        })
-        .catch(() => {
-            this.alertDialog.show('Error sending anti-sedentary message');
-        });
+        this.antiSedentaryService
+            .sendTestMessage()
+            .then((message) => {
+                this.loadingService.dismiss();
+                if (!this.platform.is("cordova")) {
+                    return this.openMessage(message);
+                }
+            })
+            .catch(() => {
+                this.alertDialog.show("Error sending anti-sedentary message");
+            });
     }
 
     private openMessage(message: Message) {
-        message.received();
-        return this.router.navigate(['notification', message.id])
-        .then(() => {
-            message.displayed();
+        message.toggleReceived();
+        return this.router.navigate(["notification", message.id]).then(() => {
+            message.toggleDisplayed();
         });
     }
 
     private requestMorningMessage() {
         this.loadingService.show("Requesting morning message");
-        this.morningMessageService.requestNotification()
-        .catch(() => {
-            this.alertDialog.show("Error sending morning message");
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        this.morningMessageService
+            .requestNotification()
+            .catch(() => {
+                this.alertDialog.show("Error sending morning message");
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
     }
 
     private loadMorningMessage() {
-        this.loadingService.show('Loading morning message')
-        this.morningMessageService.load()
-        .catch(() => {
-            this.alertDialog.show("Error loading morning message");
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-            this.router.navigate(['morning-survey']);
-        });
+        this.loadingService.show("Loading morning message");
+        this.morningMessageService
+            .load()
+            .catch(() => {
+                this.alertDialog.show("Error loading morning message");
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+                this.router.navigate(["morning-survey"]);
+            });
     }
 
     public testMorningMessage() {
-        if(this.platform.is('cordova')) {
+        if (this.platform.is("cordova")) {
             this.requestMorningMessage();
         } else {
             this.loadMorningMessage();
@@ -130,29 +131,31 @@ export class SettingsPage {
 
     private requestWeeklySurvey() {
         this.loadingService.show("Requesting weekly survey");
-        this.weeklySurveyService.testReflectionNotification()
-        .catch(() => {
-            this.alertDialog.show("Error sending weekly survey");
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        this.weeklySurveyService
+            .testReflectionNotification()
+            .catch(() => {
+                this.alertDialog.show("Error sending weekly survey");
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
     }
 
     private loadWeeklySurvey() {
         this.loadingService.show("Loading weekly survey");
-        this.weeklySurveyService.testReflection()
-        .catch(() => {
-            this.alertDialog.show("Error loading weekly survey");
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-            this.router.navigate(['weekly-survey']);
-        })
+        this.weeklySurveyService
+            .testReflection()
+            .catch(() => {
+                this.alertDialog.show("Error loading weekly survey");
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+                this.router.navigate(["weekly-survey"]);
+            });
     }
 
     public testWeeklySurveyMessage() {
-        if(this.platform.is('cordova')) {
+        if (this.platform.is("cordova")) {
             this.requestWeeklySurvey();
         } else {
             this.loadWeeklySurvey();
@@ -160,106 +163,122 @@ export class SettingsPage {
     }
 
     public logout() {
-        this.loadingService.show('Logging out');
-        this.enrollmentService.unenroll()
-        .then(() => {
-            this.router.navigate(['welcome']);
-        })
-        .catch((error) => {
-            console.error('Settings page, logout:', error);
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+        this.loadingService.show("Logging out");
+        this.enrollmentService
+            .unenroll()
+            .then(() => {
+                this.router.navigate(["welcome"]);
+            })
+            .catch((error) => {
+                console.error("Settings page, logout:", error);
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            });
     }
 
     public editContactInformation() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings','contact'].join('/')
-            }
-        }]);
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "contact"].join("/"),
+                },
+            },
+        ]);
     }
 
     public editPlaces() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings','places'].join('/')
-            }
-        }]);
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "places"].join("/"),
+                },
+            },
+        ]);
     }
 
     public editWeeklyReflectionTime() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings','reflection-time'].join('/')
-            }
-        }]);
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "reflection-time"].join("/"),
+                },
+            },
+        ]);
     }
 
     public editWeeklyGoal() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings','weekly-goal'].join('/')
-            }
-        }]);
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "weekly-goal"].join("/"),
+                },
+            },
+        ]);
     }
 
     public editDailyTimes() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings','suggestion-times'].join('/')
-            }
-        }]);
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "suggestion-times"].join("/"),
+                },
+            },
+        ]);
     }
 
     public editNotifications() {
-        this.router.navigate([{
-            outlets: {
-                modal: ['settings', 'notifications'].join('/')
-            }
-        }])
+        this.router.navigate([
+            {
+                outlets: {
+                    modal: ["settings", "notifications"].join("/"),
+                },
+            },
+        ]);
     }
 
     public testBaselineWeekPage() {
-        this.router.navigate(['baseline'])
+        this.router.navigate(["baseline"]);
     }
 
     public testActivitySurvey() {
         this.loadingService.show("Requesting activity survey");
-        this.activitySurveyService.sendTestActivitySurvey()
-        .then((message) => {
-            this.loadingService.dismiss();
-            if(!this.platform.is('cordova')) {
-                return this.openMessage(message);
-            }
-        })
-        .catch((error) => {
-            this.alertDialog.show(error);
-        });
+        this.activitySurveyService
+            .sendTestActivitySurvey()
+            .then((message) => {
+                this.loadingService.dismiss();
+                if (!this.platform.is("cordova")) {
+                    return this.openMessage(message);
+                }
+            })
+            .catch((error) => {
+                this.alertDialog.show(error);
+            });
     }
 
     public testWalkingSuggestionSurvey() {
         this.loadingService.show("Requesting walking suggestion survey");
-        this.heartstepsServer.post('/walking-suggestion-survey/test', {})
-        .then((data) => {
-            return this.loadMessage(data.notificationId);
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        })
-        .catch((error) => {
-            this.loadingService.dismiss();
-            this.alertDialog.show(error);
-        });
+        this.heartstepsServer
+            .post("/walking-suggestion-survey/test", {})
+            .then((data) => {
+                return this.loadMessage(data.notificationId);
+            })
+            .then(() => {
+                this.loadingService.dismiss();
+            })
+            .catch((error) => {
+                this.loadingService.dismiss();
+                this.alertDialog.show(error);
+            });
     }
 
     private loadMessage(notificationId): Promise<void> {
-        return this.messageService.loadMessage(notificationId)
-        .then((message) => {
-            if(!this.platform.is('cordova')) {
-                return this.openMessage(message);
-            }
-        });
+        return this.messageService
+            .loadMessage(notificationId)
+            .then((message) => {
+                if (!this.platform.is("cordova")) {
+                    return this.openMessage(message);
+                }
+            });
     }
-} 
+}

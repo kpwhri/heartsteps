@@ -1,17 +1,16 @@
-import * as moment from 'moment';
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoadingService } from "@infrastructure/loading.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
-
+import { FitbitClockFaceService } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.service';
+import { Subscription } from "rxjs";
 
 
 @Component({
     templateUrl: './fitbit-clock-face-pin.page.html'
 })
-export class FitbitClockFacePinPage implements OnInit {
+export class FitbitClockFaceSettingsPage implements OnInit, OnDestroy {
 
     public notificationsEnabled:boolean;
     public pin: string;
@@ -19,10 +18,12 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public form: FormGroup;
 
+    private clockFaceSubscription: Subscription;
+
     constructor(
-        private heartstepsServer:HeartstepsServer,
         private loadingService: LoadingService,
         private alertDialog: AlertDialogController,
+        private fitbitClockFaceService: FitbitClockFaceService,
         private router: Router
     ) {}
 
@@ -30,12 +31,26 @@ export class FitbitClockFacePinPage implements OnInit {
         this.form = new FormGroup({
             'pin': new FormControl('', Validators.required)
         });
-        this.updatePin()
-        .then(() => {
-            if(this.pin) {
+        this.clockFaceSubscription = this.fitbitClockFaceService.clockFace
+        .subscribe((clockFace) => {
+            if (clockFace) {
+                this.pin = clockFace.pin;
                 this.getLastStepCounts();
+            } else {
+                this.pin = undefined;
             }
+        })
+
+        this.fitbitClockFaceService.isPaired()
+        .then(() => {
+            this.getLastStepCounts();
         });
+    }
+
+    ngOnDestroy() {
+        if (this.clockFaceSubscription) {
+            this.clockFaceSubscription.unsubscribe();
+        }
     }
 
     public goBack() {
@@ -46,59 +61,14 @@ export class FitbitClockFacePinPage implements OnInit {
         }]);
     }
 
-    public submitForm() {
-        if(this.form.valid) {
-            this.loadingService.show('Pairing Fitbit Clock Face')
-            this.heartstepsServer.post('fitbit-clock-face/pair', {
-                'pin': this.form.get('pin').value
-            })
-            .then(() => {
-                this.alertDialog.show('Successfully paired!')
-                .then(() => {
-                    this.updatePin()
-                });
-            })
-            .catch(() => {
-                this.alertDialog.show('Error pairing');
-            })
-            .then(() => {
-                this.loadingService.dismiss()
-            });
-        }
-    }
-
-    public updatePin(): Promise<void> {
-        this.loadingService.show('Updating pin');
-        return this.heartstepsServer.get('fitbit-clock-face/pair')
-        .then((data) => {
-            this.pin = data.pin;
-        })
-        .catch(() => {
-            this.pin = undefined;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
-    }
-
     public getLastStepCounts(): Promise<void> {
         this.loadingService.show('Getting recent step count')
-        return this.heartstepsServer.get('fitbit-clock-face/step-counts')
-        .then((data) => {
-            if (data.step_counts && Array.isArray(data.step_counts)) {
-                this.stepCounts = data.step_counts.map((step_count) => { 
-                    return {
-                        'start': moment(step_count.start).fromNow(),
-                        'end': moment(step_count.end).fromNow(),
-                        'steps': step_count.steps
-                    }
-                })
-            } else {
-                this.stepCounts = undefined;
-            }
+        return this.fitbitClockFaceService.getLastClockFaceLogs()
+        .then((stepCounts) => {
+            this.stepCounts = stepCounts;
         })
-        .catch(() => {
-            this.alertDialog.show('Error step counts');
+        .catch((error) => {
+            this.alertDialog.show('Error: ' + error);
         })
         .then(() => {
             this.loadingService.dismiss()
@@ -107,7 +77,7 @@ export class FitbitClockFacePinPage implements OnInit {
 
     public deletePin(): Promise<void> {
         this.loadingService.show("Deleting pin");
-        return this.heartstepsServer.delete('fitbit-clock-face/pair')
+        return this.fitbitClockFaceService.unpair()
         .then(() => {
             this.pin = undefined;
             this.stepCounts = undefined;
@@ -119,6 +89,10 @@ export class FitbitClockFacePinPage implements OnInit {
         .then(() => {
             this.loadingService.dismiss();
         });
+    }
+
+    public openFitbitGallery(): void {
+        this.fitbitClockFaceService.openFitbitGallery();
     }
 
 }

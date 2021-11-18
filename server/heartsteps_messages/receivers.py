@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
-from watch_app.models import User
-from watch_app.signals import step_count_updated
+from fitbit_clock_face.models import User
+from fitbit_clock_face.signals import step_count_updated
 
 from .tasks import step_count_message_randomization
 

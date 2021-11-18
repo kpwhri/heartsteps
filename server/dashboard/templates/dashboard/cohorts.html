@@ -3,7 +3,6 @@
 {% load template_filters %}
 
 {% block content %}
-<div>
 {% for study in studies %}
     <h3>{{study.name}}</h3>
     <ul>
@@ -14,5 +13,8 @@
     {% endfor %}
     </ul>
 {% endfor %}
-</div>
+<nav>
+    <a href="{% url 'dashboard-clock-face-list'%}">View all clock faces</a>
+</nav>
+
 {% endblock %}

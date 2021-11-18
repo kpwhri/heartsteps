@@ -1,12 +1,8 @@
 <nav>
-    <a *ngIf="weeklySurvey"
-        (click)="navigateToWeeklySurvey()"
-        >
+    <a *ngIf="weeklySurvey" (click)="navigateToWeeklySurvey()">
         Please complete the weekly reflection
     </a>
-    <a *ngIf="morningMessage"
-        (click)="navigateToMorningMessage()"
-        >
+    <a *ngIf="morningMessage" (click)="navigateToMorningMessage()">
         Please complete the morning check-in
     </a>
 </nav>

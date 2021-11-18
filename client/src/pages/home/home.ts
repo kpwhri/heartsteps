@@ -8,6 +8,9 @@ import {
 import { Router, RouterEvent, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
+import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 class Tab {
     name: string;
@@ -32,6 +35,11 @@ export class HomePage implements OnInit, OnDestroy {
     private notificationCenterUrl = "/home/notification-center";
     private notificationCenterName = "Notification Center";
 
+    private unreadStatusSubscription: Subscription;
+    public haveUnread: boolean = true;
+    private featureFlagSubscription: Subscription;
+    public featureFlags: FeatureFlags;
+
     public tabs: Array<Tab> = [
         {
             name: "Dashboard",
@@ -54,7 +62,9 @@ export class HomePage implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private element: ElementRef,
-        private participantService: ParticipantService
+        private participantService: ParticipantService,
+        private notificationCenterService: NotificationCenterService,
+        private featureFlagService: FeatureFlagService
     ) {}
 
     ngOnInit() {
@@ -70,11 +80,24 @@ export class HomePage implements OnInit, OnDestroy {
                     this.updatingParticipant = isUpdating;
                 }
             );
+        this.unreadStatusSubscription =
+            this.notificationCenterService.currentUnreadStatus.subscribe(
+                (unreadStatus) => (this.haveUnread = unreadStatus)
+            );
+
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
+            );
+
+        this.notificationCenterService.getNotifications();
     }
 
     ngOnDestroy() {
         this.routerSubscription.unsubscribe();
         this.updatingParticipantSubscription.unsubscribe();
+        this.unreadStatusSubscription.unsubscribe();
+        this.featureFlagSubscription.unsubscribe();
     }
 
     private updateFromUrl(url: string) {
@@ -109,5 +132,11 @@ export class HomePage implements OnInit, OnDestroy {
                 reject("No matching tab");
             }
         });
+    }
+
+    // TODO: IMPORTANT MAKE CALLS WAY LESS FREQUENTLY
+    public notificationCenterFlag(): boolean {
+        // console.log("home.ts notification center flag called");
+        return this.featureFlagService.hasNotificationCenterFlag();
     }
 }

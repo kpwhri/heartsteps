@@ -94,15 +94,63 @@
             </td>
             <td>
                 <dl>
-                    <dt>Installed</dt>
-                    {% if participant.watch_app_installed_date %}
-                    <dd>{{ participant.watch_app_installed_date|date }}</dd>
+                    <dt>Fitbit Clock Face</dt>
+                    {% if participant.fitbit_clock_face_installed %}
+                    <dd>
+                        <em>Version:</em>
+                        {{ participant.fitbit_clock_face_version}}
+                    </dd>
+                    {% if participant.fitbit_clock_face_pin %}
+                    <dd><em>Pin:</em> {{participant.fitbit_clock_face_pin}}</dd>
+                    {% endif %}
+                    <dd>
+                        Created
+                        {{ participant.fitbit_clock_face_created | date }}
+                        {{ participant.fitbit_clock_face_created | time }}
+                    </dd>
+                    {% if participant.fitbit_clock_face_last_paired %}
+                    <dd>
+                        Paired
+                        {{ participant.fitbit_clock_face_last_paired | date }}
+                        {{ participant.fitbit_clock_face_last_paired | time }}
+                    </dd>
+                    {% endif %}
                     {% else %}
                     <dd class="error">Not installed</dd>
                     {% endif %}
-                    {% if participant.last_watch_app_data %}
-                    <dt>Last update</dt>
-                    <dd>{{ participant.last_watch_app_data|date }}</dd>
+                    {% if participant.last_fitbit_clock_face_log %}
+                    <dt>Last Clock Face Log</dt>
+                    <dd>
+                        Time:
+                        {{ participant.last_fitbit_clock_face_log.time | date }}
+                        {{ participant.last_fitbit_clock_face_log.time | time }}
+                    </dd>
+                    <dd>
+                        {{ participant.last_fitbit_clock_face_log.steps }}
+                        Steps
+                    </dd>
+                    {% endif %}
+                    {% if participant.last_fitbit_clock_face_step_count %}
+                    <dt>Last Step Count</dt>
+                    <dd>
+                        Time:
+                        {{ participant.last_fitbit_clock_face_step_count.start | date }}
+                        {{ participant.last_fitbit_clock_face_step_count.start | time }}
+                    </dd>
+                    <dd>
+                        {{ participant.last_fitbit_clock_face_step_count.steps }}
+                        Steps
+                    </dd>
+                    {% endif %}
+                    {% if participant.last_location %}
+                    <dt>Last Location</dt>
+                    <dd>
+                        {{ participant.last_location.time | date }}
+                        {{ participant.last_location.time | time }}
+                    </dd>
+                    <dd>
+                        {{ participant.last_location.category }}
+                    </dd>
                     {% endif %}
                 </dl>
             </td>

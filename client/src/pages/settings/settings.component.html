@@ -12,7 +12,7 @@
     <nav>
         <ul>
             <li><button (click)="editFitbitAuthorization()">Fitbit Authorization</button></li>
-            <li><button (click)="editFitbitWatch()">HeartSteps Clock Face</button></li>
+            <li><button (click)="goToFitbitClockFaceSettings()">Fitbit Clock Face</button></li>
         </ul>
     </nav>
     <p>HeartSteps {{buildVersion}}, built on {{buildDate}}</p>
@@ -22,11 +22,12 @@
     <p>This area is only visible to staff members, and is used to test functionality in the application.</p>
     <nav>
         <ul>
-            <li><button (click)="enterFitbitClockFacePin()">Fitbit Clock Face Pin</button></li>
             <li><button (click)="testBaselineWeekPage()">View Baseline Week Page</button></li>
         </ul>
     </nav>
-    <h3>Notification Testing</h3>
+    <h4>Feature Flags</h4>
+    <p>{{featureFlagsString}}</p>
+    <h4>Notification Testing</h4>
     <ul>
         <li><button (click)="testActivitySurvey()">Send Activity Survey</button></li>
         <li><button (click)="testAntisedentaryMessage()">Send Anti Sedentary Message</button></li>

@@ -11,22 +11,26 @@ import { WeeklySurveyModule } from '@heartsteps/weekly-survey/weekly-survey.modu
 import { ParticipantService } from './participant.service';
 import { ProfileService } from './profile.factory';
 import { DailyTimesModule } from '@heartsteps/daily-times/daily-times.module';
-import { FitbitWatchModule } from '@heartsteps/fitbit-watch/fitbit-watch.module';
+import { FitbitClockFaceModule } from '@heartsteps/fitbit-clock-face/fitbit-clock-face.module';
 import { ParticipantInformationService } from './participant-information.service';
 import { WeatherModule } from '@heartsteps/weather/weather.module';
+import { BoutPlanningModule } from '@heartsteps/bout-planning/bout-planning.module';
+
+
 
 @NgModule({
     imports: [
         DailyTimesModule,
         InfrastructureModule,
         FitbitModule,
-        FitbitWatchModule,
+        FitbitClockFaceModule,
         NotificationsModule,
         ContactInformationModule,
         WalkingSuggestionsModule,
         PlacesModule,
         WeeklySurveyModule,
-        WeatherModule
+        WeatherModule,
+        BoutPlanningModule
     ],
     providers: [
         ParticipantService,

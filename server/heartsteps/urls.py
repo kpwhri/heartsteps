@@ -32,11 +32,9 @@ urlpatterns = [
     url(r'^api/', include('morning_messages.urls')),
     url(r'^api/', include('push_messages.urls')),
     url(r'^api/', include('weather.urls')),
-    # TODO: URGENT IMPORTANT PUT NOTIFICATION CENTER IN PUSH_MESSAGE AND REMOVE dashboard.urls
-    # remove after debugging notification center
-    # URL for notifications center endpoint is now:
-    # http://localhost:8080/api/1/test/notifications_api
-    url(r'^api/', include('dashboard.urls')),
+    url(r'^api/', include('daily_step_goals.urls')),
+    url(r'^api/', include('feature_flags.urls')),
+    url(r'^api/', include('bout_planning_notification.urls')),
     url('accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(

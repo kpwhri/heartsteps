@@ -1,0 +1,15 @@
+<app-form
+    *ngIf="firstBoutPlanningForm"
+    [formGroup]="firstBoutPlanningForm"
+    (onSubmit)="save()"
+    >
+    <fieldset>
+        <legend>Set your first bout planning time</legend>
+        <app-select-field
+            formControlName="time"
+            label="When do you start your day?"
+            [options]="times"
+            >
+        </app-select-field>
+    </fieldset>
+</app-form>

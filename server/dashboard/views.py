@@ -35,6 +35,9 @@ from burst_periods.models import BurstPeriod
 from closeout_messages.models import Configuration as CloseoutConfiguration
 from contact.models import ContactInformation
 from days.models import Day
+from fitbit_clock_face.models import ClockFace
+from fitbit_clock_face.models import ClockFaceLog
+from fitbit_clock_face.models import StepCount
 from fitbit_activities.models import FitbitActivity, FitbitDay
 from fitbit_api.models import FitbitAccount, FitbitAccountUser, FitbitAccountUpdate
 from fitbit_api.tasks import unauthorize_fitbit_account
@@ -74,6 +77,7 @@ from .forms import SendSMSForm
 from .forms import ParticipantCreateForm
 from .forms import ParticipantEditForm
 from .forms import BurstPeriodForm
+from .forms import ClockFacePairForm
 from .models import AdherenceAppInstallDashboard
 from .models import FitbitServiceDashboard
 from .models import DashboardParticipant
@@ -265,7 +269,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 elif generic_command == 'insert_test_log':
                     log_service = LogService()
                     log_service.log("test log")
-                    context["results"] = log_service.dump(pretty=True)
+                    context["results"] = LogService.dump(pretty=True)
                 elif generic_command == 'dump_log':
                     context["results"] = LogService.dump(pretty=True) 
                 elif generic_command == 'clear_log':
@@ -374,10 +378,7 @@ class CohortView(CohortListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cohort'] = {
-            'id': self.cohort.id,
-            'name': self.cohort.name
-        }
+        context['cohort'] = self.cohort
         return context
 
 class DashboardListView(CohortView):
@@ -401,6 +402,7 @@ class DashboardListView(CohortView):
         participants = self.query_participants() \
         .prefetch_contact_information() \
         .prefetch_fitbit_account() \
+        .prefetch_clock_face_summary() \
         .prefetch_page_views()
 
         context['participant_list'] = participants
@@ -2041,6 +2043,146 @@ class ParticipantBurstPeriodDeleteView(ParticipantBurstPeriodView):
         return HttpResponseRedirect(
             reverse(
                 'dashboard-cohort-participant',
+                kwargs = {
+                    'cohort_id':self.cohort.id,
+                    'participant_id': self.participant.heartsteps_id
+                }
+            )
+        )
+
+class ClockFaceList(TemplateView):
+
+    template_name = 'dashboard/clock-face-list.html'
+
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+
+    def get_context_data(self):
+        clock_faces = ClockFace.objects \
+        .exclude(
+            user = None
+        ) \
+        .prefetch_related('user') \
+        .all()
+        users = [clock_face.user for clock_face in clock_faces if clock_face.user]
+        
+        logs_by_username = {}
+        clock_face_logs = ClockFaceLog.objects \
+        .filter(
+            user__in=users,
+            time__gte = timezone.now() - timedelta(days=7)
+        ) \
+        .prefetch_related('user') \
+        .all()
+        for log in clock_face_logs:
+            if log.user.username not in logs_by_username:
+                logs_by_username[log.user.username] = []
+            logs_by_username[log.user.username].append(log)
+        
+        step_counts_by_username = {}
+        step_counts = StepCount.objects.filter(
+            user__in=users,
+            start__gte = timezone.now() - timedelta(days=7)
+        ).prefetch_related('user')
+        for count in step_counts:
+            if count.user.username not in step_counts_by_username:
+                step_counts_by_username[count.user.username] = []
+            step_counts_by_username[count.user.username].append(count)
+        
+        for clock_face in clock_faces:
+            if not clock_face.user:
+                continue
+            if clock_face.user.username in logs_by_username:
+                logs = logs_by_username[clock_face.user.username]
+                clock_face.log_count = len(logs)
+                clock_face.last_log = logs[-1]
+            if clock_face.user.username in step_counts_by_username:
+                counts = step_counts_by_username[clock_face.user.username]
+                clock_face.step_count_count = len(counts)
+                clock_face.last_step_count = counts[-1]
+        return {
+            'clock_faces': clock_faces
+        }
+
+
+class ParticipantClockFaceView(ParticipantView):
+
+    template_name = 'dashboard/participant-clock-face.html'
+
+    def get_clock_face(self):
+        if not self.participant.user:
+            return None
+        try:
+            return ClockFace.objects.get(
+                user = self.participant.user
+            )
+        except ClockFace.DoesNotExist:
+            return None
+
+    def get_recent_clock_face_logs(self):
+        if not self.participant.user:
+            return []
+        clock_face_logs = ClockFaceLog.objects.filter(
+            user = self.participant.user,
+            time__gte = timezone.now() - timedelta(days=7)
+        ).all()
+        return list(clock_face_logs)
+
+    def get_recent_step_counts(self):
+        if not self.participant.user:
+            return []
+        step_counts = StepCount.objects.filter(
+            user = self.participant.user,
+            start__gte = timezone.now() - timedelta(days=7)
+        ).all()
+        return list(step_counts)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pair_form'] = ClockFacePairForm()
+        context['clock_face'] = self.get_clock_face()
+
+        clock_face_logs = self.get_recent_clock_face_logs()
+        if clock_face_logs:
+            context['last_log'] = clock_face_logs[-1]
+            context['log_count'] = len(clock_face_logs)
+            
+        step_counts = self.get_recent_step_counts()
+        if step_counts:
+            context['last_step_count'] = step_counts[-1]
+            context['step_count_count'] = len(step_counts)
+        return context
+
+    def post(self, request, **kwargs):
+        clock_face = self.get_clock_face()
+        if clock_face:
+            clock_face.delete()
+            messages.add_message(request, messages.SUCCESS, 'Unpaired clock face')
+        else:
+            pair_form = ClockFacePairForm(request.POST)
+            if pair_form.is_valid():
+                pin = pair_form.cleaned_data['pin']
+                try:
+                    clock_face = ClockFace.objects.get(
+                        pin = pin,
+                        user = None
+                    )
+                    clock_face.user = self.participant.user
+                    clock_face.save()
+                    messages.add_message(request, messages.SUCCESS, 'Paired participant')
+                except ClockFace.DoesNotExist:
+                    messages.add_message(request, messages.ERROR, 'Pin does not exist, or is deactivated')
+            else:
+                messages.add_message(request, messages.ERROR, 'Invalid form')
+        return HttpResponseRedirect(
+            reverse(
+                'dashboard-cohort-participant-clock-face',
                 kwargs = {
                     'cohort_id':self.cohort.id,
                     'participant_id': self.participant.heartsteps_id

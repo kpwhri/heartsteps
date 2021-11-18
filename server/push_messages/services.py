@@ -1,14 +1,17 @@
-import uuid, json
+import uuid
+import json
 
 from django.conf import settings
 from django.utils import timezone
 
 from push_messages.clients import ApplePushClient, AppleDevelopmentPushClient, ClientBase, FirebaseMessageService, OneSignalClient
 from push_messages.models import User, Device, Message, MessageReceipt
-from push_messages.tasks import onesignal_get_received
+from push_messages.tasks import onesignal_get_received, onesignal_refresh_interval
+
 
 class DeviceMissingError(Exception):
     """User doesn't have a registered or active device."""
+
 
 class PushMessageService():
     """
@@ -50,11 +53,11 @@ class PushMessageService():
 
     def get_device_for_user(self, user):
         device = Device.objects.filter(
-            user = user,
-            active = True
+            user=user,
+            active=True
         ) \
-        .order_by('-created') \
-        .first()
+            .order_by('-created') \
+            .first()
         if device:
             return device
         else:
@@ -62,12 +65,12 @@ class PushMessageService():
 
     def __send(self, message_type, body=None, title=None, collapse_subject=None, data={}, send_message_id_only=False):
         message = Message.objects.create(
-            recipient = self.user,
-            device = self.device,
-            message_type = message_type,
-            body = body,
-            title = title,
-            collapse_subject = collapse_subject
+            recipient=self.user,
+            device=self.device,
+            message_type=message_type,
+            body=body,
+            title=title,
+            collapse_subject=collapse_subject
         )
         data['messageId'] = str(message.uuid)
         message.data = data
@@ -81,47 +84,47 @@ class PushMessageService():
 
         try:
             external_id = self.__client.send(
-                body = message.body,
-                title = message.title,
-                collapse_subject = message.collapse_subject,
-                data = data_to_send
+                body=message.body,
+                title=message.title,
+                collapse_subject=message.collapse_subject,
+                data=data_to_send
             )
         except self.__client.MessageSendError as error:
             raise PushMessageService.MessageSendError(error)
         MessageReceipt.objects.create(
-            message = message,
-            time = timezone.now(),
-            type = MessageReceipt.SENT
+            message=message,
+            time=timezone.now(),
+            type=MessageReceipt.SENT
         )
         if external_id:
             message.external_id = external_id
             message.save()
             onesignal_get_received.apply_async(
-                countdown=300,
+                countdown=onesignal_refresh_interval(),
                 kwargs={
-                    'message_id':message.id
-                    }
-                )
+                    'message_id': message.id
+                }
+            )
         return message
 
     def send_notification(self, body, title=None, collapse_subject=None, data={}, send_message_id_only=False):
         if title is None:
-            title = "HeartSteps"        
+            title = "HeartSteps"
         data['body'] = body
         data['title'] = title
         data['collapse_subject'] = collapse_subject
 
         return self.__send(
-            message_type = Message.NOTIFICATION,
-            body = body,
-            title = title,
-            collapse_subject = collapse_subject,
-            data = data,
-            send_message_id_only = send_message_id_only
+            message_type=Message.NOTIFICATION,
+            body=body,
+            title=title,
+            collapse_subject=collapse_subject,
+            data=data,
+            send_message_id_only=send_message_id_only
         )
 
     def send_data(self, data):
         return self.__send(
-            message_type = Message.DATA,
-            data = data
+            message_type=Message.DATA,
+            data=data
         )

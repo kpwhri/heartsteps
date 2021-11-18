@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib import messages
 
+from fitbit_api.services import FitbitClient
+
 from .models import FitbitDay, FitbitActivity
 from .services import FitbitDayService
 

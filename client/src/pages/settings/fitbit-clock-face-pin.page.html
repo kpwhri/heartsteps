@@ -1,25 +1,36 @@
 <app-modal
-    title="Fitbit Clock Face Pin"
+    title="Fitbit Clock Settings"
     (onDismiss)="goBack()"
     >
-    <div *ngIf="pin">
-        <p>Pair with clock face with pin <strong>{{pin}}.</strong></p>
+    <section *ngIf="!pin">
+        <p class="error">
+            No Fitbit Clock Face is paired with your account.
+        </p>
+        <p>
+            Install the Fitbit Clock Face by clicking below,
+            then enter the pin shown on your Fitbit's clock face
+            to pair the clock face to your account.
+        </p>
+        <button (click)="openFitbitGallery()">Install Fitbit Clock Face</button>
+        <heartsteps-fitbit-clock-face-pair *ngIf="!pin"
+            >
+        </heartsteps-fitbit-clock-face-pair>
+    </section>
+    <section *ngIf="pin">
+        <p>Paired with clock face with pin <strong>{{pin}}.</strong></p>
         <ul *ngIf="stepCounts">
             <li *ngFor="let stepCount of stepCounts">
-                {{stepCount.steps}} steps {{stepCount.end}}
+                {{stepCount.steps}} steps {{stepCount.time}}
             </li>
         </ul>
-    </div>
-    <app-form *ngIf="!pin"
-        [formGroup]="form"
-        submitLabel="Pair Clock Face"
-        (onSubmit)="submitForm()"
-        >
-        <p>Enter the pin from your watch face below</p>
-        <app-text-field
-            label="Enter pin"
-            formControlName="pin"
+        <button (click)="getLastStepCounts()"
             >
-        </app-text-field>
-    </app-form>
+            Update status
+        </button>
+    </section>
+    <button *ngIf="pin" class="danger"
+        (click)="deletePin()"
+        >
+        Unpair Clock Face
+    </button>
 </app-modal>

@@ -1,0 +1,41 @@
+#background {
+  x: 0;
+  y: 0;
+  width: 100%;
+  height: 100%;
+  fill: #000000;
+}
+
+.clock-text {
+  font-family: Seville-Book;
+  font-size: 110;
+  text-anchor: middle;
+  text-length: 10;
+  x: 50%;
+  y: 40%;
+  width: 92%;
+  height: 30%;
+  fill: #2490DD;
+}
+
+.text {
+  font-family: Seville-Regular;
+  font-size: 40;
+  text-anchor: middle;
+  text-length: 20;
+  fill: #FFFFFF;
+  x: 50%;
+  width: 92%;
+  height: 10%;
+}
+.text-top {
+  y: 60%;
+}
+
+.text-middle {
+  y: 75%;
+}
+
+.text-bottom {
+  y: 90%;
+}

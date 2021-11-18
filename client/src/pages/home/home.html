@@ -1,13 +1,24 @@
 <header>
     <h2>
         {{pageTitle}}
-        <a routerLink="notification-center"
-            ><img
-                id="notification-bell"
-                src="../../assets/icon/notifications_black_24dp.svg"
-                alt="Notification Center"
-            />
+        <!-- <ng-container *ngIf="notificationCenterFlag()"> -->
+        <a routerLink="notification-center">
+            <ng-container *ngIf="haveUnread === false">
+                <img
+                    class="notification-bell"
+                    src="../../assets/icon/notifications_black_24dp.svg"
+                    alt="Notification Center"
+                />
+            </ng-container>
+            <ng-container *ngIf="haveUnread === true">
+                <img
+                    class="notification-bell"
+                    src="../../assets/icon/notifications_active_black_24dp.svg"
+                    alt="Notification Center"
+                />
+            </ng-container>
         </a>
+        <!-- </ng-container> -->
     </h2>
     <span *ngIf="updatingParticipant" class="loading">
         Updating participant

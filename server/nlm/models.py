@@ -83,7 +83,7 @@ class PreloadedLevelSequenceLevel(models.Model):
 
 class LevelLineAssignment(models.Model):
     study_type = models.ForeignKey(StudyType, null=False, on_delete = models.CASCADE)
-    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE)
     preloaded_sequence_line = models.ForeignKey(PreloadedLevelSequenceLine, null=True, on_delete=models.CASCADE)
     when_assigned = models.DateTimeField(auto_now_add=True)
     
@@ -92,7 +92,7 @@ class LevelLineAssignment(models.Model):
     
 class LevelAssignment(models.Model):
     line_assignment = models.ForeignKey(LevelLineAssignment, on_delete = models.CASCADE, null=False)
-    participant = models.ForeignKey(Participant, null=False, on_delete = models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete = models.CASCADE)
     date = models.DateField(null=False)
     level = models.IntegerField(null=False)
     
@@ -111,44 +111,31 @@ class Conditionality(models.Model):
     class Meta:
         unique_together = ['module_path', 'studytype']
 
-
-class LogSubject(models.Model):
-    name = models.CharField(max_length=255)
-    
-    def __str__(self):
-        return self.name
-
-class LogObject(models.Model):
-    name = models.CharField(max_length=255)
-    
-    def __str__(self):
-        return self.name
-
-class LogPurpose(models.Model):
-    name = models.CharField(max_length=255)
-    
-    def __str__(self):
-        return self.name
-
 class LogContents(models.Model):
     logtime = models.DateTimeField(auto_now_add=True)
-    subject = models.ForeignKey(LogSubject, on_delete=models.CASCADE)
-    object = models.ForeignKey(LogObject, on_delete=models.CASCADE)
-    purpose = models.ForeignKey(LogPurpose, null=True, on_delete=models.SET_NULL)
-    value = models.TextField(blank=True)
+    subject_str = models.CharField(max_length=255, null=True)
+    object_str = models.CharField(max_length=255, null=True)
+    purpose_str = models.CharField(max_length=255, null=True)
+    value = models.TextField(null=True, blank=True)
+    
+    def if_this_else_that(x, this, that):
+        if x:
+            return this
+        else:
+            return that
     
     def __str__(self):
-        return "{}: {} - {} {} [{}]".format(self.logtime, self.purpose, self.subject, self.value, self.object)
+        return "{}: {} - {} [{}] | {}".format(self.logtime, self.purpose_str, self.subject_str, self.object_str, self.value)
     
     class Meta:
         indexes = [
             models.Index(fields=['-logtime']),
-            models.Index(fields=['-logtime', 'subject']),
-            models.Index(fields=['subject', 'object', 'purpose']),  # also covers s+o, s
-            models.Index(fields=['subject', 'purpose']),            
-            models.Index(fields=['purpose', 'object']),             # also covers p
-            models.Index(fields=['object'])
-        ]
+            models.Index(fields=['-logtime', 'subject_str']),
+            models.Index(fields=['subject_str', 'object_str', 'purpose_str']),  # also covers s+o, s
+            models.Index(fields=['subject_str', 'purpose_str']),            
+            models.Index(fields=['purpose_str', 'object_str']),             # also covers p
+            models.Index(fields=['object_str'])
+        ] 
 
 class ConditionalityParameter(models.Model):
     conditionality = models.ForeignKey(Conditionality, null=True, on_delete=models.SET_NULL)
@@ -165,12 +152,12 @@ class ConditionalityParameter(models.Model):
 
     
 class Preference(models.Model):
-    participant = models.ForeignKey(Participant, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     path = models.CharField(max_length=512)
     value = models.CharField(max_length=50)
     when_created = models.DateTimeField(auto_now_add=True)
     
-    def try_to_get(path, participant=None, default=None, convert_to_int=False):
+    def try_to_get(path, user=None, default=None, convert_to_int=False):
         """try to get a preference object
 
         Args:
@@ -186,7 +173,7 @@ class Preference(models.Model):
         return_value = default
         return_fromdb = False
         
-        query = Preference.objects.filter(path=path, participant=participant)
+        query = Preference.objects.filter(path=path, user=user)
         if query.exists():
             return_value = query.order_by("-when_created").first().value
             return_fromdb = True
@@ -196,7 +183,7 @@ class Preference(models.Model):
         
         return return_value, return_fromdb
         
-    def create(path, value, participant=None):
+    def create(path, value, user=None):
         """create preference object
 
         Args:
@@ -207,9 +194,9 @@ class Preference(models.Model):
             Preference: added preference object
             bool: if overwritten
         """
-        overwrite = Preference.objects.filter(path=path, participant=participant).exists()
+        overwrite = Preference.objects.filter(path=path, user=user).exists()
         
-        return Preference.objects.create(path=path, value=value, participant=participant), overwrite
+        return Preference.objects.create(path=path, value=value, user=user), overwrite
     
-    def delete(path, participant=None):
-        return Preference.objects.filter(path=path, participant=participant).delete()
+    def delete(path, user=None):
+        return Preference.objects.filter(path=path, user=user).delete()

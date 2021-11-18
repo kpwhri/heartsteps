@@ -1,0 +1,66 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block content %}
+<table>
+    <thead>
+        <td>Clock face</td>
+        <td>Current</td>
+        <td>7 day stats</td>
+    </thead>
+    <tbody>
+{% for clock_face in clock_faces %}
+    <tr>
+        <td>
+            <dl>
+                <dt>Pin</dt>
+                <dd>{{clock_face.pin}}</dd>
+                <dt>Created</dt>
+                <dd>{{ clock_face.created | date }} {{ clockface.created | time }}</dd>
+                <dt>Paired</dt>
+                {% if clock_face.user %}
+                <dd>Paired to {{clock_face.user.username}}</dd>
+                {% else %}
+                <dd>Not paired</dd>
+                {% endif %}
+
+            </dl>
+        </td>
+        <td>
+            <dl>
+                {% if clock_face.last_log %}
+                <dt>Last Log</dt>
+                <dd>{{clock_face.last_log.time | date}} {{clock_face.last_log.time | time}}</dd>
+                <dd>{{clock_face.last_log.steps}} steps</dd>
+                {% else %}
+                <p>No logs recorded</p>
+                {% endif %}
+                {% if clock_face.last_step_count %}
+                <dt>Last Step Count</dt>
+                <dd>{{clock_face.last_step_count.start | date}} {{clock_face.last_step_count.start | time}}</dd>
+                <dd>{{clock_face.last_step_count.steps}}</dd>
+                {% endif %}
+            </dl>
+        </td>
+        <td>
+            <dl>
+                <dt>Logs Recorded</dt>
+                {% if clock_face.log_count %}
+                <dd>{{clock_face.log_count}} logs</dd>
+                {% else %}
+                <dd>None</dd>
+                {% endif %}
+                <dt>Step Counts Recorded</dt>
+                {% if clock_face.step_count_count %}
+                <dd>{{clock_face.step_count_count}} records</dd>
+                {% else %}
+                <dd>None</dd>
+                {% endif %}
+            </dl>
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

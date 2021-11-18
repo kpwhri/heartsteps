@@ -53,6 +53,12 @@
         Fitbit last updated {{ fitbit_last_updated | date }}
     </dd>
     {% endif %}
+    <dt>Fitbit Clock Face</dt>
+    <dd>
+        <a href="{% url 'dashboard-cohort-participant-clock-face' cohort.id participant.heartsteps_id %}">
+            View Participant Fitbit Clock Face
+        </a>
+    </dd>
     <dt>Archived</dt>
     <dd>
         {% if participant.archived %}

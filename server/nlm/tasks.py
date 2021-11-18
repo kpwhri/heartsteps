@@ -41,4 +41,4 @@ def nlm_base_hourly_task(parameters):
                 # sent_message = generic_messages_service.send_message("test intervention", "Notification.GenericMessagesTest2", "Title from Tasks", "Body from Tasks: {}".format(parameters["minute"]), False)
                 # log('Message sent using generic_messages: msg-{}, url- /notification/{}'.format("Sample Body: {}".format(parameters["minute"]), sent_message.data["messageId"]))
                 
-                study_type_service.handle_participant_hourly_task(a_participant)
+                study_type_service.handle_participant_hourly_task(a_participant.user)

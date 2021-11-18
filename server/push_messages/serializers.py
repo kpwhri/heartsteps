@@ -47,5 +47,15 @@ class MessageReceiptSerializer(serializers.Serializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['created', 'title', 'body']
+        fields = [str('uuid'), 'created', 'title', 'body', 'sent', 'received', 'opened', 'engaged', 'data', 'message_type']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['context'] = representation['data']
+        del representation['data']
+        representation['type'] = representation['message_type']
+        del representation['message_type']
+        return representation
+            
+        
 

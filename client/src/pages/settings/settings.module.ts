@@ -17,15 +17,15 @@ import { BrowserModule } from "@angular/platform-browser";
 import { NotificationsPage } from "./notifications.page";
 import { NotificationsModule } from "@heartsteps/notifications/notifications.module";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
+import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
 import { SettingsComponent } from "./settings.component";
 import { FitbitAuthorizationPage } from "./fitbit-authorization.page";
 import { FitbitModule } from "@heartsteps/fitbit/fitbit.module";
-import { FitbitWatchPage } from "./fitbit-watch.page";
-import { FitbitWatchModule } from "@heartsteps/fitbit-watch/fitbit-watch.module";
 import { ActivitySurveysModule } from "@heartsteps/activity-surveys/activity-surveys.module";
-import { FitbitClockFacePinPage } from "./fitbit-clock-face-pin.page";
+import { FitbitClockFaceSettingsPage } from "./fitbit-clock-face-pin.page";
 import { FormModule } from "@infrastructure/form/form.module";
 import { ReactiveFormsModule } from "@angular/forms";
+import { FitbitClockFaceModule } from "@heartsteps/fitbit-clock-face/fitbit-clock-face.module";
 
 const settingsRoutes: Routes = [
     {
@@ -64,13 +64,8 @@ const settingsRoutes: Routes = [
         outlet: "modal",
     },
     {
-        path: "settings/fitbit-watch",
-        component: FitbitWatchPage,
-        outlet: "modal",
-    },
-    {
-        path: "settings/fitbit-clock-face-pin",
-        component: FitbitClockFacePinPage,
+        path: "settings/fitbit-clock-face",
+        component: FitbitClockFaceSettingsPage,
         outlet: "modal",
     },
     {
@@ -90,8 +85,7 @@ const settingsRoutes: Routes = [
         NotificationsPage,
         GoalPage,
         FitbitAuthorizationPage,
-        FitbitWatchPage,
-        FitbitClockFacePinPage,
+        FitbitClockFaceSettingsPage,
     ],
     entryComponents: [SettingsPage],
     exports: [RouterModule],
@@ -101,7 +95,6 @@ const settingsRoutes: Routes = [
         GenericMessagesModule,
         BrowserModule,
         ContactInformationModule,
-        FitbitWatchModule,
         FormModule,
         ReactiveFormsModule,
         HeartstepsComponentsModule,
@@ -111,6 +104,8 @@ const settingsRoutes: Routes = [
         WalkingSuggestionsModule,
         NotificationsModule,
         NotificationCenterModule,
+        FeatureFlagsModule,
+        FitbitClockFaceModule,
         RouterModule.forChild(settingsRoutes),
     ],
 })

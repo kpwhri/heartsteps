@@ -133,12 +133,26 @@ class ParticipantNotificationEndpointView(APIView):
         .localize_datetimes() \
         .all()
         return notifications
+
+    def is_received(self, notification):
+        if notification.sent and notification.received:
+            return True
+        return False
+
+    def is_read(self, notification):
+        if self.is_received(notification):
+            if notification.engaged or notification.opened:
+                return True
+        return False
     
-    # TODO: find out why removing cohort_id and participant_id breaks the endpoint
-    # the endpoint requires these 2 params to work even tho they are optional 
-    # and not used in the logic of get()
-    # 
-    def get(self, request, cohort_id, participant_id):
+    def are_unread_notifications(self, notifications):
+        if notifications:
+            for notification in notifications:
+                if self.is_received(notification) and not self.is_read(notification):
+                    return True
+        return False
+    
+    def get(self, request):
         start = timezone.now() - timedelta(days=1)
         end = timezone.now()
         
@@ -150,5 +164,6 @@ class ParticipantNotificationEndpointView(APIView):
         self.setup_participant(request.user)
 
         notifications = self.get_notifications(request.user, start, end)
+        are_unread = self.are_unread_notifications(notifications)
         serialized = MessageSerializer(notifications, many=True)
-        return Response(serialized.data, status=status.HTTP_200_OK)
+        return Response([are_unread, serialized.data], status=status.HTTP_200_OK)

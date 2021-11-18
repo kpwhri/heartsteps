@@ -90,7 +90,7 @@ class MessageReceiptQuerySet(LocalizeTimezoneQuerySet):
             message.set_message_receipts(message_receipts)
 
 
-
+# TODO: IMPORTANT -> ASK ABOUT EXPIRATION DATES ON NOTIFICATIONS
 class Message(models.Model):
 
     DATA = 'data'
