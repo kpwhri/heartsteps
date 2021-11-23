@@ -227,9 +227,15 @@ class FeatureFlags(models.Model):
             new object with the flag
         """
         if isinstance(obj, FeatureFlags):
-            if not obj.has_flag(flag):
-                obj.flags = "{}, {}".format(obj.flags, flag)
-                obj.save()
+            if "," in flag:
+                flags = flag.split(",")
+                
+                for a_flag in flags:
+                    obj.add_flag(a_flag)
+            else:
+                if not obj.has_flag(flag):
+                    obj.flags = "{}, {}".format(obj.flags, flag)
+            obj.save()
             return obj
         elif isinstance(obj, User):
             if FeatureFlags.exists(obj):
@@ -284,6 +290,7 @@ class FeatureFlags(models.Model):
         """
         if isinstance(obj, FeatureFlags):
             flag_list = list(map(lambda x: x.strip(), obj.flags.split(',')))
+            flag_list = list(filter(lambda x: len(x.strip()), flag_list))
             obj.flags = ", ".join(sorted(flag_list, key=str.lower))
             obj.save()
             return obj

@@ -20,6 +20,7 @@ from page_views.models import PageView
 from sms_messages.models import (Contact, Message)
 
 from user_event_logs.models import EventLog
+from feature_flags.models import FeatureFlags
 
 TASK_CATEGORY = 'PARTICIPANT_UPDATE'
 
@@ -196,6 +197,15 @@ class Participant(models.Model):
         user, created = User.objects.get_or_create(
             username=self.heartsteps_id
         )
+        if created:
+            feature_flags = FeatureFlags.create(user)
+            
+            if self.cohort.cohort_feature_flags:
+                feature_flags.add_flag(self.cohort.cohort_feature_flags)
+            if self.cohort.study.studywide_feature_flags:
+                feature_flags.add_flag(self.cohort.study.studywide_feature_flags)
+            feature_flags.sort_flags()
+        
         EventLog.debug(user)
         self.user = user
         EventLog.debug(user)
