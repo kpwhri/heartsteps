@@ -200,9 +200,9 @@ class Participant(models.Model):
         if created:
             feature_flags = FeatureFlags.create(user)
             
-            if self.cohort.cohort_feature_flags:
+            if self.cohort and self.cohort.cohort_feature_flags:
                 feature_flags.add_flag(self.cohort.cohort_feature_flags)
-            if self.cohort.study.studywide_feature_flags:
+            if self.cohort and self.cohort.study and self.cohort.study.studywide_feature_flags:
                 feature_flags.add_flag(self.cohort.study.studywide_feature_flags)
             feature_flags.sort_flags()
         

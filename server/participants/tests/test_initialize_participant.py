@@ -21,8 +21,12 @@ from participants.services import ParticipantService
 class ParticipantConfiguration(TestCase):
 
     def setUp(self):
+        self.study = Study.objects.create(
+            name="test study"
+        )
         self.cohort = Cohort.objects.create(
-            name='test'
+            name='test',
+            study=self.study
         )
         self.participant = Participant.objects.create(
             heartsteps_id = 'test',
