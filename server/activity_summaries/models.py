@@ -45,7 +45,7 @@ class ActivitySummary(models.Model):
         # self.steps = sum([_day.steps for _day in days])
         self.activities_completed = Day.objects.filter(user=self.user).aggregate(Sum("activities_completed"))
         self.miles = Day.objects.filter(user=self.user).aggregate(Sum("miles"))
-        self.minutes = Day.objects.filter(user=self.user).aggregate(Sum("minutes"))
+        self.minutes = Day.objects.filter(user=self.user).aggregate(Sum("total_minutes"))
         self.steps = Day.objects.filter(user=self.user).aggregate(Sum("steps"))
         self.save()
 
@@ -142,5 +142,5 @@ class Day(models.Model):
     
     def get(user, date):
         return_day = Day.get_all_days_query(user, date).all().last()
-        
+
         return return_day
