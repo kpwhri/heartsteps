@@ -61,13 +61,13 @@ class Day(models.Model):
         on_delete=models.CASCADE    
     )
     date = models.DateField()
-    steps = models.PositiveIntegerField(default=0)
-    miles = models.FloatField(default=0)
+    steps = models.PositiveIntegerField(default=0, null=True)
+    miles = models.FloatField(default=0, null=True)
 
-    activities_completed = models.PositiveIntegerField(default=0)
+    activities_completed = models.PositiveIntegerField(default=0, null=True)
     moderate_minutes = models.PositiveIntegerField(default=0)
     vigorous_minutes = models.PositiveIntegerField(default=0)
-    total_minutes = models.PositiveIntegerField(default=0)
+    total_minutes = models.PositiveIntegerField(default=0, null=True)
 
     updated = models.DateTimeField(auto_now=True)
 
