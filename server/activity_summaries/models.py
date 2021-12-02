@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from days.services import DayService
 from activity_logs.models import ActivityLog
 from fitbit_activities.services import FitbitDayService
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -38,10 +39,14 @@ class ActivitySummary(models.Model):
 
     def update(self):
         days = self.get_all_days()
-        self.activities_completed = sum([_day.activities_completed for _day in days])
-        self.miles = sum([_day.miles for _day in days])
-        self.minutes = sum([_day.total_minutes for _day in days])
-        self.steps = sum([_day.steps for _day in days])
+        # self.activities_completed = sum([_day.activities_completed for _day in days])
+        # self.miles = sum([_day.miles for _day in days])
+        # self.minutes = sum([_day.total_minutes for _day in days])
+        # self.steps = sum([_day.steps for _day in days])
+        self.activities_completed = Day.objects.filter(user=self.user).aggregate(Sum("activities_completed"))
+        self.miles = Day.objects.filter(user=self.user).aggregate(Sum("miles"))
+        self.minutes = Day.objects.filter(user=self.user).aggregate(Sum("minutes"))
+        self.steps = Day.objects.filter(user=self.user).aggregate(Sum("steps"))
         self.save()
 
 class Day(models.Model):
