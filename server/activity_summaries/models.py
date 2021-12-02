@@ -43,7 +43,8 @@ class ActivitySummary(models.Model):
         # self.miles = sum([_day.miles for _day in days])
         # self.minutes = sum([_day.total_minutes for _day in days])
         # self.steps = sum([_day.steps for _day in days])
-        self.activities_completed = Day.objects.filter(user=self.user).aggregate(Sum("activities_completed"))
+        activities_completed_list = Day.objects.filter(user=self.user).aggregate(Sum("activities_completed"))
+        self.activities_completed = list(activities_completed_list.values())[0]
         self.miles = Day.objects.filter(user=self.user).aggregate(Sum("miles"))
         self.minutes = Day.objects.filter(user=self.user).aggregate(Sum("total_minutes"))
         self.steps = Day.objects.filter(user=self.user).aggregate(Sum("steps"))
