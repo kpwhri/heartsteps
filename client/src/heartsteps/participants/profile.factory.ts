@@ -386,7 +386,7 @@ export class ProfileService {
                     return Promise.resolve(false);
                 });
         } else {
-            Promise.resolve(true);
+            Promise.resolve(undefined);
         }
     }
 }
