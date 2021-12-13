@@ -31,6 +31,7 @@ class LogoutView(APIView):
 class LoginView(APIView):
 
     def post(self, request):
+        print("LoginView.post()")
         EventLog.debug(None, "LoginView Post 6c0337d6-5aac-4d76-a255-12136b1b26f4")
         enrollment_token = request.data.get('enrollmentToken')
         EventLog.debug(None, "enrollmentToken b775323c-eb39-4d13-8d7e-c570107aac14")

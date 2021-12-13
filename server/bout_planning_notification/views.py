@@ -7,6 +7,8 @@ from rest_framework import serializers
 # from weekly_reflection.models import ReflectionTime
 from bout_planning_notification.models import FirstBoutPlanningTime
 
+from user_event_logs.models import EventLog
+
 class FirstBoutPlanningTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FirstBoutPlanningTime
@@ -24,9 +26,11 @@ class FirstBoutPlanningTimeView(APIView):
             return Response("Not authenticated", status=status.HTTP_UNAUTHORIZED)
         
         if FirstBoutPlanningTime.exists(request.user):
+            EventLog.debug(request.user, "FirstBoutPlanningTime exists")
             first_bout_planning_time = FirstBoutPlanningTime.get(user=request.user)
         else:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            EventLog.debug(request.user, "FirstBoutPlanningTime does not exist")
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
         serialized = FirstBoutPlanningTimeSerializer(first_bout_planning_time)
         

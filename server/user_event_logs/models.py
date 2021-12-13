@@ -83,7 +83,7 @@ class EventLog(models.Model):
                 if user_q.exists():
                     user = user_q.get()
                 else:
-                    raise User.DoesNotExist()
+                    EventLog.log(None, "[{}] {}".format(user, action), status)
             elif isinstance(user, User):
                 pass
             else:

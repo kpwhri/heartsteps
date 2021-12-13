@@ -36,7 +36,7 @@ class FirstBoutPlanningTimeViewTest(APITestCase):
         response = self.client.get(reverse(self.url, kwargs={}))
         
         # if response code is 204
-        self.assertEqual(204, response.status_code)
+        self.assertEqual(404, response.status_code)
         
         # if response data is ''
         self.assertIsNone(response.data)
@@ -59,7 +59,7 @@ class FirstBoutPlanningTimeViewTest(APITestCase):
         # force authenticated as test user
         self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse(self.url, kwargs={}))
-        self.assertEqual(204, response.status_code)
+        self.assertEqual(404, response.status_code)
         self.assertIsNone(response.data)
         
         # try to update by post

@@ -15,10 +15,16 @@ from page_views.models import PageView
 
 from .services import AdherenceService
 
+from user_event_logs.models import EventLog
+
 @shared_task
 def initialize_adherence(username):
-    service = AdherenceService(username=username)
-    service.initialize()
+    EventLog.debug(username, "initialize_adherence()")
+    try:    
+        service = AdherenceService(username=username)
+        service.initialize()
+    except Exception as e:
+        EventLog.error(username, "initialize_adherence() exception: {}".format(e))
 
 @shared_task
 def send_adherence_message(username):
