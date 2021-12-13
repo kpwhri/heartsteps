@@ -20,10 +20,9 @@ export class FeatureFlagService {
     ) {
         // TODO: change pipe(1) to reflect new updates to currentFeatureFlags behaviorsubject
 
-        // this.get instantly returns local feature flags
-        // so there is no delay on client waiting for API request
-        this.get();
-        // once user has local flags, attempt to refresh flags with live db data
+        // Junghwan: reading in local featureflag should be carefully done. I removed the this.get() from here [12/13/2021]
+        
+
         this.refreshFeatureFlags();
         // TODO: CHANGE TO LARGER INTERVAL FOR LESS REQUESTS, DEBUGGING ONLY
         this.featureFlagRefreshInterval = setInterval(() => {
@@ -158,13 +157,18 @@ export class FeatureFlagService {
     // TODO: implement better error checking to throw errors if API fails
     // refreshes feature flags with django and if fails, load from local storage
     public refreshFeatureFlags(): Promise<FeatureFlags> {
-        // console.log("FF: refreshFeatureFlags()");
+        console.log("FF: refreshFeatureFlags()");
         let localFlags: FeatureFlags;
         let areLocalFlags: boolean = false;
-        this.storage.get(storageKey).then((data) => {
-            localFlags = this.deserializeFeatureFlags(data);
-            areLocalFlags = true;
-        });
+        // [Junghwan] Reading in local flags asynchronously is dangerous. Because, we are trying to read in from the server, 
+        // with the sub-logic of local reading result. However, we don't know which one will be returned first. Probably the local one will be
+        // faster, but we don't know.
+        // For now, I'll try server-only logic. Later, we should change it into "await" logic.
+
+        // this.storage.get(storageKey).then((data) => {
+        //     localFlags = this.deserializeFeatureFlags(data);
+        //     areLocalFlags = true;
+        // });
 
         return this.getRecentFeatureFlags()
             .then((data) => {
@@ -174,15 +178,16 @@ export class FeatureFlagService {
                 if (areLocalFlags && localFlags.uuid !== data.uuid) {
                     throw "Could not refresh feature flags: UUID does not match";
                 }
-                // console.log("FF: refreshFeatureFlags promise SUCCESS", data);
+                console.log("FF: refreshFeatureFlags promise SUCCESS", data);
 
                 let flags = this.deserializeFeatureFlags(data);
                 this.featureFlags.next(flags);
                 return this.set(flags);
             })
             .catch(() => {
-                // console.log("FF: catch inside refreshFeatureFlags()");
-                return this.loadLocalFeatureFlags();
+                console.log("FF: catch inside refreshFeatureFlags()");
+                // return this.loadLocalFeatureFlags();
+                return Promise.reject(undefined);
             });
     }
 }

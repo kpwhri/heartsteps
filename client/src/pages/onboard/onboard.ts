@@ -76,12 +76,14 @@ export class OnboardPage implements OnInit {
         this.featureFlagSubscription =
             this.featureFlagService.currentFeatureFlags
                 .pipe(skip(1)) // BehaviorSubject class provides the default value (in this case, an empty feature flag list). This line skip the default value
-                .subscribe((flags) => {
+            .subscribe((flags) => {
+                    console.log("onboard.ts ngOnInit()", flags);
                     this.participantService.getProfile().then((profile) => {
+                        console.log("onboard.ts ngOnInit()", profile);
                         this.pages = [];
 
                         // TODO: how can we parameterize this? or make it database-driven?
-                        if (this.featureFlagService.hasFlag("bout_planning")) {
+                        if (profile.firstBoutPlanningTime == false) {
                             console.log("the user has 'bout_planning' flag.");
                             let nlm_onboarding_page = {
                                 key: "firstBoutPlanningTime",
@@ -93,7 +95,7 @@ export class OnboardPage implements OnInit {
                             console.log("the user doesn't have 'bout_planning' flag.");
                         }
 
-                        if (this.featureFlagService.hasFlag("fitbit_clockface")) {
+                        if (profile.fitbit_clockface == false) {
                             console.log("the user has 'fitbit_clockface' flag.");
                             let fitbit_clockface_onboarding_page = {
                                 key: "fitbitClockFace",

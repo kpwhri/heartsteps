@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
-import { DateFactory } from "@infrastructure/date.factory";
 
 const storageKey = 'firstBoutPlanningTime'
 
@@ -16,8 +15,7 @@ export class FirstBoutPlanningTimeService {
 
     constructor(
         private heartstepsServer: HeartstepsServer,
-        private storage: Storage,
-        private dateFactory: DateFactory
+        private storage: Storage
     ) { }
 
     public getTime(): Promise<FirstBoutPlanningTime> {

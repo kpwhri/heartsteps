@@ -136,6 +136,7 @@ export class ProfileService {
             this.checkFitbitWatch()
         ])
             .then((results) => {
+                console.log("ProfileService.get()", results);
                 return {
                     notificationsEnabled: results[0],
                     walkingSuggestionTimes: results[1],
@@ -179,7 +180,7 @@ export class ProfileService {
                     return Promise.resolve(false);
                 })
         } else {
-            return Promise.resolve(true);
+            return Promise.resolve(undefined);
         }
     }
 
