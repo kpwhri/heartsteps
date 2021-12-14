@@ -1,0 +1,162 @@
+{
+    "meta": {
+        "name": "JustWalk Daily EMA",
+        "syntax version": 1
+    },
+    "response bank": [{
+        "name": "not_at_all to completely",
+        "type": "minmax-likert",
+        "min": "Not at all",
+        "max": "Completely"
+    }],
+    "item bank": {
+        "root item": {
+            "type": "list",
+            "items": [
+                "Problem-solving self-efficacy",
+                "Drive to walk",
+                "Supportive routine",
+                "Typicalness of context",
+                "Relationships supportive of walking",
+                "Positive context for walking",
+                "Negative context for walking",
+                "Positive/Negative Experiences of walking",
+                "Additional Item 1 - every 5 days",
+                "Additional Item 2 - every day for the first week of the month"
+            ]
+        },
+        "Problem-solving self-efficacy": {
+            "type": "alternating",
+            "options": [
+                "Problem-solving self-efficacy: sub1",
+                "Problem-solving self-efficacy: sub2"
+            ]
+        },
+        "Problem-solving self-efficacy: sub1": {
+            "type": "single",
+            "text": "I know how to solve any problems that might keep me from walking today.",
+            "response": "not_at_all to completely"
+        },
+        "Problem-solving self-efficacy: sub2": {
+            "type": "single",
+            "text": "I am confident I can overcome obstacles and fit walking in today.",
+            "response": "not_at_all to completely"
+        },
+        "Drive to walk": {
+            "type": "alternating",
+            "options": [
+                "Drive to walk: sub1",
+                "Drive to walk: sub2"
+            ]
+        },
+        "Drive to walk: sub1": {
+            "type": "single",
+            "text": "Walking a lot is a top priority tomorrow.",
+            "response": "not_at_all to completely"
+        },
+        "Drive to walk: sub2": {
+            "type": "single",
+            "text": "No matter what, I'm going to walk tomorrow.",
+            "response": "not_at_all to completely"
+        },
+        "Supportive routine": {
+            "type": "alternating",
+            "options": [
+                "Supportive routine: sub1",
+                "Supportive routine: sub2"
+            ]
+        },
+        "Supportive routine: sub1": {
+            "type": "single",
+            "text": "My schedule makes it easy to be active tomorrow.",
+            "response": "not_at_all to completely"
+        },
+        "Supportive routine: sub2": {
+            "type": "single",
+            "text": "My routine tomorrow will make it easy to walk a lot.",
+            "response": "not_at_all to completely"
+        },
+        "Typicalness of context": {
+            "type": "single",
+            "text": "Tomorrow will be a typical ${DAY_OF_WEEK} for me.",
+            "response_type": "not_at_all to completely"
+        },
+        "Relationships supportive of walking": {
+            "type": "single",
+            "text": "My friends/family/co-workers will help me to be active tomorrow.",
+            "response_type": "not_at_all to completely"
+        },
+        "Positive context for walking": {
+            "type": "single",
+            "text": "Circumstances (e.g., nice weather, getting in nature) will help me to walk tomorrow.",
+            "response_type": "not_at_all to completely"
+        },
+        "Negative context for walking": {
+            "type": "single",
+            "text": "I expect obstacles (e.g., unsafe, poor weather) to walking tomorrow.",
+            "response_type": "not_at_all to completely"
+        },
+        "Positive/Negative Experiences of walking": {
+            "type": "alternating",
+            "options": [
+                "Positive/Negative Experiences of walking: sub1",
+                "Positive/Negative Experiences of walking: sub2",
+                "Positive/Negative Experiences of walking: sub3"
+            ]
+        },
+        "Positive/Negative Experiences of walking: sub1": {
+            "type": "single",
+            "text": "In general, I feel fatigued after going for a walk.",
+            "response_type": "not_at_all to completely"
+        },
+        "Positive/Negative Experiences of walking: sub2": {
+            "type": "single",
+            "text": "In general, I feel energetic after going for a walk.",
+            "response_type": "not_at_all to completely"
+        },
+        "Positive/Negative Experiences of walking: sub3": {
+            "type": "single",
+            "text": "Being active makes me feel healthier.",
+            "response_type": "not_at_all to completely"
+        },
+        "Additional Item 1 - every 5 days": {
+            "type": "shown if true",
+            "condition expression": "${DAY_SINCE_STUDY_STARTED} % 5 == 0",
+            "item": "Additional Item 1: body"
+        },
+        "Additional Item 2 - every day for the first week of the month": {
+            "type": "shown if true",
+            "condition expression": "${DAY_SINCE_STUDY_STARTED} - 30 * int(${DAY_SINCE_STUDY_STARTED}/30) < 7",
+            "item": "Additional Item 2: body"
+        },
+        "Additional Item 1: body": {
+            "type": "alternating",
+            "options": [
+                "Interoceptive awareness",
+                "Negative Reinforcement of walking",
+                "Behavioral Repertoire"
+            ]
+        },
+        "Interoceptive awareness": {
+            "type": "single",
+            "text": "I regularly feel urges to walk.",
+            "response_type": "not_at_all to completely"
+        },
+        "Negative Reinforcement of walking": {
+            "type": "single",
+            "text": "I walk because it helps me feel better (e.g., reduce stress, stiffness, or fatigue).",
+            "response_type": "not_at_all to completely"
+        },
+        "Behavioral Repertoire": {
+            "type": "single",
+            "text": "I have a wide range of strategies -  like turning a meeting into a walking meeting, scheduling in walking breaks, or fitting it into my normal routines-  that I use to walk regularly.",
+            "response_type": "not_at_all to completely"
+        },
+        "Additional Item 2: body": {
+            "type": "single",
+            "text": "My typical ${DAY_OF_WEEK} include walking a lot. ",
+            "response_type": "not_at_all to completely"
+        }
+    },
+    "root item": "root item"
+}
