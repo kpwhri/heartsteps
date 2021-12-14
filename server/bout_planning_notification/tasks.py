@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .models import User
+from .models import BoutPlanningMessage, User
 from .services import BoutPlanningNotificationService
 
 from user_event_logs.models import EventLog
@@ -24,7 +24,12 @@ def send_bout_planning_survey(username):
     
     survey = service.create_survey()
     
-    message = service.send_notification(survey=survey)
+    if BoutPlanningMessage.objects.exists():
+        body = BoutPlanningMessage.objects.order_by('?').first().message
+    else:
+        body = "Feeling stressed? Do you think a quick walk might help?"
+    
+    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
         
         
 @shared_task
