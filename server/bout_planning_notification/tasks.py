@@ -24,12 +24,16 @@ def send_bout_planning_survey(username):
     
     survey = service.create_survey()
     
+    body = pull_random_bout_planning_message()
+    
+    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
+
+def pull_random_bout_planning_message():
     if BoutPlanningMessage.objects.exists():
         body = BoutPlanningMessage.objects.order_by('?').first().message
     else:
         body = "Feeling stressed? Do you think a quick walk might help?"
-    
-    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
+    return body
         
         
 @shared_task
@@ -47,7 +51,10 @@ def bout_planning_decision_making(username):
             service = BoutPlanningNotificationService(user)
             
             if service.is_necessary():
-                message = service.send_notification()
+                survey = service.create_survey()
+                body = pull_random_bout_planning_message()
+                
+                message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
                 EventLog.success(user, "bout planning notification is sent.")
             else:
                 EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
