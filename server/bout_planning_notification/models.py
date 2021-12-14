@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 # from django_celery_beat.models import PeriodicTask, PeriodicTasks
 from daily_tasks.models import DailyTask
 from days.services import DayService
+from surveys.models import Question, Survey, SurveyQuerySet
 from .constants import TASK_CATEGORY
 from django.db import models
 
@@ -24,6 +25,60 @@ from push_messages.models import Message
 
 User = get_user_model()
 
+class Configuration(models.Model):
+    user = models.OneToOneField(
+        User,
+        related_name = '+',
+        on_delete = models.CASCADE
+    )
+    enabled = models.BooleanField(default = True)
+    
+    @property
+    def last_survey(self):
+        if not hasattr(self, '_last_survey'):
+            self._last_survey = self.get_last_survey()
+        return self._last_survey
+
+    @property
+    def last_answered_survey(self):
+        if not hasattr(self, '_last_answered_survey'):
+            self._last_answered_survey = self.get_last_answered_survey()
+        return self._last_answered_survey
+
+    @property
+    def summary_of_last_24_hours(self):
+        if not hasattr(self, '_summary_of_last_24_hours'):
+            self._summary_of_last_24_hours = self.get_summary_of_last_24_hours()
+        return self._summary_of_last_24_hours
+
+    @property
+    def summary_of_last_7_days(self):
+        if not hasattr(self, '_summary_of_last_7_days'):
+            self._summary_of_last_7_days = self.get_summary_of_last_7_days()
+        return self._summary_of_last_7_days
+
+    def get_last_survey(self):
+        activity_survey = BoutPlanningSurvey.objects.filter(
+            user = self.user
+        ).order_by('created') \
+        .last()
+        return activity_survey
+
+    def get_last_answered_survey(self):
+        activity_survey = BoutPlanningSurvey.objects.filter(
+            user = self.user,
+            answered = True
+        ).order_by('created') \
+        .last()
+        return activity_survey
+        
+class BoutPlanningSurveyQuestion(Question):
+    pass
+
+class BoutPlanningSurvey(Survey):
+    QUESTION_MODEL = BoutPlanningSurveyQuestion
+    
+    objects = SurveyQuerySet.as_manager()
 
 class BoutPlanningNotification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
