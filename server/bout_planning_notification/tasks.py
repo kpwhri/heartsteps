@@ -22,7 +22,9 @@ def send_bout_planning_survey(username):
     
     service = BoutPlanningNotificationService(user)
     
-    message = service.send_notification()
+    survey = service.create_survey()
+    
+    message = service.send_notification(survey=survey)
         
         
 @shared_task

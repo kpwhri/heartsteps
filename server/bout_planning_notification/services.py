@@ -1,7 +1,8 @@
+from surveys.serializers import SurveySerializer
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
-from .models import Level, BoutPlanningDecision, BoutPlanningNotification
+from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -15,6 +16,12 @@ class BoutPlanningNotificationService:
         self.decision = None
         EventLog.debug(self.user, "Starting BoutPlanningNotificationService")
 
+    def create_survey(self):
+        bout_planning_survey = BoutPlanningSurvey.objects.create(user=self.user)
+        bout_planning_survey.reset_questions()
+        
+        return bout_planning_survey
+        
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
         
@@ -52,8 +59,13 @@ class BoutPlanningNotificationService:
                           title='Sample Bout Planning Title',
                           body='Sample Bout Planning Body.',
                           collapse_subject='bout_planninng',
+                          survey=None,
                           data={}):
         try:
+            if survey is not None:
+                serialized_survey = SurveySerializer(survey)
+                data["survey"] = serialized_survey.data
+                
             service = PushMessageService(user=self.user)
             message = service.send_notification(
                 body=body,
