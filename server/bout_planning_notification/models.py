@@ -80,6 +80,9 @@ class BoutPlanningSurvey(Survey):
     
     objects = SurveyQuerySet.as_manager()
 
+class BoutPlanningMessage(models.Model):
+    message = models.TextField(blank=True, null=True)
+
 class BoutPlanningNotification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, null=True, blank=True)

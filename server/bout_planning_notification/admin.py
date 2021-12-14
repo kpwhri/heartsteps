@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from surveys.admin import QuestionAdmin
 
-from .models import BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime
+from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime
 from .models import BoutPlanningNotification, Level, BoutPlanningDecision
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
@@ -48,3 +48,10 @@ class BoutPlanningSurveyQuestionAdmin(QuestionAdmin):
     pass
 
 admin.site.register(BoutPlanningSurveyQuestion, BoutPlanningSurveyQuestionAdmin)
+
+
+class BoutPlanningMessageAdmin(admin.ModelAdmin):
+    list_display = ['message']
+    fields = ['message']
+
+admin.site.register(BoutPlanningMessage, BoutPlanningMessageAdmin)
