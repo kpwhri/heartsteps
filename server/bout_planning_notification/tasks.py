@@ -10,6 +10,22 @@ class BoutPlanningFlagException(Exception):
     pass
 
 @shared_task
+def send_bout_planning_survey(username):
+    assert isinstance(username, str), "username must be a string: {}".format(type(username))
+    user = User.objects.get(username=username)
+    
+    if not FeatureFlags.exists(user):
+        raise Exception("The user does not have a feature flag.")
+    
+    if not FeatureFlags.has_flag(user, "bout_planning"):
+        raise Exception("The user does not have 'bout_planning' flag.")
+    
+    service = BoutPlanningNotificationService(user)
+    
+    message = service.send_notification()
+        
+        
+@shared_task
 def bout_planning_decision_making(username):
     """Main logic for bout planning decision making. This runs every three hours
     task id: bout_planning_notification.tasks.bout_planning_decision_making
