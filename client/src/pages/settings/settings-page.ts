@@ -12,6 +12,8 @@ import { Platform } from "ionic-angular";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { ActivitySurveyService } from "@heartsteps/activity-surveys/activity-survey.service";
+import { BoutPlanningSurveyService } from "@heartsteps/bout-planning/bout-planning-survey.service";
+
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
@@ -45,7 +47,8 @@ export class SettingsPage {
         // private genericMessagesService: GenericMessagesService,
         private participantService: ParticipantService,
         private platform: Platform,
-        private activitySurveyService: ActivitySurveyService
+        private activitySurveyService: ActivitySurveyService,
+        private boutPlanningSurveyService: BoutPlanningSurveyService
     ) {
         this.participantService.participant
             .filter((participant) => participant !== undefined)
@@ -249,6 +252,21 @@ export class SettingsPage {
         this.loadingService.show("Requesting activity survey");
         this.activitySurveyService
             .sendTestActivitySurvey()
+            .then((message) => {
+                this.loadingService.dismiss();
+                if (!this.platform.is("cordova")) {
+                    return this.openMessage(message);
+                }
+            })
+            .catch((error) => {
+                this.alertDialog.show(error);
+            });
+    }
+
+    public testBoutPlanningSurvey() {
+        this.loadingService.show("Requesting bout planning survey");
+        this.boutPlanningSurveyService
+            .sendTestBoutPlanningSurvey()
             .then((message) => {
                 this.loadingService.dismiss();
                 if (!this.platform.is("cordova")) {

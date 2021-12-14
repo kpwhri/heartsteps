@@ -21,7 +21,10 @@ class BoutPlanningNotificationService:
         bout_planning_survey.reset_questions()
         
         return bout_planning_survey
-        
+    
+    def create_test_survey(self):
+        return self.create_survey()
+    
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
         

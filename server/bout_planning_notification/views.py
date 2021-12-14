@@ -3,16 +3,39 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
+from rest_framework import status, permissions
+from rest_framework.response import Response
 
 # from weekly_reflection.models import ReflectionTime
 from bout_planning_notification.models import FirstBoutPlanningTime
 
 from user_event_logs.models import EventLog
 
+from .services import BoutPlanningNotificationService
+
+
 class FirstBoutPlanningTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FirstBoutPlanningTime
         fields = ('id','time')
+
+class BoutPlanningSurveyTestView(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            service = BoutPlanningNotificationService(user = request.user)
+            survey = service.create_test_survey()
+            notification = service.send_notification(survey=survey)
+            return Response(
+                {
+                    'notificationId': notification.uuid
+                },
+                status = status.HTTP_201_CREATED
+            )
+        except BoutPlanningNotificationService.NotificationSendError:
+            return Response('Unable to send notification', status.HTTP_400_BAD_REQUEST)
 
 
 class FirstBoutPlanningTimeView(APIView):

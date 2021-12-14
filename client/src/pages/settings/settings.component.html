@@ -44,8 +44,7 @@
 <article *ngIf="staffParticipant">
     <h3>Testing Area</h3>
     <p>
-        This area is only visible to staff members, and is used to test
-        functionality in the application.
+        This area is only visible to staff members, and is used to test functionality in the application.
     </p>
     <nav>
         <ul>
@@ -60,6 +59,9 @@
     <p>{{ featureFlagsString }}</p>
     <h4>Notification Testing</h4>
     <ul>
+        <li>
+            <button (click)="testBoutPlanningSurvey()">Send Bout Planning Survey</button>
+        </li>
         <li>
             <button (click)="testActivitySurvey()">Send Activity Survey</button>
         </li>
@@ -120,8 +122,7 @@
 <article>
     <h3>Logout</h3>
     <p>
-        This will remove all data from your phone, and stop all push
-        notifications.
+        This will remove all data from your phone, and stop all push notifications.
     </p>
     <button class="danger" (click)="logout()">Logout</button>
 </article>
