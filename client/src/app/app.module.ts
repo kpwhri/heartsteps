@@ -34,6 +34,7 @@ import { LoadingPageComponent } from "./loading-page.component";
 import { HeartstepsComponentsModule } from "@infrastructure/components/components.module";
 
 import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
+import { BoutPlanningSurveysModule } from "@heartsteps/bout-planning/bout-planning-surveys.module";
 
 const routes: Routes = [
     {
@@ -69,6 +70,7 @@ const routes: Routes = [
         BoutPlanningModule,
         MorningSurveyPageModule,
         BrowserAnimationsModule,
+        BoutPlanningSurveysModule,
         IonicModule.forRoot(MyApp),
         RouterModule.forRoot(routes, {
             useHash: true,
