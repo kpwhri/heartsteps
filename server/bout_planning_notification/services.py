@@ -2,7 +2,7 @@ from surveys.serializers import SurveySerializer
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
-from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification
+from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification, JustWalkJitaiDailyEma
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -24,6 +24,13 @@ class BoutPlanningNotificationService:
     
     def create_test_survey(self):
         return self.create_survey()
+    
+    def create_daily_ema(self):
+        daily_ema_survey = JustWalkJitaiDailyEma.objects.create(user=self.user)
+        daily_ema_survey.reset_questions()
+        
+        return daily_ema_survey
+    
     
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")

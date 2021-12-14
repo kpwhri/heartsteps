@@ -66,3 +66,27 @@ def bout_planning_decision_making(username):
         msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
         EventLog.log(user, msg, EventLog.ERROR)
         raise BoutPlanningFlagException(msg)
+    
+@shared_task
+def justwalk_daily_ema(username):
+    assert isinstance(username, str), "username must be a string: {}".format(type(username))
+    user = User.objects.get(username=username)
+    
+    if FeatureFlags.exists(user):
+        if FeatureFlags.has_flag(user, "bout_planning"):
+            EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
+            
+            service = BoutPlanningNotificationService(user)
+            
+            survey = service.create_daily_ema()
+            
+            message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+        else:
+            msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
+            EventLog.log(user, msg, EventLog.ERROR)
+            raise BoutPlanningFlagException(msg)
+    else:
+        msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
+        EventLog.log(user, msg, EventLog.ERROR)
+        raise BoutPlanningFlagException(msg)
+    

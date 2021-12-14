@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from surveys.admin import QuestionAdmin
 
-from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime
+from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JustWalkJitaiDailyEmaQuestion
 from .models import BoutPlanningNotification, Level, BoutPlanningDecision
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
@@ -55,3 +55,9 @@ class BoutPlanningMessageAdmin(admin.ModelAdmin):
     fields = ['message']
 
 admin.site.register(BoutPlanningMessage, BoutPlanningMessageAdmin)
+
+
+class JustWalkJitaiDailyEmaQuestionAdmin(QuestionAdmin):
+    pass
+
+admin.site.register(JustWalkJitaiDailyEmaQuestion, JustWalkJitaiDailyEmaQuestionAdmin)

@@ -80,6 +80,16 @@ class BoutPlanningSurvey(Survey):
     
     objects = SurveyQuerySet.as_manager()
 
+class JustWalkJitaiDailyEmaQuestion(Question):
+    pass
+
+class JustWalkJitaiDailyEma(Survey):
+    QUESTION_MODEL = JustWalkJitaiDailyEmaQuestion
+    
+    objects = SurveyQuerySet.as_manager()
+
+
+
 class BoutPlanningMessage(models.Model):
     message = models.TextField(blank=True, null=True)
 
