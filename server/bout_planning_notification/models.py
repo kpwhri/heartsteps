@@ -96,7 +96,11 @@ class JustWalkJitaiDailyEma(Survey):
 def eval_(node):
     operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-             ast.USub: op.neg}
+             ast.USub: op.neg, ast.Mod: op.mod, ast.Eq: op.eq,
+             ast.Lt: op.lt, ast.Gt: op.gt, ast.LtE: op.le, 
+             ast.GtE: op.ge}
+    
+    allowed_functions = ["int"]
     
     def power(a, b):
         if any(abs(n) > 100 for n in [a, b]):
@@ -105,12 +109,38 @@ def eval_(node):
     
     operators[ast.Pow] = power
     
-    if isinstance(node, ast.Num): # <number>
+    if isinstance(node, list):
+        if len(node) == 1:
+            return eval_(node[0])
+        else:
+            raise ValueError(str(node))
+    elif isinstance(node, ast.Num): # <number>
         return node.n
+    elif isinstance(node, ast.Compare):
+        is_true = True
+        
+        if isinstance(node.ops, list):
+            for i, i_op in enumerate(node.ops):
+                is_true = is_true and operators[type(i_op)](eval_(node.left), eval_(node.comparators[i]))
+        else:
+            is_true = is_true and operators[type(node.ops)](eval_(node.left), eval_(node.comparators))
+        return is_true
     elif isinstance(node, ast.BinOp): # <left> <operator> <right>
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
     elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
         return operators[type(node.op)](eval_(node.operand))
+    elif isinstance(node, ast.Call):
+        if node.func.id in allowed_functions:
+            args_list = [eval_(x) for x in node.args]
+            
+            function_str = "{}({})".format(node.func.id, ", ".join([str(x) for x in args_list]))
+            value = eval(function_str)
+            
+            return value
+        else:
+            raise ValueError("Not allowed function: {}".format(node.func.id))
+    elif isinstance(node, ast.Expr):
+        return eval_(node.value)
     else:
         raise TypeError(node)
 
@@ -127,7 +157,7 @@ def replace_special_variables(expr, parameters):
 
         # Number of Days since the study started
         enrolled_date = Participant.objects.filter(user=parameters["user"]).order_by("study_start_date").first().study_start_date
-        new_expr = new_expr.replace("${DAY_SINCE_ENROLLED}",
+        new_expr = new_expr.replace("${DAYS_SINCE_ENROLLED}",
                                     str((parameters["today"] - enrolled_date).days)
                                     )
     
@@ -157,9 +187,12 @@ class JSONSurvey(models.Model):
                 self.traverse(subitem, parameters)
         elif item["type"] == "alternating":
             last_item_index = self.get_last_item_index(item_name)
-            self.traverse(item["options"][(last_item_index + 1) % len(item["options"])], parameters)
+            current_item_index = (last_item_index + 1) % len(item["options"])
+            self.insert_last_item_index(item_name, current_item_index)
+            self.traverse(item["options"][current_item_index], parameters)
         elif item["type"] == "shown if true":
             condition_str = replace_special_variables(item["condition expression"], parameters)
+            print("condition expression: {}".format(condition_str))
             if eval_expr(condition_str) == True:
                 self.traverse(item["item"], parameters)
         elif item["type"] == "single":
@@ -179,6 +212,9 @@ class JSONSurvey(models.Model):
             return query.order_by("-created").first().used_index
         else:
             return -1
+        
+    def insert_last_item_index(self, item_name, item_index):
+        LastItemLog.objects.create(jsonsurvey=self, item_name=item_name, user=self.user, used_index=item_index)
     
     def insert_or_update_question_and_answers(self):
         self.question_obj_list = []
