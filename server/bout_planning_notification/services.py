@@ -74,6 +74,7 @@ class BoutPlanningNotificationService:
         try:
             if survey is not None:
                 serialized_survey = SurveySerializer(survey)
+                print(serialized_survey.data)
                 data["survey"] = serialized_survey.data
                 
             service = PushMessageService(user=self.user)

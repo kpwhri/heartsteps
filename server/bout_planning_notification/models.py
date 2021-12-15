@@ -166,14 +166,14 @@ class JSONSurvey(models.Model):
             final_item = {
                     "name": item_name,
                     "text": replace_special_variables(item["text"], parameters),
-                    "response_type": item["response"]
+                    "response_type": item["response_type"]
                 }
             self.items_list.append(final_item)
         else:
             raise ValueError("Not supported item type: {}-{}".format(item_name, item))
     
     def get_last_item_index(self, item_name):
-        query = LastItemLog.objects.filter(survey=self, item_name=item_name, user=self.user)
+        query = LastItemLog.objects.filter(jsonsurvey=self, item_name=item_name, user=self.user)
         
         if query.exists():
             return query.order_by("-created").first().used_index
@@ -224,7 +224,7 @@ class JSONSurvey(models.Model):
         new_survey = Survey.objects.create(user=user)
         
         for question_index, question_obj in enumerate(self.question_obj_list):
-            new_survey_question = SurveyQuestion.objects.create(name=self.name,
+            new_survey_question = SurveyQuestion.objects.create(name="{}-{}".format(self.name, question_index),
                                           label=question_obj.label,
                                           description=question_obj.description,
                                           question=question_obj,
