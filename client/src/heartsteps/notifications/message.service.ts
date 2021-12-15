@@ -49,7 +49,9 @@ export class MessageService {
                     console.log(
                         "MessageService: Got notification id=" + data.id
                     );
+                    console.log("MessageService: data=", data);
                     this.loadMessage(data.id).then((message) => {
+                        console.log(message);
                         this.opened.next(message);
                     });
                 }
@@ -196,6 +198,7 @@ export class MessageService {
                 .get(messageId)
                 .then((data) => {
                     console.log("MessageService: returning message");
+                    console.log("MessageService: data=", data);
                     return this.deserializeMessage(data);
                 })
                 .catch(() => {

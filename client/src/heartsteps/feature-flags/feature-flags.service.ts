@@ -157,7 +157,7 @@ export class FeatureFlagService {
     // TODO: implement better error checking to throw errors if API fails
     // refreshes feature flags with django and if fails, load from local storage
     public refreshFeatureFlags(): Promise<FeatureFlags> {
-        console.log("FF: refreshFeatureFlags()");
+        // console.log("FF: refreshFeatureFlags()");
         let localFlags: FeatureFlags;
         let areLocalFlags: boolean = false;
         // [Junghwan] Reading in local flags asynchronously is dangerous. Because, we are trying to read in from the server, 
@@ -178,14 +178,14 @@ export class FeatureFlagService {
                 if (areLocalFlags && localFlags.uuid !== data.uuid) {
                     throw "Could not refresh feature flags: UUID does not match";
                 }
-                console.log("FF: refreshFeatureFlags promise SUCCESS", data);
+                // console.log("FF: refreshFeatureFlags promise SUCCESS", data);
 
                 let flags = this.deserializeFeatureFlags(data);
                 this.featureFlags.next(flags);
                 return this.set(flags);
             })
             .catch(() => {
-                console.log("FF: catch inside refreshFeatureFlags()");
+                // console.log("FF: catch inside refreshFeatureFlags()");
                 // return this.loadLocalFeatureFlags();
                 return Promise.reject(undefined);
             });

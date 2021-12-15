@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, date, time
 import pytz
 import math
+import uuid
 
 from django.db import models, IntegrityError
 
@@ -88,7 +89,12 @@ class JustWalkJitaiDailyEma(Survey):
     
     objects = SurveyQuerySet.as_manager()
 
-
+class JSONSurvey(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True, default="")
+    structure = models.JSONField(null=False, default=dict)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 class BoutPlanningMessage(models.Model):
     message = models.TextField(blank=True, null=True)
