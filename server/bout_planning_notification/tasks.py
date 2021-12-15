@@ -83,7 +83,7 @@ def justwalk_daily_ema(username):
             # survey = service.create_daily_ema()
             
             # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-            message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey")
+            message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)

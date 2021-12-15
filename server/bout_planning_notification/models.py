@@ -2,6 +2,8 @@ from datetime import datetime, timedelta, date, time
 import pytz
 import math
 import uuid
+import ast
+import operator as op
 
 from django.db import models, IntegrityError
 
@@ -9,7 +11,7 @@ from django.contrib.auth import get_user_model
 # from django_celery_beat.models import PeriodicTask, PeriodicTasks
 from daily_tasks.models import DailyTask
 from days.services import DayService
-from surveys.models import Question, Survey, SurveyQuerySet
+from surveys.models import Answer, Question, Survey, SurveyAnswer, SurveyQuerySet, SurveyQuestion
 from .constants import TASK_CATEGORY
 from django.db import models
 
@@ -89,6 +91,48 @@ class JustWalkJitaiDailyEma(Survey):
     
     objects = SurveyQuerySet.as_manager()
 
+
+
+def eval_(node):
+    operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
+             ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
+             ast.USub: op.neg}
+    
+    def power(a, b):
+        if any(abs(n) > 100 for n in [a, b]):
+            raise ValueError((a,b))
+        return op.pow(a, b)
+    
+    operators[ast.Pow] = power
+    
+    if isinstance(node, ast.Num): # <number>
+        return node.n
+    elif isinstance(node, ast.BinOp): # <left> <operator> <right>
+        return operators[type(node.op)](eval_(node.left), eval_(node.right))
+    elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
+        return operators[type(node.op)](eval_(node.operand))
+    else:
+        raise TypeError(node)
+
+def eval_expr(expr):
+    return eval_(ast.parse(expr, mode='eval').body)
+
+def replace_special_variables(self, expr, parameters):
+    new_expr = expr
+    
+    # Day of week
+    if "today" in parameters:
+        import calendar
+        new_expr = new_expr.replace("${DAY_OF_WEEK}", calendar.day_name[parameters["today"].weekday()])
+
+        # Number of Days since the study started
+        enrolled_date = Participant.objects.filter(user=self.user).order_by("study_start_date").first().study_start_date
+        new_expr = new_expr.replace("${DAY_SINCE_ENROLLED}",
+                                    str((parameters["today"] - enrolled_date).days)
+                                    )
+    
+    return new_expr
+    
 class JSONSurvey(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, default="")
@@ -96,12 +140,109 @@ class JSONSurvey(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
-    def substantiate(self, user):
+    
+    
+    
+    def traverse(self, item_name, parameters=None):
+        item = self.item_bank[item_name]
+        assert type(item) is dict, "item should be a dictionary."
+        
+        if parameters is None and item["type"] in ("shown if true", "single"):
+            parameters = {}
+            day_service = DayService(user=self.user)
+            parameters["today"] = day_service.get_current_date()
+        
+        if item["type"] == "list":
+            for subitem in item["items"]:
+                self.traverse(subitem, parameters)
+        elif item["type"] == "alternating":
+            last_item_index = self.get_last_item_index(item_name)
+            self.traverse(item["options"][(last_item_index + 1) % len(item["options"])], parameters)
+        elif item["type"] == "shown if true":
+            condition_str = self.replace_special_variables(item["condition expression"], parameters)
+            if eval_expr(condition_str) == True:
+                self.traverse(item["item"], parameters)
+        elif item["type"] == "single":
+            final_item = {
+                    "name": item_name,
+                    "text": self.replace_special_variables(item["text"], parameters),
+                    "response_type": item["response_type"]
+                }
+            self.items_list.append(final_item)
+        else:
+            raise ValueError("Not supported item type: {}-{}".format(item_name, item))
+    
+    def get_last_item_index(self, item_name):
+        query = LastItemLog.objects.filter(survey=self, item_name=item_name, user=self.user)
+        
+        if query.exists():
+            return query.order_by("-created").first().used_index
+        else:
+            return -1
+    
+    def insert_or_update_question_and_answers(self):
+        self.question_obj_list = []
+        
+        for index, item in enumerate(self.items_list):
+            question_found = False
+            response_info = self.response_bank[item["response_type"]]
+            query = Question.objects.filter(label=item["text"])
+            if query.exists():
+                for question in query.all():
+                    answer_count = Answer.objects.filter(label__in=response_info["answers"], question=question).count()
+                    
+                    if answer_count == len(response_info["answers"]) and question.kind == response_info["type"]:
+                        self.question_obj_list.append(question)
+                        question_found = True
+                        break
+            
+            if not question_found:
+                question_obj = Question.objects.create(name="{}-{}".format(self.name, item["name"]), 
+                                        label=item["text"],
+                                        description='',
+                                        order=index,
+                                        kind=response_info["type"]
+                                        )
+                
+                for answer_index, answer in enumerate(response_info["answers"]):
+                    Answer.objects.create(label=answer,
+                                          value=answer_index,
+                                          question=question_obj,
+                                          order=answer_index)
+                self.question_obj_list.append(question_obj)
+        
+                
+        
+    def substantiate(self, user, parameters=None):
         from pprint import pprint
+        self.user = user
+        self.items_list = []
         
-        pprint(self.structure)
+        self.response_list = []
+        self.prepare_response()
         
-        return None
+        self.traverse(self.item_bank[self.root_item], parameters)
+        self.insert_or_update_question_and_answers()
+        
+        new_survey = Survey.objects.create(user=user)
+        
+        for question_index, question_obj in enumerate(self.question_obj_list):
+            new_survey_question = SurveyQuestion.objects.create(name=self.name,
+                                          label=question_obj.label,
+                                          description=question_obj.description,
+                                          question=question_obj,
+                                          survey=new_survey,
+                                          order=question_index,
+                                          kind=question_obj.kind)
+            query = Answer.objects.filter(question=question_obj).order_by("order")
+            for answer_index, answer_obj in enumerate(list(query.all())):
+                SurveyAnswer.objects.create(label=answer_obj.label,
+                                            value=answer_obj.value,
+                                            question=new_survey_question,
+                                            answer=answer_obj,
+                                            order=answer_index)
+        
+        return new_survey
     
     @property
     def meta(self):
@@ -122,7 +263,13 @@ class JSONSurvey(models.Model):
     @property
     def root_item(self):
         return self.structure["root item"]
-    
+
+class LastItemLog(models.Model):
+    jsonsurvey = models.ForeignKey(JSONSurvey, on_delete=models.CASCADE)
+    item_name = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+    used_index = models.IntegerField(null=False, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class BoutPlanningMessage(models.Model):
     message = models.TextField(blank=True, null=True)

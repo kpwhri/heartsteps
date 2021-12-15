@@ -3,12 +3,12 @@
         "name": "JustWalk JITAI Daily EMA",
         "syntax version": 1
     },
-    "response bank": [{
-        "name": "not_at_all to completely",
-        "type": "minmax-likert",
-        "min": "Not at all",
-        "max": "Completely"
-    }],
+    "response bank": {
+        "not_at_all to completely": {
+            "type": "likert",
+            "answers": ["Not at all", "_", "_", "_", "Completely"]
+        }
+    },
     "item bank": {
         "root item": {
             "type": "list",
@@ -121,12 +121,12 @@
         },
         "Additional Item 1 - every 5 days": {
             "type": "shown if true",
-            "condition expression": "${DAY_SINCE_STUDY_STARTED} % 5 == 0",
+            "condition expression": "(${DAYS_SINCE_ENROLLED}) % 5 == 0",
             "item": "Additional Item 1: body"
         },
         "Additional Item 2 - every day for the first week of the month": {
             "type": "shown if true",
-            "condition expression": "${DAY_SINCE_STUDY_STARTED} - 30 * int(${DAY_SINCE_STUDY_STARTED}/30) < 7",
+            "condition expression": "(${DAYS_SINCE_ENROLLED}) - 30 * int(${DAYS_SINCE_ENROLLED}/30) < 7",
             "item": "Additional Item 2: body"
         },
         "Additional Item 1: body": {
