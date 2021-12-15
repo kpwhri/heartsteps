@@ -117,7 +117,7 @@ def eval_(node):
 def eval_expr(expr):
     return eval_(ast.parse(expr, mode='eval').body)
 
-def replace_special_variables(self, expr, parameters):
+def replace_special_variables(expr, parameters):
     new_expr = expr
     
     # Day of week
@@ -126,7 +126,7 @@ def replace_special_variables(self, expr, parameters):
         new_expr = new_expr.replace("${DAY_OF_WEEK}", calendar.day_name[parameters["today"].weekday()])
 
         # Number of Days since the study started
-        enrolled_date = Participant.objects.filter(user=self.user).order_by("study_start_date").first().study_start_date
+        enrolled_date = Participant.objects.filter(user=parameters["user"]).order_by("study_start_date").first().study_start_date
         new_expr = new_expr.replace("${DAY_SINCE_ENROLLED}",
                                     str((parameters["today"] - enrolled_date).days)
                                     )
@@ -148,7 +148,7 @@ class JSONSurvey(models.Model):
         assert type(item) is dict, "item should be a dictionary."
         
         if parameters is None and item["type"] in ("shown if true", "single"):
-            parameters = {}
+            parameters = {"user": self.user}
             day_service = DayService(user=self.user)
             parameters["today"] = day_service.get_current_date()
         
@@ -159,14 +159,14 @@ class JSONSurvey(models.Model):
             last_item_index = self.get_last_item_index(item_name)
             self.traverse(item["options"][(last_item_index + 1) % len(item["options"])], parameters)
         elif item["type"] == "shown if true":
-            condition_str = self.replace_special_variables(item["condition expression"], parameters)
+            condition_str = replace_special_variables(item["condition expression"], parameters)
             if eval_expr(condition_str) == True:
                 self.traverse(item["item"], parameters)
         elif item["type"] == "single":
             final_item = {
                     "name": item_name,
-                    "text": self.replace_special_variables(item["text"], parameters),
-                    "response_type": item["response_type"]
+                    "text": replace_special_variables(item["text"], parameters),
+                    "response_type": item["response"]
                 }
             self.items_list.append(final_item)
         else:
@@ -218,10 +218,7 @@ class JSONSurvey(models.Model):
         self.user = user
         self.items_list = []
         
-        self.response_list = []
-        self.prepare_response()
-        
-        self.traverse(self.item_bank[self.root_item], parameters)
+        self.traverse(self.root_item, parameters)
         self.insert_or_update_question_and_answers()
         
         new_survey = Survey.objects.create(user=user)
@@ -254,7 +251,7 @@ class JSONSurvey(models.Model):
     
     @property
     def response_bank(self):
-        return self.structure["response_bank"]
+        return self.structure["response bank"]
     
     @property
     def item_bank(self):
