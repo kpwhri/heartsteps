@@ -95,6 +95,34 @@ class JSONSurvey(models.Model):
     structure = models.JSONField(null=False, default=dict)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    
+    def substantiate(self, user):
+        from pprint import pprint
+        
+        pprint(self.structure)
+        
+        return None
+    
+    @property
+    def meta(self):
+        return self.structure["meta"]
+    
+    @property
+    def version(self):
+        return self.meta["syntax version"]
+    
+    @property
+    def response_bank(self):
+        return self.structure["response_bank"]
+    
+    @property
+    def item_bank(self):
+        return self.structure["item bank"]
+    
+    @property
+    def root_item(self):
+        return self.structure["root item"]
+    
 
 class BoutPlanningMessage(models.Model):
     message = models.TextField(blank=True, null=True)

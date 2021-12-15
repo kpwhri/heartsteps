@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .models import BoutPlanningMessage, User
+from .models import BoutPlanningMessage, JSONSurvey, User
 from .services import BoutPlanningNotificationService
 
 from user_event_logs.models import EventLog
@@ -78,9 +78,12 @@ def justwalk_daily_ema(username):
             
             service = BoutPlanningNotificationService(user)
             
-            survey = service.create_daily_ema()
+            json_survey = JSONSurvey.objects.get(name="JustWalk JITAI Daily EMA")
+            survey = json_survey.substantiate(user)
+            # survey = service.create_daily_ema()
             
-            message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+            # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+            message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)

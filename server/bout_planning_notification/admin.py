@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from surveys.admin import QuestionAdmin
 
-from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JustWalkJitaiDailyEmaQuestion
+from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JSONSurvey, JustWalkJitaiDailyEmaQuestion
 from .models import BoutPlanningNotification, Level, BoutPlanningDecision
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
@@ -61,3 +61,11 @@ class JustWalkJitaiDailyEmaQuestionAdmin(QuestionAdmin):
     pass
 
 admin.site.register(JustWalkJitaiDailyEmaQuestion, JustWalkJitaiDailyEmaQuestionAdmin)
+
+
+class JSONSurveyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'created', 'updated']
+    readonly_fields = ['uuid', 'created', 'updated']
+    fields = ['name', 'structure']
+    
+admin.site.register(JSONSurvey, JSONSurveyAdmin)
