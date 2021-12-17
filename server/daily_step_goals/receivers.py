@@ -36,9 +36,9 @@ def FeatureFlags_updated(instance, created, **kwargs):
     
     user = feature_flags.user
     
+    # delete daily tasks if they exist
+    delete_daily_task(user)
+    
     if FeatureFlags.has_flag(user, "system_id_stepgoal"):
-        # delete daily tasks if they exist
-        delete_daily_task(user)
-        
         # create daily task
         create_daily_task(user, 0, 1)
