@@ -515,9 +515,9 @@ class DailyTaskSummaryView(CohortView):
                         'run_times': []
                     }
             if dt.day:
-                run_time = '%s %d:%d' % (dt.day, dt.hour, dt.minute)
+                run_time = '{} {:02}:{:02}'.format(dt.day, dt.hour, dt.minute)
             else:
-                run_time = '%d:%d' % (dt.hour, dt.minute)
+                run_time = '{:02}:{:02}'.format(dt.hour, dt.minute)
             daily_tasks_by_username_then_task_name[
                 dt.user.username][task_name]['run_times'].append(run_time)
 
@@ -553,7 +553,7 @@ class DailyTaskSummaryView(CohortView):
                                 participant.user.username][task]
                             if 'last_run_at' in st:
                                 st['last_run_at'] = st['last_run_at'].strftime(
-                                    '%Y-%m-%d %H:%M;%S')
+                                    '%Y-%m-%d %H:%M:%S')
                             serialized_tasks.append(st)
                         else:
                             serialized_tasks.append({})
@@ -1117,6 +1117,45 @@ class ParticipantView(CohortView):
         })
 
         context['configurations'].sort(key=lambda x: x['title'])
+        return context
+
+
+class ParticipantDailyTaskSummaryView(ParticipantView):
+    template_name = 'dashboard/participant-daily-task-summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.participant.user
+        
+        daily_tasks = DailyTask.objects.filter(user=user).all()
+        
+        
+        dt_info = [
+            {
+                "taskname": dt.task.task,
+                "run_time": '{} {:02}:{:02}'.format(dt.day, dt.hour, dt.minute) if dt.day else '{:02}:{:02}'.format(dt.hour, dt.minute),
+                "last_run_at": dt.task.last_run_at.astimezone(pytz.timezone('US/Pacific')) if dt.task.last_run_at else None
+            } for dt in daily_tasks
+        ]
+        
+        
+        
+        
+        dt_dict = {}
+        for dt in dt_info:
+            if dt["taskname"] in dt_dict:
+                dt_dict[dt["taskname"]].append(dt)
+            else:
+                dt_dict[dt["taskname"]] = [dt]
+        
+        print(dt_dict)
+                
+        task_names = list(dt_dict.keys())
+        
+        print(task_names)
+        context['task_names'] = task_names
+        context['dt_dict'] = dt_dict
+        
         return context
 
 

@@ -24,7 +24,8 @@
         {% for participant in participants %}
         <tr>
             <td>
-                <a href="">{{participant.heartsteps_id}}</a>
+                <a
+                    href="/dashboard/{{cohort.id}}/{{participant.heartsteps_id}}/daily-tasks">{{participant.heartsteps_id}}</a>
             </td>
             {% for task in participant.tasks %}
             <td>

@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
-from .views import DevFrontView, FeatureFlagView
+from .views import DevFrontView, FeatureFlagView, ParticipantDailyTaskSummaryView
 from .views import DevGenericView, DevFitbitView
 
 from .views import CohortListView
@@ -113,6 +113,8 @@ urlpatterns = [
         CohortWalkingSuggestionSurveyView.as_view(), name='dashboard-cohort-walking-suggestion-surveys'),
     url('(?P<cohort_id>[\d]+)/morning-messages',
         CohortMorningMessagesView.as_view(), name='dashboard-cohort-morning-messages'),
+    url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/daily-tasks',
+        ParticipantDailyTaskSummaryView.as_view(), name='dashboard-participant-daily-tasks'),
     url('(?P<cohort_id>[\d]+)/daily-tasks',
         DailyTaskSummaryView.as_view(), name='dashboard-cohort-daily-tasks'),
     url('(?P<cohort_id>[\d]+)/burst-periods',

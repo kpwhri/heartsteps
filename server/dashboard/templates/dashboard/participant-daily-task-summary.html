@@ -1,0 +1,22 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load template_filters %}
+
+{% block navigation %}
+<a href="{% url 'dashboard-cohort-participants' cohort.id %}" class="nav-link">{{cohort.name}}</a>
+<a href="{% url 'dashboard-cohort-daily-tasks' cohort.id %}" class="nav-link active">Daily Tasks</a>
+{% endblock %}
+
+{% block content %}
+{{availability}}
+<h2>Daily Tasks for {{cohort.name}} / {{participant.heartsteps_id}}</h2>
+
+<pre>
+{% for key, item in dt_dict.items %}
+{{key}}
+{% for single_item in item %}
+  run-time: {{single_item.run_time}} | last-run-at: {{single_item.last_run_at}}
+{% endfor %}
+{% endfor %}
+</pre>
+{% endblock %}
