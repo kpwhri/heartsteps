@@ -1,8 +1,10 @@
 import operator
 import csv
 from django.core.exceptions import ImproperlyConfigured
+from statistics import median
 
-from .models import StepGoal
+from daily_step_goals.tasks import update_goal
+from .models import StepGoal, StepGoalCalculationSettings, StepGoalsEvidence
 # from activity_summaries.models import Day as ActivitySummaryDay
 import activity_summaries.models
 
@@ -13,7 +15,7 @@ from participants.models import Participant
 
 from datetime import timedelta
 
-class StepGoalsService():
+class StepGoalsService:
     number_of_previous_days = 10
     magnitude = 2000    # 2000 steps x PRBS
     
@@ -24,7 +26,95 @@ class StepGoalsService():
         assert user is not None, "User must be specified"
         
         self.user = user
+        self.participant = Participant.objects.get(user=self.user)
+        self.cohort = self.participant.cohort
 
+
+    def calculate_step_goals(self, startdate):
+        # collecting evidences
+        seq = StepGoalPRBScsv.get_seq(self.cohort)
+        sgc_settings = StepGoalCalculationSettings.get(self.cohort)
+        
+        length = len(seq)
+        enddate = startdate + timedelta(days=length-1)
+        
+        prev_enddate = startdate - timedelta(days=1)
+        prev_startdate = startdate - timedelta(days=length)
+        
+        query_day = prev_startdate
+        
+        steps_log = []
+        
+        while query_day <= prev_enddate:
+            steps_log_query = activity_summaries.models.Day.objects.filter(user=self.user, date=query_day).order_by('-updated')
+            if steps_log_query.exists():
+                steps_log.append(steps_log_query.first().steps)
+            query_day += timedelta(days=1)
+        
+        if len(steps_log) == 0:
+            # no day log is found
+            base = 0
+        else:
+            # some log is found
+            base = median(steps_log)
+        
+        # calculate step goals
+        def cutoff(x, min, max):
+            if x < min:
+                return min
+            if x > max:
+                return max
+            return x
+        
+        new_seq = [int(cutoff(x * sgc_settings.magnitude + base + sgc_settings.base_jump, sgc_settings.minimum, sgc_settings.maximum)) for x in seq]
+        
+        # look for the current evidence
+        query = StepGoalsEvidence.objects.filter(user=self.user, startdate=startdate, enddate=enddate).order_by('-created')
+        if query.exists():
+            last_evidence = query.first()
+            if last_evidence.enddate == enddate and \
+                last_evidence.prev_startdate == prev_startdate and \
+                last_evidence.prev_enddate == prev_enddate and \
+                last_evidence.base == base and \
+                last_evidence.magnitude == sgc_settings.magnitude and \
+                last_evidence.base_jump == sgc_settings.base_jump and \
+                last_evidence.maximum == sgc_settings.maximum and \
+                last_evidence.minimum == sgc_settings.minimum and \
+                last_evidence.evidence["seq"] == seq and \
+                last_evidence.evidence["new_seq"] == new_seq:
+                    # everything is same. skip insertion
+                    return last_evidence
+        
+        # insert the evidence
+        new_evidence = StepGoalCalculationSettings.objects.create(user=self.user,
+                                                   startdate=startdate,
+                                                   enddate=enddate,
+                                                   prev_startdate = prev_startdate,
+                                                   prev_enddate=prev_enddate,
+                                                   base = base,
+                                                   magnitude = sgc_settings.magnitude,
+                                                   base_jump= sgc_settings.base_jump,
+                                                   maximum = sgc_settings.maximum,
+                                                   minimum = sgc_settings.minimum,
+                                                   evidence={"seq": seq, "new_seq": new_seq, "steps_log": steps_log}
+                                                   )
+        
+        # insert/update goals
+        for day_index, goal_value in enumerate(new_seq):
+            StepGoal.objects.create(user=self.user, date=startdate+timedelta(days=day_index), step_goal=goal_value)
+        
+        return new_evidence
+        
+    def get_goal(self, user, day):
+        if not StepGoal.objects.filter(user=user, date=day).exists():
+            # which is weird...
+            EventLog.debug(user, "The day's step goal is not generated before. I'm generating it now...")
+            update_goal(user.username)
+        day_step_goal = StepGoal.objects.filter(user=user, date=day).order_by("-created").first().step_goal
+        return day_step_goal
+        
+    
+        
     def create(self, date, message_framing=False):
         new_goal = StepGoal.objects.create(
             user = self.__user,

@@ -5,6 +5,9 @@ import operator
 import csv
 
 from django.http import Http404
+from daily_step_goals.services import StepGoalsService
+from daily_step_goals.tasks import update_goal
+from days.services import DayService
 
 from rest_framework.views import APIView
 from rest_framework import status, permissions
@@ -20,6 +23,26 @@ def insertSteps():
 
     daily_step_goal_log.date = datetime.today()
     daily_step_goal_log.save()
+
+class TodayStepGoal(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request):
+        EventLog.debug(request.user, "TodayStepGoal.get()")
+        
+        user = request.user
+        day_service = DayService(user)
+        
+        today = day_service.get_current_date()
+        
+        stepgoal_service = StepGoalsService(user)
+        
+        today_step_goal = stepgoal_service.get_goal(user, today)
+        
+        return Response({'date': today, 'step_goal': today_step_goal})
+
+            
+        
 
 class DailyStepGoalsList(APIView):
     permission_classes = (permissions.IsAuthenticated,)

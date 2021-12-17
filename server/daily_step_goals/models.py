@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user
 from django.db import models
 
 from datetime import date
@@ -13,6 +14,31 @@ from activity_summaries import models as activity_summaries_models
 
 from participants.models import Cohort
 
+class StepGoalCalculationSettings(models.Model):
+    cohort = models.OneToOneField(Cohort, default=None, on_delete=models.CASCADE)
+    magnitude = models.IntegerField(default=2000)
+    base_jump = models.IntegerField(default=0)
+    maximum = models.IntegerField(default=30000)
+    minimum = models.IntegerField(default=100)
+    
+    def get(cohort):
+        return StepGoalCalculationSettings.objects.get(cohort=cohort)
+
+
+class StepGoalsEvidence(models.Model):
+    user = models.ForeignKey(User, null=False, on_delete = models.CASCADE)
+    startdate = models.DateField(null=False)
+    enddate = models.DateField(null=False)
+    prev_startdate = models.DateField(null=False)
+    prev_enddate = models.DateField(null=False)
+    base = models.PositiveSmallIntegerField(null=True)
+    magnitude = models.IntegerField(default=2000)
+    base_jump = models.IntegerField(default=0)
+    maximum = models.IntegerField(default=30000)
+    minimum = models.IntegerField(default=100)
+    evidence = models.JSONField(null=True)
+    freetext = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
 
 class StepGoalPRBScsv(models.Model):
     cohort = models.ForeignKey(Cohort,
@@ -58,7 +84,8 @@ class StepGoal(models.Model):
 
     date = models.DateField()
     step_goal = models.PositiveIntegerField()
-
+    created = models.DateTimeField(null=True, auto_now_add=True)
+    
     def get(user, date=None):
         query = StepGoal.objects.filter(user=user).order_by('-date')
         
@@ -98,3 +125,4 @@ class StepGoal(models.Model):
         task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
 
         return list(task_list)
+

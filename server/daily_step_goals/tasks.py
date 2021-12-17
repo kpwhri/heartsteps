@@ -1,30 +1,67 @@
 import os
+from participants.models import Participant
 import pytz
 import json
 import random
 from celery import shared_task
 from datetime import timedelta, datetime, date
 import requests
-from .models import User
+from daily_step_goals.models import StepGoalsEvidence, User
 from user_event_logs.models import EventLog
 
-from .services import StepGoalsService
-from fitbit_api.services import FitbitClient
+import daily_step_goals.services
+import fitbit_api.services
+from days.services import DayService
 
 @shared_task
 def update_goal(username):
     # dt = datetime.strptime(day_string, '%Y-%m-%d')
     # day = date(dt.year, dt.month, dt.day)
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
-    try:
-        service = StepGoalsService()
-        fitbit_service = FitbitClient()
-        user = User.objects.get(username=username)
-        from days.services import DayService
-        day_service = DayService(user)
-        today = day_service.get_current_date()
-        step_goal = service.get_step_goal(today)
-        service.create(today)
-        fitbit_service.update_step_goal(step_goal)
-    except StepGoalsService.NotEnabled():
-        return None
+    
+    user = User.objects.get(username=username)
+    participant = Participant.objects.get(user=user)
+    
+    day_service = DayService(user)
+    today = day_service.get_current_date()
+
+    stepgoal_service = daily_step_goals.services.StepGoalsService(user)
+
+    
+    query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=today, enddate__gte=today).order_by('-created')
+    
+    if not query.exists():
+        # no calculation evidence is found
+        last_evidence_query = daily_step_goals.services.StepGoalsService.objects.filter(user=user).order_by('-enddate', '-created')
+        if not last_evidence_query.exists():
+            # no evidence is found at all
+            enrollment_date = participant.study_start_date
+            startdate = enrollment_date + timedelta(days=7)
+        else:
+            # some evidence is found
+            last_evidence = last_evidence_query.first()
+            if last_evidence.enddate > today:
+                # calculation is completely wrong. re-calculating from the start
+                enrollment_date = participant.study_start_date
+                startdate = enrollment_date + timedelta(days=7)
+            else:
+                # calculation stopped sometime before
+                startdate = last_evidence.enddate + timedelta(days=1)
+            
+        while startdate < today:
+            evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
+            startdate = evidence.enddate + timedelta(days=1)
+    else:
+        # this query is called repeatedly even there is an evidence that covers today.
+        # recalculating and if it doesn't match with the previous records, we keep history.
+        evidence_for_today = query.first()
+        startdate = evidence_for_today.startdate
+        
+        stepgoal_service.calculate_step_goals(startdate=startdate)
+                
+    step_goal = stepgoal_service.get_goal(today)
+    
+    
+    fitbit_service = fitbit_api.services.FitbitClient()
+    
+    fitbit_service.update_step_goal(step_goal)
