@@ -48,6 +48,7 @@ export class NotificationPage implements OnInit {
                     this.body = this.notification.body;
 
                     if (this.notification.context.survey) {
+                        console.log("NotificationPage.ngOnInit()-messageService-getMessage-before updateSurvey", this.notification.context.survey);
                         this.updateSurvey(this.notification.context.survey);
                     }
 
@@ -67,6 +68,15 @@ export class NotificationPage implements OnInit {
     }
 
     private updateSurvey(survey: any) {
+        console.log("NotificationPage.updateSurvey()", survey);
+
+        try { 
+            survey = JSON.parse(survey);
+        } catch (e) {
+            // ignore
+            console.log("NotificationPage.updateSurvey()", e);
+        }
+        console.log("NotificationPage.updateSurvey()", survey);
         if (survey.questions) {
             const form = new FormGroup({});
             const questions = [];

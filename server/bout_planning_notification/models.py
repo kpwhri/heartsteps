@@ -153,7 +153,13 @@ def replace_special_variables(expr, parameters):
     # Day of week
     if "today" in parameters:
         import calendar
-        new_expr = new_expr.replace("${DAY_OF_WEEK}", calendar.day_name[parameters["today"].weekday()])
+        today_weekday = parameters["today"].weekday()
+        yesterday_weekday = (today_weekday - 1) % 7
+        tomorrow_weekday = (today_weekday + 1) % 7
+        new_expr = new_expr.replace("${DAY_OF_WEEK}", calendar.day_name[today_weekday])
+        new_expr = new_expr.replace("${DAY_OF_WEEK:TODAY}", calendar.day_name[today_weekday])
+        new_expr = new_expr.replace("${DAY_OF_WEEK:TOMORROW}", calendar.day_name[tomorrow_weekday])
+        new_expr = new_expr.replace("${DAY_OF_WEEK:YESTERDAY}", calendar.day_name[yesterday_weekday])
 
         # Number of Days since the study started
         enrolled_date = Participant.objects.filter(user=parameters["user"]).order_by("study_start_date").first().study_start_date

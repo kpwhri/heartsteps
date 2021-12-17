@@ -245,6 +245,7 @@ export class MessageService {
     }
 
     public deserializeMessage(data: any): Message {
+        console.log("MessageService.deserializeMessage(): ", data);
         const message = new Message(this.messageReceiptService);
         message.id = data.id;
         message.type = data.type;
@@ -253,6 +254,7 @@ export class MessageService {
         if (data.context) {
             message.context = data.context;
         }
+        console.log("MessageService.deserializeMessage(): ", message);
         return message;
     }
 
