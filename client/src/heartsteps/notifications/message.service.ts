@@ -29,7 +29,7 @@ export class MessageService {
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService,
         private documentStorageService: DocumentStorageService
-    ) {}
+    ) { }
 
     public setup(): Promise<void> {
         if (this.isSetup) {
@@ -194,6 +194,8 @@ export class MessageService {
     public getMessage(messageId: string): Promise<Message> {
         console.log("MessageService: Get message id=" + messageId);
         return this.waitUntilSetup().then(() => {
+            this.loadMessage(messageId);
+        }).then(() => {
             return this.messageStorage
                 .get(messageId)
                 .then((data) => {
@@ -216,6 +218,7 @@ export class MessageService {
         return this.heartstepsServer
             .get("messages/" + messageId)
             .then((data) => {
+                console.log("MessageService: got data=", data);
                 if (data && data.context && data.context["type"]) {
                     data.type = data.context["type"];
                 }

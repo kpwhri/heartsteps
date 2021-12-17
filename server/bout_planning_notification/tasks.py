@@ -78,7 +78,7 @@ def justwalk_daily_ema(username, parameters=None):
             
             service = BoutPlanningNotificationService(user)
             
-            json_survey = JSONSurvey.objects.get(name="JustWalk JITAI Daily EMA")
+            json_survey = JSONSurvey.objects.get(name="daily_ema")
             survey = json_survey.substantiate(user, parameters)
             # survey = service.create_daily_ema()
             

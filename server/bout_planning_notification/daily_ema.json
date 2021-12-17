@@ -35,12 +35,12 @@
         "Problem-solving self-efficacy: sub1": {
             "type": "single",
             "text": "I know how to solve any problems that might keep me from walking today.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Problem-solving self-efficacy: sub2": {
             "type": "single",
             "text": "I am confident I can overcome obstacles and fit walking in today.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Drive to walk": {
             "type": "alternating",
@@ -52,12 +52,12 @@
         "Drive to walk: sub1": {
             "type": "single",
             "text": "Walking a lot is a top priority tomorrow.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Drive to walk: sub2": {
             "type": "single",
             "text": "No matter what, I'm going to walk tomorrow.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Supportive routine": {
             "type": "alternating",
@@ -69,12 +69,12 @@
         "Supportive routine: sub1": {
             "type": "single",
             "text": "My schedule makes it easy to be active tomorrow.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Supportive routine: sub2": {
             "type": "single",
             "text": "My routine tomorrow will make it easy to walk a lot.",
-            "response": "not_at_all to completely"
+            "response_type": "not_at_all to completely"
         },
         "Typicalness of context": {
             "type": "single",

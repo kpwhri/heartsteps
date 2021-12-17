@@ -6,11 +6,13 @@ from participants.models import Participant
 from django.http.response import Http404
 
 from dashboard.models import DashboardParticipant
+from surveys.models import Survey
+from surveys.serializers import SurveyExpander
 from .models import Message, Device, MessageReceipt
 from .serializers import DeviceSerializer, MessageReceiptSerializer, MessageSerializer
 
 from django.utils import timezone
-
+from user_event_logs.models import EventLog
 
 class DeviceView(APIView):
     """
@@ -51,11 +53,38 @@ class MessageView(APIView):
 
     def get(self, request, message_id):
         try:
+            EventLog.debug(request.user, "MessageView.get(): {}".format(message_id))
             message = Message.objects.get(
                 uuid=message_id
             )
+            EventLog.debug(request.user, "MessageView.get(): {}".format(message))
+            # try expanding the survey message
+            try:
+                context = message.data
+                EventLog.debug(request.user, "MessageView.get(): {}".format(context))
+                if "id" in context:
+                    survey_uuid = context["id"]
+                    
+                    survey_query = Survey.objects.get(uuid=survey_uuid)
+                    
+                    if survey_query.exists():
+                        se = SurveyExpander(survey_uuid)
+                        EventLog.debug(request.user, "MessageView.get(): {}".format(se))
+                        message.data = se.representation
+                        EventLog.debug(request.user, "MessageView.get(): {}".format(message.data))
+                    else:
+                        # this uuid is not from Survey
+                        EventLog.debug(request.user, "The uuid is not found in survey table: {}".format(survey_uuid))
+                else:
+                    # this uuid is not from Survey
+                    EventLog.debug(request.user, "There is no 'id' key in the message context: {}".format(context))
+            except Exception as e:
+                EventLog.debug(request.user, "Something happened during message expansion: {}".format(e))
+                    
+            EventLog.debug(request.user, "MessageView.get(): {}".format(message))
         except Message.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
+        EventLog.debug(request.user, "MessageView.get(): {}".format(message))
         if request.user.id != message.recipient.id:
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(

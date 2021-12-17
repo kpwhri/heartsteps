@@ -1,4 +1,4 @@
-from surveys.serializers import SurveySerializer
+from surveys.serializers import SurveySerializer, SurveyShirinker
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
@@ -73,9 +73,10 @@ class BoutPlanningNotificationService:
                           data={}):
         try:
             if survey is not None:
-                serialized_survey = SurveySerializer(survey)
-                print(serialized_survey.data)
-                data["survey"] = serialized_survey.data
+                # serialized_survey = SurveySerializer(survey)
+                shrinked_survey = SurveyShirinker(survey)
+                print(shrinked_survey.to_json())
+                data["survey"] = shrinked_survey.to_json()
                 
             service = PushMessageService(user=self.user)
             message = service.send_notification(

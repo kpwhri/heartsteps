@@ -14,44 +14,28 @@ class FeatureFlagsList(APIView):
 
     def get(self, request):
         # check to see if the request is allowed (i.e. participant is logged in)
-        EventLog.debug(None)
         if not request.user or request.user.is_anonymous:
             # TODO: remove, only for testing purposes
             # for now, create an empty featureflag for user "test" and use it
             # there is a test code for this logic. (test_get_feature_flags_2)
             # if anybody change the logic here, it will make the test failing
-            EventLog.debug(None)
             test_user, _ = User.objects.get_or_create(username="test")
-            EventLog.debug(None)
             if FeatureFlags.exists(test_user):
-                EventLog.debug(None)
                 feature_flags = FeatureFlags.get(test_user)
-                EventLog.debug(None)
             else:
-                EventLog.debug(None)
                 feature_flags = FeatureFlags.create(test_user, "")
-                EventLog.debug(None)
-            EventLog.debug(None)
             serialized = FeatureFlagsSerializer(feature_flags)
-            EventLog.debug(None)
             return Response(serialized.data, status=status.HTTP_200_OK)
-        EventLog.debug(None)
         # if user has featureflag object
         if FeatureFlags.exists(request.user):
-            EventLog.debug(None)
             # return the first object
             # TODO: replace first() to get(). Because, it is controlled by unique user
             feature_flags = FeatureFlags.get(request.user)
-            EventLog.debug(None)
         else:
-            EventLog.debug(None)
             # if not, create a blank one and return it
             feature_flags = FeatureFlags.create(user=request.user)
-            EventLog.debug(None)
-        EventLog.debug(None)
         # serialize featureflags                    
         serialized = FeatureFlagsSerializer(feature_flags)
-        EventLog.debug(None)
         # return serialized featureflags with 200
         return Response(serialized.data, status=status.HTTP_200_OK)
 

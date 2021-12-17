@@ -233,7 +233,7 @@ class JSONSurvey(models.Model):
                         break
             
             if not question_found:
-                question_obj = Question.objects.create(name="{}-{}".format(self.name, item["name"]), 
+                question_obj = Question.objects.create(name=uuid.uuid4(), 
                                         label=item["text"],
                                         description='',
                                         order=index,
