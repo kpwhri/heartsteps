@@ -29,19 +29,27 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
     def test_create(self):
         BoutPlanningDecision.create(self.user)
     
-    def test_apply_N_1(self):
+    @patch('daily_step_goals.services.StepGoalsService.get_goal')
+    def test_apply_N_1(self, mock_get_goal):
+        mock_get_goal.return_value = 8000
         decision = self.apply_N_case(True)
         self.assertEqual(decision.N, False)
     
-    def test_apply_N_2(self):
+    @patch('daily_step_goals.services.StepGoalsService.get_goal')
+    def test_apply_N_2(self, mock_get_goal):
+        mock_get_goal.return_value = 8000
         decision = self.apply_N_case(False)
         self.assertEqual(decision.N, True)
 
-    def test_apply_N_3(self):
+    @patch('daily_step_goals.services.StepGoalsService.get_goal')
+    def test_apply_N_3(self, mock_get_goal):
+        mock_get_goal.return_value = 8000
         decision = self.apply_N_case(True, False)
         self.assertEqual(decision.N, False)
     
-    def test_apply_N_4(self):
+    @patch('daily_step_goals.services.StepGoalsService.get_goal')
+    def test_apply_N_4(self, mock_get_goal):
+        mock_get_goal.return_value = 8000
         decision = self.apply_N_case(False, False)
         self.assertEqual(decision.N, True)
 

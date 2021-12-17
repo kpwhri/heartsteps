@@ -1,5 +1,6 @@
 from activity_summaries.models import Day as ActivitySummaryDay
 from datetime import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from heartsteps.tests import HeartStepsTestCase
@@ -38,9 +39,9 @@ class ServiceStepGoalsService(HeartStepsTestCase):
     def test_create_service_3(self):
         service = StepGoalsService(self.user)
     
-    
-    def test_get_todays_step_goal_1(self):
-        
+    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
+    def test_get_todays_step_goal_1(self, mock_update_fitbit_device_with_new_goal):
+        mock_update_fitbit_device_with_new_goal.return_value = None
         
         service = StepGoalsService(self.user)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
@@ -49,36 +50,36 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        median = service.get_median_steps(date=datetime(2021, 9, 20).date())
-        self.assertEqual(median, 1015)
         
-        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
-        self.assertEqual(today_step_goal, 1615)
+        today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
+        self.assertEqual(today_step_goal, 1616)
 
-    def test_get_todays_step_goal_2(self):
+    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
+    def test_get_todays_step_goal_2(self, mock_update_fitbit_device_with_new_goal):
+        mock_update_fitbit_device_with_new_goal.return_value = None
         service = StepGoalsService(self.user)
         
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) # median = this
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        median = service.get_median_steps(date=datetime(2021, 9, 20).date())
-        self.assertEqual(median, 1016)
         
-        today_step_goal = service.get_step_goal(date=datetime(2021, 9, 20).date())
+        today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
         self.assertEqual(today_step_goal, 1616)
 
-
-    def test_get_todays_step_goal_3(self):
+    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
+    def test_get_todays_step_goal_3(self, mock_update_fitbit_device_with_new_goal):
+        mock_update_fitbit_device_with_new_goal.return_value = None
+        
         service = StepGoalsService(self.user)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
@@ -86,12 +87,12 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) # average of this
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) #            and this
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015)
+        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         
-        goal_sequence = service.generate_dump_goal_sequence(date=datetime(2021, 9, 20).date())
-        self.assertEqual(goal_sequence, [1615, 1815, 2015, 1615, 1815, 2015])
+        goal = service.get_goal(datetime(2021, 9, 20).date())
+        self.assertEqual(goal, 1616)

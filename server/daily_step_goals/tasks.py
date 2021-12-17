@@ -21,7 +21,7 @@ def update_goal(username):
     
     user = User.objects.get(username=username)
     participant = Participant.objects.get(user=user)
-    
+    enrollment_date = participant.study_start_date
     day_service = DayService(user)
     today = day_service.get_current_date()
 
@@ -32,22 +32,20 @@ def update_goal(username):
     
     if not query.exists():
         # no calculation evidence is found
-        last_evidence_query = daily_step_goals.services.StepGoalsService.objects.filter(user=user).order_by('-enddate', '-created')
+        last_evidence_query = StepGoalsEvidence.objects.filter(user=user).order_by('-enddate', '-created')
         if not last_evidence_query.exists():
             # no evidence is found at all
-            enrollment_date = participant.study_start_date
-            startdate = enrollment_date + timedelta(days=7)
+            startdate = enrollment_date
         else:
             # some evidence is found
             last_evidence = last_evidence_query.first()
             if last_evidence.enddate > today:
                 # calculation is completely wrong. re-calculating from the start
                 enrollment_date = participant.study_start_date
-                startdate = enrollment_date + timedelta(days=7)
+                startdate = enrollment_date
             else:
                 # calculation stopped sometime before
-                startdate = last_evidence.enddate + timedelta(days=1)
-            
+                startdate = last_evidence.enddate + timedelta(days=1)            
         while startdate < today:
             evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
             startdate = evidence.enddate + timedelta(days=1)
@@ -62,6 +60,9 @@ def update_goal(username):
     step_goal = stepgoal_service.get_goal(today)
     
     
-    fitbit_service = fitbit_api.services.FitbitClient()
+    update_fitbit_device_with_new_goal(user, step_goal)
+
+def update_fitbit_device_with_new_goal(user, step_goal):
+    fitbit_service = fitbit_api.services.FitbitClient(user)
     
-    fitbit_service.update_step_goal(step_goal)
+    fitbit_service.update_step_goals(step_goal)

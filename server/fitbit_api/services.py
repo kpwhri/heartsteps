@@ -75,7 +75,7 @@ class FitbitService:
 
     def get_latest_step_goal(self):
         step_goal_service = daily_step_goals.services.StepGoalsService(user=self.__user)
-        goal = step_goal_service.get_step_goal()
+        goal = step_goal_service.get_goal()
 
         return goal
 

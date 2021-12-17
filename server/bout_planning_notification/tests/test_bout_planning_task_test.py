@@ -45,8 +45,9 @@ class BoutPlanningTaskTest(HeartStepsTestCase):
         
         return account
 
+    @patch('daily_step_goals.services.StepGoalsService.get_goal')
     @patch('push_messages.clients.OneSignalClient.send')
-    def test_task_2(self, mock_send):
+    def test_task_2(self, mock_send, mock_get_goal):
         # study = Study.objects.create()
         # cohort = Cohort.objects.create(study=study)
         # participant = Participant.objects.create(user=self.user, cohort=cohort, study_start_date=datetime(2021, 9, 1, 0, 0, 0).date())
@@ -58,6 +59,7 @@ class BoutPlanningTaskTest(HeartStepsTestCase):
         sample_external_id = "abc123"
         
         mock_send.return_value = sample_external_id
+        mock_get_goal.return_value = 8000
         
         for i in range(0, 10):
             Day.objects.create(user=self.user, date=date(2021, 9, 10+i), steps=4567)

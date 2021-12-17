@@ -427,7 +427,7 @@ class StudyTypeService:
     
     def get_last_day_achieved(self, user):
         last_day_date = (datetime.now() - timedelta(days=1)).date()
-        last_day_step_goal = self.get_step_goal(
+        last_day_step_goal = self.get_goal(
             user, 
             date=last_day_date)
         
@@ -455,7 +455,7 @@ class StudyTypeService:
         return self.get_steps(user)
     
     def get_need_conditionality(self, user):
-        today_step_goal = self.get_step_goal(user)
+        today_step_goal = self.get_goal(user)
         
         today_steps = self.get_today_steps(user)
         last_day_achieved = self.get_last_day_achieved(user)
@@ -477,9 +477,12 @@ class StudyTypeService:
             
             return prorated_goal > today_steps
 
-    def get_step_goal(self, user, date=None):
+    def get_goal(self, user, date=None):
         step_goals_service = StepGoalsService(user)
-        step_goal = step_goals_service.get_step_goal(date)
+        if date is None:
+            day_service = DayService(user)
+            date = day_service.get_current_date()
+        step_goal = step_goals_service.get_goal(date)
         return step_goal
         
     def get_decision_point_interval_index(self, current_time, decision_points):

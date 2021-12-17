@@ -22,7 +22,10 @@ class StepGoalCalculationSettings(models.Model):
     minimum = models.IntegerField(default=100)
     
     def get(cohort):
-        return StepGoalCalculationSettings.objects.get(cohort=cohort)
+        settings, _ = StepGoalCalculationSettings.objects.get_or_create(cohort=cohort)
+        
+        return settings
+            
 
 
 class StepGoalsEvidence(models.Model):
@@ -90,39 +93,39 @@ class StepGoal(models.Model):
         query = StepGoal.objects.filter(user=user).order_by('-date')
         
         if date is not None:
-            query = query.filter(date=date)
+            query = query.filter(date=date).order_by('-created')
         
         if query.exists():
             return query.first().step_goal
         else:
             raise ValueError("Step Goal does not exist")
 
-    def convert_to_user_obj(user):
-        if isinstance(user, str):
-            try:
-                user_obj = User.objects.get(username=user)
-            except User.DoesNotExist:
-                raise StepGoal.NoSuchUserException
-        elif isinstance(user, User):
-            user_obj = user
-        else:
-            assert isinstance(
-                user, User
-            ), "user argument should be an instance of User class: {}".format(
-                type(user))
-        return user_obj
+    # def convert_to_user_obj(user):
+    #     if isinstance(user, str):
+    #         try:
+    #             user_obj = User.objects.get(username=user)
+    #         except User.DoesNotExist:
+    #             raise StepGoal.NoSuchUserException
+    #     elif isinstance(user, User):
+    #         user_obj = user
+    #     else:
+    #         assert isinstance(
+    #             user, User
+    #         ), "user argument should be an instance of User class: {}".format(
+    #             type(user))
+    #     return user_obj
 
-    def get_daily_tasks(user):
-        """This will fetch all daily tasks for the user.
+    # def get_daily_tasks(user):
+    #     """This will fetch all daily tasks for the user.
 
-        Returns:
-            DailyTask[]
-        """
+    #     Returns:
+    #         DailyTask[]
+    #     """
 
-        # It converts username to user object (if provided) If User object is provided, it will return the user itself.
-        user_obj = StepGoal.convert_to_user_obj(user)
+    #     # It converts username to user object (if provided) If User object is provided, it will return the user itself.
+    #     user_obj = StepGoal.convert_to_user_obj(user)
 
-        task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
+    #     task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
 
-        return list(task_list)
+    #     return list(task_list)
 

@@ -676,8 +676,7 @@ class BoutPlanningDecision(models.Model):
         step_goals_service = StepGoalsService(self.user)
 
         if decision_point_index == 0:
-            yesterday_step_goal = step_goals_service.get_step_goal(
-                date=yesterday)
+            yesterday_step_goal = step_goals_service.get_goal(yesterday)
             self.data['yesterday_step_goal'] = yesterday_step_goal
 
             yesterday_activity_summary = Day.get(user=self.user,
@@ -693,7 +692,7 @@ class BoutPlanningDecision(models.Model):
             else:
                 self.N = True
         else:
-            today_step_goal = step_goals_service.get_step_goal(date=today)
+            today_step_goal = step_goals_service.get_goal(today)
             self.data['today_step_goal'] = today_step_goal
 
             user_local_time = self.__get_user_local_time()

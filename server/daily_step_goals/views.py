@@ -37,7 +37,7 @@ class TodayStepGoal(APIView):
         
         stepgoal_service = StepGoalsService(user)
         
-        today_step_goal = stepgoal_service.get_goal(user, today)
+        today_step_goal = stepgoal_service.get_goal(today)
         
         return Response({'date': today, 'step_goal': today_step_goal})
 
