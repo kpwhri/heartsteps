@@ -13,6 +13,7 @@ from .serializers import DeviceSerializer, MessageReceiptSerializer, MessageSeri
 
 from django.utils import timezone
 from user_event_logs.models import EventLog
+import json
 
 class DeviceView(APIView):
     """
@@ -63,9 +64,11 @@ class MessageView(APIView):
                 context = message.data
                 EventLog.debug(request.user, "MessageView.get(): {}".format(context))
                 if "id" in context:
-                    survey_uuid = context["id"]
+                    survey_json = context["survey"]
+                    survey_payload = json.loads(survey_json)
+                    survey_uuid = survey_payload["id"]
                     
-                    survey_query = Survey.objects.get(uuid=survey_uuid)
+                    survey_query = Survey.objects.filter(uuid=survey_uuid)
                     
                     if survey_query.exists():
                         se = SurveyExpander(survey_uuid)
