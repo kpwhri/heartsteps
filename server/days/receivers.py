@@ -17,6 +17,7 @@ def set_day_start_and_end_times(sender, instance, *args, **kwargs):
         day.set_start()
     if not day.end:
         day.set_end()
+
         
 
 @receiver(post_save, sender=FitbitDay)

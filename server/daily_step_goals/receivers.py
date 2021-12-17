@@ -2,7 +2,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 from feature_flags.models import FeatureFlags
-from .models import FirstBoutPlanningTime
 from locations.models import Place
 from user_event_logs.models import EventLog
 from days.services import DayService
@@ -36,8 +35,6 @@ def FeatureFlags_updated(instance, created, **kwargs):
     feature_flags = instance
     
     user = feature_flags.user
-    
-    day_service = DayService(user)
     
     if FeatureFlags.has_flag(user, "system_id_stepgoal"):
         # delete daily tasks if they exist
