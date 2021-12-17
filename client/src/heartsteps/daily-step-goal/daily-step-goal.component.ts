@@ -18,12 +18,12 @@ export class DailyStepGoalComponent {
 
     private update() {
         console.log("trying to update daily step goal (old)");
-        this.heartstepsServer.get('dailystepgoals')
+        this.heartstepsServer.get('todaystepgoal')
         .then((data) => {
-            console.log(data);
+            console.log("DailyStepGoalComponent.update()", data);
             console.log('GET LATEST GOAL: Got a response from the server');
 
-            this.dailyStepGoal = data[data.length - 1]["step_goal"];
+            this.dailyStepGoal = data["step_goal"];
         })
         .catch(() => {
             console.log('Daily step count goal failed')

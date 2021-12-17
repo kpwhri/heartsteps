@@ -58,7 +58,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         
         today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(today_step_goal, 1616)
+        self.assertEqual(today_step_goal, 1815)
 
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     def test_get_todays_step_goal_2(self, mock_update_fitbit_device_with_new_goal):
@@ -74,7 +74,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         
         today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(today_step_goal, 1616)
+        self.assertEqual(today_step_goal, 1815)
 
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     def test_get_todays_step_goal_3(self, mock_update_fitbit_device_with_new_goal):
@@ -95,4 +95,4 @@ class ServiceStepGoalsService(HeartStepsTestCase):
         ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
         
         goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(goal, 1616)
+        self.assertEqual(goal, 1815)
