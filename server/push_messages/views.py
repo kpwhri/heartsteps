@@ -73,7 +73,7 @@ class MessageView(APIView):
                     if survey_query.exists():
                         se = SurveyExpander(survey_uuid)
                         EventLog.debug(request.user, "MessageView.get(): {}".format(se))
-                        message.data = se.representation
+                        message.data["survey"] = se.to_json()
                         EventLog.debug(request.user, "MessageView.get(): {}".format(message.data))
                     else:
                         # this uuid is not from Survey

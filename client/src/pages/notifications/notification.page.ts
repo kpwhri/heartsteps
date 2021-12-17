@@ -34,11 +34,14 @@ export class NotificationPage implements OnInit {
 
     ngOnInit() {
         this.activatedRoute.paramMap.subscribe((paramMap) => {
+            console.log("NotificationPage.ngOnInit()", paramMap);
             this.loading = true;
             const notificationId: string = paramMap.get("notificationId");
+
             this.messageService
                 .getMessage(notificationId)
                 .then((notification) => {
+                    console.log("NotificationPage.ngOnInit()-messageService-getMessage", notification);
                     this.loading = false;
                     this.notification = notification;
                     this.title = this.notification.title;
