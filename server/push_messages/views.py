@@ -63,7 +63,7 @@ class MessageView(APIView):
             try:
                 context = message.data
                 EventLog.debug(request.user, "MessageView.get(): {}".format(context))
-                if "id" in context:
+                if "survey" in context:
                     survey_json = context["survey"]
                     survey_payload = json.loads(survey_json)
                     survey_uuid = survey_payload["id"]
@@ -80,7 +80,7 @@ class MessageView(APIView):
                         EventLog.debug(request.user, "The uuid is not found in survey table: {}".format(survey_uuid))
                 else:
                     # this uuid is not from Survey
-                    EventLog.debug(request.user, "There is no 'id' key in the message context: {}".format(context))
+                    EventLog.debug(request.user, "There is no 'survey' key in the message context: {}".format(context))
             except Exception as e:
                 EventLog.debug(request.user, "Something happened during message expansion: {}".format(e))
                     
