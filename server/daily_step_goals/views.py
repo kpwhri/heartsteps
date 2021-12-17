@@ -39,7 +39,14 @@ class TodayStepGoal(APIView):
         
         today_step_goal = stepgoal_service.get_goal(today)
         
-        return Response({'date': today, 'step_goal': today_step_goal})
+        query = Day.objects.filter(user=user, date=today).order_by('-updated')
+        
+        if query.exists():
+            today_steps = query.first().steps
+        else:
+            today_steps = 0
+        
+        return Response({'date': today, 'step_goal': today_step_goal, 'steps': today_steps})
 
             
         
