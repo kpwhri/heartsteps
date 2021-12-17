@@ -1,6 +1,6 @@
 {
     "meta": {
-        "name": "JustWalk JITAI Daily EMA",
+        "name": "daily_ema",
         "syntax version": 1
     },
     "response bank": {
@@ -78,7 +78,7 @@
         },
         "Typicalness of context": {
             "type": "single",
-            "text": "Tomorrow will be a typical ${DAY_OF_WEEK} for me.",
+            "text": "Tomorrow will be a typical ${DAY_OF_WEEK:TOMORROW} for me.",
             "response_type": "not_at_all to completely"
         },
         "Relationships supportive of walking": {
@@ -121,7 +121,7 @@
         },
         "Additional Item 1 - every 5 days": {
             "type": "shown if true",
-            "condition expression": "(${DAYS_SINCE_ENROLLED}) % 5 == 0",
+            "condition expression": "(${DAYS_SINCE_ENROLLED}) % 7 == 0",
             "item": "Additional Item 1: body"
         },
         "Additional Item 2 - every day for the first week of the month": {
@@ -154,7 +154,7 @@
         },
         "Additional Item 2: body": {
             "type": "single",
-            "text": "My typical ${DAY_OF_WEEK} include walking a lot. ",
+            "text": "My typical ${DAY_OF_WEEK:TODAY} include walking a lot.",
             "response_type": "not_at_all to completely"
         }
     },
