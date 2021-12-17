@@ -1,5 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+
+from feature_flags.models import FeatureFlags
 from .models import FirstBoutPlanningTime
 from locations.models import Place
 from user_event_logs.models import EventLog
@@ -20,12 +22,26 @@ def create_daily_task(user, hour, minute=0):
                                        minute=minute)
 
 def delete_daily_task(user):
-    daily_task_list = FirstBoutPlanningTime.get_daily_tasks(user)
+    daily_task_list = DailyTask.objects.filter(user=user, category=TASK_CATEGORY).all()
 
     for daily_task in daily_task_list:
         daily_task.delete_task()
 
 
-# create_task should be called by
-# user.post_save
-# Place.post_save + other Day things
+
+
+@receiver(post_save, sender=FeatureFlags)
+def FeatureFlags_updated(instance, created, **kwargs):
+    print("FeatureFlags_updated()")
+    feature_flags = instance
+    
+    user = feature_flags.user
+    
+    day_service = DayService(user)
+    
+    if FeatureFlags.has_flag(user, "system_id_stepgoal"):
+        # delete daily tasks if they exist
+        delete_daily_task(user)
+        
+        # create daily task
+        create_daily_task(user, 0, 1)

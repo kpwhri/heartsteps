@@ -515,7 +515,7 @@ class FirstBoutPlanningTime(models.Model):
         # It converts username to user object (if provided) If User object is provided, it will return the user itself.
         user_obj = FirstBoutPlanningTime.convert_to_user_obj(user)
 
-        task_list = DailyTask.search(user=user_obj, category=TASK_CATEGORY)
+        task_list = DailyTask.objects.filter(user=user_obj, category=TASK_CATEGORY).order_by("day", "hour", "minute")
 
         return list(task_list)
 

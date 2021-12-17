@@ -6,9 +6,10 @@ import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
     templateUrl: './daily-step-goal.html'
 })
 export class DailyStepGoalComponent {
-    public dailyStepGoal: number = 7890;
-    public dailyStepDiff: number = 8000;
-
+    public dailyStepGoal: number = 0;
+    public dailyStepsToGo: number = 0;
+    public dailyStep: number = 0;
+    
     constructor(
         private heartstepsServer: HeartstepsServer,
 //         private dailySummary: DailySummaryComponent
@@ -24,6 +25,11 @@ export class DailyStepGoalComponent {
             console.log('GET LATEST GOAL: Got a response from the server');
 
             this.dailyStepGoal = data["step_goal"];
+            this.dailyStep = data["steps"];
+            this.dailyStepsToGo = this.dailyStepGoal - this.dailyStep;
+            if (this.dailyStepsToGo < 0) {
+                this.dailyStepsToGo = 0;
+            }
         })
         .catch(() => {
             console.log('Daily step count goal failed')

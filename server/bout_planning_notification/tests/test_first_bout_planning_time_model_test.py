@@ -380,11 +380,12 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         
         daily_task_list = FirstBoutPlanningTime.get_daily_tasks(self.user)
         
-        self.assertEquals(len(daily_task_list), 4)
-        self.assertEquals(daily_task_list[0].time, "08:00")
-        self.assertEquals(daily_task_list[1].time, "11:00")
-        self.assertEquals(daily_task_list[2].time, "14:00")
-        self.assertEquals(daily_task_list[3].time, "17:00")
+        self.assertEquals(len(daily_task_list), 5)
+        
+        start_hour = 8
+        time_list = ["{:02}:00".format(start_hour+x*3) for x in range(0, 5)]
+        for i in range(0, len(daily_task_list)):
+            self.assertIn(daily_task_list[i].time, time_list)
 
     def test_create_daily_task_2(self):
         # The following statement will create a FirstBoutPlanningTime as 8:00.
@@ -397,8 +398,7 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         
         daily_task_list = FirstBoutPlanningTime.get_daily_tasks(self.user)
         
-        self.assertEquals(len(daily_task_list), 4)
-        self.assertEquals(daily_task_list[0].time, "09:00")
-        self.assertEquals(daily_task_list[1].time, "12:00")
-        self.assertEquals(daily_task_list[2].time, "15:00")
-        self.assertEquals(daily_task_list[3].time, "18:00")
+        start_hour = 9
+        time_list = ["{:02}:00".format(start_hour+x*3) for x in range(0, 5)]
+        for i in range(0, len(daily_task_list)):
+            self.assertIn(daily_task_list[i].time, time_list)
