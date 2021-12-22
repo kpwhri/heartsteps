@@ -862,7 +862,7 @@ class DevService:
                     
                     current_date = Participant.objects.filter(user=user).first().study_start_date + datetime.timedelta(days=cohort.study.baseline_period)
                     
-                    level_objects = [Level.LEVELS[int(x)] for x in level_list]
+                    level_objects = [Level.LEVELS[int(x)][0] for x in level_list]
                     Level.bulk_create(user, level_objects, current_date)
                     lines.append("The user '{}' is assigned to the sequence({})".format(user.username, level_sequence.order))
                 else:
