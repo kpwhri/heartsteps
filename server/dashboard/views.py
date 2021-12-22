@@ -312,6 +312,11 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     hourly_task_id=hourly_task_id)
                 objlist = self.dev_service.get_all_hourly_tasks()
                 context["results"] = self.prettyprint(objlist)
+            elif dev_command == 'fix-scheduler-per-user':
+                username = request.POST['username']
+                user = User.objects.get(username=username)
+                lines = self.dev_service.fix_schedulers(user, fix=True)
+                context["results"] = "\n".join(lines)
             elif dev_command == 'upload_level_csv':
                 nickname = request.POST['nickname']
                 if request.FILES['level_csv_file_form_control']:
