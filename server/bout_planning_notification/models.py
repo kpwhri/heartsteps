@@ -545,6 +545,18 @@ class Level(models.Model):
     def __str__(self):
         return "{} @ {}".format(self.level, self.date)
 
+    def bulk_create(user, levels, start_date):
+        obj_list = []
+        current_date = start_date
+        for level in levels:
+            obj = Level()
+            obj.user=user
+            obj.level=level
+            obj.date=current_date
+            current_date += timedelta(days=1)
+            obj_list.append(obj)
+        Level.objects.bulk_create(obj_list)
+        
     def create(user: User, level: str, date=None):
         """Create a new Level"""
         if date is None:
