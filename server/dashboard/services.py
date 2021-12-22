@@ -747,7 +747,7 @@ class DevService:
             
         return lines
     
-    def fix_schedulers(self, user=None):
+    def fix_schedulers(self, user=None, fix=False):
         lines = []
         if user is None:
             user_list = list(User.objects.all())
@@ -760,7 +760,7 @@ class DevService:
             lines.append(" ")
             
             for user in user_list:
-                lines = lines + self.fix_schedulers(user)
+                lines = lines + self.fix_schedulers(user, fix)
         elif isinstance(user, User):
             lines.append("fix_schedulers({}):".format(user))
             try:
@@ -778,45 +778,46 @@ class DevService:
                                                       "/ last run at {}".format(dt.task.last_run_at.astimezone(pytz.timezone('US/Pacific')) if dt.task.last_run_at else "")
                                                       ))
                 
-                somethingischanged = False
-                # bout planning related
-                if ff.has_flag('bout_planning'):
-                    somethingischanged = True
-                    lines.append("")
-                    lines.append("  Since user '{}' has 'bout_planning' Feature Flag, resetting bout planning related daily tasks.".format(user.username))
-                    EventLog.log(user, "Resetting bout planning related daily tasks", EventLog.INFO)
-                    # after deleting the daily tasks,
-                    delete_bout_planning_daily_task(user)
-                    first_bout_planning_time = FirstBoutPlanningTime.get(user)
+                if fix:
+                    somethingischanged = False
+                    # bout planning related
+                    if ff.has_flag('bout_planning'):
+                        somethingischanged = True
+                        lines.append("")
+                        lines.append("  Since user '{}' has 'bout_planning' Feature Flag, resetting bout planning related daily tasks.".format(user.username))
+                        EventLog.log(user, "Resetting bout planning related daily tasks", EventLog.INFO)
+                        # after deleting the daily tasks,
+                        delete_bout_planning_daily_task(user)
+                        first_bout_planning_time = FirstBoutPlanningTime.get(user)
+                        
+                        hour = first_bout_planning_time.hour
+                        create_bout_planning_daily_task_set(user, hour)
                     
-                    hour = first_bout_planning_time.hour
-                    create_bout_planning_daily_task_set(user, hour)
-                
-                # daily step goal related
-                if ff.has_flag('system_id_stepgoal'):
-                    somethingischanged = True
-                    lines.append("")
-                    lines.append("  Since user '{}' has 'system_id_stepgoal' Feature Flag, resetting daily step goal related daily tasks.".format(user.username))
-                    EventLog.log(user, "Resetting bout planning related daily tasks", EventLog.INFO)
-                    # after deleting the daily tasks,
-                    delete_step_goal_daily_task(user)
-        
-                    # create daily task
-                    create_step_goal_daily_task(user, 0, 1)
+                    # daily step goal related
+                    if ff.has_flag('system_id_stepgoal'):
+                        somethingischanged = True
+                        lines.append("")
+                        lines.append("  Since user '{}' has 'system_id_stepgoal' Feature Flag, resetting daily step goal related daily tasks.".format(user.username))
+                        EventLog.log(user, "Resetting bout planning related daily tasks", EventLog.INFO)
+                        # after deleting the daily tasks,
+                        delete_step_goal_daily_task(user)
             
-                if somethingischanged:
-                    lines.append("")
-                    if len(dt_list) > 0:
-                        lines.append("  Rechecking {}'s Daily Tasks:".format(user.username))
-                    
-                    dt_list = list(DailyTask.objects.filter(user=user).all())
-                    
-                    for dt in dt_list:
-                        lines.append("    {} @ {} {}".format(dt.task.task, 
-                                                        '{} {:02}:{:02}'.format(dt.day, dt.hour, dt.minute) if dt.day else '{:02}:{:02}'.format(dt.hour, dt.minute), 
-                                                        "/ last run at {}".format(dt.task.last_run_at.astimezone(pytz.timezone('US/Pacific')) if dt.task.last_run_at else "")
-                                                        ))
-                    
+                        # create daily task
+                        create_step_goal_daily_task(user, 0, 1)
+                
+                    if somethingischanged:
+                        lines.append("")
+                        if len(dt_list) > 0:
+                            lines.append("  Rechecking {}'s Daily Tasks:".format(user.username))
+                        
+                        dt_list = list(DailyTask.objects.filter(user=user).all())
+                        
+                        for dt in dt_list:
+                            lines.append("    {} @ {} {}".format(dt.task.task, 
+                                                            '{} {:02}:{:02}'.format(dt.day, dt.hour, dt.minute) if dt.day else '{:02}:{:02}'.format(dt.hour, dt.minute), 
+                                                            "/ last run at {}".format(dt.task.last_run_at.astimezone(pytz.timezone('US/Pacific')) if dt.task.last_run_at else "")
+                                                            ))
+                        
             except FeatureFlags.FeatureFlagsDoNotExistException:
                 lines.append("  user '{}' doesn't have FeatureFlags.".format(user.username))
             lines.append(" ")
