@@ -91,7 +91,7 @@ def assign_level_sequences(modelAdmin, request, queryset):
             LevelSequence.create(cohort=block.cohort, sequence_text=line)
 
 class LevelSequenceBlockAdmin(admin.ModelAdmin):
-    actions = ['assign_level_sequence']
+    actions = [assign_level_sequences]
     list_display = ['cohort', 'when_created', 'when_used']
     fields = ['cohort', 'seq_block']
     readonly_fields = ['when_created', 'when_used']
