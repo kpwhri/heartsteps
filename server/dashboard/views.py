@@ -154,7 +154,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             'create_sample_hourly_tasks', "delete_all_hourly_tasks",
             'design_test_study', 'view_test_study', 'clear_test_study',
             'view_preloaded_seq', 'clear_preloaded_seq',
-            'view_cohort_assignment', 'fix_schedulers'
+            'view_cohort_assignment', 'view_schedulers', 'fix_schedulers'
         ]
 
         return context
@@ -383,8 +383,11 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     objlist = self.dev_service.view_generic_model(
                         [CohortAssignment])
                     context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'view_schedulers':
+                    lines = self.dev_service.view_schedulers(fix=False)
+                    context["results"] = "\n".join(lines)
                 elif generic_command == 'fix_schedulers':
-                    lines = self.dev_service.fix_schedulers(fix=False)
+                    lines = self.dev_service.fix_schedulers(fix=True)
                     context["results"] = "\n".join(lines)
                 else:
                     context[

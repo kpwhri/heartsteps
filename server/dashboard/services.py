@@ -747,6 +747,9 @@ class DevService:
             
         return lines
     
+    def view_schedulers(self, user=None):
+        return self.fix_schedulers(user, fix=False)
+    
     def fix_schedulers(self, user=None, fix=False):
         lines = []
         if user is None:
@@ -788,6 +791,9 @@ class DevService:
                         EventLog.log(user, "Resetting bout planning related daily tasks", EventLog.INFO)
                         # after deleting the daily tasks,
                         delete_bout_planning_daily_task(user)
+                        if not FirstBoutPlanningTime.exists(user):
+                            EventLog.info(user, "Although 'bout_planning' FF is enabled, FirstBoutPlanningTime is missing. Creating at 7am...")
+                            FirstBoutPlanningTime.create(user)
                         first_bout_planning_time = FirstBoutPlanningTime.get(user)
                         
                         hour = first_bout_planning_time.hour

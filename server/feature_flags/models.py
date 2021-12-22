@@ -26,8 +26,9 @@ class FeatureFlags(models.Model):
     uuid = models.CharField(max_length=50,
                             primary_key=True,
                             default=uuid.uuid4)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    #                          on_delete=models.CASCADE)
     flags = models.TextField(default="")
 
     def __str__(self):
