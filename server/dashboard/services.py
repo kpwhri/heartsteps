@@ -860,9 +860,9 @@ class DevService:
                     level_list = level_sequence.sequence_text.split(",")
                     level_list = [x.strip() for x in level_list]
                     
-                    current_date = Participant.objects.filter(user=user).study_start_date + datetime.timedelta(days=cohort.study.baseline_period)
+                    current_date = Participant.objects.filter(user=user).first().study_start_date + datetime.timedelta(days=cohort.study.baseline_period)
                     for level in level_list:
-                        level_object = Level.LEVELS[level]
+                        level_object = Level.LEVELS[int(level)]
                         Level.create(user=user, level=level_object, date=current_date)
                         current_date = current_date + datetime.timedelta(days=1)
                     

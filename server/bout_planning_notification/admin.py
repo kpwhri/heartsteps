@@ -74,7 +74,8 @@ admin.site.register(JSONSurvey, JSONSurveyAdmin)
 
 class LevelSequenceAdmin(admin.ModelAdmin):
     list_display = ['cohort', 'order', 'is_used', 'when_created', 'when_used']
-    fields = ['cohort', 'order', 'is_used', 'when_created', 'when_used', 'sequence_text']
+    fields = ['cohort', 'order', 'is_used', 'sequence_text']
+    readonly_fields = ['when_created', 'when_used']
     
 admin.site.register(LevelSequence, LevelSequenceAdmin)
 
