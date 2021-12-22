@@ -16,7 +16,7 @@ from .constants import TASK_CATEGORY
 from django.db import models
 
 from user_event_logs.models import EventLog
-from participants.models import Participant
+from participants.models import Cohort, Participant
 from daily_step_goals.services import StepGoalsService
 from activity_summaries.models import Day
 import random
@@ -545,7 +545,7 @@ class Level(models.Model):
     def __str__(self):
         return "{} @ {}".format(self.level, self.date)
 
-    def create(user, level, date=None):
+    def create(user: User, level: str, date=None):
         """Create a new Level"""
         if date is None:
             day_service = DayService(user)
@@ -1092,3 +1092,35 @@ class BoutPlanningDecision(models.Model):
             minute_index = when['hour'] * 24 + when['minute']
             padded_walkdata[minute_index] += steps
         return padded_walkdata
+
+
+class LevelSequence(models.Model):
+    cohort = models.ForeignKey(Cohort, on_delete=models.SET_NULL, null=True)
+    order = models.IntegerField(null=True)
+    is_used = models.BooleanField(default=False)
+    when_created = models.DateTimeField(auto_now_add=True)
+    when_used = models.DateTimeField(default=None, null=True)
+    sequence_text = models.TextField(default="0,1,2,3,4,0,1,2,3,4")
+    
+    def create(cohort, user=None, order=None, sequence_text=None):
+        query = LevelSequence.objects.filter(cohort=cohort)
+        
+        if query.exists():
+            count = query.count()
+        else:
+            count = 0
+        
+        if sequence_text is None:
+            return LevelSequence.objects.create(cohort=cohort,
+                                            user=user,
+                                            order=(order if order is not None else (count + 1)))
+        else:
+            return LevelSequence.objects.create(cohort=cohort,
+                                            user=user,
+                                            order=(order if order is not None else (count + 1)),
+                                            sequence_text=sequence_text)
+
+class LevelSequence_User(models.Model):
+    user = models.OneToOneField(User, on_delete = models.DO_NOTHING)
+    level_sequence = models.OneToOneField(LevelSequence, on_delete=models.DO_NOTHING)
+    assigned = models.DateTimeField(auto_now_add=True)

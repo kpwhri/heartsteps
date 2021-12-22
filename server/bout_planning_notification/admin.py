@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from surveys.admin import QuestionAdmin
 
-from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JSONSurvey, JustWalkJitaiDailyEmaQuestion
+from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JSONSurvey, JustWalkJitaiDailyEmaQuestion, LevelSequence, LevelSequence_User
 from .models import BoutPlanningNotification, Level, BoutPlanningDecision
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
@@ -69,3 +69,17 @@ class JSONSurveyAdmin(admin.ModelAdmin):
     fields = ['name', 'structure']
     
 admin.site.register(JSONSurvey, JSONSurveyAdmin)
+
+
+
+class LevelSequenceAdmin(admin.ModelAdmin):
+    list_display = ['cohort', 'order', 'is_used', 'when_created', 'when_used']
+    fields = ['cohort', 'order', 'is_used', 'when_created', 'when_used', 'sequence_text']
+    
+admin.site.register(LevelSequence, LevelSequenceAdmin)
+
+class LevelSequence_UserAdmin(admin.ModelAdmin):
+    list_display = ['level_sequence','user', 'assigned']
+    fields = ['level_sequence','user', 'assigned']
+
+admin.site.register(LevelSequence_User, LevelSequence_UserAdmin)

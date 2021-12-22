@@ -1,4 +1,4 @@
-from bout_planning_notification.models import FirstBoutPlanningTime
+from bout_planning_notification.models import FirstBoutPlanningTime, Level, LevelSequence, LevelSequence_User
 from bout_planning_notification.receivers import FirstBoutPlanningTime_updated, create_bout_planning_daily_task_set, delete_bout_planning_daily_task
 from daily_step_goals.receivers import create_step_goal_daily_task, delete_step_goal_daily_task
 from feature_flags.models import FeatureFlags
@@ -829,3 +829,48 @@ class DevService:
             lines.append(" ")
         return lines
             
+    def assign_level_sequence(self, cohort, user=None):
+        # assign unused level sequences to all users without level sequences
+        lines = []
+        if user is None:
+            participants = Participant.objects.filter(cohort=cohort)
+            user_list_temp = [p.user.username for p in participants]
+            user_list = User.objects.filter(username__in=user_list_temp)
+            for user in user_list:
+                if FeatureFlags.has_flag(user, "bout_planning"):
+                    query = LevelSequence_User.objects.filter(user=user)
+                    if query.exists():
+                        # level sequence is already assigned
+                        pass
+                    else:
+                        lines = lines + self.assign_level_sequence(cohort, user)
+        else:
+            # user is specified
+            if FeatureFlags.has_flag(user, "bout_planning"):
+                query = LevelSequence.objects.filter(cohort=cohort, is_used=False).order_by("order", "when_created")
+                
+                if query.exists():
+                    # one or more level sequence is left
+                    level_sequence = query.first()
+                    assignment = LevelSequence_User.objects.create(user=user, level_sequence=level_sequence)
+                    level_sequence.is_used = True
+                    level_sequence.when_used = assignment.assigned
+                    level_sequence.save()
+                    
+                    level_list = level_sequence.sequence_text.split(",")
+                    level_list = [x.strip() for x in level_list]
+                    
+                    current_date = Participant.objects.filter(user=user).study_start_date + datetime.timedelta(days=cohort.study.baseline_period)
+                    for level in level_list:
+                        level_object = Level.LEVELS[level]
+                        Level.create(user=user, level=level_object, date=current_date)
+                        current_date = current_date + datetime.timedelta(days=1)
+                    
+                    lines.append("The user '{}' is assigned to the sequence({})".format(user.username, level_sequence.order))
+                else:
+                    lines.append("No sequence is left. The user '{}' is not assigned to the sequence.".format(user.username))
+            else:
+                lines.append("The user '{}' does not have bout_planning feature flag.".format(user.username))
+            lines.append(" ")
+            
+        return lines
