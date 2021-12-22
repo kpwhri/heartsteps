@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from surveys.admin import QuestionAdmin
 
-from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JSONSurvey, JustWalkJitaiDailyEmaQuestion, LevelSequence, LevelSequence_User
+from .models import BoutPlanningMessage, BoutPlanningSurveyQuestion, Configuration, FirstBoutPlanningTime, JSONSurvey, JustWalkJitaiDailyEmaQuestion, LevelSequence, LevelSequence_User, LevelSequenceBlock
 from .models import BoutPlanningNotification, Level, BoutPlanningDecision
 
 class FirstBoutPlanningTimeAdmin(admin.ModelAdmin):
@@ -83,3 +83,17 @@ class LevelSequence_UserAdmin(admin.ModelAdmin):
     fields = ['level_sequence','user', 'assigned']
 
 admin.site.register(LevelSequence_User, LevelSequence_UserAdmin)
+
+def assign_level_sequences(modelAdmin, request, queryset):
+    for block in queryset.all():
+        lines = block.seq_block.split("\n")
+        for line in lines:
+            LevelSequence.create(cohort=block.cohort, sequence_text=line)
+
+class LevelSequenceBlockAdmin(admin.ModelAdmin):
+    actions = ['assign_level_sequence']
+    list_display = ['cohort', 'when_created', 'when_used']
+    fields = ['cohort', 'seq_block']
+    readonly_fields = ['when_created', 'when_used']
+    
+admin.site.register(LevelSequenceBlock, LevelSequenceBlockAdmin)

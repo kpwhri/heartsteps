@@ -1102,7 +1102,7 @@ class LevelSequence(models.Model):
     when_used = models.DateTimeField(default=None, null=True)
     sequence_text = models.TextField(default="0,1,2,3,4,0,1,2,3,4")
     
-    def create(cohort, user=None, order=None, sequence_text=None):
+    def create(cohort, order=None, sequence_text=None):
         query = LevelSequence.objects.filter(cohort=cohort)
         
         if query.exists():
@@ -1112,13 +1112,17 @@ class LevelSequence(models.Model):
         
         if sequence_text is None:
             return LevelSequence.objects.create(cohort=cohort,
-                                            user=user,
                                             order=(order if order is not None else (count + 1)))
         else:
             return LevelSequence.objects.create(cohort=cohort,
-                                            user=user,
                                             order=(order if order is not None else (count + 1)),
                                             sequence_text=sequence_text)
+
+class LevelSequenceBlock(models.Model):
+    cohort = models.ForeignKey(Cohort, on_delete=models.SET_NULL, null=True)
+    seq_block = models.TextField(null=True, default=None)
+    when_created = models.DateTimeField(auto_now_add=True)
+    when_used = models.DateTimeField(null=True, default=None)
 
 class LevelSequence_User(models.Model):
     user = models.OneToOneField(User, on_delete = models.DO_NOTHING)
