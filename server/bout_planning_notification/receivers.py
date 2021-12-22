@@ -22,7 +22,7 @@ def create_daily_task(user, hour, minute=0):
     
 
 
-def delete_daily_task(user):
+def delete_bout_planning_daily_task(user):
     daily_task_list = FirstBoutPlanningTime.get_daily_tasks(user)
     
     for daily_task in daily_task_list:
@@ -38,15 +38,15 @@ def FirstBoutPlanningTime_updated(instance, created, **kwargs):
         EventLog.log(instance.user, "FirstBoutPlanningTime created: {}".format(instance), EventLog.INFO)
         
         hour = instance.hour
-        create_daily_task_set(user, hour)
+        create_bout_planning_daily_task_set(user, hour)
     else:
         EventLog.log(instance.user, "FirstBoutPlanningTime updated: {}".format(instance), EventLog.INFO)
         # after deleting the daily tasks,
-        delete_daily_task(instance.user)
+        delete_bout_planning_daily_task(instance.user)
         first_bout_planning_time = FirstBoutPlanningTime.get(instance.user)
         
         hour = first_bout_planning_time.hour
-        create_daily_task_set(user, hour)
+        create_bout_planning_daily_task_set(user, hour)
             
 @receiver(post_save, sender=Place)
 @transaction.atomic
@@ -58,15 +58,15 @@ def Place_updated(instance, created, **kwargs):
         
         EventLog.log(user, "Place is created/updated: {}".format(instance), EventLog.INFO)
         if FirstBoutPlanningTime.exists(user):
-            delete_daily_task(user)
+            delete_bout_planning_daily_task(user)
             first_bout_planning_time = FirstBoutPlanningTime.get(user)
             # four DailyTasks will be newly made by three hour gap
             
             hour = first_bout_planning_time.hour
             
-            create_daily_task_set(user, hour)
+            create_bout_planning_daily_task_set(user, hour)
 
-def create_daily_task_set(user, hour):
+def create_bout_planning_daily_task_set(user, hour):
     for i in range(hour, hour + 12, 3):
         create_daily_task(user, i)
     DailyTask.create_daily_task(user=user, 
@@ -75,5 +75,5 @@ def create_daily_task_set(user, hour):
                           name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationDailyEMA", hour + 12, 0),
                           arguments={"username": user.username},
                           day=None,
-                          hour=hour,
+                          hour=hour+12,
                           minute=0)

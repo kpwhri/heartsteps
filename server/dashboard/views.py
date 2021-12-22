@@ -154,7 +154,7 @@ class DevFrontView(UserPassesTestMixin, TemplateView):
             'create_sample_hourly_tasks', "delete_all_hourly_tasks",
             'design_test_study', 'view_test_study', 'clear_test_study',
             'view_preloaded_seq', 'clear_preloaded_seq',
-            'view_cohort_assignment'
+            'view_cohort_assignment', 'fix_schedulers'
         ]
 
         return context
@@ -378,6 +378,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     objlist = self.dev_service.view_generic_model(
                         [CohortAssignment])
                     context["results"] = self.prettyprint(objlist)
+                elif generic_command == 'fix_schedulers':
+                    lines = self.dev_service.fix_schedulers()
+                    context["results"] = "\n".join(lines)
                 else:
                     context[
                         "results"] = "Unsupported generic command: {}".format(
@@ -1128,7 +1131,6 @@ class ParticipantDailyTaskSummaryView(ParticipantView):
         user = self.participant.user
         
         daily_tasks = DailyTask.objects.filter(user=user).all()
-        
         
         dt_info = [
             {
