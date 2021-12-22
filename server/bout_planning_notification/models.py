@@ -652,31 +652,46 @@ class BoutPlanningDecision(models.Model):
     when_created = models.DateTimeField(auto_now_add=True,
                                         null=True,
                                         blank=True)
-
+        
     def create(user):
         obj = BoutPlanningDecision.objects.create(user=user, data={})
         return obj
 
+    def add_line(self, line):
+        if "lines" in self.data:
+            self.data["lines"].append(line)
+        else:
+            self.data["lines"] = [line]
+
     def apply_random(self):
+        self.add_line("  apply_random() starting")
         random_value = random.random()
         self.data['random_value'] = random_value
+        self.add_line("    random_value is {} and RANDOM_CRITERIA is {}.".format(random_value, BoutPlanningDecision.RANDOM_CRITERIA))
         
         self.return_bool = random_value < BoutPlanningDecision.RANDOM_CRITERIA
+        self.add_line("    returning {}...".format(self.return_bool))
         self.save()
         
     def apply_N(self):
+        self.add_line("  apply_N() starting")
         decision_point_index = self.__get_decision_point_index()
+        self.add_line("    This is decision point #{}.".format(decision_point_index))
         self.data['decision_point_index'] = decision_point_index
 
         day_service = DayService(user=self.user)
         today = day_service.get_current_date()
+        self.add_line("    Today is {}".format(force_str(today)))
         yesterday = today - timedelta(days=1)
+        self.add_line("    Yesterday is {}".format(force_str(yesterday)))
         self.data['today'] = force_str(today)
         self.data['yesterday'] = force_str(yesterday)
         step_goals_service = StepGoalsService(self.user)
 
         if decision_point_index == 0:
+            self.add_line("      Since the decision point index is 0,")
             yesterday_step_goal = step_goals_service.get_goal(yesterday)
+            self.add_line("        Yesterday's step goal was {}.".format(yesterday_step_goal))
             self.data['yesterday_step_goal'] = yesterday_step_goal
 
             yesterday_activity_summary = Day.get(user=self.user,
@@ -684,41 +699,50 @@ class BoutPlanningDecision(models.Model):
             if yesterday_activity_summary:
                 yesterday_step_count = yesterday_activity_summary.steps
             else:
+                self.add_line("        (Weirdly, yesterday's activity summary was not found.)")
                 yesterday_step_count = 0
+            self.add_line("        Yesterday's step count was {}.".format(yesterday_step_count))
             self.data['yesterday_step_count'] = yesterday_step_count
 
             if yesterday_step_goal <= yesterday_step_count:
+                self.add_line("    Since the user walked more than the goal yesterday, N of 1st decision point is false.")
                 self.N = False
             else:
+                self.add_line("    Since the user walked less than the goal yesterday, N of 1st decision point is true.")
                 self.N = True
         else:
+            self.add_line("      Since the decision point index is not 0,")
             today_step_goal = step_goals_service.get_goal(today)
+            self.add_line("        Today's step goal is {}.".format(today_step_goal))
             self.data['today_step_goal'] = today_step_goal
 
-            user_local_time = self.__get_user_local_time()
-            self.data['user_local_time'] = str(user_local_time)
-
             prorated_today_step_goal = today_step_goal * (
-                user_local_time.hour * 60 + user_local_time.minute) / 1440
+                decision_point_index * 3) / 12
+            
             self.data['prorated_today_step_goal'] = prorated_today_step_goal
+            self.add_line("        Today's prorated step goal is {}.".format(prorated_today_step_goal))
 
             # TODO: Check if this works during the day
             today_activity_summary = Day.get(user=self.user, date=today)
             if today_activity_summary:
                 today_step_count = today_activity_summary.steps
             else:
+                self.add_line("        (Weirdly, today's activity summary was not found.)")
                 today_step_count = 0
-
+            self.add_line("        Today's current step count is {}.".format(today_step_count))            
             self.data['today_step_count'] = today_step_count
 
             if prorated_today_step_goal <= today_step_count:
+                self.add_line("    Since the user walked more than the prorated goal as of now, N of 1st decision point is false.")
                 self.N = False
             else:
+                self.add_line("    Since the user walked less than the prorated goal as of now, N of 1st decision point is true.")
                 self.N = True
 
         self.save()
 
     def apply_O(self):
+        self.add_line("  apply_O() starting")
         criteria = [{
             'walk_heuristic': 60,
             'minimum': 0,
@@ -749,31 +773,34 @@ class BoutPlanningDecision(models.Model):
         }]
 
         study_day_index = self.__get_study_day_index()
+        self.add_line("    Today's study day index is {}".format(study_day_index))
         self.data['study_day_index'] = study_day_index
 
         criterion = self.__get_criterion(study_day_index, criteria)
+        self.add_line("    Today's criterion is recorded in data dictionary")
         self.data['criterion'] = criterion
 
         fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
+        self.add_line("    The following dates are used for O calculation: {}".format(fetch_periods))
         self.data['fetch_periods'] = force_str(fetch_periods)
 
         walkdata_list = self.__fetch_walkdata(fetch_periods, criterion)
-
         self.O = self.__process_walkdata(criterion, walkdata_list)
+        self.add_line("    O is calculated with the criteria and walkdata: {}".format(self.O))
 
         self.save()
 
     def apply_R(self):
+        self.add_line("  apply_R() starting")
         def fetch_bout_planning_notification_logs(days=3):
-            day_service = DayService(self.user)
-            when_startpoint = day_service.get_current_datetime() - timedelta(
+            when_startpoint = datetime.now() - timedelta(
                 days=days)
             query = BoutPlanningNotification.objects.filter(
                 user=self.user, when__gte=when_startpoint).order_by('when')
 
             return [{"when": x.when} for x in query]
         
-        def fetch_last_decision_point_result():
+        def is_notification_sent_at_last_decision_point():
             query = BoutPlanningDecision.objects.filter(user=self.user).order_by('-when_created')
             
             if query.exists():
@@ -783,9 +810,6 @@ class BoutPlanningDecision(models.Model):
             
         def favorable_response_in(howlong):
             logs = fetch_bout_planning_notification_logs(days=1)
-            now = datetime.now()
-            starttime = now - howlong
-            day_service = DayService(self.user)
             step_count_service = FitbitStepCountService(self.user)
 
             for log in logs:
@@ -794,112 +818,58 @@ class BoutPlanningDecision(models.Model):
                 
                 step_list = step_count_service.get_all_step_data_list_between(starttime, endtime)
                 
-
-                
                 if find_consecutive_active_mins(step_list, active=60, mins=5):
                     return True
             
             return False
         
-        # def convert_logs_to_time_list(logs):
-        #     time_list = []
-
-        #     for log_item in logs:
-        #         time_list.append({
-        #             "start": log_item['when'],
-        #             "end": log_item['when'] + timedelta(minutes=180)
-        #         })
-        #     return time_list
-
-        # def count_receptive_activity(activity_list, log_time_list):
-        #     consecutive_minutes_criteria = 5  # activity consists of 5 consecutive minutes of ...
-        #     active_minute_criteria = 100  # 100 steps per minute
-
-        #     number_of_receptive_activity = 0
-
-        #     for index, activity in enumerate(activity_list):
-        #         padded_walkdata = self.__pad_walkdata(activity['raw_data'])
-
-        #         current_log_time = log_time_list[index]
-
-        #         if activity['date']['start'].date(
-        #         ) == current_log_time['start'].date():
-        #             start_index = current_log_time[
-        #                 'start'].hour * 60 + current_log_time['start'].minute
-        #             end_index = start_index + 180
-
-        #             cumulative_active_minutes = 0
-        #             for i in range(start_index, end_index):
-        #                 if padded_walkdata[
-        #                         i] > active_minute_criteria:  # if they walked 100 steps or more
-        #                     cumulative_active_minutes += 1
-        #                     if cumulative_active_minutes >= consecutive_minutes_criteria:
-        #                         number_of_receptive_activity += 1
-        #                         break
-        #                 else:
-        #                     cumulative_active_minutes = 0  # reset
-
-        #     return number_of_receptive_activity
-
-        # If (under budget) THEN
-        #     If (last decision point was “Sent”) THEN RECEPTIVITY = FALSE
-        #     ELSE RECEPTIVITY = TRUE
-        # ELSE          # over budget
-        #     IF (
-        #         participant responded favorably once or more for the last 24 hours AND
-        #         last decision point was “Not Sent”) THEN
-        #         RECEPTIVITY = TRUE
-        #     ELSE RECEPTIVITY = FALSE.
-
         budget = 0.5  # 50% of decision points
         self.data['budget'] = budget
+        self.add_line("    Using budget of {}.".format(budget))
 
-        last_decision_point_result = fetch_last_decision_point_result()
+        last_decision_point_result = is_notification_sent_at_last_decision_point()
+        if last_decision_point_result:
+            self.add_line("    For the last decision point, the notification is sent.")
+        else:
+            self.add_line("    For the last decision point, the notification is not sent.")
         self.data['last_decision_point_result'] = last_decision_point_result
 
         logs = fetch_bout_planning_notification_logs()
+        self.add_line("    During the last 3 days, the following notifications are sent: {}".format([x["when"] for x in logs]))
         self.data['logs'] = logs
 
         if len(logs) < budget * 12:  # under budget
+            self.add_line("    Only {} notifications are sent, it is under budget.".format(len(logs)))
             if last_decision_point_result == True:
+                self.add_line("    Since the notification is sent at the last decision point, the notification will not be sent. (R=False)")
                 self.R = False
             else:
+                self.add_line("    Since the notification is not sent at the last decision point, the notification will be sent. (R=True)")
                 self.R = True
         else:
+            self.add_line("    {} notifications are sent, it is over budget. Thus, if there's a favorable response during last 24 hours is calculated.".format(len(logs)))
             condition1 = favorable_response_in(timedelta(hours=24))
+            if condition1:
+                self.add_line("    During last 24 hours, at least one notification is responded favorably.")
+            else:
+                self.add_line("    During last 24 hours, no notification is responded favorably.")
             condition2 = (last_decision_point_result == False)
+            if condition2:
+                self.add_line("    At the last decision point, notification is not sent.")
+            else:
+                self.add_line("    At the last decision point, notification is sent.")
+            
 
             if condition1 and condition2:
+                self.add_line("    During last 24 hours, at least one notification is responded favorably and at the last decision point, notification is not sent, R is true")
                 self.R = True
             else:
+                self.add_line("    During last 24 hours, no notification is responded favorably or at the last decision point, notification is sent, R is false")
                 self.R = False
-
-        # if len(logs) >= budget * 12:
-        #     # the budget is all used up.
-        #     self.R = False
-        # else:
-        #     log_time_list = convert_logs_to_time_list(logs)
-        #     self.data['log_time_list'] = force_str(log_time_list)
-
-        #     # activity_list = self.__fetch_walkdata(log_time_list)
-        #     # self.data['activity_list'] = force_str(activity_list)
-
-        #     # number_of_receptive_activity = count_receptive_activity(
-        #     #     activity_list, log_time_list)
-        #     # self.data['number_of_receptive_activity'] = number_of_receptive_activity
-
-        #     # minimum_number_of_activity = math.ceil(
-        #     #     len(log_time_list) * receptive_criteria)
-        #     # self.data['minimum_number_of_activity'] = minimum_number_of_activity
-
-        #     # if number_of_receptive_activity >= minimum_number_of_activity:
-        #     #     self.R = True
-        #     # else:
-        #     #     self.R = False
-        #     self.R = True
         self.save()
 
     def decide(self):
+        self.add_line("  decide() starting")
         if self.N is None and self.O is None and self.R is None and self.return_bool is not None:
             return self.return_bool
         else:

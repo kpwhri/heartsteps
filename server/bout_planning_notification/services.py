@@ -1,3 +1,4 @@
+from days.services import DayService
 from surveys.serializers import SurveySerializer, SurveyShirinker
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
@@ -34,35 +35,43 @@ class BoutPlanningNotificationService:
     
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
+        self.decision = BoutPlanningDecision.create(self.user)
+        self.decision.add_line("BoutPlanningDecision object is created")
         
+        day_service = DayService(self.user)
+        
+        self.decision.add_line("Starting is_necessary() calculation for {} @ {} (local)".format(self.user.username, day_service.get_current_datetime()))
         self.level = Level.get(self.user)
+        self.decision.data["level"] = str(self.level.level)
+        self.decision.add_line("Level '{}' is fetched from DB".format(self.level))
         
         if self.level.level == Level.RECOVERY:
+            self.decision.add_line("Since the level is RECOVERY, no further processing is done.")
             return_bool = False
         elif self.level.level == Level.RANDOM:
-            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.add_line("Since the level is RANDOM, apply_random is done.")
             self.decision.apply_random()
             return_bool = self.decision.decide()
         elif self.level.level == Level.NO:
-            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.add_line("Since the level is NO, apply_N and apply_O are done.")
             self.decision.apply_N()
             self.decision.apply_O()
             return_bool = self.decision.decide()
         elif self.level.level == Level.NR:
-            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.add_line("Since the level is NR, apply_N and apply_R are done.")
             self.decision.apply_N()
             self.decision.apply_R()
             return_bool = self.decision.decide()
         elif self.level.level == Level.FULL:
-            self.decision = BoutPlanningDecision.create(self.user)
+            self.decision.add_line("Since the level is FULL, apply_N, apply_O, and apply_R are done.")
             self.decision.apply_N()
             self.decision.apply_O()
             self.decision.apply_R()
             return_bool = self.decision.decide()
         else:
             raise RuntimeError("Unsupported decision type: {}".format(self.level.level))
-        
-        EventLog.debug(self.user, "returning True")
+        self.decision.add_line("The decision is delivered: {}".format(return_bool))
+        self.decision.save()
         return return_bool
     
     def send_notification(self,
