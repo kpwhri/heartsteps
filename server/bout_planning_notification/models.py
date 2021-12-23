@@ -322,14 +322,17 @@ class BoutPlanningNotification(models.Model):
     when = models.DateTimeField(auto_now_add=True)
 
     def create(user, message, level, decision):
+        EventLog.debug(user)
         day_service = DayService(user)
+        EventLog.debug(user)
         current_time = day_service.get_current_datetime()
-
+        EventLog.debug(user)
         BoutPlanningNotification.objects.create(user=user,
                                             message=message,
                                             level=level,
                                             decision=decision,
                                             when=current_time)
+        EventLog.debug(user)
 
 
 class FirstBoutPlanningTime(models.Model):

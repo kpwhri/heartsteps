@@ -81,19 +81,24 @@ class BoutPlanningNotificationService:
                           survey=None,
                           data={}):
         try:
+            EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification()")
             if survey is not None:
-                # serialized_survey = SurveySerializer(survey)
+                EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification() - survey is not None")
                 shrinked_survey = SurveyShirinker(survey)
-                print(shrinked_survey.to_json())
+                EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification() - Survey is shrinked")
                 data["survey"] = shrinked_survey.to_json()
-                
+                EventLog.debug(self.user, "{}".format(shrinked_survey.to_json()))
+            
             service = PushMessageService(user=self.user)
+            EventLog.debug(self.user)
             message = service.send_notification(
                 body=body,
                 title=title,
                 collapse_subject=collapse_subject,
                 data=data)
+            EventLog.debug(self.user)
             BoutPlanningNotification.create(user=self.user, message=message, level=self.level, decision=self.decision)
+            EventLog.debug(self.user)
             return message
         except (PushMessageService.MessageSendError,
                 PushMessageService.DeviceMissingError) as e:
