@@ -1,6 +1,6 @@
-Thank you for taking part in the HeartSteps study.
-You can now download the HeartSteps mobile app from a link below:
-Android devices: https://play.google.com/store/apps/details?id=net.heartsteps.kpw
-Apple devices: https://appstore.com/heartsteps
+Thank you for taking part in the JustWalk study.
+You can now download the JustWalk mobile app from a link below:
+Android devices: https://play.google.com/store/apps/details?id=edu.ucsd.justwalk.jitai
+Apple devices: https://appstore.com/justwalk
 Be sure you have your Entry Code from your welcome letter
 (which we haven't included for your security).

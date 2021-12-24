@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget android-versionCode="2059" id="edu.ucsd.justwalk.jitai" osx-CFBundleVersion="2059" version="2.3.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-  <name>HeartSteps</name>
+<widget android-versionCode="2060" id="edu.ucsd.justwalk.jitai" osx-CFBundleVersion="2060" version="2.3.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>JustWalk</name>
   <description>A research application to promote daily physical activity</description>
-  <author email="nickreid@nickreid.com" href="http://nickreid.com/">Nick Reid</author>
+  <author email="jup014@eng.ucsd.edu" href="http://cwphs.ucsd.edu/">Junghwan Park</author>
   <content src="index.html"/>
   <access origin="*"/>
   <allow-navigation href="http://192.168.0.57:8100"/>

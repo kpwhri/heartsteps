@@ -120,7 +120,7 @@ class PushMessageService():
     def send_notification(self, body, title=None, collapse_subject=None, data={}, send_message_id_only=False):
         EventLog.debug(self.user)
         if title is None:
-            title = "HeartSteps"
+            title = "JustWalk"
         data['body'] = body
         data['title'] = title
         data['collapse_subject'] = collapse_subject

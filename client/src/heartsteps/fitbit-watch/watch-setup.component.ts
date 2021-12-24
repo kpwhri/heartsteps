@@ -22,7 +22,7 @@ export class WatchSetupComponent {
     }
 
     public checkComplete() {
-        this.loadingService.show('Checking HeartSteps Clock Face status')
+        this.loadingService.show('Checking JustWalk Clock Face status')
         this.fitbitWatchService.updateStatus()
         .then((fitbitWatch) => {
             this.loadingService.dismiss();

@@ -1,24 +1,16 @@
-<app-page
-    title="HeartSteps"
-    >
+<app-page title="JustWalk">
     <section>
         <p>
-            We need to establish a baseline measurement of your daily activity,
-            which will allow us to measure the effectiveness of the HeartSteps
-            app.
+            We need to establish a baseline measurement of your daily activity, which will allow us to measure the effectiveness of the JustWalk app.
         </p>
         <p>
-            <strong>Wear your Fitbit for 8 hours a day, for {{baselinePeriod}} days.</strong>
-            After {{baselinePeriod}} days, HeartSteps will start sending you notifications to
-            help you be more active.
+            <strong>Wear your Fitbit for 8 hours a day, for {{baselinePeriod}} days.</strong> After {{baselinePeriod}} days, JustWalk will start sending you notifications to help you be more active.
         </p>
     </section>
     <section>
         <p>You have worn your Fitbit for {{numberDaysWorn}} days.</p>
         <ul class="bubbles">
-            <li *ngFor="let day of days"
-                [ngClass]="{'wore': day.woreFitbit, 'today': day.isToday}"
-                >
+            <li *ngFor="let day of days" [ngClass]="{'wore': day.woreFitbit, 'today': day.isToday}">
                 {{format_short_date(day.date)}}
             </li>
         </ul>
@@ -27,15 +19,13 @@
         <h3><span>Today,</span> {{format_date(summary.date)}}</h3>
         <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
         <button (click)="reload()">Reload data</button>
-        <p >Last updated {{format_time_ago(summary.updated)}}</p>
+        <p>Last updated {{format_time_ago(summary.updated)}}</p>
     </section>
     <section *ngIf="studyContactName && studyContactPhone">
         <h3>Need Help?</h3>
-        <p>If you have any issues with the HeartSteps app, or your Fitbit, please call {{studyContactName}} at {{studyContactPhone}}.</p>
+        <p>If you have any issues with the JustWalk app, or your Fitbit, please call {{studyContactName}} at {{studyContactPhone}}.</p>
     </section>
-    <button class="settings"
-        (click)="goToSettings()"
-        >
+    <button class="settings" (click)="goToSettings()">
         Settings
     </button>
 </app-page>

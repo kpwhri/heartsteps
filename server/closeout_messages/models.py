@@ -8,7 +8,7 @@ from sms_messages.services import SMSService
 
 User = get_user_model()
 
-CLOSEOUT_MESSAGE = 'You have completed your time in the HeartSteps study – thank you! Please text back with "Yes" if you would like to continue using the HeartSteps app. If we don\'t hear from you within a week, we will disable your HeartSteps account and stop collecting your data. (Your Fitbit and Fitbit app will still work, however). Thanks again and please call 866-648-1775 with questions.'
+CLOSEOUT_MESSAGE = 'You have completed your time in the JustWalk study – thank you! Please text back with "Yes" if you would like to continue using the JustWalk app. If we don\'t hear from you within a week, we will disable your JustWalk account and stop collecting your data. (Your Fitbit and Fitbit app will still work, however). Thanks again and please call 866-648-1775 with questions.'
 
 class Configuration(models.Model):
 

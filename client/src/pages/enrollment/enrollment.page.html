@@ -1,25 +1,10 @@
-<app-page
-    title="Enroll in HeartSteps"
-    dismiss="Home"
-    (onDismiss)="goHome()"
-    >
-    <app-form
-        [formGroup]="form"
-        (onSubmit)="enroll()"
-        submitLabel="Login"
-        [error]="error"
-        >
+<app-page title="Enroll in JustWalk" dismiss="Home" (onDismiss)="goHome()">
+    <app-form [formGroup]="form" (onSubmit)="enroll()" submitLabel="Login" [error]="error">
         <p>Enter the entry token included in the invitation letter you received in the mail.</p>
-        <app-text-field
-            formControlName="entryToken"
-            label="Entry code"
-            >
+        <app-text-field formControlName="entryToken" label="Entry code">
         </app-text-field>
-        <app-year-field
-            formControlName="birthYear"
-            label="Birth year"
-            >
+        <app-year-field formControlName="birthYear" label="Birth year">
         </app-year-field>
-        <p>By logging into HeartSteps, you are agreeing to <a (click)="openPrivacyPolicy()">HeartSteps Privacy Policy.</a></p>
+        <p>By logging into JustWalk, you are agreeing to <a (click)="openPrivacyPolicy()">JustWalk Privacy Policy.</a></p>
     </app-form>
 </app-page>

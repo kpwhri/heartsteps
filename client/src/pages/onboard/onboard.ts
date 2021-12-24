@@ -99,7 +99,7 @@ export class OnboardPage implements OnInit {
                             console.log("the user has 'fitbit_clockface' flag.");
                             let fitbit_clockface_onboarding_page = {
                                 key: "fitbitClockFace",
-                                title: "HeartSteps Clock Face",
+                                title: "JustWalk Clock Face",
                                 component: FitbitClockFacePairPage,
                             };
                             onboardingPages.splice(onboardingPages.length - 1, 0, fitbit_clockface_onboarding_page);

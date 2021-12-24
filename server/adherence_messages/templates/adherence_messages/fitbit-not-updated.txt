@@ -1,4 +1,4 @@
-We've noticed that your Fitbit has not synced with HeartSteps in a few days.
+We've noticed that your Fitbit has not synced with JustWalk in a few days.
 Try opening the Fitbit app on your phone to get it to sync,
 or, if you are having problems with your Fitbit,
 please give us a call at {{study_phone_number}}, and we’ll help you.

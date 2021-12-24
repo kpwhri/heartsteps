@@ -1,10 +1,7 @@
-<app-modal
-    title="Fitbit Authorization"
-    (onDismiss)="goBack()"
-    >
-    <p>HeartSteps uses Fitbit to collect information about your physical activity. Activities detected by Fitbit will be shown in HeartSteps.</p>
-    <p>Please <strong>allow all permissions</strong> when connecting Fitbit to HeartSteps.</p>
-    
+<app-modal title="Fitbit Authorization" (onDismiss)="goBack()">
+    <p>JustWalk uses Fitbit to collect information about your physical activity. Activities detected by Fitbit will be shown in JustWalk.</p>
+    <p>Please <strong>allow all permissions</strong> when connecting Fitbit to JustWalk.</p>
+
     <div *ngIf="account">
         <p *ngIf="account.isAuthorized">Account is authorized</p>
         <p *ngIf="!account.isAuthorized">Account is not authorized</p>
@@ -19,15 +16,10 @@
             <dd *ngIf="lastDeviceUpdate">{{format_date(account.lastDeviceUpdate)}}</dd>
         </dl>
     </div>
-    <button *ngIf="!account"
-        (click)="authorize()"    
-        class="heartsteps-primary-button"
-        >
+    <button *ngIf="!account" (click)="authorize()" class="heartsteps-primary-button">
         Authorize Account
     </button>
-    <button *ngIf="account"
-        (click)="authorize()"
-        >
+    <button *ngIf="account" (click)="authorize()">
         Re-authorize Account
     </button>
     <button (click)="refreshData()">Refresh Account Data</button>
