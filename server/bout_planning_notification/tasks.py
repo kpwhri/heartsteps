@@ -139,7 +139,7 @@ def fitbit_update_check(username):
                     else:
                         pass
                     
-                    msg = "{}It's been {} since the last data was uploaded. Please click the following link to upload.\n\nfitbit://about".format(greeting, timegap_str)
+                    msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please click the following link to upload.\n\nfitbit://about".format(greeting, timegap_str)
                     sms_message = sms_service.send(msg)
                     print(sms_message)
                     EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
