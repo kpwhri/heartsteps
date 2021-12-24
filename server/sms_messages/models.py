@@ -37,6 +37,7 @@ class Message(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 class TwilioAccountInfo(models.Model):
-    account_sid = models.CharField(max_length=200)
-    auth_token = models.CharField(max_length=200)
+    account_sid = models.CharField(max_length=200, null=True)
+    auth_token = models.CharField(max_length=200, null=True)
+    from_phone_number = models.CharField(max_length=200, null=True)
     study = models.OneToOneField(participants.models.Study, blank=True, on_delete=models.CASCADE)

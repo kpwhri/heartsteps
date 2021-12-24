@@ -16,15 +16,18 @@ class SMSClient:
             
             self.__TWILIO_ACCOUNT_SID = account_info.account_sid
             self.__TWILIO_AUTH_TOKEN = account_info.auth_token
+            self.__FROM_PHONE_NUMBER = account_info.from_phone_number
         else:
             self.__TWILIO_ACCOUNT_SID = settings.TWILIO_ACCOUNT_SID
             self.__TWILIO_AUTH_TOKEN = settings.TWILIO_AUTH_TOKEN
+            self.__FROM_PHONE_NUMBER = settings.TWILIO_PHONE_NUMBER
         
         
     def send(self, number, body):
         if hasattr(self, '__study'):
             self.try_to_replace_twilio(self.__study)
         
+        print(self.__dict__)
         self.__client = Client(
             self.__TWILIO_ACCOUNT_SID,
             self.__TWILIO_AUTH_TOKEN
@@ -33,6 +36,6 @@ class SMSClient:
         response = self.__client.messages.create(
             body = body,
             to = number,
-            from_ = self.phone_number
+            from_ = self.__FROM_PHONE_NUMBER
         )
         return response.sid

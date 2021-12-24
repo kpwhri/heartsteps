@@ -116,7 +116,7 @@ def fitbit_update_check(username):
                     print("user={}, last_update={}, update_gap={}".format(username, last_update, diff))
                     
                     EventLog.info(user, "Recent Fitbit Update Doesn't Exist. SMS message should be sent.")
-                    sms_service = SMSService(user = user)
+                    sms_service = SMSService(user=user)
                     timegap_str = ""
                     if diff > datetime.timedelta(hours=36):
                         timegap_str = "a while"
