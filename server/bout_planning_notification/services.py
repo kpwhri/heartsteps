@@ -1,9 +1,11 @@
 from days.services import DayService
+from feature_flags.models import FeatureFlags
+from participants.models import Participant
 from surveys.serializers import SurveySerializer, SurveyShirinker
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
-from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification, JustWalkJitaiDailyEma
+from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification, JustWalkJitaiDailyEma, LevelSequence, LevelSequence_User, User
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -104,3 +106,47 @@ class BoutPlanningNotificationService:
                 PushMessageService.DeviceMissingError) as e:
             raise BoutPlanningNotificationService.NotificationSendError(
                 'Unable to send notification')
+
+    def assign_level_sequence(self, cohort, user=None):
+        # assign unused level sequences to all users without level sequences
+        lines = []
+        if user is None:
+            participants = Participant.objects.filter(cohort=cohort)
+            user_list_temp = [p.user.username for p in participants]
+            user_list = User.objects.filter(username__in=user_list_temp)
+            for user in user_list:
+                if FeatureFlags.has_flag(user, "bout_planning"):
+                    query = LevelSequence_User.objects.filter(user=user)
+                    if query.exists():
+                        # level sequence is already assigned
+                        pass
+                    else:
+                        lines = lines + self.assign_level_sequence(cohort, user)
+        else:
+            # user is specified
+            if FeatureFlags.has_flag(user, "bout_planning"):
+                query = LevelSequence.objects.filter(cohort=cohort, is_used=False).order_by("order", "when_created")
+                
+                if query.exists():
+                    # one or more level sequence is left
+                    level_sequence = query.first()
+                    assignment = LevelSequence_User.objects.create(user=user, level_sequence=level_sequence)
+                    level_sequence.is_used = True
+                    level_sequence.when_used = assignment.assigned
+                    level_sequence.save()
+                    
+                    level_list = level_sequence.sequence_text.split(",")
+                    level_list = [x.strip() for x in level_list]
+                    
+                    current_date = Participant.objects.filter(user=user).first().study_start_date + datetime.timedelta(days=cohort.study.baseline_period)
+                    
+                    level_objects = [Level.LEVELS[int(x)][0] for x in level_list]
+                    Level.bulk_create(user, level_objects, current_date)
+                    lines.append("The user '{}' is assigned to the sequence({})".format(user.username, level_sequence.order))
+                else:
+                    lines.append("No sequence is left. The user '{}' is not assigned to the sequence.".format(user.username))
+            else:
+                lines.append("The user '{}' does not have bout_planning feature flag.".format(user.username))
+            lines.append(" ")
+            
+        return lines

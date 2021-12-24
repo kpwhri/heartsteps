@@ -1,5 +1,6 @@
 import json
 from django.core.exceptions import ImproperlyConfigured, ValidationError
+from bout_planning_notification.services import BoutPlanningNotificationService
 import pytz
 from datetime import datetime
 from datetime import timedelta
@@ -215,6 +216,11 @@ class Participant(models.Model):
             EventLog.debug(user)
         else:
             EventLog.debug(user)
+            
+        if FeatureFlags.has_flag(user, 'bout_planning'):
+            bout_planning_service = BoutPlanningNotificationService(user)
+            bout_planning_service.assign_level_sequence(self.cohort, user=user)
+            
         self.save()
         EventLog.debug(user)
 
