@@ -110,44 +110,46 @@ def fitbit_update_check(username):
                 last_update = fitbit_account.last_updated
                 
                 if last_update:
-                    
                     now = datetime.datetime.now().astimezone(pytz.utc)
                     diff = now - last_update
-                    print("user={}, last_update={}, update_gap={}".format(username, last_update, diff))
+                    EventLog.info(user, "user={}, last_update={}, update_gap={}".format(username, last_update, diff))
                     
-                    EventLog.info(user, "Recent Fitbit Update Doesn't Exist. SMS message should be sent.")
-                    sms_service = SMSService(user=user)
-                    timegap_str = ""
-                    if diff > datetime.timedelta(hours=36):
-                        timegap_str = "a while"
-                    elif diff > datetime.timedelta(hours=12):
-                        timegap_str = "a day"
-                    elif diff > datetime.timedelta(minutes=90):
-                        timegap_str = "a few hours"
-                    else:
-                        timegap_str = "a while"
+                    if diff > datetime.timedelta(minutes=60):
+                        EventLog.info(user, "Recent Fitbit Update Doesn't Exist. SMS message should be sent.")
+                        sms_service = SMSService(user=user)
+                        timegap_str = ""
+                        if diff > datetime.timedelta(hours=36):
+                            timegap_str = "a while"
+                        elif diff > datetime.timedelta(hours=12):
+                            timegap_str = "a day"
+                        elif diff > datetime.timedelta(minutes=90):
+                            timegap_str = "a few hours"
+                        else:
+                            timegap_str = "a while"
+                            
+                        greeting = ""
+                        day_service = DayService(user)
+                        local_time = day_service.get_current_datetime()
+                        if local_time.hour < 12 and local_time.hour > 3:
+                            greeting = "Good morning! "
+                        elif local_time.hour < 16 and local_time.hour >= 12:
+                            greeting = "Good afternoon. "
+                        elif local_time.hour < 22 and local_time.hour >= 16:
+                            greeting = "Good evening. "
+                        else:
+                            pass
                         
-                    greeting = ""
-                    day_service = DayService(user)
-                    local_time = day_service.get_current_datetime()
-                    if local_time.hour < 12 and local_time.hour > 3:
-                        greeting = "Good morning! "
-                    elif local_time.hour < 16 and local_time.hour >= 12:
-                        greeting = "Good afternoon. "
-                    elif local_time.hour < 22 and local_time.hour >= 16:
-                        greeting = "Good evening. "
-                    else:
-                        pass
-                    
-                    msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please click the following link to upload.\n\nfitbit://about".format(greeting, timegap_str)
-                    sms_message = sms_service.send(msg)
-                    print(sms_message)
-                    EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
-                    
-                    if diff > datetime.timedelta(minutes=5):
-                        pass
+                        msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please click the following link to upload.\n\nfitbit://about".format(greeting, timegap_str)
+                        sms_message = sms_service.send(msg)
+                        EventLog.info(user, "SMS message is sent: {}".format(msg))
+                        EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
+                        
                     else:
                         EventLog.info(user, "Recent Fitbit Update Exists. No SMS message should be sent.")
+                        
+                    
+                    
+                    
                         
                 else:
                     EventLog.error(user, "No device update record")
