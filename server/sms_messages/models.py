@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+import participants
+
 User = get_user_model()
 
 class Contact(models.Model):
@@ -33,3 +35,8 @@ class Message(models.Model):
     )
 
     created = models.DateTimeField(auto_now_add=True)
+
+class TwilioAccountInfo(models.Model):
+    account_sid = models.CharField(max_length=200)
+    auth_token = models.CharField(max_length=200)
+    study = models.OneToOneField(participants.models.Study, blank=True, on_delete=models.CASCADE)

@@ -64,7 +64,8 @@ class BoutPlanningTaskTest(HeartStepsTestCase):
         for i in range(0, 10):
             Day.objects.create(user=self.user, date=date(2021, 9, 10+i), steps=4567)
         
-        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+        fake_time = datetime.strptime("2021-09-20 07:06", "%Y-%m-%d %H:%M").astimezone(pytz.utc)
+        with freeze_time(lambda: fake_time):
             # if there's no feature flag for the user, BoutPlanningFlagException is raised
             self.assertRaises(BoutPlanningFlagException,
                             bout_planning_decision_making, self.user.username)

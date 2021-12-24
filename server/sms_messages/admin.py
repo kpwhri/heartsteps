@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Contact
+from .models import Contact, TwilioAccountInfo
 from .models import Message
 
 class ContactAdmin(admin.ModelAdmin):
@@ -19,3 +19,10 @@ class MessageAdmin(admin.ModelAdmin):
         ]
 
 admin.site.register(Message, MessageAdmin)
+
+
+class TwilioAccountInfoAdmin(admin.ModelAdmin):
+    list_display = ['study', 'account_sid']
+    fields = ['study', 'account_sid', 'auth_token']
+
+admin.site.register(TwilioAccountInfo, TwilioAccountInfoAdmin)

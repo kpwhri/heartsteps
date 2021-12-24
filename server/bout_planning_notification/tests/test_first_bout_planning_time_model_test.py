@@ -384,6 +384,7 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         
         start_hour = 8
         time_list = ["{:02}:00".format(start_hour+x*3) for x in range(0, 5)]
+        time_list.append("{:02}:{}".format(start_hour-1, 45))
         for i in range(0, len(daily_task_list)):
             self.assertIn(daily_task_list[i].time, time_list)
 
@@ -400,5 +401,7 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         
         start_hour = 9
         time_list = ["{:02}:00".format(start_hour+x*3) for x in range(0, 5)]
+        time_list.append("{:02}:{}".format(start_hour-1, 45))
+        
         for i in range(0, len(daily_task_list)):
             self.assertIn(daily_task_list[i].time, time_list)

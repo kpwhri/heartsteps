@@ -74,7 +74,7 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
                 Day.objects.create(user=self.user, date=date(2021, 9, 20), steps=1000)
         
         if morning:
-            with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+            with freeze_time(lambda: datetime.strptime("2021-09-20 07:09", "%Y-%m-%d %H:%M")):
                 FeatureFlags.create_or_update(self.user, "bout_planning")
                 decision.apply_N()
         else:
@@ -121,7 +121,7 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         self.participant.study_start_date = date(2021, 9, 5)
         
         decision = BoutPlanningDecision.create(self.user)
-        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+        with freeze_time(lambda: datetime.strptime("2021-09-20 07:08", "%Y-%m-%d %H:%M")):
             decision.apply_O()
             self.assertEqual(decision.O, True)
         # pprint.pprint(decision.data)
@@ -141,7 +141,7 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         self.participant.study_start_date = date(2021, 9, 5)
         
         decision = BoutPlanningDecision.create(self.user)
-        with freeze_time(lambda: datetime.strptime("2021-09-20 07:05", "%Y-%m-%d %H:%M")):
+        with freeze_time(lambda: datetime.strptime("2021-09-20 07:07", "%Y-%m-%d %H:%M")):
             decision.apply_O()
             self.assertEqual(decision.O, False)
 

@@ -323,15 +323,10 @@ class BoutPlanningNotification(models.Model):
 
     def create(user, message, level, decision):
         EventLog.debug(user)
-        day_service = DayService(user)
-        EventLog.debug(user)
-        current_time = day_service.get_current_datetime()
-        EventLog.debug(user)
         BoutPlanningNotification.objects.create(user=user,
                                             message=message,
                                             level=level,
-                                            decision=decision,
-                                            when=current_time)
+                                            decision=decision)
         EventLog.debug(user)
 
 

@@ -18,7 +18,6 @@ from days.services import DayService
 from days.services import TimezoneService
 from fitbit_api.models import FitbitAccountUser
 from page_views.models import PageView
-from sms_messages.models import (Contact, Message)
 
 from user_event_logs.models import EventLog
 from feature_flags.models import FeatureFlags
@@ -217,9 +216,10 @@ class Participant(models.Model):
         else:
             EventLog.debug(user)
             
-        if FeatureFlags.has_flag(user, 'bout_planning'):
-            bout_planning_service = bout_planning_notification.services.BoutPlanningNotificationService(user)
-            bout_planning_service.assign_level_sequence(self.cohort, user=user)
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, 'bout_planning'):
+                bout_planning_service = bout_planning_notification.services.BoutPlanningNotificationService(user)
+                bout_planning_service.assign_level_sequence(self.cohort, user=user)
             
         self.save()
         EventLog.debug(user)

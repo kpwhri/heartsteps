@@ -87,7 +87,7 @@ class TestPushMessageService(TestCase):
         self.assertEqual(str(message.uuid), send_kwargs['data']['messageId'])
         self.assertEqual(message.message_type, Message.NOTIFICATION)
         self.assertEqual(message.body, "Example message")
-        self.assertEqual(message.title, "HeartSteps")
+        self.assertEqual(message.title, "JustWalk")
         self.get_received_task.assert_called_with(
             countdown=onesignal_refresh_interval(),
             kwargs={'message_id': message.id}

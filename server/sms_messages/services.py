@@ -1,4 +1,5 @@
 
+from participants.models import Participant, Study
 from .clients import SMSClient
 from .models import Contact
 from .models import Message
@@ -25,7 +26,15 @@ class SMSService:
             raise SMSService.UnknownContact('No contact')
         self.__contact = contact
         self.__user = contact.user
+        
         self.__client = SMSClient()
+        self.__participant = Participant.objects.filter(user=self.__user).first()
+        if self.__participant:
+            self.__cohort = self.__participant.cohort
+            if self.__cohort:
+                self.__study = self.__cohort.study
+                if self.__study:
+                    self.__client.try_to_replace_twilio(study=self.__study)
         
     def send(self, body):
         if not self.__contact.enabled:
@@ -35,6 +44,8 @@ class SMSService:
             sender = self.__client.phone_number,
             body = body
         )
+        
+        
         message_id = self.__client.send(
             number = self.__contact.number,
             body = body

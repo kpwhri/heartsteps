@@ -18,16 +18,35 @@ def create_daily_task(user, hour, minute=0):
                                        day=None,
                                        hour=hour,
                                        minute=minute)
-    
-    
-
 
 def delete_bout_planning_daily_task(user):
     daily_task_list = FirstBoutPlanningTime.get_daily_tasks(user)
     
     for daily_task in daily_task_list:
         daily_task.delete_task()
+
+def create_bout_planning_daily_task_set(user, hour):
+    # fitbit update check
+    # DailyTask.create_daily_task(user=user, 
+    #                       category="BOUT_PLANNING",
+    #                       task="bout_planning_notification.tasks.fitbit_update_check",
+    #                       name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationFitbitUpdateCheck", hour - 1, 45),
+    #                       arguments={"username": user.username},
+    #                       day=None,
+    #                       hour=hour - 1,
+    #                       minute=45)
     
+    # bout planning decision making
+    for i in range(hour, hour + 12, 3):
+        create_daily_task(user, i)
+    DailyTask.create_daily_task(user=user, 
+                          category="BOUT_PLANNING",
+                          task="bout_planning_notification.tasks.justwalk_daily_ema",
+                          name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationDailyEMA", hour + 12, 0),
+                          arguments={"username": user.username},
+                          day=None,
+                          hour=hour+12,
+                          minute=0)
 
 
 @receiver(post_save, sender=FirstBoutPlanningTime)
@@ -65,15 +84,3 @@ def Place_updated(instance, created, **kwargs):
             hour = first_bout_planning_time.hour
             
             create_bout_planning_daily_task_set(user, hour)
-
-def create_bout_planning_daily_task_set(user, hour):
-    for i in range(hour, hour + 12, 3):
-        create_daily_task(user, i)
-    DailyTask.create_daily_task(user=user, 
-                          category="BOUT_PLANNING",
-                          task="bout_planning_notification.tasks.justwalk_daily_ema",
-                          name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationDailyEMA", hour + 12, 0),
-                          arguments={"username": user.username},
-                          day=None,
-                          hour=hour+12,
-                          minute=0)
