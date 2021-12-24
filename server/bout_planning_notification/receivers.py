@@ -27,14 +27,14 @@ def delete_bout_planning_daily_task(user):
 
 def create_bout_planning_daily_task_set(user, hour):
     # fitbit update check
-    # DailyTask.create_daily_task(user=user, 
-    #                       category="BOUT_PLANNING",
-    #                       task="bout_planning_notification.tasks.fitbit_update_check",
-    #                       name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationFitbitUpdateCheck", hour - 1, 45),
-    #                       arguments={"username": user.username},
-    #                       day=None,
-    #                       hour=hour - 1,
-    #                       minute=45)
+    DailyTask.create_daily_task(user=user, 
+                          category="BOUT_PLANNING",
+                          task="bout_planning_notification.tasks.fitbit_update_check",
+                          name="{}_{}_{:02}_{:02}".format(user.username, "BoutPlanningNotificationFitbitUpdateCheck", hour - 1, 45),
+                          arguments={"username": user.username},
+                          day=None,
+                          hour=hour - 1,
+                          minute=45)
     
     # bout planning decision making
     for i in range(hour, hour + 12, 3):

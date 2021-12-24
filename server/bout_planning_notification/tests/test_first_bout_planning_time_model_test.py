@@ -380,7 +380,7 @@ class FirstBoutPlanningTimeModelTest(TestCase):
         
         daily_task_list = FirstBoutPlanningTime.get_daily_tasks(self.user)
         
-        self.assertEquals(len(daily_task_list), 5)
+        self.assertEquals(len(daily_task_list), 6)
         
         start_hour = 8
         time_list = ["{:02}:00".format(start_hour+x*3) for x in range(0, 5)]
