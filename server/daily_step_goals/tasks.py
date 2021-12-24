@@ -46,7 +46,7 @@ def update_goal(username):
             else:
                 # calculation stopped sometime before
                 startdate = last_evidence.enddate + timedelta(days=1)            
-        while startdate < today:
+        while startdate <= today:
             evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
             startdate = evidence.enddate + timedelta(days=1)
     else:

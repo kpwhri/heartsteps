@@ -96,7 +96,7 @@ class PushMessageService():
             )
             EventLog.debug(self.user)
         except self.__client.MessageSendError as error:
-            EventLog.debug(self.user)
+            EventLog.debug(self.user, "OneSignalClient Error: {}".format(error))
             raise PushMessageService.MessageSendError(error)
         EventLog.debug(self.user)
         MessageReceipt.objects.create(
