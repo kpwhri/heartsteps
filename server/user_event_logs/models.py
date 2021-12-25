@@ -87,7 +87,7 @@ class EventLog(models.Model):
             elif isinstance(user, User):
                 pass
             else:
-                assert isinstance(user, User), "user argument must be None or an instance of User"
+                EventLog.log(None, "[{}] {}".format(user, action), status)
         if not isinstance(action, str):
             action = str(action)
         
