@@ -18,6 +18,8 @@ STATIC_URL = '/static/'
 SECRET_KEY = env.str('SECRET_KEY', default='secret-key')
 DEBUG = env.bool('DEBUG', default=False)
 
+ADMINS = [('JP', 'jup014@eng.ucsd.edu')]
+
 ALLOWED_HOSTS = env.str(
     'ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
