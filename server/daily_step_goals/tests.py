@@ -1,5 +1,6 @@
+from freezegun import freeze_time
 from activity_summaries.models import Day as ActivitySummaryDay
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -29,6 +30,22 @@ class ModelStepGoalsPRBScsv(TestCase):
         
         self.assertEqual(prbs_list, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
+def create_walk_data(user, start_date, steps):
+    for step_index, step in enumerate(steps):
+        if step:
+            ActivitySummaryDay.objects.create(user=user, date=start_date + timedelta(days=step_index), steps=step)
+
+
+def get_goals(user, start_date, length):
+    service = StepGoalsService(user)
+    return_list = []
+    for day_index in range(length):
+        goal = service.get_goal(start_date + timedelta(days=day_index))
+        return_list.append(goal)
+    
+    return return_list
+        
+
 class ServiceStepGoalsService(HeartStepsTestCase):
     def test_create_service_1(self):
         self.assertRaises(TypeError, StepGoalsService)
@@ -38,61 +55,83 @@ class ServiceStepGoalsService(HeartStepsTestCase):
     
     def test_create_service_3(self):
         service = StepGoalsService(self.user)
-    
+            
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     def test_get_todays_step_goal_1(self, mock_update_fitbit_device_with_new_goal):
         mock_update_fitbit_device_with_new_goal.return_value = None
         
-        service = StepGoalsService(self.user)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
+        with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
+            service = StepGoalsService(self.user)
+            
+            self.participant.study_start_date = datetime(2021, 1, 1).date()
+            self.participant.save()
+            
+            create_walk_data(
+                user=self.user,
+                start_date=datetime(2021, 1, 1).date(),
+                steps=[1000, 1001, 1002, 1003, 1004, 1005]
+            )
+            
+            # use PRBS as '0.3, 0.4, 0.5, 0.3, 0.4, 0.5'
+            goals = get_goals(self.user, datetime(2021, 1, 7).date(), 6)
+            self.assertEqual(goals, [1602, 1802, 2002, 1602, 1802, 2002])
         
-        today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(today_step_goal, 1815)
-
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     def test_get_todays_step_goal_2(self, mock_update_fitbit_device_with_new_goal):
         mock_update_fitbit_device_with_new_goal.return_value = None
-        service = StepGoalsService(self.user)
         
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
-        
-        today_step_goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(today_step_goal, 1815)
+        with freeze_time(lambda: datetime.strptime("2021-01-18 07:09", "%Y-%m-%d %H:%M")):
+            service = StepGoalsService(self.user)
+            
+            self.participant.study_start_date = datetime(2021, 1, 1).date()
+            self.participant.save()
+            
+            create_walk_data(
+                user=self.user,
+                start_date=datetime(2021, 1, 1).date(),
+                steps=[1000, 1001, 1002, 1003, 1004, 1005]
+            )
+            
+            # use PRBS as '0.3, 0.4, 0.5, 0.3, 0.4, 0.5'
+            goals = get_goals(self.user, datetime(2021, 1, 13).date(), 6)
+            self.assertEqual(goals, [600, 800, 1000, 600, 800, 1000])
 
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     def test_get_todays_step_goal_3(self, mock_update_fitbit_device_with_new_goal):
         mock_update_fitbit_device_with_new_goal.return_value = None
         
-        service = StepGoalsService(self.user)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 8).date(), steps=1008)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 9).date(), steps=1009)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 10).date(), steps=1010)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 11).date(), steps=1011)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 12).date(), steps=1012)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 13).date(), steps=1013)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 14).date(), steps=1014)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 15).date(), steps=1015)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 16).date(), steps=1016) 
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 17).date(), steps=1017)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 18).date(), steps=1018)
-        ActivitySummaryDay.objects.create(user=self.user, date=datetime(2021, 9, 19).date(), steps=1019)
+        with freeze_time(lambda: datetime.strptime("2021-01-30 07:09", "%Y-%m-%d %H:%M")):
+            service = StepGoalsService(self.user)
+            
+            self.participant.study_start_date = datetime(2021, 1, 1).date()
+            self.participant.save()
+            
+            create_walk_data(
+                user=self.user,
+                start_date=datetime(2021, 1, 1).date(),
+                steps=[1000, 1001, 1002, 1003, 1004, 1005]
+            )
+            
+            # use PRBS as '0.3, 0.4, 0.5, 0.3, 0.4, 0.5'
+            goals = get_goals(self.user, datetime(2021, 1, 13).date(), 6)
+            self.assertEqual(goals, [600, 800, 1000, 600, 800, 1000])
+    
+    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
+    def test_get_todays_step_goal_4(self, mock_update_fitbit_device_with_new_goal):
+        mock_update_fitbit_device_with_new_goal.return_value = None
         
-        goal = service.get_goal(datetime(2021, 9, 20).date())
-        self.assertEqual(goal, 1815)
+        with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
+            service = StepGoalsService(self.user)
+            
+            self.participant.study_start_date = datetime(2021, 1, 1).date()
+            self.participant.save()
+            
+            create_walk_data(
+                user=self.user,
+                start_date=datetime(2021, 1, 1).date(),
+                steps=[1000, 1001, None, 1003, 1004, 1005]
+            )
+            
+            # use PRBS as '0.3, 0.4, 0.5, 0.3, 0.4, 0.5'
+            goals = get_goals(self.user, datetime(2021, 1, 7).date(), 6)
+            self.assertEqual(goals, [1603, 1803, 2003, 1603, 1803, 2003])

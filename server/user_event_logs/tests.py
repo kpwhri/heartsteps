@@ -19,7 +19,7 @@ class EventLogTest(TestCase):
         self.assertRaises(TypeError, EventLog.log, self.user, "test msg")
         
         # user argument
-        self.assertRaises(AssertionError, EventLog.log, 1, "test msg", EventLog.DEBUG)
+        EventLog.log(1, "test msg", EventLog.DEBUG) # this will be recorded to system default logging user
         # user argument can be None (system log)
         EventLog.log(None, "test msg", EventLog.DEBUG)
         

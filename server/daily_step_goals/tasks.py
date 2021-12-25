@@ -15,8 +15,6 @@ from days.services import DayService
 
 @shared_task
 def update_goal(username):
-    # dt = datetime.strptime(day_string, '%Y-%m-%d')
-    # day = date(dt.year, dt.month, dt.day)
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     
     user = User.objects.get(username=username)
@@ -26,8 +24,6 @@ def update_goal(username):
     today = day_service.get_current_date()
 
     stepgoal_service = daily_step_goals.services.StepGoalsService(user)
-
-    
     query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=today, enddate__gte=today).order_by('-created')
     
     if not query.exists():
@@ -56,7 +52,6 @@ def update_goal(username):
         startdate = evidence_for_today.startdate
         
         stepgoal_service.calculate_step_goals(startdate=startdate)
-                
     step_goal = stepgoal_service.get_goal(today)
     
     
