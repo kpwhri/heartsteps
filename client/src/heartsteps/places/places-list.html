@@ -1,27 +1,15 @@
-<app-form
-    [formGroup]="form"
-    (onSubmit)="saveLocations()"
-    [error]="errorMessage"
-    >
+<app-form [formGroup]="form" (onSubmit)="saveLocations()" [error]="errorMessage">
     <fieldset>
         <legend>Where do you live and work?</legend>
-        <p>Heartsteps will use these places to customize suggestions for physical activity nearby.</p>
+        <p>JustWalk will use these places to customize suggestions for physical activity nearby.</p>
         <ul>
             <li *ngFor="let location of locations">
-                <button type="button"
-                    (click)="editLocation(location)"
-                    class="place {{location.type}}"
-                    (ngClass)="{invalid:location.invalid}"
-                    >
+                <button type="button" (click)="editLocation(location)" class="place {{location.type}}" (ngClass)="{invalid:location.invalid}">
                     {{location.address}}
-                </button>    
+                </button>
             </li>
         </ul>
-        <button
-            type="button"
-            class="bottom"
-            (click)="newLocation()"
-            >
+        <button type="button" class="bottom" (click)="newLocation()">
             Add Place
         </button>
     </fieldset>

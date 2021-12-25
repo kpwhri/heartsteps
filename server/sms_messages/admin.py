@@ -22,7 +22,7 @@ admin.site.register(Message, MessageAdmin)
 
 
 class TwilioAccountInfoAdmin(admin.ModelAdmin):
-    list_display = ['study', 'account_sid']
-    fields = ['study', 'account_sid', 'auth_token']
+    list_display = ['study', 'account_sid', 'from_phone_number']
+    fields = ['study', 'account_sid', 'auth_token', 'from_phone_number']
 
 admin.site.register(TwilioAccountInfo, TwilioAccountInfoAdmin)

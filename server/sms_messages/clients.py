@@ -18,9 +18,13 @@ class SMSClient:
             self.__TWILIO_AUTH_TOKEN = account_info.auth_token
             self.__FROM_PHONE_NUMBER = account_info.from_phone_number
         else:
-            self.__TWILIO_ACCOUNT_SID = settings.TWILIO_ACCOUNT_SID
-            self.__TWILIO_AUTH_TOKEN = settings.TWILIO_AUTH_TOKEN
-            self.__FROM_PHONE_NUMBER = settings.TWILIO_PHONE_NUMBER
+            query = TwilioAccountInfo.objects.filter(study=None)
+            
+            account_info = query.first()
+            
+            self.__TWILIO_ACCOUNT_SID = account_info.account_sid
+            self.__TWILIO_AUTH_TOKEN = account_info.auth_token
+            self.__FROM_PHONE_NUMBER = account_info.from_phone_number
         
         
     def send(self, number, body):
@@ -32,7 +36,7 @@ class SMSClient:
             self.__TWILIO_ACCOUNT_SID,
             self.__TWILIO_AUTH_TOKEN
         )
-            
+        
         response = self.__client.messages.create(
             body = body,
             to = number,
