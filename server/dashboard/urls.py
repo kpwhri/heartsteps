@@ -1,7 +1,8 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
-from .views import DevFrontView, FeatureFlagView, ParticipantDailyTaskSummaryView
+from .views import DevFrontView, DownloadReportView
+from .views import FeatureFlagView, ListReportView, ParticipantDailyTaskSummaryView
 from .views import DevGenericView, DevFitbitView
 
 from .views import CohortListView
@@ -59,6 +60,8 @@ urlpatterns = [
             success_url='dashboard-login'),
         name='password_reset_confirm'
     ),
+    url('report/(?P<report_id>[\d\w-]+)/download', DownloadReportView.as_view(), name='dashboard-report-download'),
+    url('report/list', ListReportView.as_view(), name='dashboard-report-list'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/clock-face',
         ParticipantClockFaceView.as_view(), name='dashboard-cohort-participant-clock-face'),
     url('(?P<cohort_id>[\d]+)/(?P<participant_id>[\d\w\-]+)/burst-period/(?P<burst_period_id>[\d]+)/delete',

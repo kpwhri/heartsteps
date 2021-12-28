@@ -92,6 +92,17 @@ from .models import DashboardParticipant
 from .services import DevSendNotificationService
 from .services import DevService
 
+import io
+import datetime
+from django.http import FileResponse
+from django.views.generic.base import TemplateView
+from django.views.generic import View
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus.tables import Table
+
+
 
 class DevFrontView(UserPassesTestMixin, TemplateView):
 
@@ -401,6 +412,70 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
         else:
             return TemplateResponse(request, self.template_name, context)
 
+
+class ListReportView(UserPassesTestMixin, TemplateView):
+    template_name = 'dashboard/list-report.html'
+    
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["is_staff"] = self.request.user.is_staff
+        
+        return context
+
+
+
+class DownloadReportView(UserPassesTestMixin, View):
+    def test_func(self):
+        if self.request.user and not self.request.user.is_anonymous:
+            admin_for_studies = Study.objects.filter(admins=self.request.user)
+            self.admin_for_studies = list(admin_for_studies)
+            if self.request.user.is_staff or self.admin_for_studies:
+                return True
+        return False
+
+    def get(self, request, *args, **kwargs):
+        filename = self.get_filename("dev")
+
+        styles = getSampleStyleSheet()
+        
+        buffer = io.BytesIO()
+        
+        doc = SimpleDocTemplate(buffer)
+        Story = []
+        
+        
+        Story.append(Paragraph("<h1>Daily Report</h1>", styles["Title"]))
+        Story.append(Paragraph("<h2>Study Architecture</h2>"))
+        Story.append(Paragraph("<h2>Studies</h2>"))
+        Story.append(Paragraph("<ul><li>Test Study 1</li><li>Test Study 2</li></ul>", styles["Bullet"]))
+        Story.append(Paragraph("Sample Text."))
+        
+        data = [['00', '01', '02'],
+                ['10', '11', '12'],
+                ['20', '21', '22']]
+        
+        t = Table(data)
+        Story.append(t)
+        
+        doc.build(Story)
+        buffer.seek(0)
+        
+        return FileResponse(buffer, as_attachment=True, filename=filename)
+
+    def get_filename(self, suffix):
+        filetime = datetime.datetime.now()
+        timestr = filetime.strftime("%Y%m%d-%H%M%S")
+        filename = "{}_{}.pdf".format(suffix, timestr)
+        return filename
 
 class CohortListView(UserPassesTestMixin, TemplateView):
 

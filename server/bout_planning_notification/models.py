@@ -686,7 +686,7 @@ class BoutPlanningDecision(models.Model):
     def apply_N(self):
         self.add_line("  apply_N() starting")
         decision_point_index = self.__get_decision_point_index()
-        self.add_line("    This is decision point #{}.".format(decision_point_index))
+        self.add_line("    This is decision point #{} (0-3).".format(decision_point_index))
         self.data['decision_point_index'] = decision_point_index
 
         day_service = DayService(user=self.user)
