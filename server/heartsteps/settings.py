@@ -119,6 +119,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'silk',
+    'reportlab',
     'privacy_policy',
     'user_event_logs',
     'contact',
