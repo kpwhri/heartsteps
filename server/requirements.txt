@@ -55,6 +55,7 @@ python-http-client==3.2.7
 python-slugify==4.0.0
 pytz==2018.4
 PyYAML==3.13
+reportlab==3.6.3
 requests==2.19.1
 requests-oauthlib==1.0.0
 requests-toolbelt==0.8.0
