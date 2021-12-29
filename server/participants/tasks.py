@@ -560,10 +560,10 @@ def export_cohort_data():
         users = [p.user for p in participants if p.user]
         for user in users:
             print("  User {}:".format(user.username))
-            # export_user_data.apply_async(kwargs={
-            #     'username': user.username
-            # })
-            export_user_data(user.username)
+            export_user_data.apply_async(kwargs={
+                'username': user.username
+            })
+            # export_user_data(user.username)
 
 
 @shared_task
