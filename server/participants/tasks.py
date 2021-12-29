@@ -42,6 +42,7 @@ from walking_suggestions.tasks import export_walking_suggestion_decisions
 from walking_suggestions.tasks import export_walking_suggestion_service_requests
 from watch_app.tasks import export_step_count_records_csv
 from weekly_reflection.models import ReflectionTime
+from user_event_logs.models import EventLog
 
 from .services import ParticipantService
 from .models import Cohort
@@ -451,6 +452,8 @@ def setup_exports(participant, directory, log_export=True):
 
 @shared_task
 def export_user_data(username, log_export=True):
+    print("    export_user_data: {}".format(username))
+    
     participant = Participant.objects.get(user__username=username)
     cohort = participant.cohort
     if not cohort or not cohort.export_bucket_url:
@@ -458,6 +461,7 @@ def export_user_data(username, log_export=True):
 
     EXPORT_DIRECTORY = '/heartsteps-export'
     if log_export:
+        # reset the export directory (if it exists, this code removes it)
         if not os.path.exists(EXPORT_DIRECTORY):
             os.makedirs(EXPORT_DIRECTORY)
         directory = os.path.join(EXPORT_DIRECTORY, username)
@@ -468,49 +472,64 @@ def export_user_data(username, log_export=True):
     else:
         directory = './'
 
+    print("    preparing export_file fx")
     export_file = setup_exports(participant, directory, log_export)
 
+    print("    export_activity_logs")
     export_file(export_activity_logs,
                 filename='activity-logs.csv'
                 )
+    print("    export_activity_surveys")
     export_file(export_activity_surveys,
                 filename='activity-surveys.csv'
                 )
+    print("    export_anti_sedentary_decisions")
     export_file(export_anti_sedentary_decisions,
                 filename='anti-sedentary-decisions.csv'
                 )
+    print("    export_anti_sedentary_service_requests")
     export_file(export_anti_sedentary_service_requests,
                 filename='anti-sedentary-service-requests.csv'
                 )
+    print("    export_daily_metrics")
     export_file(export_daily_metrics,
                 filename='daily-metrics.csv'
                 )
+    print("    export_fitbit_data")
     export_file(export_fitbit_data,
                 filename='fitbit-data-per-minute.csv'
                 )
+    print("    export_user_locations")
     export_file(export_user_locations,
                 filename='locations.csv'
                 )
+    print("    export_morning_messages")
     export_file(
         export_morning_messages,
         filename='morning-messages.csv'
     )
+    print("    export_morning_message_survey")
     export_file(
         export_morning_message_survey,
         filename='morning-survey.csv'
     )
+    print("    export_walking_suggestion_decisions")
     export_file(export_walking_suggestion_decisions,
                 filename='walking-suggestion-decisions.csv'
                 )
+    print("    export_walking_suggestion_service_requests")
     export_file(export_walking_suggestion_service_requests,
                 filename='walking-suggestion-service-requests.csv'
                 )
+    print("    export_walking_suggestion_surveys")
     export_file(export_walking_suggestion_surveys,
                 filename='walking-suggestion-surveys.csv'
                 )
+    print("    export_app_page_views")
     export_file(export_app_page_views,
                 filename='client-page-views.csv'
                 )
+    print("    export_user_messages")
     export_file(export_user_messages,
                 filename='messages.csv'
                 )
@@ -525,15 +544,26 @@ def export_user_data(username, log_export=True):
 
 @shared_task
 def export_cohort_data():
+    EventLog.info(None, 'export_cohort_data is running')
+    print("Getting authenticated...")
+    # getting authenticated
+    subprocess.call(
+        'gcloud auth activate-service-account --key-file=/credentials/gcloud-dev-service-account.json', 
+        shell=True
+    )    
+    
     for cohort in Cohort.objects.filter(export_data=True).all():
+        print("Cohort {}:".format(cohort.name))
         participants = Participant.objects.filter(cohort=cohort) \
             .prefetch_related('user') \
             .all()
         users = [p.user for p in participants if p.user]
         for user in users:
-            export_user_data.apply_async(kwargs={
-                'username': user.username
-            })
+            print("  User {}:".format(user.username))
+            # export_user_data.apply_async(kwargs={
+            #     'username': user.username
+            # })
+            export_user_data(user.username)
 
 
 @shared_task

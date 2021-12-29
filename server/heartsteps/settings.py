@@ -166,7 +166,8 @@ INSTALLED_APPS = [
     'daily_step_goals',
     'feature_flags',
     'configuration_manager',
-    'bout_planning_notification'
+    'bout_planning_notification',
+    'reports'
 ]
 
 MIDDLEWARE = [
