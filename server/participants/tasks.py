@@ -1,3 +1,5 @@
+import json
+import datetime
 import os
 import shutil
 import subprocess
@@ -5,6 +7,9 @@ import csv
 from datetime import date
 from datetime import timedelta
 from math import floor
+
+from django.db.models.query_utils import Q
+from daily_step_goals.models import StepGoal
 import pytz
 
 from celery import shared_task
@@ -45,13 +50,33 @@ from weekly_reflection.models import ReflectionTime
 from user_event_logs.models import EventLog
 
 from .services import ParticipantService
-from .models import Cohort
+from .models import Cohort, User
 from .models import DataExport
 from .models import DataExportSummary
 from .models import DataExportQueue
 from .models import Study
 from .models import Participant
 
+
+def force_convert(obj):
+    if obj is None:
+        return ''
+    elif isinstance(obj, int):
+        return str(obj)
+    elif isinstance(obj, bool):
+        return str(obj)
+    elif isinstance(obj, str):
+        return str(obj)
+    elif isinstance(obj, datetime.datetime):
+        return obj.strftime("%Y-%m-%d %H:%M:%S.%f")
+    elif isinstance(obj, datetime.date):
+        return obj.strftime("%Y-%m-%d")
+    elif isinstance(obj, dict):
+        return str(obj)
+    elif isinstance(obj, list):
+        return str([force_convert(x) for x in obj])
+    else:
+        return str(obj)
 
 @shared_task
 def reset_test_participants(date_joined=None, number_of_days=9):
@@ -281,6 +306,258 @@ def export_user_messages(username, directory=None, filename=None, start=None, en
     )
     _file.close()
 
+def export_daily_step_goals(username, directory=None, filename=None, start=None, end=None):
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.daily-step-goals.csv' % (username)
+
+    user = User.objects.get(username=username)
+    daily_step_goals_query = StepGoal.objects.filter(
+        user=user
+    ).order_by('date', '-created')
+    
+    if start:
+        daily_step_goals_query = daily_step_goals_query.filter(
+            date__gte=start
+        )
+    if end:
+        daily_step_goals_query = daily_step_goals_query.filter(
+            date__lte=end
+        )
+
+    goal_matrix = [
+        [username,
+         str(x.uuid),
+         x.date.strftime("%Y-%m-%d"),
+         x.created.strftime("%Y-%m-%d %H:%M:%S.%f"),
+         str(x.step_goal)
+         ] for x in daily_step_goals_query.all()
+    ]
+        
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [[
+            'HeartSteps ID',
+            'Step Goal ID',
+            'Date',
+            'Goal Calculation Time',
+            'Goal'
+        ]] + goal_matrix
+    )
+    _file.close()
+    
+    
+def export_bout_planning_decisions(username, directory=None, filename=None, start=None, end=None):
+    from bout_planning_notification.models import BoutPlanningDecision
+    
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.bout-planning-decisions.csv' % (username)
+
+    user = User.objects.get(username=username)
+    
+    query = BoutPlanningDecision.objects.filter(
+        user=user
+    ).order_by('-when_created')
+    
+    if start:
+        query = query.filter(
+            when_created__gte=start
+        )
+    if end:
+        query = query.filter(
+            when_created__lte=end
+        )
+        
+    data_matrix = [
+        [username,
+         force_convert(x.id),
+         force_convert(x.N),
+         force_convert(x.O),
+         force_convert(x.R),
+         force_convert(x.return_bool),
+         force_convert(x.when_created),
+         force_convert(x.data)
+         ] for x in query.all()
+    ]
+        
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [[
+            'HeartSteps ID',
+            'BoutPlanningDecision ID',
+            'Need',
+            'Opportunity',
+            'Receptivity',
+            'Is Notificaion Sent',
+            'Calculation Time',
+            'Supporting Data'
+        ]] + data_matrix
+    )
+    _file.close()
+
+def export_survey_responses(username, directory=None, filename=None, start=None, end=None):
+    from surveys.models import Survey, SurveyResponse
+    
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '%s.export-survey-responses.csv' % (username)
+
+    user = User.objects.get(username=username)
+    
+    query = Survey.objects.filter(
+        user=user
+    ).order_by('-created')
+    
+    if start:
+        query = query.filter(
+            created__gte=start
+        )
+    if end:
+        query = query.filter(
+            created__lte=end
+        )
+        
+    data_matrix = []
+    
+    def get_response_vector(response=None, survey=None, title=False):
+        response_vector = ['']
+        survey_vector = [''] * 5
+        question_origin_vector = [''] * 9
+        question_vector = [''] * 5
+        answer_origin_vector = [''] * 5
+        answer_vector = [''] * 3
+        
+        if title:
+            response_vector = ["response.id"]
+            survey_vector = ["survey.uuid",
+                "survey.user.username",
+                "survey.answered",
+                "survey.created",
+                "survey.updated"
+                ]
+            question_origin_vector = [
+                "question_origin.name",
+                "question_origin.label",
+                "question_origin.description",
+                "question_origin.kind",
+                "question_origin.published",
+                "question_origin.order",
+                "question_origin.created",
+                "question_origin.updated",
+                "question_origin.order"
+                ]
+            question_vector = [
+                "question.order",
+                "question.name",
+                "question.label",
+                "question.description",
+                "question.kind"
+                ]
+            answer_origin_vector = [
+                "answer_origin.label",
+                "answer_origin.value",
+                "answer_origin.order",
+                "answer_origin.created",
+                "answer_origin.updated"
+                ]
+            answer_vector = [
+                "answer.label",
+                "answer.value",
+                "answer.order"
+                ]
+        else:
+            if response:
+                response_vector = [force_convert(response.id)]
+            
+                survey = response.survey
+                if survey:
+                    survey_vector = [
+                        force_convert(survey.uuid),
+                        force_convert(survey.user.username),
+                        force_convert(survey.answered),
+                        force_convert(survey.created),
+                        force_convert(survey.updated)
+                    ]
+                    question = response.question
+                    if question:
+                        question_vector = [
+                            force_convert(question.order),
+                            force_convert(question.name),
+                            force_convert(question.label),
+                            force_convert(question.description),
+                            force_convert(question.kind)
+                        ]
+                        question_origin = question.question
+                        if question_origin:
+                            question_origin_vector = [
+                                force_convert(question_origin.name),
+                                force_convert(question_origin.label),
+                                force_convert(question_origin.description),
+                                force_convert(question_origin.kind),
+                                force_convert(question_origin.published),
+                                force_convert(question_origin.order),
+                                force_convert(question_origin.created),
+                                force_convert(question_origin.updated),
+                                force_convert(question_origin.order)
+                            ]
+                    answer = response.answer
+                    if answer:
+                        answer_vector = [
+                            force_convert(answer.label),
+                            force_convert(answer.value),
+                            force_convert(answer.order)
+                        ]
+                        answer_origin = answer.answer
+                        if answer_origin:
+                            answer_origin_vector = [
+                                force_convert(answer_origin.label),
+                                force_convert(answer_origin.value),
+                                force_convert(answer_origin.order),
+                                force_convert(answer_origin.created),
+                                force_convert(answer_origin.updated)
+                            ]
+            else:
+                # if survey is not responded, return survey info only
+                survey_vector = [
+                    force_convert(survey.uuid),
+                    force_convert(survey.user.username),
+                    force_convert(survey.answered),
+                    force_convert(survey.created),
+                    force_convert(survey.updated)
+                ]
+                
+        return response_vector + survey_vector + question_origin_vector + question_vector + answer_origin_vector + answer_vector
+    
+    
+    for survey in list(query.all()):
+        
+        response_query = SurveyResponse.objects.filter(survey=survey).order_by('question__order', 'answer__value')
+        
+        if response_query.exists():
+            for response in list(response_query.all()):
+                data_matrix.append(
+                    get_response_vector(response)
+                )
+        else:
+            # if the participant did not respond
+            data_matrix.append(
+                get_response_vector(survey=survey)
+            )
+        
+    _file = open(os.path.join(directory, filename), 'w')
+    writer = csv.writer(_file)
+    writer.writerows(
+        [
+            get_response_vector(title=True)
+        ] + data_matrix
+    )
+    _file.close()
 
 def export_app_page_views(username, directory=None, filename=None, start=None, end=None):
     if not directory:
@@ -450,6 +727,55 @@ def setup_exports(participant, directory, log_export=True):
     return export_file
 
 
+def export_single_file(username, log_export=True):
+    print("Getting authenticated...")
+    # getting authenticated
+    subprocess.call(
+        'gcloud auth activate-service-account --key-file=/credentials/gcloud-dev-service-account.json', 
+        shell=True
+    )    
+    
+    participant = Participant.objects.get(user__username=username)
+    cohort = participant.cohort
+    if not cohort or not cohort.export_bucket_url:
+        return False
+
+    EXPORT_DIRECTORY = '/heartsteps-export'
+    if log_export:
+        # reset the export directory (if it exists, this code removes it)
+        if not os.path.exists(EXPORT_DIRECTORY):
+            os.makedirs(EXPORT_DIRECTORY)
+        directory = os.path.join(EXPORT_DIRECTORY, username)
+        if os.path.exists(directory) and os.path.isdir(directory):
+            shutil.rmtree(directory)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    else:
+        directory = './'
+
+    print("    preparing export_file fx")
+    export_file = setup_exports(participant, directory, log_export)
+
+    print("    export_daily_step_goals")
+    export_file(export_daily_step_goals,
+                filename='daily-step-goals.csv')
+    
+    print("    export_bout_planning_decisions")
+    export_file(export_bout_planning_decisions,
+                filename='bout-planning-decisions.csv')
+    
+    print("    export_survey_response")
+    export_file(export_survey_responses,
+                filename='survey-responses.csv')
+
+    if log_export:
+        subprocess.call(
+            'gsutil -m rsync %s gs://%s' % (directory,
+                                            cohort.export_bucket_url),
+            shell=True
+        )
+
+
 @shared_task
 def export_user_data(username, log_export=True):
     print("    export_user_data: {}".format(username))
@@ -533,6 +859,17 @@ def export_user_data(username, log_export=True):
     export_file(export_user_messages,
                 filename='messages.csv'
                 )
+    print("    export_daily_step_goals")
+    export_file(export_daily_step_goals,
+                filename='daily-step-goals.csv')
+    
+    print("    export_bout_planning_decisions")
+    export_file(export_bout_planning_decisions,
+                filename='bout-planning-decisions.csv')
+    
+    print("    export_survey_response")
+    export_file(export_survey_responses,
+                filename='survey-responses.csv')
 
     if log_export:
         subprocess.call(

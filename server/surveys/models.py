@@ -119,6 +119,11 @@ class Survey(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     objects = SurveyQuerySet.as_manager()
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'created'])
+        ]
 
     class QuestionDoesNotExist(RuntimeError):
         pass
