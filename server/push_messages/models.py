@@ -12,7 +12,7 @@ from user_event_logs.models import EventLog
 from .clients import OneSignalClient
 
 class OneSignalInfo(models.Model):
-    study = models.ForeignKey(Study, on_delete=models.CASCADE, null=False)
+    study = models.ForeignKey(Study, on_delete=models.CASCADE, null=True)
     app_id = models.CharField(max_length=255, null=False)
     app_key = models.CharField(max_length=255, null=False)
     

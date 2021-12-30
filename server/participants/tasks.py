@@ -60,23 +60,23 @@ from .models import Participant
 
 def force_convert(obj):
     if obj is None:
-        return ''
+        return '""'
     elif isinstance(obj, int):
-        return str(obj)
+        return '"{}"'.format(str(obj))
     elif isinstance(obj, bool):
-        return str(obj)
+        return '"{}"'.format(str(obj))
     elif isinstance(obj, str):
-        return str(obj)
+        return '"{}"'.format(str(obj))
     elif isinstance(obj, datetime.datetime):
-        return obj.strftime("%Y-%m-%d %H:%M:%S.%f")
+        return '"{}"'.format(obj.strftime("%Y-%m-%d %H:%M:%S.%f"))
     elif isinstance(obj, datetime.date):
-        return obj.strftime("%Y-%m-%d")
+        return '"{}"'.format(obj.strftime("%Y-%m-%d"))
     elif isinstance(obj, dict):
-        return str(obj)
+        return '"{}"'.format(json.dumps(obj))
     elif isinstance(obj, list):
-        return str([force_convert(x) for x in obj])
+        return '"{}"'.format(str([force_convert(x) for x in obj]))
     else:
-        return str(obj)
+        return '"{}"'.format(str(obj))
 
 @shared_task
 def reset_test_participants(date_joined=None, number_of_days=9):
@@ -327,11 +327,12 @@ def export_daily_step_goals(username, directory=None, filename=None, start=None,
         )
 
     goal_matrix = [
-        [username,
-         str(x.uuid),
-         x.date.strftime("%Y-%m-%d"),
-         x.created.strftime("%Y-%m-%d %H:%M:%S.%f"),
-         str(x.step_goal)
+        [
+            force_convert(username),
+            force_convert(x.uuid),
+            force_convert(x.date),
+            force_convert(x.created),
+            force_convert(x.step_goal)
          ] for x in daily_step_goals_query.all()
     ]
         
