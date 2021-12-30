@@ -93,7 +93,6 @@ from .services import DevSendNotificationService
 from .services import DevService
 
 import io
-import datetime
 from django.http import FileResponse
 from django.views.generic.base import TemplateView
 from django.views.generic import View
@@ -472,7 +471,7 @@ class DownloadReportView(UserPassesTestMixin, View):
         return FileResponse(buffer, as_attachment=True, filename=filename)
 
     def get_filename(self, suffix):
-        filetime = datetime.datetime.now()
+        filetime = datetime.now()
         timestr = filetime.strftime("%Y%m%d-%H%M%S")
         filename = "{}_{}.pdf".format(suffix, timestr)
         return filename
@@ -2615,7 +2614,7 @@ class UserLogsList(TemplateView):
 
         # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
         serialized_user_logs = []
-        server_time = datetime.now()
+        server_time = datetime.datetime.now()
 
         for user_log in page_obj:
             serialized_user_logs.append({
