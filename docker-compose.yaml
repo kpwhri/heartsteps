@@ -36,7 +36,9 @@ services:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
       - DATABASE_URL=psql://postgres:password@db:5432/postgres
-    env_file: credentials/.env-development
+    env_file: 
+      - credentials/.env-development
+      - credentials/justwalk.env
     command: ["honcho", "start", "dev", "celery2", "beat"]
     volumes:
       - ./server:/server

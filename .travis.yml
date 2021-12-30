@@ -11,10 +11,12 @@ install:
 - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 - sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 before_script:
+- openssl aes-256-cbc -K $justwalk_enc_key -iv $justwalk_enc_iv -in justwalk.env.enc -out justwalk.env -d
 - openssl aes-256-cbc -K $encrypted_54891cbed47a_key -iv $encrypted_54891cbed47a_iv
   -in credentials.tar.enc -out credentials.tar -d
 - tar xvf credentials.tar
 - ls -la credentials
+- cp justwalk.env credentials/
 - echo $docker_password | docker login --username jup014 --password-stdin
 - docker system prune -af
 - docker volume prune -f

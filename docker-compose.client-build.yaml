@@ -16,6 +16,7 @@ services:
       dockerfile: client-android.Dockerfile
     env_file:
       - credentials/.env-production
+      - credentials/justwalk.env
     environment: 
       - BUILD_PLATFORM=android
       - BUILD_VERSION=2.2.4

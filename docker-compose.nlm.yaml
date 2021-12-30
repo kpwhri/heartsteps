@@ -29,7 +29,9 @@ services:
     build: 
       context: ./
       dockerfile: server.Dockerfile
-    env_file: credentials/.env-development
+    env_file: 
+      - credentials/.env-development
+      - credentials/justwalk.env
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True
