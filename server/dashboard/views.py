@@ -1,8 +1,9 @@
 import pprint
 
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
+# from datetime import date
+# from datetime import timedelta
+# from datetime import datetime
+import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
@@ -471,7 +472,7 @@ class DownloadReportView(UserPassesTestMixin, View):
         return FileResponse(buffer, as_attachment=True, filename=filename)
 
     def get_filename(self, suffix):
-        filetime = datetime.now()
+        filetime = datetime.datetime.now()
         timestr = filetime.strftime("%Y%m%d-%H%M%S")
         filename = "{}_{}.pdf".format(suffix, timestr)
         return filename
@@ -690,11 +691,11 @@ class InterventionSummaryView(CohortView):
 
         anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
             users=users,
-            start=timezone.now() - timedelta(days=28),
+            start=timezone.now() - datetime.timedelta(days=28),
             end=timezone.now())
         walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
             users=users,
-            start=timezone.now() - timedelta(days=28),
+            start=timezone.now() - datetime.timedelta(days=28),
             end=timezone.now())
 
         time_ranges = []
@@ -706,19 +707,19 @@ class InterventionSummaryView(CohortView):
                 DashboardParticipant.summaries.summarize_walking_suggestions(
                     users=users,
                     end=timezone.now(),
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     decisions=walking_suggestion_decisions),
                 'anti_sedentary_suggestion_summary':
                 DashboardParticipant.summaries.
                 summarize_anti_sedentary_suggestions(
                     users=users,
                     end=timezone.now(),
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     decisions=anti_sedentary_decisions),
                 'watch_app_availability_summary':
                 DashboardParticipant.watch_app_step_counts.summary(
                     users=users,
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     end=timezone.now())
             })
 
@@ -790,7 +791,7 @@ class DownloadView(CohortView):
                             if export.error_message:
                                 total_errors += 1
                                 export_types[export.export_type]['errors'] += 1
-                            if export.start > timezone.now() - timedelta(
+                            if export.start > timezone.now() - datetime.timedelta(
                                     days=3):
                                 export_types[export.export_type]['recent'] += 1
                 else:
@@ -891,7 +892,7 @@ class DataSummaryView(CohortView):
             walking_suggestion_last_updated_by_username[
                 _username] = _update.day
 
-        recently_updated_date = date.today() - timedelta(days=4)
+        recently_updated_date = date.today() - datetime.timedelta(days=4)
         recently_updated_walking_suggestions_count = 0
         recently_updated_fitbit_data = 0
 
@@ -931,7 +932,7 @@ class DataSummaryView(CohortView):
                 last_update = fitbit_data_by_username[username][
                     'last_device_update']
                 try:
-                    _last_fitbit_update_date = date(last_update.year,
+                    _last_fitbit_update_date = datetime.date(last_update.year,
                                                     last_update.month,
                                                     last_update.day)
                     fitbit_last_updated = _last_fitbit_update_date.strftime(
@@ -1288,7 +1289,7 @@ class ParticipantActivitySummaryView(ParticipantView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dates = [date.today() - timedelta(days=offset) for offset in range(14)]
+        dates = [date.today() - datetime.timedelta(days=offset) for offset in range(14)]
         dates.sort()
         account = None
         try:
@@ -1311,22 +1312,22 @@ class ParticipantActivitySummaryView(ParticipantView):
         watch_app_step_counts = WatchAppStepCount.objects.filter(
             user=self.participant.user,
             created__gte=timezone.now() -
-            timedelta(days=14)).order_by('created').all()
+            datetime.timedelta(days=14)).order_by('created').all()
         watch_app_step_counts = list(watch_app_step_counts)
         if account:
             fitbit_account_updates = FitbitAccountUpdate.objects.filter(
                 account=account,
                 created__gte=timezone.now() -
-                timedelta(days=14)).order_by('created').all()
+                datetime.timedelta(days=14)).order_by('created').all()
             fitbit_account_updates = list(fitbit_account_updates)
         else:
             fitbit_account_updates = []
         fitbit_account_updates_by_date = {}
         for _date in dates:
             watch_app_record_count = 0
-            end_datetime = datetime(
+            end_datetime = datetime.datetime(
                 _date.year, _date.month, _date.day,
-                tzinfo=pytz.UTC) + timedelta(days=1)
+                tzinfo=pytz.UTC) + datetime.timedelta(days=1)
             while len(watch_app_step_counts
                       ) and watch_app_step_counts[0].created < end_datetime:
                 watch_app_record_count += 1
@@ -1368,11 +1369,11 @@ class ParticipantInterventionSummaryView(ParticipantView):
 
         anti_sedentary_decisions = DashboardParticipant.summaries.get_anti_sedentary_decisions(
             users=users,
-            start=timezone.now() - timedelta(days=28),
+            start=timezone.now() - datetime.timedelta(days=28),
             end=timezone.now())
         walking_suggestion_decisions = DashboardParticipant.summaries.get_walking_suggestions(
             users=users,
-            start=timezone.now() - timedelta(days=28),
+            start=timezone.now() - datetime.timedelta(days=28),
             end=timezone.now())
 
         time_ranges = []
@@ -1384,19 +1385,19 @@ class ParticipantInterventionSummaryView(ParticipantView):
                 DashboardParticipant.summaries.summarize_walking_suggestions(
                     users=users,
                     end=timezone.now(),
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     decisions=walking_suggestion_decisions),
                 'anti_sedentary_suggestion_summary':
                 DashboardParticipant.summaries.
                 summarize_anti_sedentary_suggestions(
                     users=users,
                     end=timezone.now(),
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     decisions=anti_sedentary_decisions),
                 'watch_app_availability_summary':
                 DashboardParticipant.watch_app_step_counts.summary(
                     users=users,
-                    start=timezone.now() - timedelta(days=offset),
+                    start=timezone.now() - datetime.timedelta(days=offset),
                     end=timezone.now())
             })
 
@@ -1545,7 +1546,7 @@ class ParticipantNotificationsView(ParticipantView):
         context = super().get_context_data(**kwargs)
         context['notifications'] = self.get_notifications(
             user=self.participant.user,
-            start=timezone.now() - timedelta(days=7),
+            start=timezone.now() - datetime.timedelta(days=7),
             end=timezone.now())
         return context
 
@@ -1687,7 +1688,7 @@ class ParticipantPageViews(ParticipantView):
         if self.participant.user:
             page_views = PageView.objects.filter(
                 user=self.participant.user,
-                time__gte=timezone.now() - timedelta(days=7)
+                time__gte=timezone.now() - datetime.timedelta(days=7)
             ) \
                 .order_by('-time') \
                 .all()
@@ -1861,7 +1862,7 @@ class ParticipantAdherenceView(ParticipantView):
         context = super().get_context_data(**kwargs)
 
         adherence_summaries = self.participant.get_adherence_during(
-            start=date.today() - timedelta(days=14), end=date.today())
+            start=datetime.date.today() - datetime.timedelta(days=14), end=datetime.date.today())
         metric_names = []
         metric_categories = []
         for category, title in AdherenceMetric.ADHERENCE_METRIC_CHOICES:
@@ -1930,25 +1931,25 @@ class CohortWalkingSuggestionSurveyView(CohortView):
 
         if start and end:
             try:
-                start_datetime = datetime.strptime(start, '%Y-%m-%d')
-                end_datetime = datetime.strptime(end, '%Y-%m-%d')
+                start_datetime = datetime.datetime.strptime(start, '%Y-%m-%d')
+                end_datetime = datetime.datetime.strptime(end, '%Y-%m-%d')
             except ValueError:
                 raise Http404('Not a date')
         else:
-            start_datetime = datetime.now() - timedelta(days=7)
-            end_datetime = datetime.now()
+            start_datetime = datetime.datetime.now() - datetime.timedelta(days=7)
+            end_datetime = datetime.datetime.now()
 
         time_difference = end_datetime - start_datetime
         dates = [
-            end_datetime.date() - timedelta(days=offset)
+            end_datetime.date() - datetime.timedelta(days=offset)
             for offset in range(time_difference.days + 1)
         ]
         dates.sort()
-        start_datetime = datetime(dates[0].year,
+        start_datetime = datetime.datetime(dates[0].year,
                                   dates[0].month,
                                   dates[0].day,
                                   tzinfo=pytz.timezone('America/Los_Angeles'))
-        end_datetime = start_datetime + timedelta(days=len(dates))
+        end_datetime = start_datetime + datetime.timedelta(days=len(dates))
 
         participants = self.query_participants().filter(archived=False,
                                                         active=True).all()
@@ -2127,7 +2128,7 @@ class CohortMorningMessagesView(CohortView):
         context = super().get_context_data()
 
         last_week = [
-            date.today() - timedelta(days=offset) for offset in range(7)
+            datetime.date.today() - datetime.timedelta(days=offset) for offset in range(7)
         ]
 
         participants = self.query_participants().filter(archived=False,
@@ -2518,7 +2519,7 @@ class ClockFaceList(TemplateView):
         clock_face_logs = ClockFaceLog.objects \
             .filter(
                 user__in=users,
-                time__gte=timezone.now() - timedelta(days=7)
+                time__gte=timezone.now() - datetime.timedelta(days=7)
             ) \
             .prefetch_related('user') \
             .all()
@@ -2530,7 +2531,7 @@ class ClockFaceList(TemplateView):
         step_counts_by_username = {}
         step_counts = StepCount.objects.filter(
             user__in=users, start__gte=timezone.now() -
-            timedelta(days=7)).prefetch_related('user')
+            datetime.timedelta(days=7)).prefetch_related('user')
         for count in step_counts:
             if count.user.username not in step_counts_by_username:
                 step_counts_by_username[count.user.username] = []
@@ -2614,7 +2615,7 @@ class UserLogsList(TemplateView):
 
         # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
         serialized_user_logs = []
-        server_time = datetime.now()
+        server_time = datetime.datetime.now()
 
         for user_log in page_obj:
             serialized_user_logs.append({
@@ -2651,7 +2652,7 @@ class ParticipantClockFaceView(ParticipantView):
             return []
         clock_face_logs = ClockFaceLog.objects.filter(
             user=self.participant.user,
-            time__gte=timezone.now() - timedelta(days=7)).all()
+            time__gte=timezone.now() - datetime.timedelta(days=7)).all()
         return list(clock_face_logs)
 
     def get_recent_step_counts(self):
@@ -2659,7 +2660,7 @@ class ParticipantClockFaceView(ParticipantView):
             return []
         step_counts = StepCount.objects.filter(user=self.participant.user,
                                                start__gte=timezone.now() -
-                                               timedelta(days=7)).all()
+                                               datetime.timedelta(days=7)).all()
         return list(step_counts)
 
     def get_context_data(self, **kwargs):
@@ -2735,7 +2736,7 @@ def fill_context(request, context):
                 Study.objects.filter(admins=request.user))
 
     context["users"] = list(User.objects.order_by("username").all())
-    context['server_time'] = str(datetime.now())
+    context['server_time'] = str(datetime.datetime.now())
 
     selected_user_obj = None
     if 'selected_user' in request_dict:
@@ -2753,7 +2754,7 @@ def fill_context(request, context):
         selected_date = day_service.get_current_date()
         context["day_service"] = day_service
     else:
-        selected_date = datetime.today()
+        selected_date = datetime.datetime.today()
     context["selected_date"] = selected_date
 
     if 'item' in request_dict:
@@ -2768,15 +2769,15 @@ def fill_context(request, context):
         if 'end_time' in request_dict:
             end_time = request_dict['end_time']
         else:
-            end_time = start_time + timedelta(days=1)
+            end_time = start_time + datetime.timedelta(days=1)
     else:
         if "day_service" in context:
             day_service = context["day_service"]
             start_time = day_service.get_start_of_day(selected_date)
         else:
-            start_time = datetime(selected_date.year, selected_date.month,
+            start_time = datetime.datetime(selected_date.year, selected_date.month,
                                   selected_date.day)
-        end_time = start_time + timedelta(days=1)
+        end_time = start_time + datetime.timedelta(days=1)
 
     context["start_time"] = start_time
     context["end_time"] = end_time
