@@ -52,9 +52,9 @@ class FitbitDayService(FitbitService):
     def update(self):
         current_timezone = self.day.get_timezone()
         new_timezone = self.__client.get_timezone()
-        EventLog.debug(self.__user, "Check timezone change: {} -> {}".format(current_timezone, new_timezone))
+        EventLog.debug(None, "[FitbitAccount {}] Check timezone change: {} -> {}".format(self.account, current_timezone, new_timezone))
         if (current_timezone != new_timezone):
-            EventLog.debug(self.__user, "Timezone update: {} -> {}".format(current_timezone, new_timezone))
+            EventLog.debug(None, "[FitbitAccount {}] Timezone update: {} -> {}".format(self.account, current_timezone, new_timezone))
             self.day._timezone = new_timezone
             self.day.save()
             
