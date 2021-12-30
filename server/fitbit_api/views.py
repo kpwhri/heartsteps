@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from fitbit_activities.services import FitbitDayService
 import pytz
 
 from django.conf import settings
@@ -58,6 +59,9 @@ def fitbit_subscription(request):
                     fitbit_user = update['ownerId'],
                     date = update['date']
                 )
+                # # update timezone
+                # fds = FitbitDayService(account=account)
+                
             except FitbitAccount.DoesNotExist:
                 continue
     return Response('', status=status.HTTP_204_NO_CONTENT)
