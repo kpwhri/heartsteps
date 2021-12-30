@@ -48,24 +48,24 @@ class BoutPlanningNotificationService:
         self.decision.add_line("Level '{}' is fetched from DB".format(self.level))
         
         if self.level.level == Level.RECOVERY:
-            self.decision.add_line("Since the level is RECOVERY, no further processing is done.")
+            self.decision.add_line("Since the level is RECOVERY, no further processing will be done.")
             return_bool = False
         elif self.level.level == Level.RANDOM:
             self.decision.add_line("Since the level is RANDOM, apply_random is done.")
             self.decision.apply_random()
             return_bool = self.decision.decide()
         elif self.level.level == Level.NO:
-            self.decision.add_line("Since the level is NO, apply_N and apply_O are done.")
+            self.decision.add_line("Since the level is NO, apply_N and apply_O will be done.")
             self.decision.apply_N()
             self.decision.apply_O()
             return_bool = self.decision.decide()
         elif self.level.level == Level.NR:
-            self.decision.add_line("Since the level is NR, apply_N and apply_R are done.")
+            self.decision.add_line("Since the level is NR, apply_N and apply_R will be done.")
             self.decision.apply_N()
             self.decision.apply_R()
             return_bool = self.decision.decide()
         elif self.level.level == Level.FULL:
-            self.decision.add_line("Since the level is FULL, apply_N, apply_O, and apply_R are done.")
+            self.decision.add_line("Since the level is FULL, apply_N, apply_O, and apply_R will be done.")
             self.decision.apply_N()
             self.decision.apply_O()
             self.decision.apply_R()

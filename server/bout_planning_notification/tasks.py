@@ -56,6 +56,7 @@ def bout_planning_decision_making(username):
             service = BoutPlanningNotificationService(user)
             
             if service.is_necessary():
+                EventLog.debug(user, "is_necessary() is true. bout planning notification will be sent.")
                 survey = service.create_survey()
                 body = pull_random_bout_planning_message()
                 
