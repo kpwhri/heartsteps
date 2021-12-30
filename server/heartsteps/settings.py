@@ -8,6 +8,10 @@ env_file_path = '/server/.env'
 if os.path.isfile(env_file_path):
     env.read_env(env_file_path)
 
+justwalk_env_file_path = '/server/justwalk.env'
+if os.path.isfile(justwalk_env_file_path):
+    env.read_env(justwalk_env_file_path)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 root = environ.Path(BASE_DIR)
 SITE_ROOT = root()

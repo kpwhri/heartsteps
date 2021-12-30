@@ -6,7 +6,6 @@ services:
             dockerfile: client.Dockerfile
         env_file:
           - credentials/.env-production
-          - credentials/justwalk.env
         command: npm run serve:app
         volumes:
             - ./client:/client

@@ -6,6 +6,7 @@ gcloud config set project heartsteps-kpwhri
 gcloud container clusters get-credentials heartsteps-kpw --region=us-west1-a
 
 cp credentials/.env-production server/.env
+cp credentials/justwalk.env server/justwalk.env
 cp credentials/.env-production client/.env
 
 docker-compose -f docker-compose.activity-suggestions.yaml build walking-suggestion-service anti-sedentary-service > /dev/null

@@ -6,6 +6,7 @@ gcloud config set project heartsteps-dev
 gcloud container clusters get-credentials dev-cluster --region=us-central1-a
 
 cp credentials/.env-gcloud-dev server/.env
+cp credentials/justwalk.env server/justwalk.env
 cp credentials/.env-gcloud-dev client/.env
 
 docker-compose -f gcloud-dev.docker-compose.yaml build nginx

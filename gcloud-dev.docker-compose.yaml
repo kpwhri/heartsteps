@@ -48,6 +48,7 @@ services:
             dockerfile: server.Dockerfile
         env_file:
           - credentials/.env-gcloud-dev
+          - credentials/justwalk.env
         environment:
             - ALLOWED_HOSTS=localhost,server
             - DEBUG=True
