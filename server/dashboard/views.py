@@ -2614,7 +2614,7 @@ class UserLogsList(TemplateView):
 
         # if you don't have any log, you might want to see empty logs with 200, not 404. 404 usually means you're knocking on non-existing door.
         serialized_user_logs = []
-        server_time = datetime.datetime.now()
+        server_time = datetime.now()
 
         for user_log in page_obj:
             serialized_user_logs.append({
