@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Place
+from .models import Place, Location
 
 class PlaceAdmin(admin.ModelAdmin):
     list_display = ['user', 'address', 'latitude', 'longitude', 'type']
@@ -12,3 +12,4 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Place, PlaceAdmin)
+admin.site.register(Location, LocationAdmin)
