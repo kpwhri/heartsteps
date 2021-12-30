@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, date, time
+
+from django.utils import timezone
 import pytz
 import math
 import uuid
@@ -25,6 +27,31 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.services import FitbitStepCountService
 from push_messages.models import Message
+
+def force_convert(obj):
+    if obj is None:
+        return '""'
+    elif isinstance(obj, int):
+        return '"{}"'.format(str(obj))
+    elif isinstance(obj, bool):
+        return '"{}"'.format(str(obj))
+    elif isinstance(obj, str):
+        return '"{}"'.format(str(obj))
+    elif isinstance(obj, datetime):
+        return '"{}"'.format(obj.strftime("%Y-%m-%d %H:%M:%S.%f"))
+    elif isinstance(obj, date):
+        return '"{}"'.format(obj.strftime("%Y-%m-%d"))
+    elif isinstance(obj, time):
+        return '"{}"'.format(obj.strftime("%H:%M:%S.%f"))
+    elif isinstance(obj, dict):
+        str_list = []
+        for key, val in obj.items():
+            str_list.append('"{}": {}'.format(key, force_convert(val)))
+        return '{{}}'.format(", ".join(str_list))
+    elif isinstance(obj, list):
+        return '"{}"'.format(str([force_convert(x) for x in obj]))
+    else:
+        return '"{}"'.format(str(obj))
 
 User = get_user_model()
 
@@ -323,10 +350,12 @@ class BoutPlanningNotification(models.Model):
 
     def create(user, message, level, decision):
         EventLog.debug(user)
+        now = timezone.now()
         BoutPlanningNotification.objects.create(user=user,
                                             message=message,
                                             level=level,
-                                            decision=decision)
+                                            decision=decision,
+                                            when=now)
         EventLog.debug(user)
 
 
@@ -668,7 +697,7 @@ class BoutPlanningDecision(models.Model):
         return obj
 
     def add_line(self, line):
-        now = datetime.now()
+        now = timezone.now()
         msg_line = "{} {}".format(now.strftime("%Y-%m-%d %H:%M:%S.%f"), line)
         if "lines" in self.data:
             self.data["lines"].append(msg_line)
@@ -678,7 +707,7 @@ class BoutPlanningDecision(models.Model):
     def apply_random(self):
         self.add_line("__apply_random() starting")
         random_value = random.random()
-        self.data['random_value'] = random_value
+        self.save_data('random_value', random_value)
         self.add_line("____random_value is {} and RANDOM_CRITERIA is {}.".format(random_value, BoutPlanningDecision.RANDOM_CRITERIA))
         
         self.return_bool = random_value < BoutPlanningDecision.RANDOM_CRITERIA
@@ -689,22 +718,22 @@ class BoutPlanningDecision(models.Model):
         self.add_line("__apply_N() starting")
         decision_point_index = self.__get_decision_point_index()
         self.add_line("____This is decision point #{} (0-3).".format(decision_point_index))
-        self.data['decision_point_index'] = decision_point_index
+        self.save_data('decision_point_index', decision_point_index)
 
         day_service = DayService(user=self.user)
         today = day_service.get_current_date()
         self.add_line("____Today is {}".format(force_str(today)))
         yesterday = today - timedelta(days=1)
         self.add_line("____Yesterday is {}".format(force_str(yesterday)))
-        self.data['today'] = force_str(today)
-        self.data['yesterday'] = force_str(yesterday)
+        self.save_data('today', force_str(today))
+        self.save_data('yesterday', force_str(yesterday))
         step_goals_service = StepGoalsService(self.user)
 
         if decision_point_index == 0:
             self.add_line("______Since the decision point index is 0,")
             yesterday_step_goal = step_goals_service.get_goal(yesterday)
             self.add_line("________Yesterday's step goal was {}.".format(yesterday_step_goal))
-            self.data['yesterday_step_goal'] = yesterday_step_goal
+            self.save_data('yesterday_step_goal', yesterday_step_goal)
 
             yesterday_activity_summary = Day.get(user=self.user,
                                                  date=yesterday)
@@ -714,7 +743,7 @@ class BoutPlanningDecision(models.Model):
                 self.add_line("________(Weirdly, yesterday's activity summary was not found.)")
                 yesterday_step_count = 0
             self.add_line("________Yesterday's step count was {}.".format(yesterday_step_count))
-            self.data['yesterday_step_count'] = yesterday_step_count
+            self.save_data('yesterday_step_count', yesterday_step_count)
 
             if yesterday_step_goal <= yesterday_step_count:
                 self.add_line("____Since the user walked more than the goal yesterday, N of 1st decision point is false.")
@@ -726,12 +755,12 @@ class BoutPlanningDecision(models.Model):
             self.add_line("______Since the decision point index is not 0,")
             today_step_goal = step_goals_service.get_goal(today)
             self.add_line("________Today's step goal is {}.".format(today_step_goal))
-            self.data['today_step_goal'] = today_step_goal
+            self.save_data('today_step_goal', today_step_goal)
 
             prorated_today_step_goal = today_step_goal * (
                 decision_point_index * 3) / 12
             
-            self.data['prorated_today_step_goal'] = prorated_today_step_goal
+            self.save_data('prorated_today_step_goal', prorated_today_step_goal)
             self.add_line("________Today's prorated step goal is {}.".format(prorated_today_step_goal))
 
             # TODO: Check if this works during the day
@@ -742,7 +771,7 @@ class BoutPlanningDecision(models.Model):
                 self.add_line("________(Weirdly, today's activity summary was not found.)")
                 today_step_count = 0
             self.add_line("________Today's current step count is {}.".format(today_step_count))            
-            self.data['today_step_count'] = today_step_count
+            self.save_data('today_step_count', today_step_count)
 
             if prorated_today_step_goal <= today_step_count:
                 self.add_line("____Since the user walked more than the prorated goal as of now, N of 1st decision point is false.")
@@ -786,15 +815,15 @@ class BoutPlanningDecision(models.Model):
 
         study_day_index = self.__get_study_day_index()
         self.add_line("____Today's study day index is {}".format(study_day_index))
-        self.data['study_day_index'] = study_day_index
+        self.save_data('study_day_index', study_day_index)
 
         criterion = self.__get_criterion(study_day_index, criteria)
         self.add_line("____Today's criterion is recorded in data dictionary")
-        self.data['criterion'] = criterion
+        self.save_data('criterion', criterion)
 
         fetch_periods = self.__get_fetch_periods(study_day_index, criterion)
         self.add_line("____The following dates are used for O calculation: {}".format([x.strftime("%Y-%m-%d") for x in fetch_periods] if isinstance(fetch_periods, list) else fetch_periods))
-        self.data['fetch_periods'] = force_str(fetch_periods)
+        self.save_data('fetch_periods', force_str(fetch_periods))
 
         walkdata_list = self.__fetch_walkdata(fetch_periods, criterion)
         self.O = self.__process_walkdata(criterion, walkdata_list)
@@ -805,7 +834,7 @@ class BoutPlanningDecision(models.Model):
     def apply_R(self):
         self.add_line("__apply_R() starting")
         def fetch_bout_planning_notification_logs(days=3):
-            when_startpoint = datetime.now() - timedelta(
+            when_startpoint = timezone.now() - timedelta(
                 days=days)
             query = BoutPlanningNotification.objects.filter(
                 user=self.user, when__gte=when_startpoint).order_by('when')
@@ -835,8 +864,9 @@ class BoutPlanningDecision(models.Model):
             
             return False
         
+        
         budget = 0.5  # 50% of decision points
-        self.data['budget'] = budget
+        self.save_data('budget', budget)
         self.add_line("____Using budget of {}.".format(budget))
 
         last_decision_point_result = is_notification_sent_at_last_decision_point()
@@ -844,11 +874,12 @@ class BoutPlanningDecision(models.Model):
             self.add_line("____For the last decision point, the notification is sent.")
         else:
             self.add_line("____For the last decision point, the notification is not sent.")
-        self.data['last_decision_point_result'] = last_decision_point_result
+        
+        self.save_data('last_decision_point_result', last_decision_point_result)
 
         logs = fetch_bout_planning_notification_logs()
         self.add_line("____During the last 3 days, the following notifications are sent: {}".format([x["when"] for x in logs]))
-        self.data['logs'] = logs
+        self.save_data('logs', logs)
 
         if len(logs) < budget * 12:  # under budget
             self.add_line("____Only {} notifications are sent, it is under budget.".format(len(logs)))
@@ -880,6 +911,9 @@ class BoutPlanningDecision(models.Model):
                 self.R = False
         self.save()
 
+    def save_data(self, keyname, value):
+        self.data[keyname] = force_convert(value)
+
     def decide(self):
         self.add_line("__decide() starting")
         if self.N is None and self.O is None and self.R is None and self.return_bool is not None:
@@ -903,7 +937,7 @@ class BoutPlanningDecision(models.Model):
 
     def __get_decision_point_index(self):
         user_local_time = self.__get_user_local_time()
-        self.data['user_local_time'] = force_str(user_local_time)
+        self.save_data('user_local_time', user_local_time)
         first_bout_planning_time_obj = FirstBoutPlanningTime.get(self.user)
         diff_in_minutes = (user_local_time.hour * 60 + user_local_time.minute
                            ) - first_bout_planning_time_obj.hour * 60
@@ -1059,13 +1093,13 @@ class BoutPlanningDecision(models.Model):
         decision_point_index = self.__get_decision_point_index()
 
         first_bout_planning_time = FirstBoutPlanningTime.get(self.user).hour
-        self.data['first_bout_planning_time'] = first_bout_planning_time
+        self.save_data('first_bout_planning_time', first_bout_planning_time)
 
         start_index = int(
             (first_bout_planning_time + decision_point_index * 3) * 60)
-        self.data['start_index'] = start_index
+        self.save_data('start_index', start_index)
         finish_index = start_index + 180
-        self.data['finish_index'] = finish_index
+        self.save_data('finish_index', finish_index)
 
         # 1. padding with zeros, reorganizing overlapped step data
         # sometimes, Fitbit overlapses/jump minute step data when the timezone changes

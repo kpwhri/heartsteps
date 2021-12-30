@@ -1,4 +1,3 @@
-import json
 import datetime
 import os
 import shutil
@@ -72,7 +71,10 @@ def force_convert(obj):
     elif isinstance(obj, datetime.date):
         return '"{}"'.format(obj.strftime("%Y-%m-%d"))
     elif isinstance(obj, dict):
-        return '"{}"'.format(json.dumps(obj))
+        str_list = []
+        for key, val in obj.items():
+            str_list.append('"{}": {}'.format(key, force_convert(val)))
+        return '{{}}'.format(", ".join(str_list))
     elif isinstance(obj, list):
         return '"{}"'.format(str([force_convert(x) for x in obj]))
     else:
