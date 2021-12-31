@@ -395,7 +395,7 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                         [CohortAssignment])
                     context["results"] = self.prettyprint(objlist)
                 elif generic_command == 'view_schedulers':
-                    lines = self.dev_service.view_schedulers(fix=False)
+                    lines = self.dev_service.view_schedulers()
                     context["results"] = "\n".join(lines)
                 elif generic_command == 'fix_schedulers':
                     lines = self.dev_service.fix_schedulers(fix=True)
