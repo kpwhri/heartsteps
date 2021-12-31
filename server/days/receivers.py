@@ -27,9 +27,7 @@ def update_timezone_from_fitbit(sender, instance, *args, **kwargs):
         day, _ = Day.objects.update_or_create(
             user = user,
             date = instance.date,
-            defaults = {
-                "timezone": instance._timezone
-            }
+            timezone = instance._timezone
         )
 
         day_service = DayService(user=user)
