@@ -53,11 +53,10 @@ class FitbitDayService(FitbitService):
         current_timezone = self.day.get_timezone()
         new_timezone = self.__client.get_timezone()
         EventLog.debug(None, "[FitbitAccount {}] Check timezone change: {} -> {}".format(self.account, current_timezone, new_timezone))
-        if (current_timezone != new_timezone):
+        if (current_timezone.zone != new_timezone.zone):
             EventLog.debug(None, "[FitbitAccount {}] Timezone update: {} -> {}".format(self.account, current_timezone, new_timezone))
-            self.day._timezone = new_timezone
+            self.day._timezone = new_timezone.zone
             self.day.save()
-            
         self.day.step_count = self.update_steps()
         self.day._distance = self.update_distance()
         self.update_heart_rate()
@@ -162,6 +161,7 @@ class FitbitDayService(FitbitService):
             })
         return processed_data
 
+        
     def update_steps(self):
         data = self.__client.get_steps(self.date)
         self._save_unprocessed_data('steps', data)
