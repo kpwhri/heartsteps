@@ -22,9 +22,23 @@ RUN mkdir /usr/local/android-sdk && \
 ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 # Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get update && \ 
-    apt-get install -y nodejs npm
+ENV NVM_DIR /root/.nvm
+ENV NODE_VERSION 10
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
+
+RUN apt-get update && \
+    apt-get install -y npm
+# RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+#     apt-get update && \ 
+#     apt-get install -y nodejs npm
 
 RUN npm install cordova @ionic/cli sass -g
 
