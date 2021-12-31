@@ -9,9 +9,7 @@ from .models import DailyTask
 
 @receiver(timezone_updated, sender=User)
 def timezone_updated_receiver(sender, username, **kwargs):
-    user = User.objects.get(username=username)
-    EventLog.debug(user, 'timezone_updated_receiver')
-    for daily_task in DailyTask.objects.filter(user=user).all():
+    for daily_task in DailyTask.objects.filter(user__username=username).all():
         daily_task.update_timezone()
 
 @receiver(post_delete, sender=DailyTask)
