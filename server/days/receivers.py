@@ -28,7 +28,7 @@ def update_timezone_from_fitbit(sender, instance, *args, **kwargs):
             user = user,
             date = instance.date,
             defaults = {
-                "timezone" = instance._timezone
+                "timezone": instance._timezone
             }
         )
 
