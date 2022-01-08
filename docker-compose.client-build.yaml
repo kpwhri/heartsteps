@@ -18,7 +18,7 @@ services:
       - credentials/.env-production
     environment: 
       - BUILD_PLATFORM=android
-      - BUILD_VERSION=2.2.4
+      - BUILD_VERSION=2.3.2
       - HEARTSTEPS_URL=https://dev.heartsteps.net/api
     volumes:
       - ./client:/client

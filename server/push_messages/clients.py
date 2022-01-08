@@ -147,8 +147,9 @@ class OneSignalClient(ClientBase):
             response_data = response.json()
             EventLog.debug(self.user, pprint.pformat(response_data))
             if 'errors' in response_data and response_data['errors'] and len(response_data['errors']) > 0:
-                EventLog.debug(self.user, response_data['errors'][0])
-                raise self.MessageSendError(response_data['errors'][0])
+                error_msg = "error: {}".format(response_data)
+                EventLog.debug(self.user, error_msg)
+                raise self.MessageSendError(error_msg)
             return response_data['id']
         else:
             EventLog.debug(self.user)
