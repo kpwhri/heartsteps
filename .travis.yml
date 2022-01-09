@@ -11,12 +11,13 @@ install:
 - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 - sudo apt-get update && sudo apt-get install google-cloud-sdk kubectl
 before_script:
-- openssl aes-256-cbc -K $justwalk_enc_key -iv $justwalk_enc_iv -in justwalk.env.enc -out justwalk.env -d
+- openssl aes-256-cbc -K $justwalk_enc_key -iv $justwalk_enc_iv -in justwalk_credentials.tar.enc -out justwalk_credentials.tar -d
+- tar xvf justwalk_credentials.tar
 - openssl aes-256-cbc -K $encrypted_54891cbed47a_key -iv $encrypted_54891cbed47a_iv
   -in credentials.tar.enc -out credentials.tar -d
 - tar xvf credentials.tar
 - ls -la credentials
-- cp justwalk.env credentials/
+- cp justwalk_credentials/* credentials/
 - echo $docker_password | docker login --username jup014 --password-stdin
 - docker system prune -af
 - docker volume prune -f
@@ -31,6 +32,7 @@ after_success:
 - chmod +x gcloud-dev-deploy.sh
 - chmod +x kpwhri-deploy.sh
 - if [ "$TRAVIS_BRANCH" == "master" ]; then ./gcloud-dev-deploy.sh; fi
+- if [ "$TRAVIS_BRANCH" == "justwalk" ]; then ./justwalk-deploy.sh; fi
 notifications:
   slack:
     secure: ekhWgoZ1rYh3qOfyB2LrcYmWGtsF+MOvetWr6JXyDiHQGINdrWfrYoqQeVUkXTYYvYFU0tse4Znuw0eTeZMDRdKAgmLRGNZlKDt/hHNm/VtVFlwOoVbeawxiHzPsy0hIzyQntGCQ5c3APX3Zfn+VmtLXuKmqshg9AE8xeaQGq6Tt8RS9Bcyl+xO4o7lrgKHoHr/tKSe3FnH/9oxhf+w/sM6gKkXTL25jvHy4kWsfWXYt3nCV+VFPlvJ0rUuAMZjm4okEVxdDaHJB0VpXdxozAUObQWPrBXWkQEz7IKPaiTWeyXeJQgzYnzU3Mdz43rJuWgQTB3ESL7H7cR112hf1AoPFXMm10TyFX0MG6PiXHxNCozOpdP6nPFz8Dyx/5GYY9Ns29/qy24FyQE7KzlpvAyLvPLu+K6wpuGInyc9f52uGkkuJ8D4ATkQKXh6M3cXTusl2LO5kXiNzkoZbuG7CDoAN0QUItIi7zuNGK/O3Y2GG4zF7xtmhwPsi3DJAuBbhmugD9M2BsIXxtxjm1FtBDnKV19JuZY8xY5R2ubgIocUnPNFDIWMSl1ucmnFL5NFF/NV1uHrgsxbr5yqOi5kGtjJ6qgKD9bV8DQWm6J9QNcQPlJ6S/0n5vJ82dm9PmtMJUVmcN2YPTgbrn5plEb1F5BplF7VkFt54Q0xqEWcU6P4=
