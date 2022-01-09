@@ -85,3 +85,6 @@ client/*.apk
 client/*.aab
 
 justwalk_secrets/
+justwalk_credentials.tar
+
+justwalk_credentials/

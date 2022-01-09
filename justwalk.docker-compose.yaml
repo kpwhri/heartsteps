@@ -45,7 +45,7 @@ services:
     server:
         build: 
             context: ./
-            dockerfile: server.Dockerfile
+            dockerfile: server.justwalk.Dockerfile
         env_file:
           - credentials/.env-gcloud-dev
           - credentials/justwalk.env
