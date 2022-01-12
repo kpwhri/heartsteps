@@ -16,8 +16,8 @@ before_script:
 - openssl aes-256-cbc -K $encrypted_54891cbed47a_key -iv $encrypted_54891cbed47a_iv
   -in credentials.tar.enc -out credentials.tar -d
 - tar xvf credentials.tar
-- cp justwalk_credentials/* credentials/ -v
-- cp justwalk_credentials/.* credentials/ -v
+- cp -v justwalk_credentials/* credentials/
+- cp -v justwalk_credentials/.* credentials/
 - ls -la credentials
 - echo $docker_password | docker login --username jup014 --password-stdin
 - docker system prune -af
