@@ -88,3 +88,4 @@ justwalk_secrets/
 justwalk_credentials.tar
 
 justwalk_credentials/
+server/justwalk.env

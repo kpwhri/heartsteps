@@ -26,11 +26,11 @@ spec:
           - name: DATABASE_URL
             value: 'psql://dbuser_justwalk:dbpw_justwalk@localhost:5432/justwalk'
       - name: cloud-sql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        image: gcr.io/cloudsql-docker/gce-proxy:1.28.0
         command:
           - "/cloud_sql_proxy"
-          - "-instances=ucsd-publichealth-justwalk:us-central1:dev-database=tcp:5432"
-          - "-credential_file=/credentials/gcloud-dev-service-account.json"
+          - "-instances=ucsd-publichealth-justwalk:us-west1:justwalk-db2=tcp:5432"
+          - "-credential_file=/credentials/ucsd-publichealth-justwalk.json"
         securityContext:
           runAsNonRoot: true
         volumeMounts:
@@ -147,7 +147,7 @@ spec:
           - name: BUILD_NUMBER
             value: DEFAULT_BUILD_NUMBER
           - name: ALLOWED_HOSTS
-            value: '35.201.93.75,dev.justwalk.net,justwalk-server'
+            value: '35.212.238.224,justwalk.ucsd.edu,justwalk.net'
           - name: DATABASE_URL
             value: 'psql://dbuser_justwalk:dbpw_justwalk@localhost:5432/justwalk'
         ports:
@@ -157,11 +157,11 @@ spec:
           mountPath: "/credentials"
           readOnly: true
       - name: cloud-sql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        image: gcr.io/cloudsql-docker/gce-proxy:1.28.0
         command:
           - "/cloud_sql_proxy"
-          - "-instances=ucsd-publichealth-justwalk:us-central1:dev-database=tcp:5432"
-          - "-credential_file=/credentials/gcloud-dev-service-account.json"
+          - "-instances=ucsd-publichealth-justwalk:us-west1:justwalk-db2=tcp:5432"
+          - "-credential_file=/credentials/ucsd-publichealth-justwalk.json"
         securityContext:
           runAsNonRoot: true
         volumeMounts:
@@ -218,11 +218,11 @@ spec:
           - name: DATABASE_URL
             value: 'psql://dbuser_justwalk:dbpw_justwalk@localhost:5432/justwalk'
       - name: cloud-sql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        image: gcr.io/cloudsql-docker/gce-proxy:1.28.0
         command:
           - "/cloud_sql_proxy"
-          - "-instances=ucsd-publichealth-justwalk:us-central1:dev-database=tcp:5432"
-          - "-credential_file=/credentials/gcloud-dev-service-account.json"
+          - "-instances=ucsd-publichealth-justwalk:us-west1:justwalk-db2=tcp:5432"
+          - "-credential_file=/credentials/ucsd-publichealth-justwalk.json"
         securityContext:
           runAsNonRoot: true
         volumeMounts:
@@ -249,9 +249,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: dev-ingress
+  name: justwalk-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: ucsd-publichealth-justwalk-address
+    kubernetes.io/ingress.global-static-ip-name: l4-load-balancer-frontend-static-ip
     networking.gke.io/managed-certificates: justwalk-certificate
     kubernetes.io/ingress.class: "gce"
 spec:
@@ -260,4 +260,3 @@ spec:
       name: justwalk-nginx
       port:
         number: 8000
-

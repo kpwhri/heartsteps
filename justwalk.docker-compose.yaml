@@ -5,7 +5,7 @@ services:
             context: ./
             dockerfile: client.Dockerfile
         env_file:
-          - credentials/.env-gcloud-dev
+          - credentials/.env-justwalk
         command: npm run serve:app
         volumes:
             - ./client:/client
@@ -32,6 +32,7 @@ services:
         build: 
             context: ./
             dockerfile: justwalk-nginx.Dockerfile
+        image: gcr.io/ucsd-publichealth-justwalk/justwalk-nginx
         volumes:
             - ./justwalk-nginx.conf:/etc/nginx/nginx.conf
         ports:
@@ -46,6 +47,7 @@ services:
         build: 
             context: ./
             dockerfile: server.justwalk.Dockerfile
+        image: gcr.io/ucsd-publichealth-justwalk/justwalk-server
         env_file:
           - credentials/.env-gcloud-dev
           - credentials/justwalk.env
