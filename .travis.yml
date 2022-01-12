@@ -17,7 +17,7 @@ before_script:
   -in credentials.tar.enc -out credentials.tar -d
 - tar xvf credentials.tar
 - ls -la credentials
-- cp justwalk_credentials/* credentials/
+- cp justwalk_credentials/* credentials/ -v
 - echo $docker_password | docker login --username jup014 --password-stdin
 - docker system prune -af
 - docker volume prune -f
