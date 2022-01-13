@@ -7,7 +7,7 @@ from django.test import TestCase
 from heartsteps.tests import HeartStepsTestCase
 
 from .services import StepGoalsService
-from .models import User, StepGoalPRBScsv
+from .models import User
 
 from participants.models import Study, Cohort, Participant
 
@@ -24,12 +24,6 @@ class ModelStepGoalsPRBScsv(TestCase):
     def tearDown(self):
         self.user.delete()
     
-    def test_PRBS_1(self):
-        StepGoalPRBScsv.objects.create(cohort=self.cohort, PRBS_text='0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0')
-        prbs_list = StepGoalPRBScsv.get_seq(self.cohort)
-        
-        self.assertEqual(prbs_list, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-
 def create_walk_data(user, start_date, steps):
     for step_index, step in enumerate(steps):
         if step:

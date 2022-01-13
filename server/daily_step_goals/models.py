@@ -43,36 +43,62 @@ class StepGoalsEvidence(models.Model):
     freetext = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
-class StepGoalPRBScsv(models.Model):
-    cohort = models.ForeignKey(Cohort,
-                               null=True,
-                               blank=True,
-                               on_delete=models.CASCADE)
-    PRBS_text = models.TextField(blank=True, null=True)
-    when_created = models.DateTimeField(auto_now_add=True,
-                                        null=True,
-                                        blank=True)
-    delimiter = models.CharField(max_length=10, default=",")
 
-    def get_seq(cohort):
-        query = StepGoalPRBScsv.objects.filter(
-            cohort=cohort).order_by("-when_created")
 
+
+
+
+class StepGoalSequence(models.Model):
+    cohort = models.ForeignKey(Cohort, on_delete=models.SET_NULL, null=True)
+    order = models.IntegerField(null=True)
+    is_used = models.BooleanField(default=False)
+    when_created = models.DateTimeField(auto_now_add=True)
+    when_used = models.DateTimeField(default=None, null=True)
+    sequence_text = models.TextField(default="0.3,0.4,0.5,0.6,0.7,0.8,0.9")
+    
+    def create(cohort, order=None, sequence_text=None):
+        query = StepGoalSequence.objects.filter(cohort=cohort)
+        
         if query.exists():
-            obj = query.first()
-
-            return_list = obj.PRBS_text.split(sep=obj.delimiter)
-            return [float(x.strip()) for x in return_list]
+            count = query.count()
         else:
-            StepGoalPRBScsv.insert_default(cohort)
-            return StepGoalPRBScsv.get_seq(cohort)
+            count = 0
+        
+        if sequence_text is None:
+            return StepGoalSequence.objects.create(cohort=cohort,
+                                            order=(order if order is not None else (count + 1)))
+        else:
+            return StepGoalSequence.objects.create(cohort=cohort,
+                                            order=(order if order is not None else (count + 1)),
+                                            sequence_text=sequence_text)
 
-    def insert_default(cohort):
-        StepGoalPRBScsv.objects.create(
-            cohort=cohort,
-            PRBS_text=
-            '0.3, 0.4, 0.5, 0.3, 0.4, 0.5'
-        )
+class StepGoalSequenceBlock(models.Model):
+    cohort = models.OneToOneField(Cohort, on_delete=models.DO_NOTHING, null=True)
+    seq_block = models.TextField(null=True, default=None)
+    when_created = models.DateTimeField(auto_now_add=True)
+    when_used = models.DateTimeField(null=True, default=None)
+
+class StepGoalSequence_User(models.Model):
+    user = models.OneToOneField(User, on_delete = models.DO_NOTHING)
+    step_goal_sequence = models.OneToOneField(StepGoalSequence, on_delete=models.DO_NOTHING)
+    assigned = models.DateTimeField(auto_now_add=True)
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class StepGoal(models.Model):

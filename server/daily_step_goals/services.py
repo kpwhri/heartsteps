@@ -1,14 +1,15 @@
+import datetime
 import operator
 import csv
 from django.core.exceptions import ImproperlyConfigured
 from statistics import median
 
 from daily_step_goals.tasks import update_goal
-from .models import StepGoal, StepGoalCalculationSettings, StepGoalsEvidence
+from .models import StepGoal, StepGoalCalculationSettings, StepGoalSequence, StepGoalSequence_User, StepGoalSequenceBlock, StepGoalsEvidence
 # from activity_summaries.models import Day as ActivitySummaryDay
 import activity_summaries.models
 
-from .models import User, StepGoalPRBScsv
+from .models import User
 from user_event_logs.models import EventLog
 from days.services import DayService
 from participants.models import Participant
@@ -29,10 +30,39 @@ class StepGoalsService:
         self.participant = Participant.objects.get(user=self.user)
         self.cohort = self.participant.cohort
 
+    def get_seq(self):
+        cohort = self.cohort
+        
+        default_seq = [0.3,0.4,0.5,0.6,0.7]
+        
+        if StepGoalSequenceBlock.objects.filter(cohort=cohort, when_used=None).exists():
+            if StepGoalSequence_User.objects.filter(user=self.user).exists():
+                sgsu = StepGoalSequence_User.objects.get(user=self.user)
+                sgs = sgsu.step_goal_sequence
+                return list(sgs.sequence_text.split(','))
+            else:
+                if not StepGoalSequence.objects.filter(cohort=cohort, is_used=False).exists():
+                    # if there is no assigned StepGoalSequence
+                    sgsb = StepGoalSequenceBlock.objects.filter(cohort=cohort, when_used=None).order_by('created').first()
+                    
+                    lines = sgsb.seq_block.split('\n')
+                    
+                    for index, line in lines.enumerate():
+                        StepGoalSequence.objects.create(cohort=cohort, order=index + 1, sequence_text=line)
+                        
+                new_sequence = StepGoalSequence.objects.filter(cohort=cohort, is_used=False).order_by("order").first()
+                new_sequence.is_used = True
+                new_sequence.when_used = datetime.datetime.now()
+                new_sequence.save()
+                return list(new_sequence.sequence_text.split(','))    
+        else:
+            # if no seq block is set in db, use the default sequence
+            EventLog.debug(self.user, "No StepGoalSequenceBlock is set in db. Using the default sequence: {}".format(default_seq))
+            return default_seq
 
     def calculate_step_goals(self, startdate):
         # collecting evidences
-        seq = StepGoalPRBScsv.get_seq(self.cohort)
+        seq = self.get_seq()
         sgc_settings = StepGoalCalculationSettings.get(self.cohort)
         
         length = len(seq)
