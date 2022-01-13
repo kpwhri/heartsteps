@@ -83,3 +83,9 @@ dev-credentials/gcloud-dev-service-account.json
 dev-credentials.tar.gpg
 client/*.apk
 client/*.aab
+
+justwalk_secrets/
+justwalk_credentials.tar
+
+justwalk_credentials/
+server/justwalk.env

@@ -1,0 +1,71 @@
+version: '2'
+services:
+    client:
+        build: 
+            context: ./
+            dockerfile: client.Dockerfile
+        env_file:
+          - credentials/justwalk.env
+        command: npm run serve:app
+        volumes:
+            - ./client:/client
+            - ./credentials:/credentials
+            - client-platforms:/client/platforms
+            - client-node-modules:/client/node_modules
+            - client-gradle-cache:/root/.gradle/caches
+        ports:
+          - "8100:8100"
+          - "35729:35729"
+          - "53703:53703"
+        depends_on:
+          - cloudsql
+          - rabbitmq
+          - server
+    cloudsql:
+        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        command: /cloud_sql_proxy -dir=/cloudsql -instances=ucsd-publichealth-justwalk:us-west1:justwalk-db2=tcp:0.0.0.0:5432 -credential_file=/credentials/ucsd-publichealth-justwalk.json
+        ports:
+            - 5432:5432
+        volumes:
+            - ./credentials:/credentials
+    nginx:
+        build: 
+            context: ./
+            dockerfile: justwalk-nginx.Dockerfile
+        image: gcr.io/ucsd-publichealth-justwalk/justwalk-nginx
+        volumes:
+            - ./justwalk-nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - "8000:8000"
+        depends_on:
+            - server
+    rabbitmq:
+        extends:
+            file: docker-compose.yaml
+            service: rabbitmq
+    server:
+        build: 
+            context: ./
+            dockerfile: server.justwalk.Dockerfile
+        image: gcr.io/ucsd-publichealth-justwalk/justwalk-server
+        env_file:
+          - credentials/.env-gcloud-dev
+          - credentials/justwalk.env
+        environment:
+            - ALLOWED_HOSTS=localhost,server
+            - DEBUG=True
+            - DATABASE_URL=psql://dbuser_justwalk:dbpw_justwalk@cloudsql:5432/justwalk
+        depends_on:
+            - cloudsql
+            - rabbitmq
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./server:/server
+            - ./credentials:/credentials
+        working_dir: /server
+volumes: 
+    cloudsql:
+    client-platforms:
+    client-node-modules:
+    client-gradle-cache:

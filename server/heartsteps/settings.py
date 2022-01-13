@@ -246,6 +246,7 @@ WSGI_APPLICATION = 'heartsteps.wsgi.application'
 DATABASES = {
     'default': env.db(),
 }
+DATABASES['default']['CONN_MAX_AGE'] = None
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
