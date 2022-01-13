@@ -24,7 +24,8 @@ admin.site.register(StepGoalSequence, StepGoalSequenceAdmin)
 
 class StepGoalSequence_UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'step_goal_sequence', 'assigned']
-    fields = ['user', 'step_goal_sequence', 'assigned']
+    fields = ['user', 'step_goal_sequence']
+    readonly_fields = ['assigned']
 
 admin.site.register(StepGoalSequence_User, StepGoalSequence_UserAdmin)
 
