@@ -61,6 +61,10 @@ class HeartStepsTestCase(TestCase):
             user = self.user,
             active=True
         )
+        
+        self.user2 = User.objects.create(username="user2")
+        self.participant2 = Participant.objects.create(user=self.user2, cohort=self.cohort, study_start_date=self.participant.study_start_date)
+            
 
     def list_all(self, list_class, msg_index):
         for index, item in enumerate(list_class):
@@ -69,6 +73,7 @@ class HeartStepsTestCase(TestCase):
             
     def tearDown(self):
         self.user.delete()
+        self.user2.delete()
         ActivitySummary.objects.all().delete()
         self.study.delete()
         

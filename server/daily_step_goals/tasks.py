@@ -14,7 +14,7 @@ import fitbit_api.services
 from days.services import DayService
 
 @shared_task
-def update_goal(username):
+def update_goal(username, day=None):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     
     user = User.objects.get(username=username)
@@ -22,9 +22,11 @@ def update_goal(username):
     enrollment_date = participant.study_start_date
     day_service = DayService(user)
     today = day_service.get_current_date()
+    if day is None:
+        day = today
 
     stepgoal_service = daily_step_goals.services.StepGoalsService(user)
-    query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=today, enddate__gte=today).order_by('-created')
+    query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
     
     if not query.exists():
         # no calculation evidence is found
@@ -35,14 +37,15 @@ def update_goal(username):
         else:
             # some evidence is found
             last_evidence = last_evidence_query.first()
-            if last_evidence.enddate > today:
+            if last_evidence.enddate > day:
                 # calculation is completely wrong. re-calculating from the start
                 enrollment_date = participant.study_start_date
                 startdate = enrollment_date
             else:
                 # calculation stopped sometime before
                 startdate = last_evidence.enddate + timedelta(days=1)            
-        while startdate <= today:
+        
+        while startdate <= day:
             evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
             startdate = evidence.enddate + timedelta(days=1)
     else:
@@ -52,7 +55,7 @@ def update_goal(username):
         startdate = evidence_for_today.startdate
         
         stepgoal_service.calculate_step_goals(startdate=startdate)
-    step_goal = stepgoal_service.get_goal(today)
+    step_goal = stepgoal_service.get_goal(day)
     
     
     update_fitbit_device_with_new_goal(user, step_goal)

@@ -73,14 +73,14 @@ class StepGoalSequence(models.Model):
                                             sequence_text=sequence_text)
 
 class StepGoalSequenceBlock(models.Model):
-    cohort = models.OneToOneField(Cohort, on_delete=models.DO_NOTHING, null=True)
+    cohort = models.OneToOneField(Cohort, on_delete=models.CASCADE, null=True)
     seq_block = models.TextField(null=True, default=None)
     when_created = models.DateTimeField(auto_now_add=True)
     when_used = models.DateTimeField(null=True, default=None)
 
 class StepGoalSequence_User(models.Model):
-    user = models.OneToOneField(User, on_delete = models.DO_NOTHING)
-    step_goal_sequence = models.OneToOneField(StepGoalSequence, on_delete=models.DO_NOTHING)
+    user = models.OneToOneField(User, on_delete = models.CASCADE)
+    step_goal_sequence = models.OneToOneField(StepGoalSequence, on_delete=models.CASCADE)
     assigned = models.DateTimeField(auto_now_add=True)
     
     
