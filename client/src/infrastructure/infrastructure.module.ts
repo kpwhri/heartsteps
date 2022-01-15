@@ -14,6 +14,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { DocumentStorageService } from './document-storage.service';
 import { DateFactory } from './date.factory';
 
+import { AppStatusService, APP_STATUS } from './app-status.service';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { DateFactory } from './date.factory';
       BrowserService,
       InAppBrowser,
       ChoiceDialogController,
-      AlertDialogController
+      AlertDialogController,
+      AppStatusService
   ],
   exports: [
     HeartstepsRangeComponent

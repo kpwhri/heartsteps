@@ -38,6 +38,7 @@ export class FeatureFlagService {
 
     // returns current flags in string form
     public getFeatureFlagList(): string[] {
+        
         // console.log("FF: getFeatureFlags()");
         if (this.featureFlags.value.flags) {
             // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false

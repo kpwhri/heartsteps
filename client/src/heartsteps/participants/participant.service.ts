@@ -28,15 +28,19 @@ export class ParticipantService {
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
         private contactInformationService: ContactInformationService
-    ) {}
+    ) {
+        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'constructor()');
+    }
 
     public get():Promise<Participant> {
         return this.getParticipant()
         .then((participant) => {
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'participant=', participant);
             this.participant.next(participant);
             return participant;
         })
         .catch((error) => {
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'error=', error);
             this.participant.next(undefined);
             return Promise.reject(error);
         });
@@ -56,6 +60,7 @@ export class ParticipantService {
             return this.getParticipant()
         })
         .then((participant) => {
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'participant=', participant);
             this.participant.next(participant);
         })
         .catch(() => {

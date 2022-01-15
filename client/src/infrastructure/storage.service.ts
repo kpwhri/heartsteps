@@ -3,7 +3,9 @@ import { Storage } from "@ionic/storage";
 
 @Injectable()
 export class StorageService {
-    constructor(private storage: Storage) {}
+    constructor(private storage: Storage) {
+        console.log("src", "infrastructure", "storage.service.ts", "StorageService", "constructor()");
+    }
 
     public get(key: string): Promise<any> {
         return this.storage.get(key).then((data: any) => {

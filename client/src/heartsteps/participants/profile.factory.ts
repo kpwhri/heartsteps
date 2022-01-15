@@ -35,7 +35,9 @@ export class ProfileService {
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService,
         private participantInformationService: ParticipantInformationService
-    ) { }
+    ) { 
+        console.log("src", "heartsteps", "participants", "profile.service.ts", "ProfileService", "constructor()");
+    }
 
     public isComplete(): Promise<boolean> {
         console.log("ProfileService.isComplete() point 1");
@@ -171,17 +173,28 @@ export class ProfileService {
     }
 
     private checkFirstBoutPlanningTime(): Promise<boolean> {
-        if (this.featureFlagService.hasFlag("bout_planning")) {
-            return this.firstBoutPlanningTimeService.getTime()
-                .then(() => {
-                    return true;
-                })
-                .catch(() => {
-                    return Promise.resolve(false);
-                })
-        } else {
-            return Promise.resolve(undefined);
-        }
+        return this.featureFlagService.refreshFeatureFlags()
+            .then(() => {
+                if (this.featureFlagService.hasFlag("bout_planning")) {
+                    return this.firstBoutPlanningTimeService.getTime()
+                        .then(() => {
+                            return Promise.resolve(true);
+                        })
+                        .catch(() => {
+                            console.log("firstBoutPlanningTimeService.getTime().catch()");
+                            return Promise.resolve(false);
+                        });
+                } else {
+                    console.log("this.featureFlagService.hasFlag(bout_planning)=false");
+                    console.log("List of the feature flags of current user:", this.featureFlagService.getFeatureFlagList());
+                    return Promise.resolve(undefined);
+                }
+            })
+            .catch((error) => {
+                console.log("Error refreshing feature flags:", error);
+                return Promise.reject("Error refreshing feature flags");
+            });
+        
     }
 
     private loadReflectionTime(): Promise<boolean> {
