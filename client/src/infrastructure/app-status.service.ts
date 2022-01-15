@@ -5,7 +5,7 @@ export const APP_STATUS = {
     AUTHENTICATED: "AUTHENTICATED",
     NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
     UNKNWON: "UNKNOWN"
-} as const;
+};
 
 @Injectable()
 export class AppStatusService {
