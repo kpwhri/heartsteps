@@ -16,10 +16,10 @@ export class AppStatusService {
 
     public getStatus(): Promise<string> {
         return this.heartstepsServer.get('app-status')
-            .then((result) => {
-                if (result == 'authenticated') {
+            .then((data) => {
+                if (data['status'] == 'authenticated') {
                     return Promise.resolve(APP_STATUS.AUTHENTICATED);
-                } else if (result == 'not authenticated') {
+                } else if (data['status'] == 'not authenticated') {
                     return Promise.resolve(APP_STATUS.NOT_AUTHENTICATED);
                 }
             })

@@ -6,10 +6,10 @@ class AppStatusAPIView(APIView):
     def get(self, request):
         if request.user:
             if request.user.is_authenticated:
-                return Response('authenticated', status=status.HTTP_200_OK)
+                return Response({'status': 'authenticated'}, status=status.HTTP_200_OK)
             else:
-                return Response('not authenticated', status=status.HTTP_200_OK)
+                return Response({'status': 'not authenticated'}, status=status.HTTP_200_OK)
         else:
-            return Response('not authenticated', status=status.HTTP_200_OK)
+            return Response({'status': 'not authenticated'}, status=status.HTTP_200_OK)
         
         
