@@ -11,13 +11,13 @@ export class StudyContactInformation {
 
 @Injectable()
 export class ParticipantInformationService {
-
     constructor(
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService
     ) {}
 
     public load(): Promise<boolean> {
+        console.log('Loading participant information');
         return this.heartstepsServer.get('information')
             .then((data) => {
                 console.log("ParticipantInformationService.load()", JSON.stringify(data))
@@ -26,8 +26,7 @@ export class ParticipantInformationService {
                 this.setStaff(data['staff']),
                 this.setBaselinePeriod(data['baselinePeriod']),
                 this.setStudyContactInformation(data['studyContactName'], data['studyContactNumber']),
-                this.setBaselineComplete(data['baselineComplete']),
-                this.setParticipantTags(data['participantTags'])
+                this.setBaselineComplete(data['baselineComplete'])
             ])
         })
         .then(() => {
@@ -135,18 +134,5 @@ export class ParticipantInformationService {
         .catch(() => {
             return false;
         });
-    }
-    private setParticipantTags(participantTags: string[]): Promise<boolean> {
-        return this.storage.set('participantTags', participantTags)
-        .then(() => {
-            return true;
-        });
-    }
-
-    public getParticipantTags():Promise<string[]> {
-        return this.load()
-                .then(() => {
-                    return this.storage.get('participantTags');
-                })       
     }
 }

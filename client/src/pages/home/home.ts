@@ -9,7 +9,6 @@ import { Router, RouterEvent, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
-import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 class Tab {
@@ -37,9 +36,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     private unreadStatusSubscription: Subscription;
     public haveUnread: boolean = true;
-    private featureFlagSubscription: Subscription;
-    public featureFlags: FeatureFlags;
-
+    
     private offlineStatusSubscription: Subscription;
     public offlineStatus: boolean = false;
 
@@ -93,11 +90,6 @@ export class HomePage implements OnInit, OnDestroy {
                 (offlineStatus) => (this.offlineStatus = offlineStatus)
             );
 
-        this.featureFlagSubscription =
-            this.featureFlagService.currentFeatureFlags.subscribe(
-                (flags) => (this.featureFlags = flags)
-            );
-
         this.notificationCenterService.refreshNotifications();
     }
 
@@ -106,7 +98,6 @@ export class HomePage implements OnInit, OnDestroy {
         this.updatingParticipantSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();
         this.offlineStatusSubscription.unsubscribe();
-        this.featureFlagSubscription.unsubscribe();
     }
 
     private updateFromUrl(url: string) {
@@ -141,11 +132,5 @@ export class HomePage implements OnInit, OnDestroy {
                 reject("No matching tab");
             }
         });
-    }
-
-    // TODO: IMPORTANT MAKE CALLS WAY LESS FREQUENTLY
-    public notificationCenterFlag(): boolean {
-        // console.log("home.ts notification center flag called");
-        return this.featureFlagService.hasFlag("notification_center");
     }
 }

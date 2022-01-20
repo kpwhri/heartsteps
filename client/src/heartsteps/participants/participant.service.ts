@@ -4,6 +4,7 @@ import { StorageService } from "@infrastructure/storage.service";
 import { ParticipantInformationService } from "./participant-information.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReplaySubject, BehaviorSubject } from "rxjs";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 export class Participant{
     dateEnrolled: Date;
@@ -12,7 +13,6 @@ export class Participant{
     isBaselineComplete: boolean;
     name: string;
     staff: boolean;
-    participantTags: string[];
 }
 
 const storageKey = 'heartsteps-id'
@@ -27,7 +27,8 @@ export class ParticipantService {
         private storage:StorageService,
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
-        private contactInformationService: ContactInformationService
+        private contactInformationService: ContactInformationService,
+        private featureFlagsService: FeatureFlagService
     ) {
         console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'constructor()');
     }
@@ -79,8 +80,7 @@ export class ParticipantService {
             this.getName(),
             this.participantInformationService.getDateEnrolled(),
             this.getBaselineComplete(),
-            this.getParticipantLoaded(),
-            this.getParticipantTags()
+            this.getParticipantLoaded()
         ])
         .then((results) => {
             const participant = new Participant();
@@ -90,8 +90,6 @@ export class ParticipantService {
             participant.dateEnrolled = results[3];
             participant.isBaselineComplete = results[4];
             participant.isLoaded = results[5];
-            participant.participantTags = results[6];
-            // participant.participantTags = ["NLM", "TEST"];
             return participant
         });
     }
@@ -243,16 +241,5 @@ export class ParticipantService {
 
     public markParticipantNotLoaded(): Promise<void> {
         return this.storage.remove('participant-loaded');
-    }
-
-    private getParticipantTags(): Promise<string[]> {
-        return this.participantInformationService.getParticipantTags()
-        .then((participantTags:string[]) => {
-            return Promise.resolve(participantTags);
-        })
-        .catch(() => {
-            return Promise.resolve([]);
-        })
-
     }
 }
