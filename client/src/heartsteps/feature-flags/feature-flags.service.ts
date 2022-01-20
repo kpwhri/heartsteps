@@ -68,9 +68,6 @@ export class FeatureFlagService {
                 } else {
                     return Promise.resolve(false);
                 }
-
-
-                return flags.hasFlag(flag);
             });
     }
 

@@ -6,6 +6,7 @@ import { Platform } from "ionic-angular";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
 import { AnchorMessageService } from "@heartsteps/anchor-message/anchor-message.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { Subscription } from "rxjs";
 
 @Component({
     templateUrl: "dashboard.page.html",
@@ -19,6 +20,8 @@ export class DashboardPage implements OnDestroy {
 
     public anchorMessage: string;
     public featureFlags: FeatureFlags;
+
+    private resumeSubscription: Subscription;
 
     constructor(
         private anchorMessageService: AnchorMessageService,
