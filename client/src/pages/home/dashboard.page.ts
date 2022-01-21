@@ -7,6 +7,8 @@ import { CurrentWeekService } from "@heartsteps/current-week/current-week.servic
 import { AnchorMessageService } from "@heartsteps/anchor-message/anchor-message.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { Subscription } from "rxjs";
+import { skip } from "rxjs/operators";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 @Component({
     templateUrl: "dashboard.page.html",
@@ -22,11 +24,13 @@ export class DashboardPage implements OnDestroy {
     public featureFlags: FeatureFlags;
 
     private resumeSubscription: Subscription;
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private anchorMessageService: AnchorMessageService,
         private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService,
+        private featureFlagService: FeatureFlagService,
         private platform: Platform
     ) {
         this.today = new Date();
@@ -47,6 +51,10 @@ export class DashboardPage implements OnDestroy {
         this.update();
     }
 
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlagNP(flag);
+    }
+
     public update() {
         this.updateAnchorMessage();
         this.dailySummaryService.updateCurrentWeek();
@@ -64,8 +72,18 @@ export class DashboardPage implements OnDestroy {
     }
 
     ngOnInit() {
+        this.featureFlagSubscription =
+        this.featureFlagService.currentFeatureFlags
+            .pipe(skip(1))
+            .subscribe((flags) => (this.featureFlags = flags));
     }
 
     ngOnDestroy() {
+        if (this.resumeSubscription) {
+            this.resumeSubscription.unsubscribe();
+        }
+        if (this.featureFlagSubscription) {
+            this.featureFlagSubscription.unsubscribe();
+        }
     }
 }

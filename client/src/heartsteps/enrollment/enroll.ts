@@ -9,17 +9,17 @@ import { HeartstepsServer } from '@infrastructure/heartsteps-server.service';
 @Component({
     selector: 'heartsteps-enroll',
     templateUrl: 'enroll.html',
-    providers: [ EnrollmentService ]
+    providers: [EnrollmentService]
 })
 export class EnrollmentModal {
-    public error:string
-    public enrollmentForm:FormGroup
+    public error: string
+    public enrollmentForm: FormGroup
 
-    @Output('enrolled') enrolled:EventEmitter<boolean> = new EventEmitter();
+    @Output('enrolled') enrolled: EventEmitter<boolean> = new EventEmitter();
 
     constructor(
         private enrollmentService: EnrollmentService,
-        private loadingService:LoadingService,
+        private loadingService: LoadingService,
         private browserService: BrowserService,
         private heartstepsServer: HeartstepsServer
     ) {
@@ -37,18 +37,21 @@ export class EnrollmentModal {
 
         const token = this.enrollmentForm.value.entryToken;
         const birthYear = this.enrollmentForm.value.birthYear;
-        
+        console.log('src', 'enrollment/enroll.ts', 'enroll()', 'token', token, 'birthYear', birthYear);
         this.enrollmentService.enroll(token, birthYear)
-        .then(() => {
-            this.enrolled.emit(true);
-        })
+            .then(() => {
+                console.log('enrollment/enroll.ts', 'enroll()', 'enrollment successful');
+                this.enrolled.emit(true);
+            })
             .catch((error) => {
+                console.log('enrollment/enroll.ts', 'enroll()', 'enrollment failed', error);
                 console.log(error);
-            this.error = error;
-        })
-        .then(() => {
-            this.loadingService.dismiss();
-        });
+                this.error = error;
+            })
+            .then(() => {
+                console.log('enrollment/enroll.ts', 'enroll()', 'enrollment complete');
+                this.loadingService.dismiss();
+            });
     }
 
     public openPrivacyPolicy() {

@@ -10,6 +10,7 @@ import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 
 class Tab {
     name: string;
@@ -39,6 +40,9 @@ export class HomePage implements OnInit, OnDestroy {
     
     private offlineStatusSubscription: Subscription;
     public offlineStatus: boolean = false;
+
+    private featureFlagSubscription: Subscription;
+    public featureFlags: FeatureFlags;
 
     public tabs: Array<Tab> = [
         {
@@ -90,6 +94,11 @@ export class HomePage implements OnInit, OnDestroy {
                 (offlineStatus) => (this.offlineStatus = offlineStatus)
             );
 
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
+            );
+
         this.notificationCenterService.refreshNotifications();
     }
 
@@ -98,6 +107,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.updatingParticipantSubscription.unsubscribe();
         this.unreadStatusSubscription.unsubscribe();
         this.offlineStatusSubscription.unsubscribe();
+        this.featureFlagSubscription.unsubscribe();
     }
 
     private updateFromUrl(url: string) {
@@ -132,5 +142,10 @@ export class HomePage implements OnInit, OnDestroy {
                 reject("No matching tab");
             }
         });
+    }
+    
+    public notificationCenterFlag(): boolean {
+        // console.log("home.ts notification center flag called");
+        return this.featureFlagService.hasFlagNP("notification_center");
     }
 }

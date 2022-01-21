@@ -39,6 +39,11 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
         return this.notificationCenterService.isRead(notification);
     }
 
+    public hasFlag(flag: string): boolean {
+        // console.log("notification-center.ts notification center flag called");
+        return this.featureFlagService.hasFlagNP(flag);
+    }
+
     ngOnInit() {
         this.notificationsSubscription =
             this.notificationCenterService.currentNotifications.subscribe(
@@ -47,6 +52,10 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
         this.unreadStatusSubscription =
             this.notificationCenterService.currentUnreadStatus.subscribe(
                 (unreadStatus) => (this.haveUnread = unreadStatus)
+            );
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags.subscribe(
+                (flags) => (this.featureFlags = flags)
             );
         this.notificationCenterService.refreshNotifications();
     }

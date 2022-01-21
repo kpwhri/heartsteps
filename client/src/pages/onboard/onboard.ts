@@ -11,6 +11,9 @@ import { ParticipantService } from "@heartsteps/participants/participant.service
 import { FitbitAuthPage } from "./fitbit-auth.page";
 import { FitbitClockFacePairPage } from "./fitbit-clock-face-pair.page";
 
+import { Subscription } from "rxjs";
+import { skip } from "rxjs/operators";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 const onboardingPageRecord: Record<string, Step> = {
@@ -107,6 +110,7 @@ const onboardingPages: Array<Step> = [
 })
 export class OnboardPage implements OnInit {
     pages: Array<Step>;
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private participantService: ParticipantService,
@@ -115,91 +119,101 @@ export class OnboardPage implements OnInit {
     ) { }
 
     // ngOnInit() {
-        // this.pages = [];
-        // this.featureFlagService.getFeatureFlags()
-        //     .then((featureFlags) => {
-        //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'featureFlags', featureFlags);
-        //         return this.participantService.getProfile();
-        //     })
-        //     .then((profile) => {
-        //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'profile', profile);
-        //         Promise.all([
-        //             this.featureFlagService.hasFlag("weekly_reflection"),
-        //             this.featureFlagService.hasFlag("bout_planning"),
-        //             this.featureFlagService.hasFlag("walking_suggestion"),
-        //             this.featureFlagService.hasFlag("places"),
-        //             this.featureFlagService.hasFlag("fitbit_clock_face")
-        //         ]).then((results) => {
-        //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'results', results);
-        //             if (!profile.contactInformation) {
-        //                 this.pages.push(onboardingPageRecord['contact-information']);
-        //             }
-        //             if (!profile.notificationsEnabled) {
-        //                 this.pages.push(onboardingPageRecord['notifications-enabled']);
-        //             }
-        //             if (results[0] && !profile.weeklyReflectionTime) {
-        //                 this.pages.push(onboardingPageRecord['weekly-reflection-time']);
-        //             }
-        //             if (results[1] && !profile.firstBoutPlanningTime) {
-        //                 this.pages.push(onboardingPageRecord['first-bout-planning-time']);
-        //             }
-        //             if (results[2] && !profile.walkingSuggestionTimes) {
-        //                 this.pages.push(onboardingPageRecord['walking-suggestion-times']);
-        //             }
-        //             if (results[3] && !profile.places) {
-        //                 this.pages.push(onboardingPageRecord['places']);
-        //             }
-        //             if (!profile.fitbitAuthorization) {
-        //                 this.pages.push(onboardingPageRecord['fitbit-authorization']);
-        //             }
-        //             if (results[4] && !profile.fitbitClockFace) {
-        //                 this.pages.push(onboardingPageRecord['fitbit-clock-face']);
-        //             }
-        //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
-        //         });
-        //     });
+    // this.pages = [];
+    // this.featureFlagService.getFeatureFlags()
+    //     .then((featureFlags) => {
+    //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'featureFlags', featureFlags);
+    //         return this.participantService.getProfile();
+    //     })
+    //     .then((profile) => {
+    //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'profile', profile);
+    //         Promise.all([
+    //             this.featureFlagService.hasFlag("weekly_reflection"),
+    //             this.featureFlagService.hasFlag("bout_planning"),
+    //             this.featureFlagService.hasFlag("walking_suggestion"),
+    //             this.featureFlagService.hasFlag("places"),
+    //             this.featureFlagService.hasFlag("fitbit_clock_face")
+    //         ]).then((results) => {
+    //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'results', results);
+    //             if (!profile.contactInformation) {
+    //                 this.pages.push(onboardingPageRecord['contact-information']);
+    //             }
+    //             if (!profile.notificationsEnabled) {
+    //                 this.pages.push(onboardingPageRecord['notifications-enabled']);
+    //             }
+    //             if (results[0] && !profile.weeklyReflectionTime) {
+    //                 this.pages.push(onboardingPageRecord['weekly-reflection-time']);
+    //             }
+    //             if (results[1] && !profile.firstBoutPlanningTime) {
+    //                 this.pages.push(onboardingPageRecord['first-bout-planning-time']);
+    //             }
+    //             if (results[2] && !profile.walkingSuggestionTimes) {
+    //                 this.pages.push(onboardingPageRecord['walking-suggestion-times']);
+    //             }
+    //             if (results[3] && !profile.places) {
+    //                 this.pages.push(onboardingPageRecord['places']);
+    //             }
+    //             if (!profile.fitbitAuthorization) {
+    //                 this.pages.push(onboardingPageRecord['fitbit-authorization']);
+    //             }
+    //             if (results[4] && !profile.fitbitClockFace) {
+    //                 this.pages.push(onboardingPageRecord['fitbit-clock-face']);
+    //             }
+    //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
+    //         });
+    //     });
     // }
     ngOnInit() {
-        this.participantService.getProfile()
-        .then((profile) => {
-            this.pages = [];
-            this.featureFlagService.getFeatureFlags()
-            .then(() => {
-                Promise.all([
-                    this.featureFlagService.hasFlag("weekly_reflection"),
-                    this.featureFlagService.hasFlag("bout_planning"),
-                    this.featureFlagService.hasFlag("walking_suggestion"),
-                    this.featureFlagService.hasFlag("places"),
-                    this.featureFlagService.hasFlag("fitbit_clock_face")
-                ]).then((results) => {
-                    if (!profile.contactInformation) {
-                        this.pages.push(onboardingPageRecord['contact-information']);
-                    }
-                    if (!profile.notificationsEnabled) {
-                        this.pages.push(onboardingPageRecord['notifications-enabled']);
-                    }
-                    if (results[0] && !profile.weeklyReflectionTime) {
-                        this.pages.push(onboardingPageRecord['weekly-reflection-time']);
-                    }
-                    if (results[1] && !profile.firstBoutPlanningTime) {
-                        this.pages.push(onboardingPageRecord['first-bout-planning-time']);
-                    }
-                    if (results[2] && !profile.walkingSuggestionTimes) {
-                        this.pages.push(onboardingPageRecord['walking-suggestion-times']);
-                    }
-                    if (results[3] && !profile.places) {
-                        this.pages.push(onboardingPageRecord['places']);
-                    }
-                    if (!profile.fitbitAuthorization) {
-                        this.pages.push(onboardingPageRecord['fitbit-authorization']);
-                    }
-                    if (results[4] && !profile.fitbitClockFace) {
-                        this.pages.push(onboardingPageRecord['fitbit-clock-face']);
-                    }
-                    console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
+        this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags
+                .pipe(skip(1)) // BehaviorSubject class provides the default value (in this case, an empty feature flag list). This line skip the default value
+                .subscribe((flags) => {
+                    this.participantService.getProfile()
+                        .then((profile) => {
+                            this.pages = [];
+                            this.featureFlagService.getFeatureFlags()
+                                .then(() => {
+                                    Promise.all([
+                                        this.featureFlagService.hasFlag("weekly_reflection"),
+                                        this.featureFlagService.hasFlag("bout_planning"),
+                                        this.featureFlagService.hasFlag("walking_suggestion"),
+                                        this.featureFlagService.hasFlag("places"),
+                                        this.featureFlagService.hasFlag("fitbit_clock_face")
+                                    ]).then((results) => {
+                                        if (!profile.contactInformation) {
+                                            this.pages.push(onboardingPageRecord['contact-information']);
+                                        }
+                                        if (!profile.notificationsEnabled) {
+                                            this.pages.push(onboardingPageRecord['notifications-enabled']);
+                                        }
+                                        if (results[0] && !profile.weeklyReflectionTime) {
+                                            this.pages.push(onboardingPageRecord['weekly-reflection-time']);
+                                        }
+                                        if (results[1] && !profile.firstBoutPlanningTime) {
+                                            this.pages.push(onboardingPageRecord['first-bout-planning-time']);
+                                        }
+                                        if (results[2] && !profile.walkingSuggestionTimes) {
+                                            this.pages.push(onboardingPageRecord['walking-suggestion-times']);
+                                        }
+                                        if (results[3] && !profile.places) {
+                                            this.pages.push(onboardingPageRecord['places']);
+                                        }
+                                        if (!profile.fitbitAuthorization) {
+                                            this.pages.push(onboardingPageRecord['fitbit-authorization']);
+                                        }
+                                        if (results[4] && !profile.fitbitClockFace) {
+                                            this.pages.push(onboardingPageRecord['fitbit-clock-face']);
+                                        }
+                                        console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
+                                    });
+                                });
+                        });
+                    this.featureFlagSubscription.unsubscribe();
                 });
-            });
-        });
+
+        this.featureFlagService.getFeatureFlags(true);
+
+
     }
 
 

@@ -18,6 +18,8 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
+import { skip } from "rxjs/operators";
+import { Subscription } from "rxjs";
 
 declare var process: {
     env: {
@@ -37,6 +39,7 @@ export class SettingsComponent {
     public buildDate: string = process.env.BUILD_DATE;
     public featureFlags: FeatureFlags;
     public featureFlagsString: string = "";
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -63,10 +66,18 @@ export class SettingsComponent {
                 this.staffParticipant = participant.staff;
                 this.participantName = participant.name;
             });
-        this.featureFlagService.getFeatureFlags()
-            .then((featureFlags) => {
-                this.featureFlagsString = featureFlags.flags;
-            });
+
+            this.featureFlagSubscription =
+            this.featureFlagService.currentFeatureFlags
+                .pipe(skip(1))
+                .subscribe((flags) => {
+                    this.featureFlags = flags;
+                    this.featureFlagsString = flags.flags;
+                });
+    }
+
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlagNP(flag);
     }
 
     public goBack() {

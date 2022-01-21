@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { AuthorizationService } from "@infrastructure/authorization.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { FeatureFlags } from "./FeatureFlags";
+import { BehaviorSubject } from "rxjs";
+
 
 const TIMEOUT = 5000;
 
@@ -11,6 +13,11 @@ const delay = t => new Promise(resolve => setTimeout(resolve, t));
 export class FeatureFlagService {
     private lastUpdated: Date;
     private featureFlags: FeatureFlags;
+
+    private featureFlagsBehaviorSubject: BehaviorSubject<FeatureFlags> = new BehaviorSubject(
+        new FeatureFlags()
+    );
+    public currentFeatureFlags = this.featureFlagsBehaviorSubject.asObservable();
 
     constructor(
         private heartstepsServer: HeartstepsServer,
@@ -27,15 +34,19 @@ export class FeatureFlagService {
             .then((response) => {
                 if (response) {
                     this.featureFlags = response;
+                    this.featureFlagsBehaviorSubject.next(response);
                 } else {
                     this.featureFlags = new FeatureFlags();
+                    this.featureFlagsBehaviorSubject.next(this.featureFlags);
                 }
-                return response;
+                return this.featureFlags;
             });
     }
 
-    public getFeatureFlags(): Promise<FeatureFlags> {
-        if (this.lastUpdated) {
+    public getFeatureFlags(forceRefresh?: boolean): Promise<FeatureFlags> {
+        if (forceRefresh) {
+            return this.forceRefresh();
+        } else if (this.lastUpdated) {
             if (this.featureFlags == undefined) {
                 // just initiated, still fetching initial ff
                 return delay(100).then(() => {
@@ -69,6 +80,28 @@ export class FeatureFlagService {
                     return Promise.resolve(false);
                 }
             });
+    }
+
+    public getFeatureFlagList(): string[] {
+        if (this.featureFlagsBehaviorSubject) {
+            if (this.featureFlagsBehaviorSubject.value.flags) {
+                // this checks if the flags is not: null, undefined, NaN, empty string (""), 0, false
+                let flags: string = this.featureFlagsBehaviorSubject.value.flags;
+                let flags_list: string[] = flags.split(", ");
+                return flags_list;
+            } else {
+                return [];
+            }
+        } else {
+            return [];
+        }
+    }
+
+    public hasFlagNP(flag: string): boolean {
+        let flags_list: string[] = this.getFeatureFlagList();
+        if (flags_list.indexOf(flag) > -1) {
+            return true;
+        }
     }
 
 

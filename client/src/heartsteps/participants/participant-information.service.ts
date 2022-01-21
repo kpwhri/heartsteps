@@ -30,6 +30,7 @@ export class ParticipantInformationService {
             ])
         })
         .then(() => {
+            console.log('Participant information loaded');
             return true;
         });
     }
@@ -56,6 +57,7 @@ export class ParticipantInformationService {
     }
 
     public getDateEnrolled(): Promise<Date> {
+        console.log('src', 'heartsteps', 'participant', 'participant-information.service', 'ParticipantInformationService', 'getDateEnrolled');
         return this.storage.get('date_enrolled')
         .catch(() => {
             return this.load()
