@@ -13,12 +13,13 @@ export class WalkingSuggestionService {
 
     constructor(
         private heartstepsServer: HeartstepsServer,
+        private featureFlagService: FeatureFlagService,
         private walkingSuggestionTimeService: WalkingSuggestionTimeService,
         private choiceDialog: ChoiceDialogController
     ){}
 
     public hasFlag(flag: string): boolean {
-        return this.featureFlagService.hasFlagNP(flag);
+        return this.featureFlagService.hadsFlagNP(flag);
     }
 
     sendDecisionContext(decisionId:string):Promise<boolean> {
