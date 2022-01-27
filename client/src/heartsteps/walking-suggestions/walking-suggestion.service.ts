@@ -19,7 +19,7 @@ export class WalkingSuggestionService {
     ){}
 
     public hasFlag(flag: string): boolean {
-        return this.featureFlagService.hadsFlagNP(flag);
+        return this.featureFlagService.hasFlagNP(flag);
     }
 
     sendDecisionContext(decisionId:string):Promise<boolean> {
