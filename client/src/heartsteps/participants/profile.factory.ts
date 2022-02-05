@@ -40,7 +40,7 @@ export class ProfileService {
     }
 
     public isComplete(): Promise<boolean> {
-        console.log("ProfileService.isComplete() point 1");
+        console.log("ProfileService.isComplete() point 1", "revision", 1);
         return this.get()
             .then((profile) => {
                 console.log("ProfileService.isComplete() point 2: profile=", profile);
