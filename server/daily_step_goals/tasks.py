@@ -7,6 +7,8 @@ from celery import shared_task
 from datetime import timedelta, datetime, date
 import requests
 from daily_step_goals.models import StepGoalsEvidence, User
+import participants
+from daily_step_goals.models import StepGoal
 from user_event_logs.models import EventLog
 
 import daily_step_goals.services
@@ -24,6 +26,19 @@ def update_goal(username, day=None):
     today = day_service.get_current_date()
     if day is None:
         day = today
+
+    # Checking if the user is in baseline period or not"
+    participant_service = participants.services.ParticipantService(user=user)
+    if participant_service.is_baseline_complete():
+        # The user is not in baseline period. moving on.
+        EventLog.debug(user, "The user is not in baseline period. moving on.")
+        pass
+    else:
+        # The user is in baseline period. Stopping here.
+        EventLog.info(user, "The user is in baseline period. Setting the goal to 10,000 steps per day, and stopping here.")
+        BASELINE_STEPGOAL = 10000
+        set_fixed_goal(user, day, BASELINE_STEPGOAL)
+        return
 
     stepgoal_service = daily_step_goals.services.StepGoalsService(user)
     query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
@@ -59,6 +74,14 @@ def update_goal(username, day=None):
     
     
     update_fitbit_device_with_new_goal(user, step_goal)
+
+def set_fixed_goal(user, day, BASELINE_STEPGOAL):
+    if StepGoal.objects.filter(user=user, date=day).exists():
+        StepGoal.objects.get(user=user, date=day).step_goal = BASELINE_STEPGOAL
+    else:
+        StepGoal.objects.create(user=user, date=day, step_goal=BASELINE_STEPGOAL)
+            
+    update_fitbit_device_with_new_goal(user, BASELINE_STEPGOAL)
 
 def update_fitbit_device_with_new_goal(user, step_goal):
     fitbit_service = fitbit_api.services.FitbitClient(user)
