@@ -857,10 +857,14 @@ class BoutPlanningDecision(models.Model):
                 starttime = log["when"]
                 endtime = starttime + timedelta(minutes=180)
                 
-                step_list = step_count_service.get_all_step_data_list_between(starttime, endtime)
-                
-                if find_consecutive_active_mins(step_list, active=60, mins=5):
-                    return True
+                try:
+                    step_list = step_count_service.get_all_step_data_list_between(starttime, endtime)
+                    
+                    if find_consecutive_active_mins(step_list, active=60, mins=5):
+                        return True
+                except Exception as e:
+                    EventLog.error(self.user, "BoutPlanningDecisionService.apply_R: Failed to fetch step data list between {} and {} - {}".format(starttime, endtime, e))
+                    return False
             
             return False
         

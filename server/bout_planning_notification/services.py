@@ -42,11 +42,12 @@ class BoutPlanningNotificationService:
         self.decision.add_line("BoutPlanningDecision object is created")
         
         self.decision.add_line("Checking if the user is in baseline period or not")
-        participant_service = ParticipantService(self.user)
+        participant_service = ParticipantService(user=self.user)
         if participant_service.is_baseline_complete():
             self.decision.add_line("The user is not in baseline period. moving on.")
         else:
             self.decision.add_line("The user is in baseline period. Returning False.")
+            self.decision.save()
             return False
             
         day_service = DayService(self.user)
