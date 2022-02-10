@@ -215,7 +215,7 @@ export class ProfileService {
     }
 
     private checkFirstBoutPlanningTime(): Promise<boolean> {
-        return this.featureFlagService.hasFlagNP('bout_planning')
+        return this.featureFlagService.hasFlag('bout_planning')
             .then((hasFlag) => {
                 if (hasFlag) {
                     return this.firstBoutPlanningTimeService.getTime()
@@ -238,7 +238,7 @@ export class ProfileService {
     }
 
     private loadFirstBoutPlanningTime(): Promise<boolean> {
-        return this.featureFlagService.hasFlagNP("bout_planning")
+        return this.featureFlagService.hasFlag("bout_planning")
             .then((hasFlag) => {
                 if (hasFlag) {
                     return this.firstBoutPlanningTimeService.load()
@@ -403,7 +403,7 @@ export class ProfileService {
     }
 
     private checkFitbitWatch(): Promise<boolean> {
-        return this.featureFlagService.hasFlagNP("fitbit_clockface")
+        return this.featureFlagService.hasFlag("fitbit_clockface")
             .then((hasFlag) => {
                 if (hasFlag) {
                     return this.fitbitClockFaceService.isPaired()
@@ -415,7 +415,7 @@ export class ProfileService {
     }
 
     private loadFitbitWatchStatus(): Promise<boolean> {
-        return this.featureFlagService.hasFlagNP("fitbit_clockface")
+        return this.featureFlagService.hasFlag("fitbit_clockface")
             .then((hasFlag) => {
                 if (hasFlag) {
                     return this.fitbitClockFaceService.update()
