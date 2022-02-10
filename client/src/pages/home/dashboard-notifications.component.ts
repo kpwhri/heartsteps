@@ -6,7 +6,7 @@ import {
 import { MorningMessageService } from "@heartsteps/morning-message/morning-message.service";
 import { Router } from "@angular/router";
 import { MorningMessage } from "@heartsteps/morning-message/morning-message.model";
-
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 
 @Component({
@@ -20,6 +20,7 @@ export class DashboardNotificationComponent {
     constructor(
         private weeklySurveyService: WeeklySurveyService,
         private morningMessageService: MorningMessageService,
+        private featureFlagService: FeatureFlagService,
         private router: Router
     ) {
         this.weeklySurveyService
@@ -51,5 +52,9 @@ export class DashboardNotificationComponent {
 
     public navigateToMorningMessage() {
         this.router.navigate(["morning-survey"]);
+    }
+
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlagNP(flag);
     }
 }
