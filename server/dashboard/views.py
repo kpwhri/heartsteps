@@ -92,6 +92,7 @@ from .models import DashboardParticipant
 
 from .services import DevSendNotificationService
 from .services import DevService
+from .services import DevSendLocationService
 
 import io
 from django.http import FileResponse
@@ -250,6 +251,13 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             username, player_id)
         return "Notification is sent: {}".format(result)
 
+    def set_location(self, user, zipcode):
+        dev_set_location_service = DevSendLocationService()
+        coordinates = dev_set_location_service.get_coordinates(zipcode)
+        latitude = coordinates["lat"]
+        longitude = coordinates["long"]
+        return "Coordinates set set: {}, {}".format(latitude, longitude)
+
     def prettyprint(self, obj):
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
@@ -271,6 +279,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             if dev_command == 'send-notification':
                 player_ids = [request.POST['playerid']]
                 context["results"] = self.send_notification(player_ids)
+            elif dev_command == 'set-zip-code':
+                zip_code = request.POST['zipcode']
+                context["results"] = self.set_location(zip_code)
             elif dev_command == 'set-device-token':
                 username = request.POST['username']
                 player_id = request.POST['playerid']

@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 
 from service_requests.models import ServiceRequest as ServiceRequestBase
 
+class ZipCodeInfo(models.Model):
+    user = models.ForeignKey(User, null=False, on_delete = models.CASCADE)
+    app_key = models.CharField(max_length=255, null=False)
+
 class ServiceRequest(ServiceRequestBase):
     pass
 

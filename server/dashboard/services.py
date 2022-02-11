@@ -2,6 +2,7 @@ from bout_planning_notification.models import FirstBoutPlanningTime, Level, Leve
 from bout_planning_notification.receivers import FirstBoutPlanningTime_updated, create_bout_planning_daily_task_set, delete_bout_planning_daily_task
 from daily_step_goals.receivers import create_step_goal_daily_task, delete_step_goal_daily_task
 from feature_flags.models import FeatureFlags
+from weather.models import ZipCodeInfo
 import requests
 # from push_messages.clients import OneSignalClient
 from django.db import models
@@ -25,7 +26,23 @@ import uuid
 import pytz
 from daily_tasks.models import DailyTask
 from user_event_logs.models import EventLog
-                
+
+class DevSendLocationService:
+    def __init__(self, configuration=None):
+        pass
+
+    def get_api_key(self):
+        key = ZipCodeInfo.objects.filter()
+        return key
+
+    def get_coordinates(self, zipcode):
+        main_link = "https://www.zipcodeapi.com/rest/"
+        key = get_api_key() + "/"
+        format = "info.json/"
+        units = "/degrees"
+        final_link = main_link + key + format + zipcode
+        return final_link
+        # <api_key>/info.<format>/<zip_code>/<units>
 
 class DevSendNotificationService:    
     def __init__(self, configuration=None):
