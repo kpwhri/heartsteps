@@ -67,35 +67,12 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.3, 0.4, 0.5, 0.6, 0.7'
             # ActivityDay will be used from 1000~1004 (5 days) => median: 1002
             goals = get_goals(self.user, datetime(2021, 1, 6).date(), 5)
-            self.assertEqual(goals, [10000, 10000, 10000, 10000, 10000])
-
-    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
-    @patch('participants.services.ParticipantService.is_baseline_complete')
-    def test_get_todays_step_goal_1_no_baseline(self, mock_is_baseline_complete, mock_update_fitbit_device_with_new_goal):
-        mock_update_fitbit_device_with_new_goal.return_value = None
-        mock_is_baseline_complete.return_value = True
-        
-        with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
-            self.participant.study_start_date = datetime(2021, 1, 1).date()
-            self.participant.save()
-            
-            create_walk_data(
-                user=self.user,
-                start_date=datetime(2021, 1, 1).date(),
-                steps=[1000, 1001, 1002, 1003, 1004]
-            )
-            
-            # use PRBS as '0.3, 0.4, 0.5, 0.6, 0.7'
-            # ActivityDay will be used from 1000~1004 (5 days) => median: 1002
-            goals = get_goals(self.user, datetime(2021, 1, 6).date(), 5)
             self.assertEqual(goals, [1602, 1802, 2002, 2202, 2402])
     
     
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
-    @patch('participants.services.ParticipantService.is_baseline_complete')
-    def test_get_todays_step_goal_2(self, mock_is_baseline_complete, mock_update_fitbit_device_with_new_goal):
+    def test_get_todays_step_goal_2(self, mock_update_fitbit_device_with_new_goal):
         mock_update_fitbit_device_with_new_goal.return_value = None
-        mock_is_baseline_complete.return_value = True
         
         with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
             self.participant.study_start_date = datetime(2021, 1, 1).date()
@@ -118,10 +95,8 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             
             
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
-    @patch('participants.services.ParticipantService.is_baseline_complete')
-    def test_get_todays_step_goal_3(self, mock_is_baseline_complete, mock_update_fitbit_device_with_new_goal):
+    def test_get_todays_step_goal_3(self, mock_update_fitbit_device_with_new_goal):
         mock_update_fitbit_device_with_new_goal.return_value = None
-        mock_is_baseline_complete.return_value = True
         
         with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
             self.participant.study_start_date = datetime(2021, 1, 1).date()

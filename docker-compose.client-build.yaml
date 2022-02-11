@@ -14,7 +14,6 @@ services:
     build:
       context: ./
       dockerfile: client-android.Dockerfile
-    image: gcr.io/ucsd-publichealth-justwalk/client-android
     env_file:
       - credentials/.env-production
     environment: 

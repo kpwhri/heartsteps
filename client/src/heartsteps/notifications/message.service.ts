@@ -45,7 +45,6 @@ export class MessageService {
                 this.checkDevice(device);
             });
             this.pushNotificationService.notifications.subscribe(
-                // if a push notification is received, fetch the full message body from the server
                 (data: any) => {
                     console.log(
                         "MessageService: Got notification id=" + data.id

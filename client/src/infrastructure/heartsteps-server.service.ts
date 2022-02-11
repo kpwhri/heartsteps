@@ -20,10 +20,7 @@ export class HeartstepsServer {
 
     public unauthorized:Subject<boolean>
 
-    constructor(
-        private authorizationService:AuthorizationService, 
-        private platform:Platform
-    ) {
+    constructor(private authorizationService:AuthorizationService, private platform:Platform) {
         this.heartstepsUrl = process.env.HEARTSTEPS_URL;
         console.log("HeartstepsServer.constructor()", this.heartstepsUrl);
         this.unauthorized = new Subject();

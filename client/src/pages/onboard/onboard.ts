@@ -16,50 +16,6 @@ import { skip } from "rxjs/operators";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
-const onboardingPageRecord: Record<string, Step> = {
-    'contact-information': {
-        key: "contactInformation",
-        title: "Contact Information",
-        component: ParticipantInformation,
-    },
-    'notifications-enabled': {
-        key: "notificationsEnabled",
-        title: "Notifications",
-        component: NotificationsPermissionComponent,
-    },
-    'weekly-reflection-time': {
-        key: "weeklyReflectionTime",
-        title: "Reflection Time",
-        component: WeeklyReflectionTimePage,
-    },
-    'first-bout-planning-time': {
-        key: "firstBoutPlanningTime",
-        title: "First Bout Planning Time",
-        component: FirstBoutPlanningTimePage,
-    },
-    'walking-suggestion-times': {
-        key: "walkingSuggestionTimes",
-        title: "Suggestion Times",
-        component: WalkingSuggestionTimesComponent,
-    },
-    'places': {
-        key: "places",
-        title: "Places",
-        component: PlacesList,
-    },
-    'fitbit-authorization': {
-        key: "fitbitAuthorization",
-        title: "Fitbit",
-        component: FitbitAuthPage,
-    },
-    'fitbit-clock-face': {
-        key: "fitbitClockFace",
-        title: "JustWalk Clock Face",
-        component: FitbitClockFacePairPage,
-    }
-}
-
-
 const onboardingPages: Array<Step> = [
     {
         key: "contactInformation",
@@ -93,19 +49,15 @@ const onboardingPages: Array<Step> = [
     },
 ];
 
-
 @Component({
     selector: "pages-onboarding",
     templateUrl: "onboard.html",
     entryComponents: [
-        ParticipantInformation,
         NotificationsPermissionComponent,
         WeeklyReflectionTimePage,
         FirstBoutPlanningTimePage,
         WalkingSuggestionTimesComponent,
         PlacesList,
-        FitbitAuthPage,
-        FitbitClockFacePairPage
     ],
 })
 export class OnboardPage implements OnInit {
@@ -116,106 +68,63 @@ export class OnboardPage implements OnInit {
         private participantService: ParticipantService,
         private router: Router,
         private featureFlagService: FeatureFlagService
-    ) { }
+    ) {}
 
-    // ngOnInit() {
-    // this.pages = [];
-    // this.featureFlagService.getFeatureFlags()
-    //     .then((featureFlags) => {
-    //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'featureFlags', featureFlags);
-    //         return this.participantService.getProfile();
-    //     })
-    //     .then((profile) => {
-    //         console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'profile', profile);
-    //         Promise.all([
-    //             this.featureFlagService.hasFlag("weekly_reflection"),
-    //             this.featureFlagService.hasFlag("bout_planning"),
-    //             this.featureFlagService.hasFlag("walking_suggestion"),
-    //             this.featureFlagService.hasFlag("places"),
-    //             this.featureFlagService.hasFlag("fitbit_clock_face")
-    //         ]).then((results) => {
-    //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'results', results);
-    //             if (!profile.contactInformation) {
-    //                 this.pages.push(onboardingPageRecord['contact-information']);
-    //             }
-    //             if (!profile.notificationsEnabled) {
-    //                 this.pages.push(onboardingPageRecord['notifications-enabled']);
-    //             }
-    //             if (results[0] && !profile.weeklyReflectionTime) {
-    //                 this.pages.push(onboardingPageRecord['weekly-reflection-time']);
-    //             }
-    //             if (results[1] && !profile.firstBoutPlanningTime) {
-    //                 this.pages.push(onboardingPageRecord['first-bout-planning-time']);
-    //             }
-    //             if (results[2] && !profile.walkingSuggestionTimes) {
-    //                 this.pages.push(onboardingPageRecord['walking-suggestion-times']);
-    //             }
-    //             if (results[3] && !profile.places) {
-    //                 this.pages.push(onboardingPageRecord['places']);
-    //             }
-    //             if (!profile.fitbitAuthorization) {
-    //                 this.pages.push(onboardingPageRecord['fitbit-authorization']);
-    //             }
-    //             if (results[4] && !profile.fitbitClockFace) {
-    //                 this.pages.push(onboardingPageRecord['fitbit-clock-face']);
-    //             }
-    //             console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
-    //         });
-    //     });
-    // }
     ngOnInit() {
+        // TODO: change pipe(1) to reflect new updates to currentFeatureFlags behaviorsubject
+
         this.featureFlagSubscription =
             this.featureFlagService.currentFeatureFlags
                 .pipe(skip(1)) // BehaviorSubject class provides the default value (in this case, an empty feature flag list). This line skip the default value
-                .subscribe((flags) => {
-                    this.participantService.getProfile()
-                        .then((profile) => {
-                            this.pages = [];
-                            this.featureFlagService.getFeatureFlags()
-                                .then(() => {
-                                    Promise.all([
-                                        this.featureFlagService.hasFlag("weekly_reflection"),
-                                        this.featureFlagService.hasFlag("bout_planning"),
-                                        this.featureFlagService.hasFlag("walking_suggestion"),
-                                        this.featureFlagService.hasFlag("places"),
-                                        this.featureFlagService.hasFlag("fitbit_clock_face")
-                                    ]).then((results) => {
-                                        if (!profile.contactInformation) {
-                                            this.pages.push(onboardingPageRecord['contact-information']);
-                                        }
-                                        if (!profile.notificationsEnabled) {
-                                            this.pages.push(onboardingPageRecord['notifications-enabled']);
-                                        }
-                                        if (results[0] && !profile.weeklyReflectionTime) {
-                                            this.pages.push(onboardingPageRecord['weekly-reflection-time']);
-                                        }
-                                        if (results[1] && !profile.firstBoutPlanningTime) {
-                                            this.pages.push(onboardingPageRecord['first-bout-planning-time']);
-                                        }
-                                        if (results[2] && !profile.walkingSuggestionTimes) {
-                                            this.pages.push(onboardingPageRecord['walking-suggestion-times']);
-                                        }
-                                        if (results[3] && !profile.places) {
-                                            this.pages.push(onboardingPageRecord['places']);
-                                        }
-                                        if (!profile.fitbitAuthorization) {
-                                            this.pages.push(onboardingPageRecord['fitbit-authorization']);
-                                        }
-                                        if (results[4] && !profile.fitbitClockFace) {
-                                            this.pages.push(onboardingPageRecord['fitbit-clock-face']);
-                                        }
-                                        console.log('src', 'pages', 'onboard', 'onboard.page.ts', 'ngOnInit', 'pages', this.pages);
-                                    });
-                                });
+            .subscribe((flags) => {
+                    console.log("onboard.ts ngOnInit()", flags);
+                    this.participantService.getProfile().then((profile) => {
+                        console.log("onboard.ts ngOnInit()", profile);
+                        this.pages = [];
+
+                        // TODO: how can we parameterize this? or make it database-driven?
+                        if (profile.firstBoutPlanningTime == false) {
+                            console.log("the user has 'bout_planning' flag.");
+                            let nlm_onboarding_page = {
+                                key: "firstBoutPlanningTime",
+                                title: "First Bout Planning Time",
+                                component: FirstBoutPlanningTimePage,
+                            };
+                            onboardingPages.splice(3, 0, nlm_onboarding_page);
+                        } else {
+                            console.log("the user doesn't have 'bout_planning' flag.");
+                        }
+
+                        if (profile.fitbit_clockface == false) {
+                            console.log("the user has 'fitbit_clockface' flag.");
+                            let fitbit_clockface_onboarding_page = {
+                                key: "fitbitClockFace",
+                                title: "JustWalk Clock Face",
+                                component: FitbitClockFacePairPage,
+                            };
+                            onboardingPages.splice(onboardingPages.length - 1, 0, fitbit_clockface_onboarding_page);
+                        } else {
+                            console.log("the user doesn't have 'fitbit_clockface' flag.");
+                        }
+
+                        let skipPageIDs: Array<string> =
+                            this.featureFlagService.getSubFlagsInNamespace(
+                                "onboarding.skip"
+                            );
+
+                        onboardingPages.forEach((page) => {
+                            if (
+                                !profile[page.key] &&
+                                skipPageIDs.indexOf(page.key) < 0
+                            ) {
+                                this.pages.push(page);
+                            }
                         });
+                    });
                     this.featureFlagSubscription.unsubscribe();
                 });
-
-        this.featureFlagService.getFeatureFlags(true);
-
-
+        this.featureFlagService.refreshFeatureFlags();
     }
-
 
     public finish() {
         console.log("Onboarding finished!");

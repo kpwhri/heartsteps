@@ -87,9 +87,7 @@ class StepGoalsService:
         
         if len(steps_log) == 0:
             # no day log is found
-            base = 10000
-            sgc_settings.magnitude = 0
-            sgc_settings.base_jump = 0
+            base = 0
         else:
             # some log is found
             base = median(steps_log)

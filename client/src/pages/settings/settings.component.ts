@@ -16,10 +16,10 @@ import { BoutPlanningSurveyService } from "@heartsteps/bout-planning/bout-planni
 import { MessageService } from "@heartsteps/notifications/message.service";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 
+import { Subscription } from "rxjs";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 import { skip } from "rxjs/operators";
-import { Subscription } from "rxjs";
 
 declare var process: {
     env: {
@@ -34,6 +34,7 @@ declare var process: {
 })
 export class SettingsComponent {
     public staffParticipant: boolean = false;
+    public participantTags: string[] = [];
     public participantName: string = "";
     public buildVersion: string = process.env.BUILD_VERSION;
     public buildDate: string = process.env.BUILD_DATE;
@@ -64,10 +65,11 @@ export class SettingsComponent {
             .first()
             .subscribe((participant) => {
                 this.staffParticipant = participant.staff;
+                this.participantTags = participant.participantTags;
                 this.participantName = participant.name;
             });
 
-            this.featureFlagSubscription =
+        this.featureFlagSubscription =
             this.featureFlagService.currentFeatureFlags
                 .pipe(skip(1))
                 .subscribe((flags) => {
@@ -77,7 +79,7 @@ export class SettingsComponent {
     }
 
     public hasFlag(flag: string): boolean {
-        return this.featureFlagService.hasFlagNP(flag);
+        return this.featureFlagService.hasFlag(flag);
     }
 
     public goBack() {

@@ -21,7 +21,6 @@ import { SettingsComponent } from "@pages/settings/settings.component";
 import { NotificationCenterModule } from "@heartsteps/notification-center/notification-center.module";
 import { NotificationCenterPage } from "./notification-center";
 import { DailyStepGoalModule } from "@heartsteps/daily-step-goal/daily-step-goal.module";
-import { DashboardDailyStepgoalComponent } from "./dashboard-daily-stepgoal.component";
 
 const routes: Routes = [
     {
@@ -70,7 +69,6 @@ const routes: Routes = [
         HomePage,
         DashboardPage,
         DashboardNotificationComponent,
-        DashboardDailyStepgoalComponent,
         PlanPage,
         ActivitiesPage,
         NotificationCenterPage,

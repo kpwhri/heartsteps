@@ -9,8 +9,8 @@ import { Router, RouterEvent, NavigationEnd } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
-import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 class Tab {
     name: string;
@@ -37,12 +37,11 @@ export class HomePage implements OnInit, OnDestroy {
 
     private unreadStatusSubscription: Subscription;
     public haveUnread: boolean = true;
-    
-    private offlineStatusSubscription: Subscription;
-    public offlineStatus: boolean = false;
-
     private featureFlagSubscription: Subscription;
     public featureFlags: FeatureFlags;
+
+    private offlineStatusSubscription: Subscription;
+    public offlineStatus: boolean = false;
 
     public tabs: Array<Tab> = [
         {
@@ -143,9 +142,10 @@ export class HomePage implements OnInit, OnDestroy {
             }
         });
     }
-    
+
+    // TODO: IMPORTANT MAKE CALLS WAY LESS FREQUENTLY
     public notificationCenterFlag(): boolean {
         // console.log("home.ts notification center flag called");
-        return this.featureFlagService.hasFlagNP("notification_center");
+        return this.featureFlagService.hasFlag("notification_center");
     }
 }

@@ -64,22 +64,8 @@ services:
             - ./server:/server
             - ./credentials:/credentials
         working_dir: /server
-    client_android:
-        build:
-            context: ./
-            dockerfile: client-android.justwalk.Dockerfile
-        image: gcr.io/ucsd-publichealth-justwalk/client-android
-        env_file:
-            - credentials/justwalk.env
-        environment: 
-            - BUILD_PLATFORM=android
-            - BUILD_VERSION=2.3.2
-            - HEARTSTEPS_URL=https://dev.heartsteps.net/api
-        volumes:
-            - ./client:/client
-            - ./credentials:/credentials
-volumes:
-    client-node-modules:
+volumes: 
     cloudsql:
     client-platforms:
+    client-node-modules:
     client-gradle-cache:

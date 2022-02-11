@@ -1,13 +1,8 @@
 <nav>
-    <ng-container *ngIf="hasFlag('weeklySurvey')">
-        <a *ngIf="weeklySurvey" (click)="navigateToWeeklySurvey()">
-            Please complete the weekly reflection
-        </a>
-    </ng-container>
-
-    <ng-container *ngIf="hasFlag('morningMessage')">
+    <a *ngIf="weeklySurvey" (click)="navigateToWeeklySurvey()">
+        Please complete the weekly reflection
+    </a>
     <a *ngIf="morningMessage" (click)="navigateToMorningMessage()">
         Please complete the morning check-in
     </a>
-    </ng-container>
 </nav>

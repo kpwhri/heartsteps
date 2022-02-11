@@ -3,13 +3,15 @@
 </heartsteps-anchor-message>
 <article>
     <!-- <ng-container *ngIf="hasFlag('weekly_progress')"> -->
-    <dashboard-daily-stepgoal></dashboard-daily-stepgoal>
+    <h3>Weekly Progress</h3>
+    <p>Weekly goal: <span *ngIf="weeklyGoal">{{weeklyGoal}} min</span></p>
+    <heartsteps-weekly-progress></heartsteps-weekly-progress>
     <!-- </ng-container> -->
     <h3><span>Today,</span> {{formattedDate}}</h3>
     <heartsteps-daily-summary [summary]="summary"></heartsteps-daily-summary>
     <heartsteps-activity-daily-update
         [summary]="summary"
-    >
-</heartsteps-activity-daily-update>
+    ></heartsteps-activity-daily-update>
+    <heartsteps-daily-step-goal></heartsteps-daily-step-goal>
 </article>
 <activity-plan-day [date]="today" label="Today's Plan"> </activity-plan-day>
