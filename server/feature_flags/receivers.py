@@ -1,4 +1,7 @@
-from msilib.schema import Feature
+
+# TODO: ASK WHAT THIS IMPORT IS INTENDED TO DO
+# from msilib.schema import Feature
+
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
