@@ -100,7 +100,8 @@ var envs = new webpack.EnvironmentPlugin({
     BUILD_PLATFORM: 'website',
     BUILD_VERSION: BUILD_VERSION,
     BUILD_NUMBER: BUILD_NUMBER,
-    BUILD_DATE: BUILD_DATE
+    BUILD_DATE: BUILD_DATE,
+    cache: false
 });
 
 webpackConfig.dev.plugins.push(envs);

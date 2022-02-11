@@ -2,16 +2,25 @@ import { Injectable } from "@angular/core";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { WalkingSuggestionTimeService } from "./walking-suggestion-time.service";
 import { ChoiceDialogController } from "@infrastructure/choice-dialog.controler";
+import { Subscription } from "rxjs";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 
 @Injectable()
 export class WalkingSuggestionService {
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private heartstepsServer: HeartstepsServer,
+        private featureFlagService: FeatureFlagService,
         private walkingSuggestionTimeService: WalkingSuggestionTimeService,
         private choiceDialog: ChoiceDialogController
     ){}
+
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlagNP(flag);
+    }
 
     sendDecisionContext(decisionId:string):Promise<boolean> {
         const decisionContext = {};

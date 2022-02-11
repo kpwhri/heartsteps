@@ -3,13 +3,12 @@ import { DailySummary } from "@heartsteps/daily-summaries/daily-summary.model";
 import { DailySummaryService } from "@heartsteps/daily-summaries/daily-summary.service";
 import * as moment from "moment";
 import { Platform } from "ionic-angular";
-import { Subscription } from "rxjs";
 import { CurrentWeekService } from "@heartsteps/current-week/current-week.service";
-import { ParticipantService } from "@heartsteps/participants/participant.service";
 import { AnchorMessageService } from "@heartsteps/anchor-message/anchor-message.service";
-import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { Subscription } from "rxjs";
 import { skip } from "rxjs/operators";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 @Component({
     templateUrl: "dashboard.page.html",
@@ -31,10 +30,8 @@ export class DashboardPage implements OnDestroy {
         private anchorMessageService: AnchorMessageService,
         private dailySummaryService: DailySummaryService,
         private currentWeekService: CurrentWeekService,
-        // tslint:disable-next-line:no-unused-variable
-        private participantService: ParticipantService,
-        private platform: Platform,
-        private featureFlagService: FeatureFlagService
+        private featureFlagService: FeatureFlagService,
+        private platform: Platform
     ) {
         this.today = new Date();
         this.formattedDate = moment().format("dddd, M/D");
@@ -54,6 +51,10 @@ export class DashboardPage implements OnDestroy {
         this.update();
     }
 
+    public hasFlag(flag: string): boolean {
+        return this.featureFlagService.hasFlagNP(flag);
+    }
+
     public update() {
         this.updateAnchorMessage();
         this.dailySummaryService.updateCurrentWeek();
@@ -70,15 +71,11 @@ export class DashboardPage implements OnDestroy {
             });
     }
 
-    public hasFlag(flag: string): boolean {
-        return this.featureFlagService.hasFlag(flag);
-    }
-
     ngOnInit() {
         this.featureFlagSubscription =
-            this.featureFlagService.currentFeatureFlags
-                .pipe(skip(1))
-                .subscribe((flags) => (this.featureFlags = flags));
+        this.featureFlagService.currentFeatureFlags
+            .pipe(skip(1))
+            .subscribe((flags) => (this.featureFlags = flags));
     }
 
     ngOnDestroy() {

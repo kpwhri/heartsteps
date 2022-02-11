@@ -1,6 +1,7 @@
 from days.services import DayService
 from feature_flags.models import FeatureFlags
 from participants.models import Participant
+from participants.services import ParticipantService
 from surveys.serializers import SurveySerializer, SurveyShirinker
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
@@ -40,6 +41,15 @@ class BoutPlanningNotificationService:
         self.decision = BoutPlanningDecision.create(self.user)
         self.decision.add_line("BoutPlanningDecision object is created")
         
+        self.decision.add_line("Checking if the user is in baseline period or not")
+        participant_service = ParticipantService(user=self.user)
+        if participant_service.is_baseline_complete():
+            self.decision.add_line("The user is not in baseline period. moving on.")
+        else:
+            self.decision.add_line("The user is in baseline period. Returning False.")
+            self.decision.save()
+            return False
+            
         day_service = DayService(self.user)
         
         self.decision.add_line("Starting is_necessary() calculation for {} @ {} (local)".format(self.user.username, day_service.get_current_datetime()))

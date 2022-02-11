@@ -6,15 +6,21 @@ import { MorningMessage } from "./morning-message.model";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
 import { Message } from "@heartsteps/notifications/message.model";
+import { Subscription } from "rxjs";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 const storageKey: string = "morning-message";
 
 @Injectable()
 export class MorningMessageService {
+    private featureFlagSubscription: Subscription;
+
     constructor(
         private storage: StorageService,
         private heartstepsServer: HeartstepsServer,
-        private messageReceiptService: MessageReceiptService
+        private messageReceiptService: MessageReceiptService,
+        private featureFlagService: FeatureFlagService,
     ) {}
 
     public get(): Promise<MorningMessage> {

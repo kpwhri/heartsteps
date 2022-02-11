@@ -265,7 +265,7 @@ export class PushNotificationService {
     }
 
     private initialize() {
-        console.log('initialize');
+        console.log("infrastructure", "notifications", "push-notification.service.ts", "PushNotificationService", 'initialize()');
         if (this.platform.is('cordova')) {
             console.log('initialize', 'is cordova')
             console.log("PushNotificationService", "initialize()", 1);

@@ -40,6 +40,7 @@ class DailyWeatherForecast(models.Model):
     WIND = 'wind'
     RAIN = 'rain'
     SNOW = 'snow'
+    UNKNOWN = 'unknown'
 
     WEATHER_CHOICES = [
         (CLEAR, 'Clear'),
@@ -47,7 +48,8 @@ class DailyWeatherForecast(models.Model):
         (CLOUDY, 'Cloudy'),
         (WIND, 'Wind'),
         (RAIN, 'Rain'),
-        (SNOW, 'Snow')
+        (SNOW, 'Snow'),
+        (UNKNOWN, 'Unknown')
     ]
 
     user = models.ForeignKey(User, on_delete = models.CASCADE)

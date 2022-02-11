@@ -8,6 +8,9 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { Message } from "@heartsteps/notifications/message.model";
 import { WeekService } from "./week.service";
 import { ReflectionTimeService } from "./reflection-time.service";
+import { Subscription } from "rxjs";
+import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 export class WeeklySurvey {
     public currentWeek:Week;
@@ -27,6 +30,7 @@ const storageKey:string = 'weekly-survey';
 
 @Injectable()
 export class WeeklySurveyService {
+    private featureFlagSubscription: Subscription;
 
     constructor(
         private storage:StorageService,
@@ -34,7 +38,8 @@ export class WeeklySurveyService {
         private weekSerializer: WeekSerializer,
         private heartstepsServer: HeartstepsServer,
         private reflectionTimeService: ReflectionTimeService,
-        private messageReceiptService: MessageReceiptService
+        private messageReceiptService: MessageReceiptService,
+        private featureFlagService: FeatureFlagService,
     ) {}
 
     public setup():Promise<boolean> {

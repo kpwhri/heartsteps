@@ -98,8 +98,6 @@ class ParticipantInformationView(APIView):
         EventLog.debug(request.user)
         return_dict['baselineComplete'] = service.is_baseline_complete()
         EventLog.debug(request.user)
-        return_dict['participantTags'] = []
-        EventLog.debug(request.user)
         return Response(return_dict)
 
 

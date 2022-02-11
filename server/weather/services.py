@@ -131,11 +131,11 @@ class WeatherService:
             if self._can_update_forecast(forecast):
                 try:
                     return self.update_daily_forecast(date)
-                except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable):
+                except (WeatherService.UnknownLocation, WeatherService.ForecastUnavailable) as e:
                     pass
             return forecast
         except DailyWeatherForecast.DoesNotExist:
-           return self.update_daily_forecast(date = date)
+            return self.update_daily_forecast(date = date)
 
     def get_forecasts(self, start, end):
         forecasts = DailyWeatherForecast.objects.filter(
@@ -153,7 +153,6 @@ class WeatherService:
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-
             daily_forecast, created = DailyWeatherForecast.objects.update_or_create(
                 user = self.__user,
                 date = date,
@@ -164,8 +163,18 @@ class WeatherService:
                 }
             )
             return daily_forecast
-        except LocationService.UnknownLocation as e:
-            raise WeatherService.UnknownLocation(e)
+        except WeatherService.UnknownLocation as e: 
+            daily_forecast, _ = DailyWeatherForecast.objects.update_or_create(
+                user = self.__user,
+                date = date,
+                defaults = {
+                    'category': 'unknown',
+                    'high': 0,
+                    'low': 0
+                }
+            )
+            return daily_forecast
+
         except DarkSkyApiManager.RequestFailed:
             raise WeatherService.ForecastUnavailable('Request failed')
 

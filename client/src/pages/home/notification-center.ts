@@ -41,7 +41,7 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
 
     public hasFlag(flag: string): boolean {
         // console.log("notification-center.ts notification center flag called");
-        return this.featureFlagService.hasFlag(flag);
+        return this.featureFlagService.hasFlagNP(flag);
     }
 
     ngOnInit() {
@@ -53,7 +53,6 @@ export class NotificationCenterPage implements OnInit, OnDestroy {
             this.notificationCenterService.currentUnreadStatus.subscribe(
                 (unreadStatus) => (this.haveUnread = unreadStatus)
             );
-
         this.featureFlagSubscription =
             this.featureFlagService.currentFeatureFlags.subscribe(
                 (flags) => (this.featureFlags = flags)
