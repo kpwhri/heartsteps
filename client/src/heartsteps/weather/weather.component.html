@@ -1,9 +1,5 @@
 <div >
     <ng-content></ng-content>
-    <em *ngIf="!loading">
-        <span *ngIf="icon!='unknown'">
-        {{high}}/{{low}}
-        </span>
-    </em>
+    <em *ngIf="!loading">{{high}}/{{low}}</em>
     <em *ngIf="loading">Loading</em>
 </div>

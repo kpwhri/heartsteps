@@ -11,7 +11,7 @@ class ClockFace {
 
 @Injectable()
 export class FitbitClockFaceService {
-    public is_active: boolean = false;
+
     public clockFace: BehaviorSubject<ClockFace> = new BehaviorSubject(undefined);
 
     constructor(

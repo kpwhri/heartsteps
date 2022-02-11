@@ -14,29 +14,16 @@ export class BrowserService {
     ) {}
 
     public open(url: string): Promise<boolean> {
-        console.log('BrowserService.open():', 1, url);
         if (this.platform.is('cordova')) {
-            console.log('BrowserService.open():', 2);
             return this.checkSafariAvailable()
             .then(() => {
-                console.log('BrowserService.open():', 3);
                 return this.openInSafari(url)
             })
             .catch(() => {
-                console.log('BrowserService.open():', 4);
-                try {
-                    this.navigateTo(url);
-                    return Promise.resolve(true);
-                } catch (e) {
-                    console.log('BrowserService.open():', 5);
-                    return Promise.reject("Opening browser not supported")
-                }
-                
+                return Promise.reject("Opening browser not supported")
             })
         } else {
-            console.log('BrowserService.open():', 5);
             this.navigateTo(url);
-            console.log('BrowserService.open():', 6);
             return Promise.resolve(true);
         }
     }
@@ -53,16 +40,11 @@ export class BrowserService {
     }
 
     private checkSafariAvailable(): Promise<void> {
-        console.log('BrowserService.checkSafariAvailable():', 1);
         return new Promise((resolve, reject) => {
-            console.log('BrowserService.checkSafariAvailable():', 2);
             SafariViewController.isAvailable((available) => {
-                console.log('BrowserService.checkSafariAvailable():', 3);
                 if(available) {
-                    console.log('BrowserService.checkSafariAvailable():', 4);
                     resolve();
                 } else {
-                    console.log('BrowserService.checkSafariAvailable():', 5);
                     reject('Safari not available');
                 }
             })

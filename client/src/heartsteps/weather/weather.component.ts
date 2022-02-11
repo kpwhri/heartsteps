@@ -9,10 +9,9 @@ const CATEGORY_TO_ICON_MAP:any = {
     snow: 'snow',
     clear: 'sunny',
     thunderstorm: 'thunderstorm',
-    windy: 'windy',
-    unknown: 'unknown'
+    windy: 'windy'
 };
-const DEFAULT_ICON = 'unknown';
+const DEFAULT_ICON = 'partly-cloudy';
 
 
 @Component({

@@ -4,7 +4,6 @@ import { StorageService } from "@infrastructure/storage.service";
 import { ParticipantInformationService } from "./participant-information.service";
 import { ContactInformationService } from "@heartsteps/contact-information/contact-information.service";
 import { ReplaySubject, BehaviorSubject } from "rxjs";
-import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 export class Participant{
     dateEnrolled: Date;
@@ -13,6 +12,7 @@ export class Participant{
     isBaselineComplete: boolean;
     name: string;
     staff: boolean;
+    participantTags: string[];
 }
 
 const storageKey = 'heartsteps-id'
@@ -27,22 +27,16 @@ export class ParticipantService {
         private storage:StorageService,
         private profileService: ProfileService,
         private participantInformationService: ParticipantInformationService,
-        private contactInformationService: ContactInformationService,
-        private featureFlagsService: FeatureFlagService
-    ) {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'constructor()');
-    }
+        private contactInformationService: ContactInformationService
+    ) {}
 
     public get():Promise<Participant> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()');
         return this.getParticipant()
         .then((participant) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'participant=', participant);
             this.participant.next(participant);
             return participant;
         })
         .catch((error) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'error=', error);
             this.participant.next(undefined);
             return Promise.reject(error);
         });
@@ -53,19 +47,15 @@ export class ParticipantService {
     }
 
     public update():Promise<void> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()');
         this.updatingParticipant.next(true);
         return this.isEnrolled()
         .then(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()', 'isEnrolled=true');
             return this.loadOrUpdateParticipant()
         })
         .then(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()', 'loadOrUpdateParticipant()=true');
             return this.getParticipant()
         })
         .then((participant) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'participant=', participant);
             this.participant.next(participant);
         })
         .catch(() => {
@@ -78,17 +68,16 @@ export class ParticipantService {
     }
 
     private getParticipant():Promise<Participant> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getParticipant()');
         return Promise.all([
             this.getProfileComplete(),
             this.getStaffStatus(),
             this.getName(),
             this.participantInformationService.getDateEnrolled(),
             this.getBaselineComplete(),
-            this.getParticipantLoaded()
+            this.getParticipantLoaded(),
+            this.getParticipantTags()
         ])
         .then((results) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getParticipant()', 'results=', results);
             const participant = new Participant();
             participant.isSetup = results[0];
             participant.staff = results[1];
@@ -96,15 +85,15 @@ export class ParticipantService {
             participant.dateEnrolled = results[3];
             participant.isBaselineComplete = results[4];
             participant.isLoaded = results[5];
+            participant.participantTags = results[6];
+            // participant.participantTags = ["NLM", "TEST"];
             return participant
         });
     }
 
     private getProfileComplete(): Promise<boolean> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getProfileComplete()');
         return this.isOnboardComplete()
         .then((isComplete) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getProfileComplete()', 'isComplete=', isComplete);
             if(isComplete) {
                 return true;
             } else {
@@ -117,7 +106,6 @@ export class ParticipantService {
     }
 
     private getBaselineComplete(): Promise<boolean> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getBaselineComplete()');
         return this.participantInformationService.getBaselineComplete()
         .catch(() => {
             return Promise.resolve(false);
@@ -125,7 +113,6 @@ export class ParticipantService {
     }
 
     private getStaffStatus(): Promise<boolean> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getStaffStatus()');
         return this.participantInformationService.isStaff()
         .catch(() => {
             return Promise.resolve(false);
@@ -133,7 +120,6 @@ export class ParticipantService {
     }
 
     private getName(): Promise<string> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getName()');
         return this.contactInformationService.get()
         .then((contactInformation:any) => {
             if(contactInformation.name) {
@@ -204,10 +190,8 @@ export class ParticipantService {
     }
 
     public isOnboardComplete(): Promise<boolean> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'isOnboardComplete()');
         return this.storage.get('onboard-complete')
         .then(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'isOnboardComplete()', 'true');
             return true;
         })
         .catch(() => {
@@ -216,14 +200,11 @@ export class ParticipantService {
     }
 
     private loadOrUpdateParticipant(): Promise<void> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'loadOrUpdateParticipant()');
         return this.isParticipantLoaded()
         .then(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'loadOrUpdateParticipant()', 'isParticipantLoaded=true');
             return this.profileService.update();
         })
         .catch(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'loadOrUpdateParticipant()', 'isParticipantLoaded=false');
             return this.profileService.load()
             .then(() => {
                 return this.markParticipantLoaded();
@@ -232,20 +213,16 @@ export class ParticipantService {
     }
 
     private isParticipantLoaded(): Promise<void> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'isParticipantLoaded()');
         return this.storage.get('participant-loaded')
         .then(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'isParticipantLoaded()', 'true');
             return undefined;
         })
         .catch(() => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'isParticipantLoaded()', 'false');
             return Promise.reject('Participant not loaded');
         });
     }
 
     private getParticipantLoaded(): Promise<boolean> {
-        console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'getParticipantLoaded()');
         return this.isParticipantLoaded()
         .then(() => {
             return true;
@@ -261,5 +238,16 @@ export class ParticipantService {
 
     public markParticipantNotLoaded(): Promise<void> {
         return this.storage.remove('participant-loaded');
+    }
+
+    private getParticipantTags(): Promise<string[]> {
+        return this.participantInformationService.getParticipantTags()
+        .then((participantTags:string[]) => {
+            return Promise.resolve(participantTags);
+        })
+        .catch(() => {
+            return Promise.resolve([]);
+        })
+
     }
 }

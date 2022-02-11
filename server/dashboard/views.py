@@ -1779,45 +1779,6 @@ class ParticipantToggleAdherenceMessagesView(ParticipantFeatureToggleView):
             self.add_success_message(request, 'Disabled adherence messages')
         return self.redirect(request)
 
-# TODO: delete if unused
-# # TODO: maybe choose better view than CohortView
-# class FeatureFlagAdherenceMessageView(CohortView):
-#     # TODO: finish HTML template
-#     template_name = 'dashboard/participant-feature-flags-adherence.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         participants = Participant.objects \
-#             .filter(
-#                 archived=False,
-#                 cohort=self.cohort,
-#             ) \
-#             .order_by('heartsteps_id') \
-#             .prefetch_related('user') \
-#             .all()
-
-#         context['participants'] = participants
-
-#         return context
-
-#     def post(self, request, *args, **kwargs):
-#         if not self.participant.user:
-#             self.add_error_message(request, 'Participant has no user')
-#             return self.redirect(request)
-#         if self.is_configuration_enabled():
-#             config = AdherenceMessageConfiguration.objects.get(
-#                 user=self.participant.user)
-#             config.enabled = False
-#             config.save()
-#             self.add_success_message(request, 'Disabled adherence messages')
-#         else:
-#             config, _ = AdherenceMessageConfiguration.objects.get_or_create(
-#                 user=self.participant.user)
-#             config.enabled = True
-#             config.save()
-#             self.add_success_message(request, 'Disabled adherence messages')
-#         return self.redirect(request)
-
 
 class ParticipantDisableFitbitAccountView(ParticipantFeatureToggleView):
     def get_context_data(self, **kwargs):

@@ -65,11 +65,17 @@ export class WeekService {
     }
 
     public getCurrentWeek():Promise<Week> {
-        return this.getWeek('current');
+        return this.heartstepsServer.get('weeks/current')
+        .then((data:any) => {
+            return this.deserializeWeek(data);
+        });
     }
 
     public getNextWeek():Promise<Week> {
-        return this.getWeek('next');
+        return this.heartstepsServer.get('weeks/next')
+        .then((data:any) => {
+            return this.deserializeWeek(data);
+        });
     }
 
     public deserializeWeek(data:any):Week {

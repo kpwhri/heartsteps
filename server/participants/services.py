@@ -83,6 +83,19 @@ class ParticipantService:
         else:
             return 0
 
+    def get_participantTags(self):
+        tag_list = []
+        # TODO: Implement Participant Tags
+
+        # For NLM
+        study_type_service = StudyTypeService("NLM", user=self.user)
+        if study_type_service.is_cohort_assigned(self.participant.cohort):
+            tag_list.append("NLM")
+
+        # TODO: Add more tags if necessary
+
+        return tag_list
+
     def get_participant(token, birth_year):
         try:
             participant = Participant.objects.get(

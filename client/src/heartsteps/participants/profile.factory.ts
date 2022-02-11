@@ -35,12 +35,10 @@ export class ProfileService {
         private activityPlanService: ActivityPlanService,
         private activityTypeService: ActivityTypeService,
         private participantInformationService: ParticipantInformationService
-    ) {
-        console.log("src", "heartsteps", "participants", "profile.service.ts", "ProfileService", "constructor()");
-    }
+    ) { }
 
     public isComplete(): Promise<boolean> {
-        console.log("ProfileService.isComplete() point 1", "revision", 1);
+        console.log("ProfileService.isComplete() point 1");
         return this.get()
             .then((profile) => {
                 console.log("ProfileService.isComplete() point 2: profile=", profile);
@@ -70,7 +68,6 @@ export class ProfileService {
     }
 
     public update(): Promise<void> {
-        console.log('src', 'heartsteps', 'participants', 'profile.service.ts', 'ProfileService', 'update()');
         return Promise.all([
             this.fitbitService.setup(),
             this.loadCurrentWeek(),
@@ -80,40 +77,25 @@ export class ProfileService {
             this.setupDailyTimes(),
         ])
             .then(() => {
-                console.log('src', 'heartsteps', 'participants', 'profile.service.ts', 'ProfileService', 'update()', 'return Promise.resolve()');
                 return undefined;
             })
             .catch(() => {
-                console.log('src', 'heartsteps', 'participants', 'profile.service.ts', 'update()', 'Error updating participant');
                 return Promise.reject("Profile factory did not update participant");
             });
     }
 
     public load(): Promise<boolean> {
-        console.log("ProfileService.load() point 1");
-        var promiseArray = [];
-
-        promiseArray.push(this.loadActivityLogCache());
-        if (this.featureFlagService.hasFlagNP('walking_suggestions')) {
-            promiseArray.push(this.loadWalkingSuggestionTimes());
-        }
-        if (this.featureFlagService.hasFlagNP('places')) {
-            promiseArray.push(this.loadPlaces());
-        }
-        if (this.featureFlagService.hasFlagNP('weekly_reflection')) {
-            promiseArray.push(this.loadReflectionTime());
-        }
-        if (this.featureFlagService.hasFlagNP('bout_planning')) {
-            promiseArray.push(this.loadFirstBoutPlanningTime());
-        }
-        promiseArray.push(this.loadContactInformation());
-        promiseArray.push(this.loadFitbit());
-        if (this.featureFlagService.hasFlagNP('fitbit_clock_face')) {
-            promiseArray.push(this.loadFitbitWatchStatus());
-        }
-        promiseArray.push(this.loadParticipantInformation());
-        
-        return Promise.all(promiseArray)
+        return Promise.all([
+            this.loadActivityLogCache(),
+            this.loadWalkingSuggestionTimes(),
+            this.loadPlaces(),
+            this.loadReflectionTime(),
+            this.loadFirstBoutPlanningTime(),
+            this.loadContactInformation(),
+            this.loadFitbit(),
+            this.loadFitbitWatchStatus(),
+            this.loadParticipantInformation()
+        ])
             .then(() => {
                 return this.update();
             })
@@ -121,7 +103,7 @@ export class ProfileService {
                 return Promise.resolve(true);
             })
             .catch(() => {
-                return Promise.resolve(false);
+                return Promise.reject("Complete participant did not load");
             });
     }
 
@@ -143,58 +125,32 @@ export class ProfileService {
     }
 
     public get(): Promise<any> {
-        var profile = {}
-
-        var promises = []
-
-        promises.push(this.checkNotificationsEnabled());
-        if (this.featureFlagService.hasFlagNP('walking_suggestions')) {
-            promises.push(this.checkWalkingSuggestions());
-        }
-        if (this.featureFlagService.hasFlagNP('places')) {
-            promises.push(this.checkPlacesSet());
-        }
-        if (this.featureFlagService.hasFlagNP('weekly_reflection')) {
-            promises.push(this.checkReflectionTime());
-        }
-        if (this.featureFlagService.hasFlagNP('bout_planning')) {
-            promises.push(this.checkFirstBoutPlanningTime());
-        }
-        promises.push(this.checkContactInformation());
-        promises.push(this.checkFitbit());
-        if (this.featureFlagService.hasFlagNP('fitbit_clock_face')) {
-            promises.push(this.checkFitbitWatch());
-        }
-
-        return Promise.all(promises)
+        return Promise.all([
+            this.checkNotificationsEnabled(),
+            this.checkWalkingSuggestions(),
+            this.checkPlacesSet(),
+            this.checkReflectionTime(),
+            this.checkFirstBoutPlanningTime(),
+            this.checkContactInformation(),
+            this.checkFitbit(),
+            this.checkFitbitWatch()
+        ])
             .then((results) => {
-                var index = 0;
-                profile['notificationsEnabled'] = results[index]; index += 1;
-                if (this.featureFlagService.hasFlagNP('walking_suggestions')) {
-                    profile['walkingSuggestions'] = results[index]; index += 1;
+                console.log("ProfileService.get()", results);
+                return {
+                    notificationsEnabled: results[0],
+                    walkingSuggestionTimes: results[1],
+                    places: results[2],
+                    weeklyReflectionTime: results[3],
+                    firstBoutPlanningTime: results[4],
+                    contactInformation: results[5],
+                    fitbitAuthorization: results[6],
+                    fitbitClockFace: results[7]
                 }
-                if (this.featureFlagService.hasFlagNP('places')) {
-                    profile['places'] = results[index]; index += 1;
-                }
-                if (this.featureFlagService.hasFlagNP('weekly_reflection')) {
-                    profile['weeklyReflectionTime'] = results[index]; index += 1;
-                }
-                if (this.featureFlagService.hasFlagNP('bout_planning')) {
-                    profile['firstBoutPlanningTime'] = results[index]; index += 1;
-                }
-                profile['contactInformation'] = results[index]; index += 1;
-                profile['fitbitAuthorization'] = results[index]; index += 1;
-                if (this.featureFlagService.hasFlagNP('fitbit_clock_face')) {
-                    profile['fitbitClockFace'] = results[index]; index += 1;
-                }
-
-                return Promise.resolve(profile);
             })
             .catch(() => {
-                console.log('src', 'heartsteps', 'participants', 'profile.service.ts', 'get()', 'point 3');
-                return Promise.reject(undefined);
-            });
-
+                return Promise.reject(false)
+            })
     }
 
     private setupDailyTimes(): Promise<boolean> {
@@ -215,16 +171,17 @@ export class ProfileService {
     }
 
     private checkFirstBoutPlanningTime(): Promise<boolean> {
-        return this.featureFlagService.hasFlag('bout_planning')
-            .then((hasFlag) => {
-                if (hasFlag) {
-                    return this.firstBoutPlanningTimeService.getTime()
-                        .then(() => { return Promise.resolve(true) })
-                        .catch(() => { return Promise.resolve(false) });
-                } else {
-                    return Promise.resolve(undefined);
-                }
-            });
+        if (this.featureFlagService.hasFlag("bout_planning")) {
+            return this.firstBoutPlanningTimeService.getTime()
+                .then(() => {
+                    return true;
+                })
+                .catch(() => {
+                    return Promise.resolve(false);
+                })
+        } else {
+            return Promise.resolve(undefined);
+        }
     }
 
     private loadReflectionTime(): Promise<boolean> {
@@ -238,15 +195,18 @@ export class ProfileService {
     }
 
     private loadFirstBoutPlanningTime(): Promise<boolean> {
-        return this.featureFlagService.hasFlag("bout_planning")
-            .then((hasFlag) => {
-                if (hasFlag) {
-                    return this.firstBoutPlanningTimeService.load()
-                        .then(() => { return Promise.resolve(true); });
-                } else {
-                    return Promise.resolve(false);
-                }
+        if (this.featureFlagService.hasFlag("bout_planning")) {
+            return this.firstBoutPlanningTimeService.load()
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                return Promise.resolve(false);
             });
+        } else {
+            return Promise.resolve(true);
+        }
+        
     }
 
     private checkContactInformation(): Promise<boolean> {
@@ -403,26 +363,30 @@ export class ProfileService {
     }
 
     private checkFitbitWatch(): Promise<boolean> {
-        return this.featureFlagService.hasFlag("fitbit_clockface")
-            .then((hasFlag) => {
-                if (hasFlag) {
-                    return this.fitbitClockFaceService.isPaired()
-                        .then((isPaired) => { return Promise.resolve(isPaired); });
-                } else {
-                    return Promise.resolve(undefined);
-                }
+        if (this.featureFlagService.hasFlag("fitbit_clockface")) {
+            return this.fitbitClockFaceService.isPaired()
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                return Promise.resolve(false);
             });
+        } else {
+            Promise.resolve(true);
+        }
     }
 
     private loadFitbitWatchStatus(): Promise<boolean> {
-        return this.featureFlagService.hasFlag("fitbit_clockface")
-            .then((hasFlag) => {
-                if (hasFlag) {
-                    return this.fitbitClockFaceService.update()
-                        .then(() => { return Promise.resolve(true); });
-                } else {
+        if (this.featureFlagService.hasFlag("fitbit_clockface")) {
+            return this.fitbitClockFaceService.update()
+                .then(() => {
+                    return true
+                })
+                .catch(() => {
                     return Promise.resolve(false);
-                }
-            });
+                });
+        } else {
+            Promise.resolve(undefined);
+        }
     }
 }

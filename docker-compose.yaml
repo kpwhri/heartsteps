@@ -4,7 +4,6 @@ services:
     build: 
       context: ./
       dockerfile: client.Dockerfile
-    image: gcr.io/heartsteps-dev/client
     command: npm run serve:app
     volumes:
       - ./client:/client
@@ -33,7 +32,6 @@ services:
     build: 
       context: ./
       dockerfile: server.Dockerfile
-    image: gcr.io/heartsteps-dev/server
     environment:
       - ALLOWED_HOSTS=localhost,server,192.168.99.100
       - DEBUG=True

@@ -9,29 +9,19 @@
                     Contact information
                 </button>
             </li>
-            <ng-container *ngIf="hasFlag('places')">
-                <li>
-                    <button (click)="editPlaces()">
-                        Places
-                    </button>
-                </li>
-            </ng-container>
-            <ng-container *ngIf="hasFlag('weekly_reflection')">
-                <li>
-                    <button (click)="editWeeklyReflectionTime()">
-                        Weekly reflection time
-                    </button>
-                </li>
-            </ng-container>
+            <li><button (click)="editPlaces()">Places</button></li>
+            <li>
+                <button (click)="editWeeklyReflectionTime()">
+                    Weekly reflection time
+                </button>
+            </li>
             <ng-container *ngIf="!hasFlag('nlm')">
                 <li><button (click)="editWeeklyGoal()">Weekly goal</button></li>
-                <ng-container *ngIf="hasFlag('walking_suggestions')">
-                    <li>
-                        <button (click)="editDailyTimes()">
-                            Activity suggestion time
-                        </button>
-                    </li>
-                </ng-container>
+                <li>
+                    <button (click)="editDailyTimes()">
+                        Activity suggestion time
+                    </button>
+                </li>
             </ng-container>
         </ul>
     </nav>
@@ -42,13 +32,11 @@
                     Fitbit Authorization
                 </button>
             </li>
-            <ng-container *ngIf="hasFlag('fitbit_clock_face')">
-                <li>
-                    <button (click)="goToFitbitClockFaceSettings()">
-                        Fitbit Clock Face
-                    </button>
-                </li>
-            </ng-container>
+            <li>
+                <button (click)="goToFitbitClockFaceSettings()">
+                    Fitbit Clock Face
+                </button>
+            </li>
         </ul>
     </nav>
     <p>JustWalk {{ buildVersion }}, built on {{ buildDate }}</p>
@@ -100,6 +88,26 @@
                 Send Weekly Survey
             </button>
         </li>
+        <article *ngIf="participantTags.includes('NLM')">
+            <ul>
+                <h4>NLM-related</h4>
+                <li>
+                    <button (click)="testNLMBlank()">
+                        Test NLM Blank Modal
+                    </button>
+                </li>
+                <li>
+                    <button (click)="genericMessagesModal()">
+                        Open up generic messages modal
+                    </button>
+                </li>
+                <li>
+                    <button (click)="genericMessagesSendTest()">
+                        Open up generic messages notification
+                    </button>
+                </li>
+            </ul>
+        </article>
     </ul>
     <br />
     <h4>USER LOGS</h4>

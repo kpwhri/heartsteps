@@ -31,8 +31,8 @@ export class OnboardGaurd implements CanActivate {
                 console.log("OnboardGaurd.canActivate() case 6");
             return false;
         })
-            .catch((error) => {
-                console.log("OnboardGaurd.canActivate() case 7", error);
+            .catch(() => {
+                console.log("OnboardGaurd.canActivate() case 7");
             return true;
         });
     }
