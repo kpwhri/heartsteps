@@ -13,3 +13,4 @@ class DailyWeatherForecastAdmin(admin.ModelAdmin):
 admin.site.register(DailyWeatherForecast, DailyWeatherForecastAdmin)
 admin.site.register(ZipCodeInfo)
 
+

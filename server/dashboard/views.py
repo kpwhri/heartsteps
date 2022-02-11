@@ -2919,3 +2919,4 @@ class ChartDataView:
             return JsonResponse(data, safe=False)
         else:
             raise NotImplementedError('"item" is not found')
+

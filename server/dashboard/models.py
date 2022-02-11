@@ -898,3 +898,4 @@ class FitbitServiceDashboard(FitbitService):
             return super(FitbitServiceDashboard, self).last_updated_on()
         except FitbitServiceDashboard.AccountNeverUpdated:
             return None
+

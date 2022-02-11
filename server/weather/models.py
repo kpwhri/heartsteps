@@ -36,6 +36,7 @@ class WeatherForecast(models.Model):
     def __str__(self):
         return "Apparent temp is %s at (%s, %s)" % (self.apparent_temperature, self.latitude, self.longitude)
 
+
 class DailyWeatherForecast(models.Model):
 
     CLEAR = 'clear'
