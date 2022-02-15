@@ -3,6 +3,7 @@ from celery import shared_task
 from days.services import DayService
 from fitbit_api.models import FitbitAccountUser
 import pytz
+from participants.services import ParticipantService
 from sms_messages.services import SMSService
 
 from .models import BoutPlanningMessage, JSONSurvey, User
@@ -82,14 +83,19 @@ def justwalk_daily_ema(username, parameters=None):
         if FeatureFlags.has_flag(user, "bout_planning"):
             EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
             
-            service = BoutPlanningNotificationService(user)
-            
-            json_survey = JSONSurvey.objects.get(name="daily_ema")
-            survey = json_survey.substantiate(user, parameters)
-            # survey = service.create_daily_ema()
-            
-            # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-            message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+            participant_service = ParticipantService(user=user)
+            if participant_service.is_baseline_complete():
+                EventLog.debug(user, "is_baseline_complete() is true. bout planning notification will be sent.")
+                service = BoutPlanningNotificationService(user)
+                
+                json_survey = JSONSurvey.objects.get(name="daily_ema")
+                survey = json_survey.substantiate(user, parameters)
+                # survey = service.create_daily_ema()
+                
+                # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+                message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+            else:
+                EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)
