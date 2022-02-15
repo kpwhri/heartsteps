@@ -14,6 +14,9 @@ import { ReactiveFormsModule } from '@angular/forms';
   exports: [
     EnrollmentModal
   ],
+  entryComponents: [
+    EnrollmentModal
+  ],
   imports: [
     InfrastructureModule,
     DialogsModule,

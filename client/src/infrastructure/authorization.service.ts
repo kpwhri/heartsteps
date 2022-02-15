@@ -30,11 +30,11 @@ export class AuthorizationService {
         return Promise.reject("Authorization failed");
     }
 
-    onRetryAuthorization(fn: Function) {
+    onRetryAuthorization(fn: Function): void {
         this.retryMethod = fn;
     }
 
-    removeRetryAuthorization() {
+    removeRetryAuthorization(): void {
         this.retryMethod = null;
     }
 

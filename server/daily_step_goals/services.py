@@ -87,7 +87,7 @@ class StepGoalsService:
         
         if len(steps_log) == 0:
             # no day log is found
-            base = 10000
+            base = 10000    # change to 2000 steps
             sgc_settings.magnitude = 0
             sgc_settings.base_jump = 0
         else:
