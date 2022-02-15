@@ -77,23 +77,31 @@ export class DailySummaryService {
     }
 
     public reload(dates?: Array<Date>): Promise<void> {
+        console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 1);
         if (!dates) {
+            console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 2);
             dates = this.getDatesToStore();
+            console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 3);
         }
+        console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 4);
         dates.sort(function (a, b) {
             if (a > b) return 1;
             if (a < b) return -1;
             return 0;
         });
+        console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 5);
         return this.storage
             .destroy()
             .then(() => {
+                console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 6);
                 return this.loadRange(dates.shift(), dates.pop());
             })
             .then((summaries) => {
+                console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 7);
                 summaries.forEach((summary) => {
                     this.updated.emit(summary);
                 });
+                console.log("src", "heartsteps", "daily-summary.service.ts", "DailySummaryService", "reload()", 8);
                 return undefined;
             });
     }
@@ -307,9 +315,12 @@ export class DailySummaryService {
     }
 
     private getDatesToStore(): Array<Date> {
+        console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.getDatesToStore()", 1);
         if (this.cacheStartDate) {
+            console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.getDatesToStore()", 2);
             return this.dateFactory.getDatesFrom(this.cacheStartDate);
         } else {
+            console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.getDatesToStore()", 3);
             return this.dateFactory.getCurrentWeek();
         }
     }

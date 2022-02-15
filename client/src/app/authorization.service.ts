@@ -14,18 +14,19 @@ export class AuthorizationService {
     ) {}
 
     public setup(): Promise<void> {
-        this.authorizationInfrastructure.onRetryAuthorization(() => {
-            return this.enrollmentController.enroll("Please re-authenticate", false)
-            .then(() => {
-                return this.authorizationInfrastructure.isAuthorized();
-            })
-            .catch(() => {
-                return this.participantService.remove()
-                .then(() => {
-                    return Promise.reject(false);
-                });
-            });
-        });
+        // this.authorizationInfrastructure.onRetryAuthorization(() => {
+        //     return this.enrollmentController.enroll("Please re-authenticate", false)
+        //     .then(() => {
+        //         return this.authorizationInfrastructure.isAuthorized();
+        //     })
+        //     .catch(() => {
+        //         return this.participantService.remove()
+        //         .then(() => {
+        //             return Promise.reject(false);
+        //         });
+        //     });
+        // });
+        this.authorizationInfrastructure.removeRetryAuthorization()
         return Promise.resolve(undefined);
     }
 

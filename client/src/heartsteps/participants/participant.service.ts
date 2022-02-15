@@ -65,13 +65,15 @@ export class ParticipantService {
             return this.getParticipant()
         })
         .then((participant) => {
-            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'get()', 'participant=', participant);
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()', 'participant=', participant);
             this.participant.next(participant);
         })
         .catch(() => {
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()', 'error');
             this.participant.next(null);
         })
         .then(() => {
+            console.log('src', 'heartsteps', 'participants', 'participant.service.ts', 'ParticipantService', 'update()', 'updatingParticipant=false');
             this.updatingParticipant.next(false);
             return undefined;
         })

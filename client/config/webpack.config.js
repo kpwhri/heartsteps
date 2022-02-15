@@ -43,11 +43,19 @@ fs.readFile('./config.xml', 'utf8', function(err, data) {
     var parser = new xml2js.Parser();
     parser.parseString(data, function(err, obj) {
         obj['widget']['$']['id'] = bundle_id;
+        current_build_number = obj['widget']['$']['android-versionCode'];
+        current_build_number = parseInt(current_build_number);
+        current_build_number = current_build_number + 1;
+        console.log("* New build number: " + current_build_number);
+        obj['widget']['$']['android-versionCode'] = current_build_number;
+        obj['widget']['$']['osx-CFBundleVersion'] = current_build_number;
+        obj['widget']['$']['ios-CFBundleVersion'] = current_build_number;
+        obj['widget']['$']['version'] = "2.3." + current_build_number.toString();
 
         var builder = new xml2js.Builder();
         xml = builder.buildObject(obj);
         fs.writeFile('./config.xml', xml, function() {
-            console.log('* Updated config.xml');
+            console.log('* Updated config.xml - without BUILD_NUMBER env variable');
         });
     });
 });
@@ -72,7 +80,7 @@ if (process.env.BUILD_NUMBER && process.env.BUILD_VERSION) {
             var builder = new xml2js.Builder();
             xml = builder.buildObject(obj);
             fs.writeFile('./config.xml', xml, function() {
-                console.log('* Updated config.xml');
+                console.log('* Updated config.xml - with BUILD_NUMBER env variable');
             });
         });
     });

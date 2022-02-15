@@ -49,23 +49,32 @@ export class BaselineWeekPage {
     }
 
     public reload() {
+        console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 1);
         this.loadingService.show('Loading activity data');
+        console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 2);
         this.participantService.update()
         .then(() => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 3);
             return this.dailySummaryService.reload();
         })
         .then(() => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 4);
             return this.setDays();
         })
         .catch((err) => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 5);
             console.error(err);
         })
         .then(() => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 6);
             return this.participantInformationService.getBaselineComplete()
         })
         .then((isBaselineComplete) => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 7);
             this.loadingService.dismiss();
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 8);
             if (isBaselineComplete) {
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 9);
                 this.router.navigate(['/']);
             }
         });
@@ -92,35 +101,45 @@ export class BaselineWeekPage {
     }
 
     private setDays(): Promise<void> {
+        console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 1);
         return this.setBaselinePeriod()
         .then(() => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 2);
             return this.dailySummaryService.getAll()
         })
         .then((dailySummaries) => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 3);
             const days: Array<Day> = [];
             dailySummaries.forEach((summary) => {
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 4);
                 const day = this.dateToDay(summary.date, summary.wore_fitbit);
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 5);
                 if(day.woreFitbit) {
                     days.push(day);
                 }
             });
-
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 6);
             this.numberDaysWorn = days.length;
-
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 7);
             let date = new Date();
             if(days.length) {
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 8);
                 date = days[days.length-1].date;
             }
             
             while(days.length <= this.baselinePeriod) {
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 9);
                 date = moment(date).add(1, 'days').toDate();
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 10);
                 const day = this.dateToDay(date, false);
+                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 11);
                 days.push(day);
             }
-
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 12);
             this.days = days;
         })
         .catch((error) => {
+            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "setDays()", 13);
             console.log('errors', error)
         });
     }
