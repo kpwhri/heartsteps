@@ -35,7 +35,7 @@ export class MessageReceiptService {
             id: messageId
         };
         messageObj[state] = moment().utc().format('YYYY-MM-DD HH:mm:ss')
-        return this.heartstepsServer.post('messages', [messageObj])
+        return this.heartstepsServer.post('messages', [messageObj], false)
         .then(() => {
             return true;
         });
@@ -78,7 +78,7 @@ export class MessageReceiptService {
                 message.id = key;
                 messageList.push(message);
             })
-            return this.heartstepsServer.post('/messages', messageList);
+            return this.heartstepsServer.post('/messages', messageList, false);
         })
         .then(() => {
             return this.storage.set(storageKey, {})

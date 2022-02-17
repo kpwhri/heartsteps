@@ -29,7 +29,7 @@ export class FeatureFlagService {
 
         return this.authorizationService.isAuthorized()
             .then(() => {
-                return this.heartstepsServer.get('feature-flags');
+                return this.heartstepsServer.get('feature-flags', undefined, false);
             })
             .then((response) => {
                 if (response) {

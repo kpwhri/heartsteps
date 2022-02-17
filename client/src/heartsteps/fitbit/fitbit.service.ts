@@ -55,7 +55,7 @@ export class FitbitService {
     }
 
     private getAuthorizationToken(): Promise<string> {
-        return this.heartstepsServer.post('fitbit/authorize/generate', {})
+        return this.heartstepsServer.post('fitbit/authorize/generate', {}, false)
         .then((response) => {
             return response.token;
         })
@@ -121,7 +121,7 @@ export class FitbitService {
     }
 
     public updateFitbitAccount(): Promise<FitbitAccount> {
-        return this.heartstepsServer.get('fitbit/account')
+        return this.heartstepsServer.get('fitbit/account', undefined, false)
         .then((data) => {
             const account = this.deserializeAccount({
                 id: data['id'],

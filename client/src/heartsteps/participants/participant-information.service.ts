@@ -18,7 +18,7 @@ export class ParticipantInformationService {
 
     public load(): Promise<boolean> {
         console.log('Loading participant information');
-        return this.heartstepsServer.get('information')
+        return this.heartstepsServer.get('information', undefined, false)
             .then((data) => {
                 console.log("ParticipantInformationService.load()", JSON.stringify(data))
             return Promise.all([

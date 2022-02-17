@@ -73,7 +73,7 @@ export class AnalyticsService {
     public uploadPageView(): Promise<void> {
         return this.storage.get('page-views')
         .then((pageViews) => {
-            return this.heartstepsServer.post('page-views', pageViews)
+            return this.heartstepsServer.post('page-views', pageViews);
         })
         .then(() => {
             this.storage.remove('page-views');

@@ -24,7 +24,7 @@ export class EnrollmentService {
         }
         return this.authorizationService.removeAuthorization()
         .then(() => {
-            return this.heartstepsServer.post('enroll' , postData)
+            return this.heartstepsServer.post('enroll' , postData, false)
         })
         .then((data) => {
             return this.participantService.setHeartstepsId(data.heartstepsId);
@@ -44,7 +44,7 @@ export class EnrollmentService {
     }
 
     public unenroll():Promise<void> {
-        return this.heartstepsServer.post('logout', {})
+        return this.heartstepsServer.post('logout', {}, false)
         .catch(() => {
             console.log('Server failed to logout, continue.');
         })

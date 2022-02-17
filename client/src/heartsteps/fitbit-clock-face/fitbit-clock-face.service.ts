@@ -75,7 +75,7 @@ export class FitbitClockFaceService {
     }
 
     public getClockFace(): Promise<ClockFace> {
-        return this.heartstepsServer.get('fitbit-clock-face/pair')
+        return this.heartstepsServer.get('fitbit-clock-face/pair', undefined, false)
         .then((data) => {
             return {
                 'pin': data.pin
@@ -89,7 +89,7 @@ export class FitbitClockFaceService {
     public pairWithPin(pin: string): Promise<void> {
         return this.heartstepsServer.post('fitbit-clock-face/pair', {
             'pin': pin
-        })
+        }, false)
         .then(() => {
             return this.update();
         })
@@ -99,14 +99,14 @@ export class FitbitClockFaceService {
     }
 
     public unpair(): Promise<void> {
-        return this.heartstepsServer.delete('fitbit-clock-face/pair')
+        return this.heartstepsServer.delete('fitbit-clock-face/pair', false)
         .then(() => {
             this.remove()
         });
     }
 
     public getLastClockFaceLogs(): Promise<Array<any>> {
-        return this.heartstepsServer.get('fitbit-clock-face/step-counts')
+        return this.heartstepsServer.get('fitbit-clock-face/step-counts', undefined, false)
         .then((data) => {
             if (data.step_counts && Array.isArray(data.step_counts)) {
                 return data.step_counts.map((step_count) => { 
