@@ -22,7 +22,7 @@ from fitbit_api.models import User
 
 import oauthlib
 
-from server.fitbit_api.models import FitbitConsumerKey
+from fitbit_api.models import FitbitConsumerKey
 
 class FitbitService:
 

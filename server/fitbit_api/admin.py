@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FitbitAccount, FitbitAccountUser, FitbitConsumerKey, FitbitConsumerKeys, FitbitUpdate, FitbitSubscriptionUpdate, FitbitSubscription, FitbitAccountUpdate
+from .models import FitbitAccount, FitbitAccountUser, FitbitConsumerKey, FitbitConsumerKey, FitbitUpdate, FitbitSubscriptionUpdate, FitbitSubscription, FitbitAccountUpdate
 
 
 class FitbitSubscriptionUpdateInline(admin.StackedInline):
@@ -36,8 +36,8 @@ class FitbitAccountUpdateAdmin(admin.ModelAdmin):
     readonly_fields = ['account', 'update', 'created']
 
 class FitbitConsumerKeyAdmin(admin.ModelAdmin):
-    list_display = ['consumer_key', 'consumer_secret']
-    fields = ['consumer_key', 'consumer_secret']
+    list_display = ['key', 'secret']
+    fields = ['key', 'secret']
 
 admin.site.register(FitbitUpdate, FitbitUpdateAdmin)
 admin.site.register(FitbitSubscription, FitbitSubscriptionAdmin)
