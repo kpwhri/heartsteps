@@ -2,6 +2,12 @@ import uuid, pytz, math
 from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.auth.models import User
+from participants.models import Study
+
+class FitbitConsumerKey(models.Model):
+    key = models.CharField(max_length=1000)
+    secret = models.CharField(max_length=1000)
+    created = models.DateTimeField(auto_now_add=True)
 
 class FitbitAccountQuerySet(models.QuerySet):
 

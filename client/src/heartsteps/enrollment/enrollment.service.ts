@@ -61,4 +61,17 @@ export class EnrollmentService {
             return undefined;
         });
     }
+
+    public clearStorage():Promise<void> {
+        return this.participantService.remove()
+        .then(() => {
+            return this.authorizationService.removeAuthorization();
+        })
+        .then(() => {
+            return this.storage.clear();
+        })
+        .then(() => {
+            return undefined;
+        });
+    }
 }

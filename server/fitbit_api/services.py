@@ -22,6 +22,8 @@ from fitbit_api.models import User
 
 import oauthlib
 
+from server.fitbit_api.models import FitbitConsumerKey
+
 class FitbitService:
 
     class AccountNeverUpdated(RuntimeError):
@@ -109,8 +111,12 @@ def create_fitbit(**kwargs):
     consumer_key = None
     consumer_secret = None
     try:
-        consumer_key = settings.FITBIT_CONSUMER_KEY
-        consumer_secret = settings.FITBIT_CONSUMER_SECRET
+        fitbit_consumer_key_obj = FitbitConsumerKey.objects.order_by('-created').first()
+        consumer_key = fitbit_consumer_key_obj.key
+        consumer_secret = fitbit_consumer_key_obj.secret
+        
+        # consumer_key = settings.FITBIT_CONSUMER_KEY
+        # consumer_secret = settings.FITBIT_CONSUMER_SECRET
     except:
         raise ImproperlyConfigured('Missing Fitbit API credentials')
     return Fitbit(consumer_key, consumer_secret, **kwargs)
