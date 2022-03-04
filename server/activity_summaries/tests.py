@@ -14,6 +14,7 @@ from locations.services import LocationService
 from fitbit_api.services import FitbitService, FitbitClient
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.models import FitbitDay, FitbitMinuteStepCount
+from fitbit_api.models import FitbitConsumerKey
 
 
 from .models import ActivitySummary
@@ -23,6 +24,7 @@ from .models import User
 class TestBase(APITestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(
             username = "test",
             date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.UTC) 
@@ -43,6 +45,7 @@ class TestBase(APITestCase):
 class ActivitySummaryViewTests(TestBase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(
             username = "test",
             date_joined = datetime(2018, 9, 9, 9, 9).astimezone(pytz.UTC) 
@@ -171,6 +174,7 @@ class ActivitySummaryViewTests(TestBase):
 class FitbitDayUpdatesDay(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.account = FitbitService.create_account(
             user = self.user
@@ -232,8 +236,8 @@ class FitbitDayUpdatesDay(TestCase):
         self.assertEqual(len(days), 3)
 
 class ActivitLogUpdateDay(TestCase):
-    
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(
             username="test",
             date_joined = datetime(2019, 1, 5).astimezone(pytz.UTC)
@@ -319,6 +323,9 @@ class ActivitLogUpdateDay(TestCase):
         self.assertEqual(len(days), 2)
 
 class ActivitSummary(TestBase):
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
     
     def test_activity_summary_updated_after_day_summary_saved(self):
         

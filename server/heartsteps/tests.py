@@ -8,6 +8,8 @@ from datetime import date
 from uuid import UUID
 from django.db import transaction
 
+from fitbit_api.models import FitbitConsumerKey
+
 class HeartStepsTestCase(TestCase):
     
     def printall(self, classname):
@@ -23,6 +25,7 @@ class HeartStepsTestCase(TestCase):
         
         
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user, _ = User.objects.get_or_create(username='user_for_test')
         
         study_name = "study_for_test"

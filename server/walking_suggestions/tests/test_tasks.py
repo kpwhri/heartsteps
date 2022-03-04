@@ -13,6 +13,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.services import FitbitActivityService
+from fitbit_api.models import FitbitConsumerKey
 
 from walking_suggestions.models import SuggestionTime, Configuration, WalkingSuggestionDecision, NightlyUpdate
 from walking_suggestions.services import WalkingSuggestionDecisionService, WalkingSuggestionService
@@ -32,6 +33,7 @@ class MockResponse:
 class UpdatePoolingService(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         requests_post_patch = patch.object(requests, 'post')
         self.addCleanup(requests_post_patch.stop)
         self.requests_post = requests_post_patch.start()
@@ -89,6 +91,7 @@ class UpdatePoolingService(TestCase):
 class CreateDecisionTest(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.configuration = Configuration.objects.create(
             user=self.user,
@@ -228,6 +231,7 @@ class CreateDecisionTest(TestCase):
 class MakeDecisionTest(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         user = User.objects.create(username="test")
         Configuration.objects.create(
             user = user,
@@ -280,6 +284,7 @@ class MakeDecisionTest(TestCase):
 class NightlyUpdateTask(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(
             username = 'test'
         )
@@ -373,6 +378,9 @@ class NightlyUpdateTask(TestCase):
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example.com')
 @override_settings(WALKING_SUGGESTION_INITIALIZATION_DAYS=3)
 class InitializeAndUpdateTaskTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
 
     @patch.object(FitbitDay, 'get_wore_fitbit', return_value=True)
     @patch.object(WalkingSuggestionService, 'initialize')

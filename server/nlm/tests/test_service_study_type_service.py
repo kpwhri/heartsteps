@@ -28,6 +28,7 @@ from fitbit_api.models import FitbitAccountUser
 from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from activity_summaries.models import ActivitySummary
+from fitbit_api.models import FitbitConsumerKey
 
 
 @override_settings(WALKING_SUGGESTION_SERVICE_URL='http://example')
@@ -35,6 +36,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
     def setUp(self):
         super().setUp()
         self.study_type_name = "test study type"
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
     
     #######################################
         
