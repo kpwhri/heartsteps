@@ -15,7 +15,7 @@ export class AppStatusService {
     }
 
     public getStatus(): Promise<string> {
-        return this.heartstepsServer.get('app-status')
+        return this.heartstepsServer.get('app-status', undefined, false)
             .then((data) => {
                 if (data['status'] == 'authenticated') {
                     return Promise.resolve(APP_STATUS.AUTHENTICATED);

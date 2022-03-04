@@ -13,6 +13,7 @@ from fitbit_activities.services import FitbitDayService, FitbitClient
 from locations.services import LocationService
 from push_messages.models import Device as PushMessageDevice
 from push_messages.models import Message as PushMessage
+from fitbit_api.models import FitbitConsumerKey
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
 from walking_suggestions.services import WalkingSuggestionService
 from weather.services import WeatherService
@@ -25,6 +26,7 @@ from participants.tasks import daily_update
 class NightlyUpdateTest(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.participant = Participant.objects.create(user=self.user)
 

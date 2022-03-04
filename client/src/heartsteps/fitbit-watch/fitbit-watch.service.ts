@@ -71,7 +71,7 @@ export class FitbitWatchService {
     }
 
     public updateStatus(): Promise<FitbitWatch> {
-        return this.heartstepsServer.get('watch-app/status')
+        return this.heartstepsServer.get('watch-app/status', undefined, false)
         .then((data) => {
             const watch = this.deserialize(data);
             watch.lastChecked = new Date();

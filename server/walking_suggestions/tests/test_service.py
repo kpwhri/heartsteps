@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from anti_sedentary.models import AntiSedentaryDecision
 from behavioral_messages.models import MessageTemplate
 from locations.models import Place
+from fitbit_api.models import FitbitConsumerKey
 from service_requests.models import ServiceRequest
 from push_messages.models import Message, MessageReceipt
 from randomization.models import DecisionContext
@@ -34,6 +35,7 @@ from walking_suggestions.models import PoolingServiceConfiguration
 class ServiceTestCase(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
         self.create_fitbit_account()
 
@@ -222,6 +224,7 @@ class MockResponse:
 class MakeRequestTests(ServiceTestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
 
         requests_post_patch = patch.object(requests, 'post')
@@ -262,6 +265,7 @@ class WalkingSuggestionServiceTests(ServiceTestCase):
 
     def setUp(self):
         super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_default_suggestion_times()
         make_request_patch = patch.object(WalkingSuggestionService, 'make_request')
         self.addCleanup(make_request_patch.stop)
@@ -444,6 +448,7 @@ class CanInitializeWalkingSuggestionService(ServiceTestCase):
 
     def setUp(self):
         super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_default_suggestion_times()
 
         self.configuration.service_initialized_date = None
@@ -497,6 +502,9 @@ class CanInitializeWalkingSuggestionService(ServiceTestCase):
         self.make_request.assert_not_called()
 
 class StudyDayNumberTests(ServiceTestCase):
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
 
     def test_get_day_number_starts_at_one(self):
         today = date.today()
@@ -520,6 +528,7 @@ class LocationContextTests(ServiceTestCase):
     
     def setUp(self):
         super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
 
     def testHomeLocation(self):
         decision = WalkingSuggestionDecision.objects.create(
@@ -557,6 +566,7 @@ class LocationContextTests(ServiceTestCase):
 class GetStepsTests(ServiceTestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
         self.fitbit_account = FitbitAccount.objects.create(
             fitbit_user = "test"
@@ -582,6 +592,7 @@ class GetStepsTests(ServiceTestCase):
 class StepCountTests(ServiceTestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
             fitbit_user = "test"
@@ -691,6 +702,7 @@ class StepCountTests(ServiceTestCase):
 class TemperatureTests(ServiceTestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
         account = FitbitAccount.objects.create(
             fitbit_user = "test"
@@ -722,6 +734,7 @@ class TemperatureTests(ServiceTestCase):
 class DecisionAvailabilityTest(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(username="test")  
         self.configuration = Configuration.objects.create(
             user = self.user,
@@ -871,6 +884,7 @@ class DecisionAvailabilityTest(TestCase):
 class TestLastWalkingSuggestion(ServiceTestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.create_walking_suggestion_service()
         times = [8, 12, 15, 17, 19]
         now = timezone.now()

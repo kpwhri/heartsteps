@@ -26,7 +26,7 @@ export class UserLogsPage {
 
     private update() {
         this.serializeduserlogs = [];
-        this.heartstepsServer.get('userlogs')
+        this.heartstepsServer.get('userlogs', undefined, false)
         .then((data) => {
             console.log(data);
             console.log('GET LATEST USER LOGS: Got a response from the server');

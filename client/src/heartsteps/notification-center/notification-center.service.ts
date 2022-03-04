@@ -39,7 +39,7 @@ export class NotificationCenterService {
 
     // pull notifications from django
     public getRecentNotifications(): Promise<any> {
-        return this.heartstepsServer.get("/notification_center/", {});
+        return this.heartstepsServer.get("/notification_center/", {}, false);
     }
 
     // re-initialize this.notifications and returns current notifications in array

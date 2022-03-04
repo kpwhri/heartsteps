@@ -12,6 +12,7 @@ from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
+from fitbit_api.models import FitbitConsumerKey
 from sms_messages.services import SMSService
 from sms_messages.models import Message as SMSMessage
 from sms_messages.models import Contact as SMSContact
@@ -29,6 +30,7 @@ from .tasks import update_adherence as update_adherence_task
 class AdherenceConfigurationTests(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         initialize_adherence_patch = patch.object(initialize_adherence_task, 'apply_async')
         self.initialize_adherence_task = initialize_adherence_patch.start()
         self.addCleanup(initialize_adherence_patch.stop)
@@ -60,6 +62,7 @@ def send_sms(body):
 class AdherenceTaskTestBase(TestCase):
     
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         message_send_patch = patch.object(SMSService, 'send')
         self.send_sms_message = message_send_patch.start()
         self.send_sms_message.side_effect = send_sms
@@ -272,7 +275,7 @@ class FitbitUpdatedTests(AdherenceTaskTestBase):
 
     def setUp(self):
         super().setUp()
-
+        
         fitbit_service_patch = patch.object(FitbitService, 'was_updated_on')
         self.fitbit_was_update_on = fitbit_service_patch.start()
         self.fitbit_was_update_on.return_value = True
@@ -353,7 +356,7 @@ class FitbitWornTests(AdherenceTaskTestBase):
 
     def setUp(self):
         super().setUp()
-
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.patch_adherence_service('send_fitbit_not_updated_message')
 
     def test_updates_fitbit_worn(self):

@@ -19,9 +19,12 @@ from fitbit_authorize.models import AuthenticationSession
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def authorize_start(request):
+    # if there's already a session, disable it
     AuthenticationSession.objects.filter(user=request.user, disabled=False).update(disabled=True)
+    # create a new session
     session = AuthenticationSession.objects.create(user=request.user)
     return Response({
+        # token is random uuid4 string of auth session object
         'token': str(session.token)
     }, status=status.HTTP_201_CREATED)
 
