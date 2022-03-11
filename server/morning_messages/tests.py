@@ -12,12 +12,15 @@ from push_messages.services import PushMessageService, Device, Message
 from morning_messages.models import Configuration, DailyTask, MorningMessage, MorningMessageDecision, MorningMessageSurvey, MorningMessageQuestion, MorningMessageTemplate, User
 from morning_messages.services import MorningMessageService, MorningMessageDecisionService
 from morning_messages.tasks import send_morning_message
+from feature_flags.models import FeatureFlags
 
 class MorningMessageTestBase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="test")
         self.configuration = Configuration.objects.create(user=self.user)
+        self.feature_flags = FeatureFlags.create(user=self.user, flags="morning_message")
+        
 
         Device.objects.create(
             user = self.user,
