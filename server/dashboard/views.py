@@ -251,12 +251,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
             username, player_id)
         return "Notification is sent: {}".format(result)
 
-    def set_location(self, user, zipcode):
-        dev_set_location_service = DevSendLocationService()
-        coordinates = dev_set_location_service.get_coordinates(zipcode)
-        latitude = coordinates["lat"]
-        longitude = coordinates["long"]
-        return "Coordinates set set: {}, {}".format(latitude, longitude)
+    # def set_location(self, user, zipcode):
+    #     dev_set_location_service = DevSendLocationService()
+    #     coordinates = dev_set_location_service.get_coordinates(zipcode)
+    #     latitude = coordinates["lat"]
+    #     longitude = coordinates["long"]
+    #     return "Coordinates set set: {}, {}".format(latitude, longitude)
 
     def prettyprint(self, obj):
         import pprint

@@ -1,11 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 
 from service_requests.models import ServiceRequest as ServiceRequestBase
 
 class ZipCodeInfo(models.Model):
     user = models.ForeignKey(User, null=False, on_delete = models.CASCADE)
     app_key = models.CharField(max_length=255, null=False)
+
+    # who put the zip code
+    # the user in the zip code
+    # when the input was conducted
+    # what the zip code is
+    # what the fetched lat/lon are
 
 class ServiceRequest(ServiceRequestBase):
     pass
@@ -16,10 +23,6 @@ class WeatherForecast(models.Model):
     """
 
     SNOW = 'snow'
-
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    time = models.DateTimeField()
 
     precip_probability = models.FloatField()
     precip_type = models.CharField(max_length=32)

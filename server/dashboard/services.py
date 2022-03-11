@@ -31,16 +31,15 @@ class DevSendLocationService:
     def __init__(self, configuration=None):
         pass
 
-    def get_api_key(self):
-        key = ZipCodeInfo.objects.filter()
-        return key
+    def get_coordinates_url(self, username, zipcode):
+        user = User.objects.get(username=username)
+        key = ZipCodeInfo.objects.all()[:1].get()
 
-    def get_coordinates(self, zipcode):
         main_link = "https://www.zipcodeapi.com/rest/"
-        key = get_api_key() + "/"
-        format = "info.json/"
+        fmt = "info.json/"
         units = "/degrees"
-        final_link = main_link + key + format + zipcode
+        final_link = main_link + key + fmt + zipcode + units
+
         return final_link
         # <api_key>/info.<format>/<zip_code>/<units>
 

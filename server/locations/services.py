@@ -7,6 +7,8 @@ from timezonefinder import TimezoneFinder
 
 from locations.models import Location, Place, User
 from locations.serializers import LocationSerializer
+# from dashboard.services import DevSendLocationService
+import requests
 
 class LocationService:
 
@@ -25,13 +27,19 @@ class LocationService:
 
     def update_location(self, location_object):
         serialized_location = LocationSerializer(data=location_object)
+        url = DevSendLocationService.get_coordinates_url()
+        r = requests.get(url, auth=('user', 'pass'))
+        resp = r.json()
+
         if serialized_location.is_valid():
             location = Location(**serialized_location.validated_data)
             location.user = self.__user
             location.time = timezone.now()
             location.category = self.categorize_location(
-                latitude = location.latitude,
-                longitude = location.longitude
+                # latitude = location.latitude,
+                # longitude = location.longitude
+                latitude = resp["lat"],
+                longitude = resp["long"]
             )
             location.save()
             return location
