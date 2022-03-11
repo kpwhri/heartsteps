@@ -9,6 +9,7 @@ from django.utils import timezone
 from fitbit_activities.models import FitbitDay
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
+from fitbit_api.models import FitbitConsumerKey
 
 from .models import Day
 from .models import User
@@ -18,6 +19,7 @@ from .signals import timezone_updated
 class DayTimezoneTests(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.account = FitbitAccount.objects.create(fitbit_user="test")
         FitbitAccountUser.objects.create(
@@ -88,6 +90,7 @@ class DayTimezoneTests(TestCase):
 class DayServiceTests(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user = User.objects.create(
             username="test",
             date_joined = datetime(2019, 5, 3, 14, 14).astimezone(pytz.UTC)    

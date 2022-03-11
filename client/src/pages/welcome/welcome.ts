@@ -29,7 +29,7 @@ export class WelcomePage {
 
   goToEnrollPage() {
     this.enrollmentService
-        .unenroll()
+        .clearStorage()
         .catch((error) => {
             console.error("Welcome page, logout:", error);
         })

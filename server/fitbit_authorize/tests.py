@@ -12,10 +12,15 @@ from fitbit.api import FitbitOauth2Client
 
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_authorize.models import AuthenticationSession
+from fitbit_api.models import FitbitConsumerKey
 
 # TODO: remove print debugging
 class FitbitAuthorizationTest(APITestCase):
 
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
+        
     def test_authorization_start(self):
         user = User.objects.create(username="test")
 

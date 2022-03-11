@@ -9,12 +9,14 @@ from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_activities.models import FitbitActivityType, FitbitDay, FitbitActivity
 from activity_logs.models import ActivityType, ActivityLog, User
 from participants.models import Participant
+from fitbit_api.models import FitbitConsumerKey
 
 from .models import FitbitActivityToActivityType
 
 class FitbitActivityLogTests(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.participant = Participant.objects.create(
             user = self.user,

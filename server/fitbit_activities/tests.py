@@ -23,10 +23,12 @@ from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitActivity
 from fitbit_activities.services import FitbitDayService
 from fitbit_activities.tasks import update_fitbit_data
+from fitbit_api.models import FitbitConsumerKey
 
 class TestBase(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user = User.objects.create(
             username="test",
             date_joined = datetime(2018,2,1).astimezone(pytz.UTC)
@@ -269,7 +271,10 @@ class FitbitStepUpdates(TestBase):
 
 
 class FitbitUpdatesHeartRate(TestBase):
-
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
+        
     @patch.object(Fitbit, 'make_request')
     def test_process_heart_rate(self, make_request):
         make_request.return_value = { 'activities-heart-intraday': { 'dataset': [

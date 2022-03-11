@@ -16,6 +16,7 @@ from fitbit_api.models import FitbitSubscription
 from fitbit_api.services import FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
 from fitbit_api.signals import update_date
+from fitbit_api.models import FitbitConsumerKey
 
 def make_fitbit_account(username='test'):
     user = User.objects.create(username=username)
@@ -34,6 +35,7 @@ def make_fitbit_account(username='test'):
 class FitbitClientTests(TestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.account = make_fitbit_account()
         self.client = FitbitClient(account = self.account)
 
@@ -91,11 +93,16 @@ class FitbitClientTests(TestCase):
 
 
 class FitbitApiSubscriptionTest(TestCase):
-
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
+    
     @patch.object(FitbitClient, 'subscriptions_update')
     @patch.object(FitbitClient, 'is_subscribed', return_value=False)
     @patch.object(FitbitClient, 'subscribe', return_value=True)
     def test_creates_subscription(self, subscribe, is_subscribed, subscriptions_update):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
+
         fitbit_account = make_fitbit_account()
 
         subscribe_to_fitbit(fitbit_account.fitbit_user)
@@ -106,6 +113,8 @@ class FitbitApiSubscriptionTest(TestCase):
     @patch.object(FitbitClient, 'is_subscribed', return_value=True)
     @patch.object(FitbitClient, 'subscribe', return_value=True)
     def test_subscription_does_not_create_if_exists(self, subscribe, is_subscribed, subscriptions_update):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
+
         fitbit_account = make_fitbit_account()
 
         subscribe_to_fitbit(fitbit_account.fitbit_user)
@@ -113,6 +122,9 @@ class FitbitApiSubscriptionTest(TestCase):
         subscribe.assert_not_called()
 
 class FitbitApiSubscriptionVerify(APITestCase):
+    def setUp(self):
+        super().setUp()
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
 
     @patch.object(FitbitClient, 'verify_subscription_code', return_value=True)
     def test_responds_to_verify(self, verify_subscription_code):
@@ -133,6 +145,7 @@ class FitbitApiSubscriptionVerify(APITestCase):
 class SubscriptionUpdate(APITestCase):
 
     def setUp(self):
+        FitbitConsumerKey.objects.create(key='key', secret='secret')
         self.patcher = patch.object(update_date, 'send')
         self.update_date = self.patcher.start()
         self.addCleanup(self.patcher.stop)
