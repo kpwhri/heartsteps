@@ -132,6 +132,8 @@ export class PushNotificationService {
 
     public getPermission(): Promise<boolean> {
         console.log('PushNotificationService: Get permission');
+        // TODO: delete for safety
+        // return Promise.resolve(true);
         return this.isPhone()
             .then(() => {
                 window.plugins.OneSignal.provideUserConsent(true);
@@ -167,6 +169,7 @@ export class PushNotificationService {
 
     public getDevice(): Promise<Device> {
         console.log("PushNotificationService", "getDevice()", 1);
+        return Promise.resolve(new Device("fake-token", "fake-type"));
         return this.getDeviceFromOneSignal()
             .then((device) => {
                 console.log("PushNotificationService", "getDevice()", 2);

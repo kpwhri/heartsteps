@@ -190,6 +190,7 @@ export class MessageService {
 
     private deleteDevice(): Promise<boolean> {
         return this.storage.remove(storageKey);
+        // TODO: add more here to disable device on backend
     }
 
     public getMessage(messageId: string): Promise<Message> {
