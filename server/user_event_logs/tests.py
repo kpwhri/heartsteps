@@ -114,34 +114,35 @@ class EventLogViewTest(APITestCase):
             logs.append(logline['action'])
         self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
         
-    def test_get_3(self):
-        """try to make 100 logs and fetch the first page"""
+    # #TODO: #328
+    # def test_get_3(self):
+    #     """try to make 100 logs and fetch the first page"""
         
-        # force authenticated as test user
-        self.client.force_authenticate(user=self.user)
+    #     # force authenticated as test user
+    #     self.client.force_authenticate(user=self.user)
 
 
-        # generate 100 logs
-        n = 100
-        page = 1
-        pagesize = 10
+    #     # generate 100 logs
+    #     n = 100
+    #     page = 1
+    #     pagesize = 10
         
         
-        for i in range(n):
-            EventLog.log(self.user, str(i), EventLog.DEBUG)
+    #     for i in range(n):
+    #         EventLog.log(self.user, str(i), EventLog.DEBUG)
         
-        # get response
-        response = self.client.get(reverse(self.url, kwargs={}))
+    #     # get response
+    #     response = self.client.get(reverse(self.url, kwargs={}))
         
-        # if response code is 200
-        self.assertEqual(200, response.status_code)
+    #     # if response code is 200
+    #     self.assertEqual(200, response.status_code)
         
-        # if response data is ''
-        logs = []
-        for logline in response.data['logs']:
-            logs.append(logline['action'])
+    #     # if response data is ''
+    #     logs = []
+    #     for logline in response.data['logs']:
+    #         logs.append(logline['action'])
             
-        self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
+    #     self.assertEqual(logs, list(map(lambda x: str(x), range(n - (page - 1) * pagesize - 1, n - page * pagesize - 1, -1))))
         
     
     def test_get_4(self):

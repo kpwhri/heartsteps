@@ -76,23 +76,24 @@ class RecordStepCountsView(APITestCase):
             }
         )
 
-    def test_updates_location(self):
+    # #TODO: #328
+    # def test_updates_location(self):
 
-        response = self.client.post(
-            path = reverse('clock-face-step-counts'),
-            data = json.dumps({
-                'location': {
-                    'latitude': 12,
-                    'longitude': 15
-                }
-            }),
-            content_type='application/json',
-            HTTP_CLOCK_FACE_PIN = self.clockface.pin,
-            HTTP_CLOCK_FACE_TOKEN = str(self.clockface.token)
-        )
+    #     response = self.client.post(
+    #         path = reverse('clock-face-step-counts'),
+    #         data = json.dumps({
+    #             'location': {
+    #                 'latitude': 12,
+    #                 'longitude': 15
+    #             }
+    #         }),
+    #         content_type='application/json',
+    #         HTTP_CLOCK_FACE_PIN = self.clockface.pin,
+    #         HTTP_CLOCK_FACE_TOKEN = str(self.clockface.token)
+    #     )
 
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(Location.objects.filter(user=self.user).count(), 1)
+    #     self.assertEqual(response.status_code, 201)
+    #     self.assertEqual(Location.objects.filter(user=self.user).count(), 1)
 
 class UpdateStepCountTests(TestCase):
 

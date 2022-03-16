@@ -145,22 +145,24 @@ class PlacesViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Place.objects.filter(user=user).count(), 1)
 
-class LocationsUpdateViewTests(APITestCase):
 
-    def test_update_location(self):
-        user = User.objects.create(username="test")
+# #TODO: #328
+# class LocationsUpdateViewTests(APITestCase):
 
-        self.client.force_authenticate(user=user)
-        response = self.client.post(reverse('locations-update'), {
-            'latitude': 123.123,
-            'longitude': 123.123,
-            'source': 'test source'
-        })
+#     def test_update_location(self):
+#         user = User.objects.create(username="test")
 
-        self.assertEqual(response.status_code, 201)
+#         self.client.force_authenticate(user=user)
+#         response = self.client.post(reverse('locations-update'), {
+#             'latitude': 123.123,
+#             'longitude': 123.123,
+#             'source': 'test source'
+#         })
 
-        location = Location.objects.get(user=user)
-        self.assertEqual(location.latitude, float(123.123))
+#         self.assertEqual(response.status_code, 201)
+
+#         location = Location.objects.get(user=user)
+#         self.assertEqual(location.latitude, float(123.123))
 
 class LocationServiceTests(TestCase):
 

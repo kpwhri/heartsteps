@@ -57,8 +57,8 @@ def authorize(request, token):
 
 @api_view(['GET'])
 def authorize_process(request):
-    print('authorize_process')
-    print(request.GET)
+    # print('authorize_process')
+    # print(request.GET)
     if 'code' in request.GET and 'state' in request.GET:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -75,7 +75,7 @@ def authorize_process(request):
         session.save()
 
         code = request.GET['code']
-        print('code:', code)
+        # print('code:', code)
         EventLog.debug(user, "Fitbit code: %s" % code)
         fitbit = create_fitbit()
         try:
@@ -120,9 +120,9 @@ def authorize_process(request):
         #     'username': fitbit_user
         # })
         EventLog.debug(user)
-        print('before subscribe')
+        # print('before subscribe')
         subscription_result = subscribe_to_fitbit(username=fitbit_user)
-        print('after subscribe')
+        # print('after subscribe')
         EventLog.debug(user)
 
         # TODO: remove print debugging

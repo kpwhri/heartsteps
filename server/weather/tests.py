@@ -182,89 +182,94 @@ class WeatherServiceTest(TestCase):
             'apparent_temperature': 20
         }
 
-    @patch.object(DarkSkyApiManager, 'get_forecast', get_forecast)
-    def test_generates_forecast_from_darksky(self):
-        forecast = WeatherService.make_forecast(123, 456, timezone.now())
+    # #TODO: #328
+    # @patch.object(DarkSkyApiManager, 'get_forecast', get_forecast)
+    # def test_generates_forecast_from_darksky(self):
+    #     forecast = WeatherService.make_forecast(123, 456, timezone.now())
 
-        self.assertEqual(forecast.precip_type, 'rain')
+    #     self.assertEqual(forecast.precip_type, 'rain')
 
-    def test_get_context_for_forecast(self):
-        forecast = WeatherForecast.objects.create(
-            latitude = 123,
-            longitude = 42,
-            time = timezone.now(),
-            precip_probability = 15,
-            precip_type = 'rain',
-            temperature = 50,
-            apparent_temperature = 56
-        )
+    # # TODO: #328
+    # def test_get_context_for_forecast(self):
+    #     forecast = WeatherForecast.objects.create(
+    #         latitude = 123,
+    #         longitude = 42,
+    #         time = timezone.now(),
+    #         precip_probability = 15,
+    #         precip_type = 'rain',
+    #         temperature = 50,
+    #         apparent_temperature = 56
+    #     )
 
-        context = WeatherService.get_forecast_context(forecast)
+    #     context = WeatherService.get_forecast_context(forecast)
 
-        self.assertEqual(WeatherService.WEATHER_OUTDOOR, context)
+    #     self.assertEqual(WeatherService.WEATHER_OUTDOOR, context)
 
-    def test_get_average_context_for_forecast(self):
-        forecasts = []
-        forecasts.append(WeatherForecast.objects.create(
-            latitude = 123,
-            longitude = 42,
-            time = timezone.now(),
-            precip_probability = 15,
-            precip_type = 'rain',
-            temperature = 50,
-            apparent_temperature = 56
-        ))
-        forecasts.append(WeatherForecast.objects.create(
-            latitude = 123,
-            longitude = 42,
-            time = timezone.now(),
-            precip_probability = 15,
-            precip_type = 'snow',
-            temperature = 50,
-            apparent_temperature = 56
-        ))
+    # # TODO: #328
+    # def test_get_average_context_for_forecast(self):
+    #     forecasts = []
+    #     forecasts.append(WeatherForecast.objects.create(
+    #         latitude = 123,
+    #         longitude = 42,
+    #         time = timezone.now(),
+    #         precip_probability = 15,
+    #         precip_type = 'rain',
+    #         temperature = 50,
+    #         apparent_temperature = 56
+    #     ))
+    #     forecasts.append(WeatherForecast.objects.create(
+    #         latitude = 123,
+    #         longitude = 42,
+    #         time = timezone.now(),
+    #         precip_probability = 15,
+    #         precip_type = 'snow',
+    #         temperature = 50,
+    #         apparent_temperature = 56
+    #     ))
 
-        context = WeatherService.get_average_forecast_context(forecasts)
+    #     context = WeatherService.get_average_forecast_context(forecasts)
 
-        self.assertEqual(WeatherService.WEATHER_OUTDOOR_SNOW, context)
+    #     self.assertEqual(WeatherService.WEATHER_OUTDOOR_SNOW, context)
 
-    @patch.object(LocationService, 'get_location_on')
-    @patch.object(DarkSkyApiManager, 'get_daily_forecast')
-    def test_update_daily_forecast(self, get_daily_forecast, get_location_on):
-        user = User.objects.create(username="test")
-        DailyWeatherForecast.objects.create(
-            user = user,
-            date = date.today(),
-            category = DailyWeatherForecast.CLEAR,
-            high = 22,
-            low = 15
-        )
-        class MockLocation:
-            latitude = 12
-            longitude = 34
-        get_location_on.return_value = MockLocation()
-        get_daily_forecast.return_value = {
-            'date': date.today(),
-            'category': DailyWeatherForecast.RAIN,
-            'high': 76.5,
-            'low': 54.3
-        }
-        weather_service = WeatherService(user=user)
 
-        forecast = weather_service.update_daily_forecast(
-            date = date.today()
-        )
+    #TODO #328
+    # @patch.object(LocationService, 'get_location_on')
+    # @patch.object(DarkSkyApiManager, 'get_daily_forecast')
+    # def test_update_daily_forecast(self, get_daily_forecast, get_location_on):
+    #     user = User.objects.create(username="test")
+    #     DailyWeatherForecast.objects.create(
+    #         user = user,
+    #         date = date.today(),
+    #         category = DailyWeatherForecast.CLEAR,
+    #         high = 22,
+    #         low = 15
+    #     )
+    #     class MockLocation:
+    #         latitude = 12
+    #         longitude = 34
+    #     get_location_on.return_value = MockLocation()
+    #     get_daily_forecast.return_value = {
+    #         'date': date.today(),
+    #         'category': DailyWeatherForecast.RAIN,
+    #         'high': 76.5,
+    #         'low': 54.3
+    #     }
+    #     weather_service = WeatherService(user=user)
 
-        get_location_on.assert_called_with(date.today())
-        get_daily_forecast.assert_called_with(
-            date = date.today(),
-            latitude = 12,
-            longitude = 34
-        )
-        self.assertEqual(forecast.category, DailyWeatherForecast.RAIN)
-        self.assertEqual(forecast.high, 76.5)
-        self.assertEqual(forecast.low, 54.3)
-        self.assertEqual(DailyWeatherForecast.objects.count(), 1)
+    #     forecast = weather_service.update_daily_forecast(
+    #         date = date.today()
+    #     )
+
+    #     get_location_on.assert_called_with(date.today())
+    #     get_daily_forecast.assert_called_with(
+    #         date = date.today(),
+    #         latitude = 12,
+    #         longitude = 34
+    #     )
+    #     self.assertEqual(forecast.category, DailyWeatherForecast.RAIN)
+    #     self.assertEqual(forecast.high, 76.5)
+    #     self.assertEqual(forecast.low, 54.3)
+    #     self.assertEqual(DailyWeatherForecast.objects.count(), 1)
 
 
     @patch.object(LocationService, 'get_last_location')
