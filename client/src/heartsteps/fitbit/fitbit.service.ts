@@ -44,14 +44,14 @@ export class FitbitService {
     public startAuthorization():Promise<void> {
         return this.getAuthorizationToken()
         .then((token) => {
-            return this.heartstepsServer.makeUrl('fitbit/authorize/' + token);
+            return Promise.resolve(this.heartstepsServer.makeUrl('fitbit/authorize/' + token));
         }) 
         .then((url) => {
             if(this.redirectURL) {
                 url += '?redirect=' + this.redirectURL;
             }
             console.log("FitbitService.startAuthorization():", url);
-            this.browser.open(url);
+            // this.browser.open(url);
         })
     }
 
