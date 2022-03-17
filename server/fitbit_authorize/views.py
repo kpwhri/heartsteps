@@ -49,7 +49,7 @@ def authorize(request, token):
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         if session:
             EventLog.debug(None, "session: {}".format(session))
-            EventLog.debug(None, "session.user:".format(session.user))
+            EventLog.debug(None, "session.user: {}".format(session.user))
         user = session.user
         EventLog.debug(None, "Fitbit authorize: Fitbit authorize")
         fitbit = create_fitbit()
@@ -106,18 +106,13 @@ def authorize_process(request):
             EventLog.debug(None)
             return redirect(reverse('fitbit-authorize-complete'))
         EventLog.debug(None)
-        # TODO: delete hardcode for test-fitbit-patrick user
-        # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM0I3VlciLCJzdWIiOiI5SDRURDkiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNjI1NTUzNjM2LCJpYXQiOjE2MjU1MjQ4MzZ9.jWXetIEkygPszhLaPQOLrMaTiaH-647MjnbCydTktp8"
-        # fitbit_user = '9H4TD9'
-        # refresh_token = "34c416bd0fc6279063ec52a8a2360b03e1d039307b17f4e8c409f356a19f49bc"
-        # expires_at = 1625553636.9566584
 
         fitbit_account, _ = FitbitAccount.objects.update_or_create(fitbit_user=fitbit_user, defaults={
             'access_token': access_token,
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
-        EventLog.debug(None)
+        EventLog.debug(None, "Fitbit account created: access_token={}, fitbit_user={}, refresh_token={}, expires_at={}".format(access_token, fitbit_user, refresh_token, expires_at))
         try:
             EventLog.debug(None)
             FitbitAccountUser.objects.get(user=user, account=fitbit_account)
