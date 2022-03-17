@@ -169,7 +169,7 @@ export class PushNotificationService {
 
     public getDevice(): Promise<Device> {
         console.log("PushNotificationService", "getDevice()", 1);
-        return Promise.resolve(new Device("fake-token", "fake-type"));
+        // return Promise.resolve(new Device("fake-token", "fake-type"));
         return this.getDeviceFromOneSignal()
             .then((device) => {
                 console.log("PushNotificationService", "getDevice()", 2);
