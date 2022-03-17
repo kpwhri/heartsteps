@@ -69,8 +69,8 @@ def authorize(request, token):
 
 @api_view(['GET'])
 def authorize_process(request):
-    print('authorize_process')
-    print(request.GET)
+    EventLog.debug(None, 'authorize_process')
+    EventLog.debug(None, request.GET)
     if 'code' in request.GET and 'state' in request.GET:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
