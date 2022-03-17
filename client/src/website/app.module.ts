@@ -10,7 +10,8 @@ import { AnalyticsService } from '@infrastructure/heartsteps/analytics.service';
 import { SetupPageModule } from '@pages/setup/setup.module';
 import { ParticipantModule } from '@heartsteps/participants/participant.module';
 
-import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
+import { HttpClientModule } from '@angular/common/http';
+import { FeatureFlagsModule } from '@heartsteps/feature-flags/feature-flags.module';
 
 declare var process: {
     env: {
@@ -34,6 +35,8 @@ if (!process.env.PRODUCTION) {
         HeartstepsWebsite
     ],
     imports: [
+        HttpClientModule,
+        FeatureFlagsModule,
         BrowserModule,
         EnrollmentModule,
         ParticipantModule,

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+gcloud config configurations create ucsd-publichealth-justwalk
+gcloud config configurations activate ucsd-publichealth-justwalk
 gcloud auth activate-service-account --key-file=credentials/ucsd-publichealth-justwalk.json
 gcloud auth configure-docker -q
 gcloud config set project ucsd-publichealth-justwalk
