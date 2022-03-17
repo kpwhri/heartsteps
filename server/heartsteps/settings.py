@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     'daily_tasks',
     'hourly_tasks',
     'surveys',
+    'system_settings',
     'fitbit_api',
     'fitbit_authorize',
     'fitbit_activities',

@@ -23,6 +23,7 @@ from fitbit_api.models import User
 import oauthlib
 
 from fitbit_api.models import FitbitConsumerKey
+from system_settings.models import SystemSetting
 
 class FitbitService:
 
@@ -261,7 +262,9 @@ class FitbitClient():
             )
 
     def verify_subscription_code(code):
-        if not hasattr(settings, 'FITBIT_SUBSCRIBER_VERIFICATION_CODE'):
+        FITBIT_SUBSCRIBER_VERIFICATION_CODE = SystemSetting.get('FITBIT_SUBSCRIBER_VERIFICATION_CODE')
+        
+        if FITBIT_SUBSCRIBER_VERIFICATION_CODE == "":
             raise ImproperlyConfigured('No FitBit Subscriber Verification Code')
         if code == settings.FITBIT_SUBSCRIBER_VERIFICATION_CODE:
             return True
