@@ -49,7 +49,7 @@ def authorize(request, token):
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         if session:
             EventLog.debug(None, "session: {}".format(session))
-            EventLog.debug(None, "session.user:", session.user)
+            EventLog.debug(None, "session.user:".format(session.user))
         user = session.user
         EventLog.debug(None, "Fitbit authorize: Fitbit authorize")
         fitbit = create_fitbit()
