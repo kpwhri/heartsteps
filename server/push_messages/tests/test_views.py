@@ -66,3 +66,39 @@ class MessageDeviceViewTests(APITestCase):
 
         old_device = Device.objects.get(token='old-device', user=user)
         self.assertFalse(old_device.active)
+
+
+    def test_register_multiple_devices(self):
+        user = User.objects.create(username = "test")
+
+        Device.objects.create(
+            user = user,
+            token = 'old-device',
+            type = 'ios',
+            active = True,
+        )
+
+        Device.objects.create(
+            user = user,
+            token = 'old-device-1',
+            type = 'ios',
+            active = True,
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse('messages-device'), {
+            'token': 'new-token',
+            'type': 'android'
+        })
+
+        self.assertEqual(response.status_code, 201)
+
+        device = Device.objects.get(token='new-token', user=user)
+        self.assertTrue(device.active)
+        self.assertEqual(device.type, 'android')
+
+        old_device = Device.objects.get(token='old-device', user=user)
+        self.assertFalse(old_device.active)
+
+        old_device = Device.objects.get(token='old-device-1', user=user)
+        self.assertFalse(old_device.active)

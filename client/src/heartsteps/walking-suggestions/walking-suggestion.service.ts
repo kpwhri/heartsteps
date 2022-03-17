@@ -3,7 +3,6 @@ import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { WalkingSuggestionTimeService } from "./walking-suggestion-time.service";
 import { ChoiceDialogController } from "@infrastructure/choice-dialog.controler";
 import { Subscription } from "rxjs";
-import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 

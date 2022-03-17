@@ -15,6 +15,7 @@ from fitbit_api.services import create_fitbit, create_callback_url, FitbitClient
 from fitbit_api.tasks import subscribe_to_fitbit
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_authorize.models import AuthenticationSession
+from user_event_logs.models import EventLog
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -56,6 +57,8 @@ def authorize(request, token):
 
 @api_view(['GET'])
 def authorize_process(request):
+    # print('authorize_process')
+    # print(request.GET)
     if 'code' in request.GET and 'state' in request.GET:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -72,18 +75,25 @@ def authorize_process(request):
         session.save()
 
         code = request.GET['code']
+        # print('code:', code)
+        EventLog.debug(user, "Fitbit code: %s" % code)
         fitbit = create_fitbit()
         try:
+            EventLog.debug(user)
             callback_url = create_callback_url(request)
+            EventLog.debug(user)
             token = fitbit.client.fetch_access_token(code, redirect_uri=callback_url)
+            EventLog.debug(user)
             access_token = token['access_token']
             fitbit_user = token['user_id']
             refresh_token = token['refresh_token']
             expires_at = token['expires_at']
+            EventLog.debug(user)
         except KeyError:
-           # print('KEYERROR in authorize_process on line 80 of fitbit_authorize/views')
+            # print('KEYERROR in authorize_process on line 80 of fitbit_authorize/views')
+            EventLog.debug(user)
             return redirect(reverse('fitbit-authorize-complete'))
-
+        EventLog.debug(user)
         # TODO: delete hardcode for test-fitbit-patrick user
         # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM0I3VlciLCJzdWIiOiI5SDRURDkiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNjI1NTUzNjM2LCJpYXQiOjE2MjU1MjQ4MzZ9.jWXetIEkygPszhLaPQOLrMaTiaH-647MjnbCydTktp8"
         # fitbit_user = '9H4TD9'
@@ -95,9 +105,12 @@ def authorize_process(request):
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
+        EventLog.debug(user)
         try:
+            EventLog.debug(user)
             FitbitAccountUser.objects.get(user=user, account=fitbit_account)
         except FitbitAccountUser.DoesNotExist:
+            EventLog.debug(user)
             FitbitAccountUser.objects.create(
                 account = fitbit_account,
                 user = user
@@ -106,18 +119,22 @@ def authorize_process(request):
         # x = subscribe_to_fitbit.apply_async(kwargs = {
         #     'username': fitbit_user
         # })
-
-        print('before subscribe')
+        EventLog.debug(user)
+        # print('before subscribe')
         subscription_result = subscribe_to_fitbit(username=fitbit_user)
-        print('after subscribe')
-        
+        # print('after subscribe')
+        EventLog.debug(user)
+
         # TODO: remove print debugging
         # print('subscribe_to_fitbit non-async return value: ', subscription_result)
         # print('subscribe_to_fitbit async return value: ', subscription_result.get())
 
         if session.redirect:
+            EventLog.debug(user)
             return redirect(session.redirect)
+        EventLog.debug(user)
         return redirect(reverse('fitbit-authorize-complete'))
+    EventLog.debug(user)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])

@@ -2,6 +2,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { HttpClientModule } from '@angular/common/http';
+
 import { IonicApp, IonicModule } from "ionic-angular";
 import { SplashScreen } from "@ionic-native/splash-screen";
 import { StatusBar } from "@ionic-native/status-bar";
@@ -53,6 +55,7 @@ const routes: Routes = [
 @NgModule({
     declarations: [LoadingPageComponent, MyApp, RootComponent],
     imports: [
+        HttpClientModule,
         BaselineWeekModule,
         WelcomePageModule,
         NLMModule,

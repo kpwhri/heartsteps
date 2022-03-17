@@ -199,11 +199,19 @@ class ParticipantService:
         self.participant.active = True
         self.participant.save()
         EventLog.debug(self.user)
+        # TODO: maybe change default enabled value to False in AdherenceMessageConfiguration
+        # special case for 
         adherence_message_configuration, _ = AdherenceMessageConfiguration.objects.update_or_create(
             user=self.participant.user
         )
-        EventLog.debug(self.user)
-        adherence_message_configuration.enabled = True
+        feature_flags,_ = FeatureFlags.create_or_get(user=self.user)
+        # if feature_flags:
+        #     FeatureFlags.add_flag(feature_flags, "adherence_messages")
+        # EventLog.debug(self.user)
+        if feature_flags and feature_flags.has_flag("adherence_messages"):
+            adherence_message_configuration.enabled = True
+        else:
+            adherence_message_configuration.enabled = False
         adherence_message_configuration.save()
         EventLog.debug(self.user)
         try:
@@ -233,7 +241,10 @@ class ParticipantService:
                 user=self.participant.user
             )
             EventLog.debug(self.user)
-            morning_message_configuration.enabled = True
+            if feature_flags and feature_flags.has_flag("morning_message"):
+                morning_message_configuration.enabled = True
+            else:
+                morning_message_configuration.enabled = False
             EventLog.debug(self.user)
             morning_message_configuration.save()
             EventLog.debug(self.user)

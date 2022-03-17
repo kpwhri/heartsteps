@@ -9,14 +9,30 @@ from days.services import DayService
 from .models import MorningMessage
 from .models import User
 from .services import MorningMessageService
+from feature_flags.models import FeatureFlags
+from user_event_logs.models import EventLog
 
 @shared_task
 def send_morning_message(username):
-    service = MorningMessageService(username=username)
-    try:
-        service.send_notification(date.today())
-    except MorningMessageService.NotEnabled:
-        pass
+    user = User.objects.get(username=username)
+    if user:
+        try:
+            morning_msg_flag_exists = FeatureFlags.has_flag(user, "morning_message")
+            if morning_msg_flag_exists:
+                service = MorningMessageService(username=username)
+                try:
+                    service.send_notification(date.today())
+                except MorningMessageService.NotEnabled:
+                    pass
+        except FeatureFlags.FeatureFlagsDoNotExistException:
+            msg = "FeatureFlags send morning message check failed on user: {} , \
+            feature flags did not exist".format(user)
+            EventLog.log(user, msg, EventLog.ERROR)
+                
+        except:
+            msg = "FeatureFlags send morning message check failed on user: {}".format(user)
+            EventLog.log(user, msg, EventLog.ERROR)
+
 
 def export_morning_messages(username, filename=None, directory=None, start=None, end=None):
     user = User.objects.get(username=username)

@@ -7,6 +7,7 @@ from unittest.mock import patch
 from adherence_messages.models import Configuration as AdherenceMessageConfiguration
 from daily_tasks.models import DailyTask
 from anti_sedentary.models import Configuration as AntiSedentaryConfiguration
+from feature_flags.models import FeatureFlags
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from fitbit_api.models import FitbitAccountUpdate
@@ -125,6 +126,8 @@ class InitializeTask(TestCase):
             cohort = self.cohort
         )
 
+        self.feature_flags = FeatureFlags.create(user=self.user, flags="adherence_messages")
+
         baseline_complete_patch = patch.object(ParticipantService, 'is_baseline_complete')
         self.baseline_complete = baseline_complete_patch.start()
         self.baseline_complete.return_value=True
@@ -178,6 +181,7 @@ class InitializeTask(TestCase):
 
         configuration = AdherenceMessageConfiguration.objects.get()
         self.assertEqual(configuration.user.username, "test")
+
         self.assertTrue(configuration.enabled)
 
     def test_creates_default_walking_suggestion_times(self):

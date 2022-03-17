@@ -1,5 +1,7 @@
 #!/bin/bash
 
+gcloud config configurations create gcloud-dev-deploy
+gcloud config configurations activate gcloud-dev-deploy
 gcloud auth activate-service-account --key-file=credentials/gcloud-dev-service-account.json
 gcloud auth configure-docker -q
 gcloud config set project heartsteps-dev
