@@ -112,16 +112,16 @@ def authorize_process(request):
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
-        EventLog.debug(None, "Fitbit account created: access_token={}, fitbit_user={}, refresh_token={}, expires_at={}".format(access_token, fitbit_user, refresh_token, expires_at))
-        try:
-            EventLog.debug(None)
-            FitbitAccountUser.objects.get(user=user, account=fitbit_account)
-        except FitbitAccountUser.DoesNotExist:
-            EventLog.debug(None)
-            FitbitAccountUser.objects.create(
-                account = fitbit_account,
-                user = user
-            )
+        EventLog.debug(user, "Fitbit account created: access_token={}, fitbit_user={}, refresh_token={}, expires_at={}".format(access_token, fitbit_user, refresh_token, expires_at))
+        if FitbitAccountUser.objects.filter(user=user, fitbit_account=fitbit_account).exists():
+            EventLog.debug(user, "Fitbit account already exists for user {} and fitbit_account {}".format(user, fitbit_account))
+        else:
+            if FitbitAccountUser.objects.filter(user=user).exists():
+                EventLog.debug(user, "Fitbit account user already exists for user {}. Replacing to new one.".format(user))
+                FitbitAccountUser.objects.filter(user=user).update(fitbit_account=fitbit_account)
+            else:
+                EventLog.debug(user, "Fitbit account user does not exist for user {}. Creating new one.".format(user))
+                FitbitAccountUser.objects.create(user=user, fitbit_account=fitbit_account)
         # TODO: re-enable async
         # x = subscribe_to_fitbit.apply_async(kwargs = {
         #     'username': fitbit_user
