@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from dateutil import parser as dateutil_parser
 import pytz
 
-from django.conf import settings
+# from django.conf import settings
 from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 
@@ -229,7 +229,8 @@ class FitbitClient():
 
     # TODO: delete print debugging
     def subscribe(self):
-        if not hasattr(settings, 'FITBIT_SUBSCRIBER_ID'):
+        FITBIT_SUBSCRIBER_ID = SystemSetting.get('FITBIT_SUBSCRIBER_ID')
+        if FITBIT_SUBSCRIBER_ID == "":
             print('ERROR: no fitbit subscriber ID')
             raise ImproperlyConfigured('No FitBit Subscriber ID')
         try:
@@ -246,7 +247,7 @@ class FitbitClient():
             # TODO: supposed to be self.subscription?
             self.client.subscription(
                 subscription_id = str(self.subscription.uuid),
-                subscriber_id = settings.FITBIT_SUBSCRIBER_ID,
+                subscriber_id = FITBIT_SUBSCRIBER_ID,
                 collection='activities'
             )
             return True
@@ -266,7 +267,7 @@ class FitbitClient():
         
         if FITBIT_SUBSCRIBER_VERIFICATION_CODE == "":
             raise ImproperlyConfigured('No FitBit Subscriber Verification Code')
-        if code == settings.FITBIT_SUBSCRIBER_VERIFICATION_CODE:
+        if code == FITBIT_SUBSCRIBER_VERIFICATION_CODE:
             return True
         else:
             return False
