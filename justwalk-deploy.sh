@@ -12,7 +12,7 @@ cp credentials/justwalk.env server/justwalk.env
 cp credentials/.env-gcloud-dev client/.env
 
 docker-compose -f justwalk.docker-compose.yaml build nginx
-docker compose -f justwalk.docker-compose.yaml push nginx
+docker push gcr.io/ucsd-publichealth-justwalk/justwalk-nginx
 
 docker-compose -f justwalk.docker-compose.yaml build server
 docker-compose -f justwalk.docker-compose.yaml run server python manage.py collectstatic --no-input
