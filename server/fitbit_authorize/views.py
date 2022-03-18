@@ -31,6 +31,12 @@ def authorize_start(request):
 
 @api_view(['GET'])
 def authorize(request, token):
+    EventLog.debug(None, "fitbit_authorize.views.authorize()")
+    if token:
+        EventLog.debug(None, "token: {}".format(token))
+    else:
+        EventLog.debug(None, "token: None")
+
     if token:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -41,11 +47,17 @@ def authorize(request, token):
             )
         except AuthenticationSession.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-
+        if session:
+            EventLog.debug(None, "session: {}".format(session))
+            EventLog.debug(None, "session.user: {}".format(session.user))
+        user = session.user
+        EventLog.debug(None, "Fitbit authorize: Fitbit authorize")
         fitbit = create_fitbit()
+        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created fitbit")
         callback_url = create_callback_url(request)
+        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created callback_url: {}".format(callback_url))
         authorize_url, state = fitbit.client.authorize_token_url(redirect_uri=callback_url)
-
+        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created authorize_url: {}, state: {}".format(authorize_url, state))
         if 'redirect' in request.GET:
             session.redirect = request.GET['redirect']
         
@@ -57,8 +69,8 @@ def authorize(request, token):
 
 @api_view(['GET'])
 def authorize_process(request):
-    # print('authorize_process')
-    # print(request.GET)
+    EventLog.debug(None, 'authorize_process')
+    EventLog.debug(None, request.GET)
     if 'code' in request.GET and 'state' in request.GET:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -76,65 +88,60 @@ def authorize_process(request):
 
         code = request.GET['code']
         # print('code:', code)
-        EventLog.debug(user, "Fitbit code: %s" % code)
+        EventLog.debug(None, "Fitbit code: %s" % code)
         fitbit = create_fitbit()
         try:
-            EventLog.debug(user)
+            EventLog.debug(None)
             callback_url = create_callback_url(request)
-            EventLog.debug(user)
+            EventLog.debug(None)
             token = fitbit.client.fetch_access_token(code, redirect_uri=callback_url)
-            EventLog.debug(user)
+            EventLog.debug(None)
             access_token = token['access_token']
             fitbit_user = token['user_id']
             refresh_token = token['refresh_token']
             expires_at = token['expires_at']
-            EventLog.debug(user)
+            EventLog.debug(None)
         except KeyError:
             # print('KEYERROR in authorize_process on line 80 of fitbit_authorize/views')
-            EventLog.debug(user)
+            EventLog.debug(None)
             return redirect(reverse('fitbit-authorize-complete'))
-        EventLog.debug(user)
-        # TODO: delete hardcode for test-fitbit-patrick user
-        # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM0I3VlciLCJzdWIiOiI5SDRURDkiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNjI1NTUzNjM2LCJpYXQiOjE2MjU1MjQ4MzZ9.jWXetIEkygPszhLaPQOLrMaTiaH-647MjnbCydTktp8"
-        # fitbit_user = '9H4TD9'
-        # refresh_token = "34c416bd0fc6279063ec52a8a2360b03e1d039307b17f4e8c409f356a19f49bc"
-        # expires_at = 1625553636.9566584
+        EventLog.debug(None)
 
         fitbit_account, _ = FitbitAccount.objects.update_or_create(fitbit_user=fitbit_user, defaults={
             'access_token': access_token,
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
-        EventLog.debug(user)
-        try:
-            EventLog.debug(user)
-            FitbitAccountUser.objects.get(user=user, account=fitbit_account)
-        except FitbitAccountUser.DoesNotExist:
-            EventLog.debug(user)
-            FitbitAccountUser.objects.create(
-                account = fitbit_account,
-                user = user
-            )
+        EventLog.debug(user, "Fitbit account created: access_token={}, fitbit_user={}, refresh_token={}, expires_at={}".format(access_token, fitbit_user, refresh_token, expires_at))
+        if FitbitAccountUser.objects.filter(user=user, account=fitbit_account).exists():
+            EventLog.debug(user, "Fitbit account already exists for user {} and fitbit_account {}".format(user, fitbit_account))
+        else:
+            if FitbitAccountUser.objects.filter(user=user).exists():
+                EventLog.debug(user, "Fitbit account user already exists for user {}. Replacing to new one.".format(user))
+                FitbitAccountUser.objects.filter(user=user).update(account=fitbit_account)
+            else:
+                EventLog.debug(user, "Fitbit account user does not exist for user {}. Creating new one.".format(user))
+                FitbitAccountUser.objects.create(user=user, account=fitbit_account)
         # TODO: re-enable async
         # x = subscribe_to_fitbit.apply_async(kwargs = {
         #     'username': fitbit_user
         # })
-        EventLog.debug(user)
+        EventLog.debug(None)
         # print('before subscribe')
         subscription_result = subscribe_to_fitbit(username=fitbit_user)
         # print('after subscribe')
-        EventLog.debug(user)
+        EventLog.debug(None)
 
         # TODO: remove print debugging
         # print('subscribe_to_fitbit non-async return value: ', subscription_result)
         # print('subscribe_to_fitbit async return value: ', subscription_result.get())
 
         if session.redirect:
-            EventLog.debug(user)
+            EventLog.debug(None)
             return redirect(session.redirect)
-        EventLog.debug(user)
+        EventLog.debug(None)
         return redirect(reverse('fitbit-authorize-complete'))
-    EventLog.debug(user)
+    EventLog.debug(None)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])

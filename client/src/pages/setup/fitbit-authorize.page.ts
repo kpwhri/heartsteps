@@ -18,7 +18,8 @@ export class FitbitAuthorizePage implements OnInit{
         private loadingService:LoadingService,
         private alertController: AlertDialogController,
         private fitbitService: FitbitService
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.loadingService.show('Updating Fitbit Authorization');
@@ -64,6 +65,7 @@ export class FitbitAuthorizePage implements OnInit{
 
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
+        
         return this.fitbitService.startAuthorization()
         .catch(() => {
             this.showAuthorizationError();

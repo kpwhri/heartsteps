@@ -45,6 +45,7 @@ export class FitbitAuthPage {
 
     public authorize() {
         this.loadingService.show("Authorizing Fitbit");
+        // this.fitbitService.setRedirectURL('/api/fitbit/authorize/process');
         return this.fitbitService.startAuthorization()
         .catch(() => {
             this.showAuthorizationError();
