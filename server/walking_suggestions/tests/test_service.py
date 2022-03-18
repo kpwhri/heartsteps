@@ -57,7 +57,7 @@ class ServiceTestCase(TestCase):
         self.fitbit_account = FitbitAccount.objects.create(
             fitbit_user='test'
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.fitbit_account,
             user = self.user
         )
@@ -572,7 +572,7 @@ class GetStepsTests(ServiceTestCase):
         self.fitbit_account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.fitbit_account,
             user = self.user
         )
@@ -598,7 +598,7 @@ class StepCountTests(ServiceTestCase):
         account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             user = self.user,
             account = account
         )
@@ -708,7 +708,7 @@ class TemperatureTests(ServiceTestCase):
         account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = account,
             user = self.user
         )

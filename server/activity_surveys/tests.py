@@ -31,7 +31,7 @@ class TestBase(TestCase):
         self.account = FitbitAccount.objects.create(
             fitbit_user = 'test'
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.account,
             user = self.user
         )
@@ -86,7 +86,7 @@ class ActivitySurveyRandomizationTests(TestBase):
             user = other_user,
             enabled = True
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.account,
             user = other_user
         )

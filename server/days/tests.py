@@ -22,7 +22,7 @@ class DayTimezoneTests(TestCase):
         FitbitConsumerKey.objects.update_or_create(key='key', secret='secret')
         self.user = User.objects.create(username="test")
         self.account = FitbitAccount.objects.create(fitbit_user="test")
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account=self.account,
             user = self.user
         )
@@ -33,7 +33,7 @@ class DayTimezoneTests(TestCase):
 
     def test_timezone_updated_from_fitbit_day(self):
         other_user = User.objects.create(username="other-user")
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.account,
             user = other_user
         )

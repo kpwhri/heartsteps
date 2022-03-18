@@ -399,7 +399,7 @@ class UpdateAntiSedentaryService(TestBase):
     def setUp(self):
         super().setUp()
 
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             user = self.user,
             account = FitbitAccount.objects.create(
                 fitbit_user = 'test'

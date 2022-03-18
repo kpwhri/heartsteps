@@ -47,7 +47,7 @@ class NightlyUpdateTest(TestCase):
     
     @patch.object(FitbitDayService, 'update')
     def testFitbitDayUpdate(self, fitbit_day_update):
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = FitbitAccount.objects.create(fitbit_user = "test"),
             user = self.user
         )

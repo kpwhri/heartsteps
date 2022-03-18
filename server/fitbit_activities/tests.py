@@ -36,7 +36,7 @@ class TestBase(TestCase):
         self.account = FitbitAccount.objects.create(
             fitbit_user = "test"
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             user = self.user,
             account = self.account
         )

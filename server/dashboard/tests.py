@@ -29,7 +29,7 @@ class DashboardParticipantTests(TestCase):
             refresh_token = 'test',
             expires_at = datetime.now().timestamp()
         )
-        self.fitbit_account_user = FitbitAccountUser.objects.create(
+        self.fitbit_account_user, _ = FitbitAccountUser.create_or_update(
             user=self.user,
             account=self.fitbit_account
         )

@@ -26,7 +26,7 @@ def make_fitbit_account(username='test'):
         refresh_token = 'refresh-token',
         expires_at = 1234
     )
-    FitbitAccountUser.objects.create(
+    FitbitAccountUser.create_or_update(
         user = user,
         account = account
     )

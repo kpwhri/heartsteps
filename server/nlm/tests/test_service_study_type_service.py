@@ -400,7 +400,7 @@ class StudyTypeServiceTest(HeartStepsTestCase):
         self.fitbit_account = FitbitAccount.objects.create(
             fitbit_user='test'
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.fitbit_account,
             user = self.user
         )
