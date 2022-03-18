@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Participant
 from .serializers import ParticipantAddSerializer
 from .services import ParticipantService
+from push_messages.models import Device
 
 from user_event_logs.models import EventLog
 
@@ -23,8 +24,19 @@ class LogoutView(APIView):
             service = ParticipantService(user = request.user)
         except ParticipantService.NoParticipant:
             return Response({}, status.HTTP_400_BAD_REQUEST)
+        try:
+            my_devices = Device.objects.filter(user=request.user, active=True)
+        except:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+
+        # TODO: should only be one device but redunancy for safety here
+        for device in my_devices:
+            device.active = False
+            device.save()
+
         service.destroy_authorization_token()
         service.disable()
+
         return Response({}, status.HTTP_200_OK)
 
 

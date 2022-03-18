@@ -43,6 +43,17 @@ class DeviceView(APIView):
                 type=serialized_device.validated_data['type'],
                 active=True
             )
+
+            curr_device = Device.objects.get(user=request.user, active=True)
+            user_token = curr_device.token
+            devices_with_token = Device.objects.filter(token=user_token, active=True)
+            for device in devices_with_token:
+                if device.user != request.user:
+                    # print("id: {}, user: {}, token: {}, created: {}, active: {}" \
+                    #     .format(device.id, device.user, device.token, device.created, device.active))
+                    device.active = False
+                    device.save()
+            
             return Response(serialized_device.data, status=status.HTTP_201_CREATED)
 
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
