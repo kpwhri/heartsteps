@@ -21,7 +21,7 @@ export class NotificationsPermissionComponent {
             this.saved.emit(true);
         })
         .catch(() => {
-            console.log('No permission');
+            console.log('No permission 2');
         })
         .then(() => {
             this.loadingService.dismiss();

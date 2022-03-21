@@ -83,7 +83,7 @@ export class LocalNotificationService {
                 if(granted) {
                     resolve(true);
                 } else {
-                    reject('No permission');
+                    reject('No permission 3');
                 }
             })
         })
