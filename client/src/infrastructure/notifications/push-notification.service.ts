@@ -38,8 +38,10 @@ export class PushNotificationService {
         private platform: Platform,
         private zone: NgZone
     ) {
+        console.log("PushNotificationService", "constructor()", 1);
         this.platform.ready()
             .then(() => {
+                console.log("PushNotificationService", "constructor()", 2);
                 this.initialize();
             });
     }
