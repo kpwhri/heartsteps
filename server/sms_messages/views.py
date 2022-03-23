@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import serializers
 from twilio.twiml.messaging_response import Message, MessagingResponse
+from system_settings.models import SystemSetting
 
 from .models import Message
 from .services import SMSService
@@ -19,10 +20,7 @@ class TwilioMessageSerializer(serializers.Serializer):
 class TwilioReplyView(APIView):
 
     def template_response(self, template_name):
-        if hasattr(settings, 'STUDY_PHONE_NUMBER'):
-            contact_number = settings.STUDY_PHONE_NUMBER
-        else:
-            contact_number = '(555) 555-5555'
+        contact_number = SystemSetting.get('TWILIO_MAIN_NUMBER', default='(555) 555-5555')
         
         response = MessagingResponse()
         message_text = render_to_string(

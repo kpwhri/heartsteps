@@ -7,11 +7,14 @@ class SystemSetting(models.Model):
     key = models.CharField(max_length=500, primary_key=True)
     value = models.TextField()
 
-    def get(key):
+    def get(key, default=None):
         try:
             return SystemSetting.objects.get(key=key).value
         except SystemSetting.DoesNotExist:
-            return ""
+            if default:
+                return default
+            else:
+                return ""
 
     def __str__(self):
         return "SystemSetting: {}={}".format(self.key, self.value)

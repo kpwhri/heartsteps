@@ -1,1 +1,1 @@
-Thank you for sending a message to JustWalk. We don't know this number. For assistance, please call {{contact_number}}
+Thank you for sending a message to JustWalk. Due to the technical reasons, the message you sent is not delivered to the staff. If you need assistance, please send the text to {{contact_number}}
