@@ -88,7 +88,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.3, 0.4, 0.5, 0.6, 0.7'
             # ActivityDay will be used from 1000~1004 (5 days) => median: 1002
             goals = get_goals(self.user, datetime(2021, 1, 6).date(), 5)
-            self.assertEqual(goals, [1602, 1802, 2002, 2202, 2402])
+            self.assertEqual(goals, [3200, 3600, 4000, 4400, 4800])
     
     
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
@@ -114,8 +114,32 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7'
             # ActivityDay will be used from 1000~1006 (7 days) => median: 1003
             goals = get_goals(self.user, datetime(2021, 1, 8).date(), 7)
-            self.assertEqual(goals, [1203, 1403, 1603, 1803, 2003, 2203, 2403])
+            self.assertEqual(goals, [2400, 2800, 3200, 3600, 4000, 4400, 4800])
+    
+    @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
+    @patch('participants.services.ParticipantService.is_baseline_complete')
+    def test_get_todays_step_goal_2_2(self, mock_is_baseline_complete, mock_update_fitbit_device_with_new_goal):
+        mock_update_fitbit_device_with_new_goal.return_value = None
+        mock_is_baseline_complete.return_value = True
+        
+        with freeze_time(lambda: datetime.strptime("2021-01-07 07:09", "%Y-%m-%d %H:%M")):
+            self.participant.study_start_date = datetime(2021, 1, 1).date()
+            self.participant.save()
             
+            StepGoalSequenceBlock.objects.create(cohort=self.cohort,
+                                                 seq_block="0.1,0.2,0.3,0.4,0.5,0.6,0.7\n0.2,0.3,0.4,0.5,0.6,0.7,0.8"
+                                                 )
+            
+            create_walk_data(
+                user=self.user,
+                start_date=datetime(2021, 1, 1).date(),
+                steps=[5000, 5001, 5002, 5003, 5004, 5005, 5006]
+            )
+            
+            # use PRBS as '0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7'
+            # ActivityDay will be used from 1000~1006 (7 days) => median: 1003
+            goals = get_goals(self.user, datetime(2021, 1, 8).date(), 7)
+            self.assertEqual(goals, [5403, 5803, 6203, 6603, 7003, 7403, 7803])
             
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     @patch('participants.services.ParticipantService.is_baseline_complete')
@@ -143,7 +167,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7'
             # ActivityDay will be used from 1000~1006 (7 days) => median: 1003
             goals = get_goals(self.user, datetime(2021, 1, 8).date(), 7)
-            self.assertEqual(goals, [1203, 1403, 1603, 1803, 2003, 2203, 2403])
+            self.assertEqual(goals, [2400, 2800, 3200, 3600, 4000, 4400, 4800])
             
             
             create_walk_data(
@@ -155,7 +179,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8'
             # ActivityDay will be used from 1000~1006 (7 days) => median: 1003
             goals2 = get_goals(self.user2, datetime(2021, 1, 8).date(), 7)
-            self.assertEqual(goals2, [1403, 1603, 1803, 2003, 2203, 2403, 2603])
+            self.assertEqual(goals2, [2800, 3200, 3600, 4000, 4400, 4800, 5200])
             
 
 

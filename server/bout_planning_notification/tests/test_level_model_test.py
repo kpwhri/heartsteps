@@ -3,10 +3,19 @@ from bout_planning_notification.models import User, Level
 from days.services import DayService
 from datetime import datetime, timedelta
 
+from participants.models import Participant
+from participants.models import Cohort, Study
+
 class LevelModelTest(TestCase):
     def setUp(self):
         """Create testing user"""
+
+        # study_start_date = datetime(year=2019, month=1, day=1)
+        enrollment_date = datetime(year=2019, month=1, day=5)
         self.user = User.objects.create(username="test")
+        self.study = Study.objects.create(name="test study", baseline_period=2)
+        self.cohort = Cohort.objects.create(study=self.study, name="test cohort")
+        self.participant = Participant.objects.create(cohort=self.cohort, study_start_date=enrollment_date, user=self.user)
 
     def tearDown(self):
         """Destroying testing user"""
