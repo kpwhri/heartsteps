@@ -35,7 +35,9 @@ class BoutPlanningNotificationService:
         
         return daily_ema_survey
     
-    
+    def has_sequence_assigned(self):
+        return LevelSequence_User.objects.filter(user=self.user).exists()
+        
     def is_necessary(self):
         EventLog.debug(self.user, "is_necessary() is called")
         self.decision = BoutPlanningDecision.create(self.user)

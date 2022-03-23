@@ -558,11 +558,11 @@ class Level(models.Model):
     DEFAULT = FULL
 
     LEVELS = [
-        (RECOVERY, 'RE'),
-        (RANDOM, 'RA'),
-        (NO, 'NO'),
-        (NR, 'NR'),
-        (FULL, 'FU'),
+        (RECOVERY, 'RE'),   # 0
+        (RANDOM, 'RA'),     # 1
+        (NO, 'NO'),         # 2
+        (NR, 'NR'),         # 3
+        (FULL, 'FU'),       # 4
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
