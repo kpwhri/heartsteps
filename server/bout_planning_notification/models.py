@@ -22,9 +22,6 @@ from participants.models import Cohort, Participant
 from daily_step_goals.services import StepGoalsService
 from activity_summaries.models import Day
 import random
-
-from fitbit_api.models import FitbitAccountUser
-from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.services import FitbitStepCountService
 from push_messages.models import Message
 
@@ -608,9 +605,16 @@ class Level(models.Model):
         if Level.exists(user, date):
             return_object = Level.objects.get(user=user, date=date)
         else:
-            return_object = Level.objects.create(user=user,
-                                                 date=date,
-                                                 level=Level.DEFAULT)
+            participant = Participant.objects.filter(user=user).first()
+            if date < participant.study_start_date + timedelta(days=participant.cohort.study.baseline_period):
+                return_object = Level.objects.create(user=user,
+                                                    date=date,
+                                                    level=Level.RECOVERY)
+            else:
+                return_object = Level.objects.create(user=user,
+                                                    date=date,
+                                                    level=Level.FULL)
+
         EventLog.debug(user, "get({}) returns: {}".format(date, return_object))
 
         return return_object
