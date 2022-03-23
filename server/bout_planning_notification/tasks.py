@@ -53,18 +53,25 @@ def bout_planning_decision_making(username):
     if FeatureFlags.exists(user):
         if FeatureFlags.has_flag(user, "bout_planning"):
             EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
-            
-            service = BoutPlanningNotificationService(user)
-            
-            if service.is_necessary():
-                EventLog.debug(user, "is_necessary() is true. bout planning notification will be sent.")
-                survey = service.create_survey()
-                body = pull_random_bout_planning_message()
+
+            participant_service = ParticipantService(user=user)
+            if participant_service.is_baseline_complete():
+                service = BoutPlanningNotificationService(user)
                 
-                message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
-                EventLog.success(user, "bout planning notification is sent.")
+                if not service.has_sequence_assigned():
+                    service.assign_level_sequence(participant_service.participant.cohort, user=user)
+
+                if service.is_necessary():
+                    EventLog.debug(user, "is_necessary() is true. bout planning notification will be sent.")
+                    survey = service.create_survey()
+                    body = pull_random_bout_planning_message()
+                    
+                    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
+                    EventLog.success(user, "bout planning notification is sent.")
+                else:
+                    EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
             else:
-                EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
+                EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)
@@ -146,7 +153,7 @@ def fitbit_update_check(username):
                         else:
                             pass
                         
-                        msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please click the following link to upload.\n\nfitbit://about".format(greeting, timegap_str)
+                        msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please launch the Fitbit app to upload.".format(greeting, timegap_str)
                         sms_message = sms_service.send(msg)
                         EventLog.info(user, "SMS message is sent: {}".format(msg))
                         EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))

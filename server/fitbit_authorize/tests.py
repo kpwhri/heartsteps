@@ -13,6 +13,7 @@ from fitbit.api import FitbitOauth2Client
 from fitbit_api.models import FitbitAccount, FitbitAccountUser
 from fitbit_authorize.models import AuthenticationSession
 from fitbit_api.models import FitbitConsumerKey
+from fitbit_api.models import FitbitAccountUserHistory
 
 # TODO: remove print debugging
 class FitbitAuthorizationTest(APITestCase):
@@ -32,6 +33,34 @@ class FitbitAuthorizationTest(APITestCase):
 
         session = AuthenticationSession.objects.get(user=user, token=response.data['token'])
         self.assertIsNotNone(session)
+
+    def test_mock_account_change(self):
+        user = User.objects.create(username="test")
+        account1 = FitbitAccount.objects.create(
+            fitbit_user = 'fake-test1',
+            access_token = 'access-token1',
+            refresh_token = 'refresh-token1',
+            expires_at = 1234
+        )
+        account2 = FitbitAccount.objects.create(
+            fitbit_user = 'fake-test2',
+            access_token = 'access-token2',
+            refresh_token = 'refresh-token2',
+            expires_at = 1234
+        )
+
+        self.assertEqual(FitbitAccountUser.objects.filter(user=user).count(), 0)
+        self.assertEqual(FitbitAccountUserHistory.objects.filter(user=user).count(), 0)
+        FitbitAccountUser.create_or_update(user, account1)
+        self.assertEqual(FitbitAccountUser.objects.filter(user=user).count(), 1)
+        self.assertEqual(FitbitAccountUserHistory.objects.filter(user=user).count(), 1)
+        FitbitAccountUser.create_or_update(user, account2)
+        self.assertEqual(FitbitAccountUser.objects.filter(user=user).count(), 1)
+        self.assertEqual(FitbitAccountUserHistory.objects.filter(user=user).count(), 2)
+
+        account1.delete()
+        account2.delete()
+        user.delete()
 
     def test_authorize(self):
         user = User.objects.create(username="test")

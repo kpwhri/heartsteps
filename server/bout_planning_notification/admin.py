@@ -81,7 +81,7 @@ admin.site.register(LevelSequence, LevelSequenceAdmin)
 
 class LevelSequence_UserAdmin(admin.ModelAdmin):
     list_display = ['level_sequence','user', 'assigned']
-    fields = ['level_sequence','user', 'assigned']
+    readonly_fields = ['level_sequence','user', 'assigned']
 
 admin.site.register(LevelSequence_User, LevelSequence_UserAdmin)
 

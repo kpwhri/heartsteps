@@ -67,7 +67,7 @@ class ParticipantConfiguration(TestCase):
     def test_study_start_is_first_fitbit_account_update(self):
         self.participant.enroll()
         fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account=fitbit_account,
             user=self.participant.user
         )
@@ -83,7 +83,7 @@ class ParticipantConfiguration(TestCase):
     def test_study_end_date_is_none_by_default(self):
         self.participant.enroll()
         fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account=fitbit_account,
             user=self.participant.user
         )
@@ -101,7 +101,7 @@ class ParticipantConfiguration(TestCase):
     def test_study_end_date_calculated_from_cohort_date(self):
         self.participant.enroll()
         fitbit_account = FitbitAccount.objects.create(fitbit_user='test')
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account=fitbit_account,
             user=self.participant.user
         )

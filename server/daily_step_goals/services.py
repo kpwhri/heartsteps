@@ -87,7 +87,7 @@ class StepGoalsService:
         
         if len(steps_log) == 0:
             # no day log is found
-            base = 10000    # change to 2000 steps
+            base = 2000
             sgc_settings.magnitude = 0
             sgc_settings.base_jump = 0
         else:
@@ -102,7 +102,10 @@ class StepGoalsService:
                 return max
             return x
         
-        new_seq = [int(cutoff(x * sgc_settings.magnitude + base + sgc_settings.base_jump, sgc_settings.minimum, sgc_settings.maximum)) for x in seq]
+        safe_base = cutoff(base, sgc_settings.minimum, sgc_settings.maximum)
+        new_seq = [int(x * sgc_settings.magnitude + safe_base + sgc_settings.base_jump) for x in seq]
+        # old way:
+        # new_seq = [int(cutoff(x * sgc_settings.magnitude + base + sgc_settings.base_jump, sgc_settings.minimum, sgc_settings.maximum)) for x in seq]
         
         # look for the current evidence
         query = StepGoalsEvidence.objects.filter(user=self.user, startdate=startdate, enddate=enddate).order_by('-created')

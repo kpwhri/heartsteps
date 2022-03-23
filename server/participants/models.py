@@ -215,11 +215,7 @@ class Participant(models.Model):
         else:
             EventLog.debug(user)
             
-        if FeatureFlags.exists(user):
-            if FeatureFlags.has_flag(user, 'bout_planning'):
-                from bout_planning_notification.services import BoutPlanningNotificationService
-                bout_planning_service = BoutPlanningNotificationService(user)
-                bout_planning_service.assign_level_sequence(self.cohort, user=user)
+        
             
         self.save()
         EventLog.debug(user)

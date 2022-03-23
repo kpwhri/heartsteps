@@ -38,8 +38,10 @@ export class PushNotificationService {
         private platform: Platform,
         private zone: NgZone
     ) {
+        console.log("PushNotificationService", "constructor()", 1);
         this.platform.ready()
             .then(() => {
+                console.log("PushNotificationService", "constructor()", 2);
                 this.initialize();
             });
     }
@@ -136,19 +138,26 @@ export class PushNotificationService {
         // return Promise.resolve(true);
         return this.isPhone()
             .then(() => {
+                console.log('PushNotificationService: Get permission for phone');
                 window.plugins.OneSignal.provideUserConsent(true);
+                console.log('PushNotificationService: Get permission for phone - done');
                 if (this.platform.is('ios')) {
+                    console.log("This device is an iPhone.");
                     return this.getPermissionIOS();
                 } else {
+                    console.log("This device is not an iPhone: ", this.platform);
                     return Promise.resolve(true);
                 }
             });
     }
 
     private isPhone(): Promise<void> {
+        console.log("PushNotificationService", "isPhone()", 1);
         if (this.platform.is('cordova')) {
+            console.log("PushNotificationService", "isPhone()", 2);
             return Promise.resolve(undefined);
         } else {
+            console.log("PushNotificationService", "isPhone()", 3);
             return Promise.reject('Not a phone');
         }
     }

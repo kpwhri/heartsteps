@@ -81,7 +81,7 @@
         "jest": "^23.6.0",
         "jest-preset-angular": "^6.0.2",
         "node-sass": "^6.0.0",
-        "onesignal-cordova-plugin": "^3.0.1",
+        "onesignal-cordova-plugin": "^3.0.2",
         "tslint": "^5.20.1",
         "typescript": "~2.6.2",
         "xml2js": "^0.4.23",
@@ -129,11 +129,11 @@
             "cordova-plugin-ionic-webview": {},
             "cordova-plugin-ionic-keyboard": {},
             "cordova-plugin-safariviewcontroller": {},
-            "onesignal-cordova-plugin": {},
             "cordova-plugin-advanced-http": {
                 "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1"
             },
-            "cordova-plugin-statusbar": {}
+            "cordova-plugin-statusbar": {},
+            "onesignal-cordova-plugin": {}
         },
         "platforms": [
             "android",

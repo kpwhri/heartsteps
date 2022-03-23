@@ -291,7 +291,7 @@ class NightlyUpdateTask(TestCase):
         self.account = FitbitAccount.objects.create(
             fitbit_user = 'test'
         )
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = self.account,
             user = self.user
         )
@@ -395,7 +395,7 @@ class InitializeAndUpdateTaskTests(TestCase):
             enabled = True
         )
         account = FitbitAccount.objects.create(fitbit_user='test')
-        FitbitAccountUser.objects.create(
+        FitbitAccountUser.create_or_update(
             account = account,
             user = user
         )

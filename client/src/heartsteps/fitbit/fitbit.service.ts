@@ -51,7 +51,7 @@ export class FitbitService {
                 url += '?redirect=' + this.redirectURL;
             }
             console.log("FitbitService.startAuthorization():", url);
-            // this.browser.open(url);
+            this.browser.open(url);
         })
     }
 

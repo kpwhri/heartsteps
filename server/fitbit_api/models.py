@@ -156,9 +156,29 @@ class FitbitAccount(models.Model):
         self.expires_at = None
         self.save()
 
+class FitbitAccountUserHistory(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
 class FitbitAccountUser(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE, unique=True)
     account = models.ForeignKey(FitbitAccount, on_delete = models.CASCADE)
+
+    def create_or_update(user, account):
+        FitbitAccountUserHistory.objects.create(
+            user = user,
+            account = account,
+        )
+        if FitbitAccountUser.objects.filter(user = user).exists():
+            relation = FitbitAccountUser.objects.filter(user = user).update(account = account)
+            return (relation, False)
+        else:
+            relation = FitbitAccountUser.objects.create(
+                user = user,
+                account = account
+            )
+            return (relation, True)
 
 class FitbitSubscription(models.Model):
     uuid = models.CharField(max_length=50, unique=True, primary_key=True)    

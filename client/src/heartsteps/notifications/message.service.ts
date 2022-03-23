@@ -32,18 +32,23 @@ export class MessageService {
     ) { }
 
     public setup(): Promise<void> {
+        console.log("MessageService: Setup");
         if (this.isSetup) {
+            console.log("MessageService: Already setup");
             return Promise.resolve(undefined);
         } else {
+            console.log("MessageService: Setup message storage");
             this.isSetup = true;
 
             this.messageStorage = this.documentStorageService.create(
                 "heartsteps-messages"
             );
+            console.log("MessageService: Setup message storage complete");
 
             this.pushNotificationService.device.subscribe((device: Device) => {
                 this.checkDevice(device);
             });
+            console.log("MessageService: Setup complete");
             this.pushNotificationService.notifications.subscribe(
                 // if a push notification is received, fetch the full message body from the server
                 (data: any) => {
@@ -117,7 +122,7 @@ export class MessageService {
                 }
             })
             .catch(() => {
-                return Promise.reject("No permission");
+                return Promise.reject("No permission 1");
             });
     }
 

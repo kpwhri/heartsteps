@@ -16,11 +16,11 @@ services:
       dockerfile: client-android.Dockerfile
     image: gcr.io/ucsd-publichealth-justwalk/client-android
     env_file:
-      - credentials/.env-production
+      - credentials/justwalk.env
     environment: 
       - BUILD_PLATFORM=android
       - BUILD_VERSION=2.3.2
-      - HEARTSTEPS_URL=https://dev.heartsteps.net/api
+      - HEARTSTEPS_URL=https://justwalk.ucsd.edu/api
     volumes:
       - ./client:/client
       - ./credentials:/credentials

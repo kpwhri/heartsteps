@@ -16,11 +16,10 @@ from participants.models import Cohort
 
 class StepGoalCalculationSettings(models.Model):
     cohort = models.OneToOneField(Cohort, default=None, on_delete=models.CASCADE)
-    magnitude = models.IntegerField(default=2000)
+    magnitude = models.IntegerField(default=4000)
     base_jump = models.IntegerField(default=0)
-    maximum = models.IntegerField(default=30000)    # this should be applied to the medians
-    minimum = models.IntegerField(default=100)      # this should be applied to the medians
-        # min => 2,000, max => 12,000
+    maximum = models.IntegerField(default=12000)
+    minimum = models.IntegerField(default=2000)
         
     def get(cohort):
         settings, _ = StepGoalCalculationSettings.objects.get_or_create(cohort=cohort)
