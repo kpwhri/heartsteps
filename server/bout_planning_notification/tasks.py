@@ -100,7 +100,8 @@ def justwalk_daily_ema(username, parameters=None):
                 # survey = service.create_daily_ema()
                 
                 # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-                message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+                # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+                message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject="bout_planning_survey", survey=survey)
             else:
                 EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:
