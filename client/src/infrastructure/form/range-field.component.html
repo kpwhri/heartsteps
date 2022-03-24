@@ -1,5 +1,5 @@
 <fieldset class="input-group">
-    <legend class="description">{{label}}</legend>
+    <legend class="description" [innerHTML]="label"></legend>
     <ul>
         <li *ngFor="let option of options; let index = index">
             <input id="{{name}}-{{index}}"
