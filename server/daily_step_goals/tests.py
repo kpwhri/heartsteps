@@ -67,7 +67,7 @@ class ServiceStepGoalsService(HeartStepsTestCase):
             # use PRBS as '0.3, 0.4, 0.5, 0.6, 0.7'
             # ActivityDay will be used from 1000~1004 (5 days) => median: 1002
             goals = get_goals(self.user, datetime(2021, 1, 6).date(), 5)
-            self.assertEqual(goals, [10000, 10000, 10000, 10000, 10000])
+            self.assertEqual(goals, [2000, 2000, 2000, 2000, 2000])
 
     @patch('daily_step_goals.tasks.update_fitbit_device_with_new_goal')
     @patch('participants.services.ParticipantService.is_baseline_complete')
