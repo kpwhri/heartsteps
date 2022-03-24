@@ -4,6 +4,7 @@ from days.services import DayService
 from fitbit_api.models import FitbitAccountUser
 import pytz
 from participants.services import ParticipantService
+from daily_step_goals.tasks import send_daily_step_goal_notification
 from sms_messages.services import SMSService
 
 from .models import BoutPlanningMessage, JSONSurvey, User
@@ -175,6 +176,9 @@ def fitbit_update_check(username):
             msg = "a user without 'bout_planning' flag came in: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)
             raise BoutPlanningFlagException(msg)
+
+        if FeatureFlags.has_flag(user, "system_id_stepgoal"):
+            send_daily_step_goal_notification(username)
     else:
         msg = "a user without any flag came in: {}".format(user.username)
         EventLog.log(user, msg, EventLog.ERROR)
