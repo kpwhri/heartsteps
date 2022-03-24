@@ -18,7 +18,7 @@ class StepGoalCalculationSettings(models.Model):
     cohort = models.OneToOneField(Cohort, default=None, on_delete=models.CASCADE)
     magnitude = models.IntegerField(default=4000)
     base_jump = models.IntegerField(default=0)
-    maximum = models.IntegerField(default=12000)
+    maximum = models.IntegerField(default=8000)
     minimum = models.IntegerField(default=2000)
         
     def get(cohort):

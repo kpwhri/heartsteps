@@ -36,7 +36,7 @@ def update_goal(username, day=None):
     else:
         # The user is in baseline period. Stopping here.
         EventLog.info(user, "The user is in baseline period. Setting the goal to 10,000 steps per day, and stopping here.")
-        BASELINE_STEPGOAL = 10000
+        BASELINE_STEPGOAL = 2000
         set_fixed_goal(user, day, BASELINE_STEPGOAL)
         return
 
