@@ -1,19 +1,75 @@
-import os
 from participants.models import Participant
-import pytz
-import json
-import random
 from celery import shared_task
-from datetime import timedelta, datetime, date
-import requests
+from datetime import timedelta
 from daily_step_goals.models import StepGoalsEvidence, User
 import participants
 from daily_step_goals.models import StepGoal
+from feature_flags.models import FeatureFlags
+import bout_planning_notification as bpn
+from participants.services import ParticipantService
+from push_messages.services import PushMessageService
+from surveys.serializers import SurveyShirinker
 from user_event_logs.models import EventLog
 
 import daily_step_goals.services
 import fitbit_api.services
 from days.services import DayService
+
+
+
+def send_notification(user, title='Sample Stepgoal Notification Title',
+                        body='Sample Stepgoal Notification Body.',
+                        collapse_subject='stepgoal',
+                        survey=None,
+                        data={}):
+    try:
+        if survey is not None:
+            shrinked_survey = SurveyShirinker(survey)
+            data["survey"] = shrinked_survey.to_json()
+        
+        service = PushMessageService(user=user)
+        message = service.send_notification(
+            body=body,
+            title=title,
+            collapse_subject=collapse_subject,
+            data=data)
+        return message
+    except (PushMessageService.MessageSendError,
+            PushMessageService.DeviceMissingError) as e:
+        raise e
+        
+@shared_task
+def send_daily_step_goal_notification(username, parameters=None):
+    assert isinstance(username, str), "username must be a string: {}".format(type(username))
+    user = User.objects.get(username=username)
+    
+    if not FeatureFlags.exists(user):
+        raise Exception("The user does not have a feature flag.")
+    
+    if not FeatureFlags.has_flag(user, "system_id_stepgoal"):
+        raise Exception("The user does not have 'system_id_stepgoal' flag.")
+    
+    participant_service = ParticipantService(user=user)
+    if participant_service.is_baseline_complete():
+        day_service = DayService(user)
+        today = day_service.get_current_date()
+
+        goal_query = StepGoal.objects.filter(user=user, date=today)
+        if goal_query.exists():
+            goal = goal_query.first().step_goal
+        else:
+            raise Exception("No goal found for today.")
+
+        json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
+        survey = json_survey.substantiate(user, parameters)
+
+        message = send_notification(user, title="JustWalk", body="Today's step goal: {:,}".format(goal), collapse_subject="bout_planning_survey", survey=survey)
+    else:
+        EventLog.info(user, "The user is not yet baseline complete. The daily step goal notification will not be sent.")
+        return
+            
+    
+
 
 @shared_task
 def update_goal(username, day=None):
@@ -36,7 +92,7 @@ def update_goal(username, day=None):
     else:
         # The user is in baseline period. Stopping here.
         EventLog.info(user, "The user is in baseline period. Setting the goal to 10,000 steps per day, and stopping here.")
-        BASELINE_STEPGOAL = 10000
+        BASELINE_STEPGOAL = 2000
         set_fixed_goal(user, day, BASELINE_STEPGOAL)
         return
 
@@ -77,7 +133,9 @@ def update_goal(username, day=None):
 
 def set_fixed_goal(user, day, BASELINE_STEPGOAL):
     if StepGoal.objects.filter(user=user, date=day).exists():
-        StepGoal.objects.get(user=user, date=day).step_goal = BASELINE_STEPGOAL
+        goal_obj = StepGoal.objects.get(user=user, date=day)
+        goal_obj.step_goal = BASELINE_STEPGOAL
+        goal_obj.save()
     else:
         StepGoal.objects.create(user=user, date=day, step_goal=BASELINE_STEPGOAL)
             

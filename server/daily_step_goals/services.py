@@ -4,8 +4,11 @@ import csv
 from django.core.exceptions import ImproperlyConfigured
 from statistics import median
 
-from daily_step_goals.tasks import update_goal
+import daily_step_goals as dsg
 import pytz
+from push_messages.services import PushMessageService
+
+from surveys.serializers import SurveyShirinker
 from .models import StepGoal, StepGoalCalculationSettings, StepGoalSequence, StepGoalSequence_User, StepGoalSequenceBlock, StepGoalsEvidence
 # from activity_summaries.models import Day as ActivitySummaryDay
 import activity_summaries.models
@@ -30,6 +33,7 @@ class StepGoalsService:
         self.user = user
         self.participant = Participant.objects.get(user=self.user)
         self.cohort = self.participant.cohort
+    
 
     def get_seq(self):
         cohort = self.cohort
@@ -148,6 +152,6 @@ class StepGoalsService:
         if not StepGoal.objects.filter(user=self.user, date=day).exists():
             # which is weird...
             EventLog.debug(self.user, "The day's step goal is not generated before. I'm generating it now...")
-            update_goal(self.user.username, day=day)
+            dsg.tasks.update_goal(self.user.username, day=day)
         day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
         return day_step_goal
