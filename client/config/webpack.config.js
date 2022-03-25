@@ -5,8 +5,8 @@ var xml2js = require('xml2js');
 var fs = require('fs');
 var moment = require('moment');
 
-var BUILD_NUMBER = '2.0.0';
-var BUILD_VERSION = '123';
+var BUILD_NUMBER = '2.4';
+var BUILD_VERSION = '2.4';
 var BUILD_DATE = moment().format('MMMM Do, YYYY');
 
 // If you want to use dev.heartsteps.server, set this to false
@@ -50,7 +50,10 @@ fs.readFile('./config.xml', 'utf8', function(err, data) {
         obj['widget']['$']['android-versionCode'] = current_build_number;
         obj['widget']['$']['osx-CFBundleVersion'] = current_build_number;
         obj['widget']['$']['ios-CFBundleVersion'] = current_build_number;
-        obj['widget']['$']['version'] = "2.3." + current_build_number.toString();
+        BUILD_NUMBER = "2.4." + current_build_number.toString()
+        BUILD_VERSION = BUILD_NUMBER
+        obj['widget']['$']['version'] = BUILD_NUMBER;
+
 
         var builder = new xml2js.Builder();
         xml = builder.buildObject(obj);

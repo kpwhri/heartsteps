@@ -6,29 +6,33 @@
         <ng-container *ngIf="offlineStatus === false">
             <span id="page-title">{{pageTitle}}</span>
         </ng-container>
-        <ng-container *ngIf="offlineStatus">
-            <img
-                class="airplane-mode"
-                src="../../assets/icon/outline_airplanemode_active_black_24dp.png"
-                alt="OFFLINE"
-            />
+        <ng-container *ngIf="offlineStatusIconFlag()">
+            <ng-container *ngIf="offlineStatus">
+                <img
+                    class="airplane-mode"
+                    src="../../assets/icon/outline_airplanemode_active_black_24dp.png"
+                    alt="OFFLINE"
+                />
+            </ng-container>
         </ng-container>
-        <a routerLink="notification-center">
-            <ng-container *ngIf="haveUnread === false">
-                <img
-                    class="notification-bell"
-                    src="../../assets/icon/notifications_black_24dp.svg"
-                    alt="Notification Center"
-                />
-            </ng-container>
-            <ng-container *ngIf="haveUnread === true">
-                <img
-                    class="notification-bell"
-                    src="../../assets/icon/notifications_active_black_24dp.svg"
-                    alt="Notification Center"
-                />
-            </ng-container>
-        </a>
+        <ng-container *ngIf="notificationCenterFlag()">
+            <a routerLink="notification-center">
+                <ng-container *ngIf="haveUnread === false">
+                    <img
+                        class="notification-bell"
+                        src="../../assets/icon/notifications_black_24dp.svg"
+                        alt="Notification Center"
+                    />
+                </ng-container>
+                <ng-container *ngIf="haveUnread === true">
+                    <img
+                        class="notification-bell"
+                        src="../../assets/icon/notifications_active_black_24dp.svg"
+                        alt="Notification Center"
+                    />
+                </ng-container>
+            </a>
+        </ng-container>
     </h2>
     <span *ngIf="updatingParticipant" class="loading">
         Updating participant

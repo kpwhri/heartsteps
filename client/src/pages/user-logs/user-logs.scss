@@ -21,7 +21,7 @@ baseline-week-page {
     button.settings {
         &:before {
             content: ' ';
-            mask-image: url('../assets/settings.svg');
+            -webkit-mask-box-image: url('../assets/settings.svg');
             mask-repeat: no-repeat;
             mask-position: 50% 50%;
             background-color: $color-primary;

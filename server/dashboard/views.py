@@ -61,6 +61,7 @@ from page_views.models import PageView
 from push_messages.services import PushMessageService
 from push_messages.models import Device, Message as PushMessage
 from randomization.models import UnavailableReason
+from zipcode.services import ZipCodeService
 from sms_messages.services import SMSService
 from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
@@ -258,6 +259,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
     #     longitude = coordinates["long"]
     #     return "Coordinates set set: {}, {}".format(latitude, longitude)
 
+    def set_zip_code(self, user, zipcode):
+        return "Zip Code is set: {}".format(ZipCodeService.fill_location_info(user, zipcode))
+
     def prettyprint(self, obj):
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
@@ -361,6 +365,12 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                                     nickname)
                 else:
                     raise UnreadablePostError
+            elif dev_command == 'set_zip_code':
+                zip_code = request.POST['zipcode']
+                username = request.POST['username']
+                user = self.dev_service.get_user_by_username(username)
+                context["results"] = self.set_zip_code(
+                    user, zip_code)
             elif dev_command == 'generic-command':
                 generic_command = request.POST['generic-command']
                 if generic_command == 'delete_all_hourly_tasks':

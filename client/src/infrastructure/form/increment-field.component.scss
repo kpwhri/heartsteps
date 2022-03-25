@@ -35,7 +35,7 @@ app-increment-field .incrementer {
             height: 100%;
             display: block;
             background-color: $color-white;
-            mask-image: url('../assets/icon-remove.svg');
+            -webkit-mask-box-image: url('../assets/icon-remove.svg');
             mask-position: 50% 50%;
             mask-repeat: no-repeat;
         }
@@ -44,7 +44,7 @@ app-increment-field .incrementer {
     > button.add {
         order: 2;
         &:before {
-            mask-image: url('../assets/icon-add.svg');
+            -webkit-mask-box-image: url('../assets/icon-add.svg');
         }
     }
 

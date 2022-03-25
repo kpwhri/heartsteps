@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StepGoal, StepGoalSequence, StepGoalSequence_User, StepGoalSequenceBlock, StepGoalsEvidence
+from .models import StepGoal, StepGoalCalculationSettings, StepGoalSequence, StepGoalSequence_User, StepGoalSequenceBlock, StepGoalsEvidence
 
 class StepGoalsAdmin(admin.ModelAdmin):
     list_display = ['user', 'date', 'step_goal', 'created']
@@ -37,3 +37,9 @@ class StepGoalsEvidenceAdmin(admin.ModelAdmin):
                        'evidence', 'freetext', 'created']
     
 admin.site.register(StepGoalsEvidence, StepGoalsEvidenceAdmin)
+
+class StepGoalCalculationSettingsAdmin(admin.ModelAdmin):
+    list_display = ['cohort', 'magnitude', 'base_jump', 'maximum', 'minimum']
+    fields = ['cohort', 'magnitude', 'base_jump', 'maximum', 'minimum']
+    
+admin.site.register(StepGoalCalculationSettings, StepGoalCalculationSettingsAdmin)

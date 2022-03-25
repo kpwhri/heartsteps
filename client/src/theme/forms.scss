@@ -249,7 +249,7 @@ fieldset.heartsteps-form-field {
         width: 2em;
         height: 1em;
         background-color: $link-color;
-        mask-image: url('../assets/arrow-down.svg');
+        -webkit-mask-box-image: url('../assets/arrow-down.svg');
         mask-repeat: no-repeat;
     }
 }

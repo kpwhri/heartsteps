@@ -32,13 +32,13 @@ heartsteps-notification-page {
                 border-radius: 1.5em;
 
                 &#notification-liked:before {
-                    mask-image: url('../assets/icon-thumbs-up.svg');
+                    -webkit-mask-box-image: url('../assets/icon-thumbs-up.svg');
                     mask-size: 70%;
                     mask-position: 50% 40%;
                 }
 
                 &#notification-disliked:before {
-                    mask-image: url('../assets/icon-thumbs-down.svg');
+                    -webkit-mask-box-image: url('../assets/icon-thumbs-down.svg');
                     mask-size: 70%;
                     mask-position: 50% 70%;
                 }

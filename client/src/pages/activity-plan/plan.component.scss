@@ -18,7 +18,7 @@ heartsteps-activity-plan {
         flex: 0 0 auto;
         height: 2em;
         width: 2em;
-        mask-image: url('../assets/edit.svg');
+        -webkit-mask-box-image: url('../assets/edit.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
         mask-size: 1em;

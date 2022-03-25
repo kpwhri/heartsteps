@@ -148,4 +148,8 @@ export class HomePage implements OnInit, OnDestroy {
         // console.log("home.ts notification center flag called");
         return this.featureFlagService.hasFlagNP("notification_center");
     }
+
+    public offlineStatusIconFlag(): boolean {
+        return this.featureFlagService.hasFlagNP("offline_status_icon");
+    }
 }

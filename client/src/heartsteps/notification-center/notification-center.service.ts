@@ -5,6 +5,7 @@ import { Message } from "@heartsteps/notifications/message.model";
 import { MessageReceiptService } from "@heartsteps/notifications/message-receipt.service";
 import { NotificationService } from "@app/notification.service";
 import { StorageService } from "@infrastructure/storage.service";
+import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 
 const storageKey: string = "notification-center";
 
@@ -27,7 +28,8 @@ export class NotificationCenterService {
         private heartstepsServer: HeartstepsServer,
         private messageReceiptService: MessageReceiptService,
         private notificationService: NotificationService,
-        private storage: StorageService
+        private storage: StorageService,
+        private featureFlagService: FeatureFlagService
     ) {
         this.get();
         this.refreshNotifications();
@@ -52,29 +54,32 @@ export class NotificationCenterService {
         // });
 
         // TODO: DO MORE PROMISE REJECT FOR .CATCH TO SEE IF API CALL FAILS
+        if (this.featureFlagService.hasFlagNP('notification_center')) {
+            return this.getRecentNotifications()
+                .then((data) => {
+                    // console.log("NC: data from django", data);
+                    let newStatus = data[0];
+                    let res = data[1];
 
-        return this.getRecentNotifications()
-            .then((data) => {
-                // console.log("NC: data from django", data);
-                let newStatus = data[0];
-                let res = data[1];
-
-                let notifications: Message[] = res.map(
-                    this.deserializeMessage,
-                    this
-                );
-                this.offlineStatus.next(false);
-                this.notifications.next(notifications);
-                this.unreadStatus.next(newStatus);
-                return notifications;
-            })
-            .then((notifications) => {
-                return this.set(notifications);
-            })
-            .catch(() => {
-                this.offlineStatus.next(true);
-                return this.loadLocalNotifications();
-            });
+                    let notifications: Message[] = res.map(
+                        this.deserializeMessage,
+                        this
+                    );
+                    this.offlineStatus.next(false);
+                    this.notifications.next(notifications);
+                    this.unreadStatus.next(newStatus);
+                    return notifications;
+                })
+                .then((notifications) => {
+                    return this.set(notifications);
+                })
+                .catch(() => {
+                    this.offlineStatus.next(true);
+                    return this.loadLocalNotifications();
+                });
+        } else {
+            return Promise.resolve([]);
+        }
     }
 
     // tries to get notifications from local storage and if fails, pull from django db

@@ -11,15 +11,15 @@ heartsteps-places-list {
 
         background-color: $link-color;
 
-        mask-image: url('../assets/pin.svg');
+        -webkit-mask-box-image: url('../assets/pin.svg');
         mask-repeat: no-repeat;
     }
 
     .place.home:before {
-        mask-image: url('../assets/home.svg');
+        -webkit-mask-box-image: url('../assets/home.svg');
     }
     .place.work:before {
-        mask-image: url('../assets/work.svg');
+        -webkit-mask-box-image: url('../assets/work.svg');
     }
 
 }
