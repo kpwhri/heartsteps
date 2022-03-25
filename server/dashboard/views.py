@@ -365,6 +365,10 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                                     nickname)
                 else:
                     raise UnreadablePostError
+            elif dev_command == 'set_zip_code':
+                zip_code = request.POST['zipcode']
+                context["results"] = self.set_zip_code(
+                    self.request.user, zip_code)
             elif dev_command == 'generic-command':
                 generic_command = request.POST['generic-command']
                 if generic_command == 'delete_all_hourly_tasks':
@@ -415,10 +419,6 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 elif generic_command == 'fix_schedulers':
                     lines = self.dev_service.fix_schedulers(fix=True)
                     context["results"] = "\n".join(lines)
-                elif generic_command == 'set_zip_code':
-                    zip_code = request.POST['zipcode']
-                    zip_code_result = self.set_zip_code(zip_code)
-                    context["results"] = zip_code_result
                 else:
                     context[
                         "results"] = "Unsupported generic command: {}".format(
