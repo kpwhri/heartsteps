@@ -3,21 +3,21 @@ activity-enjoyed-field {
 
     .heartsteps-checkmark-button {
         &:before {
-            mask-image: url('../assets/enjoyed-none.svg');
+            -webkit-mask-box-image: url('../assets/enjoyed-none.svg');
         }
 
         &#activity-enjoyed-0:before {
-            mask-image: url('../assets/enjoyed-none.svg');
+            -webkit-mask-box-image: url('../assets/enjoyed-none.svg');
         }
         
         &#activity-enjoyed-1:before {
-            mask-image: url('../assets/enjoyed-little.svg');
+            -webkit-mask-box-image: url('../assets/enjoyed-little.svg');
         }
         &#activity-enjoyed-2:before {
-            mask-image: url('../assets/enjoyed-some.svg');
+            -webkit-mask-box-image: url('../assets/enjoyed-some.svg');
         }
         &#activity-enjoyed-3:before {
-            mask-image: url('../assets/enjoyed-full.svg');
+            -webkit-mask-box-image: url('../assets/enjoyed-full.svg');
         }
     }
 }

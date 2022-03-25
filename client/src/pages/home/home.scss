@@ -74,19 +74,19 @@ page-home {
         }
 
         .dashboard:before {
-            mask-image: url("../assets/dashboard.svg");
+            -webkit-mask-box-image: url("../assets/dashboard.svg");
         }
         .planning:before {
-            mask-image: url("../assets/planning.svg");
+            -webkit-mask-box-image: url("../assets/planning.svg"); 
         }
         .activities:before {
-            mask-image: url("../assets/stats.svg");
+            -webkit-mask-box-image: url("../assets/stats.svg");
         }
         .library:before {
-            mask-image: url("../assets/library.svg");
+            -webkit-mask-box-image: url("../assets/library.svg");
         }
         .settings:before {
-            mask-image: url("../assets/settings.svg");
+            -webkit-mask-box-image: url("../assets/settings.svg");
         }
     }
 

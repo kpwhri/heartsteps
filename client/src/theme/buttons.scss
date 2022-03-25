@@ -99,7 +99,7 @@
         background-color: $text-color;
         width: 2em;
         height: 2em;
-        mask-image: url('../assets/close-icon.svg');
+        -webkit-mask-box-image: url('../assets/close-icon.svg');
     }
 
     &:focus,
@@ -134,7 +134,7 @@
         position: absolute;
         top: 0%;
         left: 0%;
-        mask-image: url('../assets/checkmark.svg');
+        -webkit-mask-box-image: url('../assets/checkmark.svg');
         mask-repeat: no-repeat;
         mask-position: 50% 50%;
         mask-size: 100%;
@@ -157,14 +157,14 @@
 .heartsteps-add-button {
     @extend .heartsteps-checkmark-button;
     &:before {
-        mask-image: url('../assets/icon-add.svg');
+        -webkit-mask-box-image: url('../assets/icon-add.svg');
     }
 }
 
 .heartsteps-add-button-selected {
     @extend .heartsteps-checkmark-button-selected;
     &:before {
-        mask-image: url('../assets/icon-add.svg');
+        -webkit-mask-box-image: url('../assets/icon-add.svg');
     }
 }
 
