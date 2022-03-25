@@ -61,6 +61,7 @@ from page_views.models import PageView
 from push_messages.services import PushMessageService
 from push_messages.models import Device, Message as PushMessage
 from randomization.models import UnavailableReason
+from zipcode.services import ZipCodeService
 from sms_messages.services import SMSService
 from sms_messages.models import Contact as SMSContact
 from sms_messages.models import Message as SMSMessage
@@ -258,6 +259,9 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
     #     longitude = coordinates["long"]
     #     return "Coordinates set set: {}, {}".format(latitude, longitude)
 
+    def set_zip_code(self, user, zipcode):
+        return "Zip Code is set: {}".format(ZipCodeService.fill_location_info(user, zipcode))
+
     def prettyprint(self, obj):
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
@@ -411,6 +415,10 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 elif generic_command == 'fix_schedulers':
                     lines = self.dev_service.fix_schedulers(fix=True)
                     context["results"] = "\n".join(lines)
+                elif generic_command == 'set_zip_code':
+                    zip_code = request.POST['zipcode']
+                    zip_code_result = self.set_zip_code(zip_code)
+                    context["results"] = zip_code_result
                 else:
                     context[
                         "results"] = "Unsupported generic command: {}".format(

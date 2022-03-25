@@ -181,7 +181,8 @@ INSTALLED_APPS = [
     'feature_flags',
     'configuration_manager',
     'bout_planning_notification',
-    'reports'
+    'reports',
+    'zipcode'
 ]
 
 MIDDLEWARE = [
