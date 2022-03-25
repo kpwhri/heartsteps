@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget android-versionCode="9" id="edu.ucsd.justwalk.jitai" ios-CFBundleVersion="9" osx-CFBundleVersion="9" version="2.4.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="10" id="edu.ucsd.justwalk.jitai" ios-CFBundleVersion="10" osx-CFBundleVersion="10" version="2.4.10" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>JustWalk</name>
   <description>A research application to promote daily physical activity</description>
   <author email="jup014@ucsd.edu" href="http://cwphs.ucsd.edu/">Junghwan Park</author>
@@ -22,8 +22,6 @@
   <preference name="SplashScreenDelay" value="3000"/>
   <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="StatusBarOverlaysWebView" value="false"/>
-  <preference name="StatusBarBackgroundColor" value="#40a2e0"/>
-  <preference name="StatusBarStyle" value="lightcontent"/>
   <platform name="ios">
     <allow-intent href="itms:*"/>
     <allow-intent href="itms-apps:*"/>

@@ -6,6 +6,7 @@ from activity_logs.models import ActivityLog, ActivityLogSource
 from fitbit_activities.models import FitbitActivity
 from fitbit_api.services import FitbitService
 from participants.models import Participant
+from activity_types.models import ActivityType
 
 from .models import FitbitActivityToActivityType
 
@@ -81,7 +82,11 @@ class FitbitActivityLogService(FitbitService):
             return False
 
     def get_matching_activity_type(self, fitbit_activity_type):
-        connection = FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type)
+        if FitbitActivityToActivityType.objects.filter(fitbit_activity_type=fitbit_activity_type).exists():
+            connection = FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type)
+        else:
+            activityType = ActivityType.objects.create(name=fitbit_activity_type.name, title=fitbit_activity_type.name)
+            connection = FitbitActivityToActivityType.objects.create(fitbit_activity_type=fitbit_activity_type, activity_type=activityType)
         return connection.activity_type
 
 
