@@ -9,7 +9,7 @@ class ZipCodeService:
         pass
 
     def fill_location_info(user, zipcode):
-        api_key = SystemSetting.get(name='ZIPCODE_API_KEY')
+        api_key = SystemSetting.get('ZIPCODE_API_KEY')
         url = "https://www.zipcodeapi.com/rest/{}/info.json/{}/degrees".format(api_key, zipcode)
 
 

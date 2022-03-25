@@ -6,7 +6,7 @@ class ZipCodeRequestHistory(models.Model):
     zipcode = models.CharField(max_length=5)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     response_code = models.CharField(max_length=3, null=True)
-    response_message = models.CharField(max_length=255, null=True)
+    response_message = models.TextField(null=True)
 
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)

@@ -367,8 +367,10 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                     raise UnreadablePostError
             elif dev_command == 'set_zip_code':
                 zip_code = request.POST['zipcode']
+                username = request.POST['username']
+                user = self.dev_service.get_user_by_username(username)
                 context["results"] = self.set_zip_code(
-                    self.request.user, zip_code)
+                    user, zip_code)
             elif dev_command == 'generic-command':
                 generic_command = request.POST['generic-command']
                 if generic_command == 'delete_all_hourly_tasks':
