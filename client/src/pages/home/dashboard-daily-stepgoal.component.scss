@@ -1,8 +1,20 @@
+
+// dashboard-daily-stepgoal {
+//
+//     ul {
+// //         @extend ul.horizontal;
+//         text-align: center;
+//         margin: auto;
+//     }
+// }
+//
+// }
+//
 dashboard-daily-stepgoal {
     li {
         color: black;
     }
-    
+
     .dashboard-daily-stepgoal-container {
         display: flex;
         flex-direction: column;
@@ -23,23 +35,23 @@ dashboard-daily-stepgoal {
     .notification-unread {
         border-left: 5px solid red;
     }
-    
+
     .notification {
         background-color: #f1f1f1;
         list-style-type: none;
         padding: 10px 20px;
     }
-    
+
     ul {
         list-style-type: none;
         padding: 0;
         border: 1px solid #ddd;
     }
-    
+
     .notification-list-item {
         margin-top: 0;
     }
-    
+
     .time-list-item {
         float: right;
     }
