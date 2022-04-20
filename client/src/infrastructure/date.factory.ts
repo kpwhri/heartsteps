@@ -52,6 +52,11 @@ export class DateFactory {
         return this.getWeek(new Date());
     }
 
+    public getPreviousMonth():Array<Date> {
+        const dateLastMonth = moment().subtract(30, 'days').toDate();
+        return this.getDateRange(dateLastMonth, moment().toDate());
+    }
+
     public getPreviousWeek():Array<Date> {
         const dateLastWeek = moment().subtract(7, 'days').toDate();
         return this.getWeek(dateLastWeek);
