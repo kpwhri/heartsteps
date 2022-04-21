@@ -100,8 +100,7 @@ def update_goal(username, day=None):
     stepgoal_service = daily_step_goals.services.StepGoalsService(user)
     EventLog.debug(user, "StepGoalsService is created.")
     query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
-    baseline_period = participant.cohort.study.baseline_period
-
+    
     if not query.exists():
         EventLog.info(user, "No evidence found for today.")
         # no calculation evidence is found
@@ -109,7 +108,7 @@ def update_goal(username, day=None):
         if not last_evidence_query.exists():
             EventLog.debug(user, "No evidence found for any day.")
             # no evidence is found at all
-            startdate = enrollment_date + timedelta(days=baseline_period)
+            startdate = day
         else:
             EventLog.debug(user, "some evidence is found")
             # some evidence is found
@@ -117,8 +116,8 @@ def update_goal(username, day=None):
             if last_evidence.enddate > day:
                 EventLog.debug(user, "The last evidence is for the future. calculation is completely wrong")
                 # calculation is completely wrong. re-calculating from the start
-                enrollment_date = participant.study_start_date
-                startdate = enrollment_date + timedelta(days=baseline_period)
+                # startdate = enrollment_date + timedelta(days=baseline_period)
+                raise Exception("The last evidence is for the future. calculation is completely wrong")
             else:
                 EventLog.debug(user, "The last evidence is for the past. calculation is somewhat correct. setting the startdate to the last evidence's enddate + 1d")
                 # calculation stopped sometime before
