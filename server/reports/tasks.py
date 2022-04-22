@@ -1,10 +1,12 @@
 import datetime
+from django.core.mail import EmailMessage
 import os
 import subprocess
 import uuid
 from system_settings.models import SystemSetting
 
 from user_event_logs.models import EventLog
+from django.core.mail import send_mail
 
 def log(msg):
     print(msg)
@@ -64,6 +66,23 @@ def remove_temporary_files(local_path):
     )
     log("Removed temporary files.")
 
+def send_email(local_path, local_filename, url):
+    log("Sending email...")
+
+    email = EmailMessage(
+        subject='JustWalk Report',
+        body='Here is your report: ' + url,
+        from_email='justwalk@ucsd.edu',
+        to=['ffee21@gmail.com'],
+        cc=['justwalk@ucsd.edu'],
+        reply_to=['justwalk@ucsd.edu']
+    )
+    log("  Trying to attach file...")
+    email.attach_file(os.path.join(local_path, local_filename))
+    log("  Attached file. Sending...")
+    email.send()
+    log("  Sent email.")
+
 def generate_report():
     authenticate()
 
@@ -77,4 +96,5 @@ def generate_report():
 
     log("Generated report public url: " + url)
 
+    send_email(local_path, local_filename, url)
     remove_temporary_files(local_path)
