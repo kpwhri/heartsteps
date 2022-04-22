@@ -54,11 +54,12 @@ def send_daily_step_goal_notification(username, parameters=None):
         day_service = DayService(user)
         today = day_service.get_current_date()
 
-        goal_query = StepGoal.objects.filter(user=user, date=today)
-        if goal_query.exists():
-            goal = goal_query.first().step_goal
-        else:
-            raise Exception("No goal found for today.")
+        goal = StepGoal.get(user=user, date=today)
+        # goal_query = StepGoal.get(user=user, date=today)
+        # if goal_query.exists():
+        #     goal = goal_query.first().step_goal
+        # else:
+        #     raise Exception("No goal found for today.")
 
         json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
         survey = json_survey.substantiate(user, parameters)
@@ -149,7 +150,7 @@ def update_goal(username, day=None):
 
 def set_fixed_goal(user, day, BASELINE_STEPGOAL):
     if StepGoal.objects.filter(user=user, date=day).exists():
-        goal_obj = StepGoal.objects.get(user=user, date=day)
+        goal_obj = StepGoal.get(user=user, date=day)
         goal_obj.step_goal = BASELINE_STEPGOAL
         goal_obj.save()
     else:

@@ -174,5 +174,6 @@ class StepGoalsService:
             # which is weird...
             EventLog.debug(self.user, "The day's step goal is not generated before. I'm generating it now...")
             dsg.tasks.update_goal(self.user.username, day=day)
-        day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
+        # day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
+        day_step_goal = StepGoal.get(self.user, day)
         return day_step_goal
