@@ -25,3 +25,9 @@ class ReportSave(models.Model):
     report = models.ForeignKey(Report, on_delete = models.SET_NULL, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     url = models.URLField(blank=True)
+
+class ReportRecipients(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    report_type = models.ForeignKey(ReportType, on_delete = models.SET_NULL, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    recipient_email = models.TextField(blank=True)
