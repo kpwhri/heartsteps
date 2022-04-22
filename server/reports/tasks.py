@@ -8,6 +8,8 @@ import subprocess
 import uuid
 
 from participants.models import Study
+from participants.services import ParticipantService
+
 from .models import ReportDesign, ReportRecipients, ReportRenderLog, ReportType
 from system_settings.models import SystemSetting
 
@@ -266,11 +268,30 @@ class Renderer_:
         else:
             return Renderer.unknown_keyword(keywords, rparam)
 
+    def participant_renderer(keywords, rparam: RenderingParams):
+        if 'username' in rparam.params:
+            username = rparam.params['username']
+        else:
+            raise Exception("No username specified. To use '{}' special variable, please specify username in the report parameters.".format(".".join(keywords)))
+
+        participant_service = ParticipantService(username = username)
+        participant = participant_service.participant
+
+        if keywords[1] == 'user':
+            user = participant.user
+        else:
+            return Renderer.unknown_keyword(keywords, rparam)
+
+        if keywords[2] == 'username':
+            return user.username
+        else:
+            return Renderer.unknown_keyword(keywords, rparam)
 
 class Renderer:
     renderer_dict = {
         'recipient': Renderer_.recipient_renderer,
         'datetime': Renderer_.datetime_renderer,
+        'participant': Renderer_.participant_renderer,
     }
 
     def render(template_str: str, rparam: RenderingParams, sv_values={}, max_depth=100):
@@ -356,14 +377,13 @@ def get_sample_report_design():
             {
                 "name": "Sample Report",
                 "recipients": [
-                    {"name": "Junghwan Park in SD", "email": "jup014@eng.ucsd.edu", "timezone": "America/Los_Angeles"},
-                    {"name": "Junghwan Park in NY", "email": "ffee21@gmail.com", "timezone": "America/New_York"},
-                    {"name": "Junghwan Park in Seoul", "email": "jhp005@health.ucsd.edu", "timezone": "Asia/Seoul"},
+                    {"name": "Junghwan Park", "email": "jup014@eng.ucsd.edu", "timezone": "America/Los_Angeles"}
                 ],
                 "subject": "JustWalk Sample Report: {{datetime.recipient_local.now.datetime}}",
                 "body": """Hello, {{recipient.name}}!
 
-Your full named email is {{custom.recipient.named_email}}.""",
+Your full named email is {{custom.recipient.named_email}}.
+Queried participant's username is {{participant.user.username}}.""",
             }
         ],
         "special_variables": {
@@ -373,6 +393,10 @@ Your full named email is {{custom.recipient.named_email}}.""",
             {
                 "name": "User Basic Report",
                 "type": "csv",
+                "content": [
+                    "key,value",
+                    "username,{{participant.user.username}}",
+                ]
             }
         ]
     }
