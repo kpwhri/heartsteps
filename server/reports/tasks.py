@@ -16,7 +16,7 @@ from user_event_logs.models import EventLog
 
 def log(msg, log_message_list=None):
     msg = " > " + msg
-    # print(msg)
+    print(msg)
     EventLog.debug(None, msg)
     if log_message_list:
         log_message_list.append(msg)
@@ -222,7 +222,7 @@ def render_report(study_name=None, report_name=None, params=None, force_reset=Fa
         log=logs)
 
 def parse_sv(msg_str):
-    return re.findall(r'\{\{(.+)\}\}', msg_str)
+    return re.findall(r'\{\{([^}]+)\}\}', msg_str)
 
 class RenderingParams:
     def __init__(self, recipient, params, entire_report_design_json, current_report_design):
@@ -237,6 +237,8 @@ class Renderer_:
             return rparam.recipient['name']
         elif keywords[1] == 'email':
             return rparam.recipient['email']
+        elif keywords[1] == 'timezone':
+            return rparam.recipient['timezone']
         else:
             return Renderer.unknown_keyword(keywords, rparam)
     
@@ -286,12 +288,26 @@ class Renderer:
                 for sv in sv_list:
                     if sv in sv_values:
                         current_str = current_str.replace('{{' + sv + '}}', sv_values[sv])
+                    if sv in rparam.entire_report_design_json['special_variables']:
+                        current_str = current_str.replace('{{' + sv + '}}', rparam.entire_report_design_json['special_variables'][sv])
                     else:
                         keywords = sv.split('.')
-                        sv_values[sv] = Renderer.renderer_dict[keywords[0]](keywords, rparam)
+
+                        sv_values[sv] = Renderer.render_sv(keywords, rparam)
                         current_str = current_str.replace('{{' + sv + '}}', sv_values[sv])
         
         raise Exception("Max depth reached. Current string: " + current_str)
+
+    def render_sv(keywords, rparam):
+        if keywords[0] in Renderer.renderer_dict:
+            renderer = Renderer.renderer_dict[keywords[0]]
+
+            if renderer:
+                return renderer(keywords, rparam)
+            else:
+                return Renderer.unknown_keyword(keywords, rparam)
+        else:
+            return Renderer.unknown_keyword(keywords, rparam)
 
     def get_renderer(first_keyword):
         if first_keyword in Renderer.renderer_dict:
@@ -300,34 +316,25 @@ class Renderer:
             return None
     
     def unknown_keyword(keywords, rparam):
-        return "Unknown keyword: " + ".".join(keywords)
+        return "[[Unknown keyword: {}]]".format(".".join(keywords))
 
     
 
 def calculate_sv(sv: str, rparam: RenderingParams):
     keywords = sv.split('.')
 
-    return Renderer.get_renderer(keywords[0])(keywords, rparam)
+    return Renderer.render_sv(keywords, rparam)
         
         
 
 def render_report_email(recipient, params, entire_report_design_json, current_report_design):
     log("Rendering email...")
 
-    # find out all necessary special variables
-    sv_list = []
-    sv_list = sv_list + parse_sv(current_report_design['subject'])
-    sv_list = sv_list + parse_sv(current_report_design['body'])
-    sv_list = list(set(sv_list))
-
     # get the values for the special variables
     rparam = RenderingParams(recipient, params, entire_report_design_json, current_report_design)
-    sv_values = {}
-    for sv in sv_list:
-        sv_values[sv] = calculate_sv(sv, rparam)
-
+    
     # render the subject and body
-    rendered_subject, sv_values = Renderer.render(current_report_design['subject'], rparam, sv_values)
+    rendered_subject, sv_values = Renderer.render(current_report_design['subject'], rparam, {})
     rendered_body, sv_values = Renderer.render(current_report_design['body'], rparam, sv_values)
 
     return (
@@ -337,7 +344,9 @@ def render_report_email(recipient, params, entire_report_design_json, current_re
 
 
 def get_sample_report_params():
-    return {}
+    return {
+        'username': 'Jung-1001'
+    }
 
 
 def get_sample_report_design():
@@ -347,10 +356,23 @@ def get_sample_report_design():
             {
                 "name": "Sample Report",
                 "recipients": [
-                    {"name": "Junghwan Park", "email": "jup014@eng.ucsd.edu", "timezone": "America/Los_Angeles"},
+                    {"name": "Junghwan Park in SD", "email": "jup014@eng.ucsd.edu", "timezone": "America/Los_Angeles"},
+                    {"name": "Junghwan Park in NY", "email": "ffee21@gmail.com", "timezone": "America/New_York"},
+                    {"name": "Junghwan Park in Seoul", "email": "jhp005@health.ucsd.edu", "timezone": "Asia/Seoul"},
                 ],
                 "subject": "JustWalk Sample Report: {{datetime.recipient_local.now.datetime}}",
-                "body": "Hello, {{recipient.name}}!",
+                "body": """Hello, {{recipient.name}}!
+
+Your full named email is {{custom.recipient.named_email}}.""",
             }
         ],
+        "special_variables": {
+            "custom.recipient.named_email": "{{recipient.name}} <{{recipient.email}}>",
+        },
+        "attachments": [
+            {
+                "name": "User Basic Report",
+                "type": "csv",
+            }
+        ]
     }
