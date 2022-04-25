@@ -19,7 +19,7 @@ services:
       - credentials/justwalk.env
     environment: 
       - BUILD_PLATFORM=android
-      - BUILD_VERSION=2.3.2
+      - BUILD_VERSION=2.4
       - HEARTSTEPS_URL=https://justwalk.ucsd.edu/api
     volumes:
       - ./client:/client

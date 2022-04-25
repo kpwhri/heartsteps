@@ -89,3 +89,4 @@ justwalk_credentials.tar
 
 justwalk_credentials/
 server/justwalk.env
+*.xcf

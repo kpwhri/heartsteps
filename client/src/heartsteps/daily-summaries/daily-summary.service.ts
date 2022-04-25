@@ -45,31 +45,39 @@ export class DailySummaryService {
     }
 
     public setup(cacheStartDate?: Date): Promise<void> {
+        console.log("DailySummaryService.setup() point 1");
         this.cacheStartDate = cacheStartDate;
-
+        console.log("DailySummaryService.setup() point 2");
         return this.cleanCache()
             .then(() => {
+                console.log("DailySummaryService.setup() point 3");
                 return Promise.all([
                     this.getDatesToStore(),
                     this.storage.getIds(),
                 ]);
             })
             .then((results) => {
-                const datesToStore: Array<Date> = results[0];
-                const storedIds: Array<String> = results[1];
-                const datesToUpdate = datesToStore.filter((date) => {
-                    const serializedDate = this.serializer.formatDate(date);
-                    if (storedIds.indexOf(serializedDate) === -1) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-                if (datesToUpdate.length >= 3) {
-                    return this.reload();
-                } else {
-                    return this.loadDates(datesToUpdate);
-                }
+                return this.reload();
+                // console.log("DailySummaryService.setup() point 4");
+                // const datesToStore: Array<Date> = results[0];
+                // const storedIds: Array<String> = results[1];
+                // console.log("DailySummaryService.setup() point 5", "datesToStore", datesToStore);
+                // console.log("DailySummaryService.setup() point 5", "storedIds", storedIds);
+                // const datesToUpdate = datesToStore.filter((date) => {
+                //     console.log("DailySummaryService.setup() point 6", date);
+                //     const serializedDate = this.serializer.formatDate(date);
+                //     console.log("DailySummaryService.setup() point 7", serializedDate);
+                //     if (storedIds.indexOf(serializedDate) === -1) {
+                //         return true;
+                //     } else {
+                //         return false;
+                //     }
+                // });
+                // if (datesToUpdate.length >= 3) {
+                //     return this.reload();
+                // } else {
+                //     return this.loadDates(datesToUpdate);
+                // }
             })
             .then(() => {
                 return Promise.resolve(undefined);
@@ -321,7 +329,7 @@ export class DailySummaryService {
             return this.dateFactory.getDatesFrom(this.cacheStartDate);
         } else {
             console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.getDatesToStore()", 3);
-            return this.dateFactory.getCurrentWeek();
+            return this.dateFactory.getPreviousMonth();
         }
     }
 
@@ -353,11 +361,19 @@ export class DailySummaryService {
         return this.heartstepsServer
             .get(`activity/summary/${startFormatted}/${endFormatted}`)
             .then((response: Array<any>) => {
+                console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", 1);
+                console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", response);
                 const summaries: Array<DailySummary> = [];
                 let promise = Promise.resolve();
 
                 response.forEach((item) => {
                     const summary = this.serializer.deserialize(item);
+                    console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", 2);
+                    console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", summary.date);
+                    console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", summary.wore_fitbit);
+                    console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", summary.minutes);
+                    console.log("src", "heartsteps", "daily-summaries", "daily-summary.service.ts", "DailySummaryService.loadRange()", summary.steps);
+                    
                     summaries.push(summary);
 
                     promise = promise.then(() => {

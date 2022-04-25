@@ -54,11 +54,12 @@ def send_daily_step_goal_notification(username, parameters=None):
         day_service = DayService(user)
         today = day_service.get_current_date()
 
-        goal_query = StepGoal.objects.filter(user=user, date=today)
-        if goal_query.exists():
-            goal = goal_query.first().step_goal
-        else:
-            raise Exception("No goal found for today.")
+        goal = StepGoal.get(user=user, date=today)
+        # goal_query = StepGoal.get(user=user, date=today)
+        # if goal_query.exists():
+        #     goal = goal_query.first().step_goal
+        # else:
+        #     raise Exception("No goal found for today.")
 
         json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
         survey = json_survey.substantiate(user, parameters)
@@ -96,44 +97,60 @@ def update_goal(username, day=None):
         set_fixed_goal(user, day, BASELINE_STEPGOAL)
         return
 
+    EventLog.debug(user, "StepGoalsService is being created.")
     stepgoal_service = daily_step_goals.services.StepGoalsService(user)
+    EventLog.debug(user, "StepGoalsService is created.")
     query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
     
     if not query.exists():
+        EventLog.info(user, "No evidence found for today.")
         # no calculation evidence is found
         last_evidence_query = StepGoalsEvidence.objects.filter(user=user).order_by('-enddate', '-created')
         if not last_evidence_query.exists():
+            EventLog.debug(user, "No evidence found for any day.")
             # no evidence is found at all
-            startdate = enrollment_date
+            startdate = day
         else:
+            EventLog.debug(user, "some evidence is found")
             # some evidence is found
             last_evidence = last_evidence_query.first()
             if last_evidence.enddate > day:
+                EventLog.debug(user, "The last evidence is for the future. calculation is completely wrong")
                 # calculation is completely wrong. re-calculating from the start
-                enrollment_date = participant.study_start_date
-                startdate = enrollment_date
+                # startdate = enrollment_date + timedelta(days=baseline_period)
+                raise Exception("The last evidence is for the future. calculation is completely wrong")
             else:
+                EventLog.debug(user, "The last evidence is for the past. calculation is somewhat correct. setting the startdate to the last evidence's enddate + 1d")
                 # calculation stopped sometime before
                 startdate = last_evidence.enddate + timedelta(days=1)            
         
+        EventLog.debug(user, "Getting into the loop: Calculating the goal for the day.")
         while startdate <= day:
+            EventLog.debug(user, "Calculating the goal for the day: startdate={}".format(startdate))
             evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
+            EventLog.debug(user, "Finished the calculation: evidence={}".format(evidence))
             startdate = evidence.enddate + timedelta(days=1)
+        EventLog.debug(user, "Finished the loop: Calculating the goal for the day.")
     else:
+        EventLog.debug(user, "The evidence for today is found.")
         # this query is called repeatedly even there is an evidence that covers today.
         # recalculating and if it doesn't match with the previous records, we keep history.
         evidence_for_today = query.first()
         startdate = evidence_for_today.startdate
-        
+        EventLog.debug(user, "Doing a single calculation: Calculating the goal for the day.")
         stepgoal_service.calculate_step_goals(startdate=startdate)
+        EventLog.debug(user, "Finished the calculation: evidence={}".format(evidence_for_today))
+    EventLog.debug(user, "Finished the loop: Fetching the goal for the day.")
     step_goal = stepgoal_service.get_goal(day)
+    EventLog.debug(user, "Today's goal: {}".format(step_goal))
     
-    
+    EventLog.debug(user, "Setting the goal for the day to the fitbit.")
     update_fitbit_device_with_new_goal(user, step_goal)
+    EventLog.debug(user, "Finished the goal setting for the day to the fitbit.")
 
 def set_fixed_goal(user, day, BASELINE_STEPGOAL):
     if StepGoal.objects.filter(user=user, date=day).exists():
-        goal_obj = StepGoal.objects.get(user=user, date=day)
+        goal_obj = StepGoal.get(user=user, date=day)
         goal_obj.step_goal = BASELINE_STEPGOAL
         goal_obj.save()
     else:

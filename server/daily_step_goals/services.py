@@ -69,45 +69,64 @@ class StepGoalsService:
             return default_seq
 
     def calculate_step_goals(self, startdate):
+        calc_log = []
+
         # collecting evidences
+        calc_log.append("Checking sequence...")
         seq = self.get_seq()
+        calc_log.append("Sequence: {}".format(seq))
         sgc_settings = StepGoalCalculationSettings.get(self.cohort)
+        calc_log.append("StepGoalCalculationSettings: {}".format(sgc_settings.__dict__))
         
         length = len(seq)
+        calc_log.append("Sequence length: {}".format(length))
         enddate = startdate + timedelta(days=length-1)
+        calc_log.append("Start date: {}, end date: {}".format(startdate, enddate))
         
         prev_enddate = startdate - timedelta(days=1)
         prev_startdate = startdate - timedelta(days=length)
-        
+        calc_log.append("Previous start date: {}, previous end date: {}".format(prev_startdate, prev_enddate))
+
         query_day = prev_startdate
         
-        steps_log = []
+        steps_list = []
         
+        calc_log.append("Entering the loop...")
         while query_day <= prev_enddate:
+            calc_log.append("   Checking {}".format(query_day))
             steps_log_query = activity_summaries.models.Day.objects.filter(user=self.user, date=query_day).order_by('-updated')
             if steps_log_query.exists():
-                steps_log.append(steps_log_query.first().steps)
+                steps_list.append(steps_log_query.first().steps)
+                calc_log.append("      {} has been found in the database".format(query_day))
             query_day += timedelta(days=1)
         
-        if len(steps_log) == 0:
+        calc_log.append("Steps list: {}".format(steps_list))
+        if len(steps_list) == 0:
             # no day log is found
+            calc_log.append("No day log is found. Setting as defaults...")
             base = 2000
             sgc_settings.magnitude = 0
             sgc_settings.base_jump = 0
+            calc_log.append("Base: {}, magnitude: {}, base_jump: {}".format(base, sgc_settings.magnitude, sgc_settings.base_jump))
         else:
             # some log is found
-            base = median(steps_log)
+            base = median(steps_list)
+            calc_log.append("Base: {}".format(base))
         
         # calculate step goals
         def cutoff(x, min, max):
+            #print("x({}): {}, min({}): {}, max({}): {}".format(type(x), x, type(min), min, type(max), max))
             if x < min:
                 return min
             if x > max:
                 return max
             return x
         
+        #print("Calculating step goals...: sgc_settings: {}".format(sgc_settings.__dict__))
         safe_base = cutoff(base, sgc_settings.minimum, sgc_settings.maximum)
+        calc_log.append("Safe base: {}".format(safe_base))
         new_seq = [int(x * sgc_settings.magnitude + safe_base + sgc_settings.base_jump) for x in seq]
+        calc_log.append("New sequence: {}".format(new_seq))
         # old way:
         # new_seq = [int(cutoff(x * sgc_settings.magnitude + base + sgc_settings.base_jump, sgc_settings.minimum, sgc_settings.maximum)) for x in seq]
         
@@ -123,6 +142,7 @@ class StepGoalsService:
                 last_evidence.base_jump == sgc_settings.base_jump and \
                 last_evidence.maximum == sgc_settings.maximum and \
                 last_evidence.minimum == sgc_settings.minimum and \
+                last_evidence.freetext == "\n".join(calc_log) and \
                 last_evidence.evidence["seq"] == seq and \
                 last_evidence.evidence["new_seq"] == new_seq:
                     # everything is same. skip insertion
@@ -139,7 +159,8 @@ class StepGoalsService:
                                                    base_jump= sgc_settings.base_jump,
                                                    maximum = sgc_settings.maximum,
                                                    minimum = sgc_settings.minimum,
-                                                   evidence={"seq": seq, "new_seq": new_seq, "steps_log": steps_log}
+                                                   freetext = "\n".join(calc_log),
+                                                   evidence={"seq": seq, "new_seq": new_seq, "steps_log": calc_log}
                                                    )
         
         # insert/update goals
@@ -153,5 +174,6 @@ class StepGoalsService:
             # which is weird...
             EventLog.debug(self.user, "The day's step goal is not generated before. I'm generating it now...")
             dsg.tasks.update_goal(self.user.username, day=day)
-        day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
+        # day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
+        day_step_goal = StepGoal.get(self.user, day)
         return day_step_goal
