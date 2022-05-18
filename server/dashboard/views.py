@@ -316,6 +316,24 @@ class DevGenericView(UserPassesTestMixin, TemplateView):
                 user = self.dev_service.get_user_by_username(username)
                 result = self.dev_service.send_notification_by_user(user)
                 context["results"] = result
+            elif dev_command == 'send-bout_planning_notification-to-user':
+                username = request.POST['username']
+                from bout_planning_notification.tasks import send_bout_planning_survey
+                send_bout_planning_survey(username)
+                result = "success"
+                context["results"] = result
+            elif dev_command == 'send-daily_ema_notification-to-user':
+                username = request.POST['username']
+                from bout_planning_notification.tasks import justwalk_daily_ema
+                justwalk_daily_ema(username)
+                result = "success"
+                context["results"] = result
+            elif dev_command == 'send-daily_goal_notification-to-user':
+                username = request.POST['username']
+                from daily_step_goals.tasks import send_daily_step_goal_notification
+                send_daily_step_goal_notification(username)
+                result = "success"
+                context["results"] = result
             elif dev_command == 'send-typed-notification-to-user':
                 username = request.POST['username']
                 notification_type = request.POST['notification_type']
