@@ -85,7 +85,7 @@ kind: Deployment
 metadata:
   name: justwalk-nginx
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: justwalk-nginx
