@@ -1,3 +1,4 @@
+import datetime
 from bout_planning_notification.tasks import BoutPlanningFlagException
 from feature_flags.models import FeatureFlags
 from rest_framework.views import APIView
@@ -14,6 +15,9 @@ from bout_planning_notification.models import FirstBoutPlanningTime, JSONSurvey
 from user_event_logs.models import EventLog
 
 from .services import BoutPlanningNotificationService
+
+def get_collapse_subject(prefix):
+    return "{}_{}".format(prefix, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 
 
 class FirstBoutPlanningTimeSerializer(serializers.ModelSerializer):
@@ -41,7 +45,7 @@ class BoutPlanningSurveyTestView(APIView):
                     # survey = service.create_daily_ema()
                     
                     # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-                    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+                    message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject('dev_front'), survey=survey)
                 else:
                     msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
                     EventLog.log(user, msg, EventLog.ERROR)

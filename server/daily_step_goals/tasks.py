@@ -35,7 +35,7 @@ def send_notification(user, title='Sample Stepgoal Notification Title',
         message = service.send_notification(
             body=body,
             title=title,
-            collapse_subject=collapse_subject,
+            collapse_subject=get_collapse_subject('stepgoal'),
             data=data)
         return message
     except (PushMessageService.MessageSendError,
