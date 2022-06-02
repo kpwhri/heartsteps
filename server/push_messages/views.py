@@ -125,10 +125,15 @@ class RecievedMessageView(APIView):
 
     def create_message_receipt(self, message, receipt_type, time):
         try:
-            MessageReceipt.objects.get(
+            if (MessageReceipt.objects.filter(
                 message=message,
                 type=receipt_type
-            )
+            ).exists()) is False:
+                MessageReceipt.objects.create(
+                    message=message,
+                    type=receipt_type,
+                    time=time
+                )
         except MessageReceipt.DoesNotExist:
             MessageReceipt.objects.create(
                 message=message,
