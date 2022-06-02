@@ -85,7 +85,6 @@ kind: Deployment
 metadata:
   name: justwalk-nginx
 spec:
-  replicas: 5
   selector:
     matchLabels:
       app: justwalk-nginx
@@ -129,7 +128,7 @@ metadata:
   labels:
     app: justwalk-server
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: justwalk-server
@@ -198,7 +197,7 @@ metadata:
   labels:
     app: justwalk-worker
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: justwalk-worker

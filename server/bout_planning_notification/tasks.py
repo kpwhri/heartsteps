@@ -16,6 +16,9 @@ from feature_flags.models import FeatureFlags
 class BoutPlanningFlagException(Exception):
     pass
 
+def get_collapse_subject(prefix):
+    return "{}_{}".format(prefix, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+
 @shared_task
 def send_bout_planning_survey(username):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
@@ -33,7 +36,7 @@ def send_bout_planning_survey(username):
     
     body = pull_random_bout_planning_message()
     
-    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
+    message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps1"), body=body, survey=survey)
 
 def pull_random_bout_planning_message():
     if BoutPlanningMessage.objects.exists():
@@ -67,7 +70,7 @@ def bout_planning_decision_making(username):
                     survey = service.create_survey()
                     body = pull_random_bout_planning_message()
                     
-                    message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", body=body, survey=survey)
+                    message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
                     EventLog.success(user, "bout planning notification is sent.")
                 else:
                     EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
@@ -102,7 +105,7 @@ def justwalk_daily_ema(username, parameters=None):
                 
                 # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
                 # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
-                message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject="bout_planning_survey", survey=survey)
+                message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
             else:
                 EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:

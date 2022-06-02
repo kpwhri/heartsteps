@@ -31,18 +31,55 @@ export class NotificationCenterService {
         private storage: StorageService,
         private featureFlagService: FeatureFlagService
     ) {
-        this.get();
-        this.refreshNotifications();
-        this.notificationService.setup();
+        // if (this.featureFlagService.hasFlagNP('notification_center')) {
+        //this.get();
+        // this.refreshNotifications();
+        // this.notificationService.setup();
         this.notificationRefreshInterval = setInterval(() => {
-            this.refreshNotifications();
+            // do nothing
         }, 4000);
+        // } else {
+        //     console.log("This user does not have 'notification_center' feature flag. Not initializing the NotificationCenterService.");
+        // }
     }
 
     // pull notifications from django
     public getRecentNotifications(): Promise<any> {
         return this.heartstepsServer.get("/notification_center/", {}, false);
     }
+
+    // re-initialize this.notifications and returns current notifications in array
+    public refreshNotifications2(): Promise<Message[]> {
+        // // TODO: DO MORE PROMISE REJECT FOR .CATCH TO SEE IF API CALL FAILS
+        // if (this.featureFlagService.hasFlagNP('notification_center')) {
+        //     return this.getRecentNotifications()
+        //         .then((data) => {
+        //             // console.log("NC: data from django", data);
+        //             let newStatus = data[0];
+        //             let res = data[1];
+
+        //             let notifications: Message[] = res.map(
+        //                 this.deserializeMessage,
+        //                 this
+        //             );
+        //             this.offlineStatus.next(false);
+        //             this.notifications.next(notifications);
+        //             this.unreadStatus.next(newStatus);
+        //             return notifications;
+        //         })
+        //         .then((notifications) => {
+        //             return this.set(notifications);
+        //         })
+        //         .catch(() => {
+        //             this.offlineStatus.next(true);
+        //             return this.loadLocalNotifications();
+        //         });
+        // } else {
+        //     return Promise.resolve([]);
+        // }
+        return Promise.resolve([]);
+    }
+
 
     // re-initialize this.notifications and returns current notifications in array
     public refreshNotifications(): Promise<Message[]> {

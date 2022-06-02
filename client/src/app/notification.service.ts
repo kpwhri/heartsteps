@@ -15,6 +15,7 @@ export class NotificationService {
     ) {}
 
     setup(): Promise<void> {
+        console.log("subscribiing to messageService.opened");
         this.messageService.opened.subscribe((message: Message) => {
             console.log(
                 "AppNotificationService: Processing message id=" + message.id

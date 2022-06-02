@@ -30,14 +30,18 @@ export class NotificationPage implements OnInit {
         private messageService: MessageService,
         private heartstepsServer: HeartstepsServer,
         private participantInformationService: ParticipantInformationService
-    ) {}
+    ) {
+        console.log("NotificationPage.constructor()");
+    }
 
     ngOnInit() {
+        console.log("NotificationPage.ngOnInit()");
         this.activatedRoute.paramMap.subscribe((paramMap) => {
             console.log("NotificationPage.ngOnInit()", paramMap);
             this.loading = true;
             const notificationId: string = paramMap.get("notificationId");
 
+            console.log("NotificationPage.ngOnInit()", notificationId);
             this.messageService
                 .getMessage(notificationId)
                 .then((notification) => {
@@ -63,6 +67,7 @@ export class NotificationPage implements OnInit {
     }
 
     public dismiss() {
+        console.log("NotificationPage.dismiss()");
         this.notification.toggleEngaged();
         this.router.navigate(["/"]);
     }

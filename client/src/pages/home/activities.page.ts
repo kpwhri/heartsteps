@@ -77,10 +77,14 @@ export class ActivitiesPage implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.totalActivitiesCompleteSubscription.unsubscribe();
-        this.totalActivityTimeSubscription.unsubscribe();
-        this.totalMilesSubscription.unsubscribe();
-        this.totalStepsSubscription.unsubscribe();
+        try {
+            this.totalActivitiesCompleteSubscription.unsubscribe();
+            this.totalActivityTimeSubscription.unsubscribe();
+            this.totalMilesSubscription.unsubscribe();
+            this.totalStepsSubscription.unsubscribe();
+        } catch(e) {
+            console.log("Error unsubscribing from activity summary service", e);
+        }
     }
     
 }

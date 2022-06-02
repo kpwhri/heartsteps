@@ -29,7 +29,9 @@ export class MessageService {
         private heartstepsServer: HeartstepsServer,
         private storage: StorageService,
         private documentStorageService: DocumentStorageService
-    ) { }
+    ) { 
+        console.log("MessageService: Constructor");
+    }
 
     public setup(): Promise<void> {
         console.log("MessageService: Setup");
@@ -52,12 +54,16 @@ export class MessageService {
             this.pushNotificationService.notifications.subscribe(
                 // if a push notification is received, fetch the full message body from the server
                 (data: any) => {
+                    console.log("MessageService: We're in this.pushNotificationService.notifications.subscribe() handler");
+                    const when_message_received = new Date();
                     console.log(
                         "MessageService: Got notification id=" + data.id
                     );
-                    console.log("MessageService: data=", data);
+                    console.log("MessageService: data=", JSON.stringify(data));
                     this.loadMessage(data.id).then((message) => {
-                        console.log(message);
+                        const when_message_loaded = new Date();
+                        console.log("MessageService: Message is loaded. " + (when_message_loaded.getTime() - when_message_received.getTime()) + "ms elapsed");
+                        console.log("this.opened.next(message) 2");
                         this.opened.next(message);
                     });
                 }
@@ -201,22 +207,12 @@ export class MessageService {
     public getMessage(messageId: string): Promise<Message> {
         console.log("MessageService: Get message id=" + messageId);
         return this.waitUntilSetup().then(() => {
-            this.loadMessage(messageId);
-        }).then(() => {
-            return this.messageStorage
-                .get(messageId)
-                .then((data) => {
-                    console.log("MessageService: returning message");
-                    console.log("MessageService: data=", data);
-                    return this.deserializeMessage(data);
-                })
-                .catch(() => {
-                    return this.loadMessage(messageId);
-                })
-                .catch(() => {
-                    console.log("MessageService: message not found");
-                    return Promise.reject("Message not found");
-                });
+            // as we changed the implementation of late loading, there is no way to local storage have all the survey definition
+            // so we need to fetch the full message from the server right away
+            return this.loadMessage(messageId).catch(() => {
+                console.log("MessageService: Message is not found even in the server. Something is critically wrong.");
+                return Promise.reject("Message not found");
+            });    
         });
     }
 
@@ -236,6 +232,7 @@ export class MessageService {
 
     public openMessage(messageId: string): Promise<Message> {
         return this.loadMessage(messageId).then((message) => {
+            console.log("this.opened.next(message) 1");
             this.opened.next(message);
             return message;
         });
@@ -251,8 +248,25 @@ export class MessageService {
         };
     }
 
+    private print_nth_depth(data, n, depth=0) {
+        if (n == depth) {
+            // do nothing
+        } else {
+            if (data instanceof Object) {
+                console.log("\t".repeat(depth) + "keys=" + Object.keys(data));
+                for (let key in data) {
+                    console.log("\t".repeat(depth + 1) + "[" + key + "]");
+                    this.print_nth_depth(data[key], n, depth+1);
+                }
+            } else {
+                console.log("\t".repeat(depth) + "value=" + data);
+            }
+        }
+    }
+
     public deserializeMessage(data: any): Message {
-        console.log("MessageService.deserializeMessage(): ", data);
+        console.log("MessageService.deserializeMessage(): data=");
+        this.print_nth_depth(data, 10);
         const message = new Message(this.messageReceiptService);
         message.id = data.id;
         message.type = data.type;
@@ -261,7 +275,6 @@ export class MessageService {
         if (data.context) {
             message.context = data.context;
         }
-        console.log("MessageService.deserializeMessage(): ", message);
         return message;
     }
 

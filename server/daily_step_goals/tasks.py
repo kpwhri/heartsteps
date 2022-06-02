@@ -1,3 +1,4 @@
+import datetime
 from participants.models import Participant
 from celery import shared_task
 from datetime import timedelta
@@ -15,6 +16,9 @@ import daily_step_goals.services
 import fitbit_api.services
 from days.services import DayService
 
+
+def get_collapse_subject(prefix):
+    return "{}_{}".format(prefix, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 
 
 def send_notification(user, title='Sample Stepgoal Notification Title',
@@ -64,7 +68,7 @@ def send_daily_step_goal_notification(username, parameters=None):
         json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
         survey = json_survey.substantiate(user, parameters)
 
-        message = send_notification(user, title="JustWalk", body="Today's step goal: {:,}".format(goal), collapse_subject="bout_planning_survey", survey=survey)
+        message = send_notification(user, title="JustWalk", body="Today's step goal: {:,}".format(goal), collapse_subject=get_collapse_subject('dsg1'), survey=survey)
     else:
         EventLog.info(user, "The user is not yet baseline complete. The daily step goal notification will not be sent.")
         return
