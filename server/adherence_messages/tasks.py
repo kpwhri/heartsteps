@@ -19,7 +19,6 @@ from user_event_logs.models import EventLog
 
 @shared_task
 def initialize_adherence(username):
-    EventLog.debug(username, "initialize_adherence()")
     try:    
         service = AdherenceService(username=username)
         service.initialize()

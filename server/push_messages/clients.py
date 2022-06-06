@@ -74,22 +74,17 @@ class OneSignalClient(ClientBase):
         self.user = device.user
 
     def get_one_signal_notification_url(self):
-        EventLog.debug(self.user)
         return 'https://onesignal.com/api/v1/notifications'
 
     def get_api_key(self):
-        EventLog.debug(self.user, 'get_api_key')
         (id, key) = push_messages.models.OneSignalInfo.get(user=self.user)
-        EventLog.debug(self.user, 'get_api_key: id={}, key={}'.format(id, key))
         return key
         # if not hasattr(settings, 'ONESIGNAL_API_KEY'):
         #     raise ImproperlyConfigured('No OneSignal API KEY')
         # return settings.ONESIGNAL_API_KEY
 
     def get_app_id(self):
-        EventLog.debug(self.user, 'get_app_id')
         (id, key) = push_messages.models.OneSignalInfo.get(user=self.user)
-        EventLog.debug(self.user, 'get_app_id: id={}, key={}'.format(id, key))
         return id
         # if not hasattr(settings, 'ONESIGNAL_APP_ID'):
         #     raise ImproperlyConfigured('No OneSignal APP ID')
@@ -120,7 +115,6 @@ class OneSignalClient(ClientBase):
                 raise RuntimeError('OneSignal message status request failed')
 
     def send(self, body=None, title=None, collapse_subject=None, data={}):
-        EventLog.debug(self.user)
         response = requests.post(
             self.get_one_signal_notification_url(),
             headers = {
@@ -140,17 +134,12 @@ class OneSignalClient(ClientBase):
                 'data': data
             }
         )
-        EventLog.debug(self.user)
         if response.status_code == 200:
             import pprint
-            EventLog.debug(self.user, pprint.pformat(response.__dict__))
             response_data = response.json()
-            EventLog.debug(self.user, pprint.pformat(response_data))
             if 'errors' in response_data and response_data['errors'] and len(response_data['errors']) > 0:
                 error_msg = "error: {}".format(response_data)
-                EventLog.debug(self.user, error_msg)
                 raise self.MessageSendError(error_msg)
             return response_data['id']
         else:
-            EventLog.debug(self.user)
             raise self.MessageSendError(response.text)

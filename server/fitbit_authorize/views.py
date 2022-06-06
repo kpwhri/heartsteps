@@ -31,12 +31,6 @@ def authorize_start(request):
 
 @api_view(['GET'])
 def authorize(request, token):
-    EventLog.debug(None, "fitbit_authorize.views.authorize()")
-    if token:
-        EventLog.debug(None, "token: {}".format(token))
-    else:
-        EventLog.debug(None, "token: None")
-
     if token:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -47,17 +41,10 @@ def authorize(request, token):
             )
         except AuthenticationSession.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-        if session:
-            EventLog.debug(None, "session: {}".format(session))
-            EventLog.debug(None, "session.user: {}".format(session.user))
         user = session.user
-        EventLog.debug(None, "Fitbit authorize: Fitbit authorize")
         fitbit = create_fitbit()
-        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created fitbit")
         callback_url = create_callback_url(request)
-        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created callback_url: {}".format(callback_url))
         authorize_url, state = fitbit.client.authorize_token_url(redirect_uri=callback_url)
-        EventLog.debug(None, "Fitbit authorize: Fitbit authorize: created authorize_url: {}, state: {}".format(authorize_url, state))
         if 'redirect' in request.GET:
             session.redirect = request.GET['redirect']
         
@@ -69,8 +56,6 @@ def authorize(request, token):
 
 @api_view(['GET'])
 def authorize_process(request):
-    EventLog.debug(None, 'authorize_process')
-    EventLog.debug(None, request.GET)
     if 'code' in request.GET and 'state' in request.GET:
         try:
             valid_time = timezone.now() - timedelta(hours=1)
@@ -88,52 +73,39 @@ def authorize_process(request):
 
         code = request.GET['code']
         # print('code:', code)
-        EventLog.debug(None, "Fitbit code: %s" % code)
         fitbit = create_fitbit()
         try:
-            EventLog.debug(None)
             callback_url = create_callback_url(request)
-            EventLog.debug(None)
             token = fitbit.client.fetch_access_token(code, redirect_uri=callback_url)
-            EventLog.debug(None)
             access_token = token['access_token']
             fitbit_user = token['user_id']
             refresh_token = token['refresh_token']
             expires_at = token['expires_at']
-            EventLog.debug(None)
         except KeyError:
             # print('KEYERROR in authorize_process on line 80 of fitbit_authorize/views')
-            EventLog.debug(None)
             return redirect(reverse('fitbit-authorize-complete'))
-        EventLog.debug(None)
-
+        
         fitbit_account, _ = FitbitAccount.objects.update_or_create(fitbit_user=fitbit_user, defaults={
             'access_token': access_token,
             'refresh_token': refresh_token,
             'expires_at': expires_at
         })
-        EventLog.debug(user, "Fitbit account created: access_token={}, fitbit_user={}, refresh_token={}, expires_at={}".format(access_token, fitbit_user, refresh_token, expires_at))
         FitbitAccountUser.create_or_update(user, fitbit_account)
         # TODO: re-enable async
         # x = subscribe_to_fitbit.apply_async(kwargs = {
         #     'username': fitbit_user
         # })
-        EventLog.debug(None)
         # print('before subscribe')
         subscription_result = subscribe_to_fitbit(username=fitbit_user)
         # print('after subscribe')
-        EventLog.debug(None)
-
+        
         # TODO: remove print debugging
         # print('subscribe_to_fitbit non-async return value: ', subscription_result)
         # print('subscribe_to_fitbit async return value: ', subscription_result.get())
 
         if session.redirect:
-            EventLog.debug(None)
             return redirect(session.redirect)
-        EventLog.debug(None)
         return redirect(reverse('fitbit-authorize-complete'))
-    EventLog.debug(None)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])

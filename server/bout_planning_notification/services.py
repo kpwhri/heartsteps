@@ -19,8 +19,7 @@ class BoutPlanningNotificationService:
         self.user = user
         self.level = None
         self.decision = None
-        EventLog.debug(self.user, "Starting BoutPlanningNotificationService")
-
+        
     def create_survey(self):
         bout_planning_survey = BoutPlanningSurvey.objects.create(user=self.user)
         bout_planning_survey.reset_questions()
@@ -40,7 +39,6 @@ class BoutPlanningNotificationService:
         return LevelSequence_User.objects.filter(user=self.user).exists()
 
     def is_necessary(self):
-        EventLog.debug(self.user, "is_necessary() is called")
         self.decision = BoutPlanningDecision.create(self.user)
         self.decision.add_line("BoutPlanningDecision object is created")
         
@@ -96,24 +94,17 @@ class BoutPlanningNotificationService:
                           survey=None,
                           data={}):
         try:
-            EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification()")
             if survey is not None:
-                EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification() - survey is not None")
                 shrinked_survey = SurveyShirinker(survey)
-                EventLog.debug(self.user, "BoutPlanningNotificationService.send_notification() - Survey is shrinked")
                 data["survey"] = shrinked_survey.to_json()
-                EventLog.debug(self.user, "{}".format(shrinked_survey.to_json()))
             
             service = PushMessageService(user=self.user)
-            EventLog.debug(self.user)
             message = service.send_notification(
                 body=body,
                 title=title,
                 collapse_subject=collapse_subject,
                 data=data)
-            EventLog.debug(self.user)
             BoutPlanningNotification.create(user=self.user, message=message, level=self.level, decision=self.decision)
-            EventLog.debug(self.user)
             return message
         except (PushMessageService.MessageSendError,
                 PushMessageService.DeviceMissingError) as e:

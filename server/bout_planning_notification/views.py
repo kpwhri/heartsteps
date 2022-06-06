@@ -94,10 +94,8 @@ class FirstBoutPlanningTimeView(APIView):
             return Response("Not authenticated", status=status.HTTP_UNAUTHORIZED)
         
         if FirstBoutPlanningTime.exists(request.user):
-            EventLog.debug(request.user, "FirstBoutPlanningTime exists")
             first_bout_planning_time = FirstBoutPlanningTime.get(user=request.user)
         else:
-            EventLog.debug(request.user, "FirstBoutPlanningTime does not exist")
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         serialized = FirstBoutPlanningTimeSerializer(first_bout_planning_time)

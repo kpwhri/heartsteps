@@ -65,15 +65,12 @@ class MessageView(APIView):
 
     def get(self, request, message_id):
         try:
-            EventLog.debug(request.user, "MessageView.get(): {}".format(message_id))
             message = Message.objects.get(
                 uuid=message_id
             )
-            EventLog.debug(request.user, "MessageView.get(): {}".format(message))
             # try expanding the survey message
             try:
                 context = message.data
-                EventLog.debug(request.user, "MessageView.get(): {}".format(context))
                 if "survey" in context:
                     survey_json = context["survey"]
                     survey_payload = json.loads(survey_json)
@@ -83,22 +80,11 @@ class MessageView(APIView):
                     
                     if survey_query.exists():
                         se = SurveyExpander(survey_uuid)
-                        EventLog.debug(request.user, "MessageView.get(): {}".format(se))
                         message.data["survey"] = se.to_json()
-                        EventLog.debug(request.user, "MessageView.get(): {}".format(message.data))
-                    else:
-                        # this uuid is not from Survey
-                        EventLog.debug(request.user, "The uuid is not found in survey table: {}".format(survey_uuid))
-                else:
-                    # this uuid is not from Survey
-                    EventLog.debug(request.user, "There is no 'survey' key in the message context: {}".format(context))
             except Exception as e:
-                EventLog.debug(request.user, "Something happened during message expansion: {}".format(e))
-                    
-            EventLog.debug(request.user, "MessageView.get(): {}".format(message))
+                EventLog.error(request.user, "Something happened during message expansion: {}".format(e))
         except Message.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-        EventLog.debug(request.user, "MessageView.get(): {}".format(message))
         if request.user.id != message.recipient.id:
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(

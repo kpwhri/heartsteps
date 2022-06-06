@@ -28,8 +28,6 @@ class TodayStepGoal(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def get(self, request):
-        EventLog.debug(request.user, "TodayStepGoal.get()")
-        
         user = request.user
         day_service = DayService(user)
         
@@ -57,7 +55,6 @@ class DailyStepGoalsList(APIView):
     def get(self, request):
         msg = "daily_step_goal get() is called"
         print(msg)
-        EventLog.debug(request.user, msg)
         step_goals = StepGoal.objects.filter(
             user = request.user
         ).order_by('date') \

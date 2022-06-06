@@ -346,15 +346,13 @@ class BoutPlanningNotification(models.Model):
     when = models.DateTimeField(auto_now_add=True)
 
     def create(user, message, level, decision):
-        EventLog.debug(user)
         now = timezone.now()
         BoutPlanningNotification.objects.create(user=user,
                                             message=message,
                                             level=level,
                                             decision=decision,
                                             when=now)
-        EventLog.debug(user)
-
+        
 
 class FirstBoutPlanningTime(models.Model):
     class FirstBoutPlanningTimeExistException(Exception):
@@ -595,7 +593,6 @@ class Level(models.Model):
 
     def get(user, date=None):
         """Get a Level object"""
-        EventLog.debug(user, "get({}) is called".format(date))
         if date is None:
             day_service = DayService(user)
 
@@ -615,8 +612,7 @@ class Level(models.Model):
                                                     date=date,
                                                     level=Level.FULL)
 
-        EventLog.debug(user, "get({}) returns: {}".format(date, return_object))
-
+        
         return return_object
 
     def exists(user, date):

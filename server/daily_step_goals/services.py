@@ -65,7 +65,7 @@ class StepGoalsService:
                 return [float(x) for x in list(new_sequence.sequence_text.split(','))]
         else:
             # if no seq block is set in db, use the default sequence
-            EventLog.debug(self.user, "No StepGoalSequenceBlock is set in db. Using the default sequence: {}".format(default_seq))
+            EventLog.error(self.user, "No StepGoalSequenceBlock is set in db. Using the default sequence: {}".format(default_seq))
             return default_seq
 
     def calculate_step_goals(self, startdate):
@@ -172,7 +172,7 @@ class StepGoalsService:
     def get_goal(self, day):
         if not StepGoal.objects.filter(user=self.user, date=day).exists():
             # which is weird...
-            EventLog.debug(self.user, "The day's step goal is not generated before. I'm generating it now...")
+            EventLog.info(self.user, "The day's step goal is not generated before. I'm generating it now...")
             dsg.tasks.update_goal(self.user.username, day=day)
         # day_step_goal = StepGoal.objects.filter(user=self.user, date=day).order_by("-created").first().step_goal
         day_step_goal = StepGoal.get(self.user, day)

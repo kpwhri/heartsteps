@@ -115,21 +115,14 @@ class ParticipantService:
         Token.objects.filter(user=self.participant.user).delete()
 
     def get_heartsteps_id(self):
-        EventLog.debug(self.participant.user,
-                       "e19fe10c-1d46-4a74-a427-29130725c7f9")
         return self.participant.heartsteps_id
 
     def initialize(self):
-        EventLog.debug(self.participant.user)
         self.participant.enroll()
-        EventLog.debug(self.participant.user)
         self.participant.set_daily_task()
-        EventLog.debug(self.participant.user)
         create_default_suggestion_times(participant=self.participant)
-        EventLog.debug(self.participant.user)
         self.enable()
-        EventLog.debug(self.participant.user)
-
+        
         if self.user is None:
             raise ValueError("self.user is None")
 
@@ -147,15 +140,10 @@ class ParticipantService:
             self.study = self.cohort.study
 
         if self.study.studywide_feature_flags is None:
-            EventLog.debug(
-                self.user, "self.study.studywide_feature_flags is None")
             self.study.studywide_feature_flags = ""
-        EventLog.debug(self.user, "studywide_feature_flags is {}".format(
-            self.study.studywide_feature_flags))
         FeatureFlags.create_or_update(
             self.participant.user, self.study.studywide_feature_flags)
-        EventLog.debug(self.user)
-
+        
     def is_enabled(self):
         return self.participant.active
 
@@ -195,10 +183,8 @@ class ParticipantService:
             return False
 
     def enable(self):
-        EventLog.debug(self.user)
         self.participant.active = True
         self.participant.save()
-        EventLog.debug(self.user)
         # TODO: maybe change default enabled value to False in AdherenceMessageConfiguration
         # special case for 
         adherence_message_configuration, _ = AdherenceMessageConfiguration.objects.update_or_create(
@@ -213,91 +199,62 @@ class ParticipantService:
         else:
             adherence_message_configuration.enabled = False
         adherence_message_configuration.save()
-        EventLog.debug(self.user)
         try:
-            EventLog.debug(self.user)
             burst_period_configuration = BurstPeriodConfiguration.objects.get(
                 user=self.participant.user
             )
-            EventLog.debug(self.user)
         except BurstPeriodConfiguration.DoesNotExist:
-            EventLog.debug(self.user)
             burst_period_configuration = BurstPeriodConfiguration.objects.create(
                 user=self.participant.user
             )
-            EventLog.debug(self.user)
-        EventLog.debug(self.user)
         if self.is_baseline_complete():
-            EventLog.debug(self.user)
             anti_sedentary_configuration, _ = AntiSedentaryConfiguration.objects.update_or_create(
                 user=self.participant.user
             )
-            EventLog.debug(self.user)
             anti_sedentary_configuration.enabled = True
-            EventLog.debug(self.user)
             anti_sedentary_configuration.save()
-            EventLog.debug(self.user)
             morning_message_configuration, _ = MorningMessagesConfiguration.objects.update_or_create(
                 user=self.participant.user
             )
-            EventLog.debug(self.user)
             if feature_flags and feature_flags.has_flag("morning_message"):
                 morning_message_configuration.enabled = True
             else:
                 morning_message_configuration.enabled = False
-            EventLog.debug(self.user)
             morning_message_configuration.save()
-            EventLog.debug(self.user)
 
             try:
-                EventLog.debug(self.user)
                 walking_suggestion_configuration, _ = WalkingSuggestionConfiguration.objects.update_or_create(
                     user=self.participant.user
                 )
-                EventLog.debug(self.user)
                 walking_suggestion_configuration.enabled = True
                 walking_suggestion_configuration.save()
-                EventLog.debug(self.user)
             except WalkingSuggestionConfiguration.MultipleObjectsReturned:
-                EventLog.debug(self.user)
                 pass
 
             try:
-                EventLog.debug(self.user)
                 activity_survey_configuration = ActivitySurveyConfiguration.objects.get(
                     user=self.participant.user
                 )
-                EventLog.debug(self.user)
                 activity_survey_configuration.enabled = True
                 activity_survey_configuration.save()
-                EventLog.debug(self.user)
             except ActivitySurveyConfiguration.DoesNotExist:
-                EventLog.debug(self.user)
                 ActivitySurveyConfiguration.objects.create(
                     user=self.participant.user,
                     enabled=True
                 )
-                EventLog.debug(self.user)
 
             try:
-                EventLog.debug(self.user)
                 walking_suggestion_survey_configuration = WalkingSuggestionSurveyConfiguration.objects.get(
                     user=self.participant.user
                 )
-                EventLog.debug(self.user)
                 walking_suggestion_survey_configuration.enabled = True
                 walking_suggestion_survey_configuration.save()
-                EventLog.debug(self.user)
             except WalkingSuggestionSurveyConfiguration.DoesNotExist:
-                EventLog.debug(self.user)
                 WalkingSuggestionSurveyConfiguration.objects.create(
                     user=self.participant.user,
                     enabled=True
                 )
-            EventLog.debug(self.user)
-        else:
-            EventLog.debug(self.user)
-
+        
     def disable(self):
         self.participant.active = False
         self.participant.save()

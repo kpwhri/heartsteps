@@ -66,16 +66,15 @@ def bout_planning_decision_making(username):
                     service.assign_level_sequence(participant_service.participant.cohort, user=user)
 
                 if service.is_necessary():
-                    EventLog.debug(user, "is_necessary() is true. bout planning notification will be sent.")
                     survey = service.create_survey()
                     body = pull_random_bout_planning_message()
                     
                     message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
                     EventLog.success(user, "bout planning notification is sent.")
                 else:
-                    EventLog.debug(user, "is_necessary() is false. bout planning notification is not sent.")
+                    EventLog.success(user, "is_necessary() is false. bout planning notification is not sent.")
             else:
-                EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
+                EventLog.success(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)
@@ -96,7 +95,6 @@ def justwalk_daily_ema(username, parameters=None):
             
             participant_service = ParticipantService(user=user)
             if participant_service.is_baseline_complete():
-                EventLog.debug(user, "is_baseline_complete() is true. bout planning notification will be sent.")
                 service = BoutPlanningNotificationService(user)
                 
                 json_survey = JSONSurvey.objects.get(name="daily_ema")
@@ -107,7 +105,7 @@ def justwalk_daily_ema(username, parameters=None):
                 # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
                 message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
             else:
-                EventLog.debug(user, "is_baseline_complete() is false. bout planning notification is not sent.")
+                EventLog.info(user, "is_baseline_complete() is false. bout planning notification is not sent.")
         else:
             msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
             EventLog.log(user, msg, EventLog.ERROR)

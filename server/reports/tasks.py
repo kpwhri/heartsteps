@@ -19,7 +19,6 @@ from user_event_logs.models import EventLog
 def log(msg, log_message_list=None):
     msg = " > " + msg
     # print(msg)
-    EventLog.debug(None, msg)
     if log_message_list:
         log_message_list.append(msg)
 

@@ -101,8 +101,6 @@ class EventLog(models.Model):
     def debug(user, action=""):
         msg = "{} ({})".format(action, EventLog.__ancestor())
             
-        EventLog.log(user, msg, EventLog.DEBUG)
-    
     def info(user, action):
         EventLog.log(user, action, EventLog.INFO)
     

@@ -1608,30 +1608,16 @@ class ParticipantNotificationsView(ParticipantView):
             else:
                 try:
                     self.user = self.participant.user
-                    EventLog.debug(self.user,
-                                   "ParticipantNotificationsView.post():1")
                     service = PushMessageService(
                         username=self.participant.heartsteps_id)
-                    EventLog.debug(
-                        self.user,
-                        "ParticipantNotificationsView.post():2:{}".format(
-                            service))
-                    EventLog.debug(
-                        self.user,
-                        "ParticipantNotificationsView.post():3:{}".format(
-                            request.POST['message']))
                     sent_message = service.send_notification(
                         request.POST['message'])
-                    EventLog.debug(
-                        self.user,
-                        "ParticipantNotificationsView.post():4:{}".format(
-                            sent_message))
                     messages.add_message(
                         request, messages.SUCCESS,
                         'Message sent: /notification/{}'.format(
                             sent_message.data["messageId"]))
                 except Exception as e:
-                    EventLog.debug(
+                    EventLog.error(
                         self.user,
                         "ParticipantNotificationsView.post():e1:{}".format(e))
                     messages.add_message(request, messages.ERROR,

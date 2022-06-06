@@ -18,7 +18,6 @@ from .services import FitbitActivityService
 
 @shared_task
 def update_fitbit_data(fitbit_user, date_string):
-    EventLog.debug(None, "shared_task: update_fitbit_data [fitbit_user={}, date_string={}]".format(fitbit_user, date_string))
     service = FitbitActivityService(
         fitbit_user=fitbit_user,
     )
