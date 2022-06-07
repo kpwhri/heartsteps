@@ -34,14 +34,17 @@ class MorningMessageView(DayView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, day):
-        date = self.parse_date(day)
-        self.validate_date(request.user, date)
-        morning_message_service = MorningMessageService(
-            user=request.user
-        )
-        morning_message, _ = morning_message_service.get_or_create(date)
-        serialized = MorningMessageSerializer(morning_message)
-        return Response(serialized.data, status=status.HTTP_200_OK)
+        try:
+            date = self.parse_date(day)
+            self.validate_date(request.user, date)
+            morning_message_service = MorningMessageService(
+                user=request.user
+            )
+            morning_message, _ = morning_message_service.get_or_create(date)
+            serialized = MorningMessageSerializer(morning_message)
+            return Response(serialized.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, day):
         date = self.parse_date(day)
