@@ -45,9 +45,10 @@ class FitbitDayService(FitbitService):
                 timezone = self.__client.get_timezone()
             except FitbitClient.Unauthorized:
                 timezone = pytz.UTC
-            return FitbitDay.objects.create(account=self.account,
+            created_obj, _ = FitbitDay.objects.create_or_update(account=self.account,
                                             date=date,
                                             _timezone=timezone.zone)
+            return created_obj
 
     def update(self):
         current_timezone = self.day.get_timezone()
