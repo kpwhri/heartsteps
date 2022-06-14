@@ -8,6 +8,7 @@ from morning_messages.models import MorningMessage
 from morning_messages.models import MorningMessageDecision
 from morning_messages.models import MorningMessageSurvey
 from morning_messages.services import MorningMessageDecisionService
+from user_event_logs.models import EventLog
 
 @receiver(post_save, sender=Configuration)
 def manage_daily_task(sender, instance, **kwargs):
@@ -29,16 +30,19 @@ def morning_message_generate_decision(sender, instance, **kwargs):
     morning_message = instance
 
     if morning_message.message_decision:
-        decision_service = MorningMessageDecisionService(morning_message.message_decision)
-        message_template = decision_service.get_message_template()
+        try:
+            decision_service = MorningMessageDecisionService(morning_message.message_decision)
+            message_template = decision_service.get_message_template()
 
-        morning_message.notification = message_template.body
-        if hasattr(message_template, 'anchor_message'):
-            morning_message.text = message_template.body
-            morning_message.anchor = message_template.anchor_message
-        else:
-            morning_message.text = None
-            morning_message.anchor = None
+            morning_message.notification = message_template.body
+            if hasattr(message_template, 'anchor_message'):
+                morning_message.text = message_template.body
+                morning_message.anchor = message_template.anchor_message
+            else:
+                morning_message.text = None
+                morning_message.anchor = None
+        except Exception as e:
+            EventLog.error(sender.user, 'Error generating morning_message notification: %s' % e)
 
 @receiver(pre_save, sender=MorningMessage)
 def morning_message_create_survey(sender, instance, **kwargs):
