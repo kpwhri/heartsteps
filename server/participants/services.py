@@ -119,6 +119,7 @@ class ParticipantService:
 
     def initialize(self):
         self.participant.enroll()
+        self.user = self.participant.user
         self.participant.set_daily_task()
         create_default_suggestion_times(participant=self.participant)
         self.enable()
