@@ -31,6 +31,12 @@ class EventLog(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp'])
+        ]
+
     def whoami():
         stack = inspect.stack()
     

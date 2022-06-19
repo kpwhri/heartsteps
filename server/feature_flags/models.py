@@ -23,6 +23,10 @@ class FeatureFlags(models.Model):
         verbose_name = 'Feature Flags'
         verbose_name_plural = 'Feature Flags'
 
+        indexes = [
+            models.Index(fields=['user'])
+        ]
+
     uuid = models.CharField(max_length=50,
                             primary_key=True,
                             default=uuid.uuid4)

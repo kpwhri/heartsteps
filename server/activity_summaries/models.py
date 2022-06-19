@@ -63,6 +63,11 @@ class Day(models.Model):
 
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'date'])
+        ]
+
     def __str__(self):
         return '%s: %s' % (self.user.username, self.date.strftime('%Y-%m-%d'))
 
