@@ -44,7 +44,15 @@ class DeviceView(APIView):
                 active=True
             )
 
-            curr_device = Device.objects.get(user=request.user, active=True)
+            curr_device_query = Device.objects.filter(user=request.user, active=True).order_by('-created')
+            if curr_device_query.count() > 0:
+                curr_device = curr_device_query.first()
+                if curr_device_query.count() > 1:
+                    EventLog.error(request.user, 'Multiple devices found for user. using the first one')
+            else:
+                EventLog.error(request.user, 'Multiple devices found for user. using the first one')
+                raise Exception('No devices found for user: ' + str(request.user))
+
             user_token = curr_device.token
             devices_with_token = Device.objects.filter(token=user_token, active=True)
             for device in devices_with_token:
