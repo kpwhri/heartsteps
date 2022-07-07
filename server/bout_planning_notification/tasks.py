@@ -5,6 +5,7 @@ from fitbit_api.models import FitbitAccountUser
 import pytz
 from participants.services import ParticipantService
 from daily_step_goals.tasks import send_daily_step_goal_notification
+from participants.models import Cohort, Participant
 from sms_messages.services import SMSService
 
 from .models import BoutPlanningMessage, JSONSurvey, User
@@ -15,6 +16,17 @@ from feature_flags.models import FeatureFlags
 
 class BoutPlanningFlagException(Exception):
     pass
+
+def get_baseline_complete_info():
+    from participants.models import Cohort, Participant
+    from participants.services import ParticipantService
+    cohort_name = 'JustWalk'
+    cohort = Cohort.objects.filter(name=cohort_name).first()
+    query = Participant.objects.filter(cohort=cohort)
+    for participant in query.all():
+        service = ParticipantService(participant=participant)
+        is_baseline_complete = service.is_baseline_complete()
+        print("{}\t{}".format(participant.heartsteps_id, is_baseline_complete))
 
 def get_collapse_subject(prefix):
     return "{}_{}".format(prefix, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
