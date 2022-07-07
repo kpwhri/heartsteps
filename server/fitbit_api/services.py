@@ -9,6 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 from fitbit import Fitbit
 from fitbit.exceptions import HTTPTooManyRequests
 from fitbit.exceptions import HTTPUnauthorized
+from fitbit.exceptions import HTTPForbidden
 
 from days.services import DayService
 # from daily_step_goals.services import StepGoalsService
@@ -280,7 +281,7 @@ class FitbitClient():
             timezone = response['user']['timezone']
             self.__timezone = pytz.timezone(timezone)
             return self.__timezone
-        except (HTTPUnauthorized, oauthlib.oauth2.rfc6749.errors.InvalidGrantError) as e:
+        except (HTTPUnauthorized, HTTPForbidden, oauthlib.oauth2.rfc6749.errors.InvalidGrantError) as e:
             from user_event_logs.models import EventLog
             import pprint
             EventLog.log(None, "server/fitbit_api/services.py:264/{}".format(pprint.pformat(e.__dict__)), EventLog.ERROR)

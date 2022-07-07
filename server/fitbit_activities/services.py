@@ -38,9 +38,11 @@ class FitbitDayService(FitbitService):
         self.date = fitbit_day.date
 
     def __get_fitbit_day(self, date):
-        try:
-            return FitbitDay.objects.get(account=self.account, date=date)
-        except FitbitDay.DoesNotExist:
+        query = FitbitDay.objects.filter(account=self.account, date=date).order_by("created")
+
+        result_count = query.count()
+
+        if result_count == 0:
             try:
                 timezone = self.__client.get_timezone()
             except FitbitClient.Unauthorized:
@@ -49,8 +51,11 @@ class FitbitDayService(FitbitService):
                                             date=date,
                                             _timezone=timezone.zone)
             return created_obj
+        else:
+            return query.last()
 
     def update(self):
+        print("[FitbitAccount {}] Fitbit data fetch initiated".format(self.account))
         current_timezone = self.day.get_timezone()
         new_timezone = self.__client.get_timezone()
         if (current_timezone.zone != new_timezone.zone):
@@ -58,7 +63,9 @@ class FitbitDayService(FitbitService):
             self.day._timezone = new_timezone.zone
             self.day.save()
         self.day.step_count = self.update_steps()
+        print("[FitbitAccount {}] update_steps(): {}".format(self.account, self.day.step_count))
         self.day._distance = self.update_distance()
+        print("[FitbitAccount {}] update_distance(): {}".format(self.account, self.day._distance))
         self.update_heart_rate()
         self.update_activities()
         update_devices(self.account)
