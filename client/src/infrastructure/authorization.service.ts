@@ -47,6 +47,7 @@ export class AuthorizationService {
             this.storage.get('auth-token')
                 .then((token) => {
                     if (token) {
+                        console.log("[AuthorizationService] getAuthorization(): token: " + token);
                         resolve(token);
                     } else {
                         reject();

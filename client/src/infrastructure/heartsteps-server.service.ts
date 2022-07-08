@@ -164,6 +164,7 @@ export class HeartstepsServer {
         return this.authorizationService.getAuthorization()
             .then((token) => {
                 headers['Authorization'] = `Token ${token}`
+                console.log("[HeartstepsServer] setAuthorizationHeaderToken(): token: " + token);
                 return headers
             })
             .catch(() => {
@@ -174,6 +175,7 @@ export class HeartstepsServer {
     private updateAuthorizationToken(response: any): any {
         const token: string = response.headers['authorization-token'];
         if (token) {
+            console.log("[HeartstepsServer] updateAuthorizationToken(): token: " + token);
             this.authorizationService.setAuthorization(token);
         }
         return response

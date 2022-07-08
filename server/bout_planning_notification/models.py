@@ -563,6 +563,7 @@ class Level(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     level = models.CharField(max_length=20, choices=LEVELS)
     date = models.DateField()
+    when_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return "{} @ {}".format(self.level, self.date)
@@ -600,7 +601,7 @@ class Level(models.Model):
             date = day_service.get_current_date()
 
         if Level.exists(user, date):
-            return_object = Level.objects.get(user=user, date=date)
+            return_object = Level.objects.filter(user=user, date=date).order_by('when_created').last()
         else:
             participant = Participant.objects.filter(user=user).first()
             if date < participant.study_start_date + timedelta(days=participant.cohort.study.baseline_period):
