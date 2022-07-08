@@ -73,28 +73,15 @@ class FitbitDay(models.Model):
         ordering = ["date"]
         unique_together = ('account', 'date')
 
-    def log(self, msg):
-        users = self.account.get_users()
-
-        print(msg)
-        for user in users:
-            EventLog.debug(user, msg)
-
     def save(self, *args, **kwargs):
-        self.log("FitbitDay.save() initiated")
         self.minutes_worn = self.get_minutes_worn()
-        self.log("FitbitDay.save() get_minutes_worn()")
         self.wore_fitbit = self.get_wore_fitbit()
-        self.log("FitbitDay.save() get_wore_fitbit()")
         
         super().save(*args, **kwargs)
-        self.log("FitbitDay.save() super().save()")
         
         summary, _ = FitbitActivitySummary.objects.get_or_create(account=self.account)
-        self.log("FitbitDay.save() FitbitActivitySummary.get_or_create()")
         summary.update()
-        self.log("FitbitDay.save() FitbitActivitySummary.update()")
-
+        
     @property
     def timezone(self):
         return self.get_timezone()

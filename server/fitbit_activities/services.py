@@ -55,14 +55,7 @@ class FitbitDayService(FitbitService):
         else:
             return query.last()
 
-    def log(self, msg):
-        users = self.account.get_users()
-        print("{} {}".format(datetime.now(), msg))
-        for user in users:
-            EventLog.debug(user, msg)
-
     def update(self):
-        self.log("[FitbitAccount {}] Fitbit data fetch initiated".format(self.account))
         current_timezone = self.day.get_timezone()
         new_timezone = self.__client.get_timezone()
         if (current_timezone.zone != new_timezone.zone):
@@ -70,15 +63,10 @@ class FitbitDayService(FitbitService):
             self.day._timezone = new_timezone.zone
             self.day.save()
         self.day.step_count = self.update_steps()
-        self.log("[FitbitAccount {}] update_steps(): {}".format(self.account, self.day.step_count))
         self.day._distance = self.update_distance()
-        self.log("[FitbitAccount {}] update_distance(): {}".format(self.account, self.day._distance))
         self.update_heart_rate()
-        self.log("[FitbitAccount {}] update_heart_rate()")
         self.update_activities()
-        self.log("[FitbitAccount {}] update_activities()")
         update_devices(self.account)
-        self.log("[FitbitAccount {}] update_devices()")
         
         last_tracker_update = self.account.get_last_tracker_sync_time()
         if last_tracker_update and last_tracker_update > self.day.get_end_datetime(
@@ -86,27 +74,18 @@ class FitbitDayService(FitbitService):
             self.day.completely_updated = True
         else:
             self.day.completely_updated = False
-        self.log("[FitbitAccount {}] finish fetching. saving to DB...")
         self.day.save()
-        self.log("[FitbitAccount {}] finish saving to DB.")
 
     def update_activities(self):
-        self.log("[FitbitDayService] update_activities(): 1")
         activities = self.__client.get_activities(self.date)
-        self.log("[FitbitDayService] update_activities(): 2")
         for activity in activities:
-            self.log("[FitbitDayService] update_activities(): 3")
             start_time = dateutil_parser.parse(activity['startTime'])
-            self.log("[FitbitDayService] update_activities(): 4")
             end_time = start_time + timedelta(
                 milliseconds=activity['duration'])
-            self.log("[FitbitDayService] update_activities(): 5")
             average_heart_rate = activity.get('averageHeartRate', 0)
-            self.log("[FitbitDayService] update_activities(): 6")
             activity_type, _ = FitbitActivityType.objects.get_or_create(
                 fitbit_id=activity['activityTypeId'],
                 name=activity['activityName'])
-            self.log("[FitbitDayService] update_activities(): 7")
             
             fitbit_id = activity['logId']
             account = self.account
@@ -126,15 +105,10 @@ class FitbitDayService(FitbitService):
                         end_time=end_time, 
                         payload=activity)
                 ])
-            self.log("[FitbitDayService] update_activities(): 8")
-        self.log("[FitbitDayService] update_activities(): 9")
 
     def update_heart_rate(self):
-        self.log("[FitbitDayService] update_heart_rate(): 1")
         data = self.__client.get_heart_rate(self.date)
-        self.log("[FitbitDayService] update_heart_rate(): 2")
         timezone = self.day.get_timezone()
-        self.log("[FitbitDayService] update_heart_rate(): 3")
         FitbitDailyUnprocessedData.objects.update_or_create(
             account=self.account,
             day=self.day,
@@ -143,10 +117,8 @@ class FitbitDayService(FitbitService):
                 'payload': data,
                 'timezone': timezone.zone
             })
-        self.log("[FitbitDayService] update_heart_rate(): 4")
         heart_rate_intervals = []
         intervals = self._process_minute_data(data)
-        self.log("[FitbitDayService] update_heart_rate(): 5")
         for interval in intervals:
             if interval['value'] > 0:
                 heart_rate = FitbitMinuteHeartRate(
@@ -154,16 +126,13 @@ class FitbitDayService(FitbitService):
                     time=interval['datetime'],
                     heart_rate=interval['value'])
                 heart_rate_intervals.append(heart_rate)
-        self.log("[FitbitDayService] update_heart_rate(): 6")
         FitbitMinuteHeartRate.objects.filter(account=self.account,
                                              time__range=[
                                                  self.day.get_start_datetime(),
                                                  self.day.get_end_datetime()
                                              ]).delete()
-        self.log("[FitbitDayService] update_heart_rate(): 7")
         FitbitMinuteHeartRate.objects.bulk_create(heart_rate_intervals)
-        self.log("[FitbitDayService] update_heart_rate(): 8")
-
+        
     def _get_intraday_time_series(self, activity_type):
         timezone = self.day.get_timezone()
         data = self.__client.get_intraday_activity(activity_type, self.date)
