@@ -1,5 +1,5 @@
 from celery import shared_task
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 
 from django.conf import settings
@@ -26,4 +26,4 @@ def onesignal_get_received(message_id):
     message.update_message_receipts()
     if not message.received and (timezone.now() - message.created).seconds < 5 * 60:
         onesignal_get_received.apply_async(
-            eta=onesignal_refresh_interval(), kwargs={"message_id": message_id})
+            eta=datetime.now() + timedelta(seconds=onesignal_refresh_interval()), kwargs={"message_id": message_id})
