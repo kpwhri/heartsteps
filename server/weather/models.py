@@ -22,6 +22,18 @@ class WeatherForecast(models.Model):
     Represents an hourly weather forecast at a specific location and time
     """
 
+    # {
+    #     'latitude': response_data['latitude'],
+    #     'longitude': response_data['longitude'],
+    #     'time': time,
+    #     'precip_probability': forecast.get('precipProbability'),
+    #     'precip_type': forecast.get('precipType', 'None'),
+    #     'temperature': forecast.get('temperature'),
+    #     'apparent_temperature': forecast.get('apparentTemperature'),
+    #     'wind_speed': forecast.get('windSpeed'),
+    #     'cloud_cover': forecast.get('cloudCover')
+    # }
+
     SNOW = 'snow'
 
     precip_probability = models.FloatField()
@@ -31,6 +43,11 @@ class WeatherForecast(models.Model):
     wind_speed = models.FloatField(null=True, blank=True)
     cloud_cover = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    time = models.DateTimeField(null=True)
+    
 
     @property
     def temperature_celcius(self):
