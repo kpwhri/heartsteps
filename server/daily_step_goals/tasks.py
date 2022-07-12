@@ -47,32 +47,34 @@ def send_daily_step_goal_notification(username, parameters=None):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     user = User.objects.get(username=username)
     
-    if not FeatureFlags.exists(user):
-        raise Exception("The user does not have a feature flag.")
-    
-    if not FeatureFlags.has_flag(user, "system_id_stepgoal"):
-        raise Exception("The user does not have 'system_id_stepgoal' flag.")
-    
-    participant_service = ParticipantService(user=user)
-    if participant_service.is_baseline_complete():
-        day_service = DayService(user)
-        today = day_service.get_current_date()
+    if user.active:
+        if not FeatureFlags.exists(user):
+            raise Exception("The user does not have a feature flag.")
+        
+        if not FeatureFlags.has_flag(user, "system_id_stepgoal"):
+            raise Exception("The user does not have 'system_id_stepgoal' flag.")
+        
+        participant_service = ParticipantService(user=user)
+        if participant_service.is_baseline_complete():
+            day_service = DayService(user)
+            today = day_service.get_current_date()
 
-        goal = StepGoal.get(user=user, date=today)
-        # goal_query = StepGoal.get(user=user, date=today)
-        # if goal_query.exists():
-        #     goal = goal_query.first().step_goal
-        # else:
-        #     raise Exception("No goal found for today.")
+            goal = StepGoal.get(user=user, date=today)
+            # goal_query = StepGoal.get(user=user, date=today)
+            # if goal_query.exists():
+            #     goal = goal_query.first().step_goal
+            # else:
+            #     raise Exception("No goal found for today.")
 
-        json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
-        survey = json_survey.substantiate(user, parameters)
+            json_survey = bpn.models.JSONSurvey.objects.get(name="daily_goal_survey")
+            survey = json_survey.substantiate(user, parameters)
 
-        message = send_notification(user, title="JustWalk", body="Today's step goal: {:,}".format(goal), collapse_subject=get_collapse_subject('dsg1'), survey=survey)
+            message = send_notification(user, title="JustWalk", body="Today's step goal: {:,}".format(goal), collapse_subject=get_collapse_subject('dsg1'), survey=survey)
+        else:
+            EventLog.info(user, "The user is not yet baseline complete. The daily step goal notification will not be sent.")
+            return
     else:
-        EventLog.info(user, "The user is not yet baseline complete. The daily step goal notification will not be sent.")
-        return
-            
+        EventLog.info(user, "[send_daily_step_goal_notification] The user is not active.")
     
 
 
