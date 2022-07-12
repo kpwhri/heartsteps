@@ -236,16 +236,16 @@ class FitbitStepCountService:
 
         number_of_minutes = get_index(start, end)
 
-        print("number_of_minutes: {}".format(number_of_minutes))
+        # print("number_of_minutes: {}".format(number_of_minutes))
         step_list = [0] * number_of_minutes
 
         all_step_data_between = self.get_all_step_data_between(start, end)
-        print("{}-{}".format(start, end))
-        print(all_step_data_between)
+        # print("{}-{}".format(start, end))
+        # print(all_step_data_between)
 
         for a_minute in all_step_data_between:
             index = get_index(start, a_minute.time)
-            print("  a_minute.time: {}, index: {}, a_minute: {}".format(a_minute.time, index, a_minute.__dict__))
+            # print("  a_minute.time: {}, index: {}, a_minute: {}".format(a_minute.time, index, a_minute.__dict__))
             step_list[index] += a_minute.steps
 
         return step_list

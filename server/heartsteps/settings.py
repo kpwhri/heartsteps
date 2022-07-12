@@ -27,13 +27,13 @@ ADMINS = [('JP', 'jup014@eng.ucsd.edu')]
 ALLOWED_HOSTS = env.str(
     'ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-SILKY_AUTHENTICATION = True
-SILKY_AUTHORISATION = True
-def SILKY_PERMISSIONS(user): return user.is_superuser
+# SILKY_AUTHENTICATION = True
+# SILKY_AUTHORISATION = True
+# def SILKY_PERMISSIONS(user): return user.is_superuser
 
 
-SILKY_MAX_REQUEST_BODY_SIZE = 0
-SILKY_MAX_RESPONSE_BODY_SIZE = 0
+# SILKY_MAX_REQUEST_BODY_SIZE = 0
+# SILKY_MAX_RESPONSE_BODY_SIZE = 0
 
 ADHERENCE_MESSAGE_TIME = env.str('ADHERENCE_MESSAGE_TIME', '19:00')
 
@@ -131,7 +131,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
-    'silk',
+    # 'silk',
     'reportlab',
     'privacy_policy',
     'user_event_logs',
@@ -186,7 +186,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'silk.middleware.SilkyMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
