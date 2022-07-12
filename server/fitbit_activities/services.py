@@ -83,6 +83,7 @@ class FitbitDayService(FitbitService):
             end_time = start_time + timedelta(
                 milliseconds=activity['duration'])
             average_heart_rate = activity.get('averageHeartRate', 0)
+            # print(activity)
             activity_type, _ = FitbitActivityType.objects.get_or_create(
                 fitbit_id=activity['activityTypeId'],
                 name=activity['activityName'])

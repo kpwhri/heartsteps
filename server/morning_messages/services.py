@@ -45,12 +45,12 @@ class MorningMessageService:
 
     def get(self, date):
         try:
-            return MorningMessage.objects.get(
+            return MorningMessage.objects.filter(
                 user = self.__user,
                 date__year = date.year,
                 date__month = date.month,
                 date__day = date.day
-            )
+            ).first()
         except MorningMessage.DoesNotExist:
             raise MorningMessageService.MessageDoesNotExist()
 
