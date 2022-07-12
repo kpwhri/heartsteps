@@ -302,6 +302,7 @@ class NightlyUpdateTask(TestCase):
 
     @patch.object(WalkingSuggestionService, 'initialize')
     def testInitializeWalkingSuggestionService(self, initialize):
+        pass
         # Junghwan Park: walking_suggestions service is not available
         # self.configuration.service_initialized_date = None
         # self.configuration.save()
@@ -315,6 +316,7 @@ class NightlyUpdateTask(TestCase):
 
     @patch.object(WalkingSuggestionService, 'update')
     def test_update_walking_suggestion_service(self, update):
+        pass
         # Junghwan Park: walking_suggestions service is not available
         # self.configuration.service_initialized_date = date.today() - timedelta(days=2)
         # self.configuration.save()
@@ -354,6 +356,7 @@ class NightlyUpdateTask(TestCase):
 
     @patch.object(WalkingSuggestionService, 'update')
     def test_updates_days_not_updated(self, update):
+        pass
         # Junghwan Park: walking_suggestions service is not available
         # self.configuration.service_initialized_date = date.today() - timedelta(days=4)
         # self.configuration.save()
@@ -389,6 +392,7 @@ class InitializeAndUpdateTaskTests(TestCase):
     @patch.object(WalkingSuggestionService, 'initialize')
     @patch.object(WalkingSuggestionService, 'update')
     def test_initialize_and_update(self, update, initialize, get_wore_fitbit):
+        pass
         # Junghwan Park: walking_suggestions service is not available
         
         # user = User.objects.create(

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget android-versionCode="4060" id="edu.ucsd.justwalk.jitai" ios-CFBundleVersion="4060" osx-CFBundleVersion="4060" version="2.4.4060" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="4061" id="edu.ucsd.justwalk.jitai" ios-CFBundleVersion="4061" osx-CFBundleVersion="4061" version="2.4.4061" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>JustWalk</name>
   <description>A research application to promote daily physical activity</description>
   <author email="jup014@ucsd.edu" href="http://cwphs.ucsd.edu/">Junghwan Park</author>
