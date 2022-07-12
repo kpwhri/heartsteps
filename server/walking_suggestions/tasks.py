@@ -29,66 +29,83 @@ from .resources import WalkingSuggestionDecisionResource
 from .services import WalkingSuggestionService
 from .services import WalkingSuggestionDecisionService
 from .services import WalkingSuggestionTimeService
+from feature_flags.models import FeatureFlags
 
 @shared_task
 def queue_walking_suggestion(username):
-    service = WalkingSuggestionTimeService(username=username)
-    category = service.suggestion_time_category_at(timezone.now())
-    random_minutes = random.randint(15,30)
-    create_walking_suggestion.apply_async(
-        countdown = random_minutes * 60,
-        kwargs = {
-            'username': username
-        }
-    )
+    user = User.objects.get(username=username)
+    if user:
+        walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
+        if walking_suggestion_flag_exists:
+            service = WalkingSuggestionTimeService(username=username)
+            category = service.suggestion_time_category_at(timezone.now())
+            random_minutes = random.randint(15,30)
+            create_walking_suggestion.apply_async(
+                countdown = random_minutes * 60,
+                kwargs = {
+                    'username': username
+                }
+            )
 
 @shared_task
 def create_walking_suggestion(username):
-    try:
-        WalkingSuggestionDecisionService.make_decision_now(username=username)
-    except WalkingSuggestionDecisionService.RandomizationUnavailable:
-        pass
+    user = User.objects.get(username=username)
+    if user:
+        walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
+        if walking_suggestion_flag_exists:
+            try:
+                WalkingSuggestionDecisionService.make_decision_now(username=username)
+            except WalkingSuggestionDecisionService.RandomizationUnavailable:
+                pass
 
 @shared_task
 def nightly_update(username, day_string):
-    dt = datetime.strptime(day_string, '%Y-%m-%d')
-    day = date(dt.year, dt.month, dt.day)
-    try:
-        service = WalkingSuggestionService(username=username)
-        service.nightly_update(day)
-    except WalkingSuggestionService.Unavailable:
-        return None
+    user = User.objects.get(username=username)
+    if user:
+        walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
+        if walking_suggestion_flag_exists:
+            dt = datetime.strptime(day_string, '%Y-%m-%d')
+            day = date(dt.year, dt.month, dt.day)
+            try:
+                service = WalkingSuggestionService(username=username)
+                service.nightly_update(day)
+            except WalkingSuggestionService.Unavailable:
+                return None
 
 @shared_task
 def initialize_and_update(username):
-    configuration = Configuration.objects.get(user__username = username)
-    day_service = DayService(user=configuration.user)
-    walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
-    
-    date_joined = day_service.get_date_at(configuration.user.date_joined)
-    today = day_service.get_current_date()
-    days_to_go_back = (today - date_joined).days
-    date_range = [today - timedelta(days=offset+1) for offset in range(days_to_go_back)]
+    user = User.objects.get(username=username)
+    if user:
+        walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
+        if walking_suggestion_flag_exists:
+            configuration = Configuration.objects.get(user__username = username)
+            day_service = DayService(user=configuration.user)
+            walking_suggestion_service = WalkingSuggestionService(configuration=configuration)
+            
+            date_joined = day_service.get_date_at(configuration.user.date_joined)
+            today = day_service.get_current_date()
+            days_to_go_back = (today - date_joined).days
+            date_range = [today - timedelta(days=offset+1) for offset in range(days_to_go_back)]
 
-    while len(date_range):
-        initialize_date = date_range.pop()
-        try:
-            walking_suggestion_service.get_initialization_days(initialize_date)
-            break
-        except WalkingSuggestionService.UnableToInitialize:
-            pass
-    
-    walking_suggestion_service.initialize(initialize_date)
-    NightlyUpdate.objects.filter(user = configuration.user).delete()
-    
-    while len(date_range):
-        update_date = date_range.pop()
-        walking_suggestion_service.update(update_date)
-        NightlyUpdate.objects.create(
-            user = configuration.user,
-            day = update_date,
-            updated = True
-        )
+            while len(date_range):
+                initialize_date = date_range.pop()
+                try:
+                    walking_suggestion_service.get_initialization_days(initialize_date)
+                    break
+                except WalkingSuggestionService.UnableToInitialize:
+                    pass
+            
+            walking_suggestion_service.initialize(initialize_date)
+            NightlyUpdate.objects.filter(user = configuration.user).delete()
+            
+            while len(date_range):
+                update_date = date_range.pop()
+                walking_suggestion_service.update(update_date)
+                NightlyUpdate.objects.create(
+                    user = configuration.user,
+                    day = update_date,
+                    updated = True
+                )
 
 @shared_task
 def update_pooling_service():

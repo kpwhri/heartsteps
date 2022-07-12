@@ -138,7 +138,7 @@ def fitbit_update_check(username):
                     query = FitbitAccountUser.objects.filter(user=user)
 
                     if query.exists():
-                        fitbit_account = query.first()
+                        fitbit_account = query.first().account
 
                         last_update = fitbit_account.last_updated
                     
