@@ -24,13 +24,12 @@ def set_day_start_and_end_times(sender, instance, *args, **kwargs):
 def update_timezone_from_fitbit(sender, instance, *args, **kwargs):
     fitbit_service = FitbitService(account=instance.account)
     for user in fitbit_service.get_users():
-        day, _ = Day.objects.update_or_create(
-            user = user,
-            date = instance.date,
-            defaults = {
-                "timezone": instance._timezone
-            }
-        )
+        query = Day.objects.filter(user=user, date=instance.date)
+
+        if not query.exists():
+            Day.objects.create(user=user, date=instance.date, timezone=instance._timezone)
+        else:
+            query.update(timezone=instance._timezone)
 
         day_service = DayService(user=user)
         current_date = day_service.get_current_date()
