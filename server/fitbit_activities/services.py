@@ -84,9 +84,23 @@ class FitbitDayService(FitbitService):
                 milliseconds=activity['duration'])
             average_heart_rate = activity.get('averageHeartRate', 0)
             # print(activity)
-            activity_type, _ = FitbitActivityType.objects.get_or_create(
-                fitbit_id=activity['activityTypeId'],
-                name=activity['activityName'])
+            # find with null account
+            query = FitbitActivityType.objects.filter(fitbit_id=activity['activityTypeId'], name=activity['activityName'], account=None)
+            if query.exists():
+                activity_type = query.first()
+            else:
+                query2 = FitbitActivityType.objects.filter(fitbit_id=activity['activityTypeId'], name=activity['activityName'], account=self.account)
+                if query2.exists():
+                    activity_type = query2.first()
+                else:
+                    activity_type = FitbitActivityType.objects.create(
+                        fitbit_id=activity['activityTypeId'],
+                        name=activity['activityName'],
+                        account=self.account
+                    )
+            # activity_type, _ = FitbitActivityType.objects.get_or_create(
+            #     fitbit_id=activity['activityTypeId'],
+            #     name=activity['activityName'])
             
             fitbit_id = activity['logId']
             account = self.account
