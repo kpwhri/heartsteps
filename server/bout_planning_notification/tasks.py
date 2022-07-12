@@ -134,54 +134,54 @@ def fitbit_update_check(username):
     if FeatureFlags.exists(user):
         if FeatureFlags.has_flag(user, "bout_planning"):
             try:
-                fitbit_account = FitbitAccountUser.objects.get(user=user).account
+                query = FitbitAccountUser.objects.filter(user=user)
+
+                if query.exists():
+                    fitbit_account = query.first()
+
+                    last_update = fitbit_account.last_updated
                 
-                last_update = fitbit_account.last_updated
-                
-                if last_update:
-                    now = datetime.datetime.now().astimezone(pytz.utc)
-                    diff = now - last_update
-                    EventLog.info(user, "user={}, last_update={}, update_gap={}".format(username, last_update, diff))
-                    
-                    if diff > datetime.timedelta(minutes=60):
-                        EventLog.info(user, "Recent Fitbit Update Doesn't Exist. SMS message should be sent.")
-                        sms_service = SMSService(user=user)
-                        timegap_str = ""
-                        if diff > datetime.timedelta(hours=36):
-                            timegap_str = "a while"
-                        elif diff > datetime.timedelta(hours=12):
-                            timegap_str = "a day"
-                        elif diff > datetime.timedelta(minutes=90):
-                            timegap_str = "a few hours"
-                        else:
-                            timegap_str = "a while"
+                    if last_update:
+                        now = datetime.datetime.now().astimezone(pytz.utc)
+                        diff = now - last_update
+                        EventLog.info(user, "user={}, last_update={}, update_gap={}".format(username, last_update, diff))
+                        
+                        if diff > datetime.timedelta(minutes=60):
+                            EventLog.info(user, "Recent Fitbit Update Doesn't Exist. SMS message should be sent.")
+                            sms_service = SMSService(user=user)
+                            timegap_str = ""
+                            if diff > datetime.timedelta(hours=36):
+                                timegap_str = "a while"
+                            elif diff > datetime.timedelta(hours=12):
+                                timegap_str = "a day"
+                            elif diff > datetime.timedelta(minutes=90):
+                                timegap_str = "a few hours"
+                            else:
+                                timegap_str = "a while"
+                                
+                            greeting = ""
+                            day_service = DayService(user)
+                            local_time = day_service.get_current_datetime()
+                            if local_time.hour < 12 and local_time.hour > 3:
+                                greeting = "Good morning! "
+                            elif local_time.hour < 16 and local_time.hour >= 12:
+                                greeting = "Good afternoon. "
+                            elif local_time.hour < 22 and local_time.hour >= 16:
+                                greeting = "Good evening. "
+                            else:
+                                pass
                             
-                        greeting = ""
-                        day_service = DayService(user)
-                        local_time = day_service.get_current_datetime()
-                        if local_time.hour < 12 and local_time.hour > 3:
-                            greeting = "Good morning! "
-                        elif local_time.hour < 16 and local_time.hour >= 12:
-                            greeting = "Good afternoon. "
-                        elif local_time.hour < 22 and local_time.hour >= 16:
-                            greeting = "Good evening. "
+                            msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please launch the Fitbit app to upload.".format(greeting, timegap_str)
+                            sms_message = sms_service.send(msg)
+                            EventLog.info(user, "SMS message is sent: {}".format(msg))
+                            EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
+                            
                         else:
-                            pass
-                        
-                        msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please launch the Fitbit app to upload.".format(greeting, timegap_str)
-                        sms_message = sms_service.send(msg)
-                        EventLog.info(user, "SMS message is sent: {}".format(msg))
-                        EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
-                        
+                            EventLog.info(user, "Recent Fitbit Update Exists. No SMS message should be sent.")
                     else:
-                        EventLog.info(user, "Recent Fitbit Update Exists. No SMS message should be sent.")
-                        
-                    
-                    
-                    
-                        
+                        EventLog.error(user, "No device update record")
                 else:
-                    EventLog.error(user, "No device update record")
+                    EventLog.info(user, "Fitbit Account that correspods to username {} does not exist".format(username))
             except Exception as e:
                 EventLog.error(user, "Exception occurred during Fitbit Last Update Check: {}".format(e))
                 raise e

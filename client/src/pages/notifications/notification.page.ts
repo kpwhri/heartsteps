@@ -5,6 +5,8 @@ import { MessageService } from "@heartsteps/notifications/message.service";
 import { FormGroup, FormControl } from "@angular/forms";
 import { HeartstepsServer } from "@infrastructure/heartsteps-server.service";
 import { ParticipantInformationService } from "@heartsteps/participants/participant-information.service";
+import { AppStatusService, APP_STATUS } from '@infrastructure/app-status.service';
+
 
 @Component({
     selector: "heartsteps-notification-page",
@@ -28,6 +30,7 @@ export class NotificationPage implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private messageService: MessageService,
+        private appStatusService: AppStatusService,
         private heartstepsServer: HeartstepsServer,
         private participantInformationService: ParticipantInformationService
     ) {
@@ -38,6 +41,14 @@ export class NotificationPage implements OnInit {
         console.log("NotificationPage.ngOnInit()");
         this.activatedRoute.paramMap.subscribe((paramMap) => {
             console.log("NotificationPage.ngOnInit()", paramMap);
+            this.appStatusService.getStatus()
+                .then((status) => {
+                    if (status === APP_STATUS.AUTHENTICATED) {
+                        console.log("NotificationPage.ngOnInit(): status == APP_STATUS.AUTHENTICATED");
+                    } else if (status == APP_STATUS.NOT_AUTHENTICATED) {
+                        console.log("NotificationPage.ngOnInit(): status == APP_STATUS.NOT_AUTHENTICATED. Reauthenticating...");
+                    }
+                })
             this.loading = true;
             const notificationId: string = paramMap.get("notificationId");
 
