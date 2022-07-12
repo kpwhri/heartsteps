@@ -23,6 +23,7 @@ from page_views.models import PageView
 from push_messages.models import MessageReceipt, Message
 from randomization.models import DecisionContext
 from randomization.services import DecisionService, DecisionContextService, DecisionMessageService
+from user_event_logs.models import EventLog
 from weather.models import WeatherForecast
 from watch_app.models import StepCount as WatchStepCount
 
@@ -134,23 +135,27 @@ class WalkingSuggestionDecisionService(DecisionContextService, DecisionMessageSe
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 raise WalkingSuggestionDecisionService.UserDoesNotExist('No user found')
-        try:
-            service = WalkingSuggestionTimeService(
+        if user.is_active:
+
+            try:
+                service = WalkingSuggestionTimeService(
+                    user = user,
+                    username = username
+                )
+                category = service.suggestion_time_category_available_at(datetime)
+            except WalkingSuggestionTimeService.Unavailable:
+                pass
+            if not category:
+                raise WalkingSuggestionDecisionService.RandomizationUnavailable('Unable to randomize at time')
+            decision_service = WalkingSuggestionDecisionService.create_decision(
                 user = user,
-                username = username
+                category = category,
+                time = datetime
             )
-            category = service.suggestion_time_category_available_at(datetime)
-        except WalkingSuggestionTimeService.Unavailable:
-            pass
-        if not category:
-            raise WalkingSuggestionDecisionService.RandomizationUnavailable('Unable to randomize at time')
-        decision_service = WalkingSuggestionDecisionService.create_decision(
-            user = user,
-            category = category,
-            time = datetime
-        )
-        WalkingSuggestionDecisionService.process_decision(decision_service.decision)
-        return decision_service.decision
+            WalkingSuggestionDecisionService.process_decision(decision_service.decision)
+            return decision_service.decision
+        else:
+            EventLog.info(user, "[walking suggestion make_decision()] the user is not active")
 
     def process_decision(decision):
         decision_service = WalkingSuggestionDecisionService(decision)

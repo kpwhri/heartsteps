@@ -47,7 +47,7 @@ def send_daily_step_goal_notification(username, parameters=None):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     user = User.objects.get(username=username)
     
-    if user.active:
+    if user.is_active:
         if not FeatureFlags.exists(user):
             raise Exception("The user does not have a feature flag.")
         

@@ -131,7 +131,7 @@ def justwalk_daily_ema(username, parameters=None):
 def fitbit_update_check(username):
     user = User.objects.get(username=username)
     
-    if user.active:
+    if user.is_active:
         if FeatureFlags.exists(user):
             if FeatureFlags.has_flag(user, "bout_planning"):
                 try:
