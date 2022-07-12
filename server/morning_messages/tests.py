@@ -14,303 +14,304 @@ from morning_messages.services import MorningMessageService, MorningMessageDecis
 from morning_messages.tasks import send_morning_message
 from feature_flags.models import FeatureFlags
 
-class MorningMessageTestBase(TestCase):
+# JP: Morning Message is deprecated
+# class MorningMessageTestBase(TestCase):
 
-    def setUp(self):
-        self.user = User.objects.create(username="test")
-        self.configuration = Configuration.objects.create(user=self.user)
-        self.feature_flags = FeatureFlags.create(user=self.user, flags="morning_message")
+#     def setUp(self):
+#         self.user = User.objects.create(username="test")
+#         self.configuration = Configuration.objects.create(user=self.user)
+#         self.feature_flags = FeatureFlags.create(user=self.user, flags="morning_message")
         
 
-        Device.objects.create(
-            user = self.user,
-            active = True
-        )
-        patch_send_notification = patch.object(PushMessageService, 'send_notification')
-        self.send_notification = patch_send_notification.start()
-        self.send_notification.return_value = Message.objects.create(
-            recipient = self.user,
-            content = "foo"
-        )
-        self.addCleanup(patch_send_notification.stop)
+#         Device.objects.create(
+#             user = self.user,
+#             active = True
+#         )
+#         patch_send_notification = patch.object(PushMessageService, 'send_notification')
+#         self.send_notification = patch_send_notification.start()
+#         self.send_notification.return_value = Message.objects.create(
+#             recipient = self.user,
+#             content = "foo"
+#         )
+#         self.addCleanup(patch_send_notification.stop)
 
-        MorningMessageTemplate.objects.create(
-            body = 'Example morning message',
-            anchor_message = 'Anchor message'
-        )
+#         MorningMessageTemplate.objects.create(
+#             body = 'Example morning message',
+#             anchor_message = 'Anchor message'
+#         )
 
-class MorningMessageConfigurationTest(MorningMessageTestBase):
+# class MorningMessageConfigurationTest(MorningMessageTestBase):
 
-    def test_daily_task_created_when_morning_message_created(self):
-        self.assertIsNotNone(self.configuration.daily_task)
-        self.assertTrue(self.configuration.daily_task.enabled)
+#     def test_daily_task_created_when_morning_message_created(self):
+#         self.assertIsNotNone(self.configuration.daily_task)
+#         self.assertTrue(self.configuration.daily_task.enabled)
 
-    def test_daily_task_can_be_disabled(self):
-        self.assertTrue(self.configuration.daily_task.enabled)
+#     def test_daily_task_can_be_disabled(self):
+#         self.assertTrue(self.configuration.daily_task.enabled)
 
-        self.configuration.enabled = False
-        self.configuration.save()
+#         self.configuration.enabled = False
+#         self.configuration.save()
 
-        self.assertFalse(self.configuration.daily_task.enabled)
+#         self.assertFalse(self.configuration.daily_task.enabled)
 
-    def test_daily_task_destroyed_with_configuration(self):
-        self.assertIsNotNone(self.configuration.daily_task)
+#     def test_daily_task_destroyed_with_configuration(self):
+#         self.assertIsNotNone(self.configuration.daily_task)
 
-        self.configuration.delete()
+#         self.configuration.delete()
 
-        self.assertEqual(0, DailyTask.objects.count())
+#         self.assertEqual(0, DailyTask.objects.count())
 
-class MorningMessageServiceTest(MorningMessageTestBase):
+# class MorningMessageServiceTest(MorningMessageTestBase):
 
-    def setUp(self):
-        super().setUp()
-        self.morning_message_service = MorningMessageService(
-            configuration = self.configuration
-        )
-        self.morning_message_service.create(date(2019, 1, 15))
+#     def setUp(self):
+#         super().setUp()
+#         self.morning_message_service = MorningMessageService(
+#             configuration = self.configuration
+#         )
+#         self.morning_message_service.create(date(2019, 1, 15))
 
-    def test_get_morning_message(self):
-        morning_message = self.morning_message_service.get(date(2019, 1, 15))
+#     def test_get_morning_message(self):
+#         morning_message = self.morning_message_service.get(date(2019, 1, 15))
 
-        self.assertEqual(morning_message.user, self.user)
-        self.assertEqual(morning_message.date, date(2019, 1, 15))
+#         self.assertEqual(morning_message.user, self.user)
+#         self.assertEqual(morning_message.date, date(2019, 1, 15))
 
-    def test_get_morning_message_does_not_exist(self):
-        try:
-            morning_message = self.morning_message_service.get(date(2019, 1, 16))
-        except MorningMessageService.MessageDoesNotExist:
-            morning_message = False
-        self.assertFalse(morning_message)
+#     def test_get_morning_message_does_not_exist(self):
+#         try:
+#             morning_message = self.morning_message_service.get(date(2019, 1, 16))
+#         except MorningMessageService.MessageDoesNotExist:
+#             morning_message = False
+#         self.assertFalse(morning_message)
 
-    def test_create_morning_message(self):
-        morning_message = self.morning_message_service.create(date(2019, 1, 16))
+#     def test_create_morning_message(self):
+#         morning_message = self.morning_message_service.create(date(2019, 1, 16))
 
-        self.assertEqual(morning_message.user, self.user)
-        self.assertEqual(morning_message.date, date(2019, 1, 16))
-        self.assertIsNotNone(morning_message.message_decision)
-        self.assertTrue(morning_message.message_decision.treated)
-        self.assertEqual(morning_message.message_decision.treatment_probability, 1)
+#         self.assertEqual(morning_message.user, self.user)
+#         self.assertEqual(morning_message.date, date(2019, 1, 16))
+#         self.assertIsNotNone(morning_message.message_decision)
+#         self.assertTrue(morning_message.message_decision.treated)
+#         self.assertEqual(morning_message.message_decision.treatment_probability, 1)
 
-    def test_morning_message_log_matches_morning_message_decision(self):
-        self.morning_message_service.update_message(date(2019, 1, 15), None)
+#     def test_morning_message_log_matches_morning_message_decision(self):
+#         self.morning_message_service.update_message(date(2019, 1, 15), None)
 
-        morning_message = self.morning_message_service.get(date(2019, 1 , 15))
-        self.assertEqual(morning_message.notification, 'Good Morning')
-        self.assertIsNone(morning_message.text)
-        self.assertIsNone(morning_message.anchor)
+#         morning_message = self.morning_message_service.get(date(2019, 1 , 15))
+#         self.assertEqual(morning_message.notification, 'Good Morning')
+#         self.assertIsNone(morning_message.text)
+#         self.assertIsNone(morning_message.anchor)
 
-        MorningMessageTemplate.objects.create(
-            body = "Example morning message",
-            anchor_message = "Anchor message"
-        )
+#         MorningMessageTemplate.objects.create(
+#             body = "Example morning message",
+#             anchor_message = "Anchor message"
+#         )
 
-        self.morning_message_service.update_message(date(2019, 1, 15), MorningMessageDecision.FRAME_GAIN_ACTIVE)
+#         self.morning_message_service.update_message(date(2019, 1, 15), MorningMessageDecision.FRAME_GAIN_ACTIVE)
         
-        morning_message = self.morning_message_service.get(date(2019, 1 , 15))
-        self.assertEqual(morning_message.notification, 'Example morning message')
-        self.assertEqual(morning_message.text, 'Example morning message')
-        self.assertEqual(morning_message.anchor, 'Anchor message')
+#         morning_message = self.morning_message_service.get(date(2019, 1 , 15))
+#         self.assertEqual(morning_message.notification, 'Example morning message')
+#         self.assertEqual(morning_message.text, 'Example morning message')
+#         self.assertEqual(morning_message.anchor, 'Anchor message')
 
-    def test_send_morning_message_default(self):
+#     def test_send_morning_message_default(self):
 
-        self.morning_message_service.send_notification()
+#         self.morning_message_service.send_notification()
 
-        self.send_notification.assert_called()
+#         self.send_notification.assert_called()
 
-        morning_message = self.morning_message_service.get(date.today())
-        notification = morning_message.get_notification()
-        self.assertEqual(notification.recipient, self.user)
+#         morning_message = self.morning_message_service.get(date.today())
+#         notification = morning_message.get_notification()
+#         self.assertEqual(notification.recipient, self.user)
 
 
 
-class MorningMessageTaskTest(MorningMessageTestBase):
+# class MorningMessageTaskTest(MorningMessageTestBase):
 
-    def test_creates_morning_message(self):
-        send_morning_message(username="test")
+#     def test_creates_morning_message(self):
+#         send_morning_message(username="test")
 
-        self.send_notification.assert_called()
+#         self.send_notification.assert_called()
         
-        morning_message = MorningMessage.objects.get()
-        self.assertEqual(morning_message.user, self.user)
-        self.assertEqual(morning_message.date, date.today())
+#         morning_message = MorningMessage.objects.get()
+#         self.assertEqual(morning_message.user, self.user)
+#         self.assertEqual(morning_message.date, date.today())
 
-    def test_disabled_task_state(self):
-        self.configuration.enabled = False
-        self.configuration.save()
+#     def test_disabled_task_state(self):
+#         self.configuration.enabled = False
+#         self.configuration.save()
 
-        send_morning_message(username="test")
+#         send_morning_message(username="test")
 
-        self.send_notification.assert_not_called()
+#         self.send_notification.assert_not_called()
 
-        morning_message = MorningMessage.objects.get()
-        self.assertEqual(morning_message.user, self.user)
-        self.assertEqual(morning_message.date, date.today())
+#         morning_message = MorningMessage.objects.get()
+#         self.assertEqual(morning_message.user, self.user)
+#         self.assertEqual(morning_message.date, date.today())
 
-    @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=None)
-    def test_message_with_no_framing(self, _):
-        send_morning_message(username="test")
+#     @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=None)
+#     def test_message_with_no_framing(self, _):
+#         send_morning_message(username="test")
 
-        self.send_notification.assert_called()
-        self.assertEqual(self.send_notification.call_args[1]['body'], 'Good Morning')
-        sent_data = self.send_notification.call_args[1]['data']
-        self.assertEqual(sent_data['body'], 'Good Morning')
-        assert 'text' not in sent_data
-        assert 'anchor' not in sent_data
+#         self.send_notification.assert_called()
+#         self.assertEqual(self.send_notification.call_args[1]['body'], 'Good Morning')
+#         sent_data = self.send_notification.call_args[1]['data']
+#         self.assertEqual(sent_data['body'], 'Good Morning')
+#         assert 'text' not in sent_data
+#         assert 'anchor' not in sent_data
 
-    @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=MorningMessageDecision.FRAME_GAIN_ACTIVE)
-    def test_message_with_framing(self, _):
-        send_morning_message(username="test")
+#     @patch.object(MorningMessageDecision, 'get_random_message_frame', return_value=MorningMessageDecision.FRAME_GAIN_ACTIVE)
+#     def test_message_with_framing(self, _):
+#         send_morning_message(username="test")
 
-        self.send_notification.assert_called()
-        sent_data = self.send_notification.call_args[1]['data']
-        self.assertEqual(sent_data['body'], 'Example morning message')
-        self.assertEqual(sent_data['text'], 'Example morning message')
-        self.assertEqual(sent_data['anchor'], 'Anchor message')
+#         self.send_notification.assert_called()
+#         sent_data = self.send_notification.call_args[1]['data']
+#         self.assertEqual(sent_data['body'], 'Example morning message')
+#         self.assertEqual(sent_data['text'], 'Example morning message')
+#         self.assertEqual(sent_data['anchor'], 'Anchor message')
 
-    def test_message_sent_with_collapse_id(self):
-        send_morning_message(username='test')
+#     def test_message_sent_with_collapse_id(self):
+#         send_morning_message(username='test')
 
-        self.send_notification.assert_called()
-        send_kwargs = self.send_notification.call_args[1]
-        self.assertEqual(send_kwargs['collapse_subject'], 'morning-message')
+#         self.send_notification.assert_called()
+#         send_kwargs = self.send_notification.call_args[1]
+#         self.assertEqual(send_kwargs['collapse_subject'], 'morning-message')
 
-class MorningMessageSurveyTests(MorningMessageTestBase):
+# class MorningMessageSurveyTests(MorningMessageTestBase):
 
-    def setUp(self):
-        super().setUp()
+#     def setUp(self):
+#         super().setUp()
         
-        MorningMessageQuestion.objects.create(
-            name = 'first morning message',
-            label = 'This is a morning message'
-        )
-        MorningMessageQuestion.objects.create(
-            name = 'Second morning message',
-            label = 'Foo bar'
-        )
+#         MorningMessageQuestion.objects.create(
+#             name = 'first morning message',
+#             label = 'This is a morning message'
+#         )
+#         MorningMessageQuestion.objects.create(
+#             name = 'Second morning message',
+#             label = 'Foo bar'
+#         )
 
-    def test_morning_message_creates_survey(self):
-        MorningMessage.objects.create(
-            user = self.user,
-            date = date.today()
-        )
+#     def test_morning_message_creates_survey(self):
+#         MorningMessage.objects.create(
+#             user = self.user,
+#             date = date.today()
+#         )
 
-        morning_message = MorningMessage.objects.get()
-        survey = MorningMessageSurvey.objects.get()
-        self.assertIsNotNone(morning_message.survey)
-        self.assertEqual(morning_message.survey.id, survey.id)
-        self.assertEqual(len(survey.questions), 2)
+#         morning_message = MorningMessage.objects.get()
+#         survey = MorningMessageSurvey.objects.get()
+#         self.assertIsNotNone(morning_message.survey)
+#         self.assertEqual(morning_message.survey.id, survey.id)
+#         self.assertEqual(len(survey.questions), 2)
 
-    def test_new_morning_message_survey_has_word_set(self):
-        survey = MorningMessageSurvey.objects.create(
-            user = self.user
-        )
+#     def test_new_morning_message_survey_has_word_set(self):
+#         survey = MorningMessageSurvey.objects.create(
+#             user = self.user
+#         )
 
-        self.assertEqual(len(survey.word_set), 7)
+#         self.assertEqual(len(survey.word_set), 7)
 
-class MorningMessageSurveyViewTest(APITestCase):
+# class MorningMessageSurveyViewTest(APITestCase):
 
-    def setUp(self):
-        self.user = User.objects.create(
-            username="test",
-            date_joined = datetime(2019, 5, 1).astimezone(pytz.UTC)
-        )
-        self.client.force_authenticate(user=self.user)
-        self.configuration = Configuration.objects.create(user=self.user)
-        MorningMessageTemplate.objects.create(
-            body = 'Example morning message',
-            anchor_message = 'Anchor message'
-        )
-        MorningMessageQuestion.objects.create(
-            name='example',
-            label='This is an example question'
-        )
-        word_set_patch = patch.object(MorningMessageSurvey, 'get_word_set')
-        self.word_set = word_set_patch.start()
-        self.addCleanup(word_set_patch.stop)
-        self.word_set.return_value = ['one', 'two', 'three', 'four']
+#     def setUp(self):
+#         self.user = User.objects.create(
+#             username="test",
+#             date_joined = datetime(2019, 5, 1).astimezone(pytz.UTC)
+#         )
+#         self.client.force_authenticate(user=self.user)
+#         self.configuration = Configuration.objects.create(user=self.user)
+#         MorningMessageTemplate.objects.create(
+#             body = 'Example morning message',
+#             anchor_message = 'Anchor message'
+#         )
+#         MorningMessageQuestion.objects.create(
+#             name='example',
+#             label='This is an example question'
+#         )
+#         word_set_patch = patch.object(MorningMessageSurvey, 'get_word_set')
+#         self.word_set = word_set_patch.start()
+#         self.addCleanup(word_set_patch.stop)
+#         self.word_set.return_value = ['one', 'two', 'three', 'four']
 
-    def test_get_survey(self):
-        MorningMessage.objects.create(
-            user = self.user,
-            date = date(2019, 5, 5)
-        )
+#     def test_get_survey(self):
+#         MorningMessage.objects.create(
+#             user = self.user,
+#             date = date(2019, 5, 5)
+#         )
 
-        response = self.client.get(reverse('morning-messages-survey', kwargs={
-            'day': '2019-5-5'
-        }))
+#         response = self.client.get(reverse('morning-messages-survey', kwargs={
+#             'day': '2019-5-5'
+#         }))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.data['completed'])
-        self.assertEqual(response.data['wordSet'], ['one', 'two', 'three', 'four'])
+#         self.assertEqual(response.status_code, 200)
+#         self.assertFalse(response.data['completed'])
+#         self.assertEqual(response.data['wordSet'], ['one', 'two', 'three', 'four'])
 
-    def test_get_completed_survey(self):
-        morning_message = MorningMessage.objects.create(
-            user = self.user,
-            date = date(2019, 5, 5)
-        )
-        question = morning_message.survey.questions[0]
-        morning_message.survey.create_response(question, answer=None)
+#     def test_get_completed_survey(self):
+#         morning_message = MorningMessage.objects.create(
+#             user = self.user,
+#             date = date(2019, 5, 5)
+#         )
+#         question = morning_message.survey.questions[0]
+#         morning_message.survey.create_response(question, answer=None)
 
-        response = self.client.get(reverse('morning-messages-survey', kwargs={
-            'day': '2019-5-5'
-        }))
+#         response = self.client.get(reverse('morning-messages-survey', kwargs={
+#             'day': '2019-5-5'
+#         }))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data['completed'])
+#         self.assertEqual(response.status_code, 200)
+#         self.assertTrue(response.data['completed'])
 
-    def test_post_survey(self):
-        MorningMessage.objects.create(
-            user = self.user,
-            date = date(2019, 5, 5)
-        )
+#     def test_post_survey(self):
+#         MorningMessage.objects.create(
+#             user = self.user,
+#             date = date(2019, 5, 5)
+#         )
 
-        response = self.client.post(
-            reverse('morning-messages-survey', kwargs={
-                'day': '2019-5-5'
-            }),
-            {
-                'selected_word': 'one'
-            }
-        )
+#         response = self.client.post(
+#             reverse('morning-messages-survey', kwargs={
+#                 'day': '2019-5-5'
+#             }),
+#             {
+#                 'selected_word': 'one'
+#             }
+#         )
 
-        self.assertEqual(response.status_code, 200)
-        survey = MorningMessageSurvey.objects.get()
-        self.assertEqual(survey.selected_word, 'one')
+#         self.assertEqual(response.status_code, 200)
+#         survey = MorningMessageSurvey.objects.get()
+#         self.assertEqual(survey.selected_word, 'one')
 
-    def test_get_survey_response(self):
-        MorningMessageQuestion.objects.create(
-            name = 'sample_question',
-            label = 'This is a morning message'
-        )
-        MorningMessage.objects.create(
-            user = self.user,
-            date = date(2019, 5, 5)
-        )
+#     def test_get_survey_response(self):
+#         MorningMessageQuestion.objects.create(
+#             name = 'sample_question',
+#             label = 'This is a morning message'
+#         )
+#         MorningMessage.objects.create(
+#             user = self.user,
+#             date = date(2019, 5, 5)
+#         )
 
-        response = self.client.get(reverse('morning-messages-survey-response', kwargs = {
-            'day': '2019-5-5'
-        }))
+#         response = self.client.get(reverse('morning-messages-survey-response', kwargs = {
+#             'day': '2019-5-5'
+#         }))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['selected_word'], None)
-        self.assertEqual(response.data['sample_question'], None)
+#         self.assertEqual(response.status_code, 200)
+#         self.assertEqual(response.data['selected_word'], None)
+#         self.assertEqual(response.data['sample_question'], None)
 
-    def test_post_survey_response(self):
-        MorningMessageQuestion.objects.create(
-            name = 'sample_question',
-            label = 'This is a morning message'
-        )
-        MorningMessage.objects.create(
-            user = self.user,
-            date = date(2019, 5, 5)
-        )
+#     def test_post_survey_response(self):
+#         MorningMessageQuestion.objects.create(
+#             name = 'sample_question',
+#             label = 'This is a morning message'
+#         )
+#         MorningMessage.objects.create(
+#             user = self.user,
+#             date = date(2019, 5, 5)
+#         )
 
-        response = self.client.post(reverse('morning-messages-survey-response', kwargs = {
-            'day': '2019-5-5'
-        }), {
-            'selected_word': 'one'
-        })
+#         response = self.client.post(reverse('morning-messages-survey-response', kwargs = {
+#             'day': '2019-5-5'
+#         }), {
+#             'selected_word': 'one'
+#         })
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['selected_word'], 'one')
+#         self.assertEqual(response.status_code, 200)
+#         self.assertEqual(response.data['selected_word'], 'one')
 

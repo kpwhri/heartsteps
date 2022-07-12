@@ -10,6 +10,7 @@ from user_event_logs.models import EventLog
 
 class FitbitActivityType(models.Model):
     fitbit_id = models.IntegerField(unique=True)
+    account = models.ForeignKey(FitbitAccount, null=True, blank=True)
     name = models.CharField(max_length=500)
 
     def __str__(self):
