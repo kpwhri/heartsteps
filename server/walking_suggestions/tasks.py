@@ -34,7 +34,7 @@ from feature_flags.models import FeatureFlags
 @shared_task
 def queue_walking_suggestion(username):
     user = User.objects.get(username=username)
-    if user:
+    if user and FeatureFlags.exists(user):
         walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
         if walking_suggestion_flag_exists:
             service = WalkingSuggestionTimeService(username=username)
@@ -50,7 +50,7 @@ def queue_walking_suggestion(username):
 @shared_task
 def create_walking_suggestion(username):
     user = User.objects.get(username=username)
-    if user:
+    if user and FeatureFlags.exists(user):
         walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
         if walking_suggestion_flag_exists:
             try:
@@ -61,7 +61,7 @@ def create_walking_suggestion(username):
 @shared_task
 def nightly_update(username, day_string):
     user = User.objects.get(username=username)
-    if user:
+    if user and FeatureFlags.exists(user):
         walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
         if walking_suggestion_flag_exists:
             dt = datetime.strptime(day_string, '%Y-%m-%d')
@@ -75,7 +75,7 @@ def nightly_update(username, day_string):
 @shared_task
 def initialize_and_update(username):
     user = User.objects.get(username=username)
-    if user:
+    if user and FeatureFlags.exists(user):
         walking_suggestion_flag_exists = FeatureFlags.has_flag(user, "walking_suggestion")
         if walking_suggestion_flag_exists:
             configuration = Configuration.objects.get(user__username = username)
