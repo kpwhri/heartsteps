@@ -6,6 +6,7 @@ from django.db.models.signals import post_save, post_delete
 from activity_logs.models import ActivityType, ActivityLog, ActivityLogSource
 from fitbit_activities.models import FitbitActivity, FitbitActivityType
 from fitbit_api.services import FitbitService
+from fitbit_api.models import FitbitAccountUser
 
 from .models import FitbitActivityToActivityType
 from .services import FitbitActivityLogService
@@ -13,20 +14,28 @@ from .services import FitbitActivityLogService
 @receiver(post_save, sender=FitbitActivityType)
 def map_fitbit_activity_type_to_activity_type(sender, instance, *args, **kwargs):
     fitbit_activity_type = instance
+    fitbit_account = fitbit_activity_type.account
+    user = FitbitAccountUser.objects.filter(account=fitbit_account).first().user
+
+    # try to find the user-non-specific activity type
     try:
-        FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type)
+        FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type, user=None)
     except FitbitActivityToActivityType.DoesNotExist:
-        activity_type_name = fitbit_activity_type.name.lower().replace(' ','_')
-        activity_type, _ = ActivityType.objects.get_or_create(
-            name=activity_type_name,
-            defaults= {
-                'title': fitbit_activity_type.name
-            }
-        )
-        FitbitActivityToActivityType.objects.create(
-            fitbit_activity_type = fitbit_activity_type,
-            activity_type = activity_type
-        )
+        try:
+            FitbitActivityToActivityType.objects.get(fitbit_activity_type=fitbit_activity_type, user=user)
+        except FitbitActivityToActivityType.DoesNotExist:
+            activity_type_name = fitbit_activity_type.name.lower().replace(' ','_')
+            activity_type, _ = ActivityType.objects.get_or_create(
+                name=activity_type_name,
+                defaults= {
+                    'title': fitbit_activity_type.name
+                }
+            )
+            FitbitActivityToActivityType.objects.create(
+                fitbit_activity_type = fitbit_activity_type,
+                activity_type = activity_type,
+                user=user
+            )
 
 @receiver(post_save, sender=FitbitActivity)
 def update_activity_log_from_fitbit_activity(sender, instance, *args, **kwargs):
