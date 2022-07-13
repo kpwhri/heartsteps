@@ -14,46 +14,68 @@ from days.views import DayView
 from .services import MorningMessageService
 from .serializers import MorningMessageSerializer, MorningMessageSurveySerializer
 
+from feature_flags.models import FeatureFlags
 
 class AnchorMessageView(DayView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, day):
-        date = self.parse_date(day)
-        self.validate_date(request.user, date)
-        morning_message_service = MorningMessageService(
-            user=request.user
-        )
-        morning_message, _ = morning_message_service.get_or_create(date)
-        return Response({
-            'message': morning_message.anchor
-        }, status=status.HTTP_200_OK)
+        user = request.user
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, "morning_message"):
+                date = self.parse_date(day)
+                self.validate_date(request.user, date)
+                morning_message_service = MorningMessageService(
+                    user=request.user
+                )
+                morning_message, _ = morning_message_service.get_or_create(date)
+                return Response({
+                    'message': morning_message.anchor
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class MorningMessageView(DayView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, day):
-        try:
-            date = self.parse_date(day)
-            self.validate_date(request.user, date)
-            morning_message_service = MorningMessageService(
-                user=request.user
-            )
-            morning_message, _ = morning_message_service.get_or_create(date)
-            serialized = MorningMessageSerializer(morning_message)
-            return Response(serialized.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user = request.user
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, "morning_message"):
+                try:
+                    date = self.parse_date(day)
+                    self.validate_date(request.user, date)
+                    morning_message_service = MorningMessageService(
+                        user=request.user
+                    )
+                    morning_message, _ = morning_message_service.get_or_create(date)
+                    serialized = MorningMessageSerializer(morning_message)
+                    return Response(serialized.data, status=status.HTTP_200_OK)
+                except Exception as e:
+                    return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, day):
-        date = self.parse_date(day)
-        self.validate_date(request.user, date)
-        morning_message_service = MorningMessageService(user=request.user)
-        notification = morning_message_service.send_notification(date)
-        return Response({
-            'notificationId': str(notification.uuid)
-        }, status=status.HTTP_201_CREATED)
+        user = request.user
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, "morning_message"):
+                date = self.parse_date(day)
+                self.validate_date(request.user, date)
+                morning_message_service = MorningMessageService(user=request.user)
+                notification = morning_message_service.send_notification(date)
+                return Response({
+                    'notificationId': str(notification.uuid)
+                }, status=status.HTTP_201_CREATED)
+            else:
+                    return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class MorningMessageSurveyView(DayView):
