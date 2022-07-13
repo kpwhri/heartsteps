@@ -39,7 +39,8 @@ class TestBase(TestCase):
     def create_fitbit_activity(self):
         activity_type, _ = FitbitActivityType.objects.get_or_create(
             fitbit_id = 123,
-            name = 'test'
+            name = 'test',
+            account = self.account
         )
         activity = FitbitActivity.objects.create(
             account = self.account,
