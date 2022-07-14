@@ -19,6 +19,7 @@ from .models import Day
 from .serializers import ActivitySummarySerializer
 from .serializers import DaySerializer
 
+from user_event_logs.models import EventLog
 
 def get_summary(user, date):
     day_query = Day.objects.filter(
@@ -127,8 +128,9 @@ class DateRangeSummaryUpdateView(DayView):
                     user=request.user
                 )
                 service.update()
-            except:
-                return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                EventLog.error(None, '[activity_summaries.DateRangeSummaryUpdateView] Fitbit update failed for user {}, date={}, reason={}. Proceeding...'.format(request.user.username, index_date, e.message))
+                # return Response('Fitbit update failed', status=status.HTTP_400_BAD_REQUEST)
             index_date = index_date + timedelta(days=1)
 
         results = Day.objects.filter(

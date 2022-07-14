@@ -229,19 +229,22 @@ class AdherenceAppUsedService(AdherenceServiceBase):
             ).count()
             difference = timezone.now() - last_page_view.time
             if difference.days >= 4 and messages_sent == 0:
-                from participants.models import Participant, Study, Cohort
-                cohort = Cohort.objects.filter(participant__user = self._user).first()
-                study = cohort.study
-                query = TwilioAccountInfo.objects.filter(study=study)
-        
-                if query.exists():
-                    account_info = query.first()
-                    FROM_PHONE_NUMBER = account_info.from_phone_number
-                else:
-                    query = TwilioAccountInfo.objects.filter(study=None)
-                    
-                    account_info = query.first()
-                    FROM_PHONE_NUMBER = account_info.from_phone_number
+                try:
+                    from participants.models import Participant, Study, Cohort
+                    cohort = Cohort.objects.filter(participant__user = self._user).first()
+                    study = cohort.study
+                    query = TwilioAccountInfo.objects.filter(study=study)
+            
+                    if query.exists():
+                        account_info = query.first()
+                        FROM_PHONE_NUMBER = account_info.from_phone_number
+                    else:
+                        query = TwilioAccountInfo.objects.filter(study=None)
+                        
+                        account_info = query.first()
+                        FROM_PHONE_NUMBER = account_info.from_phone_number
+                except:
+                    FROM_PHONE_NUMBER = '858-429-9370'
 
                 message_text = render_to_string(
                     template_name = 'adherence_messages/app-used.txt',
