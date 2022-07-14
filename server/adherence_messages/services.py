@@ -230,7 +230,7 @@ class AdherenceAppUsedService(AdherenceServiceBase):
             difference = timezone.now() - last_page_view.time
             if difference.days >= 4 and messages_sent == 0:
                 from participants.models import Participant, Study, Cohort
-                cohort = Cohort.objects.filter(participant__user = self.user).first()
+                cohort = Cohort.objects.filter(participant__user = self._user).first()
                 study = cohort.study
                 query = TwilioAccountInfo.objects.filter(study=study)
         
