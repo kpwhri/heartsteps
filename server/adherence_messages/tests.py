@@ -602,7 +602,7 @@ class AppUsedAdherenceTests(AdherenceTaskTestBase):
         render_to_string.assert_called_with(
             template_name = 'adherence_messages/app-used.txt',
             context = {
-                'study_phone_number': '(555) 555-5555'
+                'study_phone_number': '858-429-9370'
             }
         )
         adherence_messsage_send.assert_called()
