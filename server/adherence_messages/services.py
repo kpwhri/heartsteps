@@ -9,6 +9,7 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_api.services import FitbitService
 from page_views.models import PageView
+from sms_messages.models import TwilioAccountInfo
 from user_event_logs.models import EventLog
 
 from .models import Configuration
@@ -228,10 +229,24 @@ class AdherenceAppUsedService(AdherenceServiceBase):
             ).count()
             difference = timezone.now() - last_page_view.time
             if difference.days >= 4 and messages_sent == 0:
+                from participants.models import Participant, Study, Cohort
+                cohort = Cohort.objects.filter(participant__user = self.user).first()
+                study = cohort.study
+                query = TwilioAccountInfo.objects.filter(study=study)
+        
+                if query.exists():
+                    account_info = query.first()
+                    FROM_PHONE_NUMBER = account_info.from_phone_number
+                else:
+                    query = TwilioAccountInfo.objects.filter(study=None)
+                    
+                    account_info = query.first()
+                    FROM_PHONE_NUMBER = account_info.from_phone_number
+
                 message_text = render_to_string(
                     template_name = 'adherence_messages/app-used.txt',
                     context = {
-                        'study_phone_number': settings.STUDY_PHONE_NUMBER
+                        'study_phone_number': FROM_PHONE_NUMBER
                     }
                 )
                 self.create_adherence_message(

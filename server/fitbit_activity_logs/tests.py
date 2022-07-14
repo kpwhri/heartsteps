@@ -37,7 +37,7 @@ class FitbitActivityLogTests(TestCase):
             date = datetime(now.year, now.month, now.day).astimezone(pytz.UTC)
         )
         if not fitbit_activity_type:
-            fitbit_activity_type, _ = FitbitActivityType.objects.get_or_create(fitbit_id="234", name="Foobar")
+            fitbit_activity_type, _ = FitbitActivityType.objects.get_or_create(fitbit_id="234", account=self.account, name="Foobar")
         return FitbitActivity.objects.create(
             account = self.account,
             type = fitbit_activity_type,
@@ -49,6 +49,7 @@ class FitbitActivityLogTests(TestCase):
     def test_fitbit_activity_types_linked_to_activity_type(self):
         fitbit_activity_type = FitbitActivityType.objects.create(
             fitbit_id = "1234",
+            account= self.account,
             name = "Foobar"
         )
 
@@ -60,8 +61,8 @@ class FitbitActivityLogTests(TestCase):
         self.assertEqual(connector.fitbit_activity_type.id, fitbit_activity_type.id)
     
     def test_similar_fitbit_activity_types_grouped_together(self):
-        FitbitActivityType.objects.create(fitbit_id="567", name="FooBar")
-        FitbitActivityType.objects.create(fitbit_id="577", name="Foobar")
+        FitbitActivityType.objects.create(fitbit_id="567", account=self.account, name="FooBar")
+        FitbitActivityType.objects.create(fitbit_id="577", account=self.account, name="Foobar")
 
         activity_type = ActivityType.objects.get()
         self.assertEqual(activity_type.name, 'foobar')
@@ -81,7 +82,7 @@ class FitbitActivityLogTests(TestCase):
         activity_log = ActivityLog.objects.get()
         self.assertEqual(activity_log.duration, 20)
 
-        fitbit_activity.end_time = timezone.now() + timedelta(minutes=10)
+        fitbit_activity.end_time = fitbit_activity.end_time + timedelta(minutes=10)
         fitbit_activity.save()
 
         activity_log = ActivityLog.objects.get()
