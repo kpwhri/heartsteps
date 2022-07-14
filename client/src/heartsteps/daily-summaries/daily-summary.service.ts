@@ -205,14 +205,20 @@ export class DailySummaryService {
     }
 
     public updateCurrentWeek(): Promise<Array<DailySummary>> {
+        console.log("daily-summary.service.ts", "updateCurrentWeek()", 1);
         const currentWeek = this.dateFactory.getCurrentWeek();
         return this.loadRange(
             currentWeek[0],
             currentWeek[currentWeek.length - 1]
         ).then((summaries) => {
+            console.log("daily-summary.service.ts", "updateCurrentWeek()", 2);
+            console.log(JSON.stringify(summaries));
             summaries.forEach((summary) => {
+                console.log("daily-summary.service.ts", "updateCurrentWeek()", 3);
+                console.log(JSON.stringify(summary));
                 this.updated.emit(summary);
             });
+            console.log("daily-summary.service.ts", "updateCurrentWeek()", 4);
             return summaries;
         });
     }

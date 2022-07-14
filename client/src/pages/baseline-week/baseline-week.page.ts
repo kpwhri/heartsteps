@@ -34,7 +34,7 @@ export class BaselineWeekPage {
         private router: Router,
         private dailySummaryService: DailySummaryService,
         private participantService: ParticipantService,
-        private participantInformationService: ParticipantInformationService
+        private participantInformationService: ParticipantInformationService,
     ) {
         this.dailySummaryService.setup();
         this.dailySummaryService.watch(new Date())
@@ -51,47 +51,84 @@ export class BaselineWeekPage {
 
     public reload() {
         console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 1);
-        this.loadingService.show('Loading activity data');
+        
         console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 2);
+
         this.participantService.update()
         .then(() => {
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 3);
-            this.participantInformationService.getBaselineComplete()
-            .then((baselineComplete) => {
-                if(baselineComplete) {
-                    this.router.navigate(['/']);
-                }
-            });
+            return this.participantInformationService.load();
+        }).then(() => {
+            this.loadingService.show('Checking if the baseline is complete');
+            return this.participantInformationService.getBaselineComplete();
+        }).then((baselineComplete) => {
+            this.loadingService.dismiss();
+            console.log("[baseline-week.page.ts-BaselineWeekPage] baselineComplete", baselineComplete);
+            if (baselineComplete) {
+                this.router.navigate(['/']);
+            } else {
+                var autoUpdate = undefined;
+                autoUpdate = setTimeout(() => {
+                    this.reload();
+                }, 5000);
+            }
+            this.loadingService.show('Loading activity data');
             return this.dailySummaryService.reload();
-        })
-        .then(() => {
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 4);
-            this.participantInformationService.getBaselineComplete()
-            .then((baselineComplete) => {
-                if(baselineComplete) {
-                    this.router.navigate(['/']);
-                }
-            });
+        }).then(() => {
+            this.loadingService.dismiss();
             return this.setDays();
-        })
-        .catch((err) => {
+        }).catch((err) => {
             console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 5);
             console.error(err);
         })
-        .then(() => {
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 6);
-            return this.participantInformationService.getBaselineComplete()
-        })
-        .then((isBaselineComplete) => {
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 7);
-            this.loadingService.dismiss();
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 8);
-            console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload(): isBaselineComplete", isBaselineComplete);
-            if (isBaselineComplete) {
-                console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 9);
-                this.router.navigate(['/']);
-            }
-        });
+
+        // this.participantService.update()
+        // .then(() => {
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 3);
+        //     this.participantInformationService.load()
+        //     .then(() => {
+        //         this.participantInformationService.getBaselineComplete()
+        //         .then((baselineComplete) => {
+        //             console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 3, "baselineComplete", baselineComplete);
+        //             if(baselineComplete) {
+        //                 this.router.navigate(['/']);
+        //             } else {
+        //                 var autoUpdate = undefined;
+        //                 autoUpdate = setTimeout(() => {
+        //                     this.reload();
+        //                 }, 5000);
+        //             }
+        //         });
+        //     });            
+        //     return this.dailySummaryService.reload();
+        // })
+        // .then(() => {
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 4);
+        //     this.participantInformationService.getBaselineComplete()
+        //     .then((baselineComplete) => {
+        //         if(baselineComplete) {
+        //             this.router.navigate(['/']);
+        //         }
+        //     });
+        //     return this.setDays();
+        // })
+        // .catch((err) => {
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 5);
+        //     console.error(err);
+        // })
+        // .then(() => {
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 6);
+        //     return this.participantInformationService.getBaselineComplete()
+        // })
+        // .then((isBaselineComplete) => {
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 7);
+        //     this.loadingService.dismiss();
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 8);
+        //     console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload(): isBaselineComplete", isBaselineComplete);
+        //     if (isBaselineComplete) {
+        //         console.log("src", "pages", "baseline-week", "baseline-week.page.ts", "BaseLineWeekPage", "reload()", 9);
+        //         this.router.navigate(['/']);
+        //     }
+        // });
     }
 
     private dateToDay(date: Date, woreFitbit: boolean): Day {

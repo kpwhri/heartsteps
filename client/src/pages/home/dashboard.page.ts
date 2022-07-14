@@ -33,6 +33,7 @@ export class DashboardPage implements OnDestroy {
         private featureFlagService: FeatureFlagService,
         private platform: Platform
     ) {
+        console.log("dashboard.page.ts", "constructor", 1);
         this.today = new Date();
         this.formattedDate = moment().format("dddd, M/D");
 
@@ -47,8 +48,9 @@ export class DashboardPage implements OnDestroy {
         this.resumeSubscription = this.platform.resume.subscribe(() => {
             this.update();
         });
-
+        console.log("dashboard.page.ts", "constructor", 2);
         this.update();
+        console.log("dashboard.page.ts", "constructor", 3);
     }
 
     public hasFlag(flag: string): boolean {
@@ -56,17 +58,23 @@ export class DashboardPage implements OnDestroy {
     }
 
     public update() {
+        console.log("dashboard.page.ts", "update()", 1);
         this.updateAnchorMessage();
+        console.log("dashboard.page.ts", "update()", 2);
         this.dailySummaryService.updateCurrentWeek();
+        console.log("dashboard.page.ts", "update()", 3);
     }
 
     private updateAnchorMessage() {
+        console.log("dashboard.page.ts", "updateAnchorMessage()", 1);
         this.anchorMessageService
             .get()
             .then((message) => {
+                console.log("dashboard.page.ts", "updateAnchorMessage()", 2);
                 this.anchorMessage = message;
             })
             .catch(() => {
+                console.log("dashboard.page.ts", "updateAnchorMessage()", 3);
                 this.anchorMessage = undefined;
             });
     }

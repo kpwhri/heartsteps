@@ -74,14 +74,19 @@ export class MyApp {
         if (this.router.url === "/") {
             console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '2');
             if (participant && participant.isLoaded && participant.isSetup && participant.isBaselineComplete) {
+                console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '3');
                 this.router.navigate(['home', 'dashboard']);
             } else if (participant && participant.isLoaded && participant.isSetup) {
+                console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '4');
                 this.router.navigate(['baseline']);
             } else if (participant && participant.isLoaded) {
+                console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '5');
                 this.router.navigate(['onboard'])
             } else if (participant) {
+                console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '6');
                 this.router.navigate(['loading']);
             } else {
+                console.log('src', 'app', 'app.component.ts', 'MyApp', 'updateRoute', '7');
                 this.router.navigate(['welcome']);
             }
         }
