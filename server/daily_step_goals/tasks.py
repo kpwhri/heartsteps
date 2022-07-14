@@ -138,7 +138,7 @@ def update_goal(username, day=None):
     
 def set_fixed_goal(user, day, BASELINE_STEPGOAL):
     if StepGoal.objects.filter(user=user, date=day).exists():
-        goal_obj = StepGoal.get(user=user, date=day)
+        goal_obj = StepGoal.objects.filter(user=user, date=day).order_by('-created').first()
         goal_obj.step_goal = BASELINE_STEPGOAL
         goal_obj.save()
     else:

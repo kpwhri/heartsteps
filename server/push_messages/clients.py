@@ -112,7 +112,7 @@ class OneSignalClient(ClientBase):
                         receipts[self.FAILED] = completed_datetime
                 return receipts
             else:
-                raise RuntimeError('OneSignal message status request failed')
+                raise RuntimeError('OneSignal message status request failed: \n{}'.format(response.__dict__))
 
     def send(self, body=None, title=None, collapse_subject=None, data={}):
         response = requests.post(
