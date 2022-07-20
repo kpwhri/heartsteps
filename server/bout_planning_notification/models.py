@@ -793,7 +793,8 @@ class BoutPlanningDecision(models.Model):
             'fetch_period': 3,
             'window_size': 3,
             'threshold1': 0.55,
-            'threshold2': 0.5
+            'threshold2': 0.1,
+            'threshold3': 0.8
         }, {
             'walk_heuristic': 60,
             'minimum': 8,
@@ -802,7 +803,8 @@ class BoutPlanningDecision(models.Model):
             'fetch_period': 8,
             'window_size': 3,
             'threshold1': 0.55,
-            'threshold2': 0.6
+            'threshold2': 0.1,
+            'threshold3': 0.8
         }, {
             'walk_heuristic': 60,
             'minimum': 22,
@@ -811,7 +813,8 @@ class BoutPlanningDecision(models.Model):
             'fetch_period': 5,
             'window_size': 3,
             'threshold1': 0.55,
-            'threshold2': 0.55
+            'threshold2': 0.1,
+            'threshold3': 0.8
         }]
 
         study_day_index = self.__get_study_day_index()
@@ -1123,10 +1126,13 @@ class BoutPlanningDecision(models.Model):
 
         # print('activity_list: {}'.format(activity_list))
 
+        self.save_data('oppo_version', 2)
+        self.save_data('threshold3', criterion['threshold3'])
+        
         # 4. If we average all activities, is the three-hour window active?
         if len(activity_list) > 0:
             average_activity = sum(activity_list) / len(activity_list)
-            if average_activity > criterion['threshold2']:
+            if average_activity >= criterion['threshold2'] and average_activity <= criterion['threshold3']:
                 return True
             else:
                 return False

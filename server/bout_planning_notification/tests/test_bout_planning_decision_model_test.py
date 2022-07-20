@@ -123,7 +123,7 @@ class BoutPlanningDecisionModelTest(HeartStepsTestCase):
         decision = BoutPlanningDecision.create(self.user)
         with freeze_time(lambda: datetime.strptime("2021-09-20 07:08", "%Y-%m-%d %H:%M")):
             decision.apply_O()
-            self.assertEqual(decision.O, True)
+            self.assertEqual(decision.O, False)
         # pprint.pprint(decision.data)
         
     def test_apply_O_3(self):
