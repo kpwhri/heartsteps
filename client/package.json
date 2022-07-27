@@ -34,6 +34,7 @@
         "@angular/platform-browser": "5.2.11",
         "@angular/platform-browser-dynamic": "5.2.11",
         "@angular/router": "5.2.11",
+        "@ionic-native/background-mode": "^5.36.0",
         "@ionic-native/core": "~4.17.0",
         "@ionic-native/http": "^4.17.0",
         "@ionic-native/in-app-browser": "~4.17.0",
@@ -66,6 +67,7 @@
         "cordova-icon": "^1.0.0",
         "cordova-ios": "^6.2.0",
         "cordova-plugin-advanced-http": "^3.2.2",
+        "cordova-plugin-background-mode": "^0.7.3",
         "cordova-plugin-customurlscheme": "^5.0.2",
         "cordova-plugin-device": "^2.0.3",
         "cordova-plugin-file": "^6.0.2",
@@ -133,7 +135,8 @@
                 "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1"
             },
             "cordova-plugin-statusbar": {},
-            "onesignal-cordova-plugin": {}
+            "onesignal-cordova-plugin": {},
+            "cordova-plugin-background-mode": {}
         },
         "platforms": [
             "android",

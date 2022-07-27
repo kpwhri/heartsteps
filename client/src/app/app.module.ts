@@ -37,6 +37,7 @@ import { HeartstepsComponentsModule } from "@infrastructure/components/component
 
 import { FeatureFlagsModule } from "@heartsteps/feature-flags/feature-flags.module";
 import { BoutPlanningSurveysModule } from "@heartsteps/bout-planning/bout-planning-surveys.module";
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 const routes: Routes = [
     {
@@ -82,6 +83,7 @@ const routes: Routes = [
     bootstrap: [IonicApp],
     entryComponents: [MyApp],
     providers: [
+        BackgroundMode,
         StatusBar,
         SplashScreen,
         NotificationService,

@@ -11,6 +11,7 @@ import { ParticipantService } from "@heartsteps/participants/participant.service
 import { NotificationCenterService } from "@heartsteps/notification-center/notification-center.service";
 import { FeatureFlagService } from "@heartsteps/feature-flags/feature-flags.service";
 import { FeatureFlags } from "@heartsteps/feature-flags/FeatureFlags";
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 class Tab {
     name: string;
@@ -68,10 +69,12 @@ export class HomePage implements OnInit, OnDestroy {
         private element: ElementRef,
         private participantService: ParticipantService,
         private notificationCenterService: NotificationCenterService,
-        private featureFlagService: FeatureFlagService
+        private featureFlagService: FeatureFlagService,
+        public backgroundMode: BackgroundMode
     ) {}
 
     ngOnInit() {
+        this.backgroundMode.enable();
         this.updateFromUrl(this.router.url);
         this.routerSubscription = this.router.events
             .filter((event) => event instanceof NavigationEnd)

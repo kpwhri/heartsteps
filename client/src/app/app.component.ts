@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @Component({
     templateUrl: 'app.html'
@@ -19,7 +20,8 @@ export class MyApp {
         private appStatusService: AppStatusService,
         private participantService: ParticipantService,
         private appService: AppService,
-        private router: Router
+        private router: Router,
+        private backgroundMode: BackgroundMode
     ) {
         console.log('src', 'app', 'app.component.ts', 'MyApp', 'constructor');
         // subscribe to the participant service to get the participant info who is looking at the screen right now
@@ -59,6 +61,7 @@ export class MyApp {
                 console.log('src', 'app', 'app.component.ts', 'MyApp', '5');
                 statusBar.styleDefault();   // make the status bar appear
                 splashScreen.hide();        // make the splashScreen go away
+                this.backgroundMode.enable();   // allow background app refresh function execution
             });
 
 

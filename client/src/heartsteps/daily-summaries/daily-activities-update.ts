@@ -5,6 +5,8 @@ import * as moment from "moment";
 import { DailySummary } from "./daily-summary.model";
 import { AlertDialogController } from "@infrastructure/alert-dialog.controller";
 import { LoadingService } from "@infrastructure/loading.service";
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+
 
 @Component({
     selector: "heartsteps-activity-daily-update",
@@ -20,8 +22,18 @@ export class DailyActivitiesUpdateComponent {
     constructor(
         private dailySummaryService: DailySummaryService,
         private alertDialog: AlertDialogController,
-        private loadingService: LoadingService
-    ) {}
+        private loadingService: LoadingService,
+        public backgroundMode : BackgroundMode
+    ) {
+        this.backgroundMode.enable();
+        // this.backgroundFitbitUpdate();
+        let cnt = 0;
+        setInterval(() => {
+            this.updateFitbitDataBackground();
+            cnt += 1;
+            console.log('BACKGROUND FITBIT UPDATE COUNT: ' + cnt);
+          }, 1000);
+    }
 
     @Input("summary")
     set setSummary(summary: DailySummary) {
@@ -91,4 +103,32 @@ export class DailyActivitiesUpdateComponent {
             });
         console.log("DailyActivitiesUpdateComponent.refresh() - point 7");
     }
+
+    public updateFitbitDataBackground() {
+        if (this.backgroundMode.isEnabled()) {
+            this.dailySummaryService
+                .updateFromFitbit(this.summary.date)
+                .then((summary) => {
+                    this.update(summary);
+                })
+                .catch((err) => {
+                    console.log("ERROR updating Fitbit data in background: ", err);
+                });  
+        }
+        else {
+            console.log("ERROR: background mode not enabled, cannot perform Fitbit background update");
+        }
+
+    }
+
+    public backgroundFitbitUpdate() {
+        let cnt = 0;
+        setInterval(() => {
+            this.updateFitbitDataBackground();
+            cnt += 1;
+            console.log('BACKGROUND FITBIT UPDATE COUNT: ' + cnt);
+          }, 1000);
+    }
+
+    
 }

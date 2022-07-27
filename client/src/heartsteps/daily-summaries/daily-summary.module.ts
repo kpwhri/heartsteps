@@ -8,6 +8,7 @@ import { DailyActivitiesUpdateComponent } from './daily-activities-update';
 import { DailySummarySerializer } from './daily-summary.serializer';
 import { ActivityLogModule } from '@heartsteps/activity-logs/activity-logs.module';
 import { ActivitySummaryService } from './activity-summary.service';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @NgModule({
     imports: [
@@ -24,6 +25,7 @@ import { ActivitySummaryService } from './activity-summary.service';
         DailyActivitiesUpdateComponent
     ],
     providers: [
+        BackgroundMode,
         ActivitySummaryService,
         DailySummaryService,
         DailySummarySerializer
