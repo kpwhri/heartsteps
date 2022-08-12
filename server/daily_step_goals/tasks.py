@@ -83,58 +83,59 @@ def update_goal(username, day=None):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     
     user = User.objects.get(username=username)
-    participant = Participant.objects.get(user=user)
-    enrollment_date = participant.study_start_date
-    day_service = DayService(user)
-    today = day_service.get_current_date()
-    if day is None:
-        day = today
+    if user.is_active:
+        participant = Participant.objects.get(user=user)
+        enrollment_date = participant.study_start_date
+        day_service = DayService(user)
+        today = day_service.get_current_date()
+        if day is None:
+            day = today
 
-    # Checking if the user is in baseline period or not"
-    participant_service = participants.services.ParticipantService(user=user)
-    if participant_service.is_baseline_complete():
-        # The user is not in baseline period. moving on.
-        pass
-    else:
-        # The user is in baseline period. Stopping here.
-        EventLog.info(user, "The user is in baseline period. Setting the goal to 10,000 steps per day, and stopping here.")
-        BASELINE_STEPGOAL = 2000
-        set_fixed_goal(user, day, BASELINE_STEPGOAL)
-        return
-
-    stepgoal_service = daily_step_goals.services.StepGoalsService(user)
-    query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
-    
-    if not query.exists():
-        EventLog.info(user, "No evidence found for today.")
-        # no calculation evidence is found
-        last_evidence_query = StepGoalsEvidence.objects.filter(user=user).order_by('-enddate', '-created')
-        if not last_evidence_query.exists():
-            # no evidence is found at all
-            startdate = day
+        # Checking if the user is in baseline period or not"
+        participant_service = participants.services.ParticipantService(user=user)
+        if participant_service.is_baseline_complete():
+            # The user is not in baseline period. moving on.
+            pass
         else:
-            # some evidence is found
-            last_evidence = last_evidence_query.first()
-            if last_evidence.enddate > day:
-                # calculation is completely wrong. re-calculating from the start
-                # startdate = enrollment_date + timedelta(days=baseline_period)
-                raise Exception("The last evidence is for the future. calculation is completely wrong")
-            else:
-                # calculation stopped sometime before
-                startdate = last_evidence.enddate + timedelta(days=1)            
+            # The user is in baseline period. Stopping here.
+            EventLog.info(user, "The user is in baseline period. Setting the goal to 10,000 steps per day, and stopping here.")
+            BASELINE_STEPGOAL = 2000
+            set_fixed_goal(user, day, BASELINE_STEPGOAL)
+            return
+
+        stepgoal_service = daily_step_goals.services.StepGoalsService(user)
+        query = StepGoalsEvidence.objects.filter(user=user, startdate__lte=day, enddate__gte=day).order_by('-created')
         
-        while startdate <= day:
-            evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
-            startdate = evidence.enddate + timedelta(days=1)
-    else:
-        # this query is called repeatedly even there is an evidence that covers today.
-        # recalculating and if it doesn't match with the previous records, we keep history.
-        evidence_for_today = query.first()
-        startdate = evidence_for_today.startdate
-        stepgoal_service.calculate_step_goals(startdate=startdate)
-    step_goal = stepgoal_service.get_goal(day)
-    
-    update_fitbit_device_with_new_goal(user, step_goal)
+        if not query.exists():
+            EventLog.info(user, "No evidence found for today.")
+            # no calculation evidence is found
+            last_evidence_query = StepGoalsEvidence.objects.filter(user=user).order_by('-enddate', '-created')
+            if not last_evidence_query.exists():
+                # no evidence is found at all
+                startdate = day
+            else:
+                # some evidence is found
+                last_evidence = last_evidence_query.first()
+                if last_evidence.enddate > day:
+                    # calculation is completely wrong. re-calculating from the start
+                    # startdate = enrollment_date + timedelta(days=baseline_period)
+                    raise Exception("The last evidence is for the future. calculation is completely wrong")
+                else:
+                    # calculation stopped sometime before
+                    startdate = last_evidence.enddate + timedelta(days=1)            
+            
+            while startdate <= day:
+                evidence = stepgoal_service.calculate_step_goals(startdate=startdate)
+                startdate = evidence.enddate + timedelta(days=1)
+        else:
+            # this query is called repeatedly even there is an evidence that covers today.
+            # recalculating and if it doesn't match with the previous records, we keep history.
+            evidence_for_today = query.first()
+            startdate = evidence_for_today.startdate
+            stepgoal_service.calculate_step_goals(startdate=startdate)
+        step_goal = stepgoal_service.get_goal(day)
+        
+        update_fitbit_device_with_new_goal(user, step_goal)
     
 def set_fixed_goal(user, day, BASELINE_STEPGOAL):
     if StepGoal.objects.filter(user=user, date=day).exists():

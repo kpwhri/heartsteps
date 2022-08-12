@@ -40,19 +40,20 @@ def send_bout_planning_survey(username):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     user = User.objects.get(username=username)
     
-    if not FeatureFlags.exists(user):
-        raise Exception("The user does not have a feature flag.")
-    
-    if not FeatureFlags.has_flag(user, "bout_planning"):
-        raise Exception("The user does not have 'bout_planning' flag.")
-    
-    service = BoutPlanningNotificationService(user)
-    
-    survey = service.create_survey()
-    
-    body = pull_random_bout_planning_message()
-    
-    message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps1"), body=body, survey=survey)
+    if user.is_active:
+        if not FeatureFlags.exists(user):
+            raise Exception("The user does not have a feature flag.")
+        
+        if not FeatureFlags.has_flag(user, "bout_planning"):
+            raise Exception("The user does not have 'bout_planning' flag.")
+        
+        service = BoutPlanningNotificationService(user)
+        
+        survey = service.create_survey()
+        
+        body = pull_random_bout_planning_message()
+        
+        message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps1"), body=body, survey=survey)
 
 def pull_random_bout_planning_message():
     if BoutPlanningMessage.objects.exists():
@@ -69,67 +70,67 @@ def bout_planning_decision_making(username):
     """
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     user = User.objects.get(username=username)
-    
-    if FeatureFlags.exists(user):
-        if FeatureFlags.has_flag(user, "bout_planning"):
-            EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
+    if user.is_active:
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, "bout_planning"):
+                EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
 
-            participant_service = ParticipantService(user=user)
-            if participant_service.is_baseline_complete():
-                service = BoutPlanningNotificationService(user)
-                
-                if not service.has_sequence_assigned():
-                    service.assign_level_sequence(participant_service.participant.cohort, user=user)
-
-                if service.is_necessary():
-                    survey = service.create_survey()
-                    body = pull_random_bout_planning_message()
+                participant_service = ParticipantService(user=user)
+                if participant_service.is_baseline_complete():
+                    service = BoutPlanningNotificationService(user)
                     
-                    message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
-                    EventLog.success(user, "bout planning notification is sent.")
+                    if not service.has_sequence_assigned():
+                        service.assign_level_sequence(participant_service.participant.cohort, user=user)
+
+                    if service.is_necessary():
+                        survey = service.create_survey()
+                        body = pull_random_bout_planning_message()
+                        
+                        message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
+                        EventLog.success(user, "bout planning notification is sent.")
+                    else:
+                        EventLog.success(user, "is_necessary() is false. bout planning notification is not sent.")
                 else:
-                    EventLog.success(user, "is_necessary() is false. bout planning notification is not sent.")
+                    EventLog.success(user, "is_baseline_complete() is false. bout planning notification is not sent.")
             else:
-                EventLog.success(user, "is_baseline_complete() is false. bout planning notification is not sent.")
+                msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
+                EventLog.log(user, msg, EventLog.ERROR)
+                raise BoutPlanningFlagException(msg)
         else:
-            msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
+            msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
             EventLog.log(user, msg, EventLog.ERROR)
             raise BoutPlanningFlagException(msg)
-    else:
-        msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
-        EventLog.log(user, msg, EventLog.ERROR)
-        raise BoutPlanningFlagException(msg)
     
 @shared_task
 def justwalk_daily_ema(username, parameters=None):
     assert isinstance(username, str), "username must be a string: {}".format(type(username))
     user = User.objects.get(username=username)
-    
-    if FeatureFlags.exists(user):
-        if FeatureFlags.has_flag(user, "bout_planning"):
-            EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
-            
-            participant_service = ParticipantService(user=user)
-            if participant_service.is_baseline_complete():
-                service = BoutPlanningNotificationService(user)
+    if user.is_active:
+        if FeatureFlags.exists(user):
+            if FeatureFlags.has_flag(user, "bout_planning"):
+                EventLog.log(user, "bout planning shared_task has successfully run", EventLog.INFO)
                 
-                json_survey = JSONSurvey.objects.get(name="daily_ema")
-                survey = json_survey.substantiate(user, parameters)
-                # survey = service.create_daily_ema()
-                
-                # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-                # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
-                message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
+                participant_service = ParticipantService(user=user)
+                if participant_service.is_baseline_complete():
+                    service = BoutPlanningNotificationService(user)
+                    
+                    json_survey = JSONSurvey.objects.get(name="daily_ema")
+                    survey = json_survey.substantiate(user, parameters)
+                    # survey = service.create_daily_ema()
+                    
+                    # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+                    # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+                    message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
+                else:
+                    EventLog.info(user, "is_baseline_complete() is false. bout planning notification is not sent.")
             else:
-                EventLog.info(user, "is_baseline_complete() is false. bout planning notification is not sent.")
+                msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
+                EventLog.log(user, msg, EventLog.ERROR)
+                raise BoutPlanningFlagException(msg)
         else:
-            msg = "a user without 'bout_planning' flag came into bout_planning_decision_making: {}=>{}".format(user.username, FeatureFlags.get(user).flags)
+            msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
             EventLog.log(user, msg, EventLog.ERROR)
             raise BoutPlanningFlagException(msg)
-    else:
-        msg = "a user without any flag came into bout_planning_decision_making: {}".format(user.username)
-        EventLog.log(user, msg, EventLog.ERROR)
-        raise BoutPlanningFlagException(msg)
 
 def get_fitbit_account(user):
     '''returns the Fitbit account associated with the user. If the account is not available, returns None'''

@@ -119,13 +119,14 @@ class BoutPlanningNotificationService:
             user_list_temp = [p.user.username for p in participants]
             user_list = User.objects.filter(username__in=user_list_temp)
             for user in user_list:
-                if FeatureFlags.has_flag(user, "bout_planning"):
-                    query = LevelSequence_User.objects.filter(user=user)
-                    if query.exists():
-                        # level sequence is already assigned
-                        pass
-                    else:
-                        lines = lines + self.assign_level_sequence(cohort, user)
+                if user.is_active:
+                    if FeatureFlags.has_flag(user, "bout_planning"):
+                        query = LevelSequence_User.objects.filter(user=user)
+                        if query.exists():
+                            # level sequence is already assigned
+                            pass
+                        else:
+                            lines = lines + self.assign_level_sequence(cohort, user)
         else:
             # user is specified
             if FeatureFlags.has_flag(user, "bout_planning"):
