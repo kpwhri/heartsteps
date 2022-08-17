@@ -18,4 +18,5 @@ RUN rm -Rf www
 RUN ls
 RUN ls /client
 RUN npm install
-CMD npm i -D -E @ionic/app-scripts && npm run build:app --prod
+RUN npm i -D -E @ionic/app-scripts
+CMD npm run build:app --prod
