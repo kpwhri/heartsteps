@@ -115,12 +115,15 @@ def justwalk_daily_ema(username, parameters=None):
                     service = BoutPlanningNotificationService(user)
                     
                     json_survey = JSONSurvey.objects.get(name="daily_ema")
-                    survey = json_survey.substantiate(user, parameters)
-                    # survey = service.create_daily_ema()
-                    
-                    # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
-                    # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
-                    message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
+                    if service.check_last_survey_datetime(suffix="daily_ema"):
+                        survey = json_survey.substantiate(user, parameters)
+                        # survey = service.create_daily_ema()
+                        
+                        # message = service.send_notification(title="JustWalk", collapse_subject="bout_planning_survey", survey=survey)
+                        # message = service.send_notification(title="JustWalk", body="How was your day?", collapse_subject="bout_planning_survey", survey=survey)
+                        message = service.send_notification(title="JustWalk", body="Time to think and prepare for tomorrow's activity.", collapse_subject=get_collapse_subject("de1"), survey=survey)
+                    else:
+                        EventLog.info(user, "The same daily_ema has been sent in less than 23 hours.")
                 else:
                     EventLog.info(user, "is_baseline_complete() is false. bout planning notification is not sent.")
             else:

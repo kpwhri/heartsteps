@@ -2,12 +2,14 @@ from days.services import DayService
 from feature_flags.models import FeatureFlags
 from participants.models import Participant
 from participants.services import ParticipantService
+from surveys.models import Survey, SurveyQuestion
 from surveys.serializers import SurveySerializer, SurveyShirinker
 from user_event_logs.models import EventLog
 from push_messages.services import PushMessageService
 
 from .models import BoutPlanningSurvey, Level, BoutPlanningDecision, BoutPlanningNotification, JustWalkJitaiDailyEma, LevelSequence, LevelSequence_User, User
 import datetime
+from django.utils import timezone
 
 class BoutPlanningNotificationService:
     class NotificationSendError(RuntimeError):
@@ -86,6 +88,19 @@ class BoutPlanningNotificationService:
         self.decision.add_line("The decision is delivered: {}".format(return_bool))
         self.decision.save()
         return return_bool
+
+    def check_last_survey_datetime(self, suffix):
+        query = SurveyQuestion.objects.filter(survey__user=self.user, name__startswith=suffix)
+        if query.exists():
+            now = timezone.now()
+            total_seconds = (now - query.order_by("-survey__created").first().survey.created).total_seconds()
+            if total_seconds < 23 * 3600:
+                return False # not long enough. less than 23 hours
+            else:
+                return True # long enough
+        else:
+            return True # no records for the previous survey
+        
     
     def send_notification(self,
                           title='Sample Bout Planning Title',
