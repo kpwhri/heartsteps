@@ -8,6 +8,40 @@ class ZipCodeService:
     def __init__(self) -> None:
         pass
 
+    def fill_location_info_offline(user, zipcode, lat, lon, state, city):
+        request_obj = ZipCodeRequestHistory()
+        request_obj.user = user
+        request_obj.zipcode = zipcode
+
+        request_obj.response_code = "200"
+        request_obj.response_message = "offline"
+
+        request_obj.latitude = lat
+        request_obj.longitude = lon
+        request_obj.state = state
+        request_obj.city = city
+        request_obj.save()
+
+        query = Location.objects.filter(user=user)
+        
+        if query.exists():
+            location = query.first()
+            location.latitude = lat
+            location.longitude = lon
+            location.time = timezone.now()
+            location.category = "Home"
+            location.save()
+        else:
+            location = Location.objects.create(
+                user=user,
+                latitude=lat,
+                longitude=lon,
+                time=timezone.now(),
+                category="Home"
+            )
+        
+        return location
+        
     def fill_location_info(user, zipcode):
         api_key = SystemSetting.get('ZIPCODE_API_KEY')
         url = "https://www.zipcodeapi.com/rest/{}/info.json/{}/degrees".format(api_key, zipcode)
