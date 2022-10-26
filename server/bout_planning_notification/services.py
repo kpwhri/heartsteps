@@ -170,3 +170,9 @@ class BoutPlanningNotificationService:
             lines.append(" ")
             
         return lines
+    
+    def is_this_redundant_thread(self):
+        day_service = DayService(user=self.user)
+        now = day_service.get_current_datetime()
+        ten_minutes_ago = now - datetime.timedelta(minutes=10)
+        return BoutPlanningDecision.objects.filter(user=self.user, when_created__gte=ten_minutes_ago).exists()

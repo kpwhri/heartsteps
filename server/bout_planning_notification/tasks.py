@@ -82,14 +82,17 @@ def bout_planning_decision_making(username):
                     if not service.has_sequence_assigned():
                         service.assign_level_sequence(participant_service.participant.cohort, user=user)
 
-                    if service.is_necessary():
-                        survey = service.create_survey()
-                        body = pull_random_bout_planning_message()
-                        
-                        message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
-                        EventLog.success(user, "bout planning notification is sent.")
+                    if service.is_this_redundant_thread():
+                        EventLog.error(user, "redundant execution is happening")
                     else:
-                        EventLog.success(user, "is_necessary() is false. bout planning notification is not sent.")
+                        if service.is_necessary():
+                            survey = service.create_survey()
+                            body = pull_random_bout_planning_message()
+                            
+                            message = service.send_notification(title="JustWalk", collapse_subject=get_collapse_subject("bps2"), body=body, survey=survey)
+                            EventLog.success(user, "bout planning notification is sent.")
+                        else:
+                            EventLog.success(user, "is_necessary() is false. bout planning notification is not sent.")
                 else:
                     EventLog.success(user, "is_baseline_complete() is false. bout planning notification is not sent.")
             else:
