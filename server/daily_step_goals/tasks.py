@@ -1,3 +1,4 @@
+import requests
 import datetime
 from participants.models import Participant
 from celery import shared_task
@@ -14,6 +15,7 @@ from user_event_logs.models import EventLog
 
 import daily_step_goals.services
 import fitbit_api.services
+import fitbit_api.models
 from days.services import DayService
 
 
@@ -147,7 +149,17 @@ def set_fixed_goal(user, day, BASELINE_STEPGOAL):
             
     update_fitbit_device_with_new_goal(user, BASELINE_STEPGOAL)
 
+# Temporary Goal Update API
+def update_fitbit_daily_stepgoal_temporary(user, steps):
+    fb_account = fitbit_api.models.FitbitAccountUser.objects.get(user=user).account
+    fb_account_id = fb_account.fitbit_user
+    r = requests.post(
+        'https://api.fitbit.com/1/user/{}/activities/goals/daily.json?type=steps&value={}'.format(fb_account_id, steps),
+        headers={'Authorization': "Bearer {}".format(fb_account.access_token)}
+    )
+    return r.json()
+
 def update_fitbit_device_with_new_goal(user, step_goal):
-    fitbit_service = fitbit_api.services.FitbitClient(user)
-    
-    fitbit_service.update_step_goals(step_goal)
+    # fitbit_service = fitbit_api.services.FitbitClient(user)    
+    # fitbit_service.update_step_goals(step_goal)
+    update_fitbit_daily_stepgoal_temporary(user, step_goal)
