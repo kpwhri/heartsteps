@@ -36,7 +36,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             if("weekly" in exports):
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
-            if("daily" in exports):
+            if("minute" in exports):
                 minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
             
         except Exception as e:
