@@ -8,6 +8,7 @@ import pandas as pd
 import progressbar
 import pytz
 import numpy as np
+import traceback
 
 import weekly, minute
 
@@ -37,6 +38,7 @@ def export_all_data(export_dir, cohort="U01"):
         except Exception as e:
             print("Error exporting data for user: " + u)
             print(e)
+            traceback.print_exc()
 
         if(DEBUG==True and count>=2):
             break        
