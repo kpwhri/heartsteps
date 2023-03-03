@@ -1,7 +1,6 @@
 import os, sys, code
 EXPORT_DIR    = os.environ["EXPORT_DIR"] 
 HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
-DEBUG         = True
 
 import utils
 import pandas as pd
@@ -13,7 +12,7 @@ import argparse
 
 import weekly, daily, minute
 
-def export_all_data(export_dir, cohort="U01", exports=[]]):
+def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
     print("Starting data export V4")
     
@@ -52,9 +51,12 @@ def export_all_data(export_dir, cohort="U01", exports=[]]):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Run data export.')
-    parser.add_argument('levels', metavar='N', nargs='+',
+    parser.add_argument('debug',nargs='1',
+                        help='use debug mode')
+
+    parser.add_argument('levels', metavar='l', nargs='+',
                         help='list of export levels (e.g., weekly, daily, minute)')
 
     args = parser.parse_args()
 
-    export_all_data(EXPORT_DIR, cohort='U01',exports=args.levels)
+    export_all_data(EXPORT_DIR, cohort='U01',exports=args.levels,DEBUG=args.debug)
