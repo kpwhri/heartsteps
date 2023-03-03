@@ -24,7 +24,7 @@ def export_all_data(export_dir, cohort="U01"):
         #try:
         if(users[u]["cohort"]!=cohort): continue
 
-        print("Error exporting data for user: " + u)
+        print("Exporting data for user: " + u)
 
         #Setup output directory
         user_export_directory = os.path.join(EXPORT_DIR, users[u]["cohort"], u)
