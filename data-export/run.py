@@ -44,7 +44,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             print(e)
             traceback.print_exc()
 
-        if(DEBUG==True and count>=2):
+        if(DEBUG==True and count>=1):
             break        
         count=count+1
 
@@ -58,6 +58,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()        
 
-    print("Exporting levels: ", ", ".join(args.levels)," with DEBUG=",args.debug)
+    print("Exporting levels: ", ", ".join(args.levels)," with DEBUG=",str(args.debug))
 
     export_all_data(EXPORT_DIR, cohort='U01',exports=args.levels,DEBUG=args.debug)
