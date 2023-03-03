@@ -9,7 +9,7 @@ import progressbar
 import pytz
 import numpy as np
 
-import weekly_planning
+import weekly
 
 utils.setup()
 
@@ -31,7 +31,7 @@ def export_all_data(export_dir, cohort="U01"):
         utils.setup_export_directory(user_export_directory)
     
         #Run exports
-        weekly_planning.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
+        weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
         
         #except Exception as e:
         #    print("Error exporting data for user: " + u)

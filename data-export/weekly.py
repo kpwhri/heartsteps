@@ -50,7 +50,7 @@ def export_weekly_data(user,directory = None, filename = None, start=None, end=N
     username = user["hsid"]
     
     if(DEBUG):
-        print("Exporting weekly data for: ", username)
+        print("  Exporting weekly data for: ", username)
     
     if not directory:
         directory = './'
