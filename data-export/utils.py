@@ -101,4 +101,5 @@ def get_users():
     return users
 
 
-print("Found users:",get_user_ids())
+print("Found user IDs:",get_user_ids())
+print("Found user IDs:",get_users())
