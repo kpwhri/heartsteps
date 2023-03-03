@@ -42,11 +42,11 @@ from activity_logs.models import ActivityLog
 
 def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, DEBUG=True):
 
-    if(DEBUG):
-        print("  Exporting minute-level data for: ", username)
-
     fitbit_account = user["fbid"]
     username = user["hsid"]
+
+    if(DEBUG):
+        print("  Exporting minute-level data for: ", username)
 
     if not directory:
         directory = './'
