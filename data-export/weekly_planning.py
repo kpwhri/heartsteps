@@ -41,7 +41,7 @@ from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
 
 
-def export_weekly_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=true):
+def export_weekly_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
     dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
     final_field_name = dictionary["ElementName"]
