@@ -1,7 +1,7 @@
 import os, sys, code
 EXPORT_DIR    = os.environ["EXPORT_DIR"] 
 HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
-DEBUG         = False
+DEBUG         = True
 
 import utils
 import pandas as pd
@@ -9,7 +9,7 @@ import progressbar
 import pytz
 import numpy as np
 
-import weekly
+import weekly, minute
 
 utils.setup()
 
@@ -21,21 +21,22 @@ def export_all_data(export_dir, cohort="U01"):
     
     count=0
     for u in users:
-        #try:
-        if(users[u]["cohort"]!=cohort): continue
+        try:
+            if(users[u]["cohort"]!=cohort): continue
 
-        print("Exporting data for user: " + u)
+            print("Exporting data for user: " + u)
 
-        #Setup output directory
-        user_export_directory = os.path.join(EXPORT_DIR, users[u]["cohort"], u)
-        utils.setup_export_directory(user_export_directory)
-    
-        #Run exports
-        weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
+            #Setup output directory
+            user_export_directory = os.path.join(EXPORT_DIR, users[u]["cohort"], u)
+            utils.setup_export_directory(user_export_directory)
         
-        #except Exception as e:
-        #    print("Error exporting data for user: " + u)
-        #    print(e)
+            #Run exports
+            weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
+            minute.export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None):
+
+        except Exception as e:
+            print("Error exporting data for user: " + u)
+            print(e)
 
         if(DEBUG==True and count>=2):
             break        
