@@ -9,8 +9,9 @@ import progressbar
 import pytz
 import numpy as np
 import traceback
+import argparse
 
-import weekly, minute
+import weekly, daily, minute
 
 utils.setup()
 
@@ -32,8 +33,10 @@ def export_all_data(export_dir, cohort="U01"):
             utils.setup_export_directory(user_export_directory)
         
             #Run exports
+            daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
             weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
             minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
+            
 
         except Exception as e:
             print("Error exporting data for user: " + u)
@@ -45,4 +48,12 @@ def export_all_data(export_dir, cohort="U01"):
         count=count+1
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Run data export.')
+    parser.add_argument('levels', metavar='N', nargs='+',
+                        help='list of export levels (e.g., weekly, daily, minute)')
+
+    args = parser.parse_args()
+    print(args.levels) 
+    exit()
     export_all_data(EXPORT_DIR, cohort='U01')
