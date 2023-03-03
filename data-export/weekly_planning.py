@@ -7,8 +7,6 @@ from django.utils import timezone
 import os
 from datetime import datetime,  date, timedelta, timezone
 
-#utils.setup()
-
 from days.models import Day
 from days.services import DayService
 from contact.models import ContactInformation
