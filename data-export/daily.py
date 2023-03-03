@@ -6,6 +6,8 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
+import utils
+
 from days.models import Day
 from days.services import DayService
 from contact.models import ContactInformation
@@ -43,7 +45,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
     final_field_name = dictionary["ElementName"]
     raw_field_name   = dictionary["Aliases"]
-    field_map        = get_field_map(dictionary)
+    field_map        = utils.get_field_map(dictionary)
     
     uid = user["uid"]
     username = user["hsid"]
