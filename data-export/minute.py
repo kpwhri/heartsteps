@@ -100,4 +100,4 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     #Export to csv
     df.to_csv(os.path.join(directory,filename))
     if(DEBUG):
-        print("    Wrote %d rows"%(len(df)))
+        print("  Wrote %d rows"%(len(df)))

@@ -124,4 +124,4 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
     if(DEBUG):
-        print("    Wrote %d rows"%(len(plan_creation_extended)))
+        print("  Wrote %d rows"%(len(plan_creation_extended)))
