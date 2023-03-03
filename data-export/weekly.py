@@ -196,5 +196,6 @@ def export_weekly_data(user,directory = None, filename = None, start=None, end=N
     df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
     df_all_fields.to_csv(os.path.join(directory,filename))
     
-    return df
+    if(DEBUG):
+        print("    Wrote %d rows"%(len(df_all_fields)))
     

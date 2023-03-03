@@ -119,8 +119,9 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         plan_creation_extended = pd.concat([df_dates,plan_creation],axis=0) 
         plan_creation_extended=plan_creation_extended.groupby(["Subject ID", "Date"]).sum()
 
-        print(plan_creation)
     else:
         plan_creation_extended=df_dates
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
+    if(DEBUG):
+        print("    Wrote %d rows"%(len(plan_creation_extended)))
