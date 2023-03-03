@@ -196,7 +196,5 @@ def export_weekly_data(user,directory = None, filename = None, start=None, end=N
     df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
     df_all_fields.to_csv(os.path.join(directory,filename))
     
-    print(df_all_fields)
-    
     return df
     
