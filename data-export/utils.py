@@ -22,9 +22,6 @@ def setup():
     import django
     django.setup()
 
-#Must all setup before importing django modules
-setup()
-
 
 from django.utils import timezone
 from days.models import Day
