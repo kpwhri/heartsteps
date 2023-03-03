@@ -100,6 +100,34 @@ def get_users():
 
     return users
 
+def join_times(x):
+    startdf = pd.DataFrame({'time':x['start'], 'what':1})
+    enddf = pd.DataFrame({'time':x['end'], 'what':-1})
+    mergdf = pd.concat([startdf, enddf]).sort_values('time')
+    mergdf['running'] = mergdf['what'].cumsum()
+    mergdf['newwin'] = mergdf['running'].eq(1) & mergdf['what'].eq(1)
+    mergdf['group'] = mergdf['newwin'].cumsum()
+    x['group'] = mergdf['group'].loc[mergdf['what'].eq(1)]
+    res = x.groupby('group').agg({'start':min, 'end':max})
+    res["duration"] = res["end"] - res["start"]
+    res["date"] = res["start"].apply(lambda x: x.date())
+    return res
 
-print("Found user IDs:",get_user_ids())
-print("Found user IDs:",get_users())
+def get_field_map(dictionary):
+    final_field_name = dictionary["ElementName"]
+    raw_field_name   = dictionary["Aliases"]  
+    field_map={}
+    for i in range(len(raw_field_name)):
+        if(type(raw_field_name[i])!=str):
+            field_map[final_field_name[i]]=final_field_name[i]
+        else:
+            field_map[raw_field_name[i]]=final_field_name[i]
+    return  field_map
+
+def setup_export_directory(export_dir):
+    if not os.path.isdir(export_dir):
+        os.makedirs(export_dir)
+
+if __name__ == "__main__":
+    print("Found user IDs:",get_user_ids())
+    print("Found users:",get_users())
