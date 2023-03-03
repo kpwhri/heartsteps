@@ -51,7 +51,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Run data export.')
-    parser.add_argument('-d',help='use debug mode',dest='debug', action='store_const', const=False, default=True)
+    parser.add_argument('-d',help='use debug mode',dest='debug', action='store_const', const=True, default=False)
 
     parser.add_argument('levels', metavar='l', nargs='+',
                         help='list of export levels (e.g., weekly, daily, minute)')
