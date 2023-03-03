@@ -32,7 +32,7 @@ def export_all_data(export_dir, cohort="U01"):
         
             #Run exports
             weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
-            minute.export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None):
+            minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
 
         except Exception as e:
             print("Error exporting data for user: " + u)
