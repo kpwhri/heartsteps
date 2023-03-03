@@ -1,4 +1,10 @@
 import os, sys, code
+import pandas as pd
+import progressbar
+import pytz
+import numpy as np
+from datetime import datetime,  date, timedelta, timezone
+from math import floor
 
 def setup():
 
@@ -19,17 +25,8 @@ def setup():
 #Must all setup before importing django modules
 setup()
 
-from datetime import datetime,  date, timedelta, timezone
-from math import floor
 
-#from celery import shared_task
 from django.utils import timezone
-#from django.conf import settings
-#from django.core import serializers
-
-#from adherence_messages.tasks import export_daily_metrics
-#from anti_sedentary.tasks import export_anti_sedentary_decisions
-#from anti_sedentary.tasks import export_anti_sedentary_service_requests
 from days.models import Day
 from days.services import DayService
 from contact.models import ContactInformation
@@ -38,22 +35,12 @@ from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
 from fitbit_activities.models import FitbitActivity
 
-#from fitbit_activities.tasks import export_fitbit_data
-#from fitbit_activities.tasks import export_missing_fitbit_data
 from fitbit_api.models import FitbitAccount
 from fitbit_api.models import FitbitAccountUser
 from locations.models import Location
 from locations.models import Place
-#from locations.services import LocationService
-#from locations.tasks import export_location_count_csv
-#from locations.tasks import update_location_categories
-#from morning_messages.tasks import export_morning_message_survey
-#from morning_messages.tasks import export_morning_messages
 from push_messages.models import Message as PushMessage
 from walking_suggestions.models import Configuration as WalkingSuggestionConfiguration
-#from walking_suggestions.tasks import export_walking_suggestion_decisions
-#from walking_suggestions.tasks import export_walking_suggestion_service_requests
-#from watch_app.tasks import export_step_count_records_csv
 from weekly_reflection.models import ReflectionTime
 
 from participants.services import ParticipantService
@@ -70,7 +57,48 @@ from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
 
-import pandas as pd
-import progressbar
-import pytz
-import numpy as np
+
+def format_datetime(dt, tz=None):
+    if dt:
+        if tz:
+            dt = dt.astimezone(tz)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return None
+
+def get_user_ids():
+    participants = Participant.objects.all()
+    ids = [p.user_id for p in participants if p.user_id]
+    return(ids)
+    
+def get_hs_ids():
+    participants = Participant.objects.all()
+    ids = [p.heartsteps_id for p in participants]
+    return(ids)
+
+
+def get_users():
+    participants = Participant.objects.all()
+    users ={}
+    for p in participants:
+        hsid = p.heartsteps_id
+        if (hsid is None): continue
+        
+        uid  = p.user_id
+        if (uid is None): continue
+        
+        try:
+            fbid = FitbitAccountUser.objects.get(user_id=uid).account_id
+            users[hsid]={}
+            users[hsid]["hsid"]=hsid
+            users[hsid]["uid"] = uid
+            users[hsid]["fbid"] = fbid
+            users[hsid]["cohort"] = p.cohort.name
+            
+        except FitbitAccountUser.DoesNotExist:
+            pass
+
+    return users
+
+
+print("Found users:",get_user_ids())
