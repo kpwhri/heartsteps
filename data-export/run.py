@@ -1,8 +1,8 @@
+import os, sys, code
 EXPORT_DIR    = os.environ["EXPORT_DIR"] 
 HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
 DEBUG         = false
 
-import os, sys, code
 import utils
 import pandas as pd
 import progressbar
