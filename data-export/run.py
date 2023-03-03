@@ -13,8 +13,6 @@ import argparse
 
 import weekly, daily, minute
 
-utils.setup()
-
 def export_all_data(export_dir, cohort="U01"):
     
     print("Starting data export V4")
@@ -54,6 +52,5 @@ if __name__ == "__main__":
                         help='list of export levels (e.g., weekly, daily, minute)')
 
     args = parser.parse_args()
-    print(args.levels) 
-    exit()
-    export_all_data(EXPORT_DIR, cohort='U01')
+
+    export_all_data(EXPORT_DIR, cohort='U01',exports=args.levels)
