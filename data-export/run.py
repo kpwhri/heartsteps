@@ -13,7 +13,7 @@ import argparse
 
 import weekly, daily, minute
 
-def export_all_data(export_dir, cohort="U01"):
+def export_all_data(export_dir, cohort="U01", exports=[]]):
     
     print("Starting data export V4")
     
@@ -31,11 +31,15 @@ def export_all_data(export_dir, cohort="U01"):
             utils.setup_export_directory(user_export_directory)
         
             #Run exports
-            daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
-            weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
-            minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
+            if("daily" in exports):
+                daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
             
-
+            if("weekly" in exports):
+                weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
+    
+            if("daily" in exports):
+                minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
+            
         except Exception as e:
             print("Error exporting data for user: " + u)
             print(e)
