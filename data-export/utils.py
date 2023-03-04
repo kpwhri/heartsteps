@@ -5,7 +5,9 @@ import pytz
 import numpy as np
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
+import yaml
 
+        
 def setup():
 
     EXPORT_DIR    = os.environ["EXPORT_DIR"] 
@@ -54,6 +56,10 @@ from surveys.models import Survey
 from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
+
+def read_config():
+    with open("config.yaml", "r") as f:
+        return yaml.safe_load(f)
 
 
 def format_datetime(dt, tz=None):

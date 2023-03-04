@@ -12,6 +12,7 @@ import argparse
 
 import weekly, daily, minute
 
+
 def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
     print("Starting data export V4")
@@ -49,6 +50,12 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
         count=count+1
 
 if __name__ == "__main__":
+
+    config = read_config()
+
+    print(config)
+
+    exit()
 
     parser = argparse.ArgumentParser(description='Run data export.')
     parser.add_argument('-d',help='use debug mode',dest='debug', action='store_const', const=True, default=False)

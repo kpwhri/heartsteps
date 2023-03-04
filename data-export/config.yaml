@@ -1,0 +1,4 @@
+Export:
+  HS_SERVER_DIR: ~/heartsteps/server
+  EXPORT_DIR: /data/output
+  DATABASE_URL: psql://heartsteps:heartstepspass@localhost:5432/heartstepsdb

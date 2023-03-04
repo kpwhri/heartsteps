@@ -1,0 +1,66 @@
+To run data exports in standalone mode, first configure a google cloud instance as shown below.
+
+machineType: n2-standard-2
+OS: ubuntu-1804-lts
+enableConfidentialCompute: false
+deletionProtection: false
+disks: 
+  boot: 20GB
+  data-in: 60GB (/dev/sdb)
+  data-out: 100GB (/dev/sdc)
+
+Once the instance is up, connect via ssh and run the following lines of code 
+to provision and configure the instance.
+
+#Install cloud ops
+curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+
+#Format and mount extra disks
+sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdc
+
+sudo mkdir -p /dump
+sudo mount /dev/sdb  /dump
+
+#Get data dump
+sudo gsutil cp gs://heartsteps-study-data/* /dump
+
+#Make space for data exports and database
+sudo mkdir /data
+sudo mount /dev/sdc  /data
+
+#Update apt and install deps
+sudo apt-get update
+sudo apt-get install -y python3-pip libgeos-dev libpq-dev
+
+#Get postgres 9.6
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/postgresql-pgdg.list 
+sudo apt-get update
+sudo apt-get install -y postgresql-9.6
+
+#Move postgres data directory to attached disk for portability
+sudo chmod 777 /data
+sudo -u postgres cp -r /var/lib/postgresql /data
+sudo mkdir /data/output
+
+sudo systemctl stop postgresql
+
+sudo pico -w /etc/postgresql/9.6/main/postgresql.conf
+>>> update line: data_directory = '/var/lib/postgresql/9.6/main'
+>>> to: data_directory = '/data/postgresql/9.6/main'
+
+#Rebuild the database
+sudo su postgres
+
+#Import database
+sudo -u postgres createdb heartstepsdb
+sudo -u postgres psql heartstepsdb -L ~postgres/psql.log -f '/dump/Cloud_SQL_Export_2022-12-21 (19:01:05).sql'  2>~postgres/import.err 
+
+#Grant privileges to heartsteps db user
+sudo -u postgres createuser heartsteps
+sudo -u postgres psql -c "ALTER USER heartsteps WITH PASSWORD 'heartstepspass';"
+sudo -u postgres psql -d heartstepsdb -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO heartsteps;"
+sudo -u postgres psql -d heartstepsdb -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO heartsteps;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE heartstepsdb TO heartsteps;"
