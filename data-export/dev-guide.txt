@@ -1,0 +1,23 @@
+1. If needed, follow the instruction in gcloud-setup.txt to setup a Google Cloud 
+data export server.
+
+2. If needed, follow the instruction in readme.txt to clone the HeartSteps 
+data export repository on to the Google Cloud server.
+
+3. Make a copy of the repository on your local dev machine using the code below. 
+If needed, load an ssh public key on to github to enable key-based clone:
+
+>> git clone git@github.com:kpwhri/heartsteps.git -b data-export
+
+4. To add additional exports, create new modules and add execution cases for them in 
+the function export_all_data() within run.py. See weekly.py for an example.
+
+5. On your dev machine, run the lines below to push the code to the repo:
+
+>> git add -u; git commit -m "<commit message>"; git push
+
+6. From the folder ~/heartsteps/data-export on the data export server, run the
+code below to run the exports in debug mode associated with any set of levels. 
+
+>> git pull
+>> python3 run.py <export levels> -d

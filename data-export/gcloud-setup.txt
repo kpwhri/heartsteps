@@ -30,6 +30,11 @@ sudo gsutil cp gs://heartsteps-study-data/* /dump
 sudo mkdir /data
 sudo mount /dev/sdc  /data
 
+#Add the following two lines to /etc/fstab to mount disks on boot
+pico -w /etc/fstab
+/dev/sdb /dump	ext4	defaults	0 1
+/dev/sdc	/data	ext4	defaults	0 1
+
 #Update apt and install deps
 sudo apt-get update
 sudo apt-get install -y python3-pip libgeos-dev libpq-dev
