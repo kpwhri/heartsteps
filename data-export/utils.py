@@ -11,16 +11,18 @@ def read_config():
     with open("config.yaml", "r") as f:
         return yaml.safe_load(f)
 
-print(read_config())
-
 def setup():
 
-    EXPORT_DIR    = os.environ["EXPORT_DIR"] 
-    HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
-    DEBUG         = False
+    config        = read_config()
+    EXPORT_DIR    = config["EXPORT_DIR"] 
+    DATABASE_URL  = config["DATABASE_URL"]
+    HS_SERVER_DIR = os.path.expanduser(config["HS_SERVER_DIR"]) 
+
+    os.environ["DATABASE_URL"] = DATABASE_URL
 
     print(f"Configuration - EXPORT_DIR: {EXPORT_DIR}")
-    print(f"Configuration - HS_SERVER_DIR: {EXPORT_DIR}")
+    print(f"Configuration - HS_SERVER_DIR: {HS_SERVER_DIR}")
+    print(f"Configuration - DATABASE_URL: {DATABASE_URL}")
 
     sys.path.append(HS_SERVER_DIR)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heartsteps.settings")
