@@ -31,7 +31,7 @@ def setup():
     import django
     django.setup()
 
-#setup()
+setup()
 
 from django.utils import timezone
 from days.models import Day
