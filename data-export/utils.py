@@ -20,9 +20,10 @@ def setup():
 
     os.environ["DATABASE_URL"] = DATABASE_URL
 
-    print(f"Configuration - EXPORT_DIR: {EXPORT_DIR}")
-    print(f"Configuration - HS_SERVER_DIR: {HS_SERVER_DIR}")
-    print(f"Configuration - DATABASE_URL: {DATABASE_URL}")
+    print(f"Export Configuration - EXPORT_DIR: {EXPORT_DIR}")
+    print(f"Export Configuration - HS_SERVER_DIR: {HS_SERVER_DIR}")
+    print(f"Export Configuration - DATABASE_URL: {DATABASE_URL}")
+    print()
 
     sys.path.append(HS_SERVER_DIR)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heartsteps.settings")
