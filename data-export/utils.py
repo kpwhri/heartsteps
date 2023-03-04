@@ -11,6 +11,8 @@ def read_config():
     with open("config.yaml", "r") as f:
         return yaml.safe_load(f)
 
+print(read_config())
+
 def setup():
 
     EXPORT_DIR    = os.environ["EXPORT_DIR"] 
