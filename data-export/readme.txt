@@ -10,22 +10,24 @@ into your user home directory:
 >> pip3 install -r heartsteps/data-export/requirements_export.txt 
 
 3. The HeartSteps code directory, database credentials and output directories are specified 
-in config.yaml.
-
-To run all exports in debug mode (limits to first 2 users):
-  >> cd ~/heartsteps/data-export
-  >> python3 run.py weekly daily minute -d 
+in config.yaml. If following the instruction above exactly, no config changes are needed.
+Use the commands below to run different exports. The debug mode for code testing. This exports
+data for two users only.
 
 To run only the weekly export in debug mode (limits to first 2 users):
   >> cd ~/heartsteps/data-export
   >> python3 run.py weekly -d 
 
-To run all exports for all users:
+To run all exports in debug mode (limits to first 2 users):
   >> cd ~/heartsteps/data-export
-  >> python3 run.py run.py weekly daily minute
+  >> python3 run.py weekly daily minute -d 
 
 To run only the weekly export for all users:
   >> cd ~/heartsteps/data-export
   >> python3 run.py weekly 
 
-4. For information on developing new exports see dev_guide.txt
+To run all exports for all users:
+  >> cd ~/heartsteps/data-export
+  >> python3 run.py run.py weekly daily minute
+
+4. For information on developing new exports see dev-guide.txt
