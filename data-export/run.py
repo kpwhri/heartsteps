@@ -52,9 +52,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 if __name__ == "__main__":
 
     config = utils.read_config()
-    print(config)
-
-    exit()
+    EXPORT_DIR = config["EXPORT_DIR"]
 
     parser = argparse.ArgumentParser(description='Run data export.')
     parser.add_argument('-d',help='use debug mode',dest='debug', action='store_const', const=True, default=False)
