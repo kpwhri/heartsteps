@@ -7,7 +7,10 @@ from datetime import datetime,  date, timedelta, timezone
 from math import floor
 import yaml
 
-        
+def read_config():
+    with open("config.yaml", "r") as f:
+        return yaml.safe_load(f)
+
 def setup():
 
     EXPORT_DIR    = os.environ["EXPORT_DIR"] 
@@ -24,7 +27,7 @@ def setup():
     import django
     django.setup()
 
-setup()
+#setup()
 
 from django.utils import timezone
 from days.models import Day
@@ -56,11 +59,6 @@ from surveys.models import Survey
 from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
-
-def read_config():
-    with open("config.yaml", "r") as f:
-        return yaml.safe_load(f)
-
 
 def format_datetime(dt, tz=None):
     if dt:

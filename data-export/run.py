@@ -1,6 +1,6 @@
 import os, sys, code
-EXPORT_DIR    = os.environ["EXPORT_DIR"] 
-HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
+#EXPORT_DIR    = os.environ["EXPORT_DIR"] 
+#HS_SERVER_DIR = os.environ["HS_SERVER_DIR"] 
 
 import utils
 import pandas as pd
@@ -51,8 +51,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 
 if __name__ == "__main__":
 
-    config = read_config()
-
+    config = utils.read_config()
     print(config)
 
     exit()
