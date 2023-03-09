@@ -163,7 +163,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     df_dates = df_dates.set_index(["Subject ID", "Date"])
 
     # Get all morning surveys for participant
-    morning_messages = MorningMessage.objects.filter(user_id=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
+    morning_messages = MorningMessage.objects.filter(user=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
 
     #TODO: do we need?
     if start:
