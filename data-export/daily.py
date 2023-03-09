@@ -160,16 +160,16 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     df_dates = pd.DataFrame({"Date": dates})
     #TODO: Probably don't need
     df_dates["Subject ID"] = username
-    df_dates = df_dates.set_index(["Subject ID", "Date"])
+    #df_dates = df_dates.set_index(["Subject ID", "Date"])
 
     # Get all morning surveys for participant
-    morning_messages = MorningMessage.objects.filter(user=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
+    morning_messages = MorningMessage.objects.order_by('date').filter(user_id=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
 
     #TODO: do we need?
     if start:
-        return
+        pass
     if end:
-        return
+        pass
 
     # code.interact(local=dict(globals(), **locals()))
     """
@@ -182,21 +182,16 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         'Sad',
         'Tense'
     ] """
-    if len(morning_messages) > 0:
-
-        # Collect surveys
-        morning_survey_df = pd.DataFrame.from_records(morning_messages)
-
-        # Make fields for each individual morning survey activity
-        morning_survey_df['Time Sent'] = morning_survey_df["message"].map(lambda x: x.sent.dt.datetime if x.sent is not None else None) #TODO strftime(YMD HMS)
-        morning_survey_ex = pd.concat([df_dates, morning_survey_df], axis=0)
-        #morning_survey_ex = morning_survey_ex.groupby(["Subject ID", "Date"]).sum()
-
+    if len(morning_messages) > 1:
+        df_morning_messages = pd.DataFrame({'Object': [msg.date for msg in morning_messages]})
+        df_morning_messages['Time Sent'] = df_morning_messages['Object'].message.sent
+        df_morning_messages['Time Received'] = df_morning_messages['Object'].message.received
+        df_morning_messages['Time Opened'] = df_morning_messages['Object'].message.opened
+        df_morning_messages['Time Completed'] = df_morning_messages['Object'].message.engaged
     else:
         print('empty query')
-        plan_creation_extended = df_dates
+        df_morning_messages = df_dates
 
-
-    morning_survey_ex.to_csv(os.path.join(directory, filename))
+    df_morning_messages.to_csv(os.path.join(directory, filename))
     if (DEBUG):
-        print("  Wrote %d rows" % (len(df_dates)))
+        print("  Wrote %d rows" % (len(df_morning_messages)))
