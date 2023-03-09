@@ -183,11 +183,11 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         'Tense'
     ] """
     if len(morning_messages) > 1:
-        df_morning_messages = pd.DataFrame({'Object': [msg.date for msg in morning_messages]})
-        df_morning_messages['Time Sent'] = df_morning_messages['Object'].message.sent
-        df_morning_messages['Time Received'] = df_morning_messages['Object'].message.received
-        df_morning_messages['Time Opened'] = df_morning_messages['Object'].message.opened
-        df_morning_messages['Time Completed'] = df_morning_messages['Object'].message.engaged
+        df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
+        df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: msg.message.sent.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
+        df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: msg.message.received.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
+        df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: msg.message.opened.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
+        df_morning_messages['Time Completed'] = df_morning_messages['Object'].map(lambda msg: msg.message.engaged.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
     else:
         print('empty query')
         df_morning_messages = df_dates
