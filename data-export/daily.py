@@ -182,9 +182,21 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         'Sad',
         'Tense'
     ] """
+    if len(morning_messages) > 0:
+
+        # Collect surveys
+        morning_survey_df = pd.DataFrame.from_records(morning_messages)
+
+        # Make fields for each individual morning survey activity
+        morning_survey_df['Time Sent'] = morning_survey_df["message"].map(lambda x: x.sent.dt.datetime if x.sent is not None else None) #TODO strftime(YMD HMS)
+        morning_survey_ex = pd.concat([df_dates, morning_survey_df], axis=0)
+        #morning_survey_ex = morning_survey_ex.groupby(["Subject ID", "Date"]).sum()
+
+    else:
+        print('empty query')
+        plan_creation_extended = df_dates
 
 
-
-    df_dates.to_csv(os.path.join(directory, filename))
+    morning_survey_ex.to_csv(os.path.join(directory, filename))
     if (DEBUG):
         print("  Wrote %d rows" % (len(df_dates)))
