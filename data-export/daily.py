@@ -39,6 +39,8 @@ from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
 
+from morning_messages.models import MorningMessage
+
 
 def export_daily_planning_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
@@ -125,3 +127,64 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     plan_creation_extended.to_csv(os.path.join(directory,filename))
     if(DEBUG):
         print("  Wrote %d rows"%(len(plan_creation_extended)))
+
+
+def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+    #TODO: confirm data_dictionary format
+    uid = user["uid"]
+    username = user["hsid"]
+
+    if (DEBUG):
+        print("  Exporting daily morning survey data for: ", username)
+
+    # Export name
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.daily_morning_survey.csv'.format(
+            username=username
+        )
+
+    # Skip rewriting if exists and trusted (no new data)
+    if ((not from_scratch) and os.path.isfile(os.path.join(directory, filename))):
+        return
+
+    # Get all days where participant may have received survey
+    day_query = Day.objects.filter(user=uid).all().values('date') # Day: date, start, end
+    start_date = min([day["date"] for day in day_query]) #TODO: can clean up into dates = [day_query]
+    end_date = max([day["date"] for day in day_query])
+    day_delta = end_date - start_date
+    dates = [start_date + timedelta(days=d) for d in range(day_delta.days + 1)]
+
+    # Create a dataframe with dates with all values equal 0
+    df_dates = pd.DataFrame({"Date": dates})
+    #TODO: Probably don't need
+    df_dates["Subject ID"] = username
+    df_dates = df_dates.set_index(["Subject ID", "Date"])
+
+    # Get all morning surveys for participant
+    morning_messages = MorningMessage.objects.filter(user_id=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
+
+    #TODO: do we need?
+    if start:
+        return
+    if end:
+        return
+
+    # code.interact(local=dict(globals(), **locals()))
+    """
+    WORD_OPTIONS = [
+        'Energetic',
+        'Fatigued',
+        'Happy',
+        'Relaxed',
+        'Stressed',
+        'Sad',
+        'Tense'
+    ] """
+
+
+
+    df_dates.to_csv(os.path.join(directory, filename))
+    if (DEBUG):
+        print("  Wrote %d rows" % (len(df_dates)))
