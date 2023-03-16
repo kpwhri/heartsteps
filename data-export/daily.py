@@ -197,46 +197,45 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Query all survey responses for MorningMessage question names (consistent headers for all users)
         query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.all().values(query_key).distinct()
-        questions_headers = sorted([q[query_key] for q in question_names if q[query_key] is not None])
+        question_names = MorningMessage.objects.all().values(query_key).order_by(query_key).distinct()
+        questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
 
         # Map each question to response title if answered
         for question in questions_headers:
             df_morning_messages[question.title()] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), question) if msg.survey is not None else np.nan)
 
         # Collect mood from answers dictionary
-        df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected word') if msg.survey is not None else np.nan)
-        result = df_dates.join(df_morning_messages, on="Date", how="outer")
+        df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
+        result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
     else:
         print('EMPTY QUERY -- no messages found')
         df_morning_messages = pd.DataFrame({'Date': df_dates['Date']})
-        df_morning_messages['Time Sent'] = np.nan
-        df_morning_messages['Time Received'] = np.nan
-        df_morning_messages['Time Opened'] = np.nan
-        df_morning_messages['Time Completed'] = np.nan
+        df_morning_messages[['Time Sent', 'Time Received', 'Time Opened', 'Time Completed']] = np.nan
 
         # Query all survey responses for MorningMessage question names (consistent headers for all users)
         query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.all().values(query_key).distinct()
-        questions_headers = sorted([q[query_key] for q in question_names if q[query_key] is not None])
+        question_names = MorningMessage.objects.all().values(query_key).order_by(query_key).distinct()
+        questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
 
         for question in questions_headers:
             df_morning_messages[question.title()] = np.nan
 
         df_morning_messages['Mood'] = np.nan
-        result = df_dates.join(df_morning_messages, on="Date", how="outer")
-
+        result = df_morning_messages.set_index('Date')
 
     result.to_csv(os.path.join(directory, filename))
 
-    if (DEBUG):
+    if DEBUG:
         print("  Wrote %d rows" % (len(df_morning_messages)))
+
 
 def map_time_if_exists(df_field, tz):
     return to_time(df_field.astimezone(tz)) if df_field is not None else np.nan
 
+
 def to_time(df_datetime):
     return df_datetime.strftime('%Y-%m-%d %H:%M:%s')
+
 
 def map_dict_if_key_exists(d, key):
     return d[key] if d is not None and key in d.keys() and d[key] is not None else np.nan
