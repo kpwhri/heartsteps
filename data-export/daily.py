@@ -6,6 +6,8 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
+import code
+
 import utils
 
 from days.models import Day
@@ -129,15 +131,21 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         print("  Wrote %d rows"%(len(plan_creation_extended)))
 
 
-def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
-    #TODO: confirm data_dictionary format
+def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+
+    """
+    Construct dataframe from MorningMessage data model and export to csv
+
+    Reference task: export_morning_message_survey in server/morning_messages/tasks.py
+    """
+
     uid = user["uid"]
     username = user["hsid"]
 
-    if (DEBUG):
+    if DEBUG:
         print("  Exporting daily morning survey data for: ", username)
 
-    # Export name
+    # Export Destination
     if not directory:
         directory = './'
     if not filename:
@@ -146,52 +154,89 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         )
 
     # Skip rewriting if exists and trusted (no new data)
-    if ((not from_scratch) and os.path.isfile(os.path.join(directory, filename))):
+    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
 
-    # Get all days where participant may have received survey
-    day_query = Day.objects.filter(user=uid).all().values('date') # Day: date, start, end
-    start_date = min([day["date"] for day in day_query]) #TODO: can clean up into dates = [day_query]
-    end_date = max([day["date"] for day in day_query])
-    day_delta = end_date - start_date
-    dates = [start_date + timedelta(days=d) for d in range(day_delta.days + 1)]
+    # Get all weeks where participant may have received survey
+    week_query = Week.objects.filter(user=uid).all().values('start_date', 'end_date')
+    start_date = min([week["start_date"] for week in week_query])
+    end_date = max([week["end_date"] for week in week_query])
+    delta = end_date - start_date
+    dates = [start_date + timedelta(days=d) for d in range(delta.days + 1)]
 
-    # Create a dataframe with dates with all values equal 0
+    # Create a dataframe with each day in range and hsid
     df_dates = pd.DataFrame({"Date": dates})
-    #TODO: Probably don't need
     df_dates["Subject ID"] = username
-    #df_dates = df_dates.set_index(["Subject ID", "Date"])
 
-    # Get all morning surveys for participant
-    morning_messages = MorningMessage.objects.order_by('date').filter(user_id=uid).all() #TODO: find values. MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
+    # Model Structure: MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
+    # Query all MorningMessages for user
+    morning_messages = MorningMessage.objects \
+        .order_by('date') \
+        .filter(
+            user_id=uid
+        ) \
+        .prefetch_decision() \
+        .prefetch_message() \
+        .prefetch_survey() \
+        .prefetch_timezone() \
+        .all()
 
-    #TODO: do we need?
-    if start:
-        pass
-    if end:
-        pass
+    # TODO: toggle for debugging
+    code.interact(local=dict(globals(), **locals()))
 
-    # code.interact(local=dict(globals(), **locals()))
-    """
-    WORD_OPTIONS = [
-        'Energetic',
-        'Fatigued',
-        'Happy',
-        'Relaxed',
-        'Stressed',
-        'Sad',
-        'Tense'
-    ] """
+    # Construct DataFrame
     if len(morning_messages) > 1:
-        df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
-        df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: msg.message.sent.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
-        df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: msg.message.received.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
-        df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: msg.message.opened.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
-        df_morning_messages['Time Completed'] = df_morning_messages['Object'].map(lambda msg: msg.message.engaged.strftime('%Y-%m-%d %H:%M:%s') if msg.message is not None else None)
-    else:
-        print('empty query')
-        df_morning_messages = df_dates
 
-    df_morning_messages.to_csv(os.path.join(directory, filename))
+        # Map each time attribute if exists, otherwise np.nan
+        df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
+        df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
+        df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Completed'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
+
+        # Query all survey responses for MorningMessage question names (consistent headers for all users)
+        query_key = 'survey__surveyresponse__question__name'
+        question_names = MorningMessage.objects.all().values(query_key).distinct()
+        questions_headers = sorted([q[query_key] for q in question_names if q[query_key] is not None])
+
+        # Map each question to response title if answered
+        for question in questions_headers:
+            df_morning_messages[question.title()] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), question) if msg.survey is not None else np.nan)
+
+        # Collect mood from answers dictionary
+        df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected word') if msg.survey is not None else np.nan)
+        result = df_dates.join(df_morning_messages, on="Date", how="outer")
+    else:
+        print('EMPTY QUERY -- no messages found')
+        df_morning_messages = pd.DataFrame({'Date': df_dates['Date']})
+        df_morning_messages['Time Sent'] = np.nan
+        df_morning_messages['Time Received'] = np.nan
+        df_morning_messages['Time Opened'] = np.nan
+        df_morning_messages['Time Completed'] = np.nan
+
+        # Query all survey responses for MorningMessage question names (consistent headers for all users)
+        query_key = 'survey__surveyresponse__question__name'
+        question_names = MorningMessage.objects.all().values(query_key).distinct()
+        questions_headers = sorted([q[query_key] for q in question_names if q[query_key] is not None])
+
+        for question in questions_headers:
+            df_morning_messages[question.title()] = np.nan
+
+        df_morning_messages['Mood'] = np.nan
+        result = df_dates.join(df_morning_messages, on="Date", how="outer")
+
+
+    result.to_csv(os.path.join(directory, filename))
+
     if (DEBUG):
         print("  Wrote %d rows" % (len(df_morning_messages)))
+
+def map_time_if_exists(df_field, tz):
+    return to_time(df_field.astimezone(tz)) if df_field is not None else np.nan
+
+def to_time(df_datetime):
+    return df_datetime.strftime('%Y-%m-%d %H:%M:%s')
+
+def map_dict_if_key_exists(d, key):
+    return d[key] if d is not None and key in d.keys() and d[key] is not None else np.nan
