@@ -197,7 +197,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Query all survey responses for MorningMessage question names (consistent headers for all users)
         query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.all().values(query_key).order_by(query_key).distinct()
+        question_names = MorningMessage.objects.values(query_key).order_by(query_key).all().distinct()
         questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
 
         # Map each question to response title if answered
@@ -214,7 +214,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Query all survey responses for MorningMessage question names (consistent headers for all users)
         query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.all().values(query_key).order_by(query_key).distinct()
+        question_names = MorningMessage.objects.values(query_key).order_by(query_key).all().distinct()
         questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
 
         for question in questions_headers:
@@ -223,7 +223,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Mood'] = np.nan
         result = df_morning_messages.set_index('Date')
 
-    result.to_csv(os.path.join(directory, filename))
+    result.set_index('Date').to_csv(os.path.join(directory, filename))
 
     if DEBUG:
         print("  Wrote %d rows" % (len(df_morning_messages)))
