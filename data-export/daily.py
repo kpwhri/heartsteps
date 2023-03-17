@@ -181,8 +181,11 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         .prefetch_timezone() \
         .all()
 
-    # TODO: toggle for debugging
+    # toggle for debugging
     code.interact(local=dict(globals(), **locals()))
+
+    # MorningMessage question names for consistent headers across all users
+    questions_headers = ['busy', 'rested', 'committed', 'mm_extrinsic_motivation', 'extrinsic', 'mm_intrinsic_motivation', 'intrinsic']
 
     # Construct DataFrame
     if len(morning_messages) > 1:
@@ -195,38 +198,33 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Completed'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
 
-        # Query all survey responses for MorningMessage question names (consistent headers for all users)
-        query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.values(query_key).order_by(query_key).all().distinct()
-        questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
-
         # Map each question to response title if answered
         for question in questions_headers:
             df_morning_messages[question.title()] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), question) if msg.survey is not None else np.nan)
 
         # Collect mood from answers dictionary
         df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
+
+        # Drop 'Object' column
+        df_morning_messages.drop('Object', axis=1, inplace=True)
+
+        # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
+
     else:
         print('EMPTY QUERY -- no messages found')
-        df_morning_messages = pd.DataFrame({'Date': df_dates['Date']})
-        df_morning_messages[['Time Sent', 'Time Received', 'Time Opened', 'Time Completed']] = np.nan
 
-        # Query all survey responses for MorningMessage question names (consistent headers for all users)
-        query_key = 'survey__surveyresponse__question__name'
-        question_names = MorningMessage.objects.values(query_key).order_by(query_key).all().distinct()
-        questions_headers = [q[query_key] for q in question_names if q[query_key] is not None]
+        df_dates[['Time Sent', 'Time Received', 'Time Opened', 'Time Completed']] = np.nan
 
-        for question in questions_headers:
-            df_morning_messages[question.title()] = np.nan
+        df_dates[[question.title() for question in questions_headers]] = np.nan
 
-        df_morning_messages['Mood'] = np.nan
-        result = df_morning_messages
+        df_dates['Mood'] = np.nan
+        result = df_dates
 
     result.set_index('Date').to_csv(os.path.join(directory, filename))
 
     if DEBUG:
-        print("  Wrote %d rows" % (len(df_morning_messages)))
+        print("  Wrote %d rows" % (len(result)))
 
 
 def map_time_if_exists(df_field, tz):
