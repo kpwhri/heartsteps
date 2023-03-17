@@ -166,7 +166,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
     # Create a dataframe with each day in range and hsid
     df_dates = pd.DataFrame({"Date": dates})
-    df_dates["Subject ID"] = username
+    df_dates["Participant ID"] = username
 
     # Model Structure: MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
     # Query all MorningMessages for user
@@ -221,7 +221,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
             df_morning_messages[question.title()] = np.nan
 
         df_morning_messages['Mood'] = np.nan
-        result = df_morning_messages.set_index('Date')
+        result = df_morning_messages
 
     result.set_index('Date').to_csv(os.path.join(directory, filename))
 
