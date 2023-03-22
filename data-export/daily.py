@@ -221,6 +221,11 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_dates['Mood'] = np.nan
         result = df_dates
 
+    # Merge old and new intrinsic/extrinsic columns
+    result.drop('mm_extrinsic_motivation'.title(), axis=1, inplace=True)
+    result.drop('mm_intrinsic_motivation'.title(), axis=1, inplace=True)
+
+    # Set Date as index of DataFrame
     result.set_index('Date').to_csv(os.path.join(directory, filename))
 
     if DEBUG:
