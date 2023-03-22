@@ -191,76 +191,78 @@ def check_if_device_connected(user):
 
 @shared_task
 def fitbit_update_check(username):
+
     user = User.objects.get(username=username)
-    
-    if raise_exceptions_if_inappropriate(user):
-        # Fitbit update check
-        fitbit_account = get_fitbit_account(user)
 
-        last_update = fitbit_account.last_updated
-        if not last_update:
-            EventLog.error(user, "No device update record. Notifying user to contact study staff.")
-            msg = "[JustWalk] Your Fitbit account seems like not to be connected to your study account. Please contact the study staff. Email: justwalk@ucsd.edu [Code:0001]"
-            sms_service = SMSService(user=user)
-            sms_message = sms_service.send(msg)
-            send_mail_to_justwalk_staff(
-                '[JustWalk-0001] No Fitbit account error [{}]'.format(username),
-                'Participant ID: {}\nFitbit account seems not to be connected to their study account. The participant is notified through the text.'.format(username),
-                'staff'
-            )
-        else:
-            # There is at least one Fitbit update
-            MAXIMUM_FITBIT_UPDATE_DELAY = datetime.timedelta(minutes=60)
+    if user.is_active:    
+        if raise_exceptions_if_inappropriate(user):
+            # Fitbit update check
+            fitbit_account = get_fitbit_account(user)
 
-            diff = get_time_gap_since_last_update(last_update)
-            
-            if diff > MAXIMUM_FITBIT_UPDATE_DELAY:
-                EventLog.info(user, "Latest Fitbit Update is older than {}. SMS message should be sent.".format(MAXIMUM_FITBIT_UPDATE_DELAY))
-                
-                greeting = get_greeting(user)
-                timegap_str = get_timegap_string(diff)
-
-                msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please launch the Fitbit app to upload. [Code:0002]".format(greeting, timegap_str)
-
+            last_update = fitbit_account.last_updated
+            if not last_update:
+                EventLog.error(user, "No device update record. Notifying user to contact study staff.")
+                msg = "[JustWalk] Your Fitbit account seems like not to be connected to your study account. Please contact the study staff. Email: justwalk@ucsd.edu [Code:0001]"
                 sms_service = SMSService(user=user)
                 sms_message = sms_service.send(msg)
-                EventLog.info(user, "SMS message is sent: {}".format(msg))
-                EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
+                send_mail_to_justwalk_staff(
+                    '[JustWalk-0001] No Fitbit account error [{}]'.format(username),
+                    'Participant ID: {}\nFitbit account seems not to be connected to their study account. The participant is notified through the text.'.format(username),
+                    'staff'
+                )
             else:
-                EventLog.info(user, "Recent Fitbit Update Exists. No SMS message should be sent.")
-        
-        # send daily step goal notification
-        if FeatureFlags.has_flag(user, "system_id_stepgoal"):
-            send_daily_step_goal_notification(username)
-        
-        # check if the participant has device logged in
-        if not check_if_device_connected(user):
-            msg = 'Participant ID: {}\nThe participant seems like they deleted the app or unsubscribed from the notifications. Please contact the participant. The participant is not notified in any way.'.format(username)
-            EventLog.info(user, msg)
-            send_mail_to_justwalk_staff(
-                '[JustWalk-0003] No App installed error [{}]'.format(username),
-                msg,
-                'staff'
-            )
+                # There is at least one Fitbit update
+                MAXIMUM_FITBIT_UPDATE_DELAY = datetime.timedelta(minutes=60)
 
-        # # check if the participant is not wearing the fitbit for more than 3 days
-        # if not check_if_participant_is_wearing_fitbit(fitbit_account):
-        #     admin_msg = 'Participant ID: {}\nThe participant seems like they are not wearing the fitbit for more than 3 days. The participant is notified via text.'.format(username)
-        #     participant_msg = "[JustWalk] Hi, my name is Junghwan Park. According to our database, it seems like you have not wearing the Fitbit for three days. We're just checking in to see if we can help, such as work out any technical issues. Can you let us know whats going on how we might be able to help? Email: justwalk@ucsd.edu [Code: 0004]"
+                diff = get_time_gap_since_last_update(last_update)
+                
+                if diff > MAXIMUM_FITBIT_UPDATE_DELAY:
+                    EventLog.info(user, "Latest Fitbit Update is older than {}. SMS message should be sent.".format(MAXIMUM_FITBIT_UPDATE_DELAY))
+                    
+                    greeting = get_greeting(user)
+                    timegap_str = get_timegap_string(diff)
 
-        #     EventLog.info(user, admin_msg)
-        #     sms_service = SMSService(user=user)
-        #     sms_message = sms_service.send(participant_msg)
+                    msg = "[JustWalk] {}It's been {} since the last data was uploaded. Please launch the Fitbit app to upload. [Code:0002]".format(greeting, timegap_str)
 
-        #     send_mail_to_justwalk_staff(
-        #         '[JustWalk-0004] Not wearing Fitbit for 3 days [{}]'.format(username),
-        #         admin_msg,
-        #         'staff'
-        #     )
+                    sms_service = SMSService(user=user)
+                    sms_message = sms_service.send(msg)
+                    EventLog.info(user, "SMS message is sent: {}".format(msg))
+                    EventLog.info(user, "SMS message is sent: {}".format(sms_message.__dict__))
+                else:
+                    EventLog.info(user, "Recent Fitbit Update Exists. No SMS message should be sent.")
+            
+            # send daily step goal notification
+            if FeatureFlags.has_flag(user, "system_id_stepgoal"):
+                send_daily_step_goal_notification(username)
+            
+            # check if the participant has device logged in
+            if not check_if_device_connected(user):
+                msg = 'Participant ID: {}\nThe participant seems like they deleted the app or unsubscribed from the notifications. Please contact the participant. The participant is not notified in any way.'.format(username)
+                EventLog.info(user, msg)
+                send_mail_to_justwalk_staff(
+                    '[JustWalk-0003] No App installed error [{}]'.format(username),
+                    msg,
+                    'staff'
+                )
 
-    else:
-        # it is not inappropriate, but there's nothing to do. just do nothing
-        pass
+            # # check if the participant is not wearing the fitbit for more than 3 days
+            # if not check_if_participant_is_wearing_fitbit(fitbit_account):
+            #     admin_msg = 'Participant ID: {}\nThe participant seems like they are not wearing the fitbit for more than 3 days. The participant is notified via text.'.format(username)
+            #     participant_msg = "[JustWalk] Hi, my name is Junghwan Park. According to our database, it seems like you have not wearing the Fitbit for three days. We're just checking in to see if we can help, such as work out any technical issues. Can you let us know whats going on how we might be able to help? Email: justwalk@ucsd.edu [Code: 0004]"
+
+            #     EventLog.info(user, admin_msg)
+            #     sms_service = SMSService(user=user)
+            #     sms_message = sms_service.send(participant_msg)
+
+            #     send_mail_to_justwalk_staff(
+            #         '[JustWalk-0004] Not wearing Fitbit for 3 days [{}]'.format(username),
+            #         admin_msg,
+            #         'staff'
+            #     )
+
+        else:
+            # it is not inappropriate, but there's nothing to do. just do nothing
+            pass
 
 def get_timegap_string(diff):
     if diff > datetime.timedelta(hours=36):
