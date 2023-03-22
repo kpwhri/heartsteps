@@ -1,4 +1,4 @@
-FROM python:3.6.8
+FROM --platform=amd64 python:3.6.8
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
@@ -7,10 +7,11 @@ RUN apt-get update
 ENV GOOGLE_APPLICATION_CREDENTIALS /credentials/ucsd-publichealth-justwalk.json
 ENV CLOUD_SDK_REPO cloud-sdk-jessie
 ENV GCSFUSE_REPO gcsfuse-jessie
-RUN echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    apt-get update && apt-get install -y gcsfuse google-cloud-sdk google-cloud-sdk-gke-gcloud-auth-plugin
+RUN echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN apt-get update
+RUN apt-get install -y gcsfuse google-cloud-sdk google-cloud-sdk-gke-gcloud-auth-plugin
 
 ADD service-template/utils /utils 
 ENV PATH $PATH:/utils
