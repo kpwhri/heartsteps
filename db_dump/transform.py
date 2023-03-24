@@ -1,4 +1,4 @@
-from tools import get_mongodb_db
+from tools import get_mongodb_db, drop_all_collections, build_df_from_collection, extend_df_with_collection
 
 import streamlit as st
 import pandas as pd
@@ -23,58 +23,39 @@ client = MongoClient(pymongo_uri)
 db = client['justwalk']
 tdb = get_mongodb_db()
 
+#########
+drop_all_collections(tdb)   # Only for development
+#########
+
+
 # insert a meta data
 meta = tdb['meta']
 
 # put the dump path and the date into the meta collection
-meta.insert_one({'action': 'transform', 'date': pd.Timestamp.today(),
+meta.insert_one({'action': 'transform', 'date': pd.Timestamp.today().strftime('%Y-%m-%d'),
                 'when': pd.Timestamp.now(), 'version': version})
 
-# 1. filter only the JustWalk study, and only the data from its participants
 
+df = build_df_from_collection(db, 'participants_study', {'name': 'JustWalk'}, {
+                              '_id': 0, 'id': 1, 'name': 1, 'baseline_period': 1},
+                              rename_columns={'id': 'study_id', 'name': 'study_name'})
+study_id = int(df['study_id'][0])
 
-def filter_collection(db, tdb, collection_name, filter_dict, projection_dict, refresh_force=False) -> list:
-    """
-    Filter the collection and insert the filtered data into the transformed database.
-    :param db: the database instance
-    :param tdb: the transformed database instance
-    :param collection_name: the collection name
-    :param filter_dict: the filter dictionary
-    :param projection_dict: the projection dictionary
-    :return: the filtered data as a list of dictionaries
-    """
-    collection_source = db[collection_name]
-    df = pd.DataFrame(
-        list(collection_source.find(filter_dict, projection_dict)))
-    collection_target = tdb[collection_name]
+df = extend_df_with_collection(df, db, 'participants_cohort', {'study_id': study_id}, {
+                               '_id': 0, 'id': 1, 'study_id': 1, 'name': 1, 'study_length': 1}, on='study_id', rename_columns={'id': 'cohort_id', 'name': 'cohort_name'})
+cohort_id = int(df['cohort_id'][0])
 
-    # insert the data into the collection only if the collection's document count is not the same as the dataframe's row count
-    if refresh_force or collection_target.count_documents({}) != df.shape[0]:
-        collection_target.delete_many({})
-        df_dict = df.to_dict('records')
-        collection_target.insert_many(df_dict, ordered=False)
-        return df_dict
-    else:
-        return list(collection_target.find({}, projection_dict))
+df = extend_df_with_collection(df, db, 'participants_participant', {'cohort_id': cohort_id}, {
+                                 '_id': 0, 'heartsteps_id': 1, 'cohort_id': 1, 'user_id': 1, 'birth_year': 1, 'study_start_date': 1}, on='cohort_id')
 
+df = df[['heartsteps_id', 'user_id', 'birth_year', 'study_start_date']]
+st.write(df)
 
-study = filter_collection(db, tdb, 'participants_study', {
-    'name': 'JustWalk'}, {'_id': 0, 'id': 1, 'name': 1, 'baseline_period': 1}, refresh_force)
+participants_collection = tdb['participants']
+participants_collection.insert_many(df.to_dict('records'))
 
-study_id = study[0]['id']
-st.write("Study ID: ", study_id)
+# # 3. filter only the participants in the JustWalk study and cohort
+# participants = filter_collection(db, tdb, 'participants_participant', {'cohort_id': cohort_id},
+#                                  {'heartsteps_id': 1, 'user_id': 1, 'birth_year': 1, 'study_start_date': 1}, refresh_force)
 
-# 2. filter only the cohort in the JustWalk study
-cohort = filter_collection(db, tdb, 'participants_cohort', {
-                           'study_id': study_id}, {'_id': 0, 'id': 1, 'name': 1, 'study_length': 1}, refresh_force)
-
-cohort_id = cohort[0]['id']
-st.write("Cohort ID: ", cohort_id)
-
-
-# 3. filter only the participants in the JustWalk study and cohort
-participants = filter_collection(db, tdb, 'participants_participant', {'cohort_id': cohort_id},
-    {'heartsteps_id': 1, 'user_id': 1, 'birth_year': 1, 'study_start_date': 1}, refresh_force)
-
-st.write("Number of participants: ", len(participants))
-
+# st.write("Number of participants: ", len(participants))
