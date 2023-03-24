@@ -19,9 +19,9 @@ def get_mongodb_client():
     client = pymongo.MongoClient(mongodb_uri)
     return client
 
-def get_mongodb_db():
+def get_mongodb_db(dbname='justwalk'):
     client = get_mongodb_client()
-    db = client['justwalk']
+    db = client[dbname]
     return db
 
 def get_mongodb_collection(collection_name):

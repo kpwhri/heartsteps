@@ -1,3 +1,5 @@
+from tools import get_mongodb_db
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -19,7 +21,7 @@ client = MongoClient(pymongo_uri)
 
 # create a database instance
 db = client['justwalk']
-tdb = client['transformed']
+tdb = get_mongodb_db()
 
 # insert a meta data
 meta = tdb['meta']
