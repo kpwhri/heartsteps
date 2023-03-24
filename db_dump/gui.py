@@ -17,7 +17,8 @@ client = MongoClient(pymongo_uri)
 db = client['justwalk']
 
 meta = db['meta']
-meta.insert_one({'action': 'dump', 'path': path, 'date': '2021-01-01', 'when': pd.Timestamp.now()})
+# put the dump path and the date into the meta collection
+meta.insert_one({'action': 'dump', 'path': path, 'date': pd.Timestamp().today(), 'when': pd.Timestamp.now()})
 
 # list all csv files in the folder
 files = os.listdir(path)
