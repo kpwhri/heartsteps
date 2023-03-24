@@ -18,7 +18,7 @@ db = client['justwalk']
 
 meta = db['meta']
 # put the dump path and the date into the meta collection
-meta.insert_one({'action': 'dump', 'path': path, 'date': pd.Timestamp().today(), 'when': pd.Timestamp.now()})
+meta.insert_one({'action': 'dump', 'path': path, 'date': pd.Timestamp.today(), 'when': pd.Timestamp.now()})
 
 # list all csv files in the folder
 files = os.listdir(path)
