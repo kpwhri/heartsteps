@@ -3,3 +3,5 @@ pandas
 psycopg2-binary
 streamlit
 watchdog
+seaborn
+matplotlib
