@@ -96,6 +96,10 @@ daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
 daily['date_dt'] = pd.to_datetime(daily['date_str'])
 daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
 
+# if day_index is less than 10, set level_str as "RE" and level_int as 0
+daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
+daily.loc[daily['day_index'] < 10, 'level_int'] = 0
+
 level_categories = ["RE", "RA", "NR", "NO", "FU"]
 daily['level_int'] = pd.Categorical(daily['level_str'], categories=level_categories, ordered=True).codes
 
@@ -146,5 +150,13 @@ daily_collection = tdb['daily']
 
 # clean up the data before inserting into the database
 daily['date_dt'] = pd.to_datetime(daily['date_str'])
+daily = pd.merge(daily, participant_df, on='user_id', how='left')
+daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
+daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
+
+# if day_index is less than 10, set level_str as "RE" and level_int as 0
+daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
+daily.loc[daily['day_index'] < 10, 'level_int'] = 0
+
 
 daily_collection.insert_many(daily.to_dict('records'))

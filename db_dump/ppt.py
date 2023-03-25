@@ -1,4 +1,4 @@
-from tools import get_mongodb_db, JWPresentation, get_uuid4_filename, draw_heatmap
+from tools import get_mongodb_db, JWPresentation, get_uuid4_filename, draw_heatmap, get_intervention_daily_df
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -50,7 +50,7 @@ figure_levels = draw_heatmap(level_df,
 
 # 2. draw a heatmap of the goals
 goals_df = get_intervention_daily_df(daily)
-figure_goals = draw_heatmap(daily,
+figure_goals = draw_heatmap(goals_df,
                             index='user_id',
                             columns='day_index',
                             values='step_goal',

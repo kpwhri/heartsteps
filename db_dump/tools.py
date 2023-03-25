@@ -210,8 +210,8 @@ def get_intervention_daily_df(original):
     :return: the intervention daily dataframe
     """
     new_df = original.query('day_index >= 10 and day_index <= 252').copy()
-    new_df['day_index'] = new_df['day_index'].astype(int)
-    new_df['level_int'] = new_df['level_int'].astype(int)
+    new_df['day_index'] = new_df['day_index'].astype(int, errors='ignore')
+    new_df['level_int'] = new_df['level_int'].astype(int, errors='ignore')
     return new_df
 
 def draw_heatmap(df, index, columns, values, legend_labels, xlabel, ylabel, legend_title, figure_name, output_dir, cm_name='coolwarm') -> str:
