@@ -8,7 +8,6 @@ import pymongo
 from pymongo import MongoClient
 
 # This program is used to transform the data from the database dump (justwalk database, 'db') into a format that is more suitable for the data analysis (transformed database, 'tdb')
-
 version = '0.1.1'
 
 # Path: db_dump/transform.py
@@ -33,8 +32,6 @@ meta = tdb['meta']
 # put the dump path and the date into the meta collection
 meta.insert_one({'action': 'transform', 'date': pd.Timestamp.today().strftime('%Y-%m-%d'),
                 'when': pd.Timestamp.now(), 'version': version})
-
-
 
 # 1. participants
 df = build_df_from_collection(db, 'participants_study', {'name': 'JustWalk'}, {
@@ -85,7 +82,7 @@ pipeline = [
     }
 ]
 
-
+# create a dataframe from the aggregation result
 daily = pd.DataFrame(db['bout_planning_notification_level'].aggregate(pipeline))
 daily = daily[['user_id', 'date_str', 'level_str']]
 
@@ -100,13 +97,16 @@ daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
 daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
 daily.loc[daily['day_index'] < 10, 'level_int'] = 0
 
+# if day_index is greater than 252, set level_str as "FU" and level_int as 4
+daily.loc[daily['day_index'] > 252, 'level_str'] = "FU"
+daily.loc[daily['day_index'] > 252, 'level_int'] = 4
+
+# convert level_str to level_int
 level_categories = ["RE", "RA", "NR", "NO", "FU"]
 daily['level_int'] = pd.Categorical(daily['level_str'], categories=level_categories, ordered=True).codes
 
+# drop the columns that are not needed
 daily = daily[['user_id', 'date_str', 'date_dt', 'day_index', 'level_str', 'level_int']]
-
-# leave only the records with day_index >= 10 and day_index <= 252
-daily = daily[(daily['day_index'] >= 10) & (daily['day_index'] <= 252)]
 
 print("Intervention components are loaded: {}".format(daily.shape[0]))
 print(daily.sort_values(by=['user_id', 'date_str'], ascending=True))
@@ -137,6 +137,7 @@ pipeline = [
     }
 ]
 
+# create a dataframe from the aggregation result
 temp_goals_df = pd.DataFrame(db['daily_step_goals_stepgoal'].aggregate(pipeline))
 
 # merge the step_goal with daily dataframe
@@ -146,6 +147,11 @@ print("Goals are loaded: {}".format(daily.shape[0]))
 print(daily.sort_values(by=['user_id', 'date_str'], ascending=True))
 
 
+
+
+
+
+# 3. insert the data into the database
 daily_collection = tdb['daily']
 
 # clean up the data before inserting into the database
@@ -158,5 +164,8 @@ daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
 daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
 daily.loc[daily['day_index'] < 10, 'level_int'] = 0
 
+# if day_index is greater than 252, set level_str as "FU" and level_int as 4
+daily.loc[daily['day_index'] > 252, 'level_str'] = "FU"
+daily.loc[daily['day_index'] > 252, 'level_int'] = 4
 
 daily_collection.insert_many(daily.to_dict('records'))
