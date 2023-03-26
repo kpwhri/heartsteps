@@ -93,3 +93,4 @@ server/justwalk.env
 *.xcf
 
 db_dump/output
+db_dump/*/config.ini

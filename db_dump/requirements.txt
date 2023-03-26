@@ -6,3 +6,5 @@ watchdog
 seaborn
 matplotlib
 python-pptx
+tqdm
+ray[default]
