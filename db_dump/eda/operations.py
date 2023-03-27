@@ -30,7 +30,7 @@ def form_the_presentation(filename_dict):
 
     heart_rates_section = daily_section.add_section('Heart Rates')
     heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
-    heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 100')
+    heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 300')
 
     jwp.toc = toc.to_dict()
     logging.debug(jwp.toc)
