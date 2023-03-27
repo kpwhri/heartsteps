@@ -1,5 +1,5 @@
 from config import SETTINGS_OUTPUT_DIR, SETTINGS_OUTPUT_FILENAME, MONGO_DB_URI_DESTINATION
-from utils import get_database, get_intervention_daily_df, draw_heatmap, JWPresentation, JWSection
+from utils import get_database, get_intervention_daily_df, draw_heatmap, draw_distribution_heatmap, JWPresentation, JWSection
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -26,6 +26,7 @@ def form_the_presentation(filename_dict):
     daily_section = toc.add_section('Daily Data')
     daily_section.add_slide('Levels', filename_dict['levels'])
     daily_section.add_slide('Goals', filename_dict['goals'])
+    daily_section.add_slide('Goals Distribution', filename_dict['goals_distribution'])
     daily_section.add_slide('Steps', filename_dict['steps'], note='* Note: steps are capped at 20,000')
 
     heart_rates_section = daily_section.add_section('Heart Rates')
@@ -93,6 +94,32 @@ def draw_goal_heatmap():
                                 output_dir=output_dir)
 
     return figure_goals
+
+def draw_goal_distribution_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # 2. draw a heatmap of the goals
+    goals_df = get_intervention_daily_df(daily)
+
+    # 3. draw a heatmap of the goals distribution
+    figure_path = draw_distribution_heatmap(
+                                goals_df, 
+                                index='user_id', 
+                                values='step_goal', 
+                                xlabel='User ID', 
+                                ylabel='Goals', 
+                                legend_title='Step Goals', 
+                                figure_name='goals_distribution.png', 
+                                n=20,
+                                output_dir=output_dir)
+
+    return figure_path
 
 def draw_steps_heatmap():
     # Default Visualization Parameters

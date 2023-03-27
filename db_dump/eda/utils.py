@@ -83,6 +83,55 @@ def draw_heatmap(df, index, columns, values, legend_labels, xlabel, ylabel, lege
     plt.close()
     return figure_filepath
 
+def draw_distribution_heatmap(df, index, values, xlabel, ylabel, legend_title, figure_name, n, output_dir, cm_name='coolwarm') -> str:
+    """
+    Draw a heatmap of the given dataframe
+
+    :param df: dataframe
+    :param index: index column name
+    :param values: values column name
+    :param xlabel: x label
+    :param ylabel: y label
+    :param legend_title: legend title
+    :param figure_name: figure name
+    :param n: number of levels
+    :param output_dir: output directory
+    :param cm_name: colormap name
+    :return: figure path
+    """
+    # Create a figure
+    plt.figure(figsize=(10, 5))
+
+    # Colormap settings
+    cm = plt.cm.get_cmap(cm_name)
+
+    # Get the maximum and minimum values
+    max_value = df[values].max()
+    min_value = df[values].min()
+
+    # Get the bins of the values with the count of N
+    bins = np.linspace(min_value, max_value, n+1)
+
+    # Get the count in each bin for each user and convert it to a pd.DataFrame with three columns (index, bin_median, count) to be used in the heatmap
+    bins_df = df.groupby([index, pd.cut(df[values], bins)]).size().reset_index().rename(columns={0: 'count'})
+
+    # Convert the bins_df to a pd.DataFrame with pivot_table
+    bins_df = bins_df.pivot_table(index=values, columns=index, values='count', aggfunc=np.sum)
+
+    # Draw the heatmap for bins count for each user. Rows are bins and columns are users
+    ax = sns.heatmap(bins_df, cmap=cm_name, cbar=False)
+
+    # Add title, legend and labels
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    # Save heatmap to file
+    figure_filepath = get_uuid4_filename(figure_name, output_dir)
+    plt.savefig(figure_filepath, bbox_inches='tight', dpi=200)
+
+    # Close the figure
+    plt.close()
+    return figure_filepath
 
 def get_uuid4_filename(filename, output_dir=None):
     """

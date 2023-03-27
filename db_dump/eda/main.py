@@ -1,6 +1,6 @@
 # from operations import 
 import ray
-from operations import prepare, draw_level_heatmap, draw_goal_heatmap, form_the_presentation, draw_steps_heatmap, draw_heart_rate_hrv_heatmap, draw_wearing_time_pct_heatmap
+from operations import *
 
 if __name__ == '__main__':
     # Initialize Ray
@@ -15,6 +15,7 @@ if __name__ == '__main__':
 
     # Draw the goal heatmap
     filename_dict['goals'] = draw_goal_heatmap()
+    filename_dict['goals_distribution'] = draw_goal_distribution_heatmap()
 
     # Draw the steps heatmap
     filename_dict['steps'] = draw_steps_heatmap()
