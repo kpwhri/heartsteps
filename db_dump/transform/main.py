@@ -1,4 +1,4 @@
-from operations import transform_participants, transform_daily, transform_minute_step, transform_minute_heart_rate
+from operations import transform_participants, transform_daily, transform_minute_step, transform_minute_heart_rate, copy_daily_steps_and_heart_rate
 import ray
 
 if __name__ == '__main__':
@@ -16,3 +16,6 @@ if __name__ == '__main__':
 
     # Load the minute_heart_rate collection (usually takes 4 minutes)
     transform_minute_heart_rate()
+
+    # Copy the daily steps and heart rate aggregated data to the daily collection
+    copy_daily_steps_and_heart_rate()

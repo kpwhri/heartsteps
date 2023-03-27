@@ -1,6 +1,6 @@
 # from operations import 
 import ray
-from operations import prepare, draw_level_heatmap, draw_goal_heatmap, form_the_presentation
+from operations import prepare, draw_level_heatmap, draw_goal_heatmap, form_the_presentation #, draw_steps_heatmap
 
 if __name__ == '__main__':
     # Initialize Ray
@@ -18,3 +18,6 @@ if __name__ == '__main__':
 
     # Form the presentation
     form_the_presentation(filename_dict)
+
+    # Draw the steps heatmap
+    # filename_dict['steps'] = draw_steps_heatmap()
