@@ -27,7 +27,7 @@ def form_the_presentation(filename_dict):
         'items': [
             {
                 'type': 'section',
-                'title': 'Intervention Components',
+                'title': 'Daily Data',
                 'items': [
                     {
                         'type': 'slide',
@@ -41,8 +41,8 @@ def form_the_presentation(filename_dict):
                     },
                     {
                         'type': 'slide',
-                        'title': 'Notifications',
-                        'items': []
+                        'title': 'Steps',
+                        'figure': filename_dict['steps']
                     }
                 ]
             },
@@ -128,3 +128,31 @@ def draw_goal_heatmap():
                                 output_dir=output_dir)
 
     return figure_goals
+
+def draw_steps_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # 3. draw a heatmap of the steps
+    steps_df = get_intervention_daily_df(daily)
+
+    # 4. cut off the steps at 20,000
+    steps_df.loc[steps_df['steps'] > 20000, 'steps'] = 20000
+    
+    figure_steps = draw_heatmap(steps_df, 
+                                index='user_id', 
+                                columns='day_index', 
+                                values='steps', 
+                                legend_labels=None, 
+                                xlabel='Day Index', 
+                                ylabel='User ID', 
+                                legend_title='Steps', 
+                                figure_name='steps.png', 
+                                output_dir=output_dir)
+
+    return figure_steps
