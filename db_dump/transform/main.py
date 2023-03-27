@@ -1,4 +1,4 @@
-from operations import transform_participants, transform_daily, transform_minute_step, transform_minute_heart_rate, copy_daily_steps_and_heart_rate
+from operations import transform_participants, transform_daily, transform_minute_step, transform_minute_heart_rate, copy_daily_steps_and_heart_rate, fill_daily_nans
 import ray
 
 if __name__ == '__main__':
@@ -19,3 +19,6 @@ if __name__ == '__main__':
 
     # Copy the daily steps and heart rate aggregated data to the daily collection
     copy_daily_steps_and_heart_rate()
+
+    # Fill out NaNs in the daily collection
+    fill_daily_nans()

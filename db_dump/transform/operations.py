@@ -399,3 +399,42 @@ def copy_daily_steps_and_heart_rate():
                 }}
             ) for index, row in daily_df.iterrows()
         ])
+
+def fill_daily_nans():
+    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting fill_daily_nans()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = COLLECTION_DAILY
+        
+        # 2. fetch the current daily collection
+        logging.info(msg="Fetching the current daily collection")
+        daily_collection = tdb[collection_name]
+        daily_df = pd.DataFrame(daily_collection.find({}, {'_id': 0}))
+        
+        # 3. fill with zeros if there's NaN in the following columns: non_zero_step_minutes, wearing_minutes, wearing_pct, steps, level_int
+        logging.info(msg="Filling with zeros if there's NaN in the following columns: non_zero_step_minutes, wearing_minutes, wearing_pct, steps, level_int")
+        daily_df['non_zero_step_minutes'] = daily_df['non_zero_step_minutes'].fillna(0)
+        daily_df['wearing_minutes'] = daily_df['wearing_minutes'].fillna(0)
+        daily_df['wearing_pct'] = daily_df['wearing_pct'].fillna(0)
+        daily_df['steps'] = daily_df['steps'].fillna(0)
+        daily_df['level_int'] = daily_df['level_int'].fillna(0)
+        
+        # 4. fill with "RE" if there's NaN in the following columns: level_str
+        logging.info(msg="Filling with 'RE' if there's NaN in the following columns: level_str")
+        daily_df['level_str'] = daily_df['level_str'].fillna('RE')
+        
+        # 5. update the daily collection
+        logging.info(msg="Updating the daily collection")
+        daily_collection.bulk_write([
+            UpdateOne(
+                {'user_id': row['user_id'], 'date_str': row['date_str']},
+                {'$set': {
+                    'non_zero_step_minutes': row['non_zero_step_minutes'],
+                    'wearing_minutes': row['wearing_minutes'],
+                    'wearing_pct': row['wearing_pct'],
+                    'steps': row['steps']
+                }}
+            ) for index, row in daily_df.iterrows()
+        ])
