@@ -42,7 +42,8 @@ def form_the_presentation(filename_dict):
                     {
                         'type': 'slide',
                         'title': 'Steps',
-                        'figure': filename_dict['steps']
+                        'figure': filename_dict['steps'],
+                        'note': '* Note: steps are capped at 20,000'
                     }
                 ]
             },
@@ -143,7 +144,7 @@ def draw_steps_heatmap():
 
     # 4. cut off the steps at 20,000
     steps_df.loc[steps_df['steps'] > 20000, 'steps'] = 20000
-    
+
     figure_steps = draw_heatmap(steps_df, 
                                 index='user_id', 
                                 columns='day_index', 
