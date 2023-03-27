@@ -51,7 +51,8 @@ def form_the_presentation(filename_dict):
                         'items': [
                             {
                                 'type': 'slide',
-                                'title': 'Heart Rate Non-zero Minutes',
+                                'title': 'Wear Time Percentage',
+                                'figure': filename_dict['wearing_time_pct'],
                             },
                             {
                                 'type': 'slide',
@@ -60,27 +61,6 @@ def form_the_presentation(filename_dict):
                                 'note': '* Note: heart rate variability is capped at 300'
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                'type': 'section',
-                'title': 'Behavioral Measurements',
-                'items': [
-                    {
-                        'type': 'slide',
-                        'title': 'Steps',
-                        'items': []
-                    },
-                    {
-                        'type': 'slide',
-                        'title': 'Heart Rates',
-                        'items': []
-                    },
-                    {
-                        'type': 'slide',
-                        'title': 'Activities',
-                        'items': []
                     }
                 ]
             }
@@ -201,3 +181,31 @@ def draw_heart_rate_hrv_heatmap():
                                 output_dir=output_dir)
 
     return figure_hrv
+
+def draw_wearing_time_pct_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the wearing time percentage
+    wearing_time_pct_df = get_intervention_daily_df(daily)
+
+    # convert to percentage
+    wearing_time_pct_df['wearing_pct'] = wearing_time_pct_df['wearing_pct'] * 100
+
+    figure_wearing_time_pct = draw_heatmap(wearing_time_pct_df, 
+                                index='user_id', 
+                                columns='day_index', 
+                                values='wearing_pct', 
+                                legend_labels=None, 
+                                xlabel='Day Index', 
+                                ylabel='User ID', 
+                                legend_title='Wearing Time Percentage', 
+                                figure_name='wearing_time_pct.png', 
+                                output_dir=output_dir)
+
+    return figure_wearing_time_pct
