@@ -44,6 +44,22 @@ def form_the_presentation(filename_dict):
                         'title': 'Steps',
                         'figure': filename_dict['steps'],
                         'note': '* Note: steps are capped at 20,000'
+                    },
+                    {
+                        'type': 'section',
+                        'title': 'Heart Rates',
+                        'items': [
+                            {
+                                'type': 'slide',
+                                'title': 'Heart Rate Non-zero Minutes',
+                            },
+                            {
+                                'type': 'slide',
+                                'title': 'Heart Rate Variability',
+                                'figure': filename_dict['heart_rates_hrv'],
+                                'note': '* Note: heart rate variability is capped at 300'
+                            }
+                        ]
                     }
                 ]
             },
@@ -157,3 +173,31 @@ def draw_steps_heatmap():
                                 output_dir=output_dir)
 
     return figure_steps
+
+def draw_heart_rate_hrv_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the heart rate variability
+    hrv_df = get_intervention_daily_df(daily)
+
+    # cap the heart rate variability at 300
+    hrv_df.loc[hrv_df['heart_rate_stdev'] > 300, 'heart_rate_stdev'] = 300
+
+    figure_hrv = draw_heatmap(hrv_df, 
+                                index='user_id', 
+                                columns='day_index', 
+                                values='heart_rate_stdev', 
+                                legend_labels=None, 
+                                xlabel='Day Index', 
+                                ylabel='User ID', 
+                                legend_title='Heart Rate Variability (HRV)', 
+                                figure_name='heart_rates_hrv.png', 
+                                output_dir=output_dir)
+
+    return figure_hrv
