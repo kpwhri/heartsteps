@@ -97,6 +97,62 @@ def get_uuid4_filename(filename, output_dir=None):
     else:
         return '{}_{}{}'.format(filename, uuid.uuid4(), ext)
 
+class JWSection:
+    """
+    JustWalk Section
+    """
+    def __init__(self, title):
+        """
+        Initialize the section
+        """
+        self.title = title
+        self.items = []
+    
+    def add_section(self, title) -> 'JWSection':
+        """
+        Add a section
+
+        :param title: the section title
+        """
+        section = JWSection(title)
+        self.items.append(section)
+        return section
+
+    def add_slide(self, title, figure, note=None) -> dict:
+        """
+        Add a slide
+
+        :param title: the slide title
+        :param figure: the slide figure
+        """
+        slide_dict = {
+            'title': title,
+            'type': 'slide',
+            'figure': figure
+        }
+        if note is not None:
+            slide_dict['note'] = note
+
+        self.items.append(slide_dict)
+
+        return slide_dict
+    
+    def to_dict(self) -> dict:
+        """
+        Convert the section to a dictionary
+        """
+        item_dicts = []
+        for item in self.items:
+            if isinstance(item, JWSection):
+                item_dicts.append(item.to_dict())
+            else:
+                item_dicts.append(item)
+        
+        return {
+            'title': self.title,
+            'type': 'section',
+            'items': item_dicts
+        }
 
 class JWPresentation:
     """

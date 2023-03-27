@@ -1,5 +1,5 @@
 from config import SETTINGS_OUTPUT_DIR, SETTINGS_OUTPUT_FILENAME, MONGO_DB_URI_DESTINATION
-from utils import get_database, get_intervention_daily_df, draw_heatmap, JWPresentation
+from utils import get_database, get_intervention_daily_df, draw_heatmap, JWPresentation, JWSection
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +7,7 @@ import seaborn as sns
 import numpy as np
 from matplotlib.patches import Patch
 from pptx import Presentation
+import logging
 
 def prepare():
     # create output directory if it does not exist
@@ -21,52 +22,19 @@ def form_the_presentation(filename_dict):
     jwp = JWPresentation()
 
     # add a table of contents
-    jwp.toc = {
-        'type': 'section',
-        'title': 'Table of Contents',
-        'items': [
-            {
-                'type': 'section',
-                'title': 'Daily Data',
-                'items': [
-                    {
-                        'type': 'slide',
-                        'title': 'Levels',
-                        'figure': filename_dict['levels']
-                    },
-                    {
-                        'type': 'slide',
-                        'title': 'Goals',
-                        'figure': filename_dict['goals']
-                    },
-                    {
-                        'type': 'slide',
-                        'title': 'Steps',
-                        'figure': filename_dict['steps'],
-                        'note': '* Note: steps are capped at 20,000'
-                    },
-                    {
-                        'type': 'section',
-                        'title': 'Heart Rates',
-                        'items': [
-                            {
-                                'type': 'slide',
-                                'title': 'Wear Time Percentage',
-                                'figure': filename_dict['wearing_time_pct'],
-                            },
-                            {
-                                'type': 'slide',
-                                'title': 'Heart Rate Variability',
-                                'figure': filename_dict['heart_rates_hrv'],
-                                'note': '* Note: heart rate variability is capped at 300'
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+    toc = JWSection('Table of Contents')
+    daily_section = toc.add_section('Daily Data')
+    daily_section.add_slide('Levels', filename_dict['levels'])
+    daily_section.add_slide('Goals', filename_dict['goals'])
+    daily_section.add_slide('Steps', filename_dict['steps'], note='* Note: steps are capped at 20,000')
 
+    heart_rates_section = daily_section.add_section('Heart Rates')
+    heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
+    heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 100')
+
+    jwp.toc = toc.to_dict()
+    logging.debug(jwp.toc)
+    
     jwp.build()
     jwp.save(filepath)
     jwp.open()
