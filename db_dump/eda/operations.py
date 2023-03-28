@@ -55,8 +55,8 @@ def draw_level_heatmap():
     # 1. draw a heatmap of the levels
     level_df = get_intervention_daily_df(daily)
     figure_levels = draw_heatmap(level_df, 
-                                index='user_id', 
-                                columns='day_index', 
+                                index='day_index', 
+                                columns='user_id', 
                                 values='level_int', 
                                 legend_labels=[
                                     'Random (RA)', 
@@ -64,8 +64,8 @@ def draw_level_heatmap():
                                     'N+O (NO)', 
                                     'Full (FU)'
                                     ], 
-                                xlabel='Day Index', 
-                                ylabel='User ID', 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
                                 legend_title='Values', 
                                 figure_name='levels.png', 
                                 output_dir=output_dir)
@@ -84,12 +84,12 @@ def draw_goal_heatmap():
     # 2. draw a heatmap of the goals
     goals_df = get_intervention_daily_df(daily)
     figure_goals = draw_heatmap(goals_df, 
-                                index='user_id', 
-                                columns='day_index', 
+                                index='day_index', 
+                                columns='user_id', 
                                 values='step_goal', 
                                 legend_labels=None, 
-                                xlabel='Day Index', 
-                                ylabel='User ID', 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
                                 legend_title='Step Goals', 
                                 figure_name='goals.png', 
                                 output_dir=output_dir)
@@ -138,12 +138,12 @@ def draw_steps_heatmap():
     steps_df.loc[steps_df['steps'] > 20000, 'steps'] = 20000
 
     figure_steps = draw_heatmap(steps_df, 
-                                index='user_id', 
-                                columns='day_index', 
+                                index='day_index', 
+                                columns='user_id', 
                                 values='steps', 
                                 legend_labels=None, 
-                                xlabel='Day Index', 
-                                ylabel='User ID', 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
                                 legend_title='Steps', 
                                 figure_name='steps.png', 
                                 output_dir=output_dir)
@@ -195,12 +195,12 @@ def draw_heart_rate_hrv_heatmap():
     hrv_df.loc[hrv_df['heart_rate_stdev'] > 300, 'heart_rate_stdev'] = 300
 
     figure_hrv = draw_heatmap(hrv_df, 
-                                index='user_id', 
-                                columns='day_index', 
+                                index='day_index', 
+                                columns='user_id', 
                                 values='heart_rate_stdev', 
                                 legend_labels=None, 
-                                xlabel='Day Index', 
-                                ylabel='User ID', 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
                                 legend_title='Heart Rate Variability (HRV)', 
                                 figure_name='heart_rates_hrv.png', 
                                 output_dir=output_dir)
@@ -223,12 +223,12 @@ def draw_wearing_time_pct_heatmap():
     wearing_time_pct_df['wearing_pct'] = wearing_time_pct_df['wearing_pct'] * 100
 
     figure_wearing_time_pct = draw_heatmap(wearing_time_pct_df, 
-                                index='user_id', 
-                                columns='day_index', 
+                                index='day_index', 
+                                columns='user_id', 
                                 values='wearing_pct', 
                                 legend_labels=None, 
-                                xlabel='Day Index', 
-                                ylabel='User ID', 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
                                 legend_title='Wearing Time Percentage', 
                                 figure_name='wearing_time_pct.png', 
                                 output_dir=output_dir)
