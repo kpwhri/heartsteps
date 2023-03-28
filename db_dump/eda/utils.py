@@ -133,6 +133,56 @@ def draw_distribution_heatmap(df, index, values, xlabel, ylabel, legend_title, f
     plt.close()
     return figure_filepath
 
+def draw_sorted_bars(df, 
+                    index, 
+                    values, 
+                    xlabel, 
+                    ylabel, 
+                    legend_title, 
+                    figure_name, 
+                    output_dir) -> str:
+    """
+    Draw a sorted bar plot of the given dataframe
+
+    :param df: dataframe
+    :param index: index column name
+    :param values: values column name
+    :param xlabel: x label
+    :param ylabel: y label
+    :param legend_title: legend title
+    :param figure_name: figure name
+    :param output_dir: output directory
+    :return: figure path
+    """
+
+    # Create a figure
+    plt.figure(figsize=(10, 5))
+
+    # Sort the dataframe by the values
+    df = df.sort_values(by=values, ascending=False)
+    df['ranking'] = range(1, len(df)+1)
+    
+    # Draw a bar plot of pd.Series
+    ax = sns.barplot(x='ranking', y=values, data=df)
+    ax.set_xticklabels(df[index])
+
+    # Add title, legend and labels
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    # rotate x labels 90 degrees
+    plt.xticks(rotation=90)
+    
+    # Save heatmap to file
+    figure_filepath = get_uuid4_filename(figure_name, output_dir)
+    plt.savefig(figure_filepath, bbox_inches='tight', dpi=200)
+
+    # Close the figure
+    plt.close()
+    return figure_filepath
+
+
+
 def get_uuid4_filename(filename, output_dir=None):
     """
     Get a UUID4 filename
@@ -309,7 +359,7 @@ class JWPresentation:
                 top = 0.9
                 width = 0.9
                 height = 0.1
-                
+
                 left_ = self.prs.slide_width * left
                 top_ = self.prs.slide_height * top
                 width_ = self.prs.slide_width * width

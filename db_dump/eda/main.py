@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
     # Draw the wearing time heatmap
     filename_dict['wearing_time_pct'] = draw_wearing_time_pct_heatmap()
+    filename_dict['wearing_time_sorted_bars'] = draw_wearing_time_sorted_bars()
 
     # Draw the heart rate heatmap
     filename_dict['heart_rates_hrv'] = draw_heart_rate_hrv_heatmap()

@@ -1,5 +1,5 @@
 from config import SETTINGS_OUTPUT_DIR, SETTINGS_OUTPUT_FILENAME, MONGO_DB_URI_DESTINATION
-from utils import get_database, get_intervention_daily_df, draw_heatmap, draw_distribution_heatmap, JWPresentation, JWSection
+from utils import get_database, get_intervention_daily_df, draw_heatmap, draw_distribution_heatmap, JWPresentation, JWSection, draw_sorted_bars
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -32,6 +32,7 @@ def form_the_presentation(filename_dict):
 
     heart_rates_section = daily_section.add_section('Heart Rates')
     heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
+    heart_rates_section.add_slide('# of Days with >60% Wear Time (Sorted)', filename_dict['wearing_time_sorted_bars'])
     heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 300')
 
     jwp.toc = toc.to_dict()
@@ -234,3 +235,40 @@ def draw_wearing_time_pct_heatmap():
                                 output_dir=output_dir)
 
     return figure_wearing_time_pct
+
+def draw_wearing_time_sorted_bars():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the wearing time percentage
+    wearing_time_pct_df = get_intervention_daily_df(daily)
+
+    # convert to percentage
+    wearing_time_pct_df['wearing_pct'] = wearing_time_pct_df['wearing_pct'] * 100
+
+    # create a data frame with the count of days with over 60% wearing time
+    agg_wearing_time_pct_df = wearing_time_pct_df.groupby('user_id').agg({'wearing_pct': lambda x: (x > 60).sum()})
+    agg_wearing_time_pct_df = agg_wearing_time_pct_df.reset_index()
+
+    # sort the data frame by the count of days with over 60% wearing time
+    agg_wearing_time_pct_df = agg_wearing_time_pct_df.sort_values(by='wearing_pct', ascending=False)
+
+    # rename the column
+    agg_wearing_time_pct_df = agg_wearing_time_pct_df.rename(columns={'wearing_pct': 'days_over60'})
+    
+    # 6. draw a bar chart of the wearing time percentage
+    figure_wearing_time_sorted = draw_sorted_bars(agg_wearing_time_pct_df, 
+                                index='user_id', 
+                                values='days_over60', 
+                                xlabel='User ID (Ranked)', 
+                                ylabel='Number of Days with >60% Wearing Time', 
+                                legend_title='Wearing Time Percentage', 
+                                figure_name='wearing_time_sorted.png', 
+                                output_dir=output_dir)
+
+    return figure_wearing_time_sorted
