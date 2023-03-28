@@ -29,5 +29,8 @@ if __name__ == '__main__':
     # Widen the daily EMAs
     widen_daily_ema()
 
+    # copy the daily EMAs to the daily collection
+    copy_daily_ema()
+
     # Fill out NaNs in the daily collection
     fill_daily_nans()

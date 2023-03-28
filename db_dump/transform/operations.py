@@ -643,6 +643,57 @@ def widen_daily_ema():
         collection.insert_many(survey_wide_df.to_dict('records'))
         logging.info(msg="Finished widen_daily_ema()")
 
+def copy_daily_ema():
+    if COLLECTION_SURVEY_DAILY_EMA in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting copy_daily_ema()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = COLLECTION_SURVEY_DAILY_EMA
+        
+        # 2. fetch the current daily_ema collection
+        logging.info(msg="Fetching the current COLLECTION_SURVEY_DAILY_EMA collection")
+        daily_ema_collection = tdb[collection_name]
+        daily_ema_df = pd.DataFrame(daily_ema_collection.find({}, {
+            '_id': 0, 
+            'user_id': 1,
+            'when_asked_date_str': 1,
+            'C3': 1,
+            'C4': 1,
+            'C5': 1,
+            'C6': 1,
+            'C7': 1,
+            'C8': 1,
+            'C9': 1,
+            'D1': 1,
+            'D2': 1,
+            'D3': 1,
+            'D4': 1,
+            'E1_1': 1,
+            'E1_2': 1,
+            'E1_3': 1,
+            'E1_4': 1,
+            'E1_5': 1,
+            'E1_6': 1,
+            'E1_7': 1,
+            'answered': 1,
+        }))
+        daily_ema_df.rename(columns={'when_asked_date_str': 'date_str', 'answered': 'daily_ema_answered'}, inplace=True)
+        
+        # 3. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection_name = 'daily'
+        collection = tdb[collection_name]
+        
+        collection.bulk_write([
+            UpdateOne(
+                filter={'user_id': row['user_id'], 'date_str': row['date_str']},
+                update={'$set': row.to_dict()},
+                upsert=True
+            ) for _, row in daily_ema_df.iterrows()
+        ])
+
+        logging.info(msg="Finished copy_daily_ema()")
 
 def fill_daily_nans():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:

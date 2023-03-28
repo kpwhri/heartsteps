@@ -29,5 +29,9 @@ if __name__ == '__main__':
     filename_dict['heart_rates_hrv'] = draw_heart_rate_hrv_heatmap()
     filename_dict['heart_rates_hrv_distribution'] = draw_heart_rate_hrv_distribution_heatmap()
 
+    # Draw the survey daily ema heatmap
+    filename_dict['survey_daily_ema'] = draw_survey_daily_ema_heatmap()
+    filename_dict['survey_daily_ema_sorted_bars'] = draw_survey_daily_ema_sorted_bars()
+
     # Form the presentation
     form_the_presentation(filename_dict)

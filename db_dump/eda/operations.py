@@ -36,6 +36,10 @@ def form_the_presentation(filename_dict):
     heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 300')
     heart_rates_section.add_slide('Heart Rate Variability Distribution', filename_dict['heart_rates_hrv_distribution'], note='* Note: heart rate variability is capped at 300')
 
+    survey_section = daily_section.add_section('Survey')
+    survey_section.add_slide('Daily EMA', filename_dict['survey_daily_ema'])
+    survey_section.add_slide('# of Days with answered daily EMA (Sorted)', filename_dict['survey_daily_ema_sorted_bars'])
+
     jwp.toc = toc.to_dict()
     logging.debug(jwp.toc)
     
@@ -302,3 +306,64 @@ def draw_wearing_time_sorted_bars():
                                 output_dir=output_dir)
 
     return figure_wearing_time_sorted
+
+def draw_survey_daily_ema_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    df = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the daily ema
+    daily_ema_df = get_intervention_daily_df(df)
+    daily_ema_df['daily_ema_answered'] = [1 if x else 0 for x in daily_ema_df['daily_ema_answered']]
+
+    # 7. draw a heatmap of the daily ema
+    figure_daily_ema = draw_heatmap(daily_ema_df, 
+                                index='day_index', 
+                                columns='user_id', 
+                                values='daily_ema_answered', 
+                                legend_labels=['Answered', 'Not Answered'], 
+                                xlabel='User ID', 
+                                ylabel='Day Index', 
+                                legend_title='Daily EMA', 
+                                figure_name='daily_ema.png', 
+                                output_dir=output_dir)
+
+    return figure_daily_ema
+
+def draw_survey_daily_ema_sorted_bars():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    df = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the daily ema
+    daily_ema_df = get_intervention_daily_df(df)
+    
+    # create a data frame with the count of days with over 60% wearing time
+    agg_daily_ema_df = daily_ema_df.groupby('user_id').agg({'daily_ema_answered': lambda x: (x == True).sum()})
+    agg_daily_ema_df = agg_daily_ema_df.reset_index()
+
+    # sort the data frame by the count of days with over 60% wearing time
+    agg_daily_ema_df = agg_daily_ema_df.sort_values(by='daily_ema_answered', ascending=False)
+
+    # rename the column
+    agg_daily_ema_df = agg_daily_ema_df.rename(columns={'daily_ema_answered': 'days_answered'})
+    
+    # 7. draw a bar chart of the daily ema
+    figure_daily_ema_sorted = draw_sorted_bars(agg_daily_ema_df, 
+                                index='user_id', 
+                                values='days_answered', 
+                                xlabel='User ID (Ranked)', 
+                                ylabel='Number of Days with Daily EMA Answered', 
+                                legend_title='Daily EMA', 
+                                figure_name='daily_ema_sorted.png', 
+                                output_dir=output_dir)
+
+    return figure_daily_ema_sorted
