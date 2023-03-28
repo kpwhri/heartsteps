@@ -304,12 +304,12 @@ class JWPresentation:
             pic = slide.shapes.add_picture(image_path, left_, top_, width=width_)
 
             if 'note' in toc_item:
-                # create a textbox in the slide
+                # create a textbox in the slide at the bottom
                 left = 0.05
-                top = 0.15
+                top = 0.9
                 width = 0.9
-                height = 0.05
-
+                height = 0.1
+                
                 left_ = self.prs.slide_width * left
                 top_ = self.prs.slide_height * top
                 width_ = self.prs.slide_width * width

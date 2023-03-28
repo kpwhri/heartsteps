@@ -28,6 +28,7 @@ def form_the_presentation(filename_dict):
     daily_section.add_slide('Goals', filename_dict['goals'])
     daily_section.add_slide('Goals Distribution', filename_dict['goals_distribution'])
     daily_section.add_slide('Steps', filename_dict['steps'], note='* Note: steps are capped at 20,000')
+    daily_section.add_slide('Steps Distribution', filename_dict['steps_distribution'], note='* Note: steps are capped at 20,000')
 
     heart_rates_section = daily_section.add_section('Heart Rates')
     heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
@@ -148,6 +149,35 @@ def draw_steps_heatmap():
                                 output_dir=output_dir)
 
     return figure_steps
+
+def draw_steps_distribution_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # 3. draw a heatmap of the steps
+    steps_df = get_intervention_daily_df(daily)
+
+    # 4. cut off the steps at 20,000
+    steps_df.loc[steps_df['steps'] > 20000, 'steps'] = 20000
+
+    # 5. draw a heatmap of the steps distribution
+    figure_path = draw_distribution_heatmap(
+                                steps_df, 
+                                index='user_id', 
+                                values='steps', 
+                                xlabel='User ID', 
+                                ylabel='Steps', 
+                                legend_title='Steps', 
+                                figure_name='steps_distribution.png', 
+                                n=20,
+                                output_dir=output_dir)
+
+    return figure_path
 
 def draw_heart_rate_hrv_heatmap():
     # Default Visualization Parameters

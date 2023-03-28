@@ -19,6 +19,7 @@ if __name__ == '__main__':
 
     # Draw the steps heatmap
     filename_dict['steps'] = draw_steps_heatmap()
+    filename_dict['steps_distribution'] = draw_steps_distribution_heatmap()
 
     # Draw the wearing time heatmap
     filename_dict['wearing_time_pct'] = draw_wearing_time_pct_heatmap()
