@@ -25,10 +25,14 @@ def form_the_presentation(filename_dict):
     toc = JWSection('Table of Contents')
     daily_section = toc.add_section('Daily Data')
     daily_section.add_slide('Levels', filename_dict['levels'])
-    daily_section.add_slide('Goals', filename_dict['goals'])
-    daily_section.add_slide('Goals Distribution', filename_dict['goals_distribution'])
-    daily_section.add_slide('Steps', filename_dict['steps'], note='* Note: steps are capped at 20,000')
-    daily_section.add_slide('Steps Distribution', filename_dict['steps_distribution'], note='* Note: steps are capped at 20,000')
+
+    goals_section = daily_section.add_section('Goals')
+    goals_section.add_slide('Goals', filename_dict['goals'])
+    goals_section.add_slide('Goals Distribution', filename_dict['goals_distribution'])
+
+    steps_section = daily_section.add_section('Steps')
+    steps_section.add_slide('Steps', filename_dict['steps'], note='* Note: steps are capped at 20,000')
+    steps_section.add_slide('Steps Distribution', filename_dict['steps_distribution'], note='* Note: steps are capped at 20,000')
 
     heart_rates_section = daily_section.add_section('Heart Rates')
     heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
@@ -318,14 +322,14 @@ def draw_survey_daily_ema_heatmap():
 
     # draw a heatmap of the daily ema
     daily_ema_df = get_intervention_daily_df(df)
-    daily_ema_df['daily_ema_answered'] = [1 if x else 0 for x in daily_ema_df['daily_ema_answered']]
+    daily_ema_df['daily_ema_answered'] = [1 if x == True else 0 for x in daily_ema_df['daily_ema_answered']]
 
     # 7. draw a heatmap of the daily ema
     figure_daily_ema = draw_heatmap(daily_ema_df, 
                                 index='day_index', 
                                 columns='user_id', 
                                 values='daily_ema_answered', 
-                                legend_labels=['Answered', 'Not Answered'], 
+                                legend_labels=['Not Answered', 'Answered'], 
                                 xlabel='User ID', 
                                 ylabel='Day Index', 
                                 legend_title='Daily EMA', 
