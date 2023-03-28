@@ -501,14 +501,36 @@ def transform_survey():
         collection.insert_many(survey_df.to_dict('records'))
         logging.info(msg="Finished refresh_survey()")
 
+def select_daily_ema():
+    if COLLECTION_SURVEY_DAILY_EMA in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting select_daily_ema()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = 'survey'
 
+        # 2. fetch the survey collection
+        logging.info(msg="Fetching the survey collection")
+        collection = tdb[collection_name]
+        survey_df = pd.DataFrame(collection.find({}, {'_id': 0}))
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
 
+        # 3. select the daily ema questions
+        logging.info(msg="Selecting the daily ema questions")
+        survey_df = survey_df[survey_df['question_name'].str.contains('daily_ema', na=False)]
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
 
-
-
-
-
-
+        # 4. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection_name = COLLECTION_SURVEY_DAILY_EMA
+        collection = tdb[collection_name]
+        collection.delete_many({})
+        collection.insert_many(survey_df.to_dict('records'))
+        logging.info(msg="Finished select_daily_ema()")
 
 def fill_daily_nans():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:

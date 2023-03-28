@@ -23,5 +23,8 @@ if __name__ == '__main__':
     # Load the notification collection
     transform_survey()
 
+    # Select the daily EMAs
+    select_daily_ema()
+
     # Fill out NaNs in the daily collection
     fill_daily_nans()

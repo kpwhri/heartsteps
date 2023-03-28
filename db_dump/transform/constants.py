@@ -4,3 +4,4 @@ COLLECTION_MINUTE_STEP = 'minute_step'
 COLLECTION_MINUTE_HEART_RATE = 'minute_heart_rate'
 
 COLLECTION_SURVEY = 'survey'
+COLLECTION_SURVEY_DAILY_EMA = 'survey_daily_ema'
