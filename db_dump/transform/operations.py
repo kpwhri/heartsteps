@@ -2,6 +2,7 @@ from config import SETTINGS_REFRESH_COLLECTIONS, MONGO_DB_URI_SOURCE, MONGO_DB_U
 from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list
 from constants import *
 from tqdm import tqdm
+import os
 import pandas as pd
 import numpy as np
 import ray
@@ -524,6 +525,34 @@ def select_daily_ema():
         logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
         logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
 
+        # 4. assign the construct names
+        logging.info(msg="Assigning the construct names")
+
+        # 4.1. create a dictionary of construct names
+        construct_dict = {
+            'Being active is a <b>top priority</b> tomorrow. ': 'C3',
+            '<b>Circumstances will help me</b> to be active tomorrow (e.g., nice weather, getting in nature, free time).': 'C4',
+            'My <b>schedule makes it easy</b> to be active tomorrow.': 'C5',
+            'I <b>expect obstacles</b> (e.g., no time, unsafe, poor weather) to being active tomorrow.': 'C6',
+            'I know how to <b>solve any problems</b> to being active tomorrow.': 'C7',
+            'I am confident I can <b>overcome obstacles</b> to being active tomorrow.': 'C8',
+            "<b>No matter what</b>, I'm going to be active tomorrow.": 'C9',
+            'In general, my <b>friends help me</b> to be active.': 'D1',
+            'I regularly feel <b>urges to</b> be active.': 'D2',
+            'I am active because it <b>helps me feel better</b> (e.g., reduce stress, stiffness, or fatigue).': 'D3',
+            'I have a <b>wide range of strategies</b> (e.g., call friends while walking) that I use to be active regularly. ': 'D4',
+            'My <b>typical Monday includes being active.</b>': 'E1_1',
+            'My <b>typical Tuesday includes being active.</b>': 'E1_2',
+            'My <b>typical Wednesday includes being active.</b>': 'E1_3',
+            'My <b>typical Thursday includes being active.</b>': 'E1_4',
+            'My <b>typical Friday includes being active.</b>': 'E1_5',
+            'My <b>typical Saturday includes being active.</b>': 'E1_6',
+            'My <b>typical Sunday includes being active.</b>': 'E1_7'
+        }
+
+        # 4.2. add the construct names to the dataframe
+        survey_df['construct_name'] = survey_df['question_text'].map(construct_dict)
+
         # 4. save the dataframe to the database
         logging.info(msg="Saving the dataframe to the database")
         collection_name = COLLECTION_SURVEY_DAILY_EMA
@@ -531,6 +560,91 @@ def select_daily_ema():
         collection.delete_many({})
         collection.insert_many(survey_df.to_dict('records'))
         logging.info(msg="Finished select_daily_ema()")
+
+def widen_daily_ema():
+    if COLLECTION_SURVEY_DAILY_EMA in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting widen_daily_ema()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = COLLECTION_SURVEY_DAILY_EMA
+
+        # 2. fetch the survey collection
+        logging.info(msg="Fetching the survey_daily_ema collection")
+        collection = tdb[collection_name]
+        survey_df = pd.DataFrame(collection.find({}, {'_id': 0}))
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
+
+        # 2.1. check the redundant rows
+        logging.info(msg="Checking the redundant rows")
+        redundant_rows = survey_df[survey_df.duplicated(subset=['survey_id', 'construct_name'], keep=False)]
+        logging.info(msg="redundant_rows.shape: {}".format(redundant_rows.shape))
+        logging.debug(msg="redundant_rows.head(): \n{}".format(redundant_rows[['survey_id', 'question_text', 'surveyanswer_id', 'answer_value']].head()))
+
+        # 2.2. sort the survey_df, then use the last row for the redundant rows
+        logging.info(msg="Using the last row for the redundant rows")
+        survey_df = survey_df.sort_values(by=['survey_id', 'construct_name', 'when_asked'], ascending=[True, True, True])
+        survey_df = survey_df.drop_duplicates(subset=['survey_id', 'construct_name'], keep='last')
+        
+        # 3. pivot the dataframe
+        logging.info(msg="Pivoting the dataframe")
+        survey_wide_df = survey_df.pivot(index='survey_id', columns='construct_name', values='answer_value')
+        logging.info(msg="survey_wide_df.shape: {}".format(survey_wide_df.shape))
+        logging.debug(msg="survey_wide_df.columns: {}".format(survey_wide_df.columns))
+        logging.debug(msg="survey_wide_df.head(): \n{}".format(survey_wide_df.head()))
+        
+        # 4. select the survey info
+        logging.info(msg="Selecting the survey info")
+        survey_info_df = survey_df[['survey_id', 'user_id', 'when_asked', 'when_asked_date_str', 'when_asked_time_str', 'kind']]
+        survey_info_df = survey_info_df.drop_duplicates()
+        logging.info(msg="survey_info_df.shape: {}".format(survey_info_df.shape))
+        logging.debug(msg="survey_info_df.columns: {}".format(survey_info_df.columns))
+        logging.debug(msg="survey_info_df.head(): \n{}".format(survey_info_df.head()))
+
+        # 5. merge the survey info with the wide survey
+        logging.info(msg="Merging the survey info with the wide survey")
+        survey_wide_df = survey_info_df.merge(survey_wide_df, on='survey_id', how='left')
+        logging.info(msg="survey_wide_df.shape: {}".format(survey_wide_df.shape))
+        logging.debug(msg="survey_wide_df.columns: {}".format(survey_wide_df.columns))
+        logging.debug(msg="survey_wide_df.head(): \n{}".format(survey_wide_df.head()))
+
+        # 6. if the answer value is NaN for all the constructs ranging C3 to C9, D1 to D4, E1_1 to E1_7, then mark it as unanswered. If there is at least one answer_value, then mark it as answered.
+        logging.info(msg="Marking the unanswered surveys")
+        survey_wide_df['answered'] = survey_wide_df.apply(lambda x: False if x[['C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'D1', 'D2', 'D3', 'D4', 'E1_1', 'E1_2', 'E1_3', 'E1_4', 'E1_5', 'E1_6', 'E1_7']].isnull().all() else True, axis=1)
+
+        # 7. calculate the elapsed_since_last_survey for each user
+        logging.info(msg="Using the last answered survey")
+        survey_wide_df = survey_wide_df.sort_values(by=['user_id', 'when_asked'], ascending=[True, True])
+        survey_wide_df['when_asked'] = survey_wide_df['when_asked'].astype('datetime64[ns]')
+        survey_wide_df['elapsed_since_last_survey'] = survey_wide_df.groupby('user_id')['when_asked'].diff().dt.total_seconds()
+
+        # 8. give the cluster id incrementally. But if the elapsed_since_last_survey is less than 3600 seconds, then give the same cluster id as the previous survey.
+        logging.info(msg="Giving the cluster id incrementally")
+        survey_wide_df['cluster_id'] = survey_wide_df.groupby('user_id', group_keys=False)['elapsed_since_last_survey'].apply(lambda x: x.gt(3600).cumsum())
+        survey_wide_df['cluster_id'] = survey_wide_df['cluster_id'].astype('int')
+
+        # 9. in the cluster, if there is one survey, use it. if there are more than one surveys, and the last survey is answered, use it. if there are more than one surveys, and the last survey is unanswered, use the last answered survey.
+        logging.info(msg="Using the last answered survey")
+        survey_wide_df = survey_wide_df.sort_values(by=['user_id', 'cluster_id', 'answered', 'when_asked'], ascending=[True, True, True, True])
+        survey_wide_df = survey_wide_df.drop_duplicates(subset=['user_id', 'cluster_id'], keep='last')
+
+        # 10. recalculate the elapsed_since_last_survey for each user
+        logging.info(msg="Recalculating the elapsed_since_last_survey")
+        survey_wide_df = survey_wide_df.sort_values(by=['user_id', 'when_asked'], ascending=[True, True])
+        survey_wide_df['when_asked'] = survey_wide_df['when_asked'].astype('datetime64[ns]')
+        survey_wide_df['elapsed_since_last_survey'] = survey_wide_df.groupby('user_id')['when_asked'].diff().dt.total_seconds()
+        survey_wide_df.drop(columns=['cluster_id'], inplace=True)
+
+        # 7. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection_name = COLLECTION_SURVEY_DAILY_EMA_WIDE
+        collection = tdb[collection_name]
+        collection.delete_many({})
+        collection.insert_many(survey_wide_df.to_dict('records'))
+        logging.info(msg="Finished widen_daily_ema()")
+
 
 def fill_daily_nans():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
