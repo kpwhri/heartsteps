@@ -1,9 +1,9 @@
-from operations import transform_participants, transform_daily, transform_minute_step, transform_minute_heart_rate, copy_daily_steps_and_heart_rate, fill_daily_nans
+from operations import *
 import ray
 
 if __name__ == '__main__':
     # Initialize Ray
-    ray.init()
+    # ray.init()
     
     # Load the study, cohort, and participant collections and merge them into the participants collection
     transform_participants()
@@ -19,6 +19,9 @@ if __name__ == '__main__':
 
     # Copy the daily steps and heart rate aggregated data to the daily collection
     copy_daily_steps_and_heart_rate()
+
+    # Load the notification collection
+    transform_survey()
 
     # Fill out NaNs in the daily collection
     fill_daily_nans()

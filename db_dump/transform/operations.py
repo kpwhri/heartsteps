@@ -400,6 +400,116 @@ def copy_daily_steps_and_heart_rate():
             ) for index, row in daily_df.iterrows()
         ])
 
+def transform_survey():
+    if COLLECTION_SURVEY in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting transform_survey()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        # 2. get participant_list
+        logging.info(msg="Fetching the participant list")
+        participant_list = get_participant_list()
+
+        # 3. fetch the survey_survey collection
+        logging.info(msg="Fetching the notification collection")
+        collection_name = 'surveys_survey'
+        collection = db[collection_name]
+        survey_df = pd.DataFrame(collection.find({'user_id': {'$in': participant_list}}, {'_id': 0, 'uuid': 1, 'user_id': 1, 'created': 1}))
+        survey_df.rename(columns={'uuid': 'survey_id', 'created': 'when_asked'}, inplace=True)
+        survey_df['when_asked'] = pd.to_datetime(survey_df['when_asked']).dt.tz_convert('America/Los_Angeles')
+        survey_df['when_asked_date_str'] = survey_df['when_asked'].dt.strftime('%Y-%m-%d')
+        survey_df['when_asked_time_str'] = survey_df['when_asked'].dt.strftime('%H:%M:%S')
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.debug(msg="surve_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
+        survey_id_list = survey_df['survey_id'].unique().tolist()
+        logging.debug(msg="survey_id_list[:10]: \n{}".format(survey_id_list[:10]))
+
+        # 4. fetch the survey_surveyquestion collection
+        logging.info(msg="Fetching the survey_surveyquestion collection")
+        collection_name = 'surveys_surveyquestion'
+        collection = db[collection_name]
+        question_df = pd.DataFrame(collection.find({'survey_id': {'$in': survey_id_list}}, {'_id': 0, 'id': 1, 'name': 1, 'label': 1, 'survey_id': 1, 'order': 1, 'kind': 1}))
+        question_df.rename(columns={'id': 'surveyquestion_id', 'name': 'question_name', 'label': 'question_text', 'order': 'question_order'}, inplace=True)
+        logging.info(msg="question_df.shape: {}".format(question_df.shape))
+        logging.debug(msg="question_df.columns: {}".format(question_df.columns))
+        logging.debug(msg="question_df.head(): \n{}".format(question_df.head()))
+        surveyquestion_id_list = question_df['surveyquestion_id'].unique().tolist()
+        logging.debug(msg="surveyquestion_id_list[:10]: \n{}".format(surveyquestion_id_list[:10]))
+
+        # 5. fetch the survey_surveyanswer collection
+        logging.info(msg="Fetching the survey_surveyanswer collection")
+        collection_name = 'surveys_surveyanswer'
+        collection = db[collection_name]
+        answer_df = pd.DataFrame(collection.find({'question_id': {'$in': surveyquestion_id_list}}, {'_id': 0, 'id': 1, 'label': 1, 'value': 1, 'order': 1}))
+        answer_df.rename(columns={'id': 'surveyanswer_id', 'label': 'answer_text', 'value': 'answer_value', 'order': 'answer_order'}, inplace=True)
+        logging.info(msg="answer_df.shape: {}".format(answer_df.shape))
+        logging.debug(msg="answer_df.columns: {}".format(answer_df.columns))
+        logging.debug(msg="answer_df.head(): \n{}".format(answer_df.head()))
+
+
+        # 6. fetch the survey_surveyresponse collection
+        logging.info(msg="Fetching the survey_surveyresponse collection")
+        collection_name = 'surveys_surveyresponse'
+        collection = db[collection_name]
+        response_df = pd.DataFrame(collection.find({'survey_id': {'$in': survey_id_list}}, {'_id': 0, 'id': 1, 'user_id': 1, 'question_id': 1, 'answer_id': 1}))
+        response_df.rename(columns={'id': 'surveyresponse_id', 'question_id': 'surveyquestion_id', 'answer_id': 'surveyanswer_id'}, inplace=True)
+        logging.info(msg="response_df.shape: {}".format(response_df.shape))
+        logging.debug(msg="response_df.columns: {}".format(response_df.columns))
+        logging.debug(msg="response_df.head(): \n{}".format(response_df.head()))
+
+        # 7. merge the dataframes
+        logging.info(msg="Merging the dataframes")
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.info(msg="question_df.shape: {}".format(question_df.shape))
+        logging.info(msg="answer_df.shape: {}".format(answer_df.shape))
+        logging.info(msg="response_df.shape: {}".format(response_df.shape))
+
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="question_df.columns: {}".format(question_df.columns))
+        survey_df = survey_df.merge(question_df, on='survey_id', how='left')
+
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="response_df.columns: {}".format(response_df.columns))
+        survey_df = survey_df.merge(response_df, on='surveyquestion_id', how='left')
+
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="answer_df.columns: {}".format(answer_df.columns))
+        survey_df = survey_df.merge(answer_df, on='surveyanswer_id', how='left')
+
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
+        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
+
+        
+
+        # 8. reorder the columns
+        logging.info(msg="Reordering the columns")
+        survey_df = survey_df[[
+            'user_id', 'when_asked', 'when_asked_date_str', 'when_asked_time_str', 
+            'question_name', 'question_text', 'question_order',
+            'answer_text', 'answer_value', 'answer_order', 'kind', 
+            'survey_id', 'surveyquestion_id', 'surveyanswer_id', 'surveyresponse_id']]
+        
+        # 10. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection_name = 'survey'
+        collection = tdb[collection_name]
+        collection.delete_many({})
+        collection.insert_many(survey_df.to_dict('records'))
+        logging.info(msg="Finished refresh_survey()")
+
+
+
+
+
+
+
+
+
+
 def fill_daily_nans():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         logging.info(msg="Starting fill_daily_nans()")
