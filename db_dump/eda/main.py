@@ -27,6 +27,7 @@ if __name__ == '__main__':
 
     # Draw the heart rate heatmap
     filename_dict['heart_rates_hrv'] = draw_heart_rate_hrv_heatmap()
+    filename_dict['heart_rates_hrv_distribution'] = draw_heart_rate_hrv_distribution_heatmap()
 
     # Form the presentation
     form_the_presentation(filename_dict)

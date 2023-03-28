@@ -34,6 +34,7 @@ def form_the_presentation(filename_dict):
     heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
     heart_rates_section.add_slide('# of Days with >60% Wear Time (Sorted)', filename_dict['wearing_time_sorted_bars'])
     heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 300')
+    heart_rates_section.add_slide('Heart Rate Variability Distribution', filename_dict['heart_rates_hrv_distribution'], note='* Note: heart rate variability is capped at 300')
 
     jwp.toc = toc.to_dict()
     logging.debug(jwp.toc)
@@ -207,6 +208,35 @@ def draw_heart_rate_hrv_heatmap():
                                 output_dir=output_dir)
 
     return figure_hrv
+
+def draw_heart_rate_hrv_distribution_heatmap():
+    # Default Visualization Parameters
+    cm_name = 'coolwarm'
+    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
+
+    # get the database
+    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+    daily = pd.DataFrame(list(db['daily'].find()))
+
+    # draw a heatmap of the heart rate variability
+    hrv_df = get_intervention_daily_df(daily)
+
+    # cap the heart rate variability at 300
+    hrv_df.loc[hrv_df['heart_rate_stdev'] > 300, 'heart_rate_stdev'] = 300
+
+    # draw a heatmap of the heart rate variability distribution
+    figure_path = draw_distribution_heatmap(
+                                hrv_df, 
+                                index='user_id', 
+                                values='heart_rate_stdev', 
+                                xlabel='User ID', 
+                                ylabel='Heart Rate Variability (HRV)', 
+                                legend_title='Heart Rate Variability (HRV)', 
+                                figure_name='heart_rates_hrv_distribution.png', 
+                                n=20,
+                                output_dir=output_dir)
+
+    return figure_path
 
 def draw_wearing_time_pct_heatmap():
     # Default Visualization Parameters
