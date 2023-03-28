@@ -5,4 +5,3 @@ COLLECTION_MINUTE_HEART_RATE = 'minute_heart_rate'
 
 COLLECTION_SURVEY = 'survey'
 COLLECTION_SURVEY_DAILY_EMA = 'survey_daily_ema'
-COLLECTION_SURVEY_DAILY_EMA_WIDE = 'survey_daily_ema_wide'

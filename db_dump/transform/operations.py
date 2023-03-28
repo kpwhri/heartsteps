@@ -639,8 +639,6 @@ def widen_daily_ema():
 
         # 7. save the dataframe to the database
         logging.info(msg="Saving the dataframe to the database")
-        collection_name = COLLECTION_SURVEY_DAILY_EMA_WIDE
-        collection = tdb[collection_name]
         collection.delete_many({})
         collection.insert_many(survey_wide_df.to_dict('records'))
         logging.info(msg="Finished widen_daily_ema()")
