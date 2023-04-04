@@ -182,7 +182,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         .all()
 
     # toggle for debugging
-    code.interact(local=dict(globals(), **locals()))
+    #code.interact(local=dict(globals(), **locals()))
 
     # MorningMessage question names for consistent headers across all users
     questions_headers = ['busy', 'rested', 'committed', 'mm_extrinsic_motivation', 'extrinsic', 'mm_intrinsic_motivation', 'intrinsic']
@@ -202,8 +202,12 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         for question in questions_headers:
             df_morning_messages[question.title()] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), question) if msg.survey is not None else np.nan)
 
-        # Collect mood from answers dictionary
-        df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
+	# Merge intrinsic/extrinsic columns (old and new question)
+	df_morning_messages['extrinsic'.title()] = df_morning_messages['extrinsic'.title()].combine_first(df_morning_messages['mm_extrinsic_motivation'.title()])
+        df_morning_messages['intrinsic'.title()] = df_morning_messages['intrinsic'.title()].combine_first(df_morning_messages['mm_intrinsic_motivation'.title()])
+
+	# Collect mood from answers dictionary
+	df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
 
         # Drop 'Object' column
         df_morning_messages.drop('Object', axis=1, inplace=True)
@@ -221,7 +225,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_dates['Mood'] = np.nan
         result = df_dates
 
-    # Merge old and new intrinsic/extrinsic columns
+    # Drop extra intrinsic/extrinsic columns
     result.drop('mm_extrinsic_motivation'.title(), axis=1, inplace=True)
     result.drop('mm_intrinsic_motivation'.title(), axis=1, inplace=True)
 
