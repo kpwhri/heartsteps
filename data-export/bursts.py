@@ -57,6 +57,8 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     uid = user["uid"]
     username = user["hsid"]
 
+    print(uid,username)
+
     if DEBUG:
         print("  Exporting burst walking survey data for: ", username)
 
