@@ -73,19 +73,28 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
         return
 
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
 
     u = WalkingSuggestionSurvey.objects.filter(user_id=username).order_by('created', 'updated').all()
 
-    df = pd.DataFrame({'Object': u})
-    df['Survey Time'] = df['Object'].map(lambda x: x.created)
-    df['Completed Time'] = df['Object'].map(lambda x: x.updated if x.answered else np.nan)
-    df['Answered'] = df['Object'].map(lambda x: bool(x.answered))
-    #df['Burst Period 1'] = df['Object'].map(lambda x: bool(x.created > b1 and x.created < (b1+timedelta(days=8)))
-    #df['Burst Period 2'] = df['Object'].map(lambda x: bool(x.created > b2 and x.created < (b2+timedelta(days=8))))
-    #df['Burst Period 3'] = df['Object'].map(lambda x: bool(x.created > b3 and x.created < (b3+timedelta(days=8))))
-    #df['Burst Period 4'] = df['Object'].map(lambda x: bool(x.created > b4 and x.created < (b4+timedelta(days=8))))
-    for q in questions.keys():
-        df[q] = df['Object'].map(lambda x: x.get_answers()[q] if q in x.get_answers() else np.nan) 
+    questions = ['busyness', 'commitment', 'relaxed', 'tense', 'energetic', 'fatigued', 'happy', 'sad', 'stressed', 'opportunity']
 
+    data={}
+    data["created"]=[]
+    data["completed"]=[]
+    data["answered"]=[]
+    for q in questions:
+        data[q]=[] 
+
+    for i,s in enumerate(u):
+        print(i)
+        data["created"].append(s.created)
+        data["completed"].append(s.updated if s.answered else np.nan)
+        data["answered"].append(s.answered)
+        answers = s.get_answers()
+        for q in questions:
+            data[q].append(answers[q] if q in answers else np.nan)
+
+    df = pd.DataFrame(data)
+    df["Participant ID"] = username
