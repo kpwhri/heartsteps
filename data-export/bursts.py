@@ -57,8 +57,6 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     uid = user["uid"]
     username = user["hsid"]
 
-    print(uid,username)
-
     if DEBUG:
         print("  Exporting burst walking survey data for: ", username)
 
@@ -90,7 +88,6 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
         data[q]=[] 
 
     for i,s in enumerate(u):
-        print(i)
         data["created"].append(s.created)
         data["completed"].append(s.updated if s.answered else np.nan)
         data["answered"].append(s.answered)
@@ -101,4 +98,5 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     df = pd.DataFrame(data)
     df["Participant ID"] = username
 
+    print(uid,username,df["answered"].sum())
     print(df)
