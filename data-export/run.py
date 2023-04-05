@@ -10,7 +10,7 @@ import numpy as np
 import traceback
 import argparse
 
-import weekly, daily, minute
+import weekly, daily, minute, bursts
 
 
 def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
@@ -40,6 +40,9 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
             if("minute" in exports):
                 minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
+
+            if("burst" in exports):
+                bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
             
         except Exception as e:
             print("Error exporting data for user: " + u)
