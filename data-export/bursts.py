@@ -100,3 +100,5 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     print(uid,username,df["answered"].sum())
     print(df)
+
+    df.to_csv(os.path.join(directory,filename))
