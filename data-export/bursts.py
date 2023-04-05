@@ -76,7 +76,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     #import code
     #code.interact(local=dict(globals(), **locals()))
 
-    u = WalkingSuggestionSurvey.objects.filter(user_id=username).order_by('created', 'updated').all()
+    u = WalkingSuggestionSurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
 
     questions = ['busyness', 'commitment', 'relaxed', 'tense', 'energetic', 'fatigued', 'happy', 'sad', 'stressed', 'opportunity']
 
