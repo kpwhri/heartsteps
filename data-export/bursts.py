@@ -98,3 +98,5 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     df = pd.DataFrame(data)
     df["Participant ID"] = username
+
+    print(df)
