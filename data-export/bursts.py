@@ -98,7 +98,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     df = pd.DataFrame(data)
     df["Participant ID"] = username
 
-    print(uid,username,df["answered"].sum())
-    print(df)
+    print(f"   Total answers {df['answered'].sum()}")
+    #print(df)
 
     df.to_csv(os.path.join(directory,filename))
