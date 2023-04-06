@@ -6,8 +6,6 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
-import code
-
 import utils
 
 from days.models import Day
@@ -40,8 +38,6 @@ from surveys.models import Survey
 from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
-
-from morning_messages.models import MorningMessage
 
 
 def export_daily_planning_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
@@ -130,12 +126,10 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if(DEBUG):
         print("  Wrote %d rows"%(len(plan_creation_extended)))
 
-
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
     Construct dataframe from MorningMessage data model and export to csv
-
     Reference task: export_morning_message_survey in server/morning_messages/tasks.py
     """
 
@@ -196,18 +190,22 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Completed'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Engaged'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
+        
+        df_morning_messages['Time Survey Created'] =  df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Survey Completed'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.updated, msg.timezone) if (msg.message is not None and msg.survey.answered) else np.nan)        
+        
 
         # Map each question to response title if answered
         for question in questions_headers:
             df_morning_messages[question.title()] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), question) if msg.survey is not None else np.nan)
 
-	# Merge intrinsic/extrinsic columns (old and new question)
-	df_morning_messages['extrinsic'.title()] = df_morning_messages['extrinsic'.title()].combine_first(df_morning_messages['mm_extrinsic_motivation'.title()])
+        # Merge intrinsic/extrinsic columns (old and new question)
+        df_morning_messages['extrinsic'.title()] = df_morning_messages['extrinsic'.title()].combine_first(df_morning_messages['mm_extrinsic_motivation'.title()])
         df_morning_messages['intrinsic'.title()] = df_morning_messages['intrinsic'.title()].combine_first(df_morning_messages['mm_intrinsic_motivation'.title()])
 
-	# Collect mood from answers dictionary
-	df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
+        # Collect mood from answers dictionary
+        df_morning_messages['Mood'] = df_morning_messages['Object'].map(lambda msg: map_dict_if_key_exists(msg.survey.get_answers(), 'selected_word') if msg.survey is not None else np.nan)
 
         # Drop 'Object' column
         df_morning_messages.drop('Object', axis=1, inplace=True)
