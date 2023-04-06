@@ -195,7 +195,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Engaged'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
         
         df_morning_messages['Time Survey Created'] =  df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Survey Completed'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.updated, msg.timezone) if (msg.message is not None and msg.survey.answered) else np.nan)        
+        df_morning_messages['Time Survey Updated'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.updated, msg.timezone) if (msg.message is not None and msg.survey.answered) else np.nan)        
         
 
         # Map each question to response title if answered
