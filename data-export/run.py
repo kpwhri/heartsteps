@@ -12,6 +12,7 @@ import argparse
 
 import weekly, daily, minute, bursts
 
+debug_users =["244"]
 
 def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
@@ -21,6 +22,10 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
     count=0
     for u in users:
+
+        if u["hsid"] not in debug_users:
+            continue
+
         try:
             if(users[u]["cohort"]!=cohort): continue
 
@@ -49,9 +54,6 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             print(e)
             traceback.print_exc()
 
-        if(DEBUG==True and count>=1):
-            break        
-        count=count+1
 
 if __name__ == "__main__":
 
