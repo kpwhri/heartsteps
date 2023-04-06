@@ -237,7 +237,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
 
 def map_time_if_exists(df_field, tz):
-    return to_time(df_field.astimezone(tz)) if df_field is not None else np.nan
+    return df_field
+    #return to_time(df_field.astimezone(tz)) if df_field is not None else np.nan
 
 
 def to_time(df_datetime):
