@@ -168,7 +168,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     morning_messages = MorningMessage.objects \
         .order_by('date') \
         .filter(
-            user_id=uid
+            user=uid
         ) \
         .prefetch_decision() \
         .prefetch_message() \
