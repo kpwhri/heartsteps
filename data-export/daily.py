@@ -121,6 +121,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         plan_creation_extended=plan_creation_extended.groupby(["Subject ID", "Date"]).sum()
 
     else:
+        print('  EMPTY QUERY -- no messages found')
         plan_creation_extended=df_dates
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
@@ -215,7 +216,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
 
     else:
-        print('EMPTY QUERY -- no messages found')
+        print('  EMPTY QUERY -- no data found')
 
         df_dates[['Time Sent', 'Time Received', 'Time Opened', 'Time Completed']] = np.nan
 
