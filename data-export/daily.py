@@ -39,6 +39,7 @@ from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
 
+from morning_messages.models import MorningMessage
 
 def export_daily_planning_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
