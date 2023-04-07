@@ -1,8 +1,9 @@
 from config import SETTINGS_REFRESH_COLLECTIONS, MONGO_DB_URI_SOURCE, MONGO_DB_URI_DESTINATION
-from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list
+from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list, df_info
 from constants import *
 from tqdm import tqdm
 import os
+import pytz
 import pandas as pd
 import numpy as np
 import ray
@@ -422,9 +423,7 @@ def transform_survey():
         survey_df['when_asked'] = pd.to_datetime(survey_df['when_asked']).dt.tz_convert('America/Los_Angeles')
         survey_df['when_asked_date_str'] = survey_df['when_asked'].dt.strftime('%Y-%m-%d')
         survey_df['when_asked_time_str'] = survey_df['when_asked'].dt.strftime('%H:%M:%S')
-        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
-        logging.debug(msg="surve_df.columns: {}".format(survey_df.columns))
-        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
+        df_info(survey_df, 'survey_df')
         survey_id_list = survey_df['survey_id'].unique().tolist()
         logging.debug(msg="survey_id_list[:10]: \n{}".format(survey_id_list[:10]))
 
@@ -434,9 +433,7 @@ def transform_survey():
         collection = db[collection_name]
         question_df = pd.DataFrame(collection.find({'survey_id': {'$in': survey_id_list}}, {'_id': 0, 'id': 1, 'name': 1, 'label': 1, 'survey_id': 1, 'order': 1, 'kind': 1}))
         question_df.rename(columns={'id': 'surveyquestion_id', 'name': 'question_name', 'label': 'question_text', 'order': 'question_order'}, inplace=True)
-        logging.info(msg="question_df.shape: {}".format(question_df.shape))
-        logging.debug(msg="question_df.columns: {}".format(question_df.columns))
-        logging.debug(msg="question_df.head(): \n{}".format(question_df.head()))
+        df_info(question_df, name='question_df')
         surveyquestion_id_list = question_df['surveyquestion_id'].unique().tolist()
         logging.debug(msg="surveyquestion_id_list[:10]: \n{}".format(surveyquestion_id_list[:10]))
 
@@ -446,9 +443,7 @@ def transform_survey():
         collection = db[collection_name]
         answer_df = pd.DataFrame(collection.find({'question_id': {'$in': surveyquestion_id_list}}, {'_id': 0, 'id': 1, 'label': 1, 'value': 1, 'order': 1}))
         answer_df.rename(columns={'id': 'surveyanswer_id', 'label': 'answer_text', 'value': 'answer_value', 'order': 'answer_order'}, inplace=True)
-        logging.info(msg="answer_df.shape: {}".format(answer_df.shape))
-        logging.debug(msg="answer_df.columns: {}".format(answer_df.columns))
-        logging.debug(msg="answer_df.head(): \n{}".format(answer_df.head()))
+        df_info(answer_df, name='answer_df')
 
 
         # 6. fetch the survey_surveyresponse collection
@@ -457,10 +452,8 @@ def transform_survey():
         collection = db[collection_name]
         response_df = pd.DataFrame(collection.find({'survey_id': {'$in': survey_id_list}}, {'_id': 0, 'id': 1, 'user_id': 1, 'question_id': 1, 'answer_id': 1}))
         response_df.rename(columns={'id': 'surveyresponse_id', 'question_id': 'surveyquestion_id', 'answer_id': 'surveyanswer_id'}, inplace=True)
-        logging.info(msg="response_df.shape: {}".format(response_df.shape))
-        logging.debug(msg="response_df.columns: {}".format(response_df.columns))
-        logging.debug(msg="response_df.head(): \n{}".format(response_df.head()))
-
+        df_info(response_df, name='response_df')
+        
         # 7. merge the dataframes
         logging.info(msg="Merging the dataframes")
         logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
@@ -480,10 +473,7 @@ def transform_survey():
         logging.debug(msg="answer_df.columns: {}".format(answer_df.columns))
         survey_df = survey_df.merge(answer_df, on='surveyanswer_id', how='left')
 
-        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
-        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
-        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
-
+        df_info(survey_df, name='survey_df')
         
 
         # 8. reorder the columns
@@ -514,17 +504,13 @@ def select_daily_ema():
         logging.info(msg="Fetching the survey collection")
         collection = tdb[collection_name]
         survey_df = pd.DataFrame(collection.find({}, {'_id': 0}))
-        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
-        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
-        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
-
+        df_info(survey_df, name='survey_df')
+        
         # 3. select the daily ema questions
         logging.info(msg="Selecting the daily ema questions")
         survey_df = survey_df[survey_df['question_name'].str.contains('daily_ema', na=False)]
-        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
-        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
-        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
-
+        df_info(survey_df, name='survey_df')
+        
         # 4. assign the construct names
         logging.info(msg="Assigning the construct names")
 
@@ -573,9 +559,7 @@ def widen_daily_ema():
         logging.info(msg="Fetching the survey_daily_ema collection")
         collection = tdb[collection_name]
         survey_df = pd.DataFrame(collection.find({}, {'_id': 0}))
-        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
-        logging.debug(msg="survey_df.columns: {}".format(survey_df.columns))
-        logging.debug(msg="survey_df.head(): \n{}".format(survey_df.head()))
+        df_info(survey_df, name='survey_df')
 
         # 2.1. check the redundant rows
         logging.info(msg="Checking the redundant rows")
@@ -591,25 +575,19 @@ def widen_daily_ema():
         # 3. pivot the dataframe
         logging.info(msg="Pivoting the dataframe")
         survey_wide_df = survey_df.pivot(index='survey_id', columns='construct_name', values='answer_value')
-        logging.info(msg="survey_wide_df.shape: {}".format(survey_wide_df.shape))
-        logging.debug(msg="survey_wide_df.columns: {}".format(survey_wide_df.columns))
-        logging.debug(msg="survey_wide_df.head(): \n{}".format(survey_wide_df.head()))
-        
+        df_info(survey_wide_df, name='survey_wide_df')
+
         # 4. select the survey info
         logging.info(msg="Selecting the survey info")
         survey_info_df = survey_df[['survey_id', 'user_id', 'when_asked', 'when_asked_date_str', 'when_asked_time_str', 'kind']]
         survey_info_df = survey_info_df.drop_duplicates()
-        logging.info(msg="survey_info_df.shape: {}".format(survey_info_df.shape))
-        logging.debug(msg="survey_info_df.columns: {}".format(survey_info_df.columns))
-        logging.debug(msg="survey_info_df.head(): \n{}".format(survey_info_df.head()))
+        df_info(survey_info_df, name='survey_info_df')
 
         # 5. merge the survey info with the wide survey
         logging.info(msg="Merging the survey info with the wide survey")
         survey_wide_df = survey_info_df.merge(survey_wide_df, on='survey_id', how='left')
-        logging.info(msg="survey_wide_df.shape: {}".format(survey_wide_df.shape))
-        logging.debug(msg="survey_wide_df.columns: {}".format(survey_wide_df.columns))
-        logging.debug(msg="survey_wide_df.head(): \n{}".format(survey_wide_df.head()))
-
+        df_info(survey_wide_df, name='survey_wide_df')
+        
         # 6. if the answer value is NaN for all the constructs ranging C3 to C9, D1 to D4, E1_1 to E1_7, then mark it as unanswered. If there is at least one answer_value, then mark it as answered.
         logging.info(msg="Marking the unanswered surveys")
         survey_wide_df['answered'] = survey_wide_df.apply(lambda x: False if x[['C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'D1', 'D2', 'D3', 'D4', 'E1_1', 'E1_2', 'E1_3', 'E1_4', 'E1_5', 'E1_6', 'E1_7']].isnull().all() else True, axis=1)
@@ -694,6 +672,224 @@ def copy_daily_ema():
         ])
 
         logging.info(msg="Finished copy_daily_ema()")
+
+def transform_bout_planning_ema_decision():
+    if COLLECTION_SURVEY_BOUT_PLANNING_EMA in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting transform_bout_planning_ema_decision()")
+        # 1. connect to the database
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        # 2. load the BPN decision data
+        logging.info(msg="Loading the BPN decision data")
+
+        # 2.1. load participant list
+        participant_list = get_participant_list()
+
+        # 2.2. load the BPN decision data
+        collection_name = 'bout_planning_notification_boutplanningdecision'
+        collection = db[collection_name]
+        bpn_decision_df = pd.DataFrame(collection.find({
+            'user_id': {'$in': participant_list},
+        }, {
+            '_id': 0,
+            'data': 0,
+        }))
+        bpn_decision_df.rename(columns={'id': 'decision_id'}, inplace=True)
+        df_info(bpn_decision_df, 'bpn_decision_df')
+        
+        # 2.3. load the BPN survey data
+        collection_name = 'bout_planning_notification_boutplanningnotification'
+        collection = db[collection_name]
+        bpn_survey_df = pd.DataFrame(collection.find({
+            'user_id': {'$in': participant_list},
+            'decision_id': {'$ne': None}
+        }, {
+            '_id': 0,
+            'when': 0,
+            'level_id': 0,
+        }))
+        bpn_survey_df.rename(columns={'id': 'survey_id'}, inplace=True)
+        df_info(bpn_survey_df, name='bpn_survey_df')
+
+        # 2.4 load days_day collection
+        collection_name = 'days_day'
+        collection = db[collection_name]
+        days_day_df = pd.DataFrame(collection.find({
+            'user_id': {'$in': participant_list},
+        }, {
+            '_id': 0
+        }))
+        days_day_df['start'] = pd.to_datetime(days_day_df['start'])
+        days_day_df['end'] = pd.to_datetime(days_day_df['end'])
+
+        # 2.5. sort the days_day_df by user_id and start
+        days_day_df.sort_values(by=['user_id', 'start'], inplace=True)
+        df_info(days_day_df, name='days_day_df')        
+
+        # 2.6. infer local time
+        @ray.remote
+        def infer_local_time(utc_datetime, user_id):
+            days_day_df_user = days_day_df[days_day_df['user_id'] == user_id]
+            utc_datetime = pd.to_datetime(utc_datetime)
+            for _, row in days_day_df_user.iterrows():
+                start_dt = row['start']
+                end_dt = row['end']
+                if start_dt <= utc_datetime <= end_dt:
+                    return utc_datetime.replace(tzinfo=pytz.utc).astimezone(tz=row['timezone'])
+            return utc_datetime.replace(tzinfo=pytz.utc).astimezone(tz="America/Los_Angeles")
+
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.7. sort the bpn_decision_df by user_id and when_created
+        user_id_when_created_df = bpn_decision_df[['user_id', 'when_created']].copy()
+        user_id_when_created_df.sort_values(by=['user_id', 'when_created'], inplace=True)
+
+        # 2.8. infer local time
+        logging.info(msg="Constructing future list of local time inference")
+        future_list = []
+        for i, row in user_id_when_created_df.iterrows():
+            future_list.append(infer_local_time.remote(row['when_created'], row['user_id']))
+
+        # 2.9. get the local time list
+        logging.info(msg="Finished constructing future list of local time inference. Starting inferring local time")
+        local_time_list = ray.get(future_list)
+        logging.info(msg="Finished inferring local time")
+        
+        # 2.10. add the local time list to the user_id_when_created_df
+        user_id_when_created_df['when_created_local'] = local_time_list
+        df_info(user_id_when_created_df, name='user_id_when_created_df')
+
+        # 2.11. merge the user_id_when_created_df with bpn_decision_df
+        logging.info(msg="Merging user_id_when_created_df with bpn_decision_df on user_id and when_created")
+        logging.debug(msg="bpn_decision_df.shape: {}, user_id_when_created_df.shape: {}".format(bpn_decision_df.shape, user_id_when_created_df.shape))
+        logging.debug(msg="bpn_decision_df.columns: {}, user_id_when_created_df.columns: {}".format(bpn_decision_df.columns, user_id_when_created_df.columns))
+        bpn_decision_df = pd.merge(bpn_decision_df, user_id_when_created_df, on=['user_id', 'when_created'])
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.12. drop the when_created column
+        logging.info(msg="Dropping the when_created column")
+        bpn_decision_df.drop(columns=['when_created'], inplace=True)
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.13. join the BPN decision data with the BPN survey data
+        bpn_decision_df = pd.merge(bpn_decision_df, bpn_survey_df, on=['user_id', 'decision_id'], how='left')
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.14. cast when_created_local to str
+        logging.info(msg="Casting when_created_local to str")
+        bpn_decision_df['when_created_local_str'] = bpn_decision_df['when_created_local'].astype(str)
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.15. cast when_created_local_str to datetime
+        bpn_decision_df['when_created_local_dt'] = pd.to_datetime(bpn_decision_df['when_created_local_str'])
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.16. cast the when_created_local_dt column to date_str column
+        bpn_decision_df['date_str'] = bpn_decision_df['when_created_local_dt'].apply(lambda x: x.date().strftime('%Y-%m-%d'))
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.17. quantize when_created column to each hour
+        # Assuming your dataframe is called bpn_decision_df and has a 'when_created' column with datetime objects
+        bpn_decision_df['when_created_local_dt'] = bpn_decision_df['when_created_local_dt'].apply(lambda x: x.replace(minute=0, second=0, microsecond=0))
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.18. cast the when_created column to time_str column
+        bpn_decision_df['time_str'] = bpn_decision_df['when_created_local_dt'].apply(lambda x: x.time().strftime('%H:%M'))
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 2.19. calculate local hour of day
+        bpn_decision_df['hour_of_day'] = bpn_decision_df['when_created_local_dt'].apply(lambda x: x.hour)
+        
+        # 2.20. group by user_id, date_str, hour_of_day, then count the number of decisions in each group
+        bpn_decision_df['num_decisions'] = bpn_decision_df.groupby(['user_id', 'date_str', 'hour_of_day'])['decision_id'].transform('count')
+
+        # # 2.21. remove errorneous decisions
+        # # 2.21.0. define the function to find erroneous decisions
+        # @ray.remote
+        # def find_erroneous_decisions(group):
+        #     pass
+
+        # # 2.21.1. join the BPN decision data with the BPN survey data
+        # survey_id_list = bpn_survey_df['survey_id'].tolist()
+        
+        # # 2.21.1. traverse groups of user_id, date_str, hour_of_day
+        # user_id_date_hour_groups = bpn_decision_df.groupby(['user_id', 'date_str', 'hour_of_day'])  # group by user_id, date_str, hour_of_day
+        # future_list = []    # prepare the ray futures list
+
+        # # define the function to find erroneous decisions
+            
+            
+        #     # get the number of decisions in the group
+        #     num_decisions = group['num_decisions'].iloc[0]
+        #     # get the decision_id list
+        #     decision_id_list = group['decision_id'].tolist()
+        #     # get the erroneous decisions
+        #     erroneous_decisions = decision_id_list[num_decisions:]
+        #     return erroneous_decisions
+
+        # # 2.21.2. for each group, find the erroneous decisions
+        # for name, group in user_id_date_hour_groups:
+        #     # if the number of decisions in the group is 1, skip the group
+        #     if group.shape[0] == 1:
+        #         continue
+        #     else:
+        #         future_list.append(find_erroneous_decisions.remote(group))
+        
+        # # 2.21.3. get the list of erroneous decisions
+        # erroneous_decisions_list = ray.get(future_list)
+
+        # # 2.21.4. flatten the list of erroneous decisions
+        # erroneous_decisions_list = [item for sublist in erroneous_decisions_list for item in sublist]
+
+        # # 2.21.5. remove the erroneous decisions
+        # bpn_decision_df = bpn_decision_df[~bpn_decision_df['decision_id'].isin(erroneous_decisions_list)]
+        # df_info(bpn_decision_df, name='bpn_decision_df', save=True)
+
+        # 2.23. calculate decision point index (0-based)
+        bpn_decision_df['decision_point_index'] = bpn_decision_df.groupby(['user_id', 'date_str']).cumcount()
+
+        # 2.24. drop the when_created_local column
+        logging.info(msg="Dropping the when_created_local column")
+        bpn_decision_df.drop(columns=['when_created_local'], inplace=True)
+        df_info(bpn_decision_df, name='bpn_decision_df', save=True)
+
+        # 2.99 load the BPN survey data
+        collection_name = COLLECTION_SURVEY_BOUT_PLANNING_EMA
+        collection = tdb[collection_name]
+
+        collection.delete_many(filter={})
+        collection.insert_many(bpn_decision_df.to_dict('records'))
+
+        
+
+def select_bout_planning_ema():
+    if COLLECTION_SURVEY_BOUT_PLANNING_EMA in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting select_bout_planning_ema()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = COLLECTION_SURVEY_BOUT_PLANNING_EMA
+        
+        # 2. Fetching the current COLLECTION_SURVEY_BOUT_PLANNING_EMA survey documents from COLLECTION_SURVEY
+        logging.info(msg="Fetching the current COLLECTION_SURVEY_BOUT_PLANNING_EMA survey documents from COLLECTION_SURVEY")
+        
+        # 2.1. Get the participant id list
+        participant_list = get_participant_list()
+        
+        # 2.2. Get the survey documents
+        # BPN = Bout Planning Survey
+        survey_collection = tdb[COLLECTION_SURVEY]
+        bpn_df = pd.DataFrame(survey_collection.find({
+            'question_name': 'Bout Planning Survey',
+            'user_id': {'$in': participant_list}
+        }, {'_id': 0}))
+
+        logging.info("survey_df.shape: {}".format(bpn_df.shape))
+        logging.debug("survey_df.columns: {}".format(bpn_df.columns))
+        logging.debug("survey_df.head(): \n{}".format(bpn_df.head()))
+
+        
 
 def fill_daily_nans():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:

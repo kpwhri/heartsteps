@@ -1,6 +1,7 @@
 from config import MONGO_DB_URI_DESTINATION
 from pymongo import MongoClient
 import pandas as pd
+import logging
 
 def get_database(uri:str, database_name:str):
     client = MongoClient(uri)
@@ -53,5 +54,11 @@ def extend_df_with_collection(df, db, collection_name, filter_dict, projection_d
     df = pd.merge(df, df2, on=on, how=how)
     return df
 
+def df_info(df, name, save=False):
+    logging.info("{}.shape: {}".format(name, df.shape))
+    logging.debug("{}.columns: \n{}".format(name, df.columns))
+    logging.debug("{}.dtypes: \n{}".format(name, df.dtypes))
+    logging.debug("{}.head(): \n{}".format(name, df.head()))
 
-
+    if save:
+        df.to_csv('{}.csv'.format(name), index=False)

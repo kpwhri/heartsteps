@@ -3,7 +3,7 @@ import ray
 
 if __name__ == '__main__':
     # Initialize Ray
-    # ray.init()
+    ray.init()
     
     # Load the study, cohort, and participant collections and merge them into the participants collection
     transform_participants()
@@ -31,6 +31,12 @@ if __name__ == '__main__':
 
     # copy the daily EMAs to the daily collection
     copy_daily_ema()
+
+    # load the bout planning notification decision data
+    transform_bout_planning_ema_decision()
+
+    # select the bout planning notifications
+    select_bout_planning_ema()
 
     # Fill out NaNs in the daily collection
     fill_daily_nans()
