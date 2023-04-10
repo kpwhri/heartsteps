@@ -7,8 +7,6 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
-import code
-
 import utils
 
 from days.models import Day
@@ -44,14 +42,12 @@ from activity_logs.models import ActivityLog
 
 from morning_messages.models import MorningMessage
 
-from walking_suggestion_surveys.models import * 
+from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 
 def export_burst_walking_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
-    Construct dataframe from MorningMessage data model and export to csv
-
-    Reference task: export_morning_message_survey in server/morning_messages/tasks.py
+    Construct dataframe from WalkingSuggestionSurvey data model and export to csv
     """
 
     uid = user["uid"]
