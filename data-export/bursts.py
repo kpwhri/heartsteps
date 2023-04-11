@@ -78,6 +78,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     questions = ['busyness', 'commitment', 'relaxed', 'tense', 'energetic', 'fatigued', 'happy', 'sad', 'stressed', 'opportunity']
 
     data={}
+    data["Participant ID"]=[]
     data["Time Created"]=[]
     data["Time Completed"]=[]
     data["Answered"]=[]
