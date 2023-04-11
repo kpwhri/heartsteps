@@ -83,7 +83,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     data["Time Completed"]=[]
     data["Answered"]=[]
     for q in questions:
-        data[q]=[] 
+        data[q.title()]=[]
 
     for i,s in enumerate(u):
         data["Participant ID"].append(username)
