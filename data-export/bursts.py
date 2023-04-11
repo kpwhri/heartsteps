@@ -145,10 +145,10 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
         activity_dict["Decision Updated"].append(activity.decision.updated)
 
         # Decision.Message fields
-        activity_dict["Message Sent"].append(activity.decision.notification.sent)
-        activity_dict["Message Received"].append(activity.decision.notification.received)
-        activity_dict["Message Opened"].append(activity.decision.notification.opened)
-        activity_dict["Message Engaged"].append(activity.decision.notification.engaged)
+        activity_dict["Message Sent"].append(activity.decision.notification.sent if activity.decision.notification else np.nan)
+        activity_dict["Message Received"].append(activity.decision.notification.received if activity.decision.notification else np.nan)
+        activity_dict["Message Opened"].append(activity.decision.notification.opened if activity.decision.notification else np.nan)
+        activity_dict["Message Engaged"].append(activity.decision.notification.engaged if activity.decision.notification else np.nan)
 
         answers = activity.get_answers()
         for q in questions:
