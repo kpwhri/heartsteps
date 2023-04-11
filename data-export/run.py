@@ -47,6 +47,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 
             if("burst" in exports):
                 bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
+                bursts.export_burst_activity_survey(users[u], directory = user_export_directory)
             
         except Exception as e:
             print("Error exporting data for user: " + u)
