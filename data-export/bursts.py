@@ -45,6 +45,7 @@ from morning_messages.models import MorningMessage
 
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 from activity_surveys.models import ActivitySurvey, Decision
+
 def export_burst_walking_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
@@ -70,8 +71,8 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
         return
 
 
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    import code
+    code.interact(local=dict(globals(), **locals()))
 
     u = WalkingSuggestionSurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
 
@@ -100,6 +101,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     #print(df)
 
     df.to_csv(os.path.join(directory,filename))
+
 def export_burst_activity_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
