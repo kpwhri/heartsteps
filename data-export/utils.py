@@ -156,6 +156,10 @@ def estimate_notification_dwell_times(user):
             lookup[nid] = {"opened":time_opened,"closed":time_closed}
     return(lookup)
 
+def estimate_survey_dwell_times(user):
+    pass
+def estimate_morning_survey_dwell_times(user):
+    pass
 
 
 
