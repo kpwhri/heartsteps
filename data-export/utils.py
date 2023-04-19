@@ -138,3 +138,24 @@ def setup_export_directory(export_dir):
 if __name__ == "__main__":
     print("Found user IDs:",get_user_ids())
     print("Found users:",get_users())
+
+
+def estimate_notification_dwell_times(user):
+    allPageViews=PageView.objects.filter(user_id=user).order_by("created").all()
+    notification_pages = [x for x in allPageViews  if "/notification/" in x.uri or "/dashboard" in x.uri]
+    lookup = {}
+    for i,n in enumerate(notification_pages):
+        if("/notification/" in n.uri):
+            nid = n.uri.split("/")[2]
+            time_opened = n.created
+            if(i<len(notification_pages)-1):
+                if("/home/dashboard" in notification_pages[i+1].uri):
+                    time_closed = notification_pages[i+1].created
+                else:
+                    time_closed=np.nan
+            lookup[nid] = {"opened":time_opened,"closed":time_closed}
+    return(lookup)
+
+
+
+
