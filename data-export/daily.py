@@ -193,7 +193,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Engaged'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
-        
+
+        df_morning_messages['Time Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Survey Created'] =  df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Survey Updated'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.updated, msg.timezone) if (msg.message is not None and msg.survey.answered) else np.nan)        
         
@@ -237,9 +238,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
 
 def map_time_if_exists(df_field, tz):
-    return df_field
-    #return to_time(df_field.astimezone(tz)) if df_field is not None else np.nan
-
+    #return df_field
+    return to_time(df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else np.nan)
 
 def to_time(df_datetime):
     return df_datetime.strftime('%Y-%m-%d %H:%M:%s')
