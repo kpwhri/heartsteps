@@ -190,8 +190,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
         df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
 
-        df_morning_messages['Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else np.nan)
-        df_morning_messages['Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else np.nan)
+        df_morning_messages['Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent is not None) if msg.message is not None else np.nan)
+        df_morning_messages['Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened is not None) if msg.message is not None else np.nan)
         df_morning_messages['Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'DNE')
 
         df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
