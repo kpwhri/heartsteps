@@ -166,18 +166,18 @@ def estimate_survey_dwell_times(user,survey_type="weekly"):
 
     days = Day.objects.filter(user_id=user).order_by("date").all()
     allPageViews=PageView.objects.filter(user_id=user).order_by("created").all()
-    survey_pages = [x for x in allPageViews  if f"/{survey_type}-survey"== x.uri or "/dashboard" in x.uri]
+    survey_pages = [x for x in allPageViews  if f"/{survey_type}-survey/survey"== x.uri or "/dashboard" in x.uri]
     lookup = {}
     
     for i,x in enumerate(survey_pages):
         if("survey" in x.uri):
-            time_opened = x.created
+            time_opened = x.time
             this_day = days.filter(start__lte=time_opened).filter(end__gte=time_opened)
             time_opened_localized = this_day[0].localize(time_opened).time()
             date_localized        = this_day[0].localize(time_opened).date()
             if(i<len(survey_pages)-1):
                 if("/home/dashboard" in survey_pages[i+1].uri):
-                    time_closed = survey_pages[i+1].created
+                    time_closed = survey_pages[i+1].time
                     this_day = days.filter(start__lte=time_closed).filter(end__gte=time_closed)
                     time_closed_localized = this_day[0].localize(time_closed).time()
                 else:
