@@ -42,9 +42,6 @@ from activity_logs.models import ActivityLog
 from morning_messages.models import MorningMessage
 
     
-uid = user["uid"]
-username = user["hsid"]
-    
 import code
 code.interact(local=dict(globals(), **locals()))
 
