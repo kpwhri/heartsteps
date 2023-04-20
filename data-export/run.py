@@ -20,13 +20,13 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
     users = utils.get_users()
     
-    count=0
+    count=DEBUG
     for u in users:
 
 
         try:
             if(users[u]["cohort"]!=cohort): continue
-            if(users[u]["hsid"] not in debug_users): continue
+            if(DEBUG and users[u]["hsid"] not in debug_users): continue
 
             print("Exporting data for user: " + u)
 
