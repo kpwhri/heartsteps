@@ -261,7 +261,7 @@ def map_time_if_exists(df_field, tz):
     return to_time(df_field.astimezone(tz).replace(tzinfo=None)) if df_field is not None else np.nan
 
 def to_time(df_datetime):
-    return df_datetime.strftime('%Y-%m-%d %H:%M:%s')
+    return df_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
 def map_dict_if_key_exists(d, key):
     return d[key] if d is not None and key in d.keys() and d[key] is not None else np.nan
