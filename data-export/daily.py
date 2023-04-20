@@ -160,8 +160,13 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     delta = end_date - start_date
     dates = [start_date + timedelta(days=d) for d in range(delta.days + 1)]
 
+    days = Day.objects.filter(user_id=uid).order_by("date").all()
+    day_lookup = {x.date: x.timezone for x in days}
+    tzs = [day_lookup[date] if date in day_lookup else np.nan for date in dates ] 
+
+
     # Create a dataframe with each day in range and hsid
-    df_dates = pd.DataFrame({"Date": dates})
+    df_dates = pd.DataFrame({"Date": dates,"Timezone":tzs})
     df_dates["Participant ID"] = username
 
     # Model Structure: MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
@@ -200,15 +205,15 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
         
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         #Try mapping survey open and close times
         sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
-        survey_open_map = lambda x: sdt[x]["opened"] if x in sdt else np.nan
-        survey_close_map = lambda x: sdt[x]["closed"] if x in sdt else np.nan
-        df_morning_messages['Time Survey Opened'] = df_morning_messages['Date'].map(survey_open_map)
-        df_morning_messages['Time Survey Closed'] = df_morning_messages['Date'].map(survey_close_map)
+        survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
+        survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
+        df_morning_messages['Time Survey Opened'] = df_morning_messages['Object'].map(survey_open_map)
+        df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
 
         df_morning_messages['Time Survey Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 

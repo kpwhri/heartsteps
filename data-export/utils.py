@@ -178,8 +178,8 @@ def estimate_survey_dwell_times(user,survey_type="weekly"):
                     this_day = days.filter(start__lte=time_closed).filter(end__gte=time_closed)
                     time_closed_localized = this_day[0].localize(time_closed).time()
                 else:
-                    time_closed=np.nan
-                    time_closed_localized=np.nan
+                    time_closed=None
+                    time_closed_localized=None
             lookup[date_localized] = {"opened":time_opened,"closed":time_closed,"opened_localized":time_opened_localized,"closed_localized":time_closed_localized}
     
     return(lookup)
