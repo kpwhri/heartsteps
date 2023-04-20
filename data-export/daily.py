@@ -199,6 +199,17 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
 
         df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
+        
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
+        #Try mapping survey open and close times
+        sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
+        survey_open_map = lambda x: sdt[x]["opened"] if x in sdt else np.nan
+        survey_close_map = lambda x: sdt[x]["closed"] if x in sdt else np.nan
+        df_morning_messages['Time Survey Opened'] = df_morning_messages['Date'].map(survey_open_map)
+        df_morning_messages['Time Survey Closed'] = df_morning_messages['Date'].map(survey_close_map)
+
         df_morning_messages['Time Survey Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 
         #df_morning_messages['Time To Answer'] = utils.estimate_morning_survey...
@@ -246,7 +257,6 @@ def map_time_if_exists(df_field, tz):
 
 def to_time(df_datetime):
     return df_datetime.strftime('%Y-%m-%d %H:%M:%s')
-
 
 def map_dict_if_key_exists(d, key):
     return d[key] if d is not None and key in d.keys() and d[key] is not None else np.nan
