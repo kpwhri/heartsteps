@@ -156,6 +156,33 @@ def estimate_notification_dwell_times(user):
             lookup[nid] = {"opened":time_opened,"closed":time_closed}
     return(lookup)
 
+def estimate_survey_dwell_times(user,survey_type="weekly"):
+
+    if(survey_type not in ["morning", "weekly"]):
+        raise ValueError("Survey type must be morning or weekly")
+
+    days = Day.objects.filter(user_id=user).order_by("date").all()
+    allPageViews=PageView.objects.filter(user_id=user).order_by("created").all()
+    survey_pages = [x for x in allPageViews  if f"/{survey_type}-survey/survey"== x.uri or "/dashboard" in x.uri]
+    lookup = {}
+    
+    for i,x in enumerate(survey_pages):
+        if("survey" in x.uri):
+            time_opened = x.created
+            this_day = days.filter(start__lte=time_opened).filter(end__gte=time_opened)
+            time_opened_localized = this_day[0].localize(time_opened).time()
+            date_localized        = this_day[0].localize(time_opened).date()
+            if(i<len(survey_pages)-1):
+                if("/home/dashboard" in survey_pages[i+1].uri):
+                    time_closed = survey_pages[i+1].created
+                    this_day = days.filter(start__lte=time_closed).filter(end__gte=time_closed)
+                    time_closed_localized = this_day[0].localize(time_closed).time()
+                else:
+                    time_closed=np.nan
+                    time_closed_localized=np.nan
+            lookup[date_localized] = {"opened":time_opened,"closed":time_closed,"opened_localized":time_opened_localized,"closed_localized":time_closed_localized}
+    
+    return(lookup)
 
 
 
