@@ -161,6 +161,9 @@ def estimate_survey_dwell_times(user,survey_type="weekly"):
     if(survey_type not in ["morning", "weekly"]):
         raise ValueError("Survey type must be morning or weekly")
 
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
     days = Day.objects.filter(user_id=user).order_by("date").all()
     allPageViews=PageView.objects.filter(user_id=user).order_by("created").all()
     survey_pages = [x for x in allPageViews  if f"/{survey_type}-survey/survey"== x.uri or "/dashboard" in x.uri]
