@@ -189,15 +189,19 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         # Map each time attribute if exists, otherwise np.nan
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
         df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
+
+        df_morning_messages['Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
+        df_morning_messages['Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
+        df_morning_messages['Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'DNE')
+
         df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Engaged'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.engaged, msg.timezone) if msg.message is not None else np.nan)
 
-        df_morning_messages['Time Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Survey Created'] =  df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Survey Updated'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.updated, msg.timezone) if (msg.message is not None and msg.survey.answered) else np.nan)        
-        
+        df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
+        df_morning_messages['Time Survey Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
+
+        #df_morning_messages['Time To Answer'] = utils.estimate_morning_survey...
 
         # Map each question to response title if answered
         for question in questions_headers:
@@ -238,8 +242,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
 
 def map_time_if_exists(df_field, tz):
-    #return df_field
-    return to_time(df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else np.nan)
+    return to_time(df_field.astimezone(tz).replace(tzinfo=None)) if df_field is not None else np.nan
 
 def to_time(df_datetime):
     return df_datetime.strftime('%Y-%m-%d %H:%M:%s')

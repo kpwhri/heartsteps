@@ -156,6 +156,7 @@ def estimate_notification_dwell_times(user):
             lookup[nid] = {"opened":time_opened,"closed":time_closed}
     return(lookup)
 
+<<<<<<< HEAD
 def estimate_survey_dwell_times(user,survey_type="weekly"):
 
     if(survey_type not in ["morning", "weekly"]):
@@ -183,6 +184,12 @@ def estimate_survey_dwell_times(user,survey_type="weekly"):
             lookup[date_localized] = {"opened":time_opened,"closed":time_closed,"opened_localized":time_opened_localized,"closed_localized":time_closed_localized}
     
     return(lookup)
+=======
+def estimate_survey_dwell_times(user):
+    pass
+def estimate_morning_survey_dwell_times(user):
+    pass
+>>>>>>> 1f2864f7dd3eb7fbb8518ba3b3f40579f9236766
 
 
 
