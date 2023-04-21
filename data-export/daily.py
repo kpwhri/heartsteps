@@ -234,8 +234,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     
         result=result.fillna({'Morning Survey Was Opened':False,'Morning Survey Was Answered':False})
 
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
     else:
         print('  EMPTY QUERY -- no data found')
