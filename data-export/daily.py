@@ -215,13 +215,13 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         msot = df_morning_messages['Object'].map(survey_open_map)
         msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 
-        df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan)
-        df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan)
+        df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan and x is not None)
+        df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan and x is not None)
 
         df_morning_messages['Morning Survey Opened Time'] = msot
         #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
         df_morning_messages['Morning Survey Answered Time'] = msat
-        df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: x.seconds)
+        df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: x.total_seconds())
         
         #df_indicators = df_morning_messages[['Date']]
         #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
