@@ -222,8 +222,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Morning Survey Answered Time'] = msat
         df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: x.total_seconds())
         
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         #df_indicators = df_morning_messages[['Date']]
         #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
