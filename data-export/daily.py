@@ -102,7 +102,9 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         df_plans["marked_complete"] = df_plans["activity_log_id"].map(lambda x: x is not None)
         df_plans['Participant ID'] = df_plans["user_id"]
         df_plans['number_planned'] = 1
-        df_plans = df_plans[["creation_date", "activity_date", 'number_planned', "duration", "marked_complete"]]
+        df_plans["duration_completed"] = df_plans["duration"]*df_plans["marked_complete"]
+
+        df_plans = df_plans[["creation_date", "activity_date", 'number_planned', "duration", "duration_completed", "marked_complete"]]
 
         #Group by date and sum to get total planned by date
         plan_creation = df_plans.groupby("creation_date").sum()
@@ -112,8 +114,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
         #Add subject ID and re-label columns
         plan_creation = plan_creation.set_index(["Participant ID","Date"])
-        plan_creation = plan_creation[["number_planned", "duration", "marked_complete"]]
-        plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned on This Day", "duration":"Total Duration of Activities Planned on this Day","marked_complete":"Number of Activities Planned on this Day Marked Completed"})
+        plan_creation = plan_creation[["number_planned", "marked_complete","duration", "duration_completed"]]
+        plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned on This Day", "duration":"Total Duration of Activities Planned on this Day","duration_completed":"Total Duration of Completed Activities Planned on this Day", "marked_complete":"Number of Activities Planned on this Day Marked Completed"})
 
         #Group by date and sum to get totals planned to be carried out on date
         plan_completion = df_plans.groupby("activity_date").sum()
@@ -123,8 +125,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
         #Add subject ID and re-label columns
         plan_completion = plan_completion.set_index(["Participant ID","Date"])
-        plan_completion = plan_completion[["number_planned", "duration", "marked_complete"]]
-        plan_completion = plan_completion.rename(columns={'number_planned':"Number of Activities Planned for This Day", "duration":"Total Duration of Activities Planned for this Day","marked_complete":"Number of Activities Planned for this Day Marked Completed"})
+        plan_completion = plan_completion[["number_planned","marked_complete", "duration", "duration_completed"]]
+        plan_completion = plan_completion.rename(columns={'number_planned':"Number of Activities Planned for This Day", "duration":"Total Duration of Activities Planned for this Day","duration_completed":"Total Duration of Completed Activities Planned for this Day","marked_complete":"Number of Activities Planned for this Day Marked Completed"})
 
 
         #Combine with zeros data frame based on counts.
@@ -136,11 +138,13 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         print('  EMPTY QUERY -- no messages found')
         plan_creation_extended=df_dates
         plan_creation_extended["Number of Activities Planned on This Day"]=0	
-        plan_creation_extended["Total Duration of Activities Planned on this Day"]=0	
         plan_creation_extended["Number of Activities Planned on this Day Marked Completed"]=0	
+        plan_creation_extended["Total Duration of Activities Planned on this Day"]=0	
+        plan_creation_extended["Total Duration of Completed Activities Planned on this Day"]=0
         plan_creation_extended["Number of Activities Planned for This Day"]=0
-        plan_creation_extended["Total Duration of Activities Planned for this Day"]=0	
         plan_creation_extended["Number of Activities Planned for this Day Marked Completed"]=0
+        plan_creation_extended["Total Duration of Activities Planned for this Day"]=0	
+        plan_creation_extended["Total Duration of Completed Activities Planned for this Day"]=0
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
     if(DEBUG):
