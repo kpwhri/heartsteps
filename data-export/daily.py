@@ -234,12 +234,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
-        
-        print( len(df_morning_messages['Date']), len(np.unique(df_morning_messages['Date'])))
-        print(len(df_dates),len(np.unique(df_dates["Date"])))
-
-        import code
-        code.interact(local=dict(globals(), **locals()))
+    
 
     else:
         print('  EMPTY QUERY -- no data found')

@@ -200,5 +200,6 @@ def deduplicate_dates(df, field):
     for i,d in enumerate(dates):
         if(i<N-1 and d in dates[i+1:]):
             l.append(inds[i])
+            print("  Found duplicate date ", d)
     df = df.drop(labels=l,axis=0)
     return(df)
