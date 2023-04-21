@@ -104,7 +104,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         df_plans['number_planned'] = 1
         df_plans = df_plans[["creation_date", "activity_date", 'number_planned', "duration", "marked_complete"]]
 
-        #Group by date and sum to get totals by date
+        #Group by date and sum to get total planned by date
         plan_creation = df_plans.groupby("creation_date").sum()
         plan_creation['Participant ID'] = username
         plan_creation = plan_creation.reset_index()
@@ -113,11 +113,23 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         #Add subject ID and re-label columns
         plan_creation = plan_creation.set_index(["Participant ID","Date"])
         plan_creation = plan_creation[["number_planned", "duration", "marked_complete"]]
-        plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned", "duration":"Total Duration of Activities Planned","marked_complete":"Number of Planned Activities Marked Completed"})
+        plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned on This Day", "duration":"Total Duration of Activities Planned on this Day","marked_complete":"Number of Activities Planned on this Day Marked Completed"})
+
+        #Group by date and sum to get totals planned to be carried out on date
+        plan_completion = df_plans.groupby("activity_date").sum()
+        plan_completion['Participant ID'] = username
+        plan_completion = plan_completion.reset_index()
+        plan_completion = plan_completion.rename(columns={"activity_date":"Date"})
+
+        #Add subject ID and re-label columns
+        plan_completion = plan_completion.set_index(["Participant ID","Date"])
+        plan_completion = plan_completion[["number_planned", "duration", "marked_complete"]]
+        plan_completion = plan_completion.rename(columns={'number_planned':"Number of Activities Planned for This Day", "duration":"Total Duration of Activities Planned for this Day","marked_complete":"Number of Activities Planned for this Day Marked Completed"})
+
 
         #Combine with zeros data frame based on counts.
         #Duplicate days dealt with using groupby on date and sum
-        plan_creation_extended = pd.concat([df_dates,plan_creation],axis=0) 
+        plan_creation_extended = pd.concat([df_dates,plan_creation,plan_completion],axis=0) 
         plan_creation_extended=plan_creation_extended.groupby(["Participant ID", "Date"]).sum()
 
     else:
