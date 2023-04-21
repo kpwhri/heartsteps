@@ -36,9 +36,10 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
         
             #Run exports
             if("daily" in exports):
-                daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
+                #daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
                 #daily.export_daily_morning_survey(users[u], directory = user_export_directory)
-            
+                daily.export_daily_morning_message(users[u], directory = user_export_directory, from_scratch=True)
+
             if("weekly" in exports):
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
