@@ -232,7 +232,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
     
-
+        results=result.fillna(['Morning Survey Was Opened','Morning Survey Was Answered'],False)
 
 
     else:
