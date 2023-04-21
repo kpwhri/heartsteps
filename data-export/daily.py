@@ -165,7 +165,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     tzs = [day_lookup[date] if date in day_lookup else np.nan for date in dates ] 
 
     # Create a dataframe with each day in range and hsid
-    df_dates = pd.DataFrame({"Date": dates,"Timezone":tzs})
+    df_dates = pd.DataFrame({"Date": dates})
     df_dates["Participant ID"] = username
 
     # Model Structure: MorningMessage -> MorningMessageSurvey -> Survey -> Q/A
@@ -194,26 +194,38 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
         df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
 
-        df_morning_messages['Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
-        df_morning_messages['Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
-        df_morning_messages['Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'DNE')
+        #df_morning_messages['Message Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
+        #df_morning_messages['Message Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
+        #df_morning_messages['Survey Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'False')
 
-        df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
+        #df_morning_messages['Morning Message Sent Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
+        #df_morning_messages['Morning Message Received Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
+        #df_morning_messages['Morning Message Opened Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
 
-        df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
+        #df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
 
         #Try mapping survey open and close times
         sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
         survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
         survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
-        df_morning_messages['Time Survey Opened'] = df_morning_messages['Object'].map(survey_open_map)
-        df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
 
-        df_morning_messages['Time Survey Answered'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
+        msot = df_morning_messages['Object'].map(survey_open_map)
+        msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 
-        #df_morning_messages['Time To Answer'] = utils.estimate_morning_survey...
+        df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan)
+        df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan)
+
+        df_morning_messages['Morning Survey Opened Time'] = msot
+        #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
+        df_morning_messages['Morning Survey Answered Time'] = msat
+        df_morning_messages['Morning Survey Time Spent Answering'] = df_morning_messages['Time Survey Answered'] - df_morning_messages['Time Survey Opened']
+
+        #df_indicators = df_morning_messages[['Date']]
+        #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
+        #df_indicators['Morning Message Was Received'] = df_morning_messages['Morning Message Received Time'].apply(lambda x: x is not np.nan)
+        #df_indicators['Morning Message Was Opened'] = df_morning_messages['Morning Message Opened Time'].apply(lambda x: x is not np.nan)
+        #df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan)
+        #df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan)
 
         # Map each question to response title if answered
         for question in questions_headers:
@@ -235,6 +247,9 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
     
+
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
     else:
         print('  EMPTY QUERY -- no data found')
