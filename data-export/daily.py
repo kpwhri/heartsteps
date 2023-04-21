@@ -181,9 +181,6 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         .prefetch_timezone() \
         .all()
 
-    # toggle for debugging
-    #code.interact(local=dict(globals(), **locals()))
-
     # MorningMessage question names for consistent headers across all users
     questions_headers = ['busy', 'rested', 'committed', 'mm_extrinsic_motivation', 'extrinsic', 'mm_intrinsic_motivation', 'intrinsic']
 
@@ -194,20 +191,10 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
         df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
 
-        #df_morning_messages['Message Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
-        #df_morning_messages['Message Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
-        #df_morning_messages['Survey Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'False')
-
-        #df_morning_messages['Morning Message Sent Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
-        #df_morning_messages['Morning Message Received Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
-        #df_morning_messages['Morning Message Opened Time'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
-
-        #df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
-
         #Try mapping survey open and close times
         sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
         survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
-        survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
+        #survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
 
         msot = df_morning_messages['Object'].map(survey_open_map)
         msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
@@ -216,19 +203,11 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
 
         df_morning_messages['Morning Survey Opened Time'] = msot.apply(to_time)
-        #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
         df_morning_messages['Morning Survey Answered Time'] = msat.apply(to_time)
         df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if x is not np.nan else x)
         
         #import code
         #code.interact(local=dict(globals(), **locals()))
-
-        #df_indicators = df_morning_messages[['Date']]
-        #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
-        #df_indicators['Morning Message Was Received'] = df_morning_messages['Morning Message Received Time'].apply(lambda x: x is not np.nan)
-        #df_indicators['Morning Message Was Opened'] = df_morning_messages['Morning Message Opened Time'].apply(lambda x: x is not np.nan)
-        #df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan)
-        #df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan)
 
         # Map each question to response title if answered
         for question in questions_headers:
