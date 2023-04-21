@@ -204,7 +204,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         df_morning_messages['Morning Survey Opened Time'] = msot.apply(to_time)
         df_morning_messages['Morning Survey Answered Time'] = msat.apply(to_time)
-        df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if x is not np.nan else x)
+        df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
         
         #import code
         #code.interact(local=dict(globals(), **locals()))
