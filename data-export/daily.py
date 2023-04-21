@@ -209,17 +209,15 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
         survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
 
-
-
         msot = df_morning_messages['Object'].map(survey_open_map)
         msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 
         df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
         df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
 
-        df_morning_messages['Morning Survey Opened Time'] = msot
+        df_morning_messages['Morning Survey Opened Time'] = msot.apply(to_time)
         #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
-        df_morning_messages['Morning Survey Answered Time'] = msat
+        df_morning_messages['Morning Survey Answered Time'] = msat.apply(to_time)
         df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if x is not np.nan else x)
         
         #import code
@@ -279,8 +277,11 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 def map_time_if_exists(df_field, tz):
     return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else np.nan
 
-def to_time(df_datetime):
-    return df_datetime.strftime('%Y-%m-%d %H:%M:%S')
+def to_time(x):
+    if( x is not np.nan and x is not None and not pd.isnull(x)):
+        return x.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return x
 
 def map_dict_if_key_exists(d, key):
     return d[key] if d is not None and key in d.keys() and d[key] is not None else np.nan
