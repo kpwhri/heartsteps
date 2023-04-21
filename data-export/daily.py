@@ -193,24 +193,24 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         #Try mapping survey open and close times
         sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
-        survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
+        survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else pd.NaT
         #survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
 
         msot = df_morning_messages['Object'].map(survey_open_map)
-        msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
+        msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else pd.NaT)
 
         df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
         df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
 
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         df_morning_messages['Morning Survey Opened Time'] = msot.apply(to_time)
         df_morning_messages['Morning Survey Answered Time'] = msat.apply(to_time)
         df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
         
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         # Map each question to response title if answered
         for question in questions_headers:
@@ -257,7 +257,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
 
 def map_time_if_exists(df_field, tz):
-    return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else np.nan
+    return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else pd.NaT
 
 def to_time(x):
     if( x is not np.nan and x is not None and not pd.isnull(x)):
