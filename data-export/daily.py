@@ -372,7 +372,7 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
         df_dates['Mood'] = np.nan
         result = df_dates
 
-    result=result.fillna({'Morning Message Was Sent':False,'Morning Message Was Received':False,'Morning Message Was Opened':False})
+    result=result.fillna({'Was Sent':False,'Was Received':False,'Was Opened':False})
 
     # Set Date as index of DataFrame
     result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
