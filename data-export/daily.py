@@ -209,6 +209,9 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
         survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
 
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
         msot = df_morning_messages['Object'].map(survey_open_map)
         msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
 
@@ -248,8 +251,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
     
 
-        import code
-        code.interact(local=dict(globals(), **locals()))
+
 
     else:
         print('  EMPTY QUERY -- no data found')
