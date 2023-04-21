@@ -192,4 +192,13 @@ def estimate_survey_dwell_times(user,survey_type="weekly"):
     return(lookup)
 
 
-
+def deduplicate_dates(df, field):
+    dates = list(df[field])
+    inds  = list(df.index)
+    N = len(df)
+    l=[]
+    for i,d in enumerate(dates):
+        if(i<N-1 and d in dates[i+1:]):
+            l.append(inds[i])
+    df = df.drop(labels=l,axis=0)
+    return(df)

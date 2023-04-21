@@ -203,9 +203,6 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
 
         df_morning_messages['Time Survey Created'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.created, msg.timezone) if msg.survey is not None else np.nan)
-        
-        #import code
-        #code.interact(local=dict(globals(), **locals()))
 
         #Try mapping survey open and close times
         sdt = utils.estimate_survey_dwell_times(uid,survey_type="morning")
@@ -231,6 +228,9 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Drop 'Object' column
         df_morning_messages.drop('Object', axis=1, inplace=True)
+
+        #Keep last morning message entry for each date if there are spurious duplicates
+        df_morning_messages = utils.deduplicate_dates(df_morning_messages,"Date")
 
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
