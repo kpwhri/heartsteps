@@ -202,12 +202,15 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Morning Survey Was Opened'] = msot.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
         df_morning_messages['Morning Survey Was Answered'] = msat.apply(lambda x: x is not np.nan and x is not None and not pd.isnull(x))
 
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
         df_morning_messages['Morning Survey Opened Time'] = msot.apply(to_time)
         df_morning_messages['Morning Survey Answered Time'] = msat.apply(to_time)
         df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
         
-        #import code
-        #code.interact(local=dict(globals(), **locals()))
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
         # Map each question to response title if answered
         for question in questions_headers:
