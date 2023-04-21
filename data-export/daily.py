@@ -334,19 +334,24 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
 
         # Map each time attribute if exists, otherwise np.nan
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
-        df_morning_messages['Date'] = df_morning_messages['Object'].map(lambda msg: msg.date)
-        
-        df_morning_messages['Was Sent'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
-        df_morning_messages['Was Opened'] = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
-        df_morning_messages['Was Answered'] = df_morning_messages['Object'].map(lambda msg: msg.survey.answered if msg.survey is not None else 'False')
+        df_morning_messages['Date']            = df_morning_messages['Object'].map(lambda msg: msg.date)
+        df_morning_messages['Was Sent']        = df_morning_messages['Object'].map(lambda msg: bool(msg.message.sent) if msg.message is not None else 'False')
+        df_morning_messages['Was Received']    = df_morning_messages['Object'].map(lambda msg: bool(msg.message.received) if msg.message is not None else 'False')
+        df_morning_messages['Was Opened']      = df_morning_messages['Object'].map(lambda msg: bool(msg.message.opened) if msg.message is not None else 'False')
+        df_morning_messages['Time Sent']       = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Received']   = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Time Opened']     = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
+        df_morning_messages['Randomized']      = df_morning_messages['Object'].map(lambda msg: msg.randomized)
+        df_morning_messages['Notification']    = df_morning_messages['Object'].map(lambda msg: msg.notification)
+        df_morning_messages['Text']            = df_morning_messages['Object'].map(lambda msg: msg.text)
+        df_morning_messages['Anchor']          = df_morning_messages['Object'].map(lambda msg: msg.anchor)
+        df_morning_messages['Gain Frame']      = df_morning_messages['Object'].map(lambda msg: msg.is_gain_framed)
+        df_morning_messages['Loss Frame']      = df_morning_messages['Object'].map(lambda msg: msg.is_loss_framed)
+        df_morning_messages['Activity Frame']  = df_morning_messages['Object'].map(lambda msg: msg.is_active_framed)
+        df_morning_messages['Sedentary Frame'] = df_morning_messages['Object'].map(lambda msg: msg.is_sedentary_framed)
 
-        df_morning_messages['Time Sent'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.sent, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Received'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.received, msg.timezone) if msg.message is not None else np.nan)
-        df_morning_messages['Time Opened'] = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.message.opened, msg.timezone) if msg.message is not None else np.nan)
-
-        
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         # Drop 'Object' column
         df_morning_messages.drop('Object', axis=1, inplace=True)
@@ -367,11 +372,7 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
         df_dates['Mood'] = np.nan
         result = df_dates
 
-    result=result.fillna({'Morning Survey Was Opened':False,'Morning Survey Was Answered':False})
-
-    # Drop extra intrinsic/extrinsic columns
-    result.drop('mm_extrinsic_motivation'.title(), axis=1, inplace=True)
-    result.drop('mm_intrinsic_motivation'.title(), axis=1, inplace=True)
+    result=result.fillna({'Morning Message Was Sent':False,'Morning Message Was Received':False,'Morning Message Was Opened':False})
 
     # Set Date as index of DataFrame
     result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
