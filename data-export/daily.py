@@ -218,8 +218,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Morning Survey Opened Time'] = msot
         #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
         df_morning_messages['Morning Survey Answered Time'] = msat
-        df_morning_messages['Morning Survey Time Spent Answering'] = df_morning_messages['Time Survey Answered'] - df_morning_messages['Time Survey Opened']
-
+        df_morning_messages['Morning Survey Time Spent Answering'] = msat-msot
+        
         #df_indicators = df_morning_messages[['Date']]
         #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
         #df_indicators['Morning Message Was Received'] = df_morning_messages['Morning Message Received Time'].apply(lambda x: x is not np.nan)
