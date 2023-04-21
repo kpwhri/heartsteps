@@ -294,7 +294,7 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.daily_morning_survey.csv'.format(
+        filename = '{username}.daily_morning_message.csv'.format(
             username=username
         )
 
