@@ -209,8 +209,8 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         survey_open_map = lambda msg: map_time_if_exists(sdt[msg.date]["opened"],msg.timezone) if msg.date in sdt else np.nan
         survey_close_map = lambda msg: map_time_if_exists(sdt[msg.date]["closed"] ,msg.timezone) if msg.date in sdt else np.nan
 
-        import code
-        code.interact(local=dict(globals(), **locals()))
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
 
         msot = df_morning_messages['Object'].map(survey_open_map)
         msat = df_morning_messages['Object'].map(lambda msg: map_time_if_exists(msg.survey.answered_at, msg.timezone) if (msg.survey is not None and msg.survey.answered) else np.nan)
@@ -221,7 +221,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         df_morning_messages['Morning Survey Opened Time'] = msot
         #df_morning_messages['Time Survey Closed'] = df_morning_messages['Object'].map(survey_close_map)
         df_morning_messages['Morning Survey Answered Time'] = msat
-        df_morning_messages['Morning Survey Time Spent Answering'] = msat-msot
+        df_morning_messages['Morning Survey Time Spent Answering'] = (msat-msot).map(lambda x: x.seconds)
         
         #df_indicators = df_morning_messages[['Date']]
         #df_indicators['Morning Message Was Sent'] = df_morning_messages['Morning Message Sent Time'] .apply(lambda x: x is not np.nan)
