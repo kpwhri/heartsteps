@@ -85,7 +85,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     #df_dates["Number of Activities Planned"]=0
     #df_dates["Total Duration of Activities Planned"]=0
     #df_dates["Number of Planned Activities Marked Completed"]=0
-    #df_dates["Participant ID"] = username
+    df_dates["Participant ID"] = username
     df_dates = df_dates.set_index(["Participant ID","Date"])
 
     #Get all plans for participant
@@ -135,6 +135,12 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     else:
         print('  EMPTY QUERY -- no messages found')
         plan_creation_extended=df_dates
+        plan_creation_extended["Number of Activities Planned on This Day"]=0	
+        plan_creation_extended["Total Duration of Activities Planned on this Day"]=0	
+        plan_creation_extended["Number of Activities Planned on this Day Marked Completed"]=0	
+        plan_creation_extended["Number of Activities Planned for This Day"]=0
+        plan_creation_extended["Total Duration of Activities Planned for this Day"]=0	
+        plan_creation_extended["Number of Activities Planned for this Day Marked Completed"]=0
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
     if(DEBUG):
