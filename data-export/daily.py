@@ -82,10 +82,10 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     #Create a bdata frame with dates with all values equal 0
     df_dates = pd.DataFrame({"Date":dates})
-    df_dates["Number of Activities Planned"]=0
-    df_dates["Total Duration of Activities Planned"]=0
-    df_dates["Number of Planned Activities Marked Completed"]=0
-    df_dates["Participant ID"] = username
+    #df_dates["Number of Activities Planned"]=0
+    #df_dates["Total Duration of Activities Planned"]=0
+    #df_dates["Number of Planned Activities Marked Completed"]=0
+    #df_dates["Participant ID"] = username
     df_dates = df_dates.set_index(["Participant ID","Date"])
 
     #Get all plans for participant
