@@ -85,8 +85,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     df_dates["Number of Activities Planned"]=0
     df_dates["Total Duration of Activities Planned"]=0
     df_dates["Number of Planned Activities Marked Completed"]=0
-    df_dates["Subject ID"] = username
-    df_dates = df_dates.set_index(["Subject ID","Date"])
+    df_dates["Participant ID"] = username
+    df_dates = df_dates.set_index(["Participant ID","Date"])
 
     #Get all plans for participant
     plans = ActivityPlan.objects.filter(user_id=uid).all().values('user_id', 'type_id', 'vigorous', 'start', 'date', 'timeOfDay', 'duration', 'created_at', 'updated_at', 'activity_log_id')
@@ -100,25 +100,25 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         df_plans["creation_date"] = df_plans["created_at"].dt.date
         df_plans["activity_date"] = df_plans["start"].dt.date
         df_plans["marked_complete"] = df_plans["activity_log_id"].map(lambda x: x is not None)
-        df_plans['Subject ID'] = df_plans["user_id"]
+        df_plans['Participant ID'] = df_plans["user_id"]
         df_plans['number_planned'] = 1
         df_plans = df_plans[["creation_date", "activity_date", 'number_planned', "duration", "marked_complete"]]
 
         #Group by date and sum to get totals by date
         plan_creation = df_plans.groupby("creation_date").sum()
-        plan_creation["Subject ID"] = username
+        plan_creation['Participant ID'] = username
         plan_creation = plan_creation.reset_index()
         plan_creation = plan_creation.rename(columns={"creation_date":"Date"})
 
         #Add subject ID and re-label columns
-        plan_creation = plan_creation.set_index(["Subject ID","Date"])
+        plan_creation = plan_creation.set_index(["Participant ID","Date"])
         plan_creation = plan_creation[["number_planned", "duration", "marked_complete"]]
         plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned", "duration":"Total Duration of Activities Planned","marked_complete":"Number of Planned Activities Marked Completed"})
 
         #Combine with zeros data frame based on counts.
-        #Duplicate days delt with using groupby on date and sum
+        #Duplicate days dealt with using groupby on date and sum
         plan_creation_extended = pd.concat([df_dates,plan_creation],axis=0) 
-        plan_creation_extended=plan_creation_extended.groupby(["Subject ID", "Date"]).sum()
+        plan_creation_extended=plan_creation_extended.groupby(["Participant ID", "Date"]).sum()
 
     else:
         print('  EMPTY QUERY -- no messages found')
@@ -232,20 +232,17 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
     
-        result=result.fillna({'Morning Survey Was Opened':False,'Morning Survey Was Answered':False})
-
-        #import code
-        #code.interact(local=dict(globals(), **locals()))
-
     else:
         print('  EMPTY QUERY -- no data found')
 
-        df_dates[['Time Sent', 'Time Received', 'Time Opened', 'Time Completed']] = np.nan
+        df_dates[["Morning Survey Was Opened","Morning Survey Was Answered","Morning Survey Opened Time","Morning Survey Answered Time","Morning Survey Time Spent Answering"]] = np.nan
 
         df_dates[[question.title() for question in questions_headers]] = np.nan
 
         df_dates['Mood'] = np.nan
         result = df_dates
+
+    result=result.fillna({'Morning Survey Was Opened':False,'Morning Survey Was Answered':False})
 
     # Drop extra intrinsic/extrinsic columns
     result.drop('mm_extrinsic_motivation'.title(), axis=1, inplace=True)
