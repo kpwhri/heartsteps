@@ -250,7 +250,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     result.drop('mm_intrinsic_motivation'.title(), axis=1, inplace=True)
 
     # Set Date as index of DataFrame
-    result.set_index('Date').to_csv(os.path.join(directory, filename))
+    result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
 
     if DEBUG:
         print("  Wrote %d rows" % (len(result)))
