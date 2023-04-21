@@ -164,7 +164,6 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     day_lookup = {x.date: x.timezone for x in days}
     tzs = [day_lookup[date] if date in day_lookup else np.nan for date in dates ] 
 
-
     # Create a dataframe with each day in range and hsid
     df_dates = pd.DataFrame({"Date": dates,"Timezone":tzs})
     df_dates["Participant ID"] = username
@@ -235,7 +234,9 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
         # Outer join df_dates to include participant duration of study
         result = df_dates.join(df_morning_messages.set_index('Date'), on="Date", how="outer")
-
+        
+        print( len(df_morning_messages['Date']), len(np.unique(df_morning_messages['Date'])))
+        print(len(df_dates),len(np.unique(len(df_dates["Date"]))))
     else:
         print('  EMPTY QUERY -- no data found')
 

@@ -45,3 +45,12 @@ from morning_messages.models import MorningMessage
 import code
 code.interact(local=dict(globals(), **locals()))
 
+pst=pytz.timezone("America/Los_Angeles")
+utc=pytz.timezone("UTC")
+
+x1=datetime.datetime.strptime('8/27/2021', "%m/%d/%Y")
+x2=datetime.datetime.strptime('8/31/2021', "%m/%d/%Y")
+
+user=333;allPageViews=PageView.objects.filter(user_id=user).order_by("time").filter(time__lte=utc.localize(x2), time__gte=utc.localize(x1))
+
+for p in allPageViews: print(p.time.astimezone(pst), p.uri)
