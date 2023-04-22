@@ -11,7 +11,7 @@ from fitbit_activities.models import FitbitActivity
 from weeks.models import Week
 from surveys.models import Survey
 from activity_plans.models import  ActivityPlan
-
+from days.models import Day
 
 def export_weekly_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
@@ -22,7 +22,6 @@ def export_weekly_data(user,directory = None, filename = None, start=None, end=N
     
     uid = user["uid"]
     username = user["hsid"]
-    
     
     if not directory:
         directory = './'
@@ -189,49 +188,79 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
         
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
-    
-    def safe_list_to_str(opts):
-        if opts is not None:
-            return ",".join(opts)
-        else: 
-            return np.nan 
-    
-    week_query = Week.objects.filter(user=uid).all().values('number','start_date','end_date','goal','confidence','survey_id')
-    df_week = pd.DataFrame.from_records(week_query)
-    df_week = df_week.set_index("number")
-    df_week = df_week.drop(columns=['survey_id'])
-    
-    answers=[]
-    barriers=[]
-    weeks = Week.objects.filter(user=uid).all()
-    
-    import code
-    code.interact(local=dict(globals(), **locals()))
 
-    for week in weeks:
-        survey_query = Survey.objects.filter(uuid = week.survey_id).all()
-        if(len(survey_query)>0):
-            answer = survey_query[0].get_answers()
-            answer["number"]=week.number          
-            answers.append(answer)
-                
-        barriers.append({"number":week.number, "barriers": safe_list_to_str(week.barriers)})
-        
-    df_answers = pd.DataFrame(answers)
-    df_answers = df_answers.set_index("number")
-    
-    df_barriers = pd.DataFrame(barriers)
-    df_barriers= df_barriers.set_index("number")
+    #Query weeks object    
+    week_query = Week.objects.filter(user=uid).prefetch_message.all()
+    df = pd.DataFrame({'Object': [w for w in week_query]})
 
-    df = df_week.join(df_answers).join(df_barriers)
+    #Map base fields
+    base_fields = {'number':"Study Week",
+                'start_date':"Start Date",
+                'end_date':"End Date",
+                'goal':"Activity Goal",
+                'confidence':"Activity Goal Confidence",
+                '_barrier_options':"Barriers",
+                'will_barriers_continue':"Will Barriers Continue"
+                'answered'}
+    for f,n in base_fields.items():
+        df[n]=df["Object"].map(lambda x: getattr(x,f))
+
+    #Re-map barriers list to string with : separator
+    #There is not a fixed list of barriers
+    df["Barriers"]=df["Barriers"].map(lambda x: ":".join(x) if x is not None else None)
+
+    #Get survey indicators
+    df["Weekly Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
+
+    #Get days, timezones, and survey dweel time
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
+    sdt       = utils.estimate_survey_dwell_times(uid,survey_type="weekly")
+
+    df["Weekly Survey Opened Time"]=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
+
+    df["Weekly Survey Answered Time"]=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
+
+    #Get survey answers dictionary and map
+    df["answers"]=df["Object"].map(lambda x: x.survey.get_answers())
+    answer_fields={'enjoy_activities_this_week':"Enjoyment of Activities",
+        'lonely':"Loneliness",
+        'important':"Intrinsic Motivation",
+        'daily_routine':"Fit with Routine",
+        'socially_connected':"Social Connectedness",
+        'support':"Social Support",
+        'other_people':"Extrinsic Motivation",
+        'restless':"Negative Reinforcement",
+    }
+    for f,n in answer_fields.items():
+        df[n]=df["answers"].map(lambda x: x[f] if f in x else None)
+
+    #Set index and drop extra columns
     df["Particiant ID"]=username
-    
-    
-    df_all_fields = pd.concat([df_empty, df])
-    df_all_fields = df_all_fields.reset_index()
-    df_all_fields = df_all_fields.rename(columns=field_map)
-    df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
-    df_all_fields.to_csv(os.path.join(directory,filename))
-    
+    df = df.set_index(["Particiant ID", "Study Week"]) 
+    df=df.drop(labels=["answers","Object"],axis=1)
+
+    df.to_csv(os.path.join(directory,filename))
+        
     print("  Wrote %d rows"%(len(df_all_fields)))
     
+
+def map_time_if_exists(df_field, tz):
+    return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else pd.NaT
+
+#Localize a time
+def localize_time(t,tz_lookup):
+    if(t is None): return pd.NaT
+    tz = tz_lookup[t.date()]
+    local_t= t.astimezone(tz)
+    return local_t
+
+#Get localized time the survey page was opened
+def get_survey_open_time(survey,tz_lookup,sdt):
+    if(not survey.answered):
+        return pd.NaT
+    local_date = localize_time(survey.created,tz_lookup).date()
+    if local_date in sdt:
+        return sdt[local_date]["opened"]
+    else:
+        return pd.NaT
