@@ -42,8 +42,8 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     query    = FitbitDay.objects.filter(account=fitbit_account).all().values('date','_timezone')
     df_tz    = pd.DataFrame.from_records(query)
     df_tz    = df_tz.rename(columns={"date":"Datetime", "_timezone":"timezone"}, )
-    df_tz['Datetime'] = pd.to_datetime(df_tz['datetime'], utc=True)
-    df_tz    = df_tz.set_index("datetime")
+    df_tz['Datetime'] = pd.to_datetime(df_tz['Datetime'], utc=True)
+    df_tz    = df_tz.set_index("Datetime")
 
     import code
     code.interact(local=dict(globals(), **locals()))
