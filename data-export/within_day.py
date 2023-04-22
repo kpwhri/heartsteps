@@ -145,6 +145,6 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
 
     df_walking=df_walking.drop(labels=["Object","Notification Receipts","Weather","Unavailable Reasons"],axis=1)
 
-    df_walking = df_walking.set_index(["Participant ID","Date"])
+    df_walking = df_walking.set_index(["Participant ID","Datetime"])
 
     df_walking.to_csv(os.path.join(directory,filename))
