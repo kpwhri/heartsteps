@@ -52,6 +52,10 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 print("\n  Exporting weekly data")
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
+            if "weekly.survey" in exports or "all" in exports:
+                print("\n  Exporting weekly survey")
+                weekly.export_weekly_survey(users[u], directory = user_export_directory, from_scratch=True)
+
             #Within day
             if "withinday.walking" in exports or "withinday" in exports or "all" in exports:
                 print("\n  Exporting walking suggestions")

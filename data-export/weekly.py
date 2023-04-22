@@ -170,3 +170,68 @@ def export_weekly_data(user,directory = None, filename = None, start=None, end=N
     
     print("  Wrote %d rows"%(len(df_all_fields)))
     
+def export_weekly_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+    
+    dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
+    final_field_name = dictionary["ElementName"]
+    raw_field_name   = dictionary["Aliases"]
+    field_map        = utils.get_field_map(dictionary)
+    
+    uid = user["uid"]
+    username = user["hsid"]
+    
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.weekly_survey.csv'.format(
+            username = username
+        )
+        
+    if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
+        return
+    
+    def safe_list_to_str(opts):
+        if opts is not None:
+            return ",".join(opts)
+        else: 
+            return np.nan 
+    
+    week_query = Week.objects.filter(user=uid).all().values('number','start_date','end_date','goal','confidence','survey_id')
+    df_week = pd.DataFrame.from_records(week_query)
+    df_week = df_week.set_index("number")
+    df_week = df_week.drop(columns=['survey_id'])
+    
+    answers=[]
+    barriers=[]
+    weeks = Week.objects.filter(user=uid).all()
+    
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
+    for week in weeks:
+        survey_query = Survey.objects.filter(uuid = week.survey_id).all()
+        if(len(survey_query)>0):
+            answer = survey_query[0].get_answers()
+            answer["number"]=week.number          
+            answers.append(answer)
+                
+        barriers.append({"number":week.number, "barriers": safe_list_to_str(week.barriers)})
+        
+    df_answers = pd.DataFrame(answers)
+    df_answers = df_answers.set_index("number")
+    
+    df_barriers = pd.DataFrame(barriers)
+    df_barriers= df_barriers.set_index("number")
+
+    df = df_week.join(df_answers).join(df_barriers)
+    df["Particiant ID"]=username
+    
+    
+    df_all_fields = pd.concat([df_empty, df])
+    df_all_fields = df_all_fields.reset_index()
+    df_all_fields = df_all_fields.rename(columns=field_map)
+    df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
+    df_all_fields.to_csv(os.path.join(directory,filename))
+    
+    print("  Wrote %d rows"%(len(df_all_fields)))
+    

@@ -94,6 +94,3 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df.to_csv(os.path.join(directory,filename))
 
     print("  Wrote %d rows"%(len(df)))
-
-    import code
-    code.interact(local=dict(globals(), **locals()))
