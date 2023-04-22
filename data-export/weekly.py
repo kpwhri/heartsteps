@@ -263,7 +263,7 @@ def localize_time(t,tz_lookup):
 def get_survey_open_time(survey,tz_lookup,sdt):
     if(not survey.answered):
         return pd.NaT
-    local_date = localize_time(survey.created,tz_lookup).date()
+    local_date = localize_time(survey.updated,tz_lookup).date()
     if local_date in sdt:
         return sdt[local_date]["opened"]
     else:
