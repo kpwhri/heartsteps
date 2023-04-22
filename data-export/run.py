@@ -10,7 +10,7 @@ import numpy as np
 import traceback
 import argparse
 
-import weekly, daily, minute, bursts
+import weekly, daily, within_day, minute, bursts
 
 debug_users =["225","244"]
 
@@ -43,6 +43,9 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             if("weekly" in exports):
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
+            if("within_day" in exports):
+                within_day.walking_suggestions(users[u], directory = user_export_directory, from_scratch=True)
+                
             if("minute" in exports):
                 minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
 

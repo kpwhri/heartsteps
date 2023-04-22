@@ -382,8 +382,6 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
 
 
 
-
-
 def map_time_if_exists(df_field, tz):
     return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else pd.NaT
 
