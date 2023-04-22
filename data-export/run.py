@@ -28,7 +28,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             if(users[u]["cohort"]!=cohort): continue
             if(DEBUG and users[u]["hsid"] not in debug_users): continue
 
-            print("Exporting data for user: " + u)
+            print("\nExporting data for user: " + u)
 
             #Setup output directory
             user_export_directory = os.path.join(EXPORT_DIR, users[u]["cohort"], u)
@@ -36,43 +36,43 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
         
             #Daily
             if "daily.planning" in exports or "daily.all" in exports: 
-                print("  Exporting daily planning")
+                print("\n  Exporting daily planning")
                 daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
             
             if "daily.survey" in exports or "daily.all" in exports: 
-                print("  Exporting morning survey")
+                print("\n  Exporting morning survey")
                 daily.export_daily_morning_survey(users[u], directory = user_export_directory)
             
             if "daily.messages" in exports or "daily.all" in exports:
-                print("  Exporting morning message")
+                print("\n  Exporting morning message")
                 daily.export_daily_morning_message(users[u], directory = user_export_directory, from_scratch=True)
 
             #Weekly
             if("weekly" in exports):
-                print("  Exporting weekly data")
+                print("\n  Exporting weekly data")
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
             #Within day
             if "within_day.walking" in exports or "within_day.all" in exports:
-                print("  Exporting walking suggestions")
+                print("\n  Exporting walking suggestions")
                 within_day.walking_suggestions(users[u], directory = user_export_directory, from_scratch=True)
             
             if "within_day.antisedintary" in exports or "within_day.all" in exports:
-                print("  Exporting antisedentary suggestions")
+                print("\n  Exporting antisedentary suggestions")
                 within_day.antisedintary_suggestions(users[u], directory = user_export_directory, from_scratch=True)
 
             #Minute
             if "minute.fitbit" in exports or "minute.all" in exports:
-                print("  Exporting minute level fitbit")
+                print("\n  Exporting minute level fitbit")
                 minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
 
             #Burst
             if "burst.walking" in exports or "burst.all" in exports:
-                print("  Exporting burst walking survey")
+                print("\n  Exporting burst walking survey")
                 bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
             
             if "burst.activity" in exports or "burst.all" in exports:
-                print("  Exporting burst activity survey")
+                print("\n  Exporting burst activity survey")
                 bursts.export_burst_activity_survey(users[u], directory = user_export_directory)
         
         except Exception as e:
