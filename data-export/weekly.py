@@ -242,7 +242,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     df.to_csv(os.path.join(directory,filename))
         
-    print("  Wrote %d rows"%(len(df_all_fields)))
+    print("  Wrote %d rows"%(len(df)))
 
     if(DEBUG):
         import code
