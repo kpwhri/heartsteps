@@ -37,33 +37,42 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             #Run exports
             if("daily" in exports):
                 if ".planning" in exports or ".*" in exports: 
+                    print("  Exporting daily planning")
                     daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
                 
                 if ".survey" in exports or ".*" in exports: 
+                    print("  Exporting morning survey")
                     daily.export_daily_morning_survey(users[u], directory = user_export_directory)
                 
                 if ".messages" in exports or ".*" in exports:
+                    print("  Exporting morning message")
                     daily.export_daily_morning_message(users[u], directory = user_export_directory, from_scratch=True)
 
             if("weekly" in exports):
+                print("  Exporting weekly data")
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
             if("within_day" in exports):
                 if ".walking" in exports or ".*" in exports:
+                    print("  Exporting walking suggestions")
                     within_day.walking_suggestions(users[u], directory = user_export_directory, from_scratch=True)
                 
                 if ".antisedintary" in exports or ".*" in exports:
+                    print("  Exporting antisedentary suggestions")
                     within_day.antisedintary_suggestions(users[u], directory = user_export_directory, from_scratch=True)
 
             if("minute" in exports):
                 if ".fitbit" in exports or ".*" in exports:
+                    print("  Exporting minute level fitbit")
                     minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
 
             if("burst" in exports):
                 if ".walking" in exports or ".*" in exports:
+                    print("  Exporting burst walking survey")
                     bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
                 
                 if ".activity" in exports or ".*" in exports:
+                    print("  Exporting burst activity survey")
                     bursts.export_burst_activity_survey(users[u], directory = user_export_directory)
             
         except Exception as e:
