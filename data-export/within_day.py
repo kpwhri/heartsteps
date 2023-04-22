@@ -44,22 +44,6 @@ from morning_messages.models import MorningMessage
 from walking_suggestions.models import WalkingSuggestionDecision
 from collections import defaultdict
 
-days      = Day.objects.filter(user_id=uid).order_by("date").all()
-day_start = np.array([x.start for x in days])
-day_end   = np.array([x.end for x in days])
-day_tz    = [x.timezone for x in days]
-
-def get_tz_from_datetime(t):
-    i=np.argmin(np.abs(day_start-t))
-    return pytz.timezone(day_tz[i])
-
-def localize_datetime(t):
-    tz = get_tz_from_datetime(t)
-    if(tz is not None):
-        return t.astimezone(tz)
-    else:
-        return pd.NaT
-
 def walking_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
     uid = user["uid"]
@@ -74,6 +58,22 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
 
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
+
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    day_start = np.array([x.start for x in days])
+    day_end   = np.array([x.end for x in days])
+    day_tz    = [x.timezone for x in days]
+
+    def get_tz_from_datetime(t):
+        i=np.argmin(np.abs(day_start-t))
+        return pytz.timezone(day_tz[i])
+
+    def localize_datetime(t):
+        tz = get_tz_from_datetime(t)
+        if(tz is not None):
+            return t.astimezone(tz)
+        else:
+            return pd.NaT
 
     queryset = WalkingSuggestionDecision.objects.filter(
         user = uid,
