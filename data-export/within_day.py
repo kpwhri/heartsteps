@@ -105,8 +105,8 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
         df_walking[n]=df_walking["Object"].map(lambda x: getattr(x,f))
 
     #Add location and liked
-    df_walking["Location"] = df_walking["Object"].map(lambda x: x._location.category if x._location is not None else x)
-    df_walking["Liked"]    = df_walking["Object"].map(lambda x: x._rating.liked if x._rating is not None else x)
+    df_walking["Location"] = df_walking["Object"].map(lambda x: x._location.category if x._location is not None else None)
+    df_walking["Liked"]    = df_walking["Object"].map(lambda x: x._rating.liked if x._rating is not None else None)
 
     #Add unavailable reasons
     df_walking["Unavailable Reasons"] = df_walking["Object"].map(lambda x: x._unavailable_reasons)
