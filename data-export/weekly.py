@@ -190,7 +190,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
         return
 
     #Query weeks object    
-    week_query = Week.objects.filter(user=uid).prefetch_message.all()
+    week_query = Week.objects.filter(user=uid).all()
     df = pd.DataFrame({'Object': [w for w in week_query]})
 
     #Map base fields
@@ -243,6 +243,10 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df.to_csv(os.path.join(directory,filename))
         
     print("  Wrote %d rows"%(len(df_all_fields)))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
     
 
 def map_time_if_exists(df_field, tz):
