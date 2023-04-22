@@ -234,5 +234,5 @@ def antisedintary_suggestions(user,directory = None, filename = None, start=None
     if DEBUG:
         print("  Wrote %d rows" % (len(df_antisedentary)))
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
