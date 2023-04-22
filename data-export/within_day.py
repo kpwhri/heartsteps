@@ -148,3 +148,6 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     df_walking = df_walking.set_index(["Participant ID","Datetime"])
 
     df_walking.to_csv(os.path.join(directory,filename))
+
+    import code
+    code.interact(local=dict(globals(), **locals()))

@@ -12,7 +12,7 @@ import argparse
 
 import weekly, daily, within_day, minute, bursts
 
-debug_users =["225","244"]
+debug_users =["244","225"]
 
 def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
     
