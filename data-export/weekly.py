@@ -210,16 +210,21 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df["Barriers"]=df["Barriers"].map(lambda x: ":".join(x) if x is not None else None)
 
     #Get survey indicators
-    df["Weekly Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
 
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
     sdt       = utils.estimate_survey_dwell_times(uid,survey_type="weekly")
 
-    df["Weekly Survey Opened Time"]=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
+    wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
+    wsat=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
 
-    df["Weekly Survey Answered Time"]=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
+    df["Weekly Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
+    df["Weekly Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
+
+    df["Weekly Survey Opened Time"]=wsot
+    df["Weekly Survey Answered Time"]=wsat
+    df['Weekly Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
     #Get survey answers dictionary and map
     df["answers"]=df["Object"].map(lambda x: x.survey.get_answers())
