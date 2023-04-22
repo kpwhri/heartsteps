@@ -45,9 +45,6 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     fitbit_account = user["fbid"]
     username = user["hsid"]
 
-    if(DEBUG):
-        print("  Exporting minute-level data for: ", username)
-
     if not directory:
         directory = './'
     if not filename:
@@ -99,5 +96,5 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
 
     #Export to csv
     df.to_csv(os.path.join(directory,filename))
-    if(DEBUG):
-        print("  Wrote %d rows"%(len(df)))
+
+    print("  Wrote %d rows"%(len(df)))
