@@ -147,8 +147,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         plan_creation_extended["Total Duration of Completed Activities Planned for this Day"]=0
     
     plan_creation_extended.to_csv(os.path.join(directory,filename))
-    if(DEBUG):
-        print("  Wrote %d rows"%(len(plan_creation_extended)))
+
+    print("  Wrote %d rows"%(len(plan_creation_extended)))
 
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
@@ -273,8 +273,7 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     # Set Date as index of DataFrame
     result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
 
-    if DEBUG:
-        print("  Wrote %d rows" % (len(result)))
+    print("  Wrote %d rows" % (len(result)))
 
 
 def export_daily_morning_message(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
@@ -377,8 +376,8 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
     # Set Date as index of DataFrame
     result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
 
-    if DEBUG:
-        print("  Wrote %d rows" % (len(result)))
+    
+    print("  Wrote %d rows" % (len(result)))
 
 
 
