@@ -101,7 +101,7 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
                     'cloud_cover':"Cloud Cover"
                     }
     for f,n in weather_fields.items():
-        df_walking[n]=df_walking["Weather"].map(lambda x: getattr(x,f))
+        df_walking[n]=df_walking["Weather"].map(lambda x: getattr(x,f) if x is not None else None)
 
     #Add notification fields
     df_walking["Notification Title"]           = df_walking["Object"].map(lambda x: x.notification.title if (x.treated and x.notification is not None) else None)
@@ -119,6 +119,9 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     df_walking = df_walking.set_index(["Participant ID","Datetime"])
 
     df_walking.to_csv(os.path.join(directory,filename))
+
+    if DEBUG:
+        print("  Wrote %d rows" % (len(df_walking)))
 
 def antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
@@ -209,7 +212,7 @@ def antisedintary_suggestions(user,directory = None, filename = None, start=None
                     'cloud_cover':"Cloud Cover"
                     }
     for f,n in weather_fields.items():
-        df_antisedentary[n]=df_antisedentary["Weather"].map(lambda x: getattr(x,f))
+        df_antisedentary[n]=df_antisedentary["Weather"].map(lambda x: getattr(x,f) if x is not None else None)
 
     #Add notification fields
     df_antisedentary["Notification Title"]           = df_antisedentary["Object"].map(lambda x: x.notification.title if (x.treated and x.notification is not None) else None)
@@ -227,6 +230,9 @@ def antisedintary_suggestions(user,directory = None, filename = None, start=None
     df_antisedentary = df_antisedentary.set_index(["Participant ID","Datetime"])
 
     df_antisedentary.to_csv(os.path.join(directory,filename))
+
+    if DEBUG:
+        print("  Wrote %d rows" % (len(df_antisedentary)))
 
     import code
     code.interact(local=dict(globals(), **locals()))
