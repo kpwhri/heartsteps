@@ -90,8 +90,9 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     df_walking = pd.DataFrame({'Object': [rec for rec in queryset]})
 
     df_walking["Participant ID"]=username
+    df_walking["Datetime"] = df_walking["Object"].map( lambda x: localize_datetime(x.time).replace(tzinfo=None))
     df_walking["Date"] = df_walking["Object"].map( lambda x: localize_datetime(x.time).date())
-    df_walking["Datetime"] = df_walking["Object"].map( lambda x: localize_datetime(x.time))
+    df_walking["Time"] = df_walking["Object"].map( lambda x: localize_datetime(x.time).replace(tzinfo=None).time())
 
     #Add base fields
     base_fields={"imputed":"Imputed",
@@ -143,5 +144,7 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     df_walking['Notification Time Opened']     = df_walking["Notification Receipts"].map(lambda x: localize_datetime(x["opened"]) if (x is not None and "opened" in x) else pd.NaT)
 
     df_walking=df_walking.drop(labels=["Object","Notification Receipts","Weather","Unavailable Reasons"],axis=1)
+
+    df_walking = df_walking.set_index(["Participant ID","Date"])
 
     df_walking.to_csv(os.path.join(directory,filename))
