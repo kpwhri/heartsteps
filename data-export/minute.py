@@ -12,6 +12,15 @@ from fitbit_activities.models import FitbitDay
 from fitbit_activities.models import FitbitMinuteStepCount
 from fitbit_activities.models import FitbitMinuteHeartRate
 
+def strip_time_if_exists(x):
+    return x.replace(tzinfo=None) if x is not None else pd.NaT
+
+def to_time(x):
+    if( x is not np.nan and x is not None and not pd.isnull(x)):
+        return x.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return x
+
 def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, DEBUG=True):
 
     fitbit_account = user["fbid"]
@@ -27,27 +36,28 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     #Get steps data
     query    = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
     df_steps = pd.DataFrame.from_records(query)
-    df_steps = df_steps.rename(columns={"time":"Datetime"}, )
+    df_steps = df_steps.rename(columns={"time":"Datetime",'steps':"Steps"}, )
     df_steps = df_steps.set_index("Datetime")
+    df_steps["Datetime"]=df_steps["Datetime"].apply(strip_time_if_exists)
     df_steps = df_steps.loc[~df_steps.index.duplicated()] #drop any duplicated index values
 
     #Get heart rate data
     query    = FitbitMinuteHeartRate.objects.filter(account=fitbit_account).all().values('time','heart_rate')
     df_hr    = pd.DataFrame.from_records(query)
-    df_hr    = df_hr.rename(columns={"time":"Datetime"}, )
+    df_hr    = df_hr.rename(columns={"time":"Datetime",'heart_rate':"Heart Rate"}, )
+    df_hr["Datetime"]=df_hr["Datetime"].apply(strip_time_if_exists)
     df_hr    = df_hr.set_index("Datetime")
     df_hr    = df_hr.loc[~df_hr.index.duplicated()] #drop any duplicated index values
 
     #Get timezonedata
+    #Is fitbit data in participant local time already?
     query    = FitbitDay.objects.filter(account=fitbit_account).all().values('date','_timezone')
     df_tz    = pd.DataFrame.from_records(query)
     df_tz    = df_tz.rename(columns={"date":"Datetime", "_timezone":"timezone"}, )
     df_tz['Datetime'] = pd.to_datetime(df_tz['Datetime'], utc=True)
     df_tz    = df_tz.set_index("Datetime")
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
+    '''
     #Trim days from start of timezone data where there is no fitbit data
     min_time = pd.to_datetime(max(df_hr.index[0].date(), df_steps.index[0].date()),utc=True)
     df_tz    = df_tz[df_tz.index>=min_time]
@@ -59,17 +69,31 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df_tz    = df_tz.resample('1Min').ffill()
     df_tz    = df_tz.drop(index=df_tz.index[-1]) #Drop last row so we end at 11:59pm
     df_tz    = df_tz.loc[~df_tz.index.duplicated()] #drop any duplicated index values
-
+    '''
     #Join all datafames and set index
-    df      = pd.concat([df_tz,df_steps,df_hr],axis=1,join="outer")
+    df      = pd.concat([df_steps,df_hr],axis=1,join="outer")
+    df      = df.reset_index()
+    
+    #Add additional fields
     df["Participant ID"]=username
-    df      = df.reset_index().set_index(["Participant ID", "datetime"])
+    df["Date"] = df["Datetime"].map(lambda x: x.date())
+    df["Time"] = df["Datetime"].map(lambda x: x.time())
+
+    #Reindex
+    df = df.set_index(["Participant ID", "Datetime"])
+
+    #Reset column order
+    cols = ["Date","Time","Steps","Heart Rate"]
+    df=df[cols]
 
     #Set missing steps to 0 when HR is defined
-    df['steps'] = df['steps'].fillna(0) #Set all missing steps to 0
-    df.loc[df['heart_rate'].isnull(), 'steps'] = np.nan #Reset to nan when hr is null
+    df['Steps'] = df['Steps'].fillna(0) #Set all missing steps to 0
+    df.loc[df['Heart Rate'].isnull(), 'Steps'] = np.nan #Reset to nan when hr is null
 
     #Export to csv
     df.to_csv(os.path.join(directory,filename))
 
     print("  Wrote %d rows"%(len(df)))
+
+    import code
+    code.interact(local=dict(globals(), **locals()))
