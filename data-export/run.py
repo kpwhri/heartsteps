@@ -36,23 +36,35 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
         
             #Run exports
             if("daily" in exports):
-                #daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
-                #daily.export_daily_morning_survey(users[u], directory = user_export_directory)
-                daily.export_daily_morning_message(users[u], directory = user_export_directory, from_scratch=True)
+                if ".planning" in exports or ".*" in exports: 
+                    daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True)
+                
+                if ".survey" in exports or ".*" in exports: 
+                    daily.export_daily_morning_survey(users[u], directory = user_export_directory)
+                
+                if ".messages" in exports or ".*" in exports:
+                    daily.export_daily_morning_message(users[u], directory = user_export_directory, from_scratch=True)
 
             if("weekly" in exports):
                 weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True)
     
             if("within_day" in exports):
-                #within_day.walking_suggestions(users[u], directory = user_export_directory, from_scratch=True)
-                within_day.antisedintary_suggestions(users[u], directory = user_export_directory, from_scratch=True)
+                if ".walking" in exports or ".*" in exports:
+                    within_day.walking_suggestions(users[u], directory = user_export_directory, from_scratch=True)
+                
+                if ".antisedintary" in exports or ".*" in exports:
+                    within_day.antisedintary_suggestions(users[u], directory = user_export_directory, from_scratch=True)
 
             if("minute" in exports):
-                minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
+                if ".fitbit" in exports or ".*" in exports:
+                    minute.export_fitbit_minute_data(users[u], directory = user_export_directory)
 
             if("burst" in exports):
-                bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
-                bursts.export_burst_activity_survey(users[u], directory = user_export_directory)
+                if ".walking" in exports or ".*" in exports:
+                    bursts.export_burst_walking_survey(users[u], directory = user_export_directory)
+                
+                if ".activity" in exports or ".*" in exports:
+                    bursts.export_burst_activity_survey(users[u], directory = user_export_directory)
             
         except Exception as e:
             print("Error exporting data for user: " + u)
