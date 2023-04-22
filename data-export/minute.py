@@ -36,9 +36,9 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     #Get steps data
     query    = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
     df_steps = pd.DataFrame.from_records(query)
-    df_steps = df_steps.rename(columns={"time":"Datetime",'steps':"Steps"}, )
-    df_steps = df_steps.set_index("Datetime")
+    df_steps = df_steps.rename(columns={"time":"Datetime",'steps':"Steps"})
     df_steps["Datetime"]=df_steps["Datetime"].apply(strip_time_if_exists)
+    df_steps = df_steps.set_index("Datetime")
     df_steps = df_steps.loc[~df_steps.index.duplicated()] #drop any duplicated index values
 
     #Get heart rate data
