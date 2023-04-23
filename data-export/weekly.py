@@ -232,7 +232,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df_msg = df_msg.set_index("Study Week")
 
     #Join weekly survey with notifications
-    df = df.join(df_msg, on="Study Week",how="outer")
+    df = df.join(df_msg, how="outer")
 
     #Get survey open and answer times
     wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
