@@ -12,6 +12,7 @@ from weeks.models import Week
 from surveys.models import Survey
 from activity_plans.models import  ActivityPlan
 from days.models import Day
+from push_messages.models import Message
 
 def export_weekly_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
@@ -209,16 +210,20 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #There is not a fixed list of barriers
     df["Barriers"]=df["Barriers"].map(lambda x: ":".join(x) if x is not None else None)
 
-    #Get survey indicators
+    #Get notification indicators
+    #q = Message.objects.filter(recipient=uid,title='Weekly reflection')
 
+    #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
     sdt       = utils.estimate_survey_dwell_times(uid,survey_type="weekly")
 
+    #Get survey open and answer times
     wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
     wsat=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
 
+    #Create fields
     df["Weekly Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
     df["Weekly Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
 
