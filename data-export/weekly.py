@@ -210,14 +210,23 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #There is not a fixed list of barriers
     df["Barriers"]=df["Barriers"].map(lambda x: ":".join(x) if x is not None else None)
 
-    #Get notification indicators
-    #q = Message.objects.filter(recipient=uid,title='Weekly reflection')
 
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
     sdt       = utils.estimate_survey_dwell_times(uid,survey_type="weekly")
+
+    #Get notification indicators
+    notification_query = Message.objects.filter(recipient=uid,title='Weekly reflection').order_by("created")
+    df_msg = pd.DataFrame({'Object': [m for m in notification_query]})
+    df_msg["Study Week"]    = df_msg["Object"].map(lambda x: x.data["currentWeek"]["id"])
+    df_msg['Notification Was Sent']      = df_msg['Object'].map(lambda msg: "sent" in msg._message_receipts["sent"])
+    df_msg['Notification Was Received']  = df_msg['Object'].map(lambda msg: "received" in msg._message_receipts["received"])
+    df_msg['Notification Was Opened']    = df_msg['Object'].map(lambda msg: "opened" in msg._message_receipts["opened"])
+    df_msg['Notification Time Sent']     = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
+    df_msg['Notification Time Received'] = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
+    df_msg['Notification Time Opened']   = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
 
     #Get survey open and answer times
     wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
