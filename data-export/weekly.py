@@ -263,8 +263,9 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #Set index and drop extra columns
     df["Particiant ID"]=username
 
+    df = df.reset_index()
     df = df.set_index(["Particiant ID", "Study Week"]) 
-    df=df.drop(labels=["answers","Object"],axis=1)
+    df = df.drop(labels=["answers","Object"],axis=1)
 
     df.to_csv(os.path.join(directory,filename))
         
