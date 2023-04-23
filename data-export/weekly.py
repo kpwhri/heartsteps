@@ -227,6 +227,10 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df_msg['Notification Time Sent']     = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
     df_msg['Notification Time Received'] = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
     df_msg['Notification Time Opened']   = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
+    #df_msg = df_msg.set_index("Study Week")
+
+    #Join weekly survey with notifications
+    df = df.join(df_msg, on="Study Week",how="outer")
 
     #Get survey open and answer times
     wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
@@ -256,6 +260,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     #Set index and drop extra columns
     df["Particiant ID"]=username
+
     df = df.set_index(["Particiant ID", "Study Week"]) 
     df=df.drop(labels=["answers","Object"],axis=1)
 
