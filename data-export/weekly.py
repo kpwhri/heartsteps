@@ -227,6 +227,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df_msg['Notification Time Sent']     = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
     df_msg['Notification Time Received'] = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
     df_msg['Notification Time Opened']   = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
+    df_msg=df_msg.drop(labels="Object", axis=1)
     #df_msg = df_msg.set_index("Study Week")
 
     #Join weekly survey with notifications
