@@ -73,10 +73,11 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
 
     df.to_csv(os.path.join(directory, filename))
 
-
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+    return df
 
 def export_notification_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
@@ -133,8 +134,9 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
         import code
         code.interact(local=dict(globals(), **locals()))
 
+    return df
 
-def export_pageview_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_appuse_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -179,10 +181,11 @@ def export_pageview_log(user,directory = None, filename = None, start=None, end=
 
     df.to_csv(os.path.join(directory, filename))
 
-
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+    return df
 
 
 
