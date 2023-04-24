@@ -239,12 +239,12 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     wsat=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
 
     #Create fields
-    df["Weekly Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
-    df["Weekly Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
+    df["Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
+    df["Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
 
-    df["Weekly Survey Opened Time"]=wsot
-    df["Weekly Survey Answered Time"]=wsat
-    df['Weekly Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
+    df["Survey Time Opened"]=wsot
+    df["Survey Time Answered"]=wsat
+    df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
     #Get survey answers dictionary and map
     df["answers"]=df["Object"].map(lambda x: x.survey.get_answers())
@@ -263,16 +263,14 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #Set index and drop extra columns
     df["Particiant ID"]=username
 
-
     #Mam time fields to strings
     time_fields = ['Notification Time Sent',
                    'Notification Time Received',
                    'Notification Time Opened',
-                   "Weekly Survey Opened Time",
-                   "Weekly Survey Answered Time"]
+                   "Survey Time Opened",
+                   "Survey Time Answered"]
     for f in time_fields:
         df[f] = df[f].map(to_time_str)
-
 
     df = df.reset_index()
     df = df.set_index(["Particiant ID", "Study Week"]) 

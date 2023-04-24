@@ -205,10 +205,6 @@ def deduplicate_dates(df, field):
     df = df.drop(labels=l,axis=0)
     return(df)
 
-
-
-
-
 def get_survey_notifications(uid, survey_type ):
     survey_types = ['Activity Survey', 
                     'Morning check-in',
