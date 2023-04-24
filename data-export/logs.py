@@ -18,6 +18,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
+    uid = user["uid"]
 
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
