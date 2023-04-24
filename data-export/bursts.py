@@ -147,8 +147,10 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     df['Notification Time Received'] = df["receipts"].map(lambda x: localize_time(x["received"], tz_lookup) if "received" in x else pd.NaT)
     df['Notification Time Opened']   = df["receipts"].map(lambda x: localize_time(x["opened"], tz_lookup) if "opened" in x else pd.NaT)
 
+    #df["notification_id"] = df['Object'].map(lambda x: notification_lookup[x.uuid].uuid)
+
     #Survey time details
-    asot = df['Object'].map(lambda x: get_survey_open_time(x,tz_lookup,ndt))
+    asot = df['Object'].map(lambda x: get_survey_open_time(str(notification_lookup[x.uuid].uuid),tz_lookup,ndt))
     asat = df['Object'].map(lambda x: localize_time(x.updated,tz_lookup) if x.answered else pd.NaT)
     df["Survey Was Opened"]   = asot.map(lambda x: x is not pd.NaT) 
     df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
@@ -285,8 +287,8 @@ def localize_time(t,tz_lookup):
     return local_t
 
 #Get localized time the survey page was opened
-def get_survey_open_time(activity,tz_lookup,ndt):
-    id = str(activity.decision.notification.uuid)
+def get_survey_open_time(notification_uuid,tz_lookup,ndt):
+    id = str(uuid)
     if id in ndt:
         return localize_time(ndt[id]["opened"],tz_lookup)
     else:
