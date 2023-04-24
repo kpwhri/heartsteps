@@ -147,11 +147,10 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
         activity_dict["Decision Updated"].append(activity.decision.updated)
 
         # Decision.Message fields
-        activity_dict["Message Sent"].append(activity.decision.notification.sent if activity.decision.notification else np.nan)
-        activity_dict["Message Received"].append(activity.decision.notification.received if activity.decision.notification else np.nan)
-        activity_dict["Message Opened"].append(activity.decision.notification.opened if activity.decision.notification else np.nan)
-        activity_dict["Message Engaged"].append(activity.decision.notification.engaged if activity.decision.notification else np.nan)
-
+        activity_dict["Time Notification Sent"].append(activity.decision.notification.sent if activity.decision.notification else np.nan)
+        activity_dict["Time Notification Received"].append(activity.decision.notification.received if activity.decision.notification else np.nan)
+        activity_dict["Time Notification Opened"].append(activity.decision.notification.opened if activity.decision.notification else np.nan)
+ 
         answers = activity.get_answers()
         for q in questions:
             # confirm an answer exists and it is not None
@@ -162,3 +161,7 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
     print(f"   Total answers {df['Answered'].sum()}")
 
     df.to_csv(os.path.join(directory, filename))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
