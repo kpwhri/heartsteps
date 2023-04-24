@@ -124,6 +124,8 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
         df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
         df[f] = df[f].map(to_time_str)
 
+    #Set index and drop extra columns
+    df["Particiant ID"]=username
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
