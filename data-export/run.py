@@ -80,7 +80,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 bursts.export_burst_activity_survey(users[u], directory = user_export_directory,DEBUG=DEBUG)
         
             #Log
-            if "log.fitbit" in exports or "log" in exports or "all" in exports:
+            if "logs.fitbit" in exports or "logs" in exports or "all" in exports:
                 print("\n  Exporting fitbit activity log")
                 logs.export_fitbit_activity_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
 
