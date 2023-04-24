@@ -83,6 +83,11 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             if "logs.fitbit" in exports or "logs" in exports or "all" in exports:
                 print("\n  Exporting fitbit activity log")
                 logs.export_fitbit_activity_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
+            
+            if "logs.notifications" in exports or "logs" in exports or "all" in exports:
+                print("\n  Exporting notification log")
+                logs.export_notification_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
+
 
         except Exception as e:
             print("Error exporting data for user: " + u)
