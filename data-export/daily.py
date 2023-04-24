@@ -30,7 +30,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
     
-    df = logs.planning(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df = logs.export_planning_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
 
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
