@@ -14,7 +14,7 @@ from activity_plans.models import  ActivityPlan
 from days.models import Day
 from push_messages.models import Message
 
-def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True)
+def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
