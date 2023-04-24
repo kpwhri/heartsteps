@@ -112,18 +112,6 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     uid = user["uid"]
     username = user["hsid"]
 
-    # Export Destination
-    if not directory: 
-        directory = './'
-    if not filename:
-        filename = '{username}.burst_walking_survey.csv'.format(
-            username=username
-        )
-
-    # Skip rewriting if exists and trusted (no new data)
-    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
-        return
-
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
