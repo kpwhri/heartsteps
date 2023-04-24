@@ -288,7 +288,7 @@ def localize_time(t,tz_lookup):
 
 #Get localized time the survey page was opened
 def get_survey_open_time(notification_uuid,tz_lookup,ndt):
-    id = str(uuid)
+    id = str(notification_uuid)
     if id in ndt:
         return localize_time(ndt[id]["opened"],tz_lookup)
     else:
