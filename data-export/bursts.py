@@ -46,7 +46,7 @@ from morning_messages.models import MorningMessage
 from walking_suggestion_surveys.models import WalkingSuggestionSurvey
 from activity_surveys.models import ActivitySurvey, Decision
 
-def export_burst_walking_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_burst_walking_survey2(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
     Construct dataframe from WalkingSuggestionSurvey data model and export to csv
@@ -102,7 +102,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     df.to_csv(os.path.join(directory,filename))
 
-def export_walking_suggestion_survey2(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_burst_walking_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
     """
     Construct dataframe from ActivitySurvey data model and export to csv
@@ -112,13 +112,13 @@ def export_walking_suggestion_survey2(user,directory = None, filename = None, st
     username = user["hsid"]
 
     if DEBUG:
-        print("  Exporting burst activity survey data for: ", username)
+        print("  Exporting burst walking survey data for: ", username)
 
     # Export Destination
-    if not directory:
+    if not directory: 
         directory = './'
     if not filename:
-        filename = '{username}.burst_activity_survey.csv'.format(
+        filename = '{username}.burst_walking_survey.csv'.format(
             username=username
         )
 
