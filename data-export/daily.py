@@ -6,7 +6,7 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
-import utils
+import utils, logs
 
 from days.models import Day
 from push_messages.models import Message as PushMessage
@@ -16,12 +16,7 @@ from activity_plans.models import  ActivityPlan
 from morning_messages.models import MorningMessage
 
 def export_daily_planning_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
-    
-    dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
-    final_field_name = dictionary["ElementName"]
-    raw_field_name   = dictionary["Aliases"]
-    field_map        = utils.get_field_map(dictionary)
-    
+        
     uid = user["uid"]
     username = user["hsid"]
     
@@ -35,14 +30,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
     
-    def safe_list_to_str(opts):
-        if opts is not None:
-            return ",".join(opts)
-        else: 
-            return np.nan 
-    
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    df = logs.planning(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
 
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
@@ -53,15 +41,15 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     #Create a bdata frame with dates with all values equal 0
     df_dates = pd.DataFrame({"Date":dates})
-    #df_dates["Number of Activities Planned"]=0
-    #df_dates["Total Duration of Activities Planned"]=0
-    #df_dates["Number of Planned Activities Marked Completed"]=0
     df_dates["Participant ID"] = username
     df_dates = df_dates.set_index(["Participant ID","Date"])
 
-    #Get all plans for participant
-    plans = ActivityPlan.objects.filter(user_id=uid).all().values('user_id', 'type_id', 'vigorous', 'start', 'date', 'timeOfDay', 'duration', 'created_at', 'updated_at', 'activity_log_id')
-    
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
+    df["Date"] = df["Datetime"].map(lambda x: x.date)
+
+
     if(len(plans)>0):    
 
         #Convert plans

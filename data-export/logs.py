@@ -13,7 +13,7 @@ from push_messages.models import Message
 from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 
-def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -30,7 +30,6 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     # Skip rewriting if exists and trusted (no new data)
     if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
-
 
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
@@ -72,7 +71,8 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    df.to_csv(os.path.join(directory, filename))
+    if(save):
+        df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
         import code
@@ -80,7 +80,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
 
     return df
 
-def export_notification_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_notification_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -129,7 +129,8 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    df.to_csv(os.path.join(directory, filename))
+    if(save):
+        df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
         import code
@@ -137,7 +138,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
 
     return df
 
-def export_appuse_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_appuse_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -180,7 +181,8 @@ def export_appuse_log(user,directory = None, filename = None, start=None, end=No
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    df.to_csv(os.path.join(directory, filename))
+    if(save):
+        df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
         import code
@@ -188,7 +190,7 @@ def export_appuse_log(user,directory = None, filename = None, start=None, end=No
 
     return df
 
-def export_planning_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_planning_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True, save=True):
 
     username = user["hsid"]
     uid = user["uid"]
@@ -235,9 +237,10 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    df.to_csv(os.path.join(directory, filename))
+    if(save):
+        df.to_csv(os.path.join(directory, filename))
 
-    if(DEBUG):
+    if(DEBUG and save):
         import code
         code.interact(local=dict(globals(), **locals()))
 
