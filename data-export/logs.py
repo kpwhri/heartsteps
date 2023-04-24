@@ -44,18 +44,19 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: getattr(x,f))
 
+    df["Duration"] = df["End Time"]-df["Datetime"]
+
     #Get basic fitbit log fields
-    fields={"duration":"Duration",
-            "steps":"Steps",
+    fields={'activityName':'Activity Name',
             'logType':"Log Type", 
+            "steps":"Steps",
             "calories":'Calories',
-            'activityName':'Activity Name',
             'elevationGain':'Elevation Gain',
             'hasActiveZoneMinutes':'Has Active Zone Minutes'}
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: x.payload[f] if f in x.payload else np.nan)
 
-    df["Duration"] = df["Duration"]/(60*1000)
+    #df["Duration"] = df["Duration"]/(60*1000)
 
     #Set index and drop extra columns
     df["Particiant ID"]=username
