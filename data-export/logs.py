@@ -55,12 +55,11 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
         df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
         df[f] = df[f].map(to_time_str)
 
-    df = df.set_index(["Particiant ID", "Datetime"]) 
+    df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
     df.to_csv(os.path.join(directory, filename))
 
-    df = df.set_index(["Particiant ID"]) 
 
     if(DEBUG):
         import code
