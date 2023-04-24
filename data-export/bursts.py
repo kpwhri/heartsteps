@@ -111,9 +111,6 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     uid = user["uid"]
     username = user["hsid"]
 
-    if DEBUG:
-        print("  Exporting burst walking survey data for: ", username)
-
     # Export Destination
     if not directory: 
         directory = './'
@@ -140,7 +137,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
     #df["Treatment Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability)
 
     #Lookup notifications and map receipts
-    notification_lookup = get_survey_notifications(uid, 'Walking Suggestion Survey')
+    notification_lookup = utils.get_survey_notifications(uid, 'Walking Suggestion Survey')
     df["receipts"] = df['Object'].map(lambda x: notification_lookup[x.uuid]._message_receipts)
 
     df['Notification Was Sent']      = df["receipts"].map(lambda x: "sent" in x)
@@ -200,9 +197,6 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     uid = user["uid"]
     username = user["hsid"]
-
-    if DEBUG:
-        print("  Exporting burst activity survey data for: ", username)
 
     # Export Destination
     if not directory:
