@@ -263,6 +263,18 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #Set index and drop extra columns
     df["Particiant ID"]=username
 
+
+    #Time fields
+    time_fields = ['Notification Time Sent',
+                   'Notification Time Received',
+                   'Notification Time Opened',
+                   'Notification Time Sent',
+                   'Notification Time Received',
+                   'Notification Time Opened']
+    for f in time_fields:
+        df[f] = df[f].map(to_time_str)
+
+
     df = df.reset_index()
     df = df.set_index(["Particiant ID", "Study Week"]) 
     df = df.drop(labels=["answers","Object"],axis=1)
@@ -296,3 +308,9 @@ def get_survey_open_time(survey,tz_lookup,sdt):
     else:
         #print(local_date," not in sdt")
         return pd.NaT
+
+def to_time_str(x):
+    if( x is not np.nan and x is not None and not pd.isnull(x)):
+        return x.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return x
