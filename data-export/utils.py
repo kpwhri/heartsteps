@@ -64,6 +64,7 @@ from surveys.models import Survey
 from page_views.models import PageView
 from activity_plans.models import  ActivityPlan
 from activity_logs.models import ActivityLog
+from push_messages.models import Message
 
 def format_datetime(dt, tz=None):
     if dt:
@@ -203,3 +204,17 @@ def deduplicate_dates(df, field):
             print("  Found duplicate date ", d)
     df = df.drop(labels=l,axis=0)
     return(df)
+
+
+
+
+
+def get_survey_notifications(user, survey_type ):
+    survey_types = ['Activity Survey', 
+                    'Morning check-in',
+                    'Walking Suggestion Survey',
+                    'Weekly reflection']
+    if(survey_type not in survey_types ):
+        raise ValueError(f"Survey type {survey_type} is not known")
+    query = Message.objects.filter(recipient=uid,title=survey_type).order_by('created').all()
+    return {q.data["survey"]["id"]: q for q in query}
