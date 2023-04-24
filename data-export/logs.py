@@ -8,11 +8,9 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 
 from fitbit_activities.models import FitbitActivity
-from weeks.models import Week
-from surveys.models import Survey
-from activity_plans.models import  ActivityPlan
 from days.models import Day
 from push_messages.models import Message
+from page_views.models import PageView
 
 def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
@@ -134,6 +132,32 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+
+def export_pageview_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+
+    fitbit_account = user["fbid"]
+    username = user["hsid"]
+    uid = user["uid"]
+
+    # Export Destination
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.logs.fitbit_activities.csv'.format(
+            username=username
+        )
+    
+    # Skip rewriting if exists and trusted (no new data)
+    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
+        return
+
+    queryset=PageView.objects.filter(user_id=user).order_by("created").all()
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
 
 
 #Localize a time

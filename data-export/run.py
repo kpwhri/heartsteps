@@ -88,6 +88,9 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 print("\n  Exporting notification log")
                 logs.export_notification_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
 
+            if "logs.pageviews" in exports or "logs" in exports or "all" in exports:
+                print("\n  Exporting pageview log")
+                logs.export_pageview_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
 
         except Exception as e:
             print("Error exporting data for user: " + u)
