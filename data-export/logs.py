@@ -152,7 +152,7 @@ def export_pageview_log(user,directory = None, filename = None, start=None, end=
     if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
 
-    queryset=PageView.objects.filter(user_id=user).order_by("created").all()
+    queryset=PageView.objects.filter(user_id=uid).order_by("created").all()
 
     if(DEBUG):
         import code
