@@ -175,7 +175,7 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
     df["Particiant ID"]=username
 
     #Map time fields to strings
-    time_fields = ['Notification Time Sent',
+    time_fields = ['Datetime','Notification Time Sent',
                    'Notification Time Received',
                    'Notification Time Opened',
                    "Survey Opened Time",
