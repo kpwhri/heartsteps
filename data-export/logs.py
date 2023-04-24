@@ -136,7 +136,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
 
 #Localize a time
 def localize_time(t,tz_lookup):
-    if(t is None): return pd.NaT
+    if(t is None or t is pd.NaT or pd.isnull(t)): return pd.NaT
     tz = tz_lookup[t.date()]
     local_t= t.astimezone(tz)
     return local_t
