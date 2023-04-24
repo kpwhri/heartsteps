@@ -16,6 +16,19 @@ from push_messages.models import Message
 
 def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
+    # Export Destination
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.logs.fitbit_activities.csv'.format(
+            username=username
+        )
+    
+    # Skip rewriting if exists and trusted (no new data)
+    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
+        return
+
+
     fitbit_account = user["fbid"]
     username = user["hsid"]
     uid = user["uid"]
