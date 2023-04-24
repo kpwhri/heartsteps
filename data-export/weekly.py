@@ -14,7 +14,7 @@ from activity_plans.models import  ActivityPlan
 from days.models import Day
 from push_messages.models import Message
 
-def export_weekly_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+def export_weekly_planning(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
     dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
     final_field_name = dictionary["ElementName"]
