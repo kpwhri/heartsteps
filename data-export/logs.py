@@ -144,7 +144,7 @@ def export_pageview_log(user,directory = None, filename = None, start=None, end=
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.logs.fitbit_activities.csv'.format(
+        filename = '{username}.logs.app_use.csv'.format(
             username=username
         )
     
@@ -153,6 +153,32 @@ def export_pageview_log(user,directory = None, filename = None, start=None, end=
         return
 
     queryset=PageView.objects.filter(user_id=uid).order_by("created").all()
+    df = pd.DataFrame({'Object': [m for m in queryset]})
+    df['Datetime']        = df['Object'].map(lambda msg: msg.created)
+
+    df['App URI']         = df['Object'].map(lambda msg: msg.uri)
+    df['App URI']         = df['App URI'].map(lambda x: "/notification/*." if "/notification/" in x else x) 
+    df['App URI']         = df['App URI'].map(lambda x: "/plans/*" if "/plans/" in x else x) 
+    df['App URI']         = df['App URI'].map(lambda x: "/activities/logs/*" if "/activities/logs/" in x else x)
+
+    #Get survey indicators
+    #Get days, timezones, and survey dweel time
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
+
+    #Map time fields to strings
+    time_fields = ['Datetime']
+    for f in time_fields:
+        df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
+        df[f] = df[f].map(to_time_str)
+
+    #Set index and drop extra columns
+    df["Particiant ID"]=username
+    df = df.set_index(["Particiant ID"]) 
+    df = df.drop(labels=["Object"],axis=1)
+
+    df.to_csv(os.path.join(directory, filename))
+
 
     if(DEBUG):
         import code
