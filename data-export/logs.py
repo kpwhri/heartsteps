@@ -55,7 +55,9 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: x.payload[f] if f in x.payload else np.nan)
 
-        #Set index and drop extra columns
+    df["Duration"] = df["Duration"]/(60*1000)
+
+    #Set index and drop extra columns
     df["Particiant ID"]=username
 
     #Get survey indicators
