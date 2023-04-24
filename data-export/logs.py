@@ -187,7 +187,32 @@ def export_appuse_log(user,directory = None, filename = None, start=None, end=No
 
     return df
 
+def export_planning_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
+    username = user["hsid"]
+    uid = user["uid"]
+
+    # Export Destination
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.logs.planning.csv'.format(
+            username=username
+        )
+    
+    # Skip rewriting if exists and trusted (no new data)
+    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
+        return
+
+
+    queryset = ActivityPlan.objects.filter(user_id=uid)
+    #.order_by("created")
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
+    return df
 
 #Localize a time
 def localize_time(t,tz_lookup):
