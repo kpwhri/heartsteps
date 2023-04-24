@@ -106,9 +106,9 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     df['Notification Was Sent']      = df['Object'].map(lambda msg: "sent" in msg._message_receipts)
     df['Notification Was Received']  = df['Object'].map(lambda msg: "received" in msg._message_receipts)
     df['Notification Was Opened']    = df['Object'].map(lambda msg: "opened" in msg._message_receipts)
-    df['Notification Time Sent']     = df['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
-    df['Notification Time Received'] = df['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
-    df['Notification Time Opened']   = df['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
+    df['Notification Time Sent']     = df['Object'].map(lambda msg: msg._message_receipts["sent"]  if "sent" in msg._message_receipts else pd.NaT)
+    df['Notification Time Received'] = df['Object'].map(lambda msg: msg._message_receipts["received"] if "received" in msg._message_receipts else pd.NaT)
+    df['Notification Time Opened']   = df['Object'].map(lambda msg: msg._message_receipts["opened"] if "opened" in msg._message_receipts else pd.NaT)
 
     #Get survey indicators
     #Get days, timezones, and survey dweel time
