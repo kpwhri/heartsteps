@@ -11,6 +11,7 @@ from fitbit_activities.models import FitbitActivity
 from days.models import Day
 from push_messages.models import Message
 from page_views.models import PageView
+from activity_plans.models import  ActivityPlan
 
 def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
