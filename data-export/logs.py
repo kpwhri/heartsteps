@@ -16,6 +16,9 @@ from push_messages.models import Message
 
 def export_fitbit_activity_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
+    fitbit_account = user["fbid"]
+    username = user["hsid"]
+
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
     df = pd.DataFrame({'Object': [x for x in queryset]})
