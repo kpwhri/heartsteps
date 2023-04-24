@@ -33,8 +33,6 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
         return
 
 
-
-
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
     df = pd.DataFrame({'Object': [x for x in queryset]})
@@ -81,6 +79,60 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+def export_notification_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+
+    fitbit_account = user["fbid"]
+    username = user["hsid"]
+    uid = user["uid"]
+
+    # Export Destination
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.logs.fitbit_activities.csv'.format(
+            username=username
+        )
+    
+    # Skip rewriting if exists and trusted (no new data)
+    if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
+        return
+
+    #Get notification indicators
+    notification_query = Message.objects.filter(recipient=uid).order_by("created")
+    df = pd.DataFrame({'Object': [m for m in notification_query]})
+    df['Datetime']                   = df['Object'].map(lambda msg: msg.created)
+    df['Notification Type']          = df['Object'].map(lambda msg: msg.title)
+    df['Notification Was Sent']      = df['Object'].map(lambda msg: "sent" in msg._message_receipts)
+    df['Notification Was Received']  = df['Object'].map(lambda msg: "received" in msg._message_receipts)
+    df['Notification Was Opened']    = df['Object'].map(lambda msg: "opened" in msg._message_receipts)
+    df['Notification Time Sent']     = df['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
+    df['Notification Time Received'] = df['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
+    df['Notification Time Opened']   = df['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
+
+    #Get survey indicators
+    #Get days, timezones, and survey dweel time
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
+
+    #Map time fields to strings
+    time_fields = ['Datetime',
+                   'Notification Time Sent',
+                   'Notification Time Received',
+                   'Notification Time Opened']
+    for f in time_fields:
+        df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
+        df[f] = df[f].map(to_time_str)
+
+    df = df.set_index(["Particiant ID"]) 
+    df = df.drop(labels=["Object"],axis=1)
+
+    df.to_csv(os.path.join(directory, filename))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
 
 #Localize a time
 def localize_time(t,tz_lookup):
