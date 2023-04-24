@@ -209,7 +209,7 @@ def deduplicate_dates(df, field):
 
 
 
-def get_survey_notifications(user, survey_type ):
+def get_survey_notifications(uid, survey_type ):
     survey_types = ['Activity Survey', 
                     'Morning check-in',
                     'Walking Suggestion Survey',
