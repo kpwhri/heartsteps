@@ -85,8 +85,8 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     sat = df['Object'].map(lambda x: localize_time(x.updated,tz_lookup) if x.answered else pd.NaT) #answered time
     df["Survey Was Opened"]   = sot.map(lambda x: x is not pd.NaT) 
     df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
-    df["Survey Opened Time"]  =sot
-    df["Survey Answered Time"]=sat
+    df["Survey Time Opened "]  =sot
+    df["Survey Time Answered"]=sat
     df['Survey Time Spent Answering'] = (sat-sot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
     #Get survey answers dictionary and map
