@@ -10,7 +10,7 @@ import numpy as np
 import traceback
 import argparse
 
-import weekly, daily, within_day, minute, bursts
+import weekly, daily, within_day, minute, bursts, logs
 
 debug_users =["244"]
 
@@ -79,6 +79,11 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 print("\n  Exporting burst activity survey")
                 bursts.export_burst_activity_survey(users[u], directory = user_export_directory,DEBUG=DEBUG)
         
+            #Log
+            if "log.fitbit" in exports or "log" in exports or "all" in exports:
+                print("\n  Exporting fitbit activity log")
+                logs.export_fitbit_activity_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
+
         except Exception as e:
             print("Error exporting data for user: " + u)
             print(e)
