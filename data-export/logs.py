@@ -40,7 +40,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     df = pd.DataFrame({'Object': [x for x in queryset]})
 
     #Get basic fields
-    fields = {'start_time':"Start Time", 'end_time':"End Time", 'average_heart_rate':'Average Heart Rate'}
+    fields = {'start_time':"Datetime", 'end_time':"End Time", 'average_heart_rate':'Average Heart Rate'}
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: getattr(x,f))
 
@@ -66,7 +66,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings
-    time_fields = ['Start Time',
+    time_fields = ["Datetime",
                    "End Time"]
     for f in time_fields:
         df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
