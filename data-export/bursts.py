@@ -139,11 +139,16 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     queryset = WalkingSuggestionSurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
 
-    questions={'enjoyment':"Enjoyment of Activities",
-        'fit':"Fit with Routine", 
-        'social_support':"Social Support", 
-        'intrinsic_motivation':"Intrinsic Motivation", 
-        'extrinsic_motivation':"Extrinsic Motivation"
+    questions={'busyness':'Busyness',
+                'commitment':'Commitment',
+                'relaxed':'Relaxed',
+                'tense':'Tense',
+                'energetic':'Energetic', 
+                'fatigued':'Fatigued', 
+                'happy':'Happy', 
+                'sad':'Sad', 
+                'stressed':'Stressed', 
+                'opportunity':'Opportunity'
     }
 
     survey_type = 'Walking Suggestion Survey'
