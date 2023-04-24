@@ -138,11 +138,13 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df = pd.DataFrame({'Object': [x for x in activity_query]})
 
-    df["Datetime"] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
-    
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+
+    df["Datetime"] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
+    
 
     #Notification details
     df['Notification Was Sent']      = df['Object'].map(lambda x: "sent" in x.decision.notification._message_receipts)
