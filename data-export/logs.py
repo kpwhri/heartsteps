@@ -209,7 +209,7 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     df = pd.DataFrame({'Object': [m for m in queryset]})
 
     fields={"created_at":"Datetime",
-            "start":"Start Datetime",
+            "start":"Activity Datetime",
             'timeOfDay':"Time of Day",
             'duration':"Duration",
             'vigorous':"Vigorous",
@@ -225,7 +225,7 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings
-    time_fields = ['Datetime',"Start Datetime"]
+    time_fields = ['Datetime',"Activity Datetime"]
     for f in time_fields:
         df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
         df[f] = df[f].map(to_time_str)
