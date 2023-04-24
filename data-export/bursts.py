@@ -101,8 +101,8 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     time_fields = ['Datetime','Notification Time Sent',
                    'Notification Time Received',
                    'Notification Time Opened',
-                   "Survey Opened Time",
-                   "Survey Answered Time"]
+                   "Survey Time Opened",
+                   "Survey Time Answered"]
     for f in time_fields:
         df[f] = df[f].map(to_time_str)
 
