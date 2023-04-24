@@ -126,42 +126,87 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
     if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
 
+    #Get survey indicators
+    #Get days, timezones, and survey dweel time
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
+    ndt=utils.estimate_notification_dwell_times(uid)
+
     # ActivitySurvey has Decision foreign key
     activity_query = ActivitySurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
     #decision_query = Decision.objects.filter(user_id=uid).order_by('created', 'updated')
 
-    questions = ['enjoyment', 'fit', 'social_support', 'intrinsic_motivation', 'extrinsic_motivation']
+    df = pd.DataFrame({'Object': [x for x in activity_query]})
 
-    activity_dict = defaultdict(list)
+    df["Datetime"] = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in msg.msg.decision.notification._message_receipts else pd.NaT)
+    
+    #Notification details
+    df['Notification Was Sent']      = df['Object'].map(lambda msg: "sent" in msg.decision.notification._message_receipts)
+    df['Notification Was Received']  = df['Object'].map(lambda msg: "received" in msg.decision.notification._message_receipts)
+    df['Notification Was Opened']    = df['Object'].map(lambda msg: "opened" in msg.decision.notification._message_receipts)
+    df['Notification Time Sent']     = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in msg.msg.decision.notification._message_receipts else pd.NaT)
+    df['Notification Time Received'] = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["received"], tz_lookup) if "received" in msg.decision.notification._message_receipts else pd.NaT)
+    df['Notification Time Opened']   = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["opened"], tz_lookup) if "opened" in msg.decision.notification._message_receipts else pd.NaT)
 
-    for _,activity in enumerate(activity_query):
+    #Survey time details
+    asot = df['Object'].map(lambda x: get_survey_open_time(x,tz_lookup,ndt))
+    asat = df['Object'].map(lambda x: localize_time(x.updated,tz_lookup) if x.answered else pd.NaT)
+    df["Survey Was Opened"]   = asot.map(lambda x: x is not pd.NaT) 
+    df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
+    df["Survey Opened Time"]=wsot
+    df["Survey Answered Time"]=wsat
+    df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
-        # ActivitySurvey fields
-        activity_dict["Participant ID"].append(username)
-        activity_dict["Time Created"].append(activity.created)
-        activity_dict["Time Completed"].append(activity.updated if activity.answered else np.nan)
-        activity_dict["Answered"].append(activity.answered)
+    #Get survey answers dictionary and map
+    df["answers"]=df["Object"].map(lambda x: x.get_answers())
+    answer_fields={'enjoyment':"Enjoyment of Activities",
+        'fit':"Fit with Routine", 
+        'social_support':"Social Support", 
+        'intrinsic_motivation':"Intrinsic Motivation", 
+        'extrinsic_motivation':"Extrinsic Motivation"
+    }
+    for f,n in answer_fields.items():
+        df[n]=df["answers"].map(lambda x: x[f] if f in x else None)
 
-        # ActivitySurvey.Decision fields
-        activity_dict["Decision Created"].append(activity.decision.created)
-        activity_dict["Decision Updated"].append(activity.decision.updated)
+    #Set index and drop extra columns
+    df["Particiant ID"]=username
 
-        # Decision.Message fields
-        activity_dict["Time Notification Sent"].append(activity.decision.notification.sent if activity.decision.notification else np.nan)
-        activity_dict["Time Notification Received"].append(activity.decision.notification.received if activity.decision.notification else np.nan)
-        activity_dict["Time Notification Opened"].append(activity.decision.notification.opened if activity.decision.notification else np.nan)
- 
-        answers = activity.get_answers()
-        for q in questions:
-            # confirm an answer exists and it is not None
-            activity_dict[q.title()].append(answers[q] if q in answers and answers[q] else np.nan)
+    #Map time fields to strings
+    time_fields = ['Notification Time Sent',
+                   'Notification Time Received',
+                   'Notification Time Opened',
+                   "Survey Opened Time",
+                   "Survey Answered Time"]
+    for f in time_fields:
+        df[f] = df[f].map(to_time_str)
 
-    df = pd.DataFrame(activity_dict)
-
-    print(f"   Total answers {df['Answered'].sum()}")
+    df = df.set_index(["Particiant ID", "Datetime"]) 
+    df = df.drop(labels=["answers","Object"],axis=1)
 
     df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+
+#Localize a time
+def localize_time(t,tz_lookup):
+    if(t is None): return pd.NaT
+    tz = tz_lookup[t.date()]
+    local_t= t.astimezone(tz)
+    return local_t
+
+#Get localized time the survey page was opened
+def get_survey_open_time(activity,tz_lookup,ndt):
+    id = str(activity.decision.notification.uuid)
+    if id in ndt:
+        return localize_time(ndt[id]["opend"],tz_lookup)
+    else:
+        return pd.NaT
+
+def to_time_str(x):
+    if( x is not np.nan and x is not None and not pd.isnull(x)):
+        return x.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return x
