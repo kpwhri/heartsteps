@@ -109,10 +109,6 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     df = df.set_index(["Particiant ID", "Datetime"]) 
     df = df.drop(labels=["answers","Object","receipts"],axis=1)
 
-    if(DEBUG):
-        import code
-        code.interact(local=dict(globals(), **locals()))
-
     return df
 
 
@@ -157,6 +153,10 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     df.to_csv(os.path.join(directory, filename))
 
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
     return
 
 
@@ -196,6 +196,10 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
     df = export_burst_survey(user,queryset,survey_type,questions,DEBUG=DEBUG)
 
     df.to_csv(os.path.join(directory, filename))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
     return
 
