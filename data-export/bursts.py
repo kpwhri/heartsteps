@@ -140,6 +140,10 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df["Datetime"] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
     
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
     #Notification details
     df['Notification Was Sent']      = df['Object'].map(lambda x: "sent" in x.decision.notification._message_receipts)
     df['Notification Was Received']  = df['Object'].map(lambda x: "received" in x.decision.notification._message_receipts)
@@ -185,9 +189,7 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df.to_csv(os.path.join(directory, filename))
 
-    if(DEBUG):
-        import code
-        code.interact(local=dict(globals(), **locals()))
+
 
 
 #Localize a time
