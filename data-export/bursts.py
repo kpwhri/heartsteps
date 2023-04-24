@@ -103,7 +103,7 @@ def export_burst_walking_survey2(user,directory = None, filename = None, start=N
     df.to_csv(os.path.join(directory,filename))
 
 
-def export_burst_survey(user,queryset,survey_type,questions,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
 
     """
     Construct dataframe from a burst survey data model and export to csv
@@ -216,7 +216,7 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     survey_type = 'Walking Suggestion Survey'
 
-    df = export_burst_survey(user,queryset,survey_type,questions,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
+    df = export_burst_survey(user,queryset,survey_type,questions,DEBUG=DEBUG)
 
     df.to_csv(os.path.join(directory, filename))
 
