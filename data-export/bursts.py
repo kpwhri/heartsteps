@@ -138,15 +138,15 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df = pd.DataFrame({'Object': [x for x in activity_query]})
 
-    df["Datetime"] = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in msg.msg.decision.notification._message_receipts else pd.NaT)
+    df["Datetime"] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
     
     #Notification details
-    df['Notification Was Sent']      = df['Object'].map(lambda msg: "sent" in msg.decision.notification._message_receipts)
-    df['Notification Was Received']  = df['Object'].map(lambda msg: "received" in msg.decision.notification._message_receipts)
-    df['Notification Was Opened']    = df['Object'].map(lambda msg: "opened" in msg.decision.notification._message_receipts)
-    df['Notification Time Sent']     = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in msg.msg.decision.notification._message_receipts else pd.NaT)
-    df['Notification Time Received'] = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["received"], tz_lookup) if "received" in msg.decision.notification._message_receipts else pd.NaT)
-    df['Notification Time Opened']   = df['Object'].map(lambda msg: localize_time(msg.decision.notification._message_receipts["opened"], tz_lookup) if "opened" in msg.decision.notification._message_receipts else pd.NaT)
+    df['Notification Was Sent']      = df['Object'].map(lambda x: "sent" in x.decision.notification._message_receipts)
+    df['Notification Was Received']  = df['Object'].map(lambda x: "received" in x.decision.notification._message_receipts)
+    df['Notification Was Opened']    = df['Object'].map(lambda x: "opened" in x.decision.notification._message_receipts)
+    df['Notification Time Sent']     = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
+    df['Notification Time Received'] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["received"], tz_lookup) if "received" in x.decision.notification._message_receipts else pd.NaT)
+    df['Notification Time Opened']   = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["opened"], tz_lookup) if "opened" in x.decision.notification._message_receipts else pd.NaT)
 
     #Survey time details
     asot = df['Object'].map(lambda x: get_survey_open_time(x,tz_lookup,ndt))
