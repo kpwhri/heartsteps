@@ -138,30 +138,27 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df = pd.DataFrame({'Object': [x for x in activity_query]})
 
-    if(DEBUG):
-        import code
-        code.interact(local=dict(globals(), **locals()))
-
-
-    df["Datetime"] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
-    
+    df["Datetime"] = df['Object'].map(lambda x: localize_time(x.created, tz_lookup))
+    df["Treatment Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability)
 
     #Notification details
-    df['Notification Was Sent']      = df['Object'].map(lambda x: "sent" in x.decision.notification._message_receipts)
-    df['Notification Was Received']  = df['Object'].map(lambda x: "received" in x.decision.notification._message_receipts)
-    df['Notification Was Opened']    = df['Object'].map(lambda x: "opened" in x.decision.notification._message_receipts)
-    df['Notification Time Sent']     = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["sent"], tz_lookup) if "sent" in x.decision.notification._message_receipts else pd.NaT)
-    df['Notification Time Received'] = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["received"], tz_lookup) if "received" in x.decision.notification._message_receipts else pd.NaT)
-    df['Notification Time Opened']   = df['Object'].map(lambda x: localize_time(x.decision.notification._message_receipts["opened"], tz_lookup) if "opened" in x.decision.notification._message_receipts else pd.NaT)
+    df["receipts"] = df['Object'].map(lambda x: x.decision.notification.get_message_receipts())
+
+    df['Notification Was Sent']      = df["receipts"].map(lambda x: "sent" in x)
+    df['Notification Was Received']  = df["receipts"].map(lambda x: "received" in x)
+    df['Notification Was Opened']    = df["receipts"].map(lambda x: "opened" in x)
+    df['Notification Time Sent']     = df["receipts"].map(lambda x: localize_time(x["sent"], tz_lookup) if "sent" in x else pd.NaT)
+    df['Notification Time Received'] = df["receipts"].map(lambda x: localize_time(x["received"], tz_lookup) if "received" in x else pd.NaT)
+    df['Notification Time Opened']   = df["receipts"].map(lambda x: localize_time(x["opened"], tz_lookup) if "opened" in x else pd.NaT)
 
     #Survey time details
     asot = df['Object'].map(lambda x: get_survey_open_time(x,tz_lookup,ndt))
     asat = df['Object'].map(lambda x: localize_time(x.updated,tz_lookup) if x.answered else pd.NaT)
     df["Survey Was Opened"]   = asot.map(lambda x: x is not pd.NaT) 
     df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
-    df["Survey Opened Time"]=wsot
-    df["Survey Answered Time"]=wsat
-    df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
+    df["Survey Opened Time"]  =asot
+    df["Survey Answered Time"]=asat
+    df['Survey Time Spent Answering'] = (asat-asot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
     #Get survey answers dictionary and map
     df["answers"]=df["Object"].map(lambda x: x.get_answers())
@@ -187,11 +184,13 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
         df[f] = df[f].map(to_time_str)
 
     df = df.set_index(["Particiant ID", "Datetime"]) 
-    df = df.drop(labels=["answers","Object"],axis=1)
+    df = df.drop(labels=["answers","Object","receipts"],axis=1)
 
     df.to_csv(os.path.join(directory, filename))
 
-
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
 
 #Localize a time
@@ -205,7 +204,7 @@ def localize_time(t,tz_lookup):
 def get_survey_open_time(activity,tz_lookup,ndt):
     id = str(activity.decision.notification.uuid)
     if id in ndt:
-        return localize_time(ndt[id]["opend"],tz_lookup)
+        return localize_time(ndt[id]["opened"],tz_lookup)
     else:
         return pd.NaT
 
