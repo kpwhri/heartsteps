@@ -264,13 +264,12 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df["Particiant ID"]=username
 
 
-    #Time fields
+    #Mam time fields to strings
     time_fields = ['Notification Time Sent',
                    'Notification Time Received',
                    'Notification Time Opened',
-                   'Notification Time Sent',
-                   'Notification Time Received',
-                   'Notification Time Opened']
+                   "Weekly Survey Opened Time",
+                   "Weekly Survey Answered Time"]
     for f in time_fields:
         df[f] = df[f].map(to_time_str)
 
