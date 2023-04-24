@@ -205,9 +205,37 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
 
+    queryset = ActivityPlan.objects.filter(user_id=uid).order_by("created_at")
+    df = pd.DataFrame({'Object': [m for m in queryset]})
 
-    queryset = ActivityPlan.objects.filter(user_id=uid)
-    #.order_by("created")
+    fields={"created_at":"Datetime",
+            "start":"Start Datetime",
+            'timeOfDay':"Time of Day",
+            'duration':"Duration",
+            'vigorous':"Vigorous",
+            'type_id':"Type"}
+    for f,n in fields.items():
+        df[n] = df["Object"].map(lambda x: getattr(x,f))
+
+    df["Marked Completed"] = df["Object"].map(lambda x: x.activity_log_id is not None)
+
+    #Get survey indicators
+    #Get days, timezones, and survey dweel time
+    days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
+
+    #Map time fields to strings
+    time_fields = ['Datetime',"Start Datetime"]
+    for f in time_fields:
+        df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
+        df[f] = df[f].map(to_time_str)
+
+    #Set index and drop extra columns
+    df["Particiant ID"]=username
+    df = df.set_index(["Particiant ID"]) 
+    df = df.drop(labels=["Object"],axis=1)
+
+    df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
         import code
