@@ -102,7 +102,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     notification_query = Message.objects.filter(recipient=uid).order_by("created")
     df = pd.DataFrame({'Object': [m for m in notification_query]})
     df['Datetime']                   = df['Object'].map(lambda msg: msg.created)
-    df['Notification Type']          = df['Object'].map(lambda msg: msg.title)
+    df['Notification Title']          = df['Object'].map(lambda msg: msg.title)
     df['Notification Was Sent']      = df['Object'].map(lambda msg: "sent" in msg._message_receipts)
     df['Notification Was Received']  = df['Object'].map(lambda msg: "received" in msg._message_receipts)
     df['Notification Was Opened']    = df['Object'].map(lambda msg: "opened" in msg._message_receipts)
