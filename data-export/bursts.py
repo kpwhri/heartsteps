@@ -237,7 +237,7 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
         return
 
 
-    queryset = WalkingSuggestionSurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
+    queryset = ActivitySurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
 
     questions={'enjoyment':"Enjoyment of Activities",
         'fit':"Fit with Routine", 
