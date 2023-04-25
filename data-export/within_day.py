@@ -131,6 +131,8 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     if(DEBUG and save):
         df.to_csv(os.path.join(directory,filename))
 
+    return df
+
 
 def antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
     
@@ -167,3 +169,5 @@ def antisedintary_suggestions(user,directory = None, filename = None, start=None
     if(DEBUG and save):
         import code
         code.interact(local=dict(globals(), **locals()))
+
+    return df
