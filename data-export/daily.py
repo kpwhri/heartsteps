@@ -30,8 +30,6 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
     
-    df = logs.export_planning_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
-
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
     start_date = min([week["start_date"] for week in week_query])
@@ -41,12 +39,14 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     #Create a bdata frame with dates with all values equal 0
     df_dates = pd.DataFrame({"Date":dates})
-        df_dates = df_dates.set_index(["Date"])
+    df_dates = df_dates.set_index(["Date"])
 
-        df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
-        df["Activity Date"] = df["Activity Datetime"].map(lambda x: pd.to_datetime(x).date())
-        df["Number"]=1
-        df["Duration Marked Completed"]=df["Duration"]*df["Marked Completed"]
+    #Get base data from planning log
+    df = logs.export_planning_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+    df["Activity Date"] = df["Activity Datetime"].map(lambda x: pd.to_datetime(x).date())
+    df["Duration Marked Completed"]=df["Duration"]*df["Marked Completed"]
+    df["Number"]=1
 
     #Group activities by date they were created
     df1 = df[["Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Date").sum()
