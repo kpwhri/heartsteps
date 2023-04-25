@@ -52,9 +52,9 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     df1 = df[["Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Date").sum()
     column_map={"Number":"Number of Activities Planned on This Day",
                         "Vigorous":"Number of Activities Planned on This Day Marked Vigorous",
-                        "Marked Completed":"Number of of Activities Planned on This Day Marked Completed",
-                        "Duration":"Duration of Activities Planned on This Day",
-                        "Duration Marked Completed":"Duration of Activities Planned on This Day Marked Completed"
+                        "Marked Completed":"Number of Activities Planned on This Day Marked Completed",
+                        "Duration":"Total Duration of Activities Planned on This Day",
+                        "Duration Marked Completed":"Total Duration of Activities Planned on This Day Marked Completed"
                 }
     df1 = df1.rename(columns=column_map)
 
@@ -63,9 +63,9 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     column_map={"Activity Date":"Date",
                         "Number":"Number of Activities Planned for This Day",
                         "Vigorous":"Number of of Activities Planned for This Day Marked Vigorous",
-                        "Marked Completed":"Number of Activities Planned on This Day Marked Completed",
-                        "Duration":"Duration of Activities Planned for This Day",
-                        "Duration Marked Completed":"Duration of Activities Planned for This Day Marked Completed"
+                        "Marked Completed":"Number of Activities Planned for This Day Marked Completed",
+                        "Duration":"Total Duration of Activities Planned for This Day",
+                        "Duration Marked Completed":"Total Duration of Activities Planned for This Day Marked Completed"
                 }
     df2 = df2.rename(columns=column_map)
     df2.index = df2.index.rename("Date")
