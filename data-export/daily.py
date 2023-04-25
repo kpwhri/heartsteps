@@ -93,9 +93,7 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.daily_fitbit_activity.csv'.format(
-            username = username
-        )
+        filename = '{username}.daily_fitbit_activity.csv'.format(username = username)
         
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return

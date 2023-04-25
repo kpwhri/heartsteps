@@ -74,7 +74,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     if(save):
         df.to_csv(os.path.join(directory, filename))
 
-    if(DEBUG):
+    if(DEBUG and save):
         import code
         code.interact(local=dict(globals(), **locals()))
 
@@ -132,7 +132,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     if(save):
         df.to_csv(os.path.join(directory, filename))
 
-    if(DEBUG):
+    if(DEBUG and save):
         import code
         code.interact(local=dict(globals(), **locals()))
 
@@ -184,7 +184,7 @@ def export_appuse_log(user,directory = None, filename = None, start=None, end=No
     if(save):
         df.to_csv(os.path.join(directory, filename))
 
-    if(DEBUG):
+    if(DEBUG and save):
         import code
         code.interact(local=dict(globals(), **locals()))
 
