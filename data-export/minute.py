@@ -21,7 +21,7 @@ def to_time(x):
     else:
         return x
 
-def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, DEBUG=True,save=True):
+def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -32,6 +32,9 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
         filename = '{username}.minute_fitbit.csv'.format(
             username = username
         )
+    
+    if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
+        return
      
     #Get steps data
     query    = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
