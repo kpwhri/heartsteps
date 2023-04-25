@@ -159,12 +159,9 @@ def export_daily_app_use_data(user,directory = None, filename = None, start=None
     #Get base data from fitbit activity log
     df = logs.export_app_use_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
-    df["Number of Views"]=1
+    df["Total App Views"]=1
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
-    df1 = df["Date","Number of Views"].groupby("Date").sum()
+    df1 = df[["Date","Total App Views"]].groupby("Date").sum()
 
     df_join = df1.join(df_dates,how="outer")
     df_join = df_join.reset_index()
