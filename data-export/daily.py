@@ -57,7 +57,6 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
                         "Duration Marked Completed":"Duration of Activities Planned on This Day Marked Completed"
                 }
     df1 = df1.rename(columns=column_map)
-    df1 = df1.set_index("Date")
 
     #Group activities by date they were planned to be performed on
     df2 = df[["Activity Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Activity Date").sum()
