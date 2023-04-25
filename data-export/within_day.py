@@ -134,7 +134,7 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     return df
 
 
-def antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
+def antidesentary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
     
     uid = user["uid"]
     username = user["hsid"]
