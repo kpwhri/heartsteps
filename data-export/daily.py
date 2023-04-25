@@ -275,7 +275,7 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
         code.interact(local=dict(globals(), **locals()))
 
 
-def export_daily_activity_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+def export_daily_antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
         
     uid = user["uid"]
     username = user["hsid"]
@@ -283,7 +283,7 @@ def export_daily_activity_suggestions(user,directory = None, filename = None, st
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.daily_activity_suggestions.csv'.format(username = username)
+        filename = '{username}.daily_antisedintary_suggestions.csv'.format(username = username)
         
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
@@ -300,7 +300,7 @@ def export_daily_activity_suggestions(user,directory = None, filename = None, st
     df_dates = df_dates.set_index(["Date"])
 
     #Get base data from fitbit activity log
-    df = within_day.activity_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df = within_day.antisedintary_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df=df.reset_index()
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
