@@ -67,6 +67,11 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 print("\n  Exporting daily antidesentary suggestions")
                 daily.export_daily_antidesentary_suggestions(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
+            if "daily.fitbit" in exports or "daily" in exports  or "all" in exports:
+                print("\n  Exporting daily fitbit data")
+                daily.export_daily_fitbit_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+
+
             #Weekly
             if "weekly" in exports or "all" in exports:
                 print("\n  Exporting weekly data")

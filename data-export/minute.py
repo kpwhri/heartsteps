@@ -21,7 +21,7 @@ def to_time(x):
     else:
         return x
 
-def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, DEBUG=True):
+def export_fitbit_minute_data(user, directory = None, filename = None, start=None, end=None, DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
@@ -91,6 +91,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df.loc[df['Heart Rate'].isnull(), 'Steps'] = np.nan #Reset to nan when hr is null
 
     #Export to csv
-    df.to_csv(os.path.join(directory,filename))
+    if(save):
+        df.to_csv(os.path.join(directory,filename))
 
-    print("  Wrote %d rows"%(len(df)))
+    return(df)
