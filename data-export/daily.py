@@ -353,20 +353,18 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     df = minute.export_fitbit_minute_data(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df=df.reset_index()
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+    df["Valid Minutes"]=1
 
     import code
     code.interact(local=dict(globals(), **locals()))
 
-    df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
+    df1 = df[["Date",'Steps',"Valid Minutes"]].groupby("Date").sum()
+    df2 = df[["Date",'Heart Rate']].groupby("Date").mean()
 
-    column_map={'Notification Was Sent':"Total Notifications Sent",
-                'Notification Was Received':"Total Notifications Received",
-                'Notification Was Opened':"Total Notifications Opened",
-                }
-    df1 = df1.rename(columns=column_map)
-
-    df_join = df1.join(df_dates,how="outer")
+    df_join = df1.join(df_dates,how="outer").join(df2,how="outer")
     df_join = df_join.reset_index()
+
+    df_join = df_join[['Steps','Heart Rate',"Valid Minutes"]]
 
     df_join["Participant ID"]=username
     df_join = df_join.set_index(["Participant ID","Date"])
