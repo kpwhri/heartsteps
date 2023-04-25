@@ -355,7 +355,7 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Valid Hours"]=1/60
 
-    df1 = df[["Date",'Steps',"Valid Minutes"]].groupby("Date").sum()
+    df1 = df[["Date",'Steps',"Valid Hours"]].groupby("Date").sum()
     df2 = df[["Date",'Heart Rate']].groupby("Date").mean()
 
     df_join = df1.join(df_dates,how="outer").join(df2,how="outer")
