@@ -361,7 +361,7 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     df_join = df1.join(df_dates,how="outer").join(df2,how="outer")
     df_join = df_join.reset_index()
 
-    df_join = df_join[['Date','Steps','Heart Rate',"Valid Minutes"]]
+    df_join = df_join[['Date','Steps','Heart Rate',"Valid Hours"]]
 
     df_join["Participant ID"]=username
     df_join = df_join.set_index(["Participant ID","Date"])
