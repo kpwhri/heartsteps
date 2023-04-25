@@ -98,7 +98,7 @@ def get_suggestion_df_from_queryset(queryset,user):
 
     return df
 
-def walking_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+def walking_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
     
     uid = user["uid"]
     username = user["hsid"]
@@ -125,14 +125,14 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(WalkingSuggestionDecision.MESSAGE_TEMPLATE_MODEL)
 
-    df = get_suggestion_df_from_queryset(queryset,user)
+    if(save):
+        df = get_suggestion_df_from_queryset(queryset,user)
 
-    df.to_csv(os.path.join(directory,filename))
+    if(DEBUG and save):
+        df.to_csv(os.path.join(directory,filename))
 
-    print("  Wrote %d rows" % (len(df)))
 
-
-def antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+def antisedintary_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True,save=True):
     
     uid = user["uid"]
     username = user["hsid"]
@@ -160,9 +160,10 @@ def antisedintary_suggestions(user,directory = None, filename = None, start=None
     .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
 
     df = get_suggestion_df_from_queryset(queryset,user)
-    df.to_csv(os.path.join(directory,filename))
+    
+    if(save):
+        df.to_csv(os.path.join(directory,filename))
 
-    print("  Wrote %d rows" % (len(df)))
-
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    if(DEBUG and save):
+        import code
+        code.interact(local=dict(globals(), **locals()))

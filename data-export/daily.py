@@ -6,7 +6,7 @@ import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
 
-import utils, logs
+import utils, logs, within_day
 
 from days.models import Day
 from push_messages.models import Message as PushMessage
@@ -83,7 +83,6 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if(DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
-
 
 def export_daily_fitbit_activity_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
         
@@ -202,6 +201,58 @@ def export_daily_notification_data(user,directory = None, filename = None, start
 
     #Get base data from fitbit activity log
     df = logs.export_notification_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+
+    df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
+
+    column_map={'Notification Was Sent':"Total Notifications Sent",
+                'Notification Was Received':"Total Notifications Received",
+                'Notification Was Opened':"Total Notifications Opened",
+                }
+    df1 = df1.rename(columns=column_map)
+
+    df_join = df1.join(df_dates,how="outer")
+    df_join = df_join.reset_index()
+
+    df_join["Participant ID"]=username
+    df_join = df_join.set_index(["Participant ID","Date"])
+    df_join=df_join.fillna(0)
+
+    df_join.to_csv(os.path.join(directory,filename))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
+def export_daily_walking_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+        
+    uid = user["uid"]
+    username = user["hsid"]
+    
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.daily_walking_suggestions.csv'.format(username = username)
+        
+    if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
+        return
+    
+    #Get all weeks where participant may have been active
+    week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    start_date = min([week["start_date"] for week in week_query])
+    end_date = max([week["end_date"] for week in week_query])
+    delta = end_date - start_date
+    dates = [start_date + timedelta(days=d) for d in range(delta.days+1)]
+
+    #Create a bdata frame with dates with all values equal 0
+    df_dates = pd.DataFrame({"Date":dates})
+    df_dates = df_dates.set_index(["Date"])
+
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
+    #Get base data from fitbit activity log
+    df = within.walking_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
     df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
