@@ -251,30 +251,30 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
     import code
     code.interact(local=dict(globals(), **locals()))
 
-#Get base data from fitbit activity log
-df = within_day.walking_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
-df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+    #Get base data from fitbit activity log
+    df = within_day.walking_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
-df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
+    df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
 
-column_map={'Notification Was Sent':"Total Notifications Sent",
-            'Notification Was Received':"Total Notifications Received",
-            'Notification Was Opened':"Total Notifications Opened",
-            }
-df1 = df1.rename(columns=column_map)
+    column_map={'Notification Was Sent':"Total Notifications Sent",
+                'Notification Was Received':"Total Notifications Received",
+                'Notification Was Opened':"Total Notifications Opened",
+                }
+    df1 = df1.rename(columns=column_map)
 
-df_join = df1.join(df_dates,how="outer")
-df_join = df_join.reset_index()
+    df_join = df1.join(df_dates,how="outer")
+    df_join = df_join.reset_index()
 
-df_join["Participant ID"]=username
-df_join = df_join.set_index(["Participant ID","Date"])
-df_join=df_join.fillna(0)
+    df_join["Participant ID"]=username
+    df_join = df_join.set_index(["Participant ID","Date"])
+    df_join=df_join.fillna(0)
 
-df_join.to_csv(os.path.join(directory,filename))
+    df_join.to_csv(os.path.join(directory,filename))
 
-if(DEBUG):
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
