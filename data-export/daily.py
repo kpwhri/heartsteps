@@ -253,6 +253,7 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
 
     #Get base data from fitbit activity log
     df = within_day.walking_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df=df.reset_index()
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
     df1 = df[["Date",'Notification Was Sent','Notification Was Received','Notification Was Opened']].groupby("Date").sum()
