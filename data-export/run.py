@@ -42,7 +42,15 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             if "daily.planning" in exports or "daily" in exports or "all" in exports:
                 print("\n  Exporting daily planning")
                 daily.export_daily_planning_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
-            
+
+            if "daily.appuse" in exports or "daily" in exports or "all" in exports:
+                print("\n  Exporting daily app use")
+                daily.export_daily_app_use_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+
+            if "daily.notifications" in exports or "daily" in exports or "all" in exports:
+                print("\n  Exporting daily notifications")
+                daily.export_daily_notification_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+
             if "daily.survey" in exports or "daily" in exports  or "all" in exports:
                 print("\n  Exporting morning survey")
                 daily.export_daily_morning_survey(users[u], directory = user_export_directory,DEBUG=DEBUG)

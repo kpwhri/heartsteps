@@ -109,29 +109,18 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df_dates = pd.DataFrame({"Date":dates})
     df_dates = df_dates.set_index(["Date"])
 
-    #Get base data from planning log
+    #Get base data from fitbit activity log
     df = logs.export_fitbit_activity_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Number of Activity Bouts"]=1
 
-    df = df.groupby("Date").sum()
+    df1 = df.groupby("Date").sum()
+    df2 = df.groupby("Date").mean()
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
-    #Group activities by date they were created
-    df1 = df[["Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Date").sum()
-    column_map={"Number":"Number of Activities Planned on This Day",
-                        "Vigorous":"Number of Activities Planned on This Day Marked Vigorous",
-                        "Marked Completed":"Number of Activities Planned on This Day Marked Completed",
-                        "Duration":"Total Duration of Activities Planned on This Day",
-                        "Duration Marked Completed":"Total Duration of Activities Planned on This Day Marked Completed"
-                }
-    df1 = df1.rename(columns=column_map)
-    df1 = df1[list(column_map.values())]
+    df1["Average Heart Rate"] = df2["Average Heart Rate"]
+    df1["Has Active Zone Minutes"]=df1["Has Active Zone Minutes"]>0
 
     df_join = df1.join(df_dates,how="outer")
-    df_join = df_join.fillna(0)
     df_join = df_join.reset_index()
 
     df_join["Participant ID"]=username
@@ -143,7 +132,48 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
         import code
         code.interact(local=dict(globals(), **locals()))
 
+def export_daily_app_use_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
+        
+    uid = user["uid"]
+    username = user["hsid"]
+    
+    if not directory:
+        directory = './'
+    if not filename:
+        filename = '{username}.daily_app_use.csv'.format(username = username)
+        
+    if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
+        return
+    
+    #Get all weeks where participant may have been active
+    week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    start_date = min([week["start_date"] for week in week_query])
+    end_date = max([week["end_date"] for week in week_query])
+    delta = end_date - start_date
+    dates = [start_date + timedelta(days=d) for d in range(delta.days+1)]
 
+    #Create a bdata frame with dates with all values equal 0
+    df_dates = pd.DataFrame({"Date":dates})
+    df_dates = df_dates.set_index(["Date"])
+
+    #Get base data from fitbit activity log
+    df = logs.export_app_use_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+    df["Number of Views"]=1
+
+    df1 = df["Date","Number of Views"].groupby("Date").sum()
+
+    df_join = df1.join(df_dates,how="outer")
+    df_join = df_join.reset_index()
+
+    df_join["Participant ID"]=username
+    df_join = df_join.set_index(["Participant ID","Date"])
+
+    df_join.to_csv(os.path.join(directory,filename))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 

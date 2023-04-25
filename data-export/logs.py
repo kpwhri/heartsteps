@@ -138,7 +138,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
 
     return df
 
-def export_appuse_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True,save=True):
+def export_app_use_log(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True,save=True):
 
     fitbit_account = user["fbid"]
     username = user["hsid"]
