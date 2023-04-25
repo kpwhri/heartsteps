@@ -248,9 +248,6 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
     df_dates = pd.DataFrame({"Date":dates})
     df_dates = df_dates.set_index(["Date"])
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
     #Get base data from fitbit activity log
     df = within_day.walking_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df=df.reset_index()
