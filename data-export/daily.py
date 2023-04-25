@@ -57,12 +57,11 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
                         "Duration Marked Completed":"Total Duration of Activities Planned on This Day Marked Completed"
                 }
     df1 = df1.rename(columns=column_map)
-    df1 = df1[list(column_map.values())[1:]]
+    df1 = df1[list(column_map.values())]
 
     #Group activities by date they were planned to be performed on
     df2 = df[["Activity Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Activity Date").sum()
-    column_map={"Activity Date":"Date",
-                        "Number":"Number of Activities Planned for This Day",
+    column_map={"Number":"Number of Activities Planned for This Day",
                         "Vigorous":"Number of of Activities Planned for This Day Marked Vigorous",
                         "Marked Completed":"Number of Activities Planned for This Day Marked Completed",
                         "Duration":"Total Duration of Activities Planned for This Day",
@@ -70,6 +69,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
                 }
     df2 = df2.rename(columns=column_map)
     df2.index = df2.index.rename("Date")
+    df2 = df2[list(column_map.values())]
 
     df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
     df_join = df_join.fillna(0)
