@@ -272,9 +272,9 @@ df_join=df_join.fillna(0)
 
 df_join.to_csv(os.path.join(directory,filename))
 
-    if(DEBUG):
-        import code
-        code.interact(local=dict(globals(), **locals()))
+if(DEBUG):
+    import code
+    code.interact(local=dict(globals(), **locals()))
 
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
