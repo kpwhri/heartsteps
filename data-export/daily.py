@@ -355,9 +355,6 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Valid Minutes"]=1
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
     df1 = df[["Date",'Steps',"Valid Minutes"]].groupby("Date").sum()
     df2 = df[["Date",'Heart Rate']].groupby("Date").mean()
 
