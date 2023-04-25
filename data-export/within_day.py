@@ -125,10 +125,10 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(WalkingSuggestionDecision.MESSAGE_TEMPLATE_MODEL)
 
-    if(save):
-        df = get_suggestion_df_from_queryset(queryset,user)
 
-    if(DEBUG and save):
+    df = get_suggestion_df_from_queryset(queryset,user)
+
+    if(save):
         df.to_csv(os.path.join(directory,filename))
 
     return df
