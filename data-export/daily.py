@@ -41,73 +41,49 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     #Create a bdata frame with dates with all values equal 0
     df_dates = pd.DataFrame({"Date":dates})
-    df_dates["Participant ID"] = username
-    df_dates = df_dates.set_index(["Participant ID","Date"])
+        df_dates = df_dates.set_index(["Date"])
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+        df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
+        df["Activity Date"] = df["Activity Datetime"].map(lambda x: pd.to_datetime(x).date())
+        df["Number"]=1
+        df["Duration Marked Completed"]=df["Duration"]*df["Marked Completed"]
 
-    df["Date"] = df["Datetime"].map(lambda x: x.date)
+    #Group activities by date they were created
+    df1 = df[["Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Date").sum()
+    column_map={"Number":"Number of Activities Planned on This Day",
+                        "Vigorous":"Number of Activities Planned on This Day Marked Vigorous",
+                        "Marked Completed":"Number of of Activities Planned on This Day Marked Completed",
+                        "Duration":"Duration of Activities Planned on This Day",
+                        "Duration Marked Completed":"Duration of Activities Planned on This Day Marked Completed"
+                }
+    df1 = df1.rename(columns=column_map)
+    df1 = df1.set_index("Date")
 
+    #Group activities by date they were planned to be performed on
+    df2 = df[["Activity Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Activity Date").sum()
+    column_map={"Activity Date":"Date",
+                        "Number":"Number of Activities Planned for This Day",
+                        "Vigorous":"Number of of Activities Planned for This Day Marked Vigorous",
+                        "Marked Completed":"Number of Activities Planned on This Day Marked Completed",
+                        "Duration":"Duration of Activities Planned for This Day",
+                        "Duration Marked Completed":"Duration of Activities Planned for This Day Marked Completed"
+                }
+    df2 = df2.rename(columns=column_map)
+    df2.index = df2.index.rename("Date")
 
-    if(len(plans)>0):    
+    df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
+    df_join = df_join.fillna(0)
+    df_join = df_join.reset_index()
 
-        #Convert plans
-        df_plans = pd.DataFrame.from_records(plans)
+    df_join["Participant ID"]=username
+    df_join = df_join.set_index(["Participant ID","Date"])
 
-        #Make fields for each individual planned activity
-        df_plans["creation_date"] = df_plans["created_at"].dt.date
-        df_plans["activity_date"] = df_plans["start"].dt.date
-        df_plans["marked_complete"] = df_plans["activity_log_id"].map(lambda x: x is not None)
-        df_plans['Participant ID'] = df_plans["user_id"]
-        df_plans['number_planned'] = 1
-        df_plans["duration_completed"] = df_plans["duration"]*df_plans["marked_complete"]
+    df_join.to_csv(os.path.join(directory,filename))
 
-        df_plans = df_plans[["creation_date", "activity_date", 'number_planned', "duration", "duration_completed", "marked_complete"]]
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
 
-        #Group by date and sum to get total planned by date
-        plan_creation = df_plans.groupby("creation_date").sum()
-        plan_creation['Participant ID'] = username
-        plan_creation = plan_creation.reset_index()
-        plan_creation = plan_creation.rename(columns={"creation_date":"Date"})
-
-        #Add subject ID and re-label columns
-        plan_creation = plan_creation.set_index(["Participant ID","Date"])
-        plan_creation = plan_creation[["number_planned", "marked_complete","duration", "duration_completed"]]
-        plan_creation = plan_creation.rename(columns={'number_planned':"Number of Activities Planned on This Day", "duration":"Total Duration of Activities Planned on this Day","duration_completed":"Total Duration of Completed Activities Planned on this Day", "marked_complete":"Number of Activities Planned on this Day Marked Completed"})
-
-        #Group by date and sum to get totals planned to be carried out on date
-        plan_completion = df_plans.groupby("activity_date").sum()
-        plan_completion['Participant ID'] = username
-        plan_completion = plan_completion.reset_index()
-        plan_completion = plan_completion.rename(columns={"activity_date":"Date"})
-
-        #Add subject ID and re-label columns
-        plan_completion = plan_completion.set_index(["Participant ID","Date"])
-        plan_completion = plan_completion[["number_planned","marked_complete", "duration", "duration_completed"]]
-        plan_completion = plan_completion.rename(columns={'number_planned':"Number of Activities Planned for This Day", "duration":"Total Duration of Activities Planned for this Day","duration_completed":"Total Duration of Completed Activities Planned for this Day","marked_complete":"Number of Activities Planned for this Day Marked Completed"})
-
-
-        #Combine with zeros data frame based on counts.
-        #Duplicate days dealt with using groupby on date and sum
-        plan_creation_extended = pd.concat([df_dates,plan_creation,plan_completion],axis=0) 
-        plan_creation_extended=plan_creation_extended.groupby(["Participant ID", "Date"]).sum()
-
-    else:
-        print('  EMPTY QUERY -- no messages found')
-        plan_creation_extended=df_dates
-        plan_creation_extended["Number of Activities Planned on This Day"]=0	
-        plan_creation_extended["Number of Activities Planned on this Day Marked Completed"]=0	
-        plan_creation_extended["Total Duration of Activities Planned on this Day"]=0	
-        plan_creation_extended["Total Duration of Completed Activities Planned on this Day"]=0
-        plan_creation_extended["Number of Activities Planned for This Day"]=0
-        plan_creation_extended["Number of Activities Planned for this Day Marked Completed"]=0
-        plan_creation_extended["Total Duration of Activities Planned for this Day"]=0	
-        plan_creation_extended["Total Duration of Completed Activities Planned for this Day"]=0
-    
-    plan_creation_extended.to_csv(os.path.join(directory,filename))
-
-    print("  Wrote %d rows"%(len(plan_creation_extended)))
 
 def export_daily_morning_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True, DEBUG=True):
 
