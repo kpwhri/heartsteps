@@ -606,7 +606,7 @@ def key_does_not_exist_handler(uid, datafield, df):
     try:
         return df[datafield]
     except KeyError:
-        print(f"User {uid} EMPTY {datafield}")
+        print(f"User UID: ({uid}) EMPTY {datafield}")
         return np.nan
 
 def map_time_if_exists(df_field, tz):
