@@ -51,7 +51,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
             'elevationGain':'Elevation Gain',
             'hasActiveZoneMinutes':'Has Active Zone Minutes'}
     for f,n in fields.items():
-        df[n] = df["Object"].map(lambda x: x.payload[f] if f in x.payload else np.nan)
+        df[n] = df["Object"].map(lambda x: x.payload[f] if x.payload and f in x.payload else np.nan)
 
     #Set index and drop extra columns
     df["Particiant ID"]=username

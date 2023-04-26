@@ -116,8 +116,8 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df1 = df.groupby("Date").sum()
     df2 = df.groupby("Date").mean()
 
-    df1["Average Heart Rate"] = df2["Average Heart Rate"]
-    df1["Has Active Zone Minutes"]=df1["Has Active Zone Minutes"]>0
+    df1["Average Heart Rate"] = key_does_not_exist_handler(uid, "Average Heart Rate", df2)
+    df1["Has Active Zone Minutes"] = key_does_not_exist_handler(uid, "Has Active Zone Minutes", df1)>0
 
     df_join = df1.join(df_dates,how="outer")
     df_join = df_join.reset_index()
@@ -602,6 +602,12 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
     print("  Wrote %d rows" % (len(result)))
 
 
+def key_does_not_exist_handler(uid, datafield, df):
+    try:
+        return df[datafield]
+    except KeyError:
+        print(f"User {uid} NO {datafield}")
+        return np.nan
 
 def map_time_if_exists(df_field, tz):
     return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else pd.NaT
