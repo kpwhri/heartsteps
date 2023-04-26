@@ -75,7 +75,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             #Weekly
             if "weekly" in exports or "all" in exports:
                 print("\n  Exporting weekly data")
-                weekly.export_weekly_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+                weekly.export_weekly_planning(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
     
             if "weekly.survey" in exports or "all" in exports:
                 print("\n  Exporting weekly survey")
@@ -88,7 +88,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             
             if "withinday.antisedintary" in exports or "withinday" in exports or "all" in exports:
                 print("\n  Exporting antisedentary suggestions")
-                within_day.antisedintary_suggestions(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+                within_day.antisedentary_suggestions(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
             #Minute
             if "minute.fitbit" in exports or "minute" in exports or "all" in exports:
@@ -115,7 +115,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 
             if "logs.appuse" in exports or "logs" in exports or "all" in exports:
                 print("\n  Exporting pageview log")
-                logs.export_appuse_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
+                logs.export_app_use_log(users[u], directory = user_export_directory,DEBUG=DEBUG)
 
             if "logs.planning" in exports or "logs" in exports or "all" in exports:
                 print("\n  Exporting planning log")

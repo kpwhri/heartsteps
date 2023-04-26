@@ -300,7 +300,8 @@ def export_daily_antidesentary_suggestions(user,directory = None, filename = Non
     df_dates = df_dates.set_index(["Date"])
 
     #Get base data from fitbit activity log
-    df = within_day.antidesentary_suggestions(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
+    df = within_day.antisedentary_suggestions(user, directory=directory, filename=filename, from_scratch=from_scratch,
+                                              DEBUG=DEBUG, save=False)
     df=df.reset_index()
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
