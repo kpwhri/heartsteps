@@ -249,9 +249,13 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
 #Localize a time
 def localize_time(t,tz_lookup):
     if(t is None or t is pd.NaT or pd.isnull(t)): return pd.NaT
-    tz = tz_lookup[t.date()]
-    local_t= t.astimezone(tz)
-    return local_t
+    try:
+        tz = tz_lookup[t.date()]
+        local_t = t.astimezone(tz)
+        return local_t
+    except KeyError:
+        print(f'ERROR: key {t}, but tz_lookup range {tz_lookup[0]}-{tz_lookup[-1]}')
+    return pd.NaT
 
 def to_time_str(x):
     if( x is not np.nan and x is not None and not pd.isnull(x)):
