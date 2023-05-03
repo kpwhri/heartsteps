@@ -154,6 +154,8 @@ def estimate_notification_dwell_times(user):
                     time_closed = notification_pages[i+1].created
                 else:
                     time_closed=np.nan
+            else:
+                time_closed=np.nan
             lookup[nid] = {"opened":time_opened,"closed":time_closed}
     return(lookup)
 
