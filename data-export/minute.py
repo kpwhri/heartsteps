@@ -93,6 +93,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df["Participant ID"]=username
     df["Date"] = df["Datetime"].map(lambda x: x.date())
     df["Time"] = df["Datetime"].map(lambda x: x.time())
+    df["Heart Rate"] = df["Heart Rate"] if "Heart Rate" in df.columns else np.nan
 
     #Reindex
     df = df.set_index(["Participant ID", "Datetime"])
