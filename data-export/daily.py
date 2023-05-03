@@ -71,9 +71,12 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     df2 = df2.rename(columns=column_map2)
     df2.index = df2.index.rename("Date")
     if df["Duration"].isnull().all(): #TODO REVERT AND MAKE SURE EXPORT COLUMNS MATCH
-        df1 = df1[list(column_map1.values())]
-        df2 = df2[list(column_map2.values())]
-
+        try:
+            df1 = df1[list(column_map1.values())]
+            df2 = df2[list(column_map2.values())]
+        except KeyError:
+            print(df1.columns)
+            print(df['Duration'])
         df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
         df_join = df_join.fillna(0)
         df_join = df_join.reset_index()
@@ -82,6 +85,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
         df_join = df_join.set_index(["Participant ID","Date"])
     else:
         # Using df1 to get column headers
+        print("HERE I WORK!")
         df_join = df1
     utils.print_export_statistics(df_join, 5)
     df_join.to_csv(os.path.join(directory,filename))
