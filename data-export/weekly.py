@@ -244,8 +244,10 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     df["Survey Time Opened"]=wsot
     df["Survey Time Answered"]=wsat
-    df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
-
+    try:
+        df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
+    except TypeError:
+        print(f'ERROR wsat: {type(wsat)} wsot: {type(wsot)}')
     #Get survey answers dictionary and map
     df["answers"]=df["Object"].map(lambda x: x.survey.get_answers())
     answer_fields={'enjoy_activities_this_week':"Enjoyment of Activities",
