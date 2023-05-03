@@ -57,7 +57,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
                         "Duration Marked Completed":"Total Duration of Activities Planned on This Day Marked Completed"
                 }
     df1 = df1.rename(columns=column_map)
-    df1 = df1[list(column_map.values())]
+    df1 = df1[list(column_map.values())] if len(df1) > 0 else np.nan
 
     #Group activities by date they were planned to be performed on
     df2 = df[["Activity Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Activity Date").sum()
@@ -69,7 +69,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
                 }
     df2 = df2.rename(columns=column_map)
     df2.index = df2.index.rename("Date")
-    df2 = df2[list(column_map.values())]
+    df2 = df2[list(column_map.values())] if len(df2) > 0 else np.nan
 
     df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
     df_join = df_join.fillna(0)
