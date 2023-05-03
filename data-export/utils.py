@@ -217,5 +217,4 @@ def get_survey_notifications(uid, survey_type ):
 
 def print_export_statistics(df, cols):
     print(f'Writing {len(df)} rows. Expecting {len(cols)} columns. Correct? {len(list(df.columns)) == len(cols)} \n'
-          f'Header exists? {len(list(df.columns))}')
-    
+          f'Header exists? {len(list(df.columns)) > 0}')
