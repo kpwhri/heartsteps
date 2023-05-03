@@ -196,7 +196,7 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
-        utils.print_export_statistics(df, 3)
+        utils.print_export_statistics(df, 2)
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
