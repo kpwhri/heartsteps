@@ -63,7 +63,8 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df_hr    = df_hr.loc[~df_hr.index.duplicated()] #drop any duplicated index values
 
     #Get timezonedata
-    #Is fitbit data in participant local time already?
+    #Is fitbit data in participant local time already? Yes
+    '''
     query    = FitbitDay.objects.filter(account=fitbit_account).all().values('date','_timezone')
     if not query:
         print("EMPTY QUERY: FitbitDay")
@@ -72,7 +73,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df_tz['Datetime'] = pd.to_datetime(df_tz['Datetime'], utc=True)
     df_tz = df_tz.set_index("Datetime")
 
-    '''
+
     #Trim days from start of timezone data where there is no fitbit data
     min_time = pd.to_datetime(max(df_hr.index[0].date(), df_steps.index[0].date()),utc=True)
     df_tz    = df_tz[df_tz.index>=min_time]
