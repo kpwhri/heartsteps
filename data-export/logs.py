@@ -276,7 +276,7 @@ def localize_time(t,tz_lookup):
         local_t = t.astimezone(tz)
         return local_t
     except KeyError:
-        print(f'ERROR: key {t}, but tz_lookup range {list(tz_lookup.values())[0]}')
+        print(f'ERROR: key {t}, but tz_lookup range {list(tz_lookup.keys())[0]}')
     return pd.NaT
 
 def to_time_str(x):
