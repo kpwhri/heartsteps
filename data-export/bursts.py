@@ -66,7 +66,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
 
     df["Datetime"] = df['Object'].map(lambda x: localize_time(x.created, tz_lookup))
     
-    df["Survey Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability if hasattr(x,"decision") else 1)
+    df["Survey Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability if x.decision and x.decision.treatment_probability else 1)
 
     #Lookup notifications and map receipts
     notification_lookup = utils.get_survey_notifications(uid, survey_type)
