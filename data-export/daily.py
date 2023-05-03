@@ -74,6 +74,9 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     if not df["Duration"].empty:
         df1 = df1[list(column_map1.values())]
         df2 = df2[list(column_map2.values())]
+    else:
+        df1[list(column_map1.values())] = np.nan
+        df2[list(column_map2.values())] = np.nan
 
     df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
     df_join = df_join.fillna(0)
