@@ -40,8 +40,10 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
         else: 
             return np.nan 
     
-    week_query = Week.objects.filter(user=uid).all().values('number','start_date','end_date','goal','confidence','survey_id')
-    df_week = pd.DataFrame.from_records(week_query)
+    week_query = Week.objects.filter(user=uid).all()
+    if not week_query:
+        print("EMPTY QUERY: Week")
+    df_week = pd.DataFrame.from_records(week_query.values('number','start_date','end_date','goal','confidence','survey_id'))
     df_week = df_week.set_index("number")
     df_week = df_week.drop(columns=['survey_id'])
     
@@ -49,9 +51,8 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     barriers=[]
     planning=[]
     activities=[]
-    weeks = Week.objects.filter(user=uid).all()
     
-    for week in weeks:
+    for week in week_query:
         survey_query = Survey.objects.filter(uuid = week.survey_id).all()
         if(len(survey_query)>0):
             answer = survey_query[0].get_answers()
@@ -192,6 +193,9 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     #Query weeks object    
     week_query = Week.objects.filter(user=uid).all()
+    if not week_query:
+        print("EMPTY QUERY: Week")
+
     df = pd.DataFrame({'Object': [w for w in week_query]})
 
     #Map base fields
@@ -215,11 +219,15 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
     sdt       = utils.estimate_survey_dwell_times(uid,survey_type="weekly")
 
     #Get notification indicators
     notification_query = Message.objects.filter(recipient=uid,title='Weekly reflection').order_by("created")
+    if not notification_query:
+        print("EMPTY QUERY: Message")
     df_msg = pd.DataFrame({'Object': [m for m in notification_query]})
     df_msg["Study Week"]    = df_msg["Object"].map(lambda x: x.data["currentWeek"]["id"])
     df_msg['Notification Was Sent']      = df_msg['Object'].map(lambda msg: "sent" in msg._message_receipts)

@@ -18,6 +18,8 @@ def get_suggestion_df_from_queryset(queryset,user):
     username = user["hsid"]
 
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     day_start = np.array([x.start for x in days])
     day_end   = np.array([x.end for x in days])
     day_tz    = [x.timezone for x in days]
@@ -125,6 +127,8 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(WalkingSuggestionDecision.MESSAGE_TEMPLATE_MODEL)
 
+    if not queryset:
+        print("EMPTY QUERY: WalkingSuggestionDecision")
 
     df = get_suggestion_df_from_queryset(queryset,user)
 
@@ -160,6 +164,9 @@ def antisedentary_suggestions(user,directory = None, filename = None, start=None
     .prefetch_notification() \
     .prefetch_unavailable_reasons() \
     .prefetch_message_template(AntiSedentaryDecision.MESSAGE_TEMPLATE_MODEL)
+
+    if not queryset:
+        print("EMPTY QUERY: AntiSedentaryDecision")
 
     df = get_suggestion_df_from_queryset(queryset,user)
     

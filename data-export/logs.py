@@ -33,6 +33,8 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
 
     #Only use fitbit activities                            
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
+    if not queryset:
+        print("EMPTY QUERY: FitbitActivity")
     df = pd.DataFrame({'Object': [x for x in queryset]})
 
     #Get basic fields
@@ -59,6 +61,8 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAYS QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings
@@ -100,6 +104,8 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
 
     #Get notification indicators
     notification_query = Message.objects.filter(recipient=uid).order_by("created")
+    if not notification_query:
+        print("EMPTY QUERY: Message")
     df = pd.DataFrame({'Object': [m for m in notification_query]})
     df['Datetime']                   = df['Object'].map(lambda msg: msg.created)
     df['Notification Title']          = df['Object'].map(lambda msg: msg.title)
@@ -113,6 +119,8 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings
@@ -157,6 +165,8 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
         return
 
     queryset=PageView.objects.filter(user_id=uid).order_by("created").all()
+    if not queryset:
+        print("EMPTY QUERY: PageView")
     df = pd.DataFrame({'Object': [m for m in queryset]})
     df['Datetime']        = df['Object'].map(lambda msg: msg.created)
 
@@ -168,6 +178,8 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings
@@ -207,7 +219,9 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     if not from_scratch and os.path.isfile(os.path.join(directory, filename)):
         return
 
-    queryset = ActivityPlan.objects.filter(user_id=uid).order_by("created_at")
+    queryset = ActivityPlan.objects.filter(user_id=uid).order_by("created_at").all()
+    if not queryset:
+        print("EMPTY QUERY: ActivityPlan")
     df = pd.DataFrame({'Object': [m for m in queryset]})
 
     fields={"created_at":"Datetime",
@@ -224,6 +238,8 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
 
     #Map time fields to strings

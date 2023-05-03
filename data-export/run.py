@@ -37,7 +37,7 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
             #Daily
             if "daily.fitbitactivity" in exports or "daily" in exports or "all" in exports:
                 print("\n  Exporting daily fitbit activity")
-                daily. export_daily_fitbit_activity_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+                daily.export_daily_fitbit_activity_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
             if "daily.planning" in exports or "daily" in exports or "all" in exports:
                 print("\n  Exporting daily planning")

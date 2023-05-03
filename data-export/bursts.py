@@ -58,6 +58,8 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     #Get survey indicators
     #Get days, timezones, and survey dweel time
     days      = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     tz_lookup = {x.date: pytz.timezone(x.timezone) for x in days}
     ndt=utils.estimate_notification_dwell_times(uid)
 
@@ -66,7 +68,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
 
     df["Datetime"] = df['Object'].map(lambda x: localize_time(x.created, tz_lookup))
     
-    df["Survey Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability if x.decision and x.decision.treatment_probability else 1)
+    df["Survey Probability"] = df['Object'].map(lambda x: x.decision.treatment_probability if hasattr(x, 'decision') and x.decision and x.decision.treatment_probability else 1)
 
     #Lookup notifications and map receipts
     notification_lookup = utils.get_survey_notifications(uid, survey_type)
@@ -135,6 +137,9 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     queryset = WalkingSuggestionSurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
 
+    if not queryset:
+        print("EMPTY QUERY: WalkingSuggestionSurvey")
+
     questions={'busyness':'Busyness',
                 'commitment':'Commitment',
                 'relaxed':'Relaxed',
@@ -183,6 +188,8 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
 
     queryset = ActivitySurvey.objects.filter(user_id=uid).order_by('created', 'updated').all()
+    if not queryset:
+        print("EMPTY QUERY: ActivitySurvey")
 
     questions={'enjoyment':"Enjoyment of Activities",
         'fit':"Fit with Routine", 

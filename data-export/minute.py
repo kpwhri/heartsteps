@@ -38,6 +38,8 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
      
     #Get steps data
     query    = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
+    if not query:
+        print("EMPTY QUERY: FitbitMinuteStepCount")
     df_steps = pd.DataFrame.from_records(query)
     df_steps = df_steps.rename(columns={"time":"Datetime",'steps':"Steps"})
     df_steps["Datetime"]=df_steps["Datetime"].apply(strip_time_if_exists)
@@ -46,6 +48,8 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
 
     #Get heart rate data
     query    = FitbitMinuteHeartRate.objects.filter(account=fitbit_account).all().values('time','heart_rate')
+    if not query:
+        print("EMPTY QUERY: FitbitMinuteHeartRate")
     df_hr    = pd.DataFrame.from_records(query)
     df_hr    = df_hr.rename(columns={"time":"Datetime",'heart_rate':"Heart Rate"}, )
     df_hr["Datetime"]=df_hr["Datetime"].apply(strip_time_if_exists)
@@ -55,6 +59,8 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     #Get timezonedata
     #Is fitbit data in participant local time already?
     query    = FitbitDay.objects.filter(account=fitbit_account).all().values('date','_timezone')
+    if not query:
+        print("EMPTY QUERY: FitbitDay")
     df_tz    = pd.DataFrame.from_records(query)
     df_tz    = df_tz.rename(columns={"date":"Datetime", "_timezone":"timezone"}, )
     df_tz['Datetime'] = pd.to_datetime(df_tz['Datetime'], utc=True)
@@ -92,6 +98,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     #Set missing steps to 0 when HR is defined
     df['Steps'] = df['Steps'].fillna(0) #Set all missing steps to 0
     df.loc[df['Heart Rate'].isnull(), 'Steps'] = np.nan #Reset to nan when hr is null
+
 
     #Export to csv
     if(save):

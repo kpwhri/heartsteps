@@ -32,6 +32,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -99,6 +101,8 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -146,6 +150,8 @@ def export_daily_app_use_data(user,directory = None, filename = None, start=None
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -190,6 +196,8 @@ def export_daily_notification_data(user,directory = None, filename = None, start
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -239,6 +247,8 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -290,6 +300,8 @@ def export_daily_antidesentary_suggestions(user,directory = None, filename = Non
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -341,6 +353,8 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     
     #Get all weeks where participant may have been active
     week_query = Week.objects.filter(user=uid).all().values('start_date','end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
@@ -399,12 +413,16 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
 
     # Get all weeks where participant may have received survey
     week_query = Week.objects.filter(user=uid).all().values('start_date', 'end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
     dates = [start_date + timedelta(days=d) for d in range(delta.days + 1)]
 
     days = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     day_lookup = {x.date: x.timezone for x in days}
     tzs = [day_lookup[date] if date in day_lookup else np.nan for date in dates ] 
 
@@ -425,11 +443,13 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
         .prefetch_timezone() \
         .all()
 
+    if not morning_messages:
+        print("EMPTY QUERY: MorningMessage")
     # MorningMessage question names for consistent headers across all users
     questions_headers = ['busy', 'rested', 'committed', 'mm_extrinsic_motivation', 'extrinsic', 'mm_intrinsic_motivation', 'intrinsic']
 
     # Construct DataFrame
-    if len(morning_messages) > 1:
+    if morning_messages:
 
         # Map each time attribute if exists, otherwise np.nan
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
@@ -525,12 +545,16 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
 
     # Get all weeks where participant may have received survey
     week_query = Week.objects.filter(user=uid).all().values('start_date', 'end_date')
+    if not week_query:
+        print("EMPTY QUERY: Week")
     start_date = min([week["start_date"] for week in week_query])
     end_date = max([week["end_date"] for week in week_query])
     delta = end_date - start_date
     dates = [start_date + timedelta(days=d) for d in range(delta.days + 1)]
 
     days = Day.objects.filter(user_id=uid).order_by("date").all()
+    if not days:
+        print("EMPTY DAY QUERY")
     day_lookup = {x.date: x.timezone for x in days}
     tzs = [day_lookup[date] if date in day_lookup else np.nan for date in dates ] 
 
@@ -550,8 +574,11 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
         .prefetch_timezone() \
         .all()
 
+    if not morning_messages:
+        print("EMPTY QUERY: MorningMessage")
+
     # Construct DataFrame
-    if len(morning_messages) > 1:
+    if morning_messages:
 
         # Map each time attribute if exists, otherwise np.nan
         df_morning_messages = pd.DataFrame({'Object': [msg for msg in morning_messages]})
