@@ -167,7 +167,7 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     df_all_fields = df_all_fields.reset_index()
     df_all_fields = df_all_fields.rename(columns=field_map)
     df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
-    utils.print_export_statistics(df_all_fields, df_all_fields.columns)
+    utils.print_export_statistics(df_all_fields, 24)
     df_all_fields.to_csv(os.path.join(directory,filename))
     
     print("  Wrote %d rows"%(len(df_all_fields)))
@@ -287,7 +287,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df = df.set_index(["Particiant ID", "Study Week"]) 
     df = df.drop(labels=["answers","Object"],axis=1)
 
-    utils.print_export_statistics(df, df.columns)
+    utils.print_export_statistics(df, 25)
     df.to_csv(os.path.join(directory,filename))
         
     print("  Wrote %d rows"%(len(df)))

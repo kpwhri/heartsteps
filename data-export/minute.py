@@ -102,7 +102,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
 
     #Export to csv
     if(save):
-        utils.print_export_statistics(df, df.columns)
+        utils.print_export_statistics(df, 4)
         df.to_csv(os.path.join(directory,filename))
 
     return(df)
