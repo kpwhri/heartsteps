@@ -131,8 +131,8 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df1["Average Heart Rate"] = key_does_not_exist_handler(uid, "Average Heart Rate", df2)
     df1["Has Active Zone Minutes"] = key_does_not_exist_handler(uid, "Has Active Zone Minutes", df1)>0
 
-    #df_join = df1.join(df_dates,how="outer")
-    df_join = df_join.reset_index()
+    df_join = df1.join(df_dates,how="outer")
+    #df_join = df_join.reset_index()
 
     df_join["Participant ID"]=username
     df_join = df_join.set_index(["Participant ID","Date"])
