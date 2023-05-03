@@ -216,5 +216,6 @@ def get_survey_notifications(uid, survey_type ):
     return {q.data["survey"]["id"]: q for q in query}
 
 def print_export_statistics(df, cols):
-    print(f'Writing {len(df)} rows. Expecting {len(cols)} columns. Correct? {len(list(df.columns)) == len(cols)} \n'
+    #TODO: cols is a list from data_dictionary
+    print(f'Writing {len(df)} rows. Expecting {cols} columns. Correct? {len(list(df.columns)) == cols} \n'
           f'Header exists? {len(list(df.columns)) > 0}')
