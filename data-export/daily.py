@@ -126,8 +126,9 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
         df1 = df.groupby("Date").sum()
         df2 = df.groupby("Date").mean()
     else:
-        df1 = df
-        df2 = df
+        df1 = df[['Average Heart Rate', 'Duration', 'Steps', 'Calories', 'Elevation Gain',
+       'Has Active Zone Minutes', 'Number of Activity Bouts']]
+        df2 = df1
     df1["Average Heart Rate"] = key_does_not_exist_handler(uid, "Average Heart Rate", df2)
     df1["Has Active Zone Minutes"] = key_does_not_exist_handler(uid, "Has Active Zone Minutes", df1)>0
 
