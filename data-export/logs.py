@@ -76,6 +76,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
+        utils.print_export_statistics(df, df.columns)
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -138,6 +139,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
+        utils.print_export_statistics(df, df.columns)
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -194,6 +196,7 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
+        utils.print_export_statistics(df, df.columns)
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -254,6 +257,7 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
+        utils.print_export_statistics(df, df.columns)
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):

@@ -214,3 +214,6 @@ def get_survey_notifications(uid, survey_type ):
         raise ValueError(f"Survey type {survey_type} is not known")
     query = Message.objects.filter(recipient=uid,title=survey_type).order_by('created').all()
     return {q.data["survey"]["id"]: q for q in query}
+
+def print_export_statistics(df, cols):
+    print(f'Writing {len(df)} rows. Expected {len(cols)}. Correct? {len(list(df.columns)) == len(cols)}')
