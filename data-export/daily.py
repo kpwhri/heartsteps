@@ -121,8 +121,8 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df = logs.export_fitbit_activity_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Number of Activity Bouts"]=1
-    
-    if not df.shape[0]:
+
+    if not df['Duration'].empty:
         df1 = df.groupby("Date").sum()
         df2 = df.groupby("Date").mean()
     else:
