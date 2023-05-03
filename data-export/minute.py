@@ -37,12 +37,12 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
         return
      
     #Get steps data
-    query    = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
+    query   = FitbitMinuteStepCount.objects.filter(account=fitbit_account).all().values('time','steps')
     if not query:
         print("EMPTY QUERY: FitbitMinuteStepCount")
     df_steps = pd.DataFrame.from_records(query)
     df_steps = df_steps.rename(columns={"time":"Datetime",'steps':"Steps"})
-    df_steps["Datetime"]=df_steps["Datetime"].apply(strip_time_if_exists)
+    df_steps["Datetime"]=df_steps["Datetime"].apply(strip_time_if_exists) if not df_steps['Datetime'].empty else np.NaT
     df_steps = df_steps.set_index("Datetime")
     df_steps = df_steps.loc[~df_steps.index.duplicated()] #drop any duplicated index values
 
@@ -52,7 +52,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
         print("EMPTY QUERY: FitbitMinuteHeartRate")
     df_hr    = pd.DataFrame.from_records(query)
     df_hr    = df_hr.rename(columns={"time":"Datetime",'heart_rate':"Heart Rate"}, )
-    df_hr["Datetime"]=df_hr["Datetime"].apply(strip_time_if_exists)
+    df_hr["Datetime"]=df_hr["Datetime"].apply(strip_time_if_exists) if not df_hr['Datetime'].empty else np.NaT
     df_hr    = df_hr.set_index("Datetime")
     df_hr    = df_hr.loc[~df_hr.index.duplicated()] #drop any duplicated index values
 
@@ -64,7 +64,7 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df_tz    = pd.DataFrame.from_records(query)
     df_tz    = df_tz.rename(columns={"date":"Datetime", "_timezone":"timezone"}, )
     df_tz['Datetime'] = pd.to_datetime(df_tz['Datetime'], utc=True)
-    df_tz    = df_tz.set_index("Datetime")
+    df_tz = df_tz.set_index("Datetime")
 
     '''
     #Trim days from start of timezone data where there is no fitbit data
