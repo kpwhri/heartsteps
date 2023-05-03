@@ -39,6 +39,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
 
     #Get basic fields
     fields = {'start_time':"Datetime", 'end_time':"End Time", 'average_heart_rate':'Average Heart Rate'}
+    df[list(fields.values())] = np.nan
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: getattr(x,f))
 
@@ -52,6 +53,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
             "calories":'Calories',
             'elevationGain':'Elevation Gain',
             'hasActiveZoneMinutes':'Has Active Zone Minutes'}
+    df[list(fields.values())] = np.nan
     for f,n in fields.items():
         df[n] = df["Object"].map(lambda x: x.payload[f] if x.payload and f in x.payload else np.nan)
 
