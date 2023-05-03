@@ -93,18 +93,22 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     df["Participant ID"]=username
     df["Date"] = df["Datetime"].map(lambda x: x.date())
     df["Time"] = df["Datetime"].map(lambda x: x.time())
-    df["Heart Rate"] = df["Heart Rate"] if "Heart Rate" in df.columns else np.nan
 
     #Reindex
     df = df.set_index(["Participant ID", "Datetime"])
+
+    if "Heart Rate" not in df.columns:
+        df['Heart Rate'] = np.nan
+        df['Steps'] = np.nan
+    else:
+        # Set missing steps to 0 when HR is defined
+        df['Steps'] = df['Steps'].fillna(0)  # Set all missing steps to 0
+        df.loc[df['Heart Rate'].isnull(), 'Steps'] = np.nan  # Reset to nan when hr is null
 
     #Reset column order
     cols = ["Date","Time","Steps","Heart Rate"]
     df=df[cols]
 
-    #Set missing steps to 0 when HR is defined
-    df['Steps'] = df['Steps'].fillna(0) #Set all missing steps to 0
-    df.loc[df['Heart Rate'].isnull(), 'Steps'] = np.nan #Reset to nan when hr is null
 
 
     #Export to csv
