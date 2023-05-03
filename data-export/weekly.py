@@ -234,9 +234,9 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df_msg['Notification Was Sent']      = df_msg['Object'].map(lambda msg: "sent" in msg._message_receipts)
     df_msg['Notification Was Received']  = df_msg['Object'].map(lambda msg: "received" in msg._message_receipts)
     df_msg['Notification Was Opened']    = df_msg['Object'].map(lambda msg: "opened" in msg._message_receipts)
-    df_msg['Notification Time Sent']     = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
-    df_msg['Notification Time Received'] = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
-    df_msg['Notification Time Opened']   = df_msg['Object'].map(lambda msg: localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
+    df_msg['Notification Time Sent']     = df_msg['Object'].map(lambda msg: utils.localize_time(msg._message_receipts["sent"], tz_lookup) if "sent" in msg._message_receipts else pd.NaT)
+    df_msg['Notification Time Received'] = df_msg['Object'].map(lambda msg: utils.localize_time(msg._message_receipts["received"], tz_lookup) if "received" in msg._message_receipts else pd.NaT)
+    df_msg['Notification Time Opened']   = df_msg['Object'].map(lambda msg: utils.localize_time(msg._message_receipts["opened"], tz_lookup) if "opened" in msg._message_receipts else pd.NaT)
     df_msg=df_msg.drop(labels="Object", axis=1)
     df_msg = df_msg.set_index("Study Week")
 
@@ -245,7 +245,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     #Get survey open and answer times
     wsot=df["Object"].map(lambda x: get_survey_open_time(x.survey,tz_lookup,sdt))
-    wsat=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
+    wsat=df["Object"].map(lambda x: utils.localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
 
     #Create fields
     df["Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
@@ -300,20 +300,13 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 def map_time_if_exists(df_field, tz):
     return df_field.astimezone(tz).replace(tzinfo=None) if df_field is not None else pd.NaT
 
-#Localize a time
-def localize_time(t,tz_lookup):
-    if(t is None): return pd.NaT
-    tz = tz_lookup[t.date()]
-    local_t= t.astimezone(tz)
-    return local_t
-
 #Get localized time the survey page was opened
 def get_survey_open_time(survey,tz_lookup,sdt):
-    local_date = localize_time(survey.updated,tz_lookup).date()
+    local_date = utils.localize_time(survey.updated,tz_lookup).date()
     #print(local_date)
     if local_date in sdt:
         #print(local_date," in sdt")
-        return localize_time(sdt[local_date]["opened"],tz_lookup)
+        return utils.localize_time(sdt[local_date]["opened"],tz_lookup)
     else:
         #print(local_date," not in sdt")
         return pd.NaT
