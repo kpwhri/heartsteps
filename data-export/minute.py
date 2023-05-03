@@ -99,7 +99,9 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
 
     if "Heart Rate" not in df.columns:
         df['Heart Rate'] = np.nan
+        # Added another Steps somewhere
         df = df.drop('Steps', axis=1)
+        df['Steps'] = np.nan
     else:
         # Set missing steps to 0 when HR is defined
         df['Steps'] = df['Steps'].fillna(0)  # Set all missing steps to 0
