@@ -83,7 +83,7 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
     else:
         # Using df1 to get column headers
         df_join = df1
-    utils.print_export_statistics(df_join, 10)
+    utils.print_export_statistics(df_join, 5)
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
