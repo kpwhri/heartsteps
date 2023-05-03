@@ -625,11 +625,8 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
     else:
         print('  EMPTY QUERY -- no data found')
 
-        df_dates[["Morning Survey Was Opened","Morning Survey Was Answered","Morning Survey Opened Time","Morning Survey Answered Time","Morning Survey Time Spent Answering"]] = np.nan
+        df_dates[['Date', 'Was Sent', 'Was Received', 'Was Opened', 'Time Sent', 'Time Received', 'Time Opened', 'Randomized', 'Notification', 'Text', 'Anchor', 'Gain Frame', 'Loss Frame', 'Activity Frame', 'Sedentary Frame']] = np.nan
 
-        df_dates[[question.title() for question in questions_headers]] = np.nan
-
-        df_dates['Mood'] = np.nan
         result = df_dates
 
     result=result.fillna({'Was Sent':False,'Was Received':False,'Was Opened':False})
