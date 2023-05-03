@@ -121,10 +121,13 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df = logs.export_fitbit_activity_log(user,directory = directory, filename = filename, from_scratch=from_scratch,DEBUG=DEBUG,save=False)
     df["Date"]=df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Number of Activity Bouts"]=1
-
-    df1 = df.groupby("Date").sum()
-    df2 = df.groupby("Date").mean()
-
+    
+    if not df.shape[0]:
+        df1 = df.groupby("Date").sum()
+        df2 = df.groupby("Date").mean()
+    else:
+        df1 = df
+        df2 = df
     df1["Average Heart Rate"] = key_does_not_exist_handler(uid, "Average Heart Rate", df2)
     df1["Has Active Zone Minutes"] = key_does_not_exist_handler(uid, "Has Active Zone Minutes", df1)>0
 
