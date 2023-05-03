@@ -52,33 +52,37 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     #Group activities by date they were created
     df1 = df[["Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Date").sum()
-    column_map={"Number":"Number of Activities Planned on This Day",
+    column_map1={"Number":"Number of Activities Planned on This Day",
                         "Vigorous":"Number of Activities Planned on This Day Marked Vigorous",
                         "Marked Completed":"Number of Activities Planned on This Day Marked Completed",
                         "Duration":"Total Duration of Activities Planned on This Day",
                         "Duration Marked Completed":"Total Duration of Activities Planned on This Day Marked Completed"
                 }
-    df1 = df1.rename(columns=column_map)
-    df1 = df1[list(column_map.values())] if len(df1) > 0 else np.nan
+    df1 = df1.rename(columns=column_map1)
 
     #Group activities by date they were planned to be performed on
     df2 = df[["Activity Date","Duration","Duration Marked Completed","Vigorous","Number","Marked Completed"]].groupby("Activity Date").sum()
-    column_map={"Number":"Number of Activities Planned for This Day",
+    column_map2={"Number":"Number of Activities Planned for This Day",
                         "Vigorous":"Number of of Activities Planned for This Day Marked Vigorous",
                         "Marked Completed":"Number of Activities Planned for This Day Marked Completed",
                         "Duration":"Total Duration of Activities Planned for This Day",
                         "Duration Marked Completed":"Total Duration of Activities Planned for This Day Marked Completed"
                 }
-    df2 = df2.rename(columns=column_map)
+    df2 = df2.rename(columns=column_map2)
     df2.index = df2.index.rename("Date")
-    df2 = df2[list(column_map.values())] if len(df2) > 0 else np.nan
+    if df:
+        df1 = df1[list(column_map1.values())]
+        df2 = df2[list(column_map2.values())]
 
-    df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
-    df_join = df_join.fillna(0)
-    df_join = df_join.reset_index()
+        df_join = df1.join(df2,how="outer").join(df_dates,how="outer")
+        df_join = df_join.fillna(0)
+        df_join = df_join.reset_index()
 
-    df_join["Participant ID"]=username
-    df_join = df_join.set_index(["Participant ID","Date"])
+        df_join["Participant ID"]=username
+        df_join = df_join.set_index(["Participant ID","Date"])
+    else:
+        # Using df1 to get column headers
+        df_join = df1
     utils.print_export_statistics(df_join, 10)
     df_join.to_csv(os.path.join(directory,filename))
 
