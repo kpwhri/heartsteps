@@ -218,6 +218,13 @@ def get_survey_notifications(uid, survey_type ):
     return {q.data["survey"]["id"]: q for q in query}
 
 def print_export_statistics(df, cols):
-    #TODO: cols is a list from data_dictionary
     print(f'Writing {len(df)} rows. Expecting {cols} columns. Correct? {len(list(df.columns)) == cols} \n'
           f'Header exists? {len(list(df.columns)) > 0}')
+
+def verify_column_name(data_dict, export_dict):
+    """
+    Verify all columns from export data dictionary are present
+    """
+    missing_cols = [col for col in data_dict.columns if col not in export_dict.columns]
+    if missing_cols:
+        raise Exception(f'MissingColumnError: value(s) {missing_cols} are missing')
