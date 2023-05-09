@@ -4,6 +4,7 @@ build/
 .pyc
 __pycache__/
 .vscode/
+*.csv
 
 credentials
 credentials.tar
