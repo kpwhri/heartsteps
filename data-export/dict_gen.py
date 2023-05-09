@@ -5,7 +5,7 @@ import os
 import glob
 import pandas as pd
 
-DICTIONARY_DIR = "/"
+DICTIONARY_DIR = "data_dictionaries"
 
 
 def generate_dictionaries(export_loc: str, hsid: str):
@@ -28,7 +28,7 @@ def generate_dictionaries(export_loc: str, hsid: str):
         export_name = "_".join(os.path.basename(export).split('.')[1:-1])
 
         print(f'Writing {export_name} dictionary')
-        dictionary.to_csv(os.path.join(DICTIONARY_DIR, f'{export_name}.csv'))
+        dictionary.to_csv(os.path.join(DICTIONARY_DIR, f'{export_name}.csv'), index=False)
 
 
 if __name__ == "__main__":
