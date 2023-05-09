@@ -221,10 +221,22 @@ def print_export_statistics(df, cols):
     print(f'Writing {len(df)} rows. Expecting {cols} columns. Correct? {len(list(df.columns)) == cols} \n'
           f'Header exists? {len(list(df.columns)) > 0}')
 
-def verify_column_name(data_dict, export_dict):
+def verify_column_name(export_dict, file_dest):
     """
     Verify all columns from export data dictionary are present
     """
-    missing_cols = [col for col in data_dict.columns if col not in export_dict.columns]
+    data_dict = find_data_dict(file_dest)
+    missing_cols = [col for col in data_dict['ElementName'] if col not in export_dict.columns]
     if missing_cols:
         raise Exception(f'MissingColumnError: value(s) {missing_cols} are missing')
+
+def create_empty_export(file_dest):
+    data_dict = find_data_dict(file_dest)
+    return pd.DataFrame(columns=data_dict['ElementName'])
+
+def find_data_dict(file_dest):
+    try:
+        dd = pd.read_csv(os.path.join(os.getcwd(), 'data_dictionaries', "_".join(os.path.basename(file_dest).split('.')[1:-1]))+".csv")
+    except:
+        raise Exception('Data Dictionary not found')
+    return dd
