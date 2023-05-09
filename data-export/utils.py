@@ -221,7 +221,7 @@ def print_export_statistics(df, cols):
     print(f'Writing {len(df)} rows. Expecting {cols} columns. Correct? {len(list(df.columns)) == cols} \n'
           f'Header exists? {len(list(df.columns)) > 0}')
 
-def verify_column_name(export_dict, file_dest):
+def verify_column_names(export_dict, file_dest):
     """
     Verify all columns from export data dictionary are present
     """
