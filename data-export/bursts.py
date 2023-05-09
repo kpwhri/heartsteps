@@ -7,7 +7,7 @@ from django.utils import timezone
 import os
 from datetime import datetime,  date, timedelta, timezone
 from math import floor
-
+from logs import localize_time
 import utils
 
 from days.models import Day
@@ -211,13 +211,6 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
         code.interact(local=dict(globals(), **locals()))
 
     return
-
-#Localize a time
-def localize_time(t,tz_lookup):
-    if(t is None): return pd.NaT
-    tz = tz_lookup[t.date()]
-    local_t= t.astimezone(tz)
-    return local_t
 
 #Get localized time the survey page was opened
 def get_survey_open_time(notification_uuid,tz_lookup,ndt):
