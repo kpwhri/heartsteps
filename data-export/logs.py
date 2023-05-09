@@ -275,7 +275,6 @@ def localize_time(t,tz_lookup):
         tz = tz_lookup[t.date()]
         local_t = t.astimezone(tz)
     except KeyError:
-        #TODO: find closest key from argmin deltas
         print(f'ERROR: key {t}, but tz_lookup range {list(tz_lookup.keys())[0]}-{list(tz_lookup.keys())[-1]}')
         print('Trying to find closest date...')
         logged_dates = np.fromiter(tz_lookup.keys())
