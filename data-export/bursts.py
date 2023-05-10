@@ -73,7 +73,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     #Lookup notifications and map receipts
     notification_lookup = utils.get_survey_notifications(uid, survey_type)
 
-    df["receipts"] = df['Object'].map(lambda x: notification_lookup[x.uuid]._message_receipts)
+    df["receipts"] = df['Object'].map(lambda x: notification_lookup[x.uuid]._message_receipts if x.uuid in notification_lookup.keys() else np.nan)
 
     df['Notification Was Sent']      = df["receipts"].map(lambda x: "sent" in x)
     df['Notification Was Received']  = df["receipts"].map(lambda x: "received" in x)
@@ -89,7 +89,13 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
     df["Survey Time Opened"]  =sot
     df["Survey Time Answered"]=sat
-    df['Survey Time Spent Answering'] = (sat-sot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
+
+    time_spent_l = []
+    for at,ot in zip(sot, sat):
+        time_spent_l.append(at-ot)
+    time_spent = pd.Series(data=time_spent_l)
+    
+    df['Survey Time Spent Answering'] = time_spent.map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
     #Get survey answers dictionary and map
     df["answers"]=df["Object"].map(lambda x: x.get_answers())
