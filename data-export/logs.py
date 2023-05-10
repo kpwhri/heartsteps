@@ -277,8 +277,8 @@ def localize_time(t,tz_lookup):
     except KeyError:
         print(f'ERROR: key {t}, but tz_lookup range {list(tz_lookup.keys())[0]}-{list(tz_lookup.keys())[-1]}')
         print('Trying to find closest date...')
-        #logged_dates = np.fromiter(tz_lookup.keys(), datetime.date)
-        logged_dates = list(tz_lookup.keys())
+        #np.fromiter(tz_lookup.keys(), dtype)
+        logged_dates = np.array(list(tz_lookup.keys()))
         tz = tz_lookup[logged_dates[np.argmin(np.abs(logged_dates - t.date()))]]
         local_t = t.astimezone(tz)
     return local_t
