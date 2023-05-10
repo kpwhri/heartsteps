@@ -132,10 +132,9 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
 
     df = get_suggestion_df_from_queryset(queryset,user)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 30)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory,filename))
 
     return df
@@ -173,10 +172,9 @@ def antisedentary_suggestions(user,directory = None, filename = None, start=None
 
     df = get_suggestion_df_from_queryset(queryset,user)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 30)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory,filename))
 
     if(DEBUG and save):
