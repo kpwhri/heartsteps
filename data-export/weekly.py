@@ -250,13 +250,19 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     wsat=df["Object"].map(lambda x: localize_time(x.survey.updated,tz_lookup) if x.survey.answered else pd.NaT)
 
     #Create fields
-    df["Survey Was Opened"]=  wsot.map(lambda x: x is not pd.NaT) 
+    df["Survey Was Opened"]=wsot.map(lambda x: x is not pd.NaT)
     df["Survey Was Answered"]=df["Object"].map(lambda x: x.survey.answered)
 
     df["Survey Time Opened"]=wsot
     df["Survey Time Answered"]=wsat
+
+    # Naive fix for wsat.dtype = Object and wsot.dtype = datetime64[ns, timezone] typeError for subtraction
+    time_spent_l = []
+    for at,ot in zip(wsot, wsat):
+        time_spent_l.append(at-ot)
+    time_spent = pd.Series(data=time_spent_l)
     try:
-        df['Survey Time Spent Answering'] = (wsat-wsot).map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
+        df['Survey Time Spent Answering'] = time_spent.map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
     except TypeError:
         print(f'ERROR wsat: {type(wsat)} wsot: {type(wsot)}')
     #Get survey answers dictionary and map
@@ -289,7 +295,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df = df.set_index(["Particiant ID", "Study Week"]) 
     df = df.drop(labels=["answers","Object"],axis=1)
 
-    utils.print_export_statistics(df, 25)
+    #utils.print_export_statistics(df, 25)
 
     utils.verify_column_names(df, os.path.join(directory, filename))
     df.to_csv(os.path.join(directory,filename))
