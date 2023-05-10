@@ -99,7 +99,7 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.logs.fitbit_activities.csv'.format(
+        filename = '{username}.logs.notification.csv'.format(
             username=username
         )
     
