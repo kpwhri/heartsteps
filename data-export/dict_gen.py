@@ -21,7 +21,16 @@ def generate_dictionaries(export_loc: str, hsid: str):
         print(dataframe.describe())
 
         # Create Dictionary
-        dictionary = pd.DataFrame({'ElementName': dataframe.columns, 'DataType': dataframe.dtypes})
+        dictionary = pd.DataFrame({
+            'ElementName': dataframe.columns,
+            'DataType': dataframe.dtypes,
+            'Size': None,
+            'Required': 'Required',
+            'ElementDescription': None,
+            'ValueRange': None,
+            'Notes': None,
+            'Aliases': None,
+             })
 
         # Write Dictionary
         # Standardizes logs. exports
