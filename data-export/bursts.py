@@ -156,7 +156,8 @@ def export_burst_walking_survey(user,directory = None, filename = None, start=No
 
     df = export_burst_survey(user,queryset,survey_type,questions,DEBUG=DEBUG)
 
-    utils.print_export_statistics(df, 22)
+    utils.verify_column_names(df, os.path.join(directory, filename))
+    #utils.print_export_statistics(df, 22)
     df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):
@@ -203,7 +204,8 @@ def export_burst_activity_survey(user,directory = None, filename = None, start=N
 
     df = export_burst_survey(user,queryset,survey_type,questions,DEBUG=DEBUG)
 
-    utils.print_export_statistics(df, 17)
+    #utils.print_export_statistics(df, 17)
+    utils.verify_column_names(df, os.path.join(directory, filename))
     df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG):

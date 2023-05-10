@@ -84,7 +84,8 @@ def export_daily_planning_data(user,directory = None, filename = None, start=Non
 
     df_join["Participant ID"]=username
     df_join = df_join.set_index(["Participant ID","Date"])
-    utils.print_export_statistics(df_join, 10)
+    #utils.print_export_statistics(df_join, 10)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -138,7 +139,8 @@ def export_daily_fitbit_activity_data(user,directory = None, filename = None, st
     df_join["Participant ID"]=username
     df_join = df_join.set_index(["Participant ID","Date"])
 
-    utils.print_export_statistics(df_join, 7)
+    #utils.print_export_statistics(df_join, 7)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -185,7 +187,8 @@ def export_daily_app_use_data(user,directory = None, filename = None, start=None
     df_join = df_join.set_index(["Participant ID","Date"])
     df_join=df_join.fillna(0)
 
-    utils.print_export_statistics(df_join, 1)
+    #utils.print_export_statistics(df_join, 1)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -237,7 +240,8 @@ def export_daily_notification_data(user,directory = None, filename = None, start
     df_join = df_join.set_index(["Participant ID","Date"])
     df_join=df_join.fillna(0)
 
-    utils.print_export_statistics(df_join, 3)
+    #utils.print_export_statistics(df_join, 3)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -290,7 +294,8 @@ def export_daily_walking_suggestions(user,directory = None, filename = None, sta
     df_join = df_join.set_index(["Participant ID","Date"])
     df_join=df_join.fillna(0)
 
-    utils.print_export_statistics(df_join, 3)
+    #utils.print_export_statistics(df_join, 3)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -345,7 +350,8 @@ def export_daily_antidesentary_suggestions(user,directory = None, filename = Non
     df_join = df_join.set_index(["Participant ID","Date"])
     df_join=df_join.fillna(0)
 
-    utils.print_export_statistics(df_join, 3)
+    #utils.print_export_statistics(df_join, 3)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -396,7 +402,8 @@ def export_daily_fitbit_data(user,directory = None, filename = None, start=None,
     df_join = df_join.set_index(["Participant ID","Date"])
     df_join=df_join.fillna(0)
 
-    utils.print_export_statistics(df_join, 3)
+    #utils.print_export_statistics(df_join, 3)
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory,filename))
 
     if(DEBUG):
@@ -528,8 +535,10 @@ def export_daily_morning_survey(user,directory = None, filename = None, start=No
     result.drop('mm_intrinsic_motivation'.title(), axis=1, inplace=True)
 
     # Set Date as index of DataFrame
-    utils.print_export_statistics(result, 13)
-    result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
+    #utils.print_export_statistics(result, 13)
+    result = result.set_index(["Participant ID",'Date'])
+    utils.verify_column_names(result, os.path.join(directory, filename))
+    result.to_csv(os.path.join(directory, filename))
 
     print("  Wrote %d rows" % (len(result)))
 
@@ -636,8 +645,10 @@ def export_daily_morning_message(user,directory = None, filename = None, start=N
     result=result.fillna({'Was Sent':False,'Was Received':False,'Was Opened':False})
 
     # Set Date as index of DataFrame
-    utils.print_export_statistics(result, 16)
-    result.set_index(["Participant ID",'Date']).to_csv(os.path.join(directory, filename))
+    #utils.print_export_statistics(result, 16)
+    result = result.set_index(["Participant ID",'Date'])
+    utils.verify_column_names(result, os.path.join(directory, filename))
+    result.to_csv(os.path.join(directory, filename))
 
     
     print("  Wrote %d rows" % (len(result)))
