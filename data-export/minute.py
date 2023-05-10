@@ -112,11 +112,10 @@ def export_fitbit_minute_data(user, directory = None, filename = None, start=Non
     cols = ["Date","Time","Steps","Heart Rate"]
     df=df[cols]
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     #Export to csv
     if(save):
         #utils.print_export_statistics(df, 4)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory,filename))
 
     return(df)
