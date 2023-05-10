@@ -77,10 +77,9 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 10)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -142,10 +141,9 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 8)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -201,10 +199,9 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 2)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
@@ -264,10 +261,9 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     df = df.set_index(["Particiant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
-    utils.verify_column_names(df, os.path.join(directory, filename))
-
     if(save):
         #utils.print_export_statistics(df, 7)
+        utils.verify_column_names(df, os.path.join(directory, filename))
         df.to_csv(os.path.join(directory, filename))
 
     if(DEBUG and save):
