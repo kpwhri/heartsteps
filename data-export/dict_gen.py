@@ -37,7 +37,7 @@ def generate_dictionaries(export_loc: str, hsid: str):
         export_name = "_".join(os.path.basename(export).split('.')[1:-1])
 
         print(f'Writing {export_name} dictionary')
-        dictionary.to_csv(os.path.join(DICTIONARY_DIR, f'{export_name}.csv'))
+        dictionary.reset_index(drop=True).to_csv(os.path.join(DICTIONARY_DIR, f'{export_name}.csv'))
 
 
 if __name__ == "__main__":
