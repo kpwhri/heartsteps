@@ -83,7 +83,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     df['Notification Time Opened']   = df["receipts"].map(lambda x: localize_time(x["opened"], tz_lookup) if "opened" in x else pd.NaT)
 
     #Survey time details
-    sot = df['Object'].map(lambda x: get_survey_open_time(str(notification_lookup[x.uuid].uuid),tz_lookup,ndt)) #opend time
+    sot = df['Object'].map(lambda x: get_survey_open_time(str(notification_lookup[x.uuid].uuid),tz_lookup,ndt) if x.uuid in notification_lookup.keys() else pd.NaT) #opened time
     sat = df['Object'].map(lambda x: localize_time(x.updated,tz_lookup) if x.answered else pd.NaT) #answered time
     df["Survey Was Opened"]   = sot.map(lambda x: x is not pd.NaT) 
     df["Survey Was Answered"] = df["Object"].map(lambda x: x.answered)
