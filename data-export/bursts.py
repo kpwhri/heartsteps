@@ -73,7 +73,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     #Lookup notifications and map receipts
     notification_lookup = utils.get_survey_notifications(uid, survey_type)
 
-    df["receipts"] = df['Object'].map(lambda x: notification_lookup[x.uuid]._message_receipts if x.uuid in notification_lookup.keys() else np.nan)
+    df["receipts"] = df['Object'].map(lambda x: notification_lookup[x.uuid]._message_receipts if x.uuid in notification_lookup.keys() else [])
 
     df['Notification Was Sent']      = df["receipts"].map(lambda x: "sent" in x)
     df['Notification Was Received']  = df["receipts"].map(lambda x: "received" in x)
