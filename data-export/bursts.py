@@ -90,10 +90,8 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     df["Survey Time Opened"]  =sot
     df["Survey Time Answered"]=sat
 
-    time_spent_l = []
-    for at,ot in zip(sot, sat):
-        time_spent_l.append(at-ot)
-    time_spent = pd.Series(data=time_spent_l)
+    # wsat.dtype = Object and wsot.dtype = datetime64[ns, timezone] typeError for subtraction
+    time_spent = pd.to_datetime(sat, utc=True) - pd.to_datetime(sot, utc=True)
     
     df['Survey Time Spent Answering'] = time_spent.map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 

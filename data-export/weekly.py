@@ -256,11 +256,8 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
     df["Survey Time Opened"]=wsot
     df["Survey Time Answered"]=wsat
 
-    # Naive fix for wsat.dtype = Object and wsot.dtype = datetime64[ns, timezone] typeError for subtraction
-    time_spent_l = []
-    for at,ot in zip(wsot, wsat):
-        time_spent_l.append(at-ot)
-    time_spent = pd.Series(data=time_spent_l)
+    # wsat.dtype = Object and wsot.dtype = datetime64[ns, timezone] typeError for subtraction
+    time_spent = pd.to_datetime(wsat, utc=True) - pd.to_datetime(wsot, utc=True)
 
     df['Survey Time Spent Answering'] = time_spent.map(lambda x: np.round(x.total_seconds(),1) if (x is not None and x is not np.nan and not pd.isnull(x)) else x)
 
