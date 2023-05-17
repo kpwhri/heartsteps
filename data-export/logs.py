@@ -35,6 +35,11 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
     queryset = FitbitActivity.objects.filter(account_id=user["fbid"]).order_by('start_time').all()
     if not queryset:
         print("EMPTY QUERY: FitbitActivity")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
+
     df = pd.DataFrame({'Object': [x for x in queryset]})
 
     #Get basic fields
@@ -110,6 +115,11 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
     notification_query = Message.objects.filter(recipient=uid).order_by("created")
     if not notification_query:
         print("EMPTY QUERY: Message")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
+
     df = pd.DataFrame({'Object': [m for m in notification_query]})
     df['Datetime']                   = df['Object'].map(lambda msg: msg.created)
     df['Notification Title']          = df['Object'].map(lambda msg: msg.title)
@@ -173,6 +183,10 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
     queryset=PageView.objects.filter(user_id=uid).order_by("created").all()
     if not queryset:
         print("EMPTY QUERY: PageView")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
     df = pd.DataFrame({'Object': [m for m in queryset]})
     df['Datetime']        = df['Object'].map(lambda msg: msg.created)
 
@@ -230,6 +244,10 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
     queryset = ActivityPlan.objects.filter(user_id=uid).order_by("created_at").all()
     if not queryset:
         print("EMPTY QUERY: ActivityPlan")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
     df = pd.DataFrame({'Object': [m for m in queryset]})
 
     fields={"created_at":"Datetime",

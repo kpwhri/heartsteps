@@ -129,6 +129,10 @@ def walking_suggestions(user,directory = None, filename = None, start=None, end=
 
     if not queryset:
         print("EMPTY QUERY: WalkingSuggestionDecision")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
 
     df = get_suggestion_df_from_queryset(queryset,user)
 
@@ -169,6 +173,10 @@ def antisedentary_suggestions(user,directory = None, filename = None, start=None
 
     if not queryset:
         print("EMPTY QUERY: AntiSedentaryDecision")
+        df = utils.create_empty_export(os.path.join(directory, filename))
+        if (save):
+            utils.verify_column_names(df, os.path.join(directory, filename))
+            df.to_csv(os.path.join(directory, filename))
 
     df = get_suggestion_df_from_queryset(queryset,user)
 
