@@ -324,7 +324,6 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
 
     df_weeks = pd.DataFrame.from_records(week_query)
     df_weeks = df_weeks.rename(columns={"number": 'Study Week'})
-    df_weeks = df_weeks.set_index(["Study Week"])
 
     # Get base data from fitbit activity log
     df = logs.export_app_use_log(user, directory=directory, filename=filename, from_scratch=from_scratch, DEBUG=DEBUG,
