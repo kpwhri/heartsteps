@@ -369,7 +369,6 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
 
     df_weeks = pd.DataFrame.from_records(week_query)
     df_weeks = df_weeks.rename(columns={"number": 'Study Week'})
-    df_weeks = df_weeks.set_index(["Study Week"])
 
     # Get base data from notifications log
     df = logs.export_notification_log(user, directory=directory, filename=filename, from_scratch=from_scratch,
@@ -387,7 +386,8 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
                   'Notification Was Opened': "Total Notifications Opened",
                   }
     df1 = df1.rename(columns=column_map)
-
+    
+    df_weeks = df_weeks.set_index(["Study Week"])
     df_join = df1.join(df_weeks, how="outer")
     df_join = df_join.reset_index()
 
