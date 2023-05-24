@@ -386,7 +386,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
                   'Notification Was Opened': "Total Notifications Opened",
                   }
     df1 = df1.rename(columns=column_map)
-    
+
     df_weeks = df_weeks.set_index(["Study Week"])
     df_join = df1.join(df_weeks, how="outer")
     df_join = df_join.reset_index()
@@ -395,7 +395,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
     df_join = df_join.set_index(["Participant ID", "start_date"])
     df_join = df_join.fillna(0)
 
-    utils.verify_column_names(df_join, os.path.join(directory, filename))
+    #utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
