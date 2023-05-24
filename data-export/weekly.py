@@ -397,8 +397,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
     df_join = df_join.set_index(["Participant ID", "start_date"])
     df_join = df_join.fillna(0)
 
-    #TODO add after running dictionary
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
