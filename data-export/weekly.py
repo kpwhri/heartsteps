@@ -335,7 +335,8 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
 
     df1 = df[["Study Week", "Total App Views"]].groupby("Study Week").sum()
 
-    df_join = df_weeks.join(df1, how="outer", on="Study Week")
+    df_weeks = df_weeks.set_index(["Study Week"])
+    df_join = df1.join(df_weeks, how="outer")
     df_join = df_join.reset_index()
 
     df_join["Participant ID"] = username
