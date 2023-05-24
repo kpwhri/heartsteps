@@ -338,7 +338,7 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
     df_join = df_join.reset_index()
 
     df_join["Participant ID"] = username
-    df_join = df_join.set_index(["Participant ID", "Date"])
+    df_join = df_join.set_index(["Participant ID", "start_date"])
     df_join = df_join.fillna(0)
 
     #utils.verify_column_names(df_join, os.path.join(directory, filename))
@@ -347,7 +347,6 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
     if (DEBUG):
         import code
         code.interact(local=dict(globals(), **locals()))
-    pass
 
 def export_weekly_notification_data(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     uid = user["uid"]
