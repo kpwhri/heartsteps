@@ -73,13 +73,41 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
 
 
             #Weekly
-            if "weekly" in exports or "all" in exports:
-                print("\n  Exporting weekly data")
+            if "weekly.planning" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly planning data")
                 weekly.export_weekly_planning(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
     
-            if "weekly.survey" in exports or "all" in exports:
+            if "weekly.survey" in exports or "weekly" in exports or "all" in exports:
                 print("\n  Exporting weekly survey")
                 weekly.export_weekly_survey(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+
+            if "weekly.fitbitactivity" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly fitbit activity")
+                weekly.export_weekly_fitbit_activity_data(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
+
+            if "weekly.appuse" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly app use")
+                weekly.export_weekly_app_use_data(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
+
+            if "weekly.notifications" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly notifications")
+                weekly.export_weekly_notification_data(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
+
+            if "weekly.messages" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly morning message")
+                weekly.export_weekly_morning_message(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
+
+            if "weekly.walkingsuggestions" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly walking suggestions")
+                weekly.export_weekly_walking_suggestions(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
+
+            if "weekly.antidesentarysuggestions" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly antidesentary suggestions")
+                weekly.export_weekly_antidesentary_suggestions(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
+
+            if "weekly.fitbit" in exports or "weekly" in exports or "all" in exports:
+                print("\n  Exporting weekly fitbit data")
+                weekly.export_weekly_fitbit_data(users[u], directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
             #Within day
             if "withinday.walking" in exports or "withinday" in exports or "all" in exports:
