@@ -332,7 +332,7 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
     df["Date"] = df["Datetime"].map(lambda x: pd.to_datetime(x).date())
     df["Total App Views"] = 1
 
-    df["Study Week"] = df["Date"].map(lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['number'].values[0])
+    df["Study Week"] = df["Date"].map(lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['Study Week'].values[0])
 
     df1 = df[["Study Week", "Total App Views"]].groupby("Study Week").sum()
 
@@ -370,14 +370,14 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
     df_weeks = pd.DataFrame.from_records(week_query)
     df_weeks = df_weeks.rename(columns={"number": 'Study Week'})
     df_weeks = df_weeks.set_index(["Study Week"])
-    
+
     # Get base data from notifications log
     df = logs.export_notification_log(user, directory=directory, filename=filename, from_scratch=from_scratch,
                                       DEBUG=DEBUG, save=False)
 
     df["Date"] = df["Datetime"].map(lambda x: pd.to_datetime(x).date())
 
-    df["Study Week"] = df["Date"].map(lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['number'].values[0])
+    df["Study Week"] = df["Date"].map(lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['Study Week'].values[0])
 
     df1 = df[["Study Week", 'Notification Was Sent', 'Notification Was Received', 'Notification Was Opened']].groupby(
         "Study Week").sum()
