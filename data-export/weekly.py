@@ -332,7 +332,7 @@ def export_weekly_fitbit_activity_data(user,directory = None, filename = None, s
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Number of Activity Bouts"] = 1
 
@@ -393,7 +393,7 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Total App Views"] = 1
 
@@ -446,7 +446,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Study Week"] = df["Date"].map(lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['Study Week'].values[0])
 
@@ -505,7 +505,7 @@ def export_weekly_walking_suggestions(user,directory = None, filename = None, st
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Study Week"] = df["Date"].map(
         lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['Study Week'].values[0])
@@ -564,7 +564,7 @@ def export_weekly_antidesentary_suggestions(user,directory = None, filename = No
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Study Week"] = df["Date"].map(
         lambda day: df_weeks[(day >= df_weeks['start_date']) & (day <= df_weeks['end_date'])]['Study Week'].values[0])
@@ -623,7 +623,7 @@ def export_weekly_fitbit_data(user,directory = None, filename = None, start=None
     end_date = max([week["end_date"] for week in week_query])
 
     # Truncate log data to 52 week study period (This assumes week_query is correct, rather than data entries)
-    df = df[(start_date >= df["Date"]) & (end_date <= df["Date"])]
+    df = df[(start_date <= df["Date"]) & (end_date >= df["Date"])]
 
     df["Valid Hours"] = 1 / 60
 
