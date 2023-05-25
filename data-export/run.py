@@ -93,10 +93,6 @@ def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
                 print("\n  Exporting weekly notifications")
                 weekly.export_weekly_notification_data(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
 
-            if "weekly.messages" in exports or "weekly" in exports or "all" in exports:
-                print("\n  Exporting weekly morning message")
-                weekly.export_weekly_morning_message(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
-
             if "weekly.walkingsuggestions" in exports or "weekly" in exports or "all" in exports:
                 print("\n  Exporting weekly walking suggestions")
                 weekly.export_weekly_walking_suggestions(users[u], directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
