@@ -169,7 +169,7 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     df_all_fields = df_all_fields.rename(columns=field_map)
     df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
     #utils.print_export_statistics(df_all_fields, 24)
-    #utils.verify_column_names(df_all_fields, os.path.join(directory,filename))
+    utils.verify_column_names(df_all_fields, os.path.join(directory,filename))
 
     df_all_fields.to_csv(os.path.join(directory,filename))
     
@@ -294,7 +294,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
 
     #utils.print_export_statistics(df, 25)
 
-    #utils.verify_column_names(df, os.path.join(directory, filename))
+    utils.verify_column_names(df, os.path.join(directory, filename))
     df.to_csv(os.path.join(directory,filename))
         
     print("  Wrote %d rows"%(len(df)))
@@ -355,7 +355,7 @@ def export_weekly_fitbit_activity_data(user,directory = None, filename = None, s
     df_join["Participant ID"] = username
     df_join = df_join.set_index(["Participant ID", "Study Week"])
 
-    # utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
@@ -409,7 +409,7 @@ def export_weekly_app_use_data(user,directory = None, filename = None, start=Non
     df_join = df_join.set_index(["Participant ID", "Study Week"])
     df_join = df_join.fillna(0)
 
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
@@ -467,7 +467,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
     df_join = df_join.set_index(["Participant ID", "Study Week"])
     df_join = df_join.fillna(0)
 
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
@@ -527,7 +527,7 @@ def export_weekly_walking_suggestions(user,directory = None, filename = None, st
     df_join = df_join.fillna(0)
 
     # utils.print_export_statistics(df_join, 3)
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
@@ -586,7 +586,7 @@ def export_weekly_antidesentary_suggestions(user,directory = None, filename = No
     df_join = df_join.fillna(0)
 
     # utils.print_export_statistics(df_join, 3)
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
@@ -642,7 +642,7 @@ def export_weekly_fitbit_data(user,directory = None, filename = None, start=None
     df_join = df_join.fillna(0)
 
     # utils.print_export_statistics(df_join, 3)
-    #utils.verify_column_names(df_join, os.path.join(directory, filename))
+    utils.verify_column_names(df_join, os.path.join(directory, filename))
     df_join.to_csv(os.path.join(directory, filename))
 
     if (DEBUG):
