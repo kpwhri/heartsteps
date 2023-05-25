@@ -472,9 +472,7 @@ def export_weekly_notification_data(user,directory = None, filename = None, star
 
     if (DEBUG):
         import code
-        code.interact(local=dict(globals(), **locals()))
-def export_weekly_morning_message(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
-    pass
+        code.interact(local=dict(globals(), **locals())) 
 def export_weekly_walking_suggestions(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     uid = user["uid"]
     username = user["hsid"]
