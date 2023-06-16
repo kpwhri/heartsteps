@@ -30,6 +30,9 @@ def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=
             if(DEBUG and users[u]["hsid"] not in debug_users): continue
             export_data(u,EXPORT_DIR, cohort, exports,DEBUG)
 
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
 def export_data(user,EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
 
     try:
