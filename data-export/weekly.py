@@ -21,9 +21,7 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     #final_field_name = dictionary["ElementName"]
     #raw_field_name   = dictionary["Aliases"]
     #field_map        = utils.get_field_map(dictionary)
-    
-    import code
-    code.interact(local=dict(globals(), **locals()))
+
 
     uid = user["uid"]
     username = user["hsid"]
@@ -31,10 +29,8 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     if not directory:
         directory = './'
     if not filename:
-        filename = '{username}.weekly_planning.csv'.format(
-            username = username
-        )
-        
+        filename = f'{username}.weekly_planning.csv'
+
     if( (not from_scratch) and os.path.isfile(os.path.join(directory,filename))):
         return
     
@@ -164,6 +160,9 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     df = df_week.join(df_answers).join(df_barriers).join(df_planning).join(df_activities)
     df["Participant ID"]=username
     
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
     df_empty = pd.DataFrame(columns = raw_field_name)
     df_empty = df_empty.set_index("number")
     
