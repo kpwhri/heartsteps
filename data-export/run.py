@@ -21,7 +21,7 @@ def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=
     if threaded:
         pool = ThreadPool(8)
         f = lambda u: export_data(u,EXPORT_DIR, cohort, exports,DEBUG)
-        pool.imap(f,users)
+        pool.imap(f,users.values())
 
     else: 
         for u in users:
