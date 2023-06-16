@@ -101,7 +101,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
         df[n]=df["answers"].map(lambda x: x[f] if f in x else None)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
+    df["Participant ID"]=username
 
     #Map time fields to strings
     time_fields = ['Datetime','Notification Time Sent',
@@ -112,7 +112,7 @@ def export_burst_survey(user,queryset,survey_type,questions,DEBUG=True):
     for f in time_fields:
         df[f] = df[f].map(to_time_str)
 
-    df = df.set_index(["Particiant ID", "Datetime"]) 
+    df = df.set_index(["Participant ID", "Datetime"]) 
     df = df.drop(labels=["answers","Object","receipts"],axis=1)
 
     return df

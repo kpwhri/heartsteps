@@ -63,7 +63,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
         df[n] = df["Object"].map(lambda x: x.payload[f] if x.payload and f in x.payload else np.nan)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
+    df["Participant ID"]=username
 
     #Get survey indicators
     #Get days, timezones, and survey dweel time
@@ -79,7 +79,7 @@ def export_fitbit_activity_log(user,directory = None, filename = None, start=Non
         df[f] = df[f].map(lambda x:localize_time(x,tz_lookup))
         df[f] = df[f].map(to_time_str)
 
-    df = df.set_index(["Particiant ID"]) 
+    df = df.set_index(["Participant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
@@ -147,8 +147,8 @@ def export_notification_log(user,directory = None, filename = None, start=None, 
         df[f] = df[f].map(to_time_str)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
-    df = df.set_index(["Particiant ID"]) 
+    df["Participant ID"]=username
+    df = df.set_index(["Participant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
@@ -209,8 +209,8 @@ def export_app_use_log(user,directory = None, filename = None, start=None, end=N
         df[f] = df[f].map(to_time_str)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
-    df = df.set_index(["Particiant ID"]) 
+    df["Participant ID"]=username
+    df = df.set_index(["Participant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):
@@ -275,8 +275,8 @@ def export_planning_log(user,directory = None, filename = None, start=None, end=
         df[f] = df[f].map(to_time_str)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
-    df = df.set_index(["Particiant ID"]) 
+    df["Participant ID"]=username
+    df = df.set_index(["Participant ID"]) 
     df = df.drop(labels=["Object"],axis=1)
 
     if(save):

@@ -159,7 +159,7 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     df_barriers= df_barriers.set_index("number")
 
     df = df_week.join(df_answers).join(df_barriers).join(df_planning).join(df_activities)
-    df["Subject ID"]=username
+    df["Participant ID"]=username
     
     df_empty = pd.DataFrame(columns = raw_field_name)
     df_empty = df_empty.set_index("number")
@@ -277,7 +277,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
         df[n]=df["answers"].map(lambda x: x[f] if f in x else None)
 
     #Set index and drop extra columns
-    df["Particiant ID"]=username
+    df["Participant ID"]=username
 
     #Mam time fields to strings
     time_fields = ['Notification Time Sent',
@@ -289,7 +289,7 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
         df[f] = df[f].map(to_time_str)
 
     df = df.reset_index()
-    df = df.set_index(["Particiant ID", "Study Week"]) 
+    df = df.set_index(["Participant ID", "Study Week"]) 
     df = df.drop(labels=["answers","Object"],axis=1)
 
     #utils.print_export_statistics(df, 25)
