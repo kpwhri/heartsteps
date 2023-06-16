@@ -28,7 +28,7 @@ def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=
             if user_filter is not None and users[u]["hsid"] not in user_filter: continue
             if(users[u]["cohort"]!=cohort): continue
             if(DEBUG and users[u]["hsid"] not in debug_users): continue
-            export_data(u,EXPORT_DIR, cohort, exports,DEBUG)
+            export_data(users[u],EXPORT_DIR, cohort, exports,DEBUG)
 
     import code
     code.interact(local=dict(globals(), **locals()))
