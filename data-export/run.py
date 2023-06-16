@@ -14,7 +14,7 @@ import weekly, daily, within_day, minute, bursts, logs
 
 debug_users =["244"]
 
-def export_all_data(export_dir, cohort="U01", exports=[],DEBUG=True):
+def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
     
     print("Starting data export V4")
     
