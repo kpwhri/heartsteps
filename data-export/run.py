@@ -43,113 +43,113 @@ def export_data(user,EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
     
         #Daily
         if "daily.fitbitactivity" in exports or "daily" in exports or "all" in exports:
-            print("\n  Exporting daily fitbit activity")
+            print(f"\n   {u}: Exporting daily fitbit activity")
             daily.export_daily_fitbit_activity_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.planning" in exports or "daily" in exports or "all" in exports:
-            print("\n  Exporting daily planning")
+            print(f"\n   {u}: Exporting daily planning")
             daily.export_daily_planning_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.appuse" in exports or "daily" in exports or "all" in exports:
-            print("\n  Exporting daily app use")
+            print(f"\n   {u}: Exporting daily app use")
             daily.export_daily_app_use_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.notifications" in exports or "daily" in exports or "all" in exports:
-            print("\n  Exporting daily notifications")
+            print(f"\n   {u}: Exporting daily notifications")
             daily.export_daily_notification_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.survey" in exports or "daily" in exports  or "all" in exports:
-            print("\n  Exporting morning survey")
+            print(f"\n   {u}: Exporting morning survey")
             daily.export_daily_morning_survey(user, directory = user_export_directory,DEBUG=DEBUG)
         
         if "daily.messages" in exports or "daily" in exports  or "all" in exports:
-            print("\n  Exporting morning message")
+            print(f"\n   {u}: Exporting morning message")
             daily.export_daily_morning_message(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.walkingsuggestions" in exports or "daily" in exports  or "all" in exports:
-            print("\n  Exporting daily walking suggestions")
+            print(f"\n   {u}: Exporting daily walking suggestions")
             daily.export_daily_walking_suggestions(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.antidesentarysuggestions" in exports or "daily" in exports  or "all" in exports:
-            print("\n  Exporting daily antidesentary suggestions")
+            print(f"\n   {u}: Exporting daily antidesentary suggestions")
             daily.export_daily_antidesentary_suggestions(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "daily.fitbit" in exports or "daily" in exports  or "all" in exports:
-            print("\n  Exporting daily fitbit data")
+            print(f"\n   {u}: Exporting daily fitbit data")
             daily.export_daily_fitbit_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
 
         #Weekly
         if "weekly.planning" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly planning data")
+            print(f"\n   {u}: Exporting weekly planning data")
             weekly.export_weekly_planning(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "weekly.survey" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly survey")
+            print(f"\n   {u}: Exporting weekly survey")
             weekly.export_weekly_survey(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "weekly.fitbitactivity" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly fitbit activity")
+            print(f"\n   {u}: Exporting weekly fitbit activity")
             weekly.export_weekly_fitbit_activity_data(user, directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
 
         if "weekly.appuse" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly app use")
+            print(f"\n   {u}: Exporting weekly app use")
             weekly.export_weekly_app_use_data(user, directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
 
         if "weekly.notifications" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly notifications")
+            print(f"\n   {u}: Exporting weekly notifications")
             weekly.export_weekly_notification_data(user, directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
 
         if "weekly.walkingsuggestions" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly walking suggestions")
+            print(f"\n   {u}: Exporting weekly walking suggestions")
             weekly.export_weekly_walking_suggestions(user, directory=user_export_directory, from_scratch=True, DEBUG=DEBUG)
 
         if "weekly.antidesentarysuggestions" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly antidesentary suggestions")
+            print(f"\n   {u}: Exporting weekly antidesentary suggestions")
             weekly.export_weekly_antidesentary_suggestions(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         if "weekly.fitbit" in exports or "weekly" in exports or "all" in exports:
-            print("\n  Exporting weekly fitbit data")
+            print(f"\n   {u}: Exporting weekly fitbit data")
             weekly.export_weekly_fitbit_data(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         #Within day
         if "withinday.walking" in exports or "withinday" in exports or "all" in exports:
-            print("\n  Exporting walking suggestions")
+            print(f"\n   {u}: Exporting walking suggestions")
             within_day.walking_suggestions(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
         
         if "withinday.antisedintary" in exports or "withinday" in exports or "all" in exports:
-            print("\n  Exporting antisedentary suggestions")
+            print(f"\n   {u}: Exporting antisedentary suggestions")
             within_day.antisedentary_suggestions(user, directory = user_export_directory, from_scratch=True,DEBUG=DEBUG)
 
         #Minute
         if "minute.fitbit" in exports or "minute" in exports or "all" in exports:
-            print("\n  Exporting minute level fitbit")
+            print(f"\n   {u}: Exporting minute level fitbit")
             minute.export_fitbit_minute_data(user, directory = user_export_directory,DEBUG=DEBUG)
 
         #Burst
         if "burst.walking" in exports or "burst" in exports or "all" in exports:
-            print("\n  Exporting burst walking survey")
+            print(f"\n   {u}: Exporting burst walking survey")
             bursts.export_burst_walking_survey(user, directory = user_export_directory,DEBUG=DEBUG)
         
         if "burst.activity" in exports or "burst" in exports or "all" in exports:
-            print("\n  Exporting burst activity survey")
+            print(f"\n   {u}: Exporting burst activity survey")
             bursts.export_burst_activity_survey(user, directory = user_export_directory,DEBUG=DEBUG)
     
         #Log
         if "logs.fitbit" in exports or "logs" in exports or "all" in exports:
-            print("\n  Exporting fitbit activity log")
+            print(f"\n   {u}: Exporting fitbit activity log")
             logs.export_fitbit_activity_log(user, directory = user_export_directory,DEBUG=DEBUG)
         
         if "logs.notifications" in exports or "logs" in exports or "all" in exports:
-            print("\n  Exporting notification log")
+            print(f"\n   {u}: Exporting notification log")
             logs.export_notification_log(user, directory = user_export_directory,DEBUG=DEBUG)
 
         if "logs.appuse" in exports or "logs" in exports or "all" in exports:
-            print("\n  Exporting pageview log")
+            print(f"\n   {u}: Exporting pageview log")
             logs.export_app_use_log(user, directory = user_export_directory,DEBUG=DEBUG)
 
         if "logs.planning" in exports or "logs" in exports or "all" in exports:
-            print("\n  Exporting planning log")
+            print(f"\n   {u}: Exporting planning log")
             logs.export_planning_log(user, directory = user_export_directory,DEBUG=DEBUG)
 
     except Exception as e:
