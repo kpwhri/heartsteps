@@ -22,7 +22,6 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     #raw_field_name   = dictionary["Aliases"]
     #field_map        = utils.get_field_map(dictionary)
 
-
     uid = user["uid"]
     username = user["hsid"]
     
@@ -160,22 +159,28 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     df = df_week.join(df_answers).join(df_barriers).join(df_planning).join(df_activities)
     df["Participant ID"]=username
     
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    df = df.reset_index()
+    df = df.rename(columns={"number":"Study Week"})
+    df = df.set_index(["Participant ID", "Study Week"])
 
-    df_empty = pd.DataFrame(columns = raw_field_name)
-    df_empty = df_empty.set_index("number")
+    #df_empty = pd.DataFrame(columns = raw_field_name)
+    #df_empty = df_empty.set_index("number")
     
-    df_all_fields = pd.concat([df_empty, df])
-    df_all_fields = df_all_fields.reset_index()
-    df_all_fields = df_all_fields.rename(columns=field_map)
-    df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
+    #df_all_fields = pd.concat([df_empty, df])
+    #df_all_fields = df_all_fields.reset_index()
+    #df_all_fields = df_all_fields.rename(columns=field_map)
+    #df_all_fields = df_all_fields.set_index(["Subject ID", "study_week"])
     #utils.print_export_statistics(df_all_fields, 24)
-    utils.verify_column_names(df_all_fields, os.path.join(directory,filename))
+    utils.verify_column_names(df, os.path.join(directory,filename))
 
-    df_all_fields.to_csv(os.path.join(directory,filename))
+    df.to_csv(os.path.join(directory,filename))
     
-    print("  Wrote %d rows"%(len(df_all_fields)))
+    print("  Wrote %d rows"%(len(df)))
+
+    if(DEBUG):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
     
 def export_weekly_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
