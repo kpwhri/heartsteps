@@ -225,9 +225,6 @@ def verify_column_names(export_dict, file_dest):
     """
     Verify all columns from export data dictionary are present
     """
-
-    return
-
     data_dict = find_data_dict(file_dest)
     columns = list(filter(None, export_dict.index.names + export_dict.columns.values.tolist()))
     missing_cols = [col for col in data_dict['ElementName'] if col not in columns]
