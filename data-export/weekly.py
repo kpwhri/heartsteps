@@ -184,10 +184,10 @@ def export_weekly_planning(user,directory = None, filename = None, start=None, e
     
 def export_weekly_survey(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
-    dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
-    final_field_name = dictionary["ElementName"]
-    raw_field_name   = dictionary["Aliases"]
-    field_map        = utils.get_field_map(dictionary)
+    #dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
+    #final_field_name = dictionary["ElementName"]
+    #raw_field_name   = dictionary["Aliases"]
+    #field_map        = utils.get_field_map(dictionary)
     
     uid = user["uid"]
     username = user["hsid"]
