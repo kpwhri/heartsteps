@@ -216,8 +216,8 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
                 'goal':"Activity Goal",
                 'confidence':"Activity Goal Confidence",
                 '_barrier_options':"Barriers",
-                'will_barriers_continue':"Will Barriers Continue",
-                'answered':"Answered"}
+                'will_barriers_continue':"Will Barriers Continue"
+                }
     for f,n in base_fields.items():
         df[n]=df["Object"].map(lambda x: getattr(x,f))
     df=df.set_index("Study Week")
