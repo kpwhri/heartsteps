@@ -34,6 +34,8 @@ def export_data(user,EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
 
     try:
         
+        if(user["cohort"]!=cohort): return
+
         u = user["hsid"]
         print("\nExporting data for user: " + u)
 
