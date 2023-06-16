@@ -12,7 +12,7 @@ import weekly, daily, within_day, minute, bursts, logs
 
 debug_users =["244"]
 
-def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=None,threaded=True):
+def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=None,threaded=False):
     
     print("Starting data export V4")
     
@@ -29,9 +29,6 @@ def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=
             if(users[u]["cohort"]!=cohort): continue
             if(DEBUG and users[u]["hsid"] not in debug_users): continue
             export_data(users[u],EXPORT_DIR, cohort, exports,DEBUG)
-
-    import code
-    code.interact(local=dict(globals(), **locals()))
 
 def export_data(user,EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
 
