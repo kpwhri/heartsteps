@@ -14,7 +14,7 @@ import weekly, daily, within_day, minute, bursts, logs
 
 debug_users =["244"]
 
-def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
+def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True,user_filter=None):
     
     print("Starting data export V4")
     
@@ -23,6 +23,8 @@ def export_all_data(EXPORT_DIR, cohort="U01", exports=[],DEBUG=True):
     count=DEBUG
     for u in users:
 
+        if user_filter is not None and users[u]["hsid"] not in user_filter:
+            continue
 
         try:
             if(users[u]["cohort"]!=cohort): continue
