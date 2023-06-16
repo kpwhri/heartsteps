@@ -49,6 +49,10 @@ if __name__ == "__main__":
 
     # run clean export
     config = utils.read_config()
+
+    print(config)
+    exit()
+
     if args.export:
         print("Running new -all export")
         run.export_all_data(config["EXPORT_DIR"], cohort='U01', exports=["all"], DEBUG=False)
