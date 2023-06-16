@@ -17,11 +17,14 @@ import logs, daily, minute, within_day
 
 def export_weekly_planning(user,directory = None, filename = None, start=None, end=None, from_scratch=True,DEBUG=True):
     
-    dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
-    final_field_name = dictionary["ElementName"]
-    raw_field_name   = dictionary["Aliases"]
-    field_map        = utils.get_field_map(dictionary)
+    #dictionary       = pd.read_csv("data_dictionaries/weekly.csv")
+    #final_field_name = dictionary["ElementName"]
+    #raw_field_name   = dictionary["Aliases"]
+    #field_map        = utils.get_field_map(dictionary)
     
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
     uid = user["uid"]
     username = user["hsid"]
     
@@ -209,8 +212,8 @@ def export_weekly_survey(user,directory = None, filename = None, start=None, end
                 'goal':"Activity Goal",
                 'confidence':"Activity Goal Confidence",
                 '_barrier_options':"Barriers",
-                'will_barriers_continue':"Will Barriers Continue"
-                'answered'}
+                'will_barriers_continue':"Will Barriers Continue",
+                'answered':"Answered"}
     for f,n in base_fields.items():
         df[n]=df["Object"].map(lambda x: getattr(x,f))
     df=df.set_index("Study Week")
