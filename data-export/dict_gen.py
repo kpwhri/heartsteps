@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     if args.export:
         print("Running new -all export")
-        print(config["EXPORT_DIR"]);    exit()
+        print(config["EXPORT_DIR"]); 
         run.export_all_data(config["EXPORT_DIR"], cohort='U01', exports=["all"], DEBUG=True)
 
     EXPORT_LOCATION = os.path.join(config["EXPORT_DIR"], 'U01')
