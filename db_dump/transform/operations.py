@@ -275,7 +275,6 @@ def drop_dates_after_intervention_finish_date():
 
 def transform_minute_step():
     if COLLECTION_MINUTE_STEP in SETTINGS_REFRESH_COLLECTIONS:
-        # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
         tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
 
@@ -289,70 +288,127 @@ def transform_minute_step():
 
         fitbit_api_account_collection = db['fitbit_api_fitbitaccountuser']
 
-        # 3.1. find the fitbit account for each user_id
-        logging.debug(msg="Find the fitbit account for each user_id, and construct the dataframe for the fitbit account")
-        fitbit_api_account_df = pd.DataFrame(fitbit_api_account_collection.find(
-            {'user_id': {'$in': participant_list}}, {'_id': 0, 'user_id': 1, 'account_id': 1}))
-        fitbit_account_id_list = fitbit_api_account_df['account_id'].tolist()
-        logging.info("Fitbit accounts are loaded: {}".format(fitbit_api_account_df.shape[0]))
+        def get_timezone_span(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+            # find the timezone info for each user_id
+            timezone_df = pd.DataFrame(db.days_day.find({'user_id': user_id}, {'_id': 0, 'date': 1, 'timezone': 1}, sort=[('date', pymongo.ASCENDING)]))
+
+            # merge the timezone span
+            start_date = None
+            end_date = None
+            current_timezone = None
+            timezone_span = []
+            for i, row in timezone_df.iterrows():
+                if start_date is None:
+                    start_date = row['date']
+                    current_timezone = row['timezone']
+                elif current_timezone != row['timezone']:
+                    end_date = row['date']
+                    timezone_span.append({'start_date': start_date, 'end_date': end_date, 'timezone': current_timezone})
+                    start_date = row['date']
+                    current_timezone = row['timezone']
+            end_date = timezone_df['date'].iloc[-1]
+            timezone_span.append({'start_date': start_date, 'end_date': end_date, 'timezone': current_timezone})
+
+            return timezone_span
         
-        # 4. minute-level steps
-        minute_step_collection = db['fitbit_activities_fitbitminutestepcount']
-        
-        # 4.1. find the minute-level steps from fitbit_activities_fitbitminutestepcount collection for each user_id and minute
-        minute_step_df = pd.DataFrame(minute_step_collection.find({'account_id': {
-                                    '$in': fitbit_account_id_list}}, {'_id': 0, 'time': 1, 'steps': 1, 'account_id': 1}))
+        @ray.remote(resources={'Custom': 1})
+        def process_minute_step(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
 
-        logging.info("Minute-level steps are loaded: {}".format(minute_step_df.shape[0]))
+            timezone_span = get_timezone_span(user_id)
 
-        # 4.2 merge the minute-level steps with fitbit_api_account_df
-        minute_step_df = pd.merge(
-            minute_step_df, fitbit_api_account_df, on='account_id', how='left')
-        minute_step_df = minute_step_df[['user_id', 'time', 'steps']]
-        minute_step_df['time'] = pd.to_datetime(
-            minute_step_df['time']).dt.tz_convert('America/Los_Angeles')
+            # find the fitbit account for each user_id
+            fitbit_account_id = db.fitbit_api_fitbitaccountuser.find_one({'user_id': user_id}, {'_id': 0, 'account_id': 1})['account_id']
+            
+            # find the minute-level steps from fitbit_activities_fitbitminutestepcount collection for each user_id and minute
+            for timezone in timezone_span:
+                minute_step_df = pd.DataFrame(db.fitbit_activities_fitbitminutestepcount.find({'account_id': fitbit_account_id, 'time': {'$gte': timezone['start_date'], '$lt': timezone['end_date']}}, {'_id': 0, 'time': 1, 'steps': 1}))
+                minute_agg_step_df = pd.DataFrame(columns=['user_id', 'date_str', 'steps'])
 
-        # 4.3 reorganize the minute-level steps to list of integers of each day. insert 0s for missing minutes
-        minute_step_df['date_str'] = minute_step_df['time'].dt.strftime('%Y-%m-%d')
+                if minute_step_df.shape[0] > 0:
+                    # merge the minute-level steps with fitbit_api_account_df
+                    minute_step_df['time'] = pd.to_datetime(
+                        minute_step_df['time']).dt.tz_convert(timezone['timezone'])
 
-        user_id_date_str_groupby = minute_step_df.groupby(['user_id', 'date_str'])
-        minute_agg_step_df = pd.DataFrame(columns=['user_id', 'date_str', 'steps'])
+                    # reorganize the minute-level steps to list of integers of each day. insert 0s for missing minutes
+                    minute_step_df['date_str'] = minute_step_df['time'].dt.strftime('%Y-%m-%d')
 
-        # iterate through each user_id and date with for and pandas applymap
-        @ray.remote
-        def process_minute_step(user_id, date_str, user_id_date_str_df):
-            minutes = [0] * 24 * 60
+                    date_str_groupby = minute_step_df.groupby(['date_str'])
 
-            for i, row in user_id_date_str_df.iterrows():
-                minutes[row['time'].hour * 60 + row['time'].minute] = row['steps']
+                    # iterate through each date with for and pandas applymap
+                    for date_str in date_str_groupby.groups:
+                        minutes = [0] * 24 * 60
 
-            return {'user_id': user_id, 'date_str': date_str, 'steps': minutes, 'daily_step_sum': sum(minutes), 'non_zero_minutes': len([x for x in minutes if x > 0])}
+                        for i, row in date_str_groupby.get_group(date_str).iterrows():
+                            minutes[row['time'].hour * 60 + row['time'].minute] = row['steps']
 
-        object_storage = {}
-        logging.info(msg="Pre-loading the data to process minute steps for {} users".format(len(user_id_date_str_groupby.groups)))
-        for user_id, date_str in user_id_date_str_groupby.groups:
-            user_id_date_str_df = user_id_date_str_groupby.get_group((user_id, date_str))
-            object_storage["{}_{}".format(user_id, date_str)] = ray.put(user_id_date_str_df)
+                        # add the new row to the minute_agg_step_df
+                        minute_agg_step_df = pd.concat([minute_agg_step_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'steps': [minutes]})], ignore_index=True)
 
-        logging.info(msg="Constructing the future list of ray tasks")
-        minute_agg_step_list_future = [
-            process_minute_step.remote(user_id, date_str, object_storage["{}_{}".format(user_id, date_str)]) for user_id, date_str in user_id_date_str_groupby.groups
+                # fill out missing dates with [0] * 24 * 60
+                date_str_list = minute_agg_step_df['date_str'].tolist()
+                first_date_str = timezone['start_date']
+                last_date_str = timezone['end_date']
+                missed_date_str_list = [dateparse(first_date_str) + datetime.timedelta(days=x) for x in range((dateparse(last_date_str) - dateparse(first_date_str)).days + 1)]
+                missed_date_str_list = [x.strftime('%Y-%m-%d') for x in missed_date_str_list]
+                missed_date_str_list = [x for x in missed_date_str_list if x not in date_str_list]
+                for date_str in missed_date_str_list:
+                    minute_agg_step_df = pd.concat([minute_agg_step_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'steps': [[0] * 24 * 60]})], ignore_index=True)
+
+                # insert the steps list into the minute_step collection
+                minute_step_collection_t = tdb['minute_step']
+                minute_step_collection_t.insert_many(minute_agg_step_df.to_dict('records'))
+
+        # run the ray tasks
+        logging.info(msg="Pre-loading the data to process minute steps for {} users".format(len(participant_list)))
+        process_minute_step_list_future = [
+            process_minute_step.remote(user_id) for user_id in participant_list
         ]
 
         logging.info(msg="Waiting for the ray tasks to finish")
-        minute_agg_step_list = ray.get(minute_agg_step_list_future)
-        logging.info(msg="Finished waiting for the ray tasks to finish. Constructing the pd.DataFrame from the list of dicts.")
-        minute_agg_step_df = pd.DataFrame(minute_agg_step_list)
-        logging.info(msg="Finished constructing the pd.DataFrame from the list of dicts.")
-        logging.debug(msg="minute_agg_step_df: \n{}".format(minute_agg_step_df))
+        ray.get(process_minute_step_list_future)
+        logging.info(msg="Finished waiting for the ray tasks to finish.")
 
-        # 4.4 insert the minute-level steps into the database
+        # sum the minute-level steps into daily-level steps
+        pipeline = [
+            {
+                '$match': {'user_id': {'$in': participant_list}}
+            },
+            {
+                '$unwind': '$steps'
+            },
+            {
+                '$group': {
+                    '_id': {'user_id': '$user_id', 'date_str': '$date_str'},
+                    'steps': {'$sum': '$steps'}
+                }
+            },
+            {
+                '$project': {
+                    '_id': 0,
+                    'user_id': '$_id.user_id',
+                    'date_str': '$_id.date_str',
+                    'steps': '$steps'
+                }
+            }
+        ]
 
-        # insert the steps list into the minute_step collection
-        logging.info(msg="Inserting the steps list into the minute_step collection")
-        minute_step_collection_t = tdb['minute_step']
-        minute_step_collection_t.insert_many(minute_agg_step_df.to_dict('records'))
-        logging.info(msg="Finished inserting the steps list into the minute_step collection. rows: {}".format(minute_agg_step_df.shape[0]))
+        # create a dataframe from the aggregation result
+        minute_agg_step_df = pd.DataFrame(
+            tdb['minute_step'].aggregate(pipeline))
+        
+        # update the daily collection with the daily-level steps
+        daily_collection = tdb['daily']
+        daily_collection.bulk_write([
+            UpdateOne(
+                {'user_id': row['user_id'], 'date_str': row['date_str']},
+                {'$set': {'steps': row['steps']}}
+            ) for i, row in minute_agg_step_df.iterrows()
+        ])
 
 def transform_minute_heart_rate():
     collection_name = COLLECTION_MINUTE_HEART_RATE

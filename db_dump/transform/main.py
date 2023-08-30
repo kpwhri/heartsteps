@@ -7,7 +7,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     # Initialize Ray
-    # ray.init()
+    ray.init(resources={'Custom': 4})
     
     # Load the study, cohort, and participant collections and merge them into the participants collection
     transform_participants()
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     # drop the dates after the intervention finish date
     drop_dates_after_intervention_finish_date()
 
-    # # Load the minute_step collection (usually takes 50 seconds)
-    # transform_minute_step()
+    # Load the minute_step collection (usually takes 50 seconds)
+    transform_minute_step()
 
     # # Load the minute_heart_rate collection (usually takes 4 minutes)
     # transform_minute_heart_rate()
