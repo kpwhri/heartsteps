@@ -22,7 +22,7 @@ def transform_participants():
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # delete_many participants collection
         tdb.participants.delete_many({})
@@ -58,7 +58,7 @@ def transform_daily():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # delete_many participants collection
         tdb.daily.delete_many({})
@@ -199,7 +199,7 @@ def add_baseline_and_intervention_dates():
         logging.info("Starting add_baseline_and_intervention_dates()")
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # get the study id list
         participant_list = get_participant_list()
@@ -264,7 +264,7 @@ def drop_dates_after_intervention_finish_date():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         daily_collection = tdb['daily']
 
@@ -276,7 +276,7 @@ def drop_dates_after_intervention_finish_date():
 def transform_minute_step():
     if COLLECTION_MINUTE_STEP in SETTINGS_REFRESH_COLLECTIONS:
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # delete_many participants collection
         logging.debug(msg="Delete all documents in the collection: {}".format(COLLECTION_MINUTE_STEP))
@@ -290,7 +290,7 @@ def transform_minute_step():
 
         def get_timezone_span(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
             # find the timezone info for each user_id
             timezone_df = pd.DataFrame(db.days_day.find({'user_id': user_id}, {'_id': 0, 'date': 1, 'timezone': 1}, sort=[('date', pymongo.ASCENDING)]))
@@ -314,10 +314,10 @@ def transform_minute_step():
 
             return timezone_span
         
-        @ray.remote(resources={'Custom': 1})
-        def process_minute_step(user_id):
+        @ray.remote
+        def process_minute_step_1(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
             timezone_span = get_timezone_span(user_id)
 
@@ -336,43 +336,81 @@ def transform_minute_step():
 
                     # reorganize the minute-level steps to list of integers of each day. insert 0s for missing minutes
                     minute_step_df['date_str'] = minute_step_df['time'].dt.strftime('%Y-%m-%d')
+                    minute_step_df['time_str'] = minute_step_df['time'].dt.strftime('%H:%M')
+                    minute_step_df['user_id'] = user_id
 
-                    date_str_groupby = minute_step_df.groupby(['date_str'])
+                    tdb.temp_minute_step.insert_many(minute_step_df.to_dict('records'))
 
-                    # iterate through each date with for and pandas applymap
-                    for date_str in date_str_groupby.groups:
+        @ray.remote
+        def process_minute_step_2(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+
+            participant_collection = tdb['participants']
+
+            minute_step_df = pd.DataFrame(tdb.temp_minute_step.find({'user_id': user_id}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'time_str': 1, 'steps': 1}))
+            
+            if minute_step_df.shape[0] > 0:
+                minute_agg_step_df = pd.DataFrame(columns=['user_id', 'date_str', 'steps'])
+                date_str_list = minute_step_df['date_str'].unique().tolist()
+                first_date_str = participant_collection.find_one({'user_id': user_id}, {'_id': 0, 'baseline_start_date': 1})['baseline_start_date']
+                last_date_str = participant_collection.find_one({'user_id': user_id}, {'_id': 0, 'intervention_finish_date': 1})['intervention_finish_date']
+                
+                # prepare the list of all the date_str
+                if first_date_str is None or last_date_str is None:
+                    return
+                date_str_list = [dateparse(first_date_str) + datetime.timedelta(days=x) for x in range((dateparse(last_date_str) - dateparse(first_date_str)).days + 1)]
+                date_str_list = [x.strftime('%Y-%m-%d') for x in date_str_list]
+
+                for date_str in date_str_list:
+                    user_date_df = minute_step_df.loc[minute_step_df['date_str'] == date_str, ['time_str', 'steps']]
+
+                    if user_date_df.shape[0] > 0:
                         minutes = [0] * 24 * 60
 
-                        for i, row in date_str_groupby.get_group(date_str).iterrows():
-                            minutes[row['time'].hour * 60 + row['time'].minute] = row['steps']
-
-                        # add the new row to the minute_agg_step_df
+                        for i, row in user_date_df.iterrows():
+                            minutes[dateparse(row['time_str']).hour * 60 + dateparse(row['time_str']).minute] = row['steps']
+                        
                         minute_agg_step_df = pd.concat([minute_agg_step_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'steps': [minutes]})], ignore_index=True)
-
-                # fill out missing dates with [0] * 24 * 60
-                date_str_list = minute_agg_step_df['date_str'].tolist()
-                first_date_str = timezone['start_date']
-                last_date_str = timezone['end_date']
-                missed_date_str_list = [dateparse(first_date_str) + datetime.timedelta(days=x) for x in range((dateparse(last_date_str) - dateparse(first_date_str)).days + 1)]
-                missed_date_str_list = [x.strftime('%Y-%m-%d') for x in missed_date_str_list]
-                missed_date_str_list = [x for x in missed_date_str_list if x not in date_str_list]
-                for date_str in missed_date_str_list:
-                    minute_agg_step_df = pd.concat([minute_agg_step_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'steps': [[0] * 24 * 60]})], ignore_index=True)
-
+                    else:
+                        minute_agg_step_df = pd.concat([minute_agg_step_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'steps': [[0] * 24 * 60]})], ignore_index=True)
+                
                 # insert the steps list into the minute_step collection
                 minute_step_collection_t = tdb['minute_step']
                 minute_step_collection_t.insert_many(minute_agg_step_df.to_dict('records'))
 
+
+        tdb.temp_minute_step.delete_many({})
+
         # run the ray tasks
         logging.info(msg="Pre-loading the data to process minute steps for {} users".format(len(participant_list)))
         process_minute_step_list_future = [
-            process_minute_step.remote(user_id) for user_id in participant_list
+            process_minute_step_1.remote(user_id) for user_id in participant_list
         ]
 
         logging.info(msg="Waiting for the ray tasks to finish")
-        ray.get(process_minute_step_list_future)
+        ray.get(process_minute_step_list_future, timeout=3600)
         logging.info(msg="Finished waiting for the ray tasks to finish.")
 
+        # add the index for user_id
+        if 'user_id_index' not in tdb.temp_minute_step.index_information():
+            logging.info(msg="Create index for user_id")
+            tdb.temp_minute_step.create_index([('user_id', pymongo.ASCENDING)], name='user_id_index', background=True)
+
+        # run the ray tasks
+        logging.info(msg="Pre-loading the data to process minute steps for {} users".format(len(participant_list)))
+        process_minute_step_list_future = [
+            process_minute_step_2.remote(user_id) for user_id in participant_list
+        ]
+
+        logging.info(msg="Waiting for the ray tasks to finish")
+        ray.get(process_minute_step_list_future, timeout=3600)
+        logging.info(msg="Finished waiting for the ray tasks to finish.")
+
+
+
+        # delete the temp_minute_step collection
+        tdb.drop_collection('temp_minute_step')
         # sum the minute-level steps into daily-level steps
         pipeline = [
             {
@@ -411,15 +449,13 @@ def transform_minute_step():
         ])
 
 def transform_minute_heart_rate():
-    collection_name = COLLECTION_MINUTE_HEART_RATE
-    if collection_name in SETTINGS_REFRESH_COLLECTIONS:
-        # create a client instance of the MongoClient class
+    if COLLECTION_MINUTE_HEART_RATE in SETTINGS_REFRESH_COLLECTIONS:
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # delete_many participants collection
-        logging.debug(msg="Delete all documents in the collection: {}".format(collection_name))
-        tdb[collection_name].delete_many({})
+        logging.debug(msg="Delete all documents in the collection: {}".format(COLLECTION_MINUTE_HEART_RATE))
+        tdb.minute_heart_rate.delete_many({})
 
         # get the study id list
         logging.debug(msg="Get the study id list")
@@ -427,86 +463,172 @@ def transform_minute_heart_rate():
 
         fitbit_api_account_collection = db['fitbit_api_fitbitaccountuser']
 
-        # 3.1. find the fitbit account for each user_id
-        logging.debug(msg="Find the fitbit account for each user_id, and construct the dataframe for the fitbit account")
-        fitbit_api_account_df = pd.DataFrame(fitbit_api_account_collection.find(
-            {'user_id': {'$in': participant_list}}, {'_id': 0, 'user_id': 1, 'account_id': 1}))
-        fitbit_account_id_list = fitbit_api_account_df['account_id'].tolist()
-        logging.info("Fitbit accounts are loaded: {}".format(fitbit_api_account_df.shape[0]))
+        def get_timezone_span(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+
+            # find the timezone info for each user_id
+            timezone_df = pd.DataFrame(db.days_day.find({'user_id': user_id}, {'_id': 0, 'date': 1, 'timezone': 1}, sort=[('date', pymongo.ASCENDING)]))
+
+            # merge the timezone span
+            start_date = None
+            end_date = None
+            current_timezone = None
+            timezone_span = []
+            for i, row in timezone_df.iterrows():
+                if start_date is None:
+                    start_date = row['date']
+                    current_timezone = row['timezone']
+                elif current_timezone != row['timezone']:
+                    end_date = row['date']
+                    timezone_span.append({'start_date': start_date, 'end_date': end_date, 'timezone': current_timezone})
+                    start_date = row['date']
+                    current_timezone = row['timezone']
+            end_date = timezone_df['date'].iloc[-1]
+            timezone_span.append({'start_date': start_date, 'end_date': end_date, 'timezone': current_timezone})
+
+            return timezone_span
         
-        # 4. minute-level steps
-        minute_heart_rate_collection = db['fitbit_activities_fitbitminuteheartrate']
-        
-        # 4.1. find the minute-level steps from fitbit_activities_fitbitminuteheartrate collection for each user_id and minute
-        minute_heart_rate_df = pd.DataFrame(minute_heart_rate_collection.find({'account_id': {
-                                    '$in': fitbit_account_id_list}}, {'_id': 0, 'time': 1, 'heart_rate': 1, 'account_id': 1}))
-
-        logging.info("Minute-level heart rates are loaded: {}".format(minute_heart_rate_df.shape[0]))
-
-        # 4.2 merge the minute-level steps with fitbit_api_account_df
-        minute_heart_rate_df = pd.merge(
-            minute_heart_rate_df, fitbit_api_account_df, on='account_id', how='left')
-        minute_heart_rate_df = minute_heart_rate_df[['user_id', 'time', 'heart_rate']]
-        minute_heart_rate_df['time'] = pd.to_datetime(
-            minute_heart_rate_df['time']).dt.tz_convert('America/Los_Angeles')
-
-        # 4.3 reorganize the minute-level steps to list of integers of each day. insert 0s for missing minutes
-        minute_heart_rate_df['date_str'] = minute_heart_rate_df['time'].dt.strftime('%Y-%m-%d')
-
-        user_id_date_str_groupby = minute_heart_rate_df.groupby(['user_id', 'date_str'])
-        minute_agg_heart_rate_df = pd.DataFrame(columns=['user_id', 'date_str', 'steps'])
-
-        # iterate through each user_id and date with for and pandas applymap
         @ray.remote
-        def process_minute_heart_rate(user_id, date_str, user_id_date_str_df):
-            minutes = [0] * 24 * 60
+        def process_minute_heart_rate_1(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
-            for i, row in user_id_date_str_df.iterrows():
-                minutes[row['time'].hour * 60 + row['time'].minute] = row['heart_rate']
+            timezone_span = get_timezone_span(user_id)
 
-            # make a list for non-zero minutes
-            non_zero_minutes = [x for x in minutes if x > 0]
+            # find the fitbit account for each user_id
+            fitbit_account_id = db.fitbit_api_fitbitaccountuser.find_one({'user_id': user_id}, {'_id': 0, 'account_id': 1})['account_id']
+            
+            # find the minute-level heart rate from fitbit_activities_fitbitminuteheartrate collection for each user_id and minute
+            for timezone in timezone_span:
+                minute_heart_rate_df = pd.DataFrame(db.fitbit_activities_fitbitminuteheartrate.find({'account_id': fitbit_account_id, 'time': {'$gte': timezone['start_date'], '$lt': timezone['end_date']}}, {'_id': 0, 'time': 1, 'heart_rate': 1}))
+                minute_agg_heart_rate_df = pd.DataFrame(columns=['user_id', 'date_str', 'heart_rate'])
 
-            # calculate the 60,000 times of inverse of the non-zero minutes
-            non_zero_minutes_inverse = [60000 / x for x in non_zero_minutes]
+                if minute_heart_rate_df.shape[0] > 0:
+                    # merge the minute-level heart rate with fitbit_api_account_df
+                    minute_heart_rate_df['time'] = pd.to_datetime(
+                        minute_heart_rate_df['time']).dt.tz_convert(timezone['timezone'])
 
-            # calculate the standard deviation of the non-zero minutes
-            daily_heart_rate_stdev = np.std(non_zero_minutes_inverse)
+                    # reorganize the minute-level heart_rate to list of integers of each day. insert 0s for missing minutes
+                    minute_heart_rate_df['date_str'] = minute_heart_rate_df['time'].dt.strftime('%Y-%m-%d')
+                    minute_heart_rate_df['time_str'] = minute_heart_rate_df['time'].dt.strftime('%H:%M')
+                    minute_heart_rate_df['user_id'] = user_id
 
-            return {'user_id': user_id, 'date_str': date_str, 'heart_rates': minutes, 'daily_heart_rate_stdev': daily_heart_rate_stdev, 'non_zero_minutes': len([x for x in minutes if x > 0])}
+                    tdb.temp_minute_heart_rate.insert_many(minute_heart_rate_df.to_dict('records'))
 
-        object_storage = {}
-        logging.info(msg="Pre-loading the data to process minute heart rates for {} users".format(len(user_id_date_str_groupby.groups)))
-        for user_id, date_str in user_id_date_str_groupby.groups:
-            user_id_date_str_df = user_id_date_str_groupby.get_group((user_id, date_str))
-            object_storage["{}_{}".format(user_id, date_str)] = ray.put(user_id_date_str_df)
+        @ray.remote
+        def process_minute_heart_rate_2(user_id):
+            db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
-        logging.info(msg="Constructing the future list of ray tasks")
-        minute_agg_heart_rate_list_future = [
-            process_minute_heart_rate.remote(user_id, date_str, object_storage["{}_{}".format(user_id, date_str)]) for user_id, date_str in user_id_date_str_groupby.groups
+            participant_collection = tdb['participants']
+
+            minute_heart_rate_df = pd.DataFrame(tdb.temp_minute_heart_rate.find({'user_id': user_id}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'time_str': 1, 'heart_rate': 1}))
+            
+            if minute_heart_rate_df.shape[0] > 0:
+                minute_agg_heart_rate_df = pd.DataFrame(columns=['user_id', 'date_str', 'heart_rate'])
+                date_str_list = minute_heart_rate_df['date_str'].unique().tolist()
+                first_date_str = participant_collection.find_one({'user_id': user_id}, {'_id': 0, 'baseline_start_date': 1})['baseline_start_date']
+                last_date_str = participant_collection.find_one({'user_id': user_id}, {'_id': 0, 'intervention_finish_date': 1})['intervention_finish_date']
+                
+                # prepare the list of all the date_str
+                if first_date_str is None or last_date_str is None:
+                    return
+                date_str_list = [dateparse(first_date_str) + datetime.timedelta(days=x) for x in range((dateparse(last_date_str) - dateparse(first_date_str)).days + 1)]
+                date_str_list = [x.strftime('%Y-%m-%d') for x in date_str_list]
+
+                for date_str in date_str_list:
+                    user_date_df = minute_heart_rate_df.loc[minute_heart_rate_df['date_str'] == date_str, ['time_str', 'heart_rate']]
+
+                    if user_date_df.shape[0] > 0:
+                        minutes = [0] * 24 * 60
+
+                        for i, row in user_date_df.iterrows():
+                            minutes[dateparse(row['time_str']).hour * 60 + dateparse(row['time_str']).minute] = row['heart_rate']
+                        
+                        minute_agg_heart_rate_df = pd.concat([minute_agg_heart_rate_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'heart_rate': [minutes]})], ignore_index=True)
+                    else:
+                        minute_agg_heart_rate_df = pd.concat([minute_agg_heart_rate_df, pd.DataFrame({'user_id': user_id, 'date_str': date_str, 'heart_rate': [[0] * 24 * 60]})], ignore_index=True)
+                
+                # insert the heart_rate list into the minute_heart_rate collection
+                minute_heart_rate_collection_t = tdb['minute_heart_rate']
+                minute_heart_rate_collection_t.insert_many(minute_agg_heart_rate_df.to_dict('records'))
+
+
+        tdb.temp_minute_heart_rate.delete_many({})
+
+        # run the ray tasks
+        logging.info(msg="Pre-loading the data to process minute heart rate for {} users".format(len(participant_list)))
+        process_minute_heart_rate_list_future = [
+            process_minute_heart_rate_1.remote(user_id) for user_id in participant_list
         ]
 
         logging.info(msg="Waiting for the ray tasks to finish")
-        minute_agg_heart_rate_list = ray.get(minute_agg_heart_rate_list_future)
-        logging.info(msg="Finished waiting for the ray tasks to finish. Constructing the pd.DataFrame from the list of dicts.")
-        minute_agg_heart_rate_df = pd.DataFrame(minute_agg_heart_rate_list)
-        logging.info(msg="Finished constructing the pd.DataFrame from the list of dicts.")
-        logging.debug(msg="minute_agg_heart_rate_df: \n{}".format(minute_agg_heart_rate_df))
+        ray.get(process_minute_heart_rate_list_future, timeout=3600)
+        logging.info(msg="Finished waiting for the ray tasks to finish.")
 
-        # 4.4 insert the minute-level steps into the database
+        # add the index for user_id
+        if 'user_id_index' not in tdb.temp_minute_heart_rate.index_information():
+            logging.info(msg="Create index for user_id")
+            tdb.temp_minute_heart_rate.create_index([('user_id', pymongo.ASCENDING)], name='user_id_index', background=True)
 
-        # insert the steps list into the minute_step collection
-        logging.info(msg="Inserting the steps list into the minute_step collection")
-        minute_heart_rate_collection_t = tdb['minute_heart_rate']
-        minute_heart_rate_collection_t.insert_many(minute_agg_heart_rate_df.to_dict('records'))
-        logging.info(msg="Finished inserting the steps list into the minute_step collection. rows: {}".format(minute_agg_heart_rate_df.shape[0]))
+        # run the ray tasks
+        logging.info(msg="Pre-loading the data to process minute steps for {} users".format(len(participant_list)))
+        process_minute_heart_rate_list_future = [
+            process_minute_heart_rate_2.remote(user_id) for user_id in participant_list
+        ]
 
+        logging.info(msg="Waiting for the ray tasks to finish")
+        ray.get(process_minute_heart_rate_list_future, timeout=3600)
+        logging.info(msg="Finished waiting for the ray tasks to finish.")
+
+
+
+        # delete the temp_minute_step collection
+        tdb.drop_collection('temp_minute_heart_rate')
+        # count the number of non-zero minutes
+        pipeline = [
+            {
+                '$match': {'user_id': {'$in': participant_list}}
+            },
+            {
+                '$unwind': '$heart_rate'
+            },
+            {
+                '$group': {
+                    '_id': {'user_id': '$user_id', 'date_str': '$date_str'},
+                    'wearing_minutes': {'$sum': {'$cond': [{'$gt': ['$heart_rate', 0]}, 1, 0]}}
+                }
+            },
+            {
+                '$project': {
+                    '_id': 0,
+                    'user_id': '$_id.user_id',
+                    'date_str': '$_id.date_str',
+                    'wearing_minutes': '$wearing_minutes'
+                }
+            }
+        ]
+
+        # create a dataframe from the aggregation result
+        minute_agg_heart_rate_df = pd.DataFrame(
+            tdb['minute_heart_rate'].aggregate(pipeline))
+        
+        # update the daily collection with the daily-level wearing_minutes
+        daily_collection = tdb['daily']
+        daily_collection.bulk_write([
+            UpdateOne(
+                {'user_id': row['user_id'], 'date_str': row['date_str']},
+                {'$set': {'wearing_minutes': row['wearing_minutes']}}
+            ) for i, row in minute_agg_step_df.iterrows()
+        ])
+        
 def copy_daily_steps_and_heart_rate():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         logging.info(msg="Starting copy_daily_steps_and_heart_rate()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_DAILY
         
         # 2. fetch the current daily collection
@@ -564,7 +686,7 @@ def transform_survey():
         # 1. connect to the database
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # 2. get participant_list
         logging.info(msg="Fetching the participant list")
@@ -834,7 +956,7 @@ def select_daily_ema():
         logging.info(msg="Starting select_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = 'survey'
 
         # 2. fetch the survey collection
@@ -889,7 +1011,7 @@ def widen_daily_ema():
         logging.info(msg="Starting widen_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_SURVEY_DAILY_EMA
 
         # 2. fetch the survey collection
@@ -963,7 +1085,7 @@ def copy_daily_ema():
         logging.info(msg="Starting copy_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_SURVEY_DAILY_EMA
         
         # 2. fetch the current daily_ema collection
@@ -1014,7 +1136,7 @@ def transform_bout_planning_ema_decision():
         logging.info(msg="Starting transform_bout_planning_ema_decision()")
         # 1. connect to the database
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # 2. load the BPN decision data
         logging.info(msg="Loading the BPN decision data")
@@ -1162,7 +1284,7 @@ def select_bout_planning_ema():
         logging.info(msg="Starting select_bout_planning_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_SURVEY_BOUT_PLANNING_EMA
         
         # 2. Fetching the current COLLECTION_SURVEY_BOUT_PLANNING_EMA survey documents from COLLECTION_SURVEY
@@ -1300,7 +1422,7 @@ def fill_daily_nans():
         logging.info(msg="Starting fill_daily_nans()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_DAILY
         
         # 2. fetch the current daily collection
@@ -1339,7 +1461,7 @@ def aggregate_bout_planning_ema():
         logging.info(msg="Starting aggregate_bout_planning_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
         collection_name = COLLECTION_DAILY
 
         # 2. fetch the current daily collection
@@ -1414,7 +1536,7 @@ def transform_message():
         logging.info(msg="Starting transform_message()")
         # 1. connect to the database
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
 
         # 2. load the message data
         logging.info(msg="Loading the message data")
