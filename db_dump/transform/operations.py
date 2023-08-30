@@ -15,6 +15,9 @@ import time
 import json
 from pymongo import UpdateOne, InsertOne
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 def transform_participants():
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
@@ -39,7 +42,7 @@ def transform_participants():
             '_id': 0, 'heartsteps_id': 1, 'cohort_id': 1, 'user_id': 1, 'birth_year': 1, 'study_start_date': 1}, on='cohort_id')
 
         # picking the columns that are needed
-        df = df[['heartsteps_id', 'user_id', 'birth_year', 'study_start_date']]
+        df = df[['heartsteps_id', 'user_id', 'birth_year', 'study_start_date']].copy()
         
         # converting floats to integer
         df['birth_year'] = df['birth_year'].astype(int)
@@ -93,15 +96,19 @@ def transform_daily():
         # create a dataframe from the aggregation result
         daily = pd.DataFrame(
             db['bout_planning_notification_level'].aggregate(pipeline))
-        daily = daily[['user_id', 'date_str', 'level_str']]
+        
+        # convert the level_str to level_int
+        daily['level_int'] = daily['level_str'].map({'RE': 0, 'RA': 1, 'NR': 2, 'NO': 3, 'FU': 4})
 
-        # add a column of day_index per user_id, day_index is the number of days since the study start date from participant collection
-        participant_df = pd.DataFrame(tdb[COLLECTION_PARTICIPANTS].find(
-            {}, {'_id': 0, 'user_id': 1, 'study_start_date': 1}))
-        daily = pd.merge(daily, participant_df, on='user_id', how='left')
-        daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
-        daily['date_dt'] = pd.to_datetime(daily['date_str'])
-        daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
+        daily = daily[['user_id', 'date_str', 'level_str', 'level_int']].copy()
+
+        # # add a column of day_index per user_id, day_index is the number of days since the study start date from participant collection
+        # participant_df = pd.DataFrame(tdb[COLLECTION_PARTICIPANTS].find(
+        #     {}, {'_id': 0, 'user_id': 1, 'study_start_date': 1}))
+        # daily = pd.merge(daily, participant_df, on='user_id', how='left')
+        # daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
+        # daily['date_dt'] = pd.to_datetime(daily['date_str'])
+        # daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
 
         # # generate an empty dataframe with user_id, study_start_date, day_index, date_dt
         # empty_df = pd.DataFrame(columns=['user_id', 'study_start_date', 'day_index', 'date_dt'])
@@ -119,15 +126,17 @@ def transform_daily():
         # # join daily and empty_df dataframes together. if there is no level for a day, set level_str as "RE" and level_int as 0. If a row exists in daily but not in empty_df, drop the row
         # daily = pd.merge(empty_df, daily[['user_id', 'day_index', 'date_str', 'level_str']], on=['user_id', 'day_index', 'date_str'], how='left')
 
-        # fill the NaNs with "RE"
-        daily['level_str'] = daily['level_str'].fillna("RE")
-        daily['level_int'] = daily['level_str'].map({'RE': 0, 'RA': 1, 'NR': 2, 'NO': 3, 'FU': 4})
+        # # fill the NaNs with "RE"
+        # daily['level_str'] = daily['level_str'].fillna("RE")
+        
 
         # drop the columns that are not needed
-        daily = daily[['user_id', 'date_str', 'date_dt', 'study_start_date',
-                    'day_index', 'level_str', 'level_int']]
+        daily = daily[['user_id', 'date_str', 'level_str', 'level_int']].copy()
 
-        logging.info("Intervention components are loaded: {}".format(daily.shape[0]))
+        # daily = daily[['user_id', 'date_str', 'date_dt', 'study_start_date',
+        #             'day_index', 'level_str', 'level_int']].copy()
+
+        logging.info("Levels and Step Goals are loaded: {}".format(daily.shape[0]))
         
         # 2.2. find the `step_goal` from daily_step_goals_stepgoal, for each user_id and date, there are multiple goals, we only need the last goal by created column
 
@@ -160,19 +169,19 @@ def transform_daily():
             db['daily_step_goals_stepgoal'].aggregate(pipeline))
 
         # merge the step_goal with daily dataframe
-        daily = pd.merge(daily, temp_goals_df, on=['user_id', 'date_str'], how='left')
+        daily = pd.merge(daily, temp_goals_df, on=['user_id', 'date_str'], how='outer')
 
-        # fill the NaNs with 2000
-        daily['step_goal'] = daily['step_goal'].fillna(2000)
+        # # fill the NaNs with 2000
+        # daily['step_goal'] = daily['step_goal'].fillna(2000)
 
-        logging.info("Goals are loaded: {}".format(daily.shape[0]))
+        # logging.info("Goals are loaded: {}".format(daily.shape[0]))
 
         # 2.99. insert the data into the database
         daily_collection = tdb['daily']
 
-        # clean up the data before inserting into the database
-        daily['date_dt'] = pd.to_datetime(daily['date_str'])
-        daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
+        # # clean up the data before inserting into the database
+        # daily['date_dt'] = pd.to_datetime(daily['date_str'])
+        # daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
         
         # insert the data into the database
         daily_collection.insert_many(daily.to_dict('records'))
@@ -183,7 +192,87 @@ def transform_daily():
             daily_collection.create_index([('user_id', pymongo.ASCENDING), ('date_str', pymongo.ASCENDING)], unique=True, name='user_id_date_str_unique_index', background=True)
     else:
         logging.info("Daily data is already loaded, skip the loading process.")
-        
+
+def add_baseline_and_intervention_dates():
+    # this function adds 1) baseline_start_date, 2) intervention_start_date, 3) intervention_finish_date to the participants collection
+    if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info("Starting add_baseline_and_intervention_dates()")
+        # create a client instance of the MongoClient class
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        # get the study id list
+        participant_list = get_participant_list()
+
+        for study_id in participant_list:
+            # get all the dates from the daily collection
+            daily_collection = tdb['daily']
+            daily_df = pd.DataFrame(daily_collection.find({'user_id': study_id}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'level_str': 1, 'level_int': 1, 'step_goal': 1}, sort=[('date_str', pymongo.ASCENDING)]))
+
+            participants_collection = tdb['participants']
+            participant_dict = participants_collection.find_one(
+                {'user_id': study_id}
+            )
+
+            # find the first date with step_goal given
+            baseline_start_date = daily_df.loc[daily_df['step_goal'].notnull(), 'date_str'].iloc[0]
+            
+            # find the first date with level_int >= 1
+            # if any of the 'level_int' is >= 1, then the intervention_start_date is the first date with level_int >= 1. otherwise, the intervention_start_date should be set as None
+            if daily_df['level_int'].max() >= 1:
+                intervention_start_date = daily_df.loc[daily_df['level_int'] >= 1, 'date_str'].iloc[0]
+                # set the intervention_finish_date as the last date with the intervention_start_date + 260 days
+                intervention_finish_date = (dateparse(intervention_start_date) + datetime.timedelta(days=260)).strftime('%Y-%m-%d')
+            
+                # find the difference between the intervention_start_date and baseline_start_date
+                baseline_start_date_dt = dateparse(baseline_start_date)
+                intervention_start_date_dt = dateparse(intervention_start_date)
+                baseline_intervention_diff = (intervention_start_date_dt - baseline_start_date_dt).days
+            
+                # find the difference between the baseline_start_date and study_start_date
+                study_start_date = participant_dict['study_start_date']
+                study_start_date_dt = dateparse(study_start_date)
+                baseline_study_diff = (baseline_start_date_dt - study_start_date_dt).days
+            else:
+                intervention_start_date = None
+                intervention_finish_date = None
+
+            # update the participants collection with the baseline_start_date, intervention_start_date, intervention_finish_date
+            participants_collection.update_one({'user_id': study_id}, {
+                '$set': {
+                    'baseline_start_date': baseline_start_date, 
+                    'intervention_start_date': intervention_start_date, 
+                    'intervention_finish_date': intervention_finish_date,
+                    'baseline_intervention_diff': baseline_intervention_diff,
+                    'baseline_study_diff': baseline_study_diff
+                }})
+
+            # add day_index column to the daily_df
+            daily_df['day_index'] = (daily_df['date_str'].apply(dateparse) - intervention_start_date_dt).dt.days
+
+            # update the daily collection with the day_index
+            daily_collection.bulk_write([
+                UpdateOne(
+                    {'user_id': study_id, 'date_str': row['date_str']},
+                    {'$set': {'day_index': row['day_index']}}
+                ) for i, row in daily_df.iterrows()
+            ])
+    else:
+        logging.info("Baseline and intervention dates are already added, skip the adding process.")
+
+def drop_dates_after_intervention_finish_date():
+    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
+        # create a client instance of the MongoClient class
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        daily_collection = tdb['daily']
+
+        daily_collection.delete_many({"day_index": {"$gt": 260}})
+        logging.info("Finished dropping the dates after the intervention finish date.")
+    else:
+        logging.info("Dates after the intervention finish date are already dropped, skip the dropping process.")
+
 def transform_minute_step():
     if COLLECTION_MINUTE_STEP in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
