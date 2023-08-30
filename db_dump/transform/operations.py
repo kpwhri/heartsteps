@@ -9,7 +9,11 @@ import numpy as np
 import ray
 import logging
 import pymongo
-from pymongo import UpdateOne
+import datetime
+from dateutil.parser import parse as dateparse
+import time
+import json
+from pymongo import UpdateOne, InsertOne
 
 def transform_participants():
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
@@ -30,10 +34,17 @@ def transform_participants():
                                     '_id': 0, 'id': 1, 'study_id': 1, 'name': 1, 'study_length': 1}, on='study_id', rename_columns={'id': 'cohort_id', 'name': 'cohort_name'})
         cohort_id = int(df['cohort_id'][0])
 
+        # get the participant list using the cohort_id
         df = extend_df_with_collection(df, db, 'participants_participant', {'cohort_id': cohort_id}, {
             '_id': 0, 'heartsteps_id': 1, 'cohort_id': 1, 'user_id': 1, 'birth_year': 1, 'study_start_date': 1}, on='cohort_id')
 
+        # picking the columns that are needed
         df = df[['heartsteps_id', 'user_id', 'birth_year', 'study_start_date']]
+        
+        # converting floats to integer
+        df['birth_year'] = df['birth_year'].astype(int)
+        df['user_id'] = df['user_id'].astype(int)
+
         logging.info("Participants are loaded: {}".format(df.shape[0]))
 
         participants_collection = tdb['participants']
@@ -92,21 +103,28 @@ def transform_daily():
         daily['date_dt'] = pd.to_datetime(daily['date_str'])
         daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
 
-        # if day_index is less than 10, set level_str as "RE" and level_int as 0
-        daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
-        daily.loc[daily['day_index'] < 10, 'level_int'] = 0
+        # # generate an empty dataframe with user_id, study_start_date, day_index, date_dt
+        # empty_df = pd.DataFrame(columns=['user_id', 'study_start_date', 'day_index', 'date_dt'])
 
-        # if day_index is greater than 252, set level_str as "FU" and level_int as 4
-        daily.loc[daily['day_index'] > 252, 'level_str'] = "FU"
-        daily.loc[daily['day_index'] > 252, 'level_int'] = 4
+        # # for each participant, generate the rows with day_index from 0 to 270
+        # for user_id in tqdm(participant_list):
+        #     temp_df = pd.DataFrame({'user_id': [user_id] * 271})
+        #     temp_df['study_start_date'] = participant_df.loc[participant_df['user_id'] == user_id, 'study_start_date'].iloc[0]
+        #     temp_df['day_index'] = range(271)
+        #     temp_df['study_start_date_dt'] = pd.to_datetime(temp_df['study_start_date'])
+        #     temp_df['date_dt'] = temp_df['study_start_date_dt'] + pd.to_timedelta(temp_df['day_index'], unit='d')
+        #     temp_df['date_str'] = temp_df['date_dt'].dt.strftime('%Y-%m-%d')
+        #     empty_df = pd.concat([empty_df, temp_df], ignore_index=True)
 
-        # convert level_str to level_int
-        level_categories = ["RE", "RA", "NR", "NO", "FU"]
-        daily['level_int'] = pd.Categorical(
-            daily['level_str'], categories=level_categories, ordered=True).codes
+        # # join daily and empty_df dataframes together. if there is no level for a day, set level_str as "RE" and level_int as 0. If a row exists in daily but not in empty_df, drop the row
+        # daily = pd.merge(empty_df, daily[['user_id', 'day_index', 'date_str', 'level_str']], on=['user_id', 'day_index', 'date_str'], how='left')
+
+        # fill the NaNs with "RE"
+        daily['level_str'] = daily['level_str'].fillna("RE")
+        daily['level_int'] = daily['level_str'].map({'RE': 0, 'RA': 1, 'NR': 2, 'NO': 3, 'FU': 4})
 
         # drop the columns that are not needed
-        daily = daily[['user_id', 'date_str', 'date_dt',
+        daily = daily[['user_id', 'date_str', 'date_dt', 'study_start_date',
                     'day_index', 'level_str', 'level_int']]
 
         logging.info("Intervention components are loaded: {}".format(daily.shape[0]))
@@ -142,7 +160,10 @@ def transform_daily():
             db['daily_step_goals_stepgoal'].aggregate(pipeline))
 
         # merge the step_goal with daily dataframe
-        daily = pd.merge(daily, temp_goals_df, on=['user_id', 'date_str'], how='right')
+        daily = pd.merge(daily, temp_goals_df, on=['user_id', 'date_str'], how='left')
+
+        # fill the NaNs with 2000
+        daily['step_goal'] = daily['step_goal'].fillna(2000)
 
         logging.info("Goals are loaded: {}".format(daily.shape[0]))
 
@@ -151,18 +172,9 @@ def transform_daily():
 
         # clean up the data before inserting into the database
         daily['date_dt'] = pd.to_datetime(daily['date_str'])
-        daily = pd.merge(daily, participant_df, on='user_id', how='left')
         daily['study_start_date'] = pd.to_datetime(daily['study_start_date'])
-        daily['day_index'] = (daily['date_dt'] - daily['study_start_date']).dt.days
-
-        # if day_index is less than 10, set level_str as "RE" and level_int as 0
-        daily.loc[daily['day_index'] < 10, 'level_str'] = "RE"
-        daily.loc[daily['day_index'] < 10, 'level_int'] = 0
-
-        # if day_index is greater than 252, set level_str as "FU" and level_int as 4
-        daily.loc[daily['day_index'] > 252, 'level_str'] = "FU"
-        daily.loc[daily['day_index'] > 252, 'level_int'] = 4
-
+        
+        # insert the data into the database
         daily_collection.insert_many(daily.to_dict('records'))
 
         # create index for user_id and date_str
@@ -252,7 +264,6 @@ def transform_minute_step():
         minute_step_collection_t = tdb['minute_step']
         minute_step_collection_t.insert_many(minute_agg_step_df.to_dict('records'))
         logging.info(msg="Finished inserting the steps list into the minute_step collection. rows: {}".format(minute_agg_step_df.shape[0]))
-
 
 def transform_minute_heart_rate():
     collection_name = COLLECTION_MINUTE_HEART_RATE
@@ -475,6 +486,169 @@ def transform_survey():
 
         df_info(survey_df, name='survey_df')
         
+        # 8. Organize the message table data
+        logging.info(msg="Organizing the message table data")
+        message_collection = db['push_messages_message']
+        message_df = pd.DataFrame(message_collection.find({'recipient_id': {'$in': participant_list}}, {'_id': 0, 'id': 1, 'uuid': 1, 'created': 1, 'device_id': 1, 'recipient_id': 1, 'external_id':1, 'body': 1, 'data': 1, 'collapse_subject': 1}))
+
+        # 8.1. rename the columns
+        message_df.rename(columns={'id': 'message_id', 'created': 'when_sent', 'recipient_id': 'user_id', 'body': 'message_text', 'data': 'message_json', 'collapse_subject': 'message_type'}, inplace=True)
+
+        # 8.2. parse the message_json column
+        # 8.2.1. remove the row with NaNs in message_json column
+        message_df = message_df[message_df['message_json'].notna()]
+        # 8.2.2. convert the message_json column to json
+        message_df['message_json'] = message_df['message_json'].apply(lambda x: json.loads(x))
+        # 8.2.3. create a new column for survey
+        message_df['survey_json'] = message_df['message_json'].apply(lambda x: x['survey'])
+        message_df = message_df[message_df['survey_json'].notna()]
+        message_df['survey_json'] = message_df['survey_json'].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
+        message_df['survey_id'] = message_df['survey_json'].apply(lambda x: x['id'])
+
+        # 8.2.4. remove the message_json column
+        message_df.drop(columns=['message_json', 'survey_json'], inplace=True)
+
+
+        # 8.3. fetch message_receipt collection
+        messagereceipt_collection = db['push_messages_messagereceipt']
+
+        # 8.3.1. fetch the message_receipt collection
+        messagereceipt_df = pd.DataFrame(messagereceipt_collection.find({'message_id': {'$in': message_df['message_id'].tolist()}}, {'_id': 0, 'message_id': 1, 'type': 1, 'time': 1}))
+
+        # 8.3.2. use the list of types, and make a wide-dataframe from the long-dataframe of messagereceipt_df for the earliest times
+        col_order = ['sent', 'onesignal-sent', 'received', 'opened', 'engaged', 'failed']
+        messagereceipt_df = messagereceipt_df[messagereceipt_df['type'].isin(col_order)]
+        messagereceipt_df = messagereceipt_df.sort_values(by=['message_id', 'time'])
+        messagereceipt_df = messagereceipt_df.groupby(['message_id', 'type']).first().reset_index()
+        messagereceipt_df = messagereceipt_df.pivot(index='message_id', columns='type', values='time')
+        messagereceipt_df = messagereceipt_df[col_order]
+        messagereceipt_df.columns.name = None
+        messagereceipt_df.reset_index(inplace=True)
+
+        # 8.3.3. join with the message_df
+        message_df = message_df.merge(messagereceipt_df, on='message_id', how='left')
+
+
+        # 8.4. pageview collection
+        pageview_collection = db['page_views_pageview']
+
+        # 8.4.1. fetch the pageview collection
+        pageview_df = pd.DataFrame(pageview_collection.find({"uri": {"$regex": "^/notification"}}, {'_id': 0, 'uri': 1, 'time': 1, 'created': 1, 'user_id': 1}))
+
+        # 8.4.2. rename the columns
+        pageview_df.rename(columns={'time': 'pageview_when_viewed', 'created': 'pageview_when_logged'}, inplace=True)
+
+        # 8.4.3. parse the uri column to get the message_id. example: "/notification/dfbbc49a-6fef-4907-ac31-6f51bc20eed6"
+        pageview_df['uuid'] = pageview_df['uri'].apply(lambda x: x.split('/')[-1])
+
+        # 8.4.4. remove the uri column
+        pageview_df.drop(columns=['uri'], inplace=True)
+
+        # 8.4.5. join with the message_df
+        message_df = message_df.merge(pageview_df, on=['user_id', 'uuid'], how='left')
+
+        # 8.5. merge the survey_df with message_df
+        logging.info(msg="Merging the survey_df with message_df")
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        logging.info(msg="message_df.shape: {}".format(message_df.shape))
+        survey_df = survey_df.merge(message_df, on=['user_id', 'survey_id'], how='left')
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+
+        # 9. merge the redundant rows
+        # 9.1. if more than one survey with the same user_id and question_text were asked (with respect to `when_asked` column) within a minute between them, then merge the rows. The merging logic is as follows.        
+        #      if one of them has answer_text, then use that answer_text. delete other rows in the group.
+        #      if more than one of them has answer_text, then use the first one. delete other rows in the group.
+        #      if none of them has answer_text, then look at the pageview_when_viewed column. 
+        #              if one of them has pageview_when_viewed as non-null, then use that row. delete other rows in the group.
+        #              if more than one of them has pageview_when_viewed as non-null, then use the first one. delete other rows in the group.
+        #              if none of them has pageview_when_viewed as non-null, then look at the opened column. 
+        #                       if one of them has opened as non-null, then use that row. delete other rows in the group.
+        #                       if more than one of them has opened as non-null, then use the first one. delete other rows in the group.
+        #                       if none of them has opened as non-null, then look at the received column.
+        #                               if one of them has received as non-null, then use that row. delete other rows in the group.
+        #                               if more than one of them has received as non-null, then use the first one. delete other rows in the group.
+        #                               if none of them has received as non-null, then look at the sent column.
+        #                                       if one of them has sent as non-null, then use that row. delete other rows in the group.
+        #                                       if more than one of them has sent as non-null, then use the first one. delete other rows in the group.
+        #                                       if none of them has sent as non-null, then look at the when_asked column.
+        #                                               if one of them has when_asked as non-null, then use that row. delete other rows in the group.
+        #                                               if more than one of them has when_asked as non-null, then use the first one. delete other rows in the group.
+        #                                               if none of them has when_asked as non-null, then use the first one. delete other rows in the group.
+
+        logging.info(msg="Merging the redundant rows")
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        survey_df = survey_df.sort_values(by=['user_id', 'question_text', 'when_asked'])
+        survey_df['when_asked'] = pd.to_datetime(survey_df['when_asked']).dt.tz_convert('America/Los_Angeles')
+        
+        # 9.2. calculate the time difference between the current row and the previous row within the same user_id and question_text
+        survey_df['when_asked_diff'] = survey_df.groupby(['user_id', 'question_text'])['when_asked'].diff()
+        survey_df['when_asked_diff'] = survey_df['when_asked_diff'].fillna(pd.Timedelta(seconds=9999))
+        survey_df['when_asked_diff'] = survey_df['when_asked_diff'].apply(lambda x: x.total_seconds())
+        survey_df['when_asked_diff'] = survey_df['when_asked_diff'].astype(int)
+        logging.debug(msg="survey_df['when_asked_diff'].value_counts(): \n{}".format(survey_df['when_asked_diff'].value_counts()))
+
+        # 9.3. if the time difference is less than 60 seconds, then merge the rows
+        survey_df['when_asked_diff'] = survey_df['when_asked_diff'].apply(lambda x: 0 if x < 60 else 1)
+
+        # 9.4. if the time difference is 0, then give the row a group number
+        survey_df['group_id'] = survey_df['when_asked_diff'].cumsum()
+
+        # 9.5. create a group size column to see how many rows are in each group
+        survey_df['group_size'] = survey_df.groupby(['user_id', 'question_text', 'group_id'])['group_id'].transform('size')
+
+        # 9.5. for the merging, sort the dataframe by answer_text, pageview_when_viewed, opened, received, sent, when_asked
+        survey_df = survey_df.sort_values(by=['answer_text', 'pageview_when_viewed', 'opened', 'received', 'sent', 'when_asked'])
+
+        # 9.6. follow the logic.
+        def pick_one_row(group_df, col_name):
+            if group_df.shape[0] == 1:
+                return group_df
+            indices = group_df[col_name].notna()
+            non_na_df = group_df[indices]
+            count = non_na_df.shape[0]
+            if count == 1:
+                return non_na_df
+            else:
+                return group_df
+        
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        col_name_list = [
+            'answer_text', 'pageview_when_viewed', 'opened', 'received', 'sent', 'when_asked'
+        ]
+
+        for col_name in col_name_list:
+            # separate out for the rows with group_size > 1
+            logging.info(msg="Separating out for the rows with group_size > 1. col_name: {}".format(col_name))
+            group_df = survey_df[survey_df['group_size'] > 1]
+            logging.info(msg="group_df.shape: {}".format(group_df.shape))
+
+            # prepare the ray objects vector
+            logging.info(msg="Merging the rows with the same user_id, question_text, and group_id. col_name: {}".format(col_name))
+            group_df = group_df.groupby(['user_id', 'question_text', 'group_id']).apply(lambda x: pick_one_row(x, col_name))
+            logging.info(msg="group_df.shape: {}".format(group_df.shape))
+
+            # merge the group_df with the survey_df
+            survey_df = pd.concat([survey_df[survey_df['group_size'] == 1], group_df], ignore_index=True)
+            logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+
+            # update the group_size column
+            survey_df['group_size'] = survey_df.groupby(['user_id', 'question_text', 'group_id'])['group_id'].transform('size')
+            logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+
+        def pick_first_row(group_df):
+            return group_df.iloc[0]
+        
+        logging.info(msg="Merging the rows with the same user_id, question_text, and group_id. col_name: {}".format(col_name))
+        group_df = survey_df[survey_df['group_size'] > 1]
+        logging.info(msg="group_df.shape: {}".format(group_df.shape))
+        group_df = group_df.groupby(['user_id', 'question_text', 'group_id']).apply(lambda x: pick_first_row(x))        
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+        survey_df = pd.concat([survey_df[survey_df['group_size'] == 1], group_df], ignore_index=True)
+
+        # update the group_size column
+        survey_df['group_size'] = survey_df.groupby(['user_id', 'question_text', 'group_id'])['group_id'].transform('size')
+        logging.info(msg="survey_df.shape: {}".format(survey_df.shape))
+
 
         # 8. reorder the columns
         logging.info(msg="Reordering the columns")
@@ -482,8 +656,26 @@ def transform_survey():
             'user_id', 'when_asked', 'when_asked_date_str', 'when_asked_time_str', 
             'question_name', 'question_text', 'question_order',
             'answer_text', 'answer_value', 'answer_order', 'kind', 
-            'survey_id', 'surveyquestion_id', 'surveyanswer_id', 'surveyresponse_id']]
+            'survey_id', 'surveyquestion_id', 'surveyanswer_id', 'surveyresponse_id', 
+            'when_sent', 'received', 'opened', 'engaged', 'pageview_when_viewed']]
         
+        # 9. convert string datetime columns to datetime
+        logging.info(msg="Converting string datetime columns to datetime")
+
+        time_cols = ['when_sent', 'received', 'opened', 'engaged', 'pageview_when_viewed']
+
+        def timediff(row):
+            for time_column in time_cols:
+                if pd.isnull(row[time_column]):
+                    continue
+                elif isinstance(row[time_column], str):
+                    row[time_column] = (dateparse(row[time_column]) - row['when_asked']).total_seconds()
+                else:
+                    row[time_column] = (row[time_column] - row['when_asked']).total_seconds()
+            return row
+
+        survey_df = survey_df.apply(timediff, axis=1)
+
         # 10. save the dataframe to the database
         logging.info(msg="Saving the dataframe to the database")
         collection_name = 'survey'
@@ -666,8 +858,7 @@ def copy_daily_ema():
         collection.bulk_write([
             UpdateOne(
                 filter={'user_id': row['user_id'], 'date_str': row['date_str']},
-                update={'$set': row.to_dict()},
-                upsert=True
+                update={'$set': row.to_dict()}
             ) for _, row in daily_ema_df.iterrows()
         ])
 
@@ -782,7 +973,7 @@ def transform_bout_planning_ema_decision():
         df_info(bpn_decision_df, name='bpn_decision_df')
 
         # 2.15. cast when_created_local_str to datetime
-        bpn_decision_df['when_created_local_dt'] = pd.to_datetime(bpn_decision_df['when_created_local_str'])
+        bpn_decision_df['when_created_local_dt'] = pd.to_datetime(bpn_decision_df['when_created_local_str'], format="mixed")
         df_info(bpn_decision_df, name='bpn_decision_df')
 
         # 2.16. cast the when_created_local_dt column to date_str column
@@ -803,48 +994,6 @@ def transform_bout_planning_ema_decision():
         
         # 2.20. group by user_id, date_str, hour_of_day, then count the number of decisions in each group
         bpn_decision_df['num_decisions'] = bpn_decision_df.groupby(['user_id', 'date_str', 'hour_of_day'])['decision_id'].transform('count')
-
-        # # 2.21. remove errorneous decisions
-        # # 2.21.0. define the function to find erroneous decisions
-        # @ray.remote
-        # def find_erroneous_decisions(group):
-        #     pass
-
-        # # 2.21.1. join the BPN decision data with the BPN survey data
-        # survey_id_list = bpn_survey_df['survey_id'].tolist()
-        
-        # # 2.21.1. traverse groups of user_id, date_str, hour_of_day
-        # user_id_date_hour_groups = bpn_decision_df.groupby(['user_id', 'date_str', 'hour_of_day'])  # group by user_id, date_str, hour_of_day
-        # future_list = []    # prepare the ray futures list
-
-        # # define the function to find erroneous decisions
-            
-            
-        #     # get the number of decisions in the group
-        #     num_decisions = group['num_decisions'].iloc[0]
-        #     # get the decision_id list
-        #     decision_id_list = group['decision_id'].tolist()
-        #     # get the erroneous decisions
-        #     erroneous_decisions = decision_id_list[num_decisions:]
-        #     return erroneous_decisions
-
-        # # 2.21.2. for each group, find the erroneous decisions
-        # for name, group in user_id_date_hour_groups:
-        #     # if the number of decisions in the group is 1, skip the group
-        #     if group.shape[0] == 1:
-        #         continue
-        #     else:
-        #         future_list.append(find_erroneous_decisions.remote(group))
-        
-        # # 2.21.3. get the list of erroneous decisions
-        # erroneous_decisions_list = ray.get(future_list)
-
-        # # 2.21.4. flatten the list of erroneous decisions
-        # erroneous_decisions_list = [item for sublist in erroneous_decisions_list for item in sublist]
-
-        # # 2.21.5. remove the erroneous decisions
-        # bpn_decision_df = bpn_decision_df[~bpn_decision_df['decision_id'].isin(erroneous_decisions_list)]
-        # df_info(bpn_decision_df, name='bpn_decision_df', save=True)
 
         # 2.23. calculate decision point index (0-based)
         bpn_decision_df['decision_point_index'] = bpn_decision_df.groupby(['user_id', 'date_str']).cumcount()
@@ -880,15 +1029,125 @@ def select_bout_planning_ema():
         # 2.2. Get the survey documents
         # BPN = Bout Planning Survey
         survey_collection = tdb[COLLECTION_SURVEY]
-        bpn_df = pd.DataFrame(survey_collection.find({
+        bpn_survey_df = pd.DataFrame(survey_collection.find({
             'question_name': 'Bout Planning Survey',
             'user_id': {'$in': participant_list}
         }, {'_id': 0}))
+        df_info(bpn_survey_df, name='bpn_survey_df')
+        bpn_survey_min_df = bpn_survey_df[['user_id', 'survey_id', 'when_asked']].copy()
+        
+        # 3. Find the corresponding BPN decision documents from COLLECTION_SURVEY_BOUT_PLANNING
+        logging.info(msg="Finding the corresponding BPN decision documents from COLLECTION_SURVEY_BOUT_PLANNING")
+        bpn_decision_collection = tdb[COLLECTION_SURVEY_BOUT_PLANNING_EMA]
+        bpn_decision_df = pd.DataFrame(bpn_decision_collection.find({
+            'user_id': {'$in': participant_list},
+            'return_bool': {'$in': ['t', 'f']}
+        }, {'_id': 0}))
+        df_info(bpn_decision_df, name='bpn_decision_df')
 
-        logging.info("survey_df.shape: {}".format(bpn_df.shape))
-        logging.debug("survey_df.columns: {}".format(bpn_df.columns))
-        logging.debug("survey_df.head(): \n{}".format(bpn_df.head()))
+        # 3.2. for the decision rows with 't', find the corresponding survey row
+        logging.info(msg="Finding the corresponding survey row for the decision rows with 't'")
+        bpn_decision_t_df = bpn_decision_df[bpn_decision_df['return_bool'] == 't']
 
+        def find_next_message(row, survey_df):
+            user_id = row['user_id']
+            when_created_local_dt = row['when_created_local_dt']
+            survey_df_user = survey_df[survey_df['user_id'] == user_id]
+            survey_df_user = survey_df_user[survey_df_user['when_asked'] > when_created_local_dt]
+            survey_df_user = survey_df_user.sort_values(by=['when_asked'], ascending=[True])
+
+            if survey_df_user.shape[0] > 0:
+                next_survey_when_asked = survey_df_user.iloc[0]['when_asked']
+                time_diff = (next_survey_when_asked - when_created_local_dt).total_seconds()
+                if time_diff < 90 * 60: # it allows the notifications to be sent within 90 minutes
+                    return survey_df_user.iloc[0]['survey_id']
+                else:
+                    return None
+            else:
+                return None
+
+        bpn_decision_t_df['survey_uuid'] = bpn_decision_t_df.apply(lambda x: find_next_message(x, bpn_survey_min_df), axis=1)
+
+        # copy the survey_uuid to the bpn_decision_df
+        bpn_decision_df = pd.merge(bpn_decision_df, bpn_decision_t_df[['user_id', 'when_created_local_dt', 'survey_uuid']], on=['user_id', 'when_created_local_dt'], how='left')
+        
+        # 3.6. join the next_survey_id column to the bpn_decision_df
+        logging.info(msg="Joining the next_survey_id column to the bpn_decision_df")   
+        bpn_survey_df.rename(columns={'survey_id': 'survey_uuid'}, inplace=True) 
+
+        bpn_decision_df = pd.merge(bpn_decision_df, bpn_survey_df, on=['survey_uuid', 'user_id'], how='left')
+        logging.info(msg="bpn_decision_df.shape: {}".format(bpn_decision_df.shape))
+        logging.debug(msg="bpn_decision_df.head(): \n{}".format(bpn_decision_df.head()))
+
+        # 3.7. remove the decisions caused by the system error
+        logging.info(msg="Removing the decisions caused by the system error")
+
+        # 3.7.1. calculate the time difference between the when_created_local_dt and the one before it
+        logging.info(msg="Calculating the time difference between the when_created_local_dt and the one before it")
+        bpn_decision_df.sort_values(by=['user_id', 'when_created_local_dt'], ascending=[True, True], inplace=True)
+        bpn_decision_df['time_diff'] = bpn_decision_df.groupby('user_id')['when_created_local_dt'].diff().dt.total_seconds()
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 3.7.2. group by user_id, then give the group id if the time_diff is greater than 90 minutes
+        logging.info(msg="Grouping by user_id, then give the group id if the time_diff is greater than 90 minutes")
+        bpn_decision_df['is_new_group'] = bpn_decision_df.groupby('user_id')['time_diff'].transform(lambda x: x > 90 * 60)
+        bpn_decision_df['group_id'] = bpn_decision_df.groupby('user_id')['is_new_group'].cumsum()
+        bpn_decision_df['group_size'] = bpn_decision_df.groupby(['user_id', 'group_id'])['group_id'].transform('count')
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 3.7.3. remove the decisions caused by the system error
+        logging.info(msg="Removing the decisions caused by the system error")
+        def pick_one_row(group_df):
+            total_count = group_df.shape[0]
+
+            viewed_count = group_df[group_df['pageview_when_viewed'].notnull()].shape[0]
+            sent_count = group_df[group_df['when_sent'].notnull()].shape[0]
+
+            if viewed_count == 1:
+                return group_df[group_df['pageview_when_viewed'].notnull()].iloc[0]
+            elif viewed_count > 1:
+                if sent_count == 1:
+                    return group_df[group_df['when_sent'].notnull()].iloc[0]
+                else:
+                    return group_df[group_df['when_sent'].notnull()].iloc[0]
+            else:
+                return group_df.iloc[0]
+        
+        bpn_decision_dup_df = bpn_decision_df[bpn_decision_df['group_size'] > 1]
+        bpn_decision_dup_df = bpn_decision_dup_df.groupby(['user_id', 'group_id']).apply(pick_one_row)
+        bpn_decision_dup_df.reset_index(drop=True, inplace=True)
+        df_info(bpn_decision_dup_df, name='bpn_decision_dup_df')
+
+        bpn_decision_df = pd.concat([bpn_decision_df[bpn_decision_df['group_size'] == 1], bpn_decision_dup_df], ignore_index=True)
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 3.7. selecting the columns and rename them
+        logging.info(msg="Selecting the columns and rename them")
+        bpn_decision_df.rename(columns={
+            'when_created_local_dt': 'when_decided_local_dt',
+            'when_created_local_str': 'when_decided_local_str',
+            'when_asked': 'when_notification_sent_dt',
+            'when_asked_date_str': 'when_notification_sent_date_str',
+            'when_asked_time_str': 'when_notification_sent_time_str'
+        }, inplace=True)
+        # bpn_decision_df = bpn_decision_df[[
+        #     'user_id', 'survey_id', 
+        #     'when_decided_local_dt', 'when_decided_local_str', 'when_notification_sent_dt', 'when_notification_sent_date_str', 'when_notification_sent_time_str', 
+        #     'return_bool', 'survey_uuid', 'question_text', 'answer_value'
+        #     ]]
+
+        # 3.8. replace NaN with None
+        logging.info(msg="Replacing NaN with an empty string")
+        bpn_decision_df['when_notification_sent_dt'] = bpn_decision_df['when_notification_sent_dt'].astype(object).where(bpn_decision_df['when_notification_sent_dt'].notnull(), None)
+        bpn_decision_df['when_decided_local_dt'] = bpn_decision_df['when_decided_local_dt'].astype(object).where(bpn_decision_df['when_decided_local_dt'].notnull(), None)
+        df_info(bpn_decision_df, name='bpn_decision_df')
+
+        # 4. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection = tdb[collection_name]
+        collection.delete_many({})
+        collection.insert_many(bpn_decision_df.to_dict('records'))
+        logging.info(msg="Finished select_bout_planning_ema()")
         
 
 def fill_daily_nans():
@@ -929,3 +1188,94 @@ def fill_daily_nans():
                 }}
             ) for index, row in daily_df.iterrows()
         ])
+
+def aggregate_bout_planning_ema():
+    if (COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS) and (COLLECTION_SURVEY_BOUT_PLANNING_EMA in SETTINGS_REFRESH_COLLECTIONS):
+        logging.info(msg="Starting aggregate_bout_planning_ema()")
+        # 1. connect to the database
+        # create a client instance of the MongoClient class
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+        collection_name = COLLECTION_DAILY
+
+        # 2. fetch the current daily collection
+        logging.info(msg="Fetching the current daily collection")
+        daily_collection = tdb[collection_name]
+        daily_df = pd.DataFrame(daily_collection.find({}, {'_id': 0}))
+        df_info(daily_df, name='daily_df')
+
+        # 3. fetch the current bout_planning_ema collection
+        logging.info(msg="Fetching the current bout_planning_ema collection")
+        collection_name = COLLECTION_SURVEY_BOUT_PLANNING_EMA
+        bpn_ema_collection = tdb[collection_name]
+        bpn_ema_df = pd.DataFrame(bpn_ema_collection.find({}, {'_id': 0}))
+        df_info(bpn_ema_df, name='bpn_ema_df')
+
+        # 4. count the total number of bout planning decisions and opened ones per user per day
+        # 4.1. filter the bpn_ema_df to only include the rows with return_bool == 't'
+        logging.info(msg="Counting the total number of bout planning decisions and opened ones per user per day")
+        bpn_ema_df = bpn_ema_df[bpn_ema_df['return_bool'].isin(['t'])]
+
+        # 4.2. group by user_id, date_str, then count the number of decisions in each group
+        bpn_ema_df = bpn_ema_df[['user_id', 'date_str', 'opened', 'pageview_when_viewed']]
+        bpn_ema_df['sent'] = 1
+
+        # 4.3. mutate the opened column to 1 if opened > 0, otherwise 0
+        bpn_ema_df['opened'] = bpn_ema_df['opened'].apply(lambda x: 1 if x > 0 else 0)
+
+        # 4.4. create the viewed column to 1 if pageview_when_viewed is not null, otherwise 0
+        bpn_ema_df['viewed'] = bpn_ema_df['pageview_when_viewed'].apply(lambda x: 1 if x is not None else 0)
+
+        # 4.5 remove the pageview_when_viewed column
+        bpn_ema_df.drop(columns=['pageview_when_viewed'], inplace=True)
+
+        # 4.6. group by user_id, date_str, then sum the opened and viewed columns
+        bpn_ema_df = bpn_ema_df.groupby(['user_id', 'date_str']).sum().reset_index()
+        df_info(bpn_ema_df, name='bpn_ema_df')
+
+        # 5. join the bpn_ema_df to the daily_df
+        logging.info(msg="Joining the bpn_ema_df to the daily_df")
+        daily_df = pd.merge(daily_df, bpn_ema_df, on=['user_id', 'date_str'], how='left')
+        df_info(daily_df, name='daily_df')
+
+        # 6. fill the NaNs with 0
+        logging.info(msg="Filling the NaNs with 0")
+        daily_df['sent'] = daily_df['sent'].fillna(0)
+        daily_df['opened'] = daily_df['opened'].fillna(0)
+        daily_df['viewed'] = daily_df['viewed'].fillna(0)
+        df_info(daily_df, name='daily_df')
+
+        # 6. save the dataframe to the database
+        logging.info(msg="Saving the dataframe to the database")
+        collection_name = COLLECTION_DAILY
+        collection = tdb[collection_name]
+
+        collection.bulk_write([
+            UpdateOne(
+                {'user_id': row['user_id'], 'date_str': row['date_str']},
+                {'$set': {
+                    'num_sent': row['sent'],
+                    'num_opened': row['opened'],
+                    'num_viewed': row['viewed']
+                }}
+            ) for index, row in daily_df.iterrows()
+        ])
+
+
+
+        
+
+def transform_message():
+    if COLLECTION_MESSAGE in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info(msg="Starting transform_message()")
+        # 1. connect to the database
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        # 2. load the message data
+        logging.info(msg="Loading the message data")
+
+        # 2.1. load participant list
+        participant_list = get_participant_list()
+
+        # 2.2. load the message data
+        collection_name = 'message_message'

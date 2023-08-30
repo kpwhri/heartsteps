@@ -133,6 +133,47 @@ def draw_distribution_heatmap(df, index, values, xlabel, ylabel, legend_title, f
     plt.close()
     return figure_filepath
 
+def draw_scatterplot(df, x, y, xlabel, ylabel, figure_name, output_dir, regline=False, x_jitter=0, y_jitter=0, size=0.5) -> str:
+    """
+    Draw a scatterplot of the given dataframe
+
+    :param df: dataframe
+    :param x: x column name
+    :param y: y column name
+    :param xlabel: x label
+    :param ylabel: y label
+    :param legend_title: legend title
+    :param figure_name: figure name
+    :param output_dir: output directory
+    :return: figure path
+    """
+    # Create a figure
+    plt.figure(figsize=(10, 5))
+
+    if regline:
+        # Draw a scatterplot with a jitter and a regression line
+        ax = sns.regplot(x=x, y=y, data=df, x_jitter=x_jitter, y_jitter=y_jitter)
+    else:
+        def jitter(x, jitter_amount):
+            return x + np.random.uniform(-jitter_amount, jitter_amount, len(x))
+        nx = jitter(df[x], x_jitter)
+        ny = jitter(df[y], y_jitter)
+        # draw a scatterplot with a jitter, and a size of 0.1
+        ax = sns.scatterplot(x=nx, y=ny, data=df, s=size)
+    
+    # Add title, legend and labels
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    # Save heatmap to file
+    figure_filepath = get_uuid4_filename(figure_name, output_dir)
+    plt.savefig(figure_filepath, bbox_inches='tight', dpi=200)
+
+    # Close the figure
+    plt.close()
+    return figure_filepath
+
+
 def draw_sorted_bars(df, 
                     index, 
                     values, 

@@ -3,6 +3,7 @@ COLLECTION_DAILY = 'daily'
 COLLECTION_MINUTE_STEP = 'minute_step'
 COLLECTION_MINUTE_HEART_RATE = 'minute_heart_rate'
 
+COLLECTION_MESSAGE = 'message'
 COLLECTION_SURVEY = 'survey'
 COLLECTION_SURVEY_DAILY_EMA = 'survey_daily_ema'
 COLLECTION_SURVEY_BOUT_PLANNING_EMA = 'survey_bout_planning_ema'

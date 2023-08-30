@@ -94,3 +94,5 @@ server/justwalk.env
 
 db_dump/output
 db_dump/*/config.ini
+bpn_decision_df.csv
+survey_df.csv

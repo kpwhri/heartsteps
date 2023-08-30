@@ -1,7 +1,11 @@
+import logging
 from operations import *
 import ray
 
 if __name__ == '__main__':
+    # set logging level to INFO
+    logging.basicConfig(level=logging.INFO)
+
     # Initialize Ray
     ray.init()
     
@@ -31,12 +35,18 @@ if __name__ == '__main__':
 
     # copy the daily EMAs to the daily collection
     copy_daily_ema()
-
+    
     # load the bout planning notification decision data
     transform_bout_planning_ema_decision()
 
     # select the bout planning notifications
     select_bout_planning_ema()
+
+    # aggregate the bout planning notification statistics
+    aggregate_bout_planning_ema()
+    
+    # load the message and message receipt collections
+    transform_message()
 
     # Fill out NaNs in the daily collection
     fill_daily_nans()
