@@ -186,10 +186,10 @@ def transform_daily():
         # insert the data into the database
         daily_collection.insert_many(daily.to_dict('records'))
 
-        # # create index for user_id and date_str
-        # if 'user_id_date_str_unique_index' not in daily_collection.index_information():
-        #     logging.info("Create index for user_id and date_str")
-        #     daily_collection.create_index([('user_id', pymongo.ASCENDING), ('date_str', pymongo.ASCENDING)], unique=True, name='user_id_date_str_unique_index', background=True)
+        # create index for user_id and date_str
+        if 'user_id_date_str_unique_index' not in daily_collection.index_information():
+            logging.info("Create index for user_id and date_str")
+            daily_collection.create_index([('user_id', pymongo.ASCENDING), ('date_str', pymongo.ASCENDING)], unique=True, name='user_id_date_str_unique_index', background=True)
     else:
         logging.info("Daily data is already loaded, skip the loading process.")
 
@@ -251,6 +251,18 @@ def add_baseline_and_intervention_dates():
                     'baseline_intervention_diff': baseline_intervention_diff,
                     'baseline_study_diff': baseline_study_diff
                 }})
+
+            # add day_index column to the daily_df
+            daily_df['day_index'] = (daily_df['date_str'].apply(dateparse) - intervention_start_date_dt).dt.days
+
+            # update the daily collection with the day_index
+            logging.info("Update the daily collection with the day_index")
+            daily_collection.bulk_write([
+                UpdateOne(
+                    {'user_id': study_id, 'date_str': row['date_str']},
+                    {'$set': {'day_index': row['day_index']}}
+                ) for i, row in daily_df.iterrows()
+            ])
     else:
         logging.info("Baseline and intervention dates are already added, skip the adding process.")
 
