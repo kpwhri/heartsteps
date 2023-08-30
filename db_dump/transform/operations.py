@@ -196,6 +196,7 @@ def transform_daily():
 def add_baseline_and_intervention_dates():
     # this function adds 1) baseline_start_date, 2) intervention_start_date, 3) intervention_finish_date to the participants collection
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
+        logging.info("Starting add_baseline_and_intervention_dates()")
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
         tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
@@ -204,7 +205,6 @@ def add_baseline_and_intervention_dates():
         participant_list = get_participant_list()
 
         for study_id in participant_list:
-            print("study_id: {}".format(study_id))
             # get all the dates from the daily collection
             daily_collection = tdb['daily']
             daily_df = pd.DataFrame(daily_collection.find({'user_id': study_id}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'level_str': 1, 'level_int': 1, 'step_goal': 1}, sort=[('date_str', pymongo.ASCENDING)]))
@@ -216,28 +216,23 @@ def add_baseline_and_intervention_dates():
 
             # find the first date with step_goal given
             baseline_start_date = daily_df.loc[daily_df['step_goal'].notnull(), 'date_str'].iloc[0]
-            print("baseline_start_date: {}".format(baseline_start_date))
-
+            
             # find the first date with level_int >= 1
             # if any of the 'level_int' is >= 1, then the intervention_start_date is the first date with level_int >= 1. otherwise, the intervention_start_date should be set as None
             if daily_df['level_int'].max() >= 1:
                 intervention_start_date = daily_df.loc[daily_df['level_int'] >= 1, 'date_str'].iloc[0]
-                print("intervention_start_date: {}".format(intervention_start_date))
                 # set the intervention_finish_date as the last date with the intervention_start_date + 260 days
                 intervention_finish_date = (dateparse(intervention_start_date) + datetime.timedelta(days=260)).strftime('%Y-%m-%d')
-                print("intervention_finish_date: {}".format(intervention_finish_date))
-
+            
                 # find the difference between the intervention_start_date and baseline_start_date
                 baseline_start_date_dt = dateparse(baseline_start_date)
                 intervention_start_date_dt = dateparse(intervention_start_date)
                 baseline_intervention_diff = (intervention_start_date_dt - baseline_start_date_dt).days
-                print("baseline_intervention_diff: {}".format(baseline_intervention_diff))
-
+            
                 # find the difference between the baseline_start_date and study_start_date
                 study_start_date = participant_dict['study_start_date']
                 study_start_date_dt = dateparse(study_start_date)
                 baseline_study_diff = (baseline_start_date_dt - study_start_date_dt).days
-                print("baseline_study_diff: {}".format(baseline_study_diff))
             else:
                 intervention_start_date = None
                 intervention_finish_date = None
@@ -256,7 +251,6 @@ def add_baseline_and_intervention_dates():
             daily_df['day_index'] = (daily_df['date_str'].apply(dateparse) - intervention_start_date_dt).dt.days
 
             # update the daily collection with the day_index
-            logging.info("Update the daily collection with the day_index")
             daily_collection.bulk_write([
                 UpdateOne(
                     {'user_id': study_id, 'date_str': row['date_str']},
@@ -266,6 +260,18 @@ def add_baseline_and_intervention_dates():
     else:
         logging.info("Baseline and intervention dates are already added, skip the adding process.")
 
+def drop_dates_after_intervention_finish_date():
+    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
+        # create a client instance of the MongoClient class
+        db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
+
+        daily_collection = tdb['daily']
+
+        daily_collection.delete_many({"day_index": {"$gt": 260}})
+        logging.info("Finished dropping the dates after the intervention finish date.")
+    else:
+        logging.info("Dates after the intervention finish date are already dropped, skip the dropping process.")
 
 def transform_minute_step():
     if COLLECTION_MINUTE_STEP in SETTINGS_REFRESH_COLLECTIONS:

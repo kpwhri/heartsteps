@@ -18,6 +18,9 @@ if __name__ == '__main__':
     # add 1) baseline_start_date, 2) intervention_start_date, 3) intervention_finish_date to the participants collection
     add_baseline_and_intervention_dates()
 
+    # drop the dates after the intervention finish date
+    drop_dates_after_intervention_finish_date()
+
     # # Load the minute_step collection (usually takes 50 seconds)
     # transform_minute_step()
 
