@@ -1,5 +1,7 @@
+from geopy.geocoders import Nominatim
+from geopy import distance
 from config import SETTINGS_REFRESH_COLLECTIONS, MONGO_DB_URI_SOURCE, MONGO_DB_URI_DESTINATION
-from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list, df_info
+from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list, df_info, get_weather_observations_df_for_station
 from constants import *
 from tqdm import tqdm
 import os
@@ -17,6 +19,8 @@ from pymongo import UpdateOne, InsertOne
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+import geopy
 
 def transform_participants():
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
@@ -647,6 +651,155 @@ def add_zip_codes():
                 {'$set': {'zipcode': row['zipcode']}}
             ) for i, row in zipcode_df.iterrows()
         ])
+
+def add_weather():
+    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
+        weather_path = 'db_dump/data/weather/weather.csv'
+        if not os.path.exists(weather_path):
+            # we should fetch the weather data from the NOAA
+            print("Weather file is not found. Trying to fetch the data from NCEI.")
+            
+            def geocode_zipcode(zipcode: str):
+                def __geocode_zipcode(zipcode: str):
+                    def get_geolocator_client():
+                        return Nominatim(user_agent="justwalk_ucsd_edu")
+
+                    geolocator = get_geolocator_client()
+                    location = geolocator.geocode(zipcode, country_codes="US")
+
+                    return location[-1][0], location[-1][1]
+
+                latitude, longitude = __geocode_zipcode(zipcode)
+                print("Geocoding zipcode {} to {}, {}".format(zipcode, latitude, longitude))
+
+                return latitude, longitude
+
+
+            # list up all zipcodes
+            db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+
+            zipcode_latlon_csv_path = 'db_dump/data/zipcode/zipcode_latlon.csv'
+            if os.path.exists(zipcode_latlon_csv_path):
+                zipcode_df = pd.read_csv(zipcode_latlon_csv_path, dtype={'zipcode': str})
+                zipcode_list = zipcode_df['zipcode'].tolist()
+            else:
+                participants_collection = db['participants']
+                zipcode_list = participants_collection.distinct('zipcode')
+
+                # pad the zipcode with 0s while casting integers to string
+                zipcode_list = [str(x).zfill(5) for x in zipcode_list]
+
+                
+                
+                zipcode_df = pd.DataFrame(columns=['zipcode', 'latitude', 'longitude'])
+                for zipcode in zipcode_list:
+                    latitude, longitude = geocode_zipcode(zipcode)
+                    zipcode_df = pd.concat([zipcode_df, pd.DataFrame({'zipcode': [zipcode], 'latitude': [latitude], 'longitude': [longitude]})], ignore_index=True)
+                
+            ncei_station_filename = 'db_dump/data/zipcode/weather.ncei_stations.csv'
+            ncei_station_df = pd.read_csv(ncei_station_filename, dtype={'station_id': str})
+
+            def get_closest_stations(ncei_station_df, latitude, longitude, n=10):
+                distance_df = pd.DataFrame(columns=['station_id', 'distance'])
+                for i, row in ncei_station_df.iterrows():
+                    distance = geopy.distance.distance((latitude, longitude), (row['latitude'], row['longitude'])).km
+                    distance_df = pd.concat([distance_df, pd.DataFrame({'station_id': [row['station_id']], 'distance': [distance]})], ignore_index=True)
+
+                distance_df = distance_df.sort_values(by=['distance'], ascending=True)
+                return distance_df.iloc[:n, :].copy()
+            
+            def get_weather_station_df(zipcode):
+                latitude, longitude = geocode_zipcode(zipcode)
+                closest_stations_df = get_closest_stations(ncei_station_df, latitude, longitude, n=10)
+                closest_stations_df = closest_stations_df.merge(ncei_station_df, on=['station_id'], how='left')
+                closest_stations_df['zipcode'] = zipcode
+
+                return closest_stations_df[['zipcode', 'station_id', 'latitude', 'longitude']].copy()
+            
+            def get_weather_observations_df(zipcode, start_date, end_date):
+                latitude, longitude = geocode_zipcode(zipcode)
+                closest_stations_df = get_closest_stations(ncei_station_df, latitude, longitude, n=10)
+                closest_stations_df = closest_stations_df.merge(ncei_station_df, on=['station_id'], how='left')
+                closest_stations_df['zipcode'] = zipcode
+
+                # fetch the weather data from the NOAA
+                df = pd.DataFrame()
+                for i, row in closest_stations_df.iterrows():
+                    print("Fetching the weather data for station_id: {}".format(row['station_id']))
+                    df = pd.concat([df, get_weather_observations_df_for_station(row['station_id'], start_date, end_date)], ignore_index=True)
+                
+                return df
+
+
+
+            # search the weather station for each zipcode
+            weather_station_df_filepath = 'db_dump/data/zipcode/weather_station_df.csv'
+            if os.path.exists(weather_station_df_filepath):
+                weather_station_df = pd.read_csv(weather_station_df_filepath, dtype={'zipcode': str, 'station_id': str})
+            else:
+                weather_station_df = pd.DataFrame(columns=['zipcode', 'station_id', 'latitude', 'longitude'])
+                for zipcode in zipcode_list:
+                    print("Searching the weather station for zipcode: {}".format(zipcode))
+                    station_df = get_weather_station_df(zipcode)
+                    if station_df is not None:
+                        weather_station_df = pd.concat([weather_station_df, station_df], ignore_index=True)
+                weather_station_df.to_csv(weather_station_df_filepath, index=False)
+            
+            station_list = weather_station_df['station_id'].unique().tolist()
+
+            weather_raw_df_filepath = 'db_dump/data/weather/weather_raw_df.csv'
+            if os.path.exists(weather_raw_df_filepath):
+                weather_raw_df = pd.read_csv(weather_raw_df_filepath, dtype={'station_id': str})
+            else:
+                weather_raw_df = pd.DataFrame()
+                start_date = '2022-04-01'
+                end_date = '2023-05-15'
+                for station_id in station_list:
+                    weather_raw_df = pd.concat([weather_raw_df, get_weather_observations_df_for_station(station_id, start_date, end_date)], ignore_index=True)
+                weather_raw_df.to_csv(weather_raw_df_filepath, index=False)
+                
+            # using weather_station_df and weather_raw_df, create the weather_df. Take an average for each zipcode across the stations
+            weather_df_filepath = 'db_dump/data/weather/weather_df.csv'
+            if os.path.exists(weather_df_filepath):
+                weather_df = pd.read_csv(weather_df_filepath, dtype={'zipcode': str})
+            else:
+                # rename weather_raw_df column: STATION -> station_id
+                weather_raw_df = weather_raw_df.rename(columns={'STATION': 'station_id', 'DATE': 'date_str'})
+                # add "GHCND:" to the station_id of weather_raw_df
+                weather_raw_df['station_id'] = 'GHCND:' + weather_raw_df['station_id']
+                # merge weather_raw_df with weather_station_df
+                weather_df = pd.merge(weather_raw_df, weather_station_df, on=['station_id'], how='inner')
+                weather_df = weather_df[['zipcode', 'date_str', 'TMAX', 'TMIN', 'AWND', 'PRCP']].copy()
+                weather_df = weather_df.groupby(['zipcode', 'date_str']).mean().reset_index()
+                weather_df.to_csv(weather_df_filepath, index=False)
+            
+            participants_df = pd.DataFrame(db.participants.find({}, {'_id': 0, 'user_id': 1, 'zipcode': 1}))
+            # convert the zipcode to string
+            participants_df['zipcode'] = participants_df['zipcode'].astype(str)
+            # pad the zipcode with 0s while casting integers to string
+            participants_df['zipcode'] = participants_df['zipcode'].apply(lambda x: x.zfill(5))
+
+            weather_df = pd.merge(weather_df, participants_df, on=['zipcode'], how='inner')
+
+            # fill the missing AWND and PRCP with 0
+            weather_df['AWND'] = weather_df['AWND'].fillna(0)
+            weather_df['PRCP'] = weather_df['PRCP'].fillna(0)
+            
+            daily_df = pd.DataFrame(db.daily.find({}, {'_id': 0, 'user_id': 1, 'date_str': 1}))
+            daily_df = pd.merge(daily_df, weather_df, on=['user_id', 'date_str'], how='left')
+
+            daily_collection = db['daily']
+            daily_collection.bulk_write([
+                UpdateOne(
+                    {'user_id': row['user_id'], 'date_str': row['date_str']},
+                    {'$set': {
+                        'tmax': row['TMAX'],
+                        'tmin': row['TMIN'],
+                        'awnd': row['AWND'],
+                        'prcp': row['PRCP']
+                    }}
+                ) for i, row in daily_df.iterrows()
+            ])
 
 
 def copy_daily_steps_and_heart_rate():
