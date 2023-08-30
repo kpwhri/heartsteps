@@ -620,9 +620,35 @@ def transform_minute_heart_rate():
             UpdateOne(
                 {'user_id': row['user_id'], 'date_str': row['date_str']},
                 {'$set': {'wearing_minutes': row['wearing_minutes']}}
-            ) for i, row in minute_agg_step_df.iterrows()
+            ) for i, row in minute_agg_heart_rate_df.iterrows()
         ])
+
+def add_zip_codes():
+    zipcode_csv_path = 'db_dump/data/zipcode/zipcode.csv'
+    if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS and os.path.exists(zipcode_csv_path):
+        print("Zipcode file is found. Trying to import the data.")
+
+        # create a client instance of the MongoClient class
+        db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+
+        # load up the csv file
+        zipcode_df = pd.read_csv(zipcode_csv_path, dtype={'zip': str})
+
+        # check if the participants collection has the heartsteps_id index
+        if 'heartsteps_id_unique_index' not in db.participants.index_information():
+            logging.info("Create index for heartsteps_id")
+            db.participants.create_index([('heartsteps_id', pymongo.ASCENDING)], unique=True, name='heartsteps_id_unique_index', background=True)
         
+        # update the participants collection with the zip code
+        participants_collection = db['participants']
+        participants_collection.bulk_write([
+            UpdateOne(
+                {'heartsteps_id': row['heartsteps_id']},
+                {'$set': {'zipcode': row['zipcode']}}
+            ) for i, row in zipcode_df.iterrows()
+        ])
+
+
 def copy_daily_steps_and_heart_rate():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         logging.info(msg="Starting copy_daily_steps_and_heart_rate()")

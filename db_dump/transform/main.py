@@ -27,6 +27,9 @@ if __name__ == '__main__':
     # Load the minute_heart_rate collection (usually takes 4 minutes)
     transform_minute_heart_rate()
 
+    # Add the participant zip codes
+    add_zip_codes()
+
     # # Copy the daily steps and heart rate aggregated data to the daily collection
     # copy_daily_steps_and_heart_rate()
 
