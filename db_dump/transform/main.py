@@ -30,6 +30,9 @@ if __name__ == '__main__':
     # Add the participant zip codes
     add_zip_codes()
 
+    # add the weather
+    add_weather()
+
     # # Copy the daily steps and heart rate aggregated data to the daily collection
     # copy_daily_steps_and_heart_rate()
 
