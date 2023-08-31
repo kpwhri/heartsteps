@@ -35,11 +35,9 @@ def form_the_presentation(filename_dict):
     steps_section.add_slide('Steps Distribution', filename_dict['steps_distribution'], note='* Note: steps are capped at 20,000')
 
     heart_rates_section = daily_section.add_section('Heart Rates')
-    heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time_pct'])
+    heart_rates_section.add_slide('Wear Time Percentage', filename_dict['wearing_time'])
     heart_rates_section.add_slide('# of Days with >60% Wear Time (Sorted)', filename_dict['wearing_time_sorted_bars'])
-    heart_rates_section.add_slide('Heart Rate Variability', filename_dict['heart_rates_hrv'], note='* Note: heart rate variability is capped at 300')
-    heart_rates_section.add_slide('Heart Rate Variability Distribution', filename_dict['heart_rates_hrv_distribution'], note='* Note: heart rate variability is capped at 300')
-
+    
     survey_section = daily_section.add_section('Survey')
     survey_section.add_slide('Daily EMA', filename_dict['survey_daily_ema'])
     survey_section.add_slide('# of Days with answered daily EMA (Sorted)', filename_dict['survey_daily_ema_sorted_bars'])
@@ -189,64 +187,8 @@ def draw_steps_distribution_heatmap():
 
     return figure_path
 
-def draw_heart_rate_hrv_heatmap():
-    # Default Visualization Parameters
-    cm_name = 'coolwarm'
-    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
 
-    # get the database
-    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
-    daily = pd.DataFrame(list(db['daily'].find()))
-
-    # draw a heatmap of the heart rate variability
-    hrv_df = get_intervention_daily_df(daily)
-
-    # cap the heart rate variability at 300
-    hrv_df.loc[hrv_df['heart_rate_stdev'] > 300, 'heart_rate_stdev'] = 300
-
-    figure_hrv = draw_heatmap(hrv_df, 
-                                index='day_index', 
-                                columns='user_id', 
-                                values='heart_rate_stdev', 
-                                legend_labels=None, 
-                                xlabel='User ID', 
-                                ylabel='Day Index', 
-                                legend_title='Heart Rate Variability (HRV)', 
-                                figure_name='heart_rates_hrv.png', 
-                                output_dir=output_dir)
-
-    return figure_hrv
-
-def draw_heart_rate_hrv_distribution_heatmap():
-    # Default Visualization Parameters
-    cm_name = 'coolwarm'
-    output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
-
-    # get the database
-    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk')
-    daily = pd.DataFrame(list(db['daily'].find()))
-
-    # draw a heatmap of the heart rate variability
-    hrv_df = get_intervention_daily_df(daily)
-
-    # cap the heart rate variability at 300
-    hrv_df.loc[hrv_df['heart_rate_stdev'] > 300, 'heart_rate_stdev'] = 300
-
-    # draw a heatmap of the heart rate variability distribution
-    figure_path = draw_distribution_heatmap(
-                                hrv_df, 
-                                index='user_id', 
-                                values='heart_rate_stdev', 
-                                xlabel='User ID', 
-                                ylabel='Heart Rate Variability (HRV)', 
-                                legend_title='Heart Rate Variability (HRV)', 
-                                figure_name='heart_rates_hrv_distribution.png', 
-                                n=20,
-                                output_dir=output_dir)
-
-    return figure_path
-
-def draw_wearing_time_pct_heatmap():
+def draw_wearing_time_heatmap():
     # Default Visualization Parameters
     cm_name = 'coolwarm'
     output_dir = os.path.join(os.getcwd(), SETTINGS_OUTPUT_DIR)
@@ -258,18 +200,16 @@ def draw_wearing_time_pct_heatmap():
     # draw a heatmap of the wearing time percentage
     wearing_time_pct_df = get_intervention_daily_df(daily)
 
-    # convert to percentage
-    wearing_time_pct_df['wearing_pct'] = wearing_time_pct_df['wearing_pct'] * 100
 
     figure_wearing_time_pct = draw_heatmap(wearing_time_pct_df, 
                                 index='day_index', 
                                 columns='user_id', 
-                                values='wearing_pct', 
+                                values='wearing_minutes', 
                                 legend_labels=None, 
                                 xlabel='User ID', 
                                 ylabel='Day Index', 
-                                legend_title='Wearing Time Percentage', 
-                                figure_name='wearing_time_pct.png', 
+                                legend_title='Wearing Minutes', 
+                                figure_name='wearing_time.png', 
                                 output_dir=output_dir)
 
     return figure_wearing_time_pct
@@ -286,18 +226,15 @@ def draw_wearing_time_sorted_bars():
     # draw a heatmap of the wearing time percentage
     wearing_time_pct_df = get_intervention_daily_df(daily)
 
-    # convert to percentage
-    wearing_time_pct_df['wearing_pct'] = wearing_time_pct_df['wearing_pct'] * 100
-
     # create a data frame with the count of days with over 60% wearing time
-    agg_wearing_time_pct_df = wearing_time_pct_df.groupby('user_id').agg({'wearing_pct': lambda x: (x > 60).sum()})
+    agg_wearing_time_pct_df = wearing_time_pct_df.groupby('user_id').agg({'wearing_minutes': lambda x: (x > 0.6*1440).sum()})
     agg_wearing_time_pct_df = agg_wearing_time_pct_df.reset_index()
 
     # sort the data frame by the count of days with over 60% wearing time
-    agg_wearing_time_pct_df = agg_wearing_time_pct_df.sort_values(by='wearing_pct', ascending=False)
+    agg_wearing_time_pct_df = agg_wearing_time_pct_df.sort_values(by='wearing_minutes', ascending=False)
 
     # rename the column
-    agg_wearing_time_pct_df = agg_wearing_time_pct_df.rename(columns={'wearing_pct': 'days_over60'})
+    agg_wearing_time_pct_df = agg_wearing_time_pct_df.rename(columns={'wearing_minutes': 'days_over60'})
     
     # 6. draw a bar chart of the wearing time percentage
     figure_wearing_time_sorted = draw_sorted_bars(agg_wearing_time_pct_df, 

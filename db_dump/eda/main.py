@@ -22,12 +22,8 @@ if __name__ == '__main__':
     filename_dict['steps_distribution'] = draw_steps_distribution_heatmap()
 
     # Draw the wearing time heatmap
-    filename_dict['wearing_time_pct'] = draw_wearing_time_pct_heatmap()
+    filename_dict['wearing_time'] = draw_wearing_time_heatmap()
     filename_dict['wearing_time_sorted_bars'] = draw_wearing_time_sorted_bars()
-
-    # Draw the heart rate heatmap
-    filename_dict['heart_rates_hrv'] = draw_heart_rate_hrv_heatmap()
-    filename_dict['heart_rates_hrv_distribution'] = draw_heart_rate_hrv_distribution_heatmap()
 
     # Draw the survey daily ema heatmap
     filename_dict['survey_daily_ema'] = draw_survey_daily_ema_heatmap()

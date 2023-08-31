@@ -27,7 +27,8 @@ def get_intervention_daily_df(original):
     :param original: the original dataframe
     :return: the intervention daily dataframe
     """
-    new_df = original.query('day_index >= 10 and day_index <= 252').copy()
+    # new_df = original.query('day_index >= 10 and day_index <= 252').copy()
+    new_df = original.copy()
     new_df['day_index'] = new_df['day_index'].astype(int, errors='ignore')
     new_df['level_int'] = new_df['level_int'].astype(int, errors='ignore')
     return new_df
