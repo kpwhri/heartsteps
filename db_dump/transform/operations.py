@@ -272,7 +272,7 @@ def drop_dates_after_intervention_finish_date():
 
         daily_collection = tdb['daily']
 
-        daily_collection.delete_many({"day_index": {"$gt": 260}})
+        daily_collection.delete_many({"day_index": {"$gt": 259}})
         logging.info("Finished dropping the dates after the intervention finish date.")
     else:
         logging.info("Dates after the intervention finish date are already dropped, skip the dropping process.")
