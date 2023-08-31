@@ -1,4 +1,4 @@
-from config import MONGO_DB_URI_DESTINATION
+from config import MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME
 from pymongo import MongoClient
 import pandas as pd
 import logging
@@ -10,7 +10,7 @@ def get_database(uri:str, database_name:str):
     return client[database_name]
 
 def get_participant_list():
-    db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+    db = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
     participants = db['participants']
     return list(participants.distinct(key='user_id'))
 

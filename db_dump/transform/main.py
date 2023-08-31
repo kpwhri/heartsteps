@@ -33,32 +33,26 @@ if __name__ == '__main__':
     # add the weather
     add_weather()
 
-    # # Copy the daily steps and heart rate aggregated data to the daily collection
-    # copy_daily_steps_and_heart_rate()
+    # Load the notification collection
+    transform_survey()
 
-    # # Load the notification collection
-    # transform_survey()
+    # Select the daily EMAs
+    select_daily_ema()
 
-    # # Select the daily EMAs
-    # select_daily_ema()
+    # Widen the daily EMAs
+    widen_daily_ema()
 
-    # # Widen the daily EMAs
-    # widen_daily_ema()
-
-    # # copy the daily EMAs to the daily collection
-    # copy_daily_ema()
+    # copy the daily EMAs to the daily collection
+    copy_daily_ema()
     
-    # # load the bout planning notification decision data
-    # transform_bout_planning_ema_decision()
+    # load the bout planning notification decision data
+    transform_bout_planning_ema_decision()
 
-    # # select the bout planning notifications
-    # select_bout_planning_ema()
+    # select the bout planning notifications
+    select_bout_planning_ema()
 
-    # # aggregate the bout planning notification statistics
-    # aggregate_bout_planning_ema()
+    # aggregate the bout planning notification statistics
+    aggregate_bout_planning_ema()
     
-    # # load the message and message receipt collections
-    # transform_message()
-
-    # # Fill out NaNs in the daily collection
-    # fill_daily_nans()
+    # load the message and message receipt collections
+    transform_message()

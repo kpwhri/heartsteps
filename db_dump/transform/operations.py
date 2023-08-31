@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
 from geopy import distance
-from config import SETTINGS_REFRESH_COLLECTIONS, MONGO_DB_URI_SOURCE, MONGO_DB_URI_DESTINATION
+from config import SETTINGS_REFRESH_COLLECTIONS, MONGO_DB_URI_SOURCE, MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME
 from utils import get_database, build_df_from_collection, extend_df_with_collection, get_participant_list, df_info, get_weather_observations_df_for_station
 from constants import *
 from tqdm import tqdm
@@ -26,7 +26,7 @@ def transform_participants():
     if COLLECTION_PARTICIPANTS in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # delete_many participants collection
         tdb.participants.delete_many({})
@@ -62,7 +62,7 @@ def transform_daily():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # delete_many participants collection
         tdb.daily.delete_many({})
@@ -203,7 +203,7 @@ def add_baseline_and_intervention_dates():
         logging.info("Starting add_baseline_and_intervention_dates()")
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # get the study id list
         participant_list = get_participant_list()
@@ -268,7 +268,7 @@ def drop_dates_after_intervention_finish_date():
     if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         daily_collection = tdb['daily']
 
@@ -280,7 +280,7 @@ def drop_dates_after_intervention_finish_date():
 def transform_minute_step():
     if COLLECTION_MINUTE_STEP in SETTINGS_REFRESH_COLLECTIONS:
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # delete_many participants collection
         logging.debug(msg="Delete all documents in the collection: {}".format(COLLECTION_MINUTE_STEP))
@@ -294,7 +294,7 @@ def transform_minute_step():
 
         def get_timezone_span(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             # find the timezone info for each user_id
             timezone_df = pd.DataFrame(db.days_day.find({'user_id': user_id}, {'_id': 0, 'date': 1, 'timezone': 1}, sort=[('date', pymongo.ASCENDING)]))
@@ -321,7 +321,7 @@ def transform_minute_step():
         @ray.remote
         def process_minute_step_1(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             timezone_span = get_timezone_span(user_id)
 
@@ -348,7 +348,7 @@ def transform_minute_step():
         @ray.remote
         def process_minute_step_2(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             participant_collection = tdb['participants']
 
@@ -455,7 +455,7 @@ def transform_minute_step():
 def transform_minute_heart_rate():
     if COLLECTION_MINUTE_HEART_RATE in SETTINGS_REFRESH_COLLECTIONS:
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # delete_many participants collection
         logging.debug(msg="Delete all documents in the collection: {}".format(COLLECTION_MINUTE_HEART_RATE))
@@ -469,7 +469,7 @@ def transform_minute_heart_rate():
 
         def get_timezone_span(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             # find the timezone info for each user_id
             timezone_df = pd.DataFrame(db.days_day.find({'user_id': user_id}, {'_id': 0, 'date': 1, 'timezone': 1}, sort=[('date', pymongo.ASCENDING)]))
@@ -496,7 +496,7 @@ def transform_minute_heart_rate():
         @ray.remote
         def process_minute_heart_rate_1(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             timezone_span = get_timezone_span(user_id)
 
@@ -523,7 +523,7 @@ def transform_minute_heart_rate():
         @ray.remote
         def process_minute_heart_rate_2(user_id):
             db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-            tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             participant_collection = tdb['participants']
 
@@ -633,7 +633,7 @@ def add_zip_codes():
         print("Zipcode file is found. Trying to import the data.")
 
         # create a client instance of the MongoClient class
-        db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        db = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # load up the csv file
         zipcode_df = pd.read_csv(zipcode_csv_path, dtype={'zip': str})
@@ -676,7 +676,7 @@ def add_weather():
 
 
             # list up all zipcodes
-            db = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+            db = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
             zipcode_latlon_csv_path = 'db_dump/data/zipcode/zipcode_latlon.csv'
             if os.path.exists(zipcode_latlon_csv_path):
@@ -801,71 +801,13 @@ def add_weather():
                 ) for i, row in daily_df.iterrows()
             ])
 
-
-def copy_daily_steps_and_heart_rate():
-    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
-        logging.info(msg="Starting copy_daily_steps_and_heart_rate()")
-        # 1. connect to the database
-        # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
-        collection_name = COLLECTION_DAILY
-        
-        # 2. fetch the current daily collection
-        logging.info(msg="Fetching the current daily collection")
-        daily_collection = tdb[collection_name]
-        daily_df = pd.DataFrame(daily_collection.find({}, {'_id': 0}))
-        
-        # 3. fetch the current steps collection
-        logging.info(msg="Fetching the current steps collection")
-        steps_collection = tdb['minute_step']
-        steps_df = pd.DataFrame(steps_collection.find({}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'daily_step_sum': 1, 'non_zero_minutes': 1}))
-
-        # 4. rename the columns
-        steps_df = steps_df.rename(columns={'daily_step_sum': 'steps', 'non_zero_minutes': 'non_zero_step_minutes'})
-
-        # 5. fetch the current heart rate collection
-        logging.info(msg="Fetching the current heart rate collection")
-        heart_rate_collection = tdb['minute_heart_rate']
-        heart_rate_df = pd.DataFrame(heart_rate_collection.find({}, {'_id': 0, 'user_id': 1, 'date_str': 1, 'daily_heart_rate_stdev': 1, 'non_zero_minutes': 1}))
-
-        # 6. rename the columns
-        heart_rate_df = heart_rate_df.rename(columns={'daily_heart_rate_stdev': 'heart_rate_stdev', 'non_zero_minutes': 'wearing_minutes'})
-        heart_rate_df['wearing_pct'] = heart_rate_df['wearing_minutes'] / (24 * 60)
-
-        # 7. merge the daily_df with steps_df and heart_rate_df
-        logging.info(msg="Merging the daily_df with steps_df")
-        logging.info(msg="daily_df.shape: {}".format(daily_df.shape))
-        logging.info(msg="steps_df.shape: {}".format(steps_df.shape))
-        daily_df = daily_df.merge(steps_df, on=['user_id', 'date_str'], how='left')
-        logging.info(msg="Merging the daily_df with heart_rate_df")
-        logging.info(msg="daily_df.shape: {}".format(daily_df.shape))
-        logging.info(msg="heart_rate_df.shape: {}".format(heart_rate_df.shape))
-        daily_df = daily_df.merge(heart_rate_df, on=['user_id', 'date_str'], how='left')
-        logging.info(msg="daily_df.shape: {}".format(daily_df.shape))
-
-        # 8. update the daily collection
-        logging.info(msg="Updating the daily collection")
-
-        daily_collection.bulk_write([
-            UpdateOne(
-                {'user_id': row['user_id'], 'date_str': row['date_str']},
-                {'$set': {
-                    'steps': row['steps'],
-                    'non_zero_step_minutes': row['non_zero_step_minutes'],
-                    'heart_rate_stdev': row['heart_rate_stdev'],
-                    'wearing_minutes': row['wearing_minutes'],
-                    'wearing_pct': row['wearing_pct']
-                }}
-            ) for index, row in daily_df.iterrows()
-        ])
-
 def transform_survey():
     if COLLECTION_SURVEY in SETTINGS_REFRESH_COLLECTIONS:
         logging.info(msg="Starting transform_survey()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # 2. get participant_list
         logging.info(msg="Fetching the participant list")
@@ -1135,7 +1077,7 @@ def select_daily_ema():
         logging.info(msg="Starting select_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
         collection_name = 'survey'
 
         # 2. fetch the survey collection
@@ -1190,7 +1132,7 @@ def widen_daily_ema():
         logging.info(msg="Starting widen_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
         collection_name = COLLECTION_SURVEY_DAILY_EMA
 
         # 2. fetch the survey collection
@@ -1264,7 +1206,7 @@ def copy_daily_ema():
         logging.info(msg="Starting copy_daily_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
         collection_name = COLLECTION_SURVEY_DAILY_EMA
         
         # 2. fetch the current daily_ema collection
@@ -1315,7 +1257,7 @@ def transform_bout_planning_ema_decision():
         logging.info(msg="Starting transform_bout_planning_ema_decision()")
         # 1. connect to the database
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # 2. load the BPN decision data
         logging.info(msg="Loading the BPN decision data")
@@ -1463,7 +1405,7 @@ def select_bout_planning_ema():
         logging.info(msg="Starting select_bout_planning_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
         collection_name = COLLECTION_SURVEY_BOUT_PLANNING_EMA
         
         # 2. Fetching the current COLLECTION_SURVEY_BOUT_PLANNING_EMA survey documents from COLLECTION_SURVEY
@@ -1596,51 +1538,12 @@ def select_bout_planning_ema():
         logging.info(msg="Finished select_bout_planning_ema()")
         
 
-def fill_daily_nans():
-    if COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS:
-        logging.info(msg="Starting fill_daily_nans()")
-        # 1. connect to the database
-        # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
-        collection_name = COLLECTION_DAILY
-        
-        # 2. fetch the current daily collection
-        logging.info(msg="Fetching the current daily collection")
-        daily_collection = tdb[collection_name]
-        daily_df = pd.DataFrame(daily_collection.find({}, {'_id': 0}))
-        
-        # 3. fill with zeros if there's NaN in the following columns: non_zero_step_minutes, wearing_minutes, wearing_pct, steps, level_int
-        logging.info(msg="Filling with zeros if there's NaN in the following columns: non_zero_step_minutes, wearing_minutes, wearing_pct, steps, level_int")
-        daily_df['non_zero_step_minutes'] = daily_df['non_zero_step_minutes'].fillna(0)
-        daily_df['wearing_minutes'] = daily_df['wearing_minutes'].fillna(0)
-        daily_df['wearing_pct'] = daily_df['wearing_pct'].fillna(0)
-        daily_df['steps'] = daily_df['steps'].fillna(0)
-        daily_df['level_int'] = daily_df['level_int'].fillna(0)
-        
-        # 4. fill with "RE" if there's NaN in the following columns: level_str
-        logging.info(msg="Filling with 'RE' if there's NaN in the following columns: level_str")
-        daily_df['level_str'] = daily_df['level_str'].fillna('RE')
-        
-        # 5. update the daily collection
-        logging.info(msg="Updating the daily collection")
-        daily_collection.bulk_write([
-            UpdateOne(
-                {'user_id': row['user_id'], 'date_str': row['date_str']},
-                {'$set': {
-                    'non_zero_step_minutes': row['non_zero_step_minutes'],
-                    'wearing_minutes': row['wearing_minutes'],
-                    'wearing_pct': row['wearing_pct'],
-                    'steps': row['steps']
-                }}
-            ) for index, row in daily_df.iterrows()
-        ])
-
 def aggregate_bout_planning_ema():
     if (COLLECTION_DAILY in SETTINGS_REFRESH_COLLECTIONS) and (COLLECTION_SURVEY_BOUT_PLANNING_EMA in SETTINGS_REFRESH_COLLECTIONS):
         logging.info(msg="Starting aggregate_bout_planning_ema()")
         # 1. connect to the database
         # create a client instance of the MongoClient class
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
         collection_name = COLLECTION_DAILY
 
         # 2. fetch the current daily collection
@@ -1715,7 +1618,7 @@ def transform_message():
         logging.info(msg="Starting transform_message()")
         # 1. connect to the database
         db = get_database(MONGO_DB_URI_SOURCE, 'justwalk')
-        tdb = get_database(MONGO_DB_URI_DESTINATION, 'justwalk_t')
+        tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
 
         # 2. load the message data
         logging.info(msg="Loading the message data")
