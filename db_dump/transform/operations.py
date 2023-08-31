@@ -106,6 +106,19 @@ def transform_daily():
 
         daily = daily[['user_id', 'date_str', 'level_str', 'level_int']].copy()
 
+
+        # for the participant 193, create the rows for the dates between 2022-06-19 and 2022-06-27
+        p_193_df = pd.DataFrame(
+            {
+                'user_id': 193,
+                'date_str': ['2022-06-19', '2022-06-20', '2022-06-21', '2022-06-22', '2022-06-23', '2022-06-24', '2022-06-25', '2022-06-26', '2022-06-27'],
+                'level_str': [np.nan] * 9,
+                'level_int': [np.nan] * 9                
+            }
+        )
+
+        daily = pd.concat([daily, p_193_df], ignore_index=True)
+
         # # add a column of day_index per user_id, day_index is the number of days since the study start date from participant collection
         # participant_df = pd.DataFrame(tdb[COLLECTION_PARTICIPANTS].find(
         #     {}, {'_id': 0, 'user_id': 1, 'study_start_date': 1}))
@@ -174,6 +187,9 @@ def transform_daily():
 
         # merge the step_goal with daily dataframe
         daily = pd.merge(daily, temp_goals_df, on=['user_id', 'date_str'], how='outer')
+
+        # for the participant 193, set the step goals to 10000 from 2022-06-19 to 2022-06-28
+        daily.loc[(daily['user_id'] == 193) & (daily['date_str'] >= '2022-06-19') & (daily['date_str'] <= '2022-06-28'), 'step_goal'] = 10000
 
         # # fill the NaNs with 2000
         # daily['step_goal'] = daily['step_goal'].fillna(2000)
