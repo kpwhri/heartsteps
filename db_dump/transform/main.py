@@ -56,3 +56,6 @@ if __name__ == '__main__':
     
     # load the message and message receipt collections
     transform_message()
+
+    # delete the data gathered after the withdrawal date
+    delete_data_after_withdrawal_date()

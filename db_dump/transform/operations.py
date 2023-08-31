@@ -1644,3 +1644,45 @@ def transform_message():
 
         # 2.2. load the message data
         collection_name = 'message_message'
+
+def delete_individual_data_after_date(user_id, date_str, day_index):
+    tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
+
+    date_dt = dateparse(date_str)
+    tdb.daily.delete_many(filter={
+        'user_id': user_id,
+        'day_index': {'$gte': 11}
+    })
+    tdb.survey.delete_many(filter={
+        'user_id': user_id,
+        'when_asked': {'$gte': date_dt}
+    })
+    tdb.survey_bout_planning_ema.delete_many(filter={
+        'user_id': user_id,
+        'when_decided_local_dt': {'$gte': date_dt}
+    })
+    tdb.survey_daily_ema.delete_many(filter={
+        'user_id': user_id,
+        'when_asked': {'$gte': date_dt}
+    })
+    tdb.minute_step.delete_many(filter={
+        'user_id': user_id,
+        'date_str': {'$gte': date_str}
+    })
+    tdb.minute_heart_rate.delete_many(filter={
+        'user_id': user_id,
+        'date_str': {'$gte': date_str}
+    })
+
+def delete_data_after_withdrawal_date():
+    # delete the data after the withdrawal date (day_index: 11 or more) of participant 189
+    tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
+
+    user_id = 189
+    withdrawal_date_str = "2022-07-07"
+    withdrawal_day_index = 11
+
+    tdb.participants.update_one(filter={'user_id': user_id}, update={'$set': {'withdrawal_date': withdrawal_date_str, 'withdrawal_day_index': withdrawal_day_index}})
+    
+    
+    delete_individual_data_after_date(user_id, withdrawal_date_str, withdrawal_day_index)
