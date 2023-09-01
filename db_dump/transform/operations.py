@@ -1728,3 +1728,13 @@ def remove_decisions_and_surveys_outside_intervention_period():
             'user_id': user_id,
             'when_asked_date_str': {'$gte': intervention_finish_date},
         })
+
+def remove_decisions_during_nighttime():
+    tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
+
+    tdb.survey_bout_planning_ema.delete_many(filter={
+        'time_str': {'$gte': '21:00'}
+    })
+    tdb.survey_bout_planning_ema.delete_many(filter={
+        'time_str': {'$lte': '04:00'}
+    })

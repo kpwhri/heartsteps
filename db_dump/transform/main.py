@@ -62,3 +62,6 @@ if __name__ == '__main__':
 
     # remove the decisions and surveys outside the intervention period
     remove_decisions_and_surveys_outside_intervention_period()
+
+    # remove the decisions made after 9:00 PM and before 4:00 AM
+    remove_decisions_during_nighttime()
