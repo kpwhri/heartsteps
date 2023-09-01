@@ -1686,3 +1686,45 @@ def delete_data_after_withdrawal_date():
     
     
     delete_individual_data_after_date(user_id, withdrawal_date_str, withdrawal_day_index)
+
+def remove_decisions_and_surveys_outside_intervention_period():
+    tdb = get_database(MONGO_DB_URI_DESTINATION, MONGO_DB_DESTINATION_DBNAME)
+
+    # 1. get the participant df
+    participant_df = pd.DataFrame(tdb.participants.find({}, {'_id': 0, 'user_id': 1, 'intervention_start_date': 1, 'intervention_finish_date': 1}, sort=[('user_id', 1)]))
+
+    # 2. delete the decisions and surveys outside the intervention period
+    for _, row in participant_df.iterrows():
+        user_id = row['user_id']
+        intervention_start_date = row['intervention_start_date']
+        intervention_finish_date = row['intervention_finish_date']
+
+        # 2.1. delete the decisions outside the intervention period
+        tdb.survey_bout_planning_ema.delete_many(filter={
+            'user_id': user_id,
+            'date_str': {'$lt': intervention_start_date},
+        })
+        tdb.survey_bout_planning_ema.delete_many(filter={
+            'user_id': user_id,
+            'date_str': {'$gte': intervention_finish_date},
+        })
+
+        # 2.2. delete the surveys outside the intervention period
+        tdb.survey.delete_many(filter={
+            'user_id': user_id,
+            'when_asked_date_str': {'$lt': intervention_start_date},
+        })
+        tdb.survey.delete_many(filter={
+            'user_id': user_id,
+            'when_asked_date_str': {'$gte': intervention_finish_date},
+        })
+
+        # 2.3. delete the daily ema outside the intervention period
+        tdb.survey_daily_ema.delete_many(filter={
+            'user_id': user_id,
+            'when_asked_date_str': {'$lt': intervention_start_date},
+        })
+        tdb.survey_daily_ema.delete_many(filter={
+            'user_id': user_id,
+            'when_asked_date_str': {'$gte': intervention_finish_date},
+        })

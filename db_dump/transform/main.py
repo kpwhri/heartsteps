@@ -59,3 +59,6 @@ if __name__ == '__main__':
 
     # delete the data gathered after the withdrawal date
     delete_data_after_withdrawal_date()
+
+    # remove the decisions and surveys outside the intervention period
+    remove_decisions_and_surveys_outside_intervention_period()
